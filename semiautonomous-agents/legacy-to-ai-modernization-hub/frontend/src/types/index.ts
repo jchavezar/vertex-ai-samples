@@ -143,7 +143,15 @@ export interface AgentQueryResponse {
     status: string;
     status_type: 'danger' | 'warning' | 'success' | 'info';
   }>;
-  query_focus?: 'COMPRAS' | 'ALMACEN' | 'TESORERIA' | 'MULTI_DEPT';
+  query_focus?:
+    | 'LOGISTICA'
+    | 'MANUFACTURA'
+    | 'RETAIL_FX'
+    | 'HR_RATINGS'
+    | 'COMPRAS'
+    | 'ALMACEN'
+    | 'TESORERIA'
+    | 'MULTI_DEPT';
 }
 
 export interface BoardMemoResponse {

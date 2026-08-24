@@ -3,7 +3,6 @@ import {
   Sparkles,
   Database,
   Building2,
-  Package,
   Factory,
   FileText,
   Cpu,
@@ -14,6 +13,7 @@ import {
   ArrowUpCircle,
   Truck,
   DollarSign,
+  ShieldCheck,
 } from 'lucide-react';
 import { AgentQueryResponse, HedgingAction } from '../types';
 import { ComprasRouteFlowView } from './polymorphic/ComprasRouteFlowView';
@@ -68,15 +68,47 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
     { label: 'Capital Regulatorio', value: '100%', subtext: 'Basel III & Dodd-Frank', status: 'VERIFICADO', status_type: 'success' as const },
   ];
 
-  // Theme styling per domain to make each response visually unique
+  // Theme styling per domain to make each response visually unique for the EBC Mexican audience
   const themeStyles = {
+    LOGISTICA: {
+      border: 'border-blue-500/60',
+      shadow: 'shadow-blue-950/60',
+      badgeBg: 'bg-blue-950 text-blue-300 border-blue-500',
+      glow: 'bg-blue-500/15',
+      icon: Truck,
+      title: 'Plano de Respuesta: Logística & Terminales Portuarias (CICE / Manzanillo)',
+    },
+    MANUFACTURA: {
+      border: 'border-amber-500/60',
+      shadow: 'shadow-amber-950/60',
+      badgeBg: 'bg-amber-950 text-amber-300 border-amber-500',
+      glow: 'bg-amber-500/15',
+      icon: Factory,
+      title: 'Plano de Respuesta: Manufactura, Farma & Alimentos (Silanes / Gloria)',
+    },
+    RETAIL_FX: {
+      border: 'border-purple-500/60',
+      shadow: 'shadow-purple-950/60',
+      badgeBg: 'bg-purple-950 text-purple-300 border-purple-500',
+      glow: 'bg-purple-500/15',
+      icon: DollarSign,
+      title: 'Plano de Respuesta: Retail & Cobertura Cambiaria USD/MXN (Boxito / Macropay)',
+    },
+    HR_RATINGS: {
+      border: 'border-emerald-500/60',
+      shadow: 'shadow-emerald-950/60',
+      badgeBg: 'bg-emerald-950 text-emerald-300 border-emerald-500',
+      glow: 'bg-emerald-500/15',
+      icon: ShieldCheck,
+      title: 'Plano de Respuesta: Solvencia & Calificación Crediticia (Metodología HR Ratings)',
+    },
     COMPRAS: {
       border: 'border-blue-500/60',
       shadow: 'shadow-blue-950/60',
       badgeBg: 'bg-blue-950 text-blue-300 border-blue-500',
       glow: 'bg-blue-500/15',
       icon: Truck,
-      title: 'Plano de Respuesta: Compras & Cadena de Suministro',
+      title: 'Plano de Respuesta: Logística & Terminales Portuarias (CICE / Manzanillo)',
     },
     ALMACEN: {
       border: 'border-amber-500/60',
@@ -84,7 +116,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
       badgeBg: 'bg-amber-950 text-amber-300 border-amber-500',
       glow: 'bg-amber-500/15',
       icon: Factory,
-      title: 'Plano de Respuesta: Almacén & Continuidad de Manufactura',
+      title: 'Plano de Respuesta: Manufactura, Farma & Alimentos (Silanes / Gloria)',
     },
     TESORERIA: {
       border: 'border-purple-500/60',
@@ -92,15 +124,15 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
       badgeBg: 'bg-purple-950 text-purple-300 border-purple-500',
       glow: 'bg-purple-500/15',
       icon: DollarSign,
-      title: 'Plano de Respuesta: Tesorería & Cobertura de Riesgo Cambiario',
+      title: 'Plano de Respuesta: Retail & Cobertura Cambiaria USD/MXN (Boxito / Macropay)',
     },
     MULTI_DEPT: {
       border: 'border-cyan-500/60',
       shadow: 'shadow-cyan-950/60',
-      badgeBg: 'bg-emerald-950 text-emerald-300 border-emerald-500',
+      badgeBg: 'bg-cyan-950 text-cyan-300 border-cyan-500',
       glow: 'bg-cyan-500/15',
       icon: Sparkles,
-      title: 'Plano de Respuesta: Consolidado Multi-Departamento',
+      title: 'Plano de Respuesta: Diagnóstico Consolidado Multi-Empresa EBC',
     },
   }[query_focus] || {
     border: 'border-cyan-500/60',
@@ -254,36 +286,36 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
 
       {/* 2. DYNAMIC POLYMORPHIC METAPHOR DISPATCHER (Radically different UI per Intent) */}
       
-      {/* 2A. COMPRAS: Supply Chain Route Map & Node Flow */}
-      {query_focus === 'COMPRAS' && (
+      {/* 2A. LOGÍSTICA & PUERTOS (Grupo CICE, Senda, Promologistics) */}
+      {(query_focus === 'LOGISTICA' || query_focus === 'COMPRAS') && (
         <ComprasRouteFlowView
           tableData={grounded_data_table}
         />
       )}
 
-      {/* 2B. ALMACEN: Factory Burn-Down Countdown & Gantt Timeline */}
-      {query_focus === 'ALMACEN' && (
+      {/* 2B. MANUFACTURA & FARMA (Lab. Silanes, Cremería Gloria, Médica Sur) */}
+      {(query_focus === 'MANUFACTURA' || query_focus === 'ALMACEN') && (
         <AlmacenCountdownTimelineView
           tableData={grounded_data_table}
         />
       )}
 
-      {/* 2C. TESORERIA: Financial P&L Waterfall & Swaption Collar Tunnel */}
-      {query_focus === 'TESORERIA' && (
+      {/* 2C. RETAIL, TIPO DE CAMBIO & MARGEN (Boxito, Macropay, Cklass) */}
+      {(query_focus === 'RETAIL_FX' || query_focus === 'TESORERIA') && (
         <TesoreriaWaterfallView
           tableData={grounded_data_table}
           onExecuteHedge={onExecuteHedge}
         />
       )}
 
-      {/* 2D. MULTI-DEPT: Consolidated 3 Pillars + Cross-Table */}
-      {query_focus === 'MULTI_DEPT' && (
+      {/* 2D. MULTI-EMPRESA EBC / HR RATINGS CONSOLIDADO */}
+      {(query_focus === 'MULTI_DEPT' || query_focus === 'HR_RATINGS') && (
         <div className="space-y-6">
           <div className="bg-slate-950/90 rounded-3xl p-6 sm:p-8 border-2 border-cyan-500/40 space-y-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <span className="text-sm sm:text-base font-mono font-black text-slate-200 uppercase tracking-wider flex items-center gap-2.5">
                 <Layers className="h-5 w-5 text-cyan-400" />
-                Diagnóstico Consolidado Multi-Departamento (Compras + Almacén + Tesorería)
+                Diagnóstico Consolidado Multi-Empresa EBC (CICE + Silanes + Gloria + Boxito + HR Ratings)
               </span>
               <span className="text-xs font-mono text-cyan-400">
                 Ground Truth Unificado en BigQuery
@@ -291,51 +323,51 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {/* Pillar 1 */}
+              {/* Pillar 1: Logística y Puertos (Grupo CICE & Manzanillo) */}
               <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-blue-500/60 space-y-3 shadow-lg">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-sm text-blue-300 flex items-center gap-2">
-                    <Package className="h-4 w-4 text-blue-400" />
-                    1. Compras & Proveedores
+                    <Truck className="h-4 w-4 text-blue-400" />
+                    1. Logística & Puertos (CICE)
                   </span>
                   <span className="text-xs font-mono bg-blue-950 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-700 font-bold">
-                    $320.6M
+                    1,420 TEUs
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  12 órdenes abiertas con <strong>TSMC</strong> ($107.5M), <strong>Foxconn</strong> ($68M) y <strong>ASE Tech</strong> ($85.5M). Retraso proyectado de +45 a 90 días.
+                  Contenedores demorados en <strong>Veracruz (CICE)</strong> y <strong>Manzanillo</strong> con sobrecosto de <strong>$4.85M USD</strong>. Desvío intermodal a Monterrey viable.
                 </p>
               </div>
 
-              {/* Pillar 2 */}
+              {/* Pillar 2: Manufactura y Farma (Silanes & Gloria) */}
               <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-amber-500/60 space-y-3 shadow-lg">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-sm text-amber-300 flex items-center gap-2">
                     <Factory className="h-4 w-4 text-amber-400" />
-                    2. Almacén & Manufactura
+                    2. Manufactura & Farma
                   </span>
                   <span className="text-xs font-mono bg-amber-950 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-700 font-bold">
-                    34 Días Buffer
+                    21 Días Buffer
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Stock de seguridad caerá a <strong>cero en 34 días</strong> (800 u/día). Paro proyectado de planta: <strong className="text-rose-400">15 de Julio de 2026</strong>.
+                  Stock de seguridad de <strong>Grasa Butírica (Gloria)</strong> y <strong>APIs (Silanes)</strong> cae a cero el <strong>16 de Julio de 2026</strong>. Reserva en Querétaro de +14d.
                 </p>
               </div>
 
-              {/* Pillar 3 */}
+              {/* Pillar 3: Retail y Tipo de Cambio (Boxito & Macropay) */}
               <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-purple-500/60 space-y-3 shadow-lg">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-sm text-purple-300 flex items-center gap-2">
                     <Building2 className="h-4 w-4 text-purple-400" />
-                    3. Tesorería & FX
+                    3. Retail & Margen FX
                   </span>
                   <span className="text-xs font-mono bg-rose-950 text-rose-300 px-2.5 py-0.5 rounded-full border border-rose-700 font-bold">
-                    $14.2M Descubiertos
+                    $85.0M USD Expuestos
                   </span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  2 contratos forwards USD/TWD con DBS y Standard Chartered sin cobertura en Q3. Pérdida estimada de <strong className="text-rose-400">$3.85M USD</strong>.
+                  Compras de importación de <strong>Boxito</strong> y <strong>Macropay</strong> expuestas a USD/MXN a $20.80. Cobertura forward garantiza ahorro de <strong>+$3.60M USD</strong>.
                 </p>
               </div>
             </div>
