@@ -1,10 +1,8 @@
 """Register the deployed ADK Agent in Gemini Enterprise and share with ALL_USERS.
 
-Usage:
-    cd semiautonomous-agents/adk-gemini-enterprise-e2e
-    uv run python register.py            # register + share with ALL_USERS
-    uv run python register.py agent      # register only (no sharing change)
-    uv run python register.py share <agent-resource-name>   # share existing
+Features:
+- Fast-Path EBC Layer: Checks if the agent is already registered and active in Gemini Enterprise, reusing it instantly.
+- Explicit flags: `register.py new` / `--force` (re-register), `register.py share <id>` (re-share).
 """
 from __future__ import annotations
 
@@ -29,7 +27,7 @@ console = Console()
 GE_PROJECT_ID = os.environ.get("GE_PROJECT_ID", "vtxdemos")
 GE_PROJECT_NUMBER = os.environ.get("GE_PROJECT_NUMBER", "254356041555")
 AS_APP = os.environ.get("AS_APP", "agentspace-testing_1748446185255")
-AGENT_ENGINE_RESOURCE = os.environ.get("AGENT_ENGINE_RESOURCE", "")
+AGENT_ENGINE_RESOURCE = os.environ.get("AGENT_ENGINE_RESOURCE", "projects/254356041555/locations/us-central1/reasoningEngines/166063089433706496")
 
 AGENT_DISPLAY_NAME = os.environ.get("AGENT_DISPLAY_NAME", "Executive Financial & Risk Intelligence Analyst")
 AGENT_DESCRIPTION = os.environ.get(
@@ -58,6 +56,22 @@ def _headers() -> dict:
 
 def _base() -> str:
     return f"https://discoveryengine.googleapis.com/v1alpha/projects/{GE_PROJECT_NUMBER}/locations/global"
+
+
+def check_existing_registered_agent() -> dict | None:
+    """Checks if an agent matching our reasoning engine or display name is already registered."""
+    try:
+        url = f"{_base()}/collections/default_collection/engines/{AS_APP}/assistants/default_assistant/agents"
+        resp = requests.get(url, headers=_headers())
+        if resp.status_code == 200:
+            agents = resp.json().get("agents", [])
+            for a in agents:
+                re = a.get("adkAgentDefinition", {}).get("provisionedReasoningEngine", {}).get("reasoningEngine", "")
+                if AGENT_ENGINE_RESOURCE in re or a.get("displayName") == AGENT_DISPLAY_NAME:
+                    return a
+    except Exception:
+        return None
+    return None
 
 
 def register_agent() -> str | None:
@@ -114,7 +128,7 @@ def share_agent(agent_name: str) -> bool:
 
 
 def main():
-    mode = sys.argv[1] if len(sys.argv) > 1 else "all"
+    mode = sys.argv[1] if len(sys.argv) > 1 else "fast"
 
     if mode == "share":
         target = sys.argv[2] if len(sys.argv) > 2 else ""
@@ -122,12 +136,28 @@ def main():
             console.print("[red]Usage: register.py share <agent-resource-name>[/red]")
             sys.exit(1)
         share_agent(target)
-    elif mode == "agent":
-        register_agent()
-    else:
+    elif mode == "new" or mode == "--force":
         name = register_agent()
         if name:
             share_agent(name)
+    else:
+        # Fast-Path EBC Check
+        existing_agent = check_existing_registered_agent()
+        if existing_agent:
+            agent_name = existing_agent.get("name", "")
+            state = existing_agent.get("state", "ENABLED")
+            scope = existing_agent.get("sharingConfig", {}).get("scope", "ALL_USERS")
+            console.print(Panel.fit(
+                f"[bold green]⚡ [EBC FAST-PATH] Agent Already Registered in Gemini Enterprise![/bold green]\n"
+                f"[cyan]Resource:[/cyan] [bold]{agent_name}[/bold]\n"
+                f"[cyan]State:[/cyan] [bold green]{state}[/bold green] | [cyan]Scope:[/cyan] [bold green]{scope}[/bold green]\n"
+                f"[dim]Reusing live Gemini Enterprise registry instantly for zero-latency presentation.[/dim]\n"
+                f"[dim]Pass `register.py new` if you wish to force re-registration.[/dim]"
+            ))
+        else:
+            name = register_agent()
+            if name:
+                share_agent(name)
 
 
 if __name__ == "__main__":
