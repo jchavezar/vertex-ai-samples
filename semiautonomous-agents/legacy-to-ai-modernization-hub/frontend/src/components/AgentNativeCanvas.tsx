@@ -232,8 +232,8 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
         latencyMs={impact?.calculation_latency_ms || 0}
       />
 
-      {/* Dynamic SVG Risk Charts */}
-      {impact && <DynamicRiskCharts impact={impact} />}
+      {/* Dynamic SVG Risk Charts (Morphs dynamically based on query) */}
+      {impact && <DynamicRiskCharts impact={impact} queryContext={query} />}
 
       {/* Suggested Hedging Actions Matrix */}
       {impact && (

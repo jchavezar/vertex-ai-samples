@@ -4,14 +4,20 @@ import {
   Activity,
   Globe2,
   ShieldAlert,
+  Zap,
 } from 'lucide-react';
 import { ShockImpactData } from '../types';
 
 interface DynamicRiskChartsProps {
   impact: ShockImpactData;
+  queryContext?: string;
 }
 
-export const DynamicRiskCharts: React.FC<DynamicRiskChartsProps> = ({ impact }) => {
+export const DynamicRiskCharts: React.FC<DynamicRiskChartsProps> = ({ impact, queryContext = '' }) => {
+  const isCollarQuery = queryContext.toLowerCase().includes('collar') || queryContext.toLowerCase().includes('hedge');
+  const isSupplierQuery = queryContext.toLowerCase().includes('supplier') || queryContext.toLowerCase().includes('default');
+  const isFedRateQuery = queryContext.toLowerCase().includes('rate') || queryContext.toLowerCase().includes('fed') || queryContext.toLowerCase().includes('bps');
+
   // SVG distribution curve calculation
   const meanX = 180;
   const stdDev = 40 + (impact.risk_score_index / 100) * 25;
@@ -30,7 +36,7 @@ export const DynamicRiskCharts: React.FC<DynamicRiskChartsProps> = ({ impact }) 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Chart 1: Value at Risk (99% VaR) Tail Distribution Curve */}
-      <div className="cyber-glass rounded-2xl p-5 border border-cyan-500/30 flex flex-col justify-between">
+      <div className="cyber-glass rounded-2xl p-5 border border-cyan-500/30 flex flex-col justify-between transition-all">
         <div>
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
@@ -104,105 +110,149 @@ export const DynamicRiskCharts: React.FC<DynamicRiskChartsProps> = ({ impact }) 
               </text>
             </svg>
 
-            <div className="flex justify-between items-center text-[10px] font-mono text-slate-500 mt-2 px-2">
-              <span className="flex items-center gap-1 text-sky-400">
+            {/* Legend */}
+            <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 mt-2 px-2">
+              <div className="flex items-center gap-2">
                 <span className="h-2 w-2 rounded-full bg-sky-400" />
-                Baseline ($84.5M)
-              </span>
-              <span className="flex items-center gap-1 text-rose-400">
-                <span className="h-2 w-2 rounded-full bg-rose-400" />
-                Shocked (${impact.value_at_risk_99_m}M)
-              </span>
+                <span>Baseline ($84.5M)</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
+                <span className="text-rose-400 font-bold">Shocked (${impact.value_at_risk_99_m}M)</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Quick Footer Stats */}
-        <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-800 text-xs font-mono">
-          <div>
-            <span className="text-slate-400 block text-[10px]">EBITDA Exposure:</span>
-            <span className="font-bold text-rose-400">-${impact.ebitda_impact_m}M</span>
+        {/* Dynamic Metric Bar */}
+        <div className="grid grid-cols-3 gap-2 mt-4 pt-3 border-t border-slate-800 text-center font-mono">
+          <div className="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+            <span className="text-[10px] text-slate-400 block">EBITDA Exposure</span>
+            <span className="text-xs font-bold text-rose-400">-${impact.ebitda_impact_m}M</span>
           </div>
-          <div>
-            <span className="text-slate-400 block text-[10px]">Liquidity Buffer:</span>
+          <div className="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+            <span className="text-[10px] text-slate-400 block">Liquidity Buffer</span>
             <span
-              className={`font-bold ${
+              className={`text-xs font-bold ${
                 impact.liquidity_buffer_status === 'STABLE'
                   ? 'text-emerald-400'
                   : impact.liquidity_buffer_status === 'VULNERABLE'
                   ? 'text-amber-400'
-                  : 'text-rose-400 animate-pulse'
+                  : 'text-rose-400'
               }`}
             >
               {impact.liquidity_buffer_status}
             </span>
           </div>
-          <div>
-            <span className="text-slate-400 block text-[10px]">Risk Index:</span>
-            <span className="font-bold text-cyan-400">{impact.risk_score_index} / 100</span>
+          <div className="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+            <span className="text-[10px] text-slate-400 block">Risk Index</span>
+            <span className="text-xs font-bold text-amber-400">{impact.risk_score_index} / 100</span>
           </div>
         </div>
       </div>
 
-      {/* Chart 2: Quarterly Cash Flow Sensitivity */}
-      <div className="cyber-glass rounded-2xl p-5 border border-cyan-500/30 flex flex-col justify-between">
-        <div>
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-emerald-400" />
-              <h4 className="font-bold text-sm text-slate-100 uppercase tracking-wide">
-                2026 Quarterly Cash Flow Sensitivity
-              </h4>
+      {/* Chart 2: Dynamic Contextual Chart (Morphs based on Conversation) */}
+      <div className="cyber-glass rounded-2xl p-5 border border-cyan-500/30 flex flex-col justify-between transition-all">
+        {isCollarQuery ? (
+          /* Dynamic Collar Hedge Payoff Diagram (Synthesized when discussing hedges) */
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Zap className="h-4 w-4 text-cyan-400" />
+                <h4 className="font-bold text-sm text-slate-100 uppercase tracking-wide">
+                  Dynamic Collar Hedge Payoff Profile
+                </h4>
+              </div>
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-blue-950 text-cyan-300 border border-blue-800">
+                Zero-Cost Collar Structure
+              </span>
             </div>
-            <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800">
-              4-Quarter Trajectory
-            </span>
+            <p className="text-xs text-slate-400 mb-4">
+              Real-time derivative collar: Caps rate downside while protecting against 74% of tail liquidity risk.
+            </p>
+
+            <div className="bg-slate-950/80 rounded-xl p-3 border border-slate-800 relative">
+              <svg viewBox="0 0 360 140" className="w-full h-40">
+                {/* Axes */}
+                <line x1="20" y1="70" x2="340" y2="70" stroke="#475569" strokeWidth="1" strokeDasharray="2 2" />
+                <line x1="180" y1="10" x2="180" y2="130" stroke="#475569" strokeWidth="1" />
+
+                {/* Collar Payoff Line */}
+                <polyline
+                  fill="none"
+                  stroke="#38bdf8"
+                  strokeWidth="3"
+                  points="20,110 100,110 260,30 340,30"
+                />
+
+                {/* Shaded Protection Zone */}
+                <rect x="20" y="10" width="80" height="120" fill="#0284c7" fillOpacity="0.15" />
+                <text x="30" y="30" fill="#38bdf8" fontSize="10" fontFamily="monospace" fontWeight="bold">
+                  Protected Zone
+                </text>
+
+                {/* Shaded Cap Zone */}
+                <rect x="260" y="10" width="80" height="120" fill="#a855f7" fillOpacity="0.15" />
+                <text x="270" y="125" fill="#c084fc" fontSize="10" fontFamily="monospace" fontWeight="bold">
+                  Capped Zone
+                </text>
+              </svg>
+
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-300 mt-2 px-1">
+                <span>Floor: <strong>-50 bps</strong></span>
+                <span className="text-cyan-400 font-bold">Protected Delta: $63.0M</span>
+                <span>Cap: <strong>+150 bps</strong></span>
+              </div>
+            </div>
           </div>
+        ) : (
+          /* Default: Quarterly Cash Flow Sensitivity */
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="h-4 w-4 text-cyan-400" />
+                <h4 className="font-bold text-sm text-slate-100 uppercase tracking-wide">
+                  2026 Quarterly Cash Flow Sensitivity
+                </h4>
+              </div>
+              <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">
+                4-Quarter Trajectory
+              </span>
+            </div>
 
-          <p className="text-xs text-slate-400 mb-4">
-            Comparison of baseline quarterly free cash flow versus shocked trajectory with margin compression.
-          </p>
+            <p className="text-xs text-slate-400 mb-4">
+              Comparison of baseline quarterly free cash flow versus shocked trajectory with margin compression.
+            </p>
 
-          {/* Bar Comparison Canvas */}
-          <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800 space-y-4">
-            {impact.cash_flow_timeline.map((q) => {
-              const maxVal = 180;
-              const basePct = (q.baseline_m / maxVal) * 100;
-              const shockPct = Math.max(5, (q.shocked_m / maxVal) * 100);
+            {/* Bars */}
+            <div className="space-y-3 bg-slate-950/80 rounded-xl p-4 border border-slate-800">
+              {impact.cash_flow_timeline.map((q) => {
+                const shockedPct = Math.max(10, Math.min(100, (q.shocked_m / q.baseline_m) * 100));
 
-              return (
-                <div key={q.quarter} className="space-y-1">
-                  <div className="flex justify-between items-center text-xs font-mono">
-                    <span className="text-slate-300 font-bold">{q.quarter}</span>
-                    <div className="flex items-center gap-3 text-[11px]">
-                      <span className="text-slate-400">${q.baseline_m}M base</span>
-                      <span className="text-rose-400 font-bold">
-                        ${q.shocked_m}M ({q.delta_pct}%)
-                      </span>
+                return (
+                  <div key={q.quarter} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs font-mono">
+                      <span className="font-bold text-slate-200">{q.quarter}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="text-slate-400">${q.baseline_m}M base</span>
+                        <span className="font-bold text-rose-400">
+                          ${q.shocked_m.toFixed(1)}M ({q.delta_pct > 0 ? `+${q.delta_pct}%` : `${q.delta_pct}%`})
+                        </span>
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="space-y-1">
-                    {/* Baseline Bar */}
-                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+                    <div className="h-3 w-full bg-slate-900 rounded-full overflow-hidden flex relative">
                       <div
-                        className="h-full bg-sky-500/60 rounded-full"
-                        style={{ width: `${basePct}%` }}
+                        className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-300"
+                        style={{ width: `${shockedPct}%` }}
                       />
                     </div>
-                    {/* Shocked Bar */}
-                    <div className="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-rose-500 to-amber-500 rounded-full transition-all duration-300"
-                        style={{ width: `${shockPct}%` }}
-                      />
-                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Cash Flow Summary Footer */}
         <div className="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs font-mono">
@@ -231,7 +281,11 @@ export const DynamicRiskCharts: React.FC<DynamicRiskChartsProps> = ({ impact }) 
           {impact.regional_exposure.map((reg) => (
             <div
               key={reg.region}
-              className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 flex flex-col justify-between"
+              className={`bg-slate-950/80 p-3 rounded-xl border transition-all flex flex-col justify-between ${
+                isFedRateQuery && reg.region === 'North America'
+                  ? 'border-cyan-500/80 ring-1 ring-cyan-500/50 shadow-lg shadow-cyan-500/20'
+                  : 'border-slate-800'
+              }`}
             >
               <div>
                 <div className="flex justify-between items-start mb-1">
@@ -279,7 +333,11 @@ export const DynamicRiskCharts: React.FC<DynamicRiskChartsProps> = ({ impact }) 
           {impact.supplier_fragility_matrix.map((sup) => (
             <div
               key={sup.name}
-              className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+              className={`bg-slate-950/80 p-3 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 transition-all ${
+                isSupplierQuery && sup.location.includes('APAC')
+                  ? 'border-amber-500/80 ring-1 ring-amber-500/50 shadow-lg shadow-amber-500/20'
+                  : 'border-slate-800'
+              }`}
             >
               <div>
                 <div className="flex items-center gap-2">
