@@ -103,9 +103,10 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
   };
 
   const samplePrompts = [
-    'Si nuestro proveedor en Taiwán tiene un bloqueo de 90 días, ¿cuál es el impacto en EBITDA y contratos FX?',
-    'Simulate +75bps Fed rate hike and Red Sea maritime bottleneck',
-    'Synthesize dynamic collar hedge to protect APAC cash flows',
+    'Si nuestro proveedor en Taiwán tiene un bloqueo de 90 días, ¿cuáles órdenes están comprometidas, cuántos días de inventario nos quedan antes de parar la línea y qué contratos FX están expuestos?',
+    '¿Cuáles son las órdenes de compra abiertas y montos comprometidos con Taiwán?',
+    '¿Cuántos días de inventario nos quedan antes del paro de planta en ensamble?',
+    '¿Qué contratos forwards en USD/TWD están descubiertos y expuestos a pérdida cambiaria?',
   ];
 
   return (
@@ -144,7 +145,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
         <button
           onClick={handleGenerateMemo}
           disabled={memoLoading}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/25 transition-all transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+          className="px-5 py-3 rounded-xl bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 hover:from-cyan-300 hover:to-emerald-300 text-slate-950 font-black text-xs shadow-xl shadow-cyan-500/25 flex items-center gap-2 transition-all cursor-pointer"
         >
           {memoLoading ? (
             <>
@@ -160,7 +161,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
         </button>
       </div>
 
-      {/* Natural Language Query Bar with Chips */}
+      {/* Natural Language Query Bar with Auto-Expanding Multi-line Input & Chips */}
       <div className="cyber-glass rounded-2xl p-5 border border-cyan-500/30 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -170,24 +171,30 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
             </span>
           </div>
           <span className="text-[10px] font-mono text-cyan-400">
-            Powered by Google GenAI (Gemini 2.5 Flash / Gemini 3)
+            Powered by Google GenAI (Gemini 3.7 Flash) &bull; BigQuery Grounded
           </span>
         </div>
 
-        <form onSubmit={handleQuerySubmit} className="flex gap-2">
+        <form onSubmit={handleQuerySubmit} className="flex flex-col sm:flex-row items-stretch sm:items-start gap-2">
           <div className="relative flex-1">
-            <input
-              type="text"
+            <textarea
+              rows={query.length > 100 ? 3 : query.length > 50 ? 2 : 1}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g., 'What happens to EBITDA and VaR if the Fed hikes 100bps and Taiwan freight delays expand?'"
-              className="w-full bg-slate-950/80 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs px-4 py-3 rounded-xl focus:outline-none focus:border-cyan-500 shadow-inner font-medium"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleQuerySubmit();
+                }
+              }}
+              placeholder="Escribe una pregunta para consultar BigQuery en vivo (ej. 'Si nuestro proveedor en Taiwán tiene un bloqueo de 90 días, ¿cuáles órdenes están comprometidas, cuántos días de inventario nos quedan y qué contratos FX están expuestos?')"
+              className="w-full bg-slate-950/80 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs p-3.5 rounded-xl focus:outline-none focus:border-cyan-500 shadow-inner font-medium resize-y min-h-[46px] leading-relaxed"
             />
           </div>
           <button
             type="submit"
             disabled={queryLoading}
-            className="px-5 py-3 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 flex items-center gap-2 transition-all disabled:opacity-50"
+            className="px-6 py-3.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2 transition-all disabled:opacity-50 cursor-pointer shrink-0 h-[46px]"
           >
             {queryLoading ? (
               <RefreshCw className="h-4 w-4 animate-spin" />
@@ -199,21 +206,30 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
         </form>
 
         {/* Quick Chips */}
-        <div className="flex flex-wrap items-center gap-2 pt-1">
-          <span className="text-[11px] font-mono text-slate-400">Quick Scenarios:</span>
-          {samplePrompts.map((p, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => {
-                setQuery(p);
-                handleQuerySubmit(undefined, p);
-              }}
-              className="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-[11px] text-cyan-300/90 border border-slate-800 hover:border-cyan-500/50 transition-all text-left"
-            >
-              &ldquo;{p}&rdquo;
-            </button>
-          ))}
+        <div className="space-y-1.5 pt-1">
+          <span className="text-[11px] font-mono text-slate-400 block">Botones de Acceso Rápido (Quick Scenarios):</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {samplePrompts.map((p, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setQuery(p);
+                  handleQuerySubmit(undefined, p);
+                }}
+                className={`p-2.5 rounded-lg text-left text-xs transition-all border flex items-start gap-2 cursor-pointer ${
+                  idx === 0
+                    ? 'bg-cyan-950/60 hover:bg-cyan-900/70 text-cyan-200 border-cyan-500/40 shadow-sm'
+                    : 'bg-slate-900/80 hover:bg-slate-800 text-slate-300 border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                <span className="h-4 w-4 rounded bg-cyan-500/20 text-cyan-400 font-mono text-[10px] font-bold flex items-center justify-center shrink-0 mt-0.5">
+                  {idx + 1}
+                </span>
+                <span className="leading-snug">{p}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
