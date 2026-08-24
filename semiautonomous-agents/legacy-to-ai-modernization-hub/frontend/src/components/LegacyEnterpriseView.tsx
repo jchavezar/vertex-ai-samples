@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { LegacyQueryResponse } from '../types';
 import { fetchLegacyData, exportLegacyCsv } from '../services/api';
+import { MultiDepartmentQueryChain } from './MultiDepartmentQueryChain';
 
 interface LegacyEnterpriseViewProps {
   onUpdateLatency: (latencyMs: number) => void;
@@ -98,6 +99,9 @@ export const LegacyEnterpriseView: React.FC<LegacyEnterpriseViewProps> = ({
           </button>
         </div>
       </div>
+
+      {/* Interactive 3-Day Manual SQL & CSV Consolidation Chain Simulator */}
+      <MultiDepartmentQueryChain onTriggerRefactor={onTriggerRefactor} />
 
       {/* Legacy Filter Bar */}
       <div className="legacy-panel p-4 mb-4 border border-[#99a8b5]">

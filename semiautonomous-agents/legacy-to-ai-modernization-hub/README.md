@@ -53,19 +53,22 @@ flowchart LR
 
 ---
 
-### 🎬 Act I: The Enterprise Pain (45 seconds)
+### 🎬 Act I: The Enterprise Pain — The 3-Day SQL & Excel Chain (60 seconds)
 
 <div align="center">
-  <img src="assets/01_legacy_2015_erp_view.png" alt="Act I: Legacy 2015 ERP View" width="95%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
+  <img src="assets/01_legacy_multi_department_query_chain.png" alt="Act I: Multi-Department SQL & CSV Consolidation Chain" width="95%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
 </div>
 
 #### What to Say:
-> *"Every enterprise in Mexico and globally operates hundreds of core systems that look like this 2015 ERP: 20-column relational tables, rigid filter dropdowns, and slow queries. When the Board asks 'What is our exposure if supplier costs rise 15%?', someone has to click 'Export CSV', wait 14 minutes for an overnight batch job, spend 3 days in Excel, and email a slide deck."*
+> *"When a disruption occurs in Taiwan or interest rates shift, no single SQL query can answer the Board's questions. Data is siloed across Procurement (Oracle), Warehouse (SAP HANA), and Treasury (SQL Server). An analyst team must manually execute 3 separate SQL queries, wait for CSV exports, spend 2 to 3 days merging them in Excel with VLOOKUPs, reconcile mismatched vendor SKUs over email, and build a static PowerPoint."*
 
 #### What to Click:
-1. Click **"Run Query"** $\rightarrow$ Highlight the **1,402ms** simulated Oracle RAC query latency.
-2. Click **"Export CSV"** $\rightarrow$ Show the **"QUEUED_BATCH_PROCESSING: Estimated wait 14 mins"** modal.
-3. Click the top-right button: **"Trigger Autonomous Refactor"**.
+1. Click **"Simulate Full 3-Day Cycle"** (or click Steps 1, 2, 3 in sequence):
+   - **Step 1 (Procurement)**: Queries Oracle RAC $\rightarrow$ Generates `PO_Commitments_APAC.csv` ($320M open POs).
+   - **Step 2 (Warehouse)**: Queries SAP HANA $\rightarrow$ Generates `Warehouse_Runout_Risk.csv` (42 days safety stock).
+   - **Step 3 (Treasury)**: Queries SQL Server $\rightarrow$ Generates `Treasury_FX_Exposure.csv` ($14.2M unhedged).
+   - **Step 4 (Human Excel Merge)**: Point to the **"⏳ 2.5 Business Days Required"** alert and human friction points.
+2. Click the glowing banner button: **"Trigger Agentic Chain (3.5s) →"** to launch the Antigravity Autonomous Modernization!
 
 ---
 
