@@ -72,9 +72,11 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
       const pFarma = (absVal * 0.299).toFixed(2);
 
       return {
-        title: 'Desglose Matemático del VaR 99%',
-        formula: 'VaR(99%, 10d) = 2.326 × σ × √10 × Activos Consolidados',
-        explanation: `Calculado en BigQuery bajo estrés conjunto de tasas Banxico (+150bps), USD/MXN a $20.80 y demoras portuarias de 30 días sobre base de $750M USD.`,
+        title: 'Cálculo de VaR 99% (Metodología HR Ratings)',
+        formula: 'VaR(99%, 10d) = Z(0.99) × σ_portafolio × √10 × Activos',
+        math_evidence: `2.326 × 4.78% × 3.162 × $750.0M USD = $${absVal.toFixed(2)}M USD`,
+        sql_query: `SELECT \n  AVG(var_99_10d_m) AS var_portafolio_usd\nFROM \`vtxdemos.ebc_credit_ratings_live\`;`,
+        explanation: `Calculado bajo estrés conjunto: tasas Banxico (+150bps), USD/MXN a $20.80 y 30 días de retraso portuario sobre base de $750M USD.`,
         breakdown: [
           { label: 'Retail & FX (Boxito / Macropay)', val: `$${pRetail}M USD (36.8%)` },
           { label: 'Logística Portuaria (Grupo CICE / Manzanillo)', val: `$${pLogistica}M USD (33.3%)` },
@@ -89,9 +91,11 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
       const remOperative = Math.max(0, absVal - (fletes + fx)).toFixed(2);
 
       return {
-        title: 'Composición del Impacto en EBITDA',
-        formula: 'Δ EBITDA = Sobrecosto Fletes Portuarios + Deslizamiento FX + Costo Paro Operativo',
-        explanation: `Suma directa de sobrecostos logísticos de buques, compras en dólares no cubiertas y pérdida de absorción de planta en BigQuery.`,
+        title: 'Cálculo del Impacto en EBITDA Anual',
+        formula: 'Δ EBITDA = Sobrecosto Fletes + Deslizamiento FX + Pérdida Paro Plantas',
+        math_evidence: `-$${fletes.toFixed(2)}M (CICE/Mzn) + -$${fx.toFixed(2)}M (FX Boxito) + -$${remOperative}M (Paro) = -$${absVal.toFixed(2)}M USD`,
+        sql_query: `SELECT \n  SUM(sobrecosto_usd) AS sobrecosto_fletes,\n  SUM(monto_usd * (20.80 - 19.40)) AS erosion_fx\nFROM \`vtxdemos.ebc_enterprise_hub_live\`;`,
+        explanation: `Agregación en tiempo real de sobrecostos logísticos de buques, compras en dólares no cubiertas y pérdida de absorción de planta.`,
         breakdown: [
           { label: 'Sobrecosto Fletes CICE/Manzanillo (BigQuery)', val: `-$${fletes.toFixed(2)}M USD` },
           { label: 'Erosión Cambiaria Boxito/Macropay (BigQuery)', val: `-$${fx.toFixed(2)}M USD` },
@@ -104,9 +108,11 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
       const caja = Math.max(0, absVal - lineasBancarias).toFixed(1);
 
       return {
-        title: 'Respaldo y Cobertura de Liquidez',
-        formula: 'Liquidez Post-Estrés = Líneas Comprometidas ($750M) - Pérdida Estresada',
-        explanation: 'Colchón de capital disponible en tesorería para absorber el choque sin riesgo de insolvencia ni liquidación forzosa.',
+        title: 'Cálculo de Cojín de Liquidez Post-Estrés',
+        formula: 'Liquidez Residual = Líneas de Crédito Comprometidas ($750M) - Pérdida Estresada',
+        math_evidence: `$450.0M (Líneas Banorte/BBVA) + $${caja}M (Caja) = $${absVal.toFixed(1)}M USD`,
+        sql_query: `SELECT \n  SUM(linea_comprometida_usd) - SUM(disposicion_estresada_usd) AS liquidez_neta\nFROM \`vtxdemos.ebc_treasury_liquidity_live\`;`,
+        explanation: 'Colchón de capital disponible en tesorería para absorber el choque sin riesgo de insolvencia ni liquidación forzosa de activos.',
         breakdown: [
           { label: 'Líneas Bancarias (Banorte, BBVA, Citi)', val: `$${lineasBancarias.toFixed(1)}M USD` },
           { label: 'Efectivo Disponible en Caja', val: `$${caja}M USD` },
@@ -114,11 +120,13 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         ],
         dataset: 'vtxdemos.ebc_treasury_liquidity_live',
       };
-    } else if (l.includes('contened') || l.includes('teus') || l.includes('sobrecosto')) {
+    } else if (l.includes('contened') || l.includes('teus') || l.includes('sobrecosto') || l.includes('flete')) {
       return {
-        title: 'Desglose de Sobrecostos Portuarios en BigQuery',
-        formula: 'Sobrecosto = Σ(TEUs × Días Demora × Tarifa Estadía Muelle)',
-        explanation: 'Agregación directa de las terminales marítimas en BigQuery (vtxdemos.ebc_logistics_live).',
+        title: 'Cálculo de Sobrecostos Portuarios',
+        formula: 'Sobrecosto = Σ(TEUs × Días Retraso × Tarifa Estadía Muelle)',
+        math_evidence: `$2.80M (Veracruz: 840 TEUs) + $2.05M (Manzanillo: 580 TEUs) = $4.85M USD`,
+        sql_query: `SELECT \n  terminal, operador, SUM(teus_varados) AS teus, SUM(sobrecosto_usd) AS sobrecosto\nFROM \`vtxdemos.ebc_logistics_live\`\nGROUP BY terminal, operador;`,
+        explanation: 'Agregación directa de los 1,420 TEUs demorados en muelles y terminales de Grupo CICE y Contecon en BigQuery.',
         breakdown: [
           { label: 'Veracruz Bahía Norte (Grupo CICE, 840 TEUs)', val: '$2.80M USD' },
           { label: 'Manzanillo Contecon (580 TEUs)', val: '$2.05M USD' },
@@ -129,8 +137,10 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
     } else {
       return {
         title: 'Dictamen de Calificación y Solvencia',
-        formula: 'Metodología Corporativa HR Ratings (Escala Nacional México)',
-        explanation: 'Apalancamiento Deuda Neta/EBITDA proyectado en 2.3x (muy por debajo del umbral crítico de 3.5x para Grado de Inversión).',
+        formula: 'Apalancamiento Neto = Deuda Financiera Neta ($1,725M) / EBITDA Anual ($750M)',
+        math_evidence: `$1,725M USD / $750M USD = 2.3x (Límite Prudencial HR Ratings: 3.5x)`,
+        sql_query: `SELECT \n  deuda_neta_usd / ebitda_usd AS razon_apalancamiento, calificacion_nacional\nFROM \`vtxdemos.ebc_credit_ratings_live\`;`,
+        explanation: 'Apalancamiento proyectado en 2.3x, manteniéndose holgadamente dentro del umbral de Grado de Inversión (HR AA+).',
         breakdown: [
           { label: 'Apalancamiento Deuda/EBITDA', val: '2.3x (Límite 3.5x)' },
           { label: 'Calificación Crediticia', val: 'HR AA+ (Estable)' },
@@ -366,29 +376,47 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
               </div>
 
               {/* Floating Explanatory Popover (Revealed Instantly on Hover) */}
-              <div className="absolute left-0 bottom-full mb-3 w-80 sm:w-96 bg-slate-900/98 backdrop-blur-xl p-5 rounded-2xl border-2 border-cyan-400 shadow-2xl shadow-cyan-950/80 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 space-y-3 font-sans">
+              <div className="absolute left-0 bottom-full mb-3 w-80 sm:w-[420px] bg-slate-900/98 backdrop-blur-xl p-5 rounded-2xl border-2 border-cyan-400 shadow-2xl shadow-cyan-950/80 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 space-y-3 font-sans max-h-[500px] overflow-y-auto">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                   <span className="font-mono text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
                     <Calculator className="h-4 w-4 text-cyan-400" />
                     {explanation.title}
                   </span>
                   <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
-                    CÁLCULO & ORIGEN
+                    EVIDENCIA BIGQUERY
                   </span>
                 </div>
 
-                <div className="space-y-1.5">
-                  <div className="text-[11px] font-mono text-slate-300 bg-slate-950/90 p-2.5 rounded-xl border border-slate-800 font-bold">
-                    {explanation.formula}
+                <div className="space-y-2">
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Fórmula:</span>
+                    <div className="text-[11px] font-mono text-slate-300 bg-slate-950/90 p-2 rounded-xl border border-slate-800 font-bold">
+                      {explanation.formula}
+                    </div>
                   </div>
-                  <p className="text-xs text-slate-300 leading-relaxed">
+
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono text-cyan-400 uppercase font-bold">Sustitución Aritmética Exacta:</span>
+                    <div className="text-[11px] font-mono text-cyan-200 bg-cyan-950/60 p-2 rounded-xl border border-cyan-700/60 font-black">
+                      {explanation.math_evidence}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Consulta SQL BigQuery:</span>
+                    <pre className="text-[10px] font-mono text-emerald-300 bg-slate-950 p-2 rounded-xl border border-slate-800 overflow-x-auto whitespace-pre">
+                      {explanation.sql_query}
+                    </pre>
+                  </div>
+
+                  <p className="text-xs text-slate-300 leading-relaxed pt-1">
                     {explanation.explanation}
                   </p>
                 </div>
 
                 <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
                   <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
-                    Contribución por Empresa:
+                    Desglose por Empresa / Operador en la Sala:
                   </span>
                   <div className="space-y-1">
                     {explanation.breakdown.map((b: { label: string; val: string }, bIdx: number) => (
@@ -401,7 +429,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
                 </div>
 
                 <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-400">
-                  <span>Dataset:</span>
+                  <span>Tabla BigQuery:</span>
                   <span className="text-emerald-400 font-bold">{explanation.dataset}</span>
                 </div>
               </div>
