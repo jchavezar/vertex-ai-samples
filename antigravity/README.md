@@ -20,7 +20,18 @@
 ## 🌐 ANTIGRAVITY SYSTEMS INDEX
 
 <table width="100%" border="0" cellspacing="0" cellpadding="20">
-  <!-- ROW 0: MANAGED AGENTS & AUTONOMOUS CLOUD SANDBOX -->
+  <!-- ROW 0: EBC SHOWCASE // LEGACY TO AI MODERNIZATION -->
+  <tr>
+    <td colspan="2" valign="top" style="background: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 20px;">
+      <span style="background: #06B6D4; color: #090D16; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; font-family: monospace;">EXECUTIVE SHOWCASE // EBC</span>
+      <br/><br/>
+      <strong style="font-size: 16px;">PROJECT: LEGACY TO AI-NATIVE MODERNIZATION HUB</strong><br/>
+      High-impact Executive Briefing Center (EBC) 3-Act demonstration. Transforms 2015-era monolithic 20-column ERP tables into 2026 reactive Agent-Native Generative UI in 10 seconds. Live What-If shock sliders (&lt;50ms), SVG Value-at-Risk curves, and 1-click Boardroom Decision Memos powered by Gemini 2.5/3.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/legacy-to-ai-modernization-hub/">ACCESS_SHOWCASE &rarr;</a> &nbsp;|&nbsp; <a href="../agy-recipes/legacy-to-ai-modernization/">RECIPE &rarr;</a>
+    </td>
+  </tr>
+  <!-- ROW 0.5: MANAGED AGENTS & AUTONOMOUS CLOUD SANDBOX -->
   <tr>
     <td width="50%" valign="top" style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 20px;">
       <span style="background: #8B5CF6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; font-family: monospace;">FLAGSHIP // GAOS RUNTIME</span>

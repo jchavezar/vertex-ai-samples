@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#090d16] text-slate-100 font-sans selection:bg-cyan-500 selection:text-black;
+  }
+}
+
+/* 2015 Legacy ERP Windows 7 / Java Swing styling */
+.legacy-theme {
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  background-color: #dce2e8;
+  color: #1a2530;
+}
+
+.legacy-panel {
+  background: linear-gradient(180deg, #f4f6f8 0%, #e2e7ec 100%);
+  border: 1px solid #99a8b5;
+  box-shadow: inset 1px 1px 0px #ffffff, 2px 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.legacy-table-header {
+  background: linear-gradient(180deg, #e9eef3 0%, #cbd5e1 100%);
+  border-bottom: 2px solid #7b8e9f;
+  color: #1e2d3d;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.legacy-btn {
+  background: linear-gradient(180deg, #ffffff 0%, #d8e1e8 100%);
+  border: 1px solid #7c8d9e;
+  border-radius: 3px;
+  color: #1e293b;
+  font-size: 11px;
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.legacy-btn:hover {
+  background: linear-gradient(180deg, #f0f4f8 0%, #c4d2dc 100%);
+}
+
+.legacy-btn:active {
+  background: #bccad5;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* 2026 Agent-Native UI Styling */
+.cyber-glass {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+}
+
+.cyber-card {
+  background: radial-gradient(120% 120% at 50% 0%, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glow-cyan-box {
+  box-shadow: 0 0 25px rgba(6, 182, 212, 0.15), inset 0 0 15px rgba(6, 182, 212, 0.05);
+}
+
+.glow-emerald-box {
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.15), inset 0 0 15px rgba(16, 185, 129, 0.05);
+}
+
+.glow-rose-box {
+  box-shadow: 0 0 25px rgba(244, 63, 94, 0.15), inset 0 0 15px rgba(244, 63, 94, 0.05);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.5);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.8);
+}
