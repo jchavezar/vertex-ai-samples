@@ -12,10 +12,11 @@ import {
   TrendingUp,
   AlertTriangle,
   Layers,
-  Info,
-  ChevronRight,
   ShieldCheck,
   ArrowUpCircle,
+  Truck,
+  Flame,
+  DollarSign,
 } from 'lucide-react';
 import { AgentQueryResponse, HedgingAction } from '../types';
 
@@ -45,7 +46,6 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
   } = agentResponse;
 
   const [revealPhase, setRevealPhase] = useState(1);
-  const [activeOverlay, setActiveOverlay] = useState<'compras' | 'almacen' | 'tesoreria' | null>(null);
 
   // Staggered reveal effect when a new query is processed
   useEffect(() => {
@@ -68,33 +68,70 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
     { label: 'Capital Regulatorio', value: '100%', subtext: 'Basel III & Dodd-Frank', status: 'VERIFICADO', status_type: 'success' as const },
   ];
 
+  // Theme styling per domain to make each response visually unique
+  const themeStyles = {
+    COMPRAS: {
+      border: 'border-blue-500/60',
+      shadow: 'shadow-blue-950/60',
+      badgeBg: 'bg-blue-950 text-blue-300 border-blue-500',
+      glow: 'bg-blue-500/15',
+      icon: Package,
+      title: 'Plano de Respuesta: Compras & Cadena de Suministro',
+    },
+    ALMACEN: {
+      border: 'border-amber-500/60',
+      shadow: 'shadow-amber-950/60',
+      badgeBg: 'bg-amber-950 text-amber-300 border-amber-500',
+      glow: 'bg-amber-500/15',
+      icon: Factory,
+      title: 'Plano de Respuesta: Almacén & Continuidad de Manufactura',
+    },
+    TESORERIA: {
+      border: 'border-purple-500/60',
+      shadow: 'shadow-purple-950/60',
+      badgeBg: 'bg-purple-950 text-purple-300 border-purple-500',
+      glow: 'bg-purple-500/15',
+      icon: DollarSign,
+      title: 'Plano de Respuesta: Tesorería & Cobertura de Riesgo Cambiario',
+    },
+    MULTI_DEPT: {
+      border: 'border-cyan-500/60',
+      shadow: 'shadow-cyan-950/60',
+      badgeBg: 'bg-emerald-950 text-emerald-300 border-emerald-500',
+      glow: 'bg-cyan-500/15',
+      icon: Sparkles,
+      title: 'Plano de Respuesta: Consolidado Multi-Departamento',
+    },
+  }[query_focus] || {
+    border: 'border-cyan-500/60',
+    shadow: 'shadow-cyan-950/60',
+    badgeBg: 'bg-emerald-950 text-emerald-300 border-emerald-500',
+    glow: 'bg-cyan-500/15',
+    icon: Sparkles,
+    title: 'Plano de Respuesta Ejecutiva',
+  };
+
+  const HeaderIcon = themeStyles.icon;
+
   return (
-    <div className="cyber-glass rounded-3xl p-6 sm:p-8 lg:p-10 border-2 border-cyan-500/60 space-y-8 shadow-2xl shadow-cyan-950/60 relative overflow-hidden transition-all animate-zoom-entrance">
+    <div className={`cyber-glass rounded-3xl p-6 sm:p-8 lg:p-10 border-2 ${themeStyles.border} space-y-8 shadow-2xl ${themeStyles.shadow} relative overflow-hidden transition-all animate-zoom-entrance`}>
       {/* Background Ambient Glows & Scanline */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/15 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+      <div className={`absolute top-0 right-0 w-96 h-96 ${themeStyles.glow} rounded-full blur-3xl pointer-events-none -mr-20 -mt-20`} />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
       <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-75 animate-pulse" />
 
       {/* Top Banner: Dossier & Question Heading */}
-      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-cyan-500/30 pb-5">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <div className="flex items-center gap-4">
-          <div className="h-12 w-12 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center shadow-xl shadow-cyan-500/30 shrink-0">
-            <Sparkles className="h-7 w-7 text-cyan-300 animate-pulse" />
+          <div className="h-12 w-12 rounded-2xl bg-slate-900/90 border-2 border-cyan-400 flex items-center justify-center shadow-xl shadow-cyan-500/30 shrink-0">
+            <HeaderIcon className="h-7 w-7 text-cyan-300 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-3 flex-wrap">
               <h3 className="font-black text-base sm:text-lg lg:text-xl text-slate-100 tracking-wider uppercase font-mono">
-                Plano de Respuesta Ejecutiva // {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 3.7 FLASH')}
+                {themeStyles.title} // {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 3.7 FLASH')}
               </h3>
-              <span className={`text-xs font-mono px-3 py-1 rounded-full font-black flex items-center gap-1.5 shadow-md ${
-                query_focus === 'COMPRAS'
-                  ? 'bg-blue-950 text-blue-300 border border-blue-500'
-                  : query_focus === 'ALMACEN'
-                  ? 'bg-amber-950 text-amber-300 border border-amber-500'
-                  : query_focus === 'TESORERIA'
-                  ? 'bg-purple-950 text-purple-300 border border-purple-500'
-                  : 'bg-emerald-950 text-emerald-300 border border-emerald-500'
-              }`}>
+              <span className={`text-xs font-mono px-3 py-1 rounded-full font-black flex items-center gap-1.5 shadow-md ${themeStyles.badgeBg}`}>
                 <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
                 FOCO: {query_focus} (BIGQUERY LIVE)
               </span>
@@ -162,7 +199,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         </div>
       </div>
 
-      {/* 1. DYNAMIC CONTEXT-SPECIFIC KPI METRICS CARDS (EBC Glanceable High-Contrast Design) */}
+      {/* 1. DYNAMIC CONTEXT-SPECIFIC KPI METRICS CARDS (Adapts strictly to the question!) */}
       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ${
         revealPhase >= 1 ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
       }`}>
@@ -231,39 +268,161 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         ))}
       </div>
 
-      {/* 2. ADAPTIVE DEPARTMENTAL BREAKDOWN WITH SMART EBC OVERLAYS (Glanceable + Deep Dive) */}
-      <div className={`space-y-4 transition-all duration-500 ${
-        revealPhase >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5 text-sm sm:text-base font-mono font-black text-slate-200 uppercase tracking-wider">
-            <Layers className="h-5 w-5 text-cyan-400" />
-            <span>
-              {query_focus === 'COMPRAS'
-                ? 'Diagnóstico de Compras & Proveedores'
-                : query_focus === 'ALMACEN'
-                ? 'Diagnóstico de Almacén & Manufactura'
-                : query_focus === 'TESORERIA'
-                ? 'Diagnóstico de Tesorería & Finanzas'
-                : 'Diagnóstico Consolidado Multi-Departamento (Pasa el cursor para ver detalles)'}
+      {/* 2. UNIQUE CONTEXTUAL PANELS PER DOMAIN */}
+      
+      {/* 2A. COMPRAS CUSTOM PANEL (Only if Compras) */}
+      {query_focus === 'COMPRAS' && (
+        <div className="bg-slate-950/90 rounded-2xl p-6 border-2 border-blue-500/60 space-y-4 shadow-xl">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5 text-sm sm:text-base font-extrabold text-blue-300">
+              <Truck className="h-5 w-5 text-blue-400" />
+              <span>Matriz de Compromisos con Proveedores de Taiwán (BigQuery Ground Truth)</span>
+            </div>
+            <span className="text-xs font-mono bg-blue-950 text-blue-300 px-3 py-1 rounded-full border border-blue-700 font-bold">
+              12 Órdenes Abiertas &bull; $320.6M Total
             </span>
           </div>
-          <span className="text-xs font-mono text-cyan-400 hidden sm:inline-block">
-            ⚡ Pasa el cursor para expandir desglose técnico
-          </span>
-        </div>
 
-        {/* Dynamic Cards Grid with Interactive Smart Overlays */}
-        <div className={`grid gap-4 ${
-          query_focus === 'MULTI_DEPT' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">TSMC (Hsinchu)</span>
+                <span className="text-xs font-mono text-cyan-400 font-bold">$107.5M</span>
+              </div>
+              <p className="text-xs text-slate-300">4 órdenes abiertas para Obleas 3nm SoC y sustratos FCBGA. Cuello de botella en puerto de Kaohsiung.</p>
+              <div className="text-[10px] font-mono text-rose-400 font-bold">Retraso: +45 a 90 días</div>
+            </div>
+
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">Foxconn (Taipei)</span>
+                <span className="text-xs font-mono text-blue-400 font-bold">$68.0M</span>
+              </div>
+              <p className="text-xs text-slate-300">3 órdenes de ensamblaje óptico y chasis para servidores. Capacidad de re-enrutamiento a Austin al 40%.</p>
+              <div className="text-[10px] font-mono text-amber-400 font-bold">Retraso: +30 días</div>
+            </div>
+
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">ASE Tech (Kaohsiung)</span>
+                <span className="text-xs font-mono text-indigo-400 font-bold">$85.5M</span>
+              </div>
+              <p className="text-xs text-slate-300">5 órdenes de empaquetado avanzado para memorias HBM3e. Planta alternativa en Singapur evaluada.</p>
+              <div className="text-[10px] font-mono text-amber-400 font-bold">Retraso: +40 días</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2B. ALMACEN CUSTOM PANEL (Only if Almacen) */}
+      {query_focus === 'ALMACEN' && (
+        <div className="bg-slate-950/90 rounded-2xl p-6 border-2 border-amber-500/60 space-y-4 shadow-xl">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5 text-sm sm:text-base font-extrabold text-amber-300">
+              <Flame className="h-5 w-5 text-amber-400" />
+              <span>Matriz de Continuidad de Manufactura & Días de Buffer (BigQuery Ground Truth)</span>
+            </div>
+            <span className="text-xs font-mono bg-rose-950 text-rose-300 px-3 py-1 rounded-full border border-rose-700 font-bold">
+              Paro Proyectado: 15 de Julio de 2026
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">Austin Central (TX)</span>
+                <span className="text-xs font-mono text-rose-400 font-bold">18 Días Buffer</span>
+              </div>
+              <p className="text-xs text-slate-300">Consumo diario: 500 u/día. Línea de ensamblaje principal en riesgo de paro total.</p>
+              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-rose-500 w-[20%]" />
+              </div>
+            </div>
+
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">Monterrey Hub (MX)</span>
+                <span className="text-xs font-mono text-amber-400 font-bold">16 Días Buffer</span>
+              </div>
+              <p className="text-xs text-slate-300">Consumo diario: 300 u/día. Ensamblaje secundario de tarjetas madre y periféricos.</p>
+              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-amber-500 w-[18%]" />
+              </div>
+            </div>
+
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">Frankfurt Logistics (DE)</span>
+                <span className="text-xs font-mono text-emerald-400 font-bold">+12 Días Extra</span>
+              </div>
+              <p className="text-xs text-slate-300">Stock de reserva en Europa listo para ser transportado vía puente aéreo de contingencia.</p>
+              <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-full bg-emerald-500 w-[80%]" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2C. TESORERIA CUSTOM PANEL (Only if Tesoreria) */}
+      {query_focus === 'TESORERIA' && (
+        <div className="bg-slate-950/90 rounded-2xl p-6 border-2 border-purple-500/60 space-y-4 shadow-xl">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div className="flex items-center gap-2.5 text-sm sm:text-base font-extrabold text-purple-300">
+              <DollarSign className="h-5 w-5 text-purple-400" />
+              <span>Túnel de Exposición Cambiaria FX & Cobertura con Swaption Collar</span>
+            </div>
+            <span className="text-xs font-mono bg-rose-950 text-rose-300 px-3 py-1 rounded-full border border-rose-700 font-bold">
+              $14.2M Forwards Sin Cobertura
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">DBS Bank Forward</span>
+                <span className="text-xs font-mono text-purple-400 font-bold">$8.5M USD</span>
+              </div>
+              <p className="text-xs text-slate-300">Par USD/TWD @ 32.15. Vence 15-Ago-2026 sin cobertura contra volatilidad del nuevo dólar taiwanés.</p>
+            </div>
+
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">Std Chartered Forward</span>
+                <span className="text-xs font-mono text-purple-400 font-bold">$5.7M USD</span>
+              </div>
+              <p className="text-xs text-slate-300">Par USD/TWD @ 32.22. Vence 28-Sep-2026. Pérdida cambiaria potencial estimada en $3.85M.</p>
+            </div>
+
+            <div className="bg-slate-900/90 p-4 rounded-xl border border-slate-800 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-100">Swaption Collar ($63M)</span>
+                <span className="text-xs font-mono text-emerald-400 font-bold">Protección 74%</span>
+              </div>
+              <p className="text-xs text-slate-300">Costo de prima: $450K USD. Ahorro neto proyectado de +$3.40M USD tras neutralización del slippage.</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2D. MULTI-DEPT 3 PILLARS (Only if Multi-Dept) */}
+      {query_focus === 'MULTI_DEPT' && (
+        <div className={`space-y-4 transition-all duration-500 ${
+          revealPhase >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
         }`}>
-          {/* Pillar 1: Compras */}
-          {(query_focus === 'COMPRAS' || query_focus === 'MULTI_DEPT') && (
-            <div
-              onMouseEnter={() => setActiveOverlay('compras')}
-              onMouseLeave={() => setActiveOverlay(null)}
-              className="bg-slate-950/90 p-5 sm:p-6 rounded-2xl border-2 border-blue-500/60 hover:border-blue-400 shadow-xl shadow-blue-950/40 space-y-4 relative group transition-all hover:scale-[1.01]"
-            >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5 text-sm sm:text-base font-mono font-black text-slate-200 uppercase tracking-wider">
+              <Layers className="h-5 w-5 text-cyan-400" />
+              <span>Diagnóstico Consolidado Multi-Departamento (Pasa el cursor para ver detalles)</span>
+            </div>
+            <span className="text-xs font-mono text-cyan-400 hidden sm:inline-block">
+              ⚡ Pasa el cursor para expandir desglose técnico
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Pillar 1: Compras */}
+            <div className="bg-slate-950/90 p-5 sm:p-6 rounded-2xl border-2 border-blue-500/60 hover:border-blue-400 shadow-xl shadow-blue-950/40 space-y-4 relative group transition-all hover:scale-[1.01]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5 text-sm sm:text-base font-extrabold text-blue-300">
                   <Package className="h-5 w-5 text-blue-400" />
@@ -273,58 +432,13 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
                   $320.6M USD
                 </span>
               </div>
-
-              {/* Ultra-Concise Glanceable Punchline for EBC */}
               <p className="text-sm text-slate-200 leading-relaxed font-medium">
-                <strong>12 órdenes abiertas</strong> con <strong>TSMC</strong> ($107.5M), <strong>Foxconn</strong> ($68M) y <strong>ASE Tech</strong> ($85.5M). Retraso proyectado de +45 a 90 días en Kaohsiung.
+                <strong>12 órdenes abiertas</strong> con <strong>TSMC</strong> ($107.5M), <strong>Foxconn</strong> ($68M) y <strong>ASE Tech</strong> ($85.5M). Retraso de +45 a 90 días en Kaohsiung.
               </p>
-
-              {/* Visual Mini Concentration Bar */}
-              <div className="space-y-1.5 pt-1">
-                <div className="flex justify-between text-xs font-mono text-slate-300">
-                  <span>Concentración: TSMC 33% &bull; Foxconn 21% &bull; ASE 27%</span>
-                </div>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden flex">
-                  <div className="h-full bg-cyan-400 w-[33.5%]" title="TSMC 33.5%" />
-                  <div className="h-full bg-blue-500 w-[21.2%]" title="Foxconn 21.2%" />
-                  <div className="h-full bg-indigo-500 w-[26.7%]" title="ASE Tech 26.7%" />
-                  <div className="h-full bg-slate-700 w-[18.6%]" title="Otros 18.6%" />
-                </div>
-              </div>
-
-              {/* Interactive Hover Deep-Dive Overlay */}
-              {activeOverlay === 'compras' && (
-                <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md rounded-2xl p-5 border-2 border-blue-400 z-30 flex flex-col justify-between animate-zoom-entrance shadow-2xl">
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between border-b border-blue-800 pb-2">
-                      <span className="text-xs font-mono font-bold text-blue-300 uppercase flex items-center gap-1.5">
-                        <Info className="h-4 w-4" />
-                        Desglose Detallado de Compras
-                      </span>
-                      <span className="text-xs font-mono text-emerald-400 font-bold">BigQuery: POs.csv</span>
-                    </div>
-                    <ul className="text-xs sm:text-sm text-slate-200 space-y-2 font-sans">
-                      <li>&bull; <strong>TSMC (Hsinchu):</strong> 4 órdenes ($107.5M) - Obleas 3nm SoC & Substratos.</li>
-                      <li>&bull; <strong>Foxconn (Taipei):</strong> 3 órdenes ($68.0M) - Sensores ópticos y chasis.</li>
-                      <li>&bull; <strong>ASE Technology (Kaohsiung):</strong> 5 órdenes ($85.5M) - Empaquetado HBM3e.</li>
-                    </ul>
-                  </div>
-                  <div className="text-xs font-mono text-cyan-300 bg-blue-950/90 p-2.5 rounded-xl border border-blue-700 flex items-center justify-between">
-                    <span>Acción: Desviar 30% a plantas de Austin & Singapur</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </div>
-                </div>
-              )}
             </div>
-          )}
 
-          {/* Pillar 2: Almacén */}
-          {(query_focus === 'ALMACEN' || query_focus === 'MULTI_DEPT') && (
-            <div
-              onMouseEnter={() => setActiveOverlay('almacen')}
-              onMouseLeave={() => setActiveOverlay(null)}
-              className="bg-slate-950/90 p-5 sm:p-6 rounded-2xl border-2 border-amber-500/60 hover:border-amber-400 shadow-xl shadow-amber-950/40 space-y-4 relative group transition-all hover:scale-[1.01]"
-            >
+            {/* Pillar 2: Almacén */}
+            <div className="bg-slate-950/90 p-5 sm:p-6 rounded-2xl border-2 border-amber-500/60 hover:border-amber-400 shadow-xl shadow-amber-950/40 space-y-4 relative group transition-all hover:scale-[1.01]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5 text-sm sm:text-base font-extrabold text-amber-300">
                   <Factory className="h-5 w-5 text-amber-400" />
@@ -334,56 +448,13 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
                   34 Días Buffer
                 </span>
               </div>
-
-              {/* Ultra-Concise Glanceable Punchline for EBC */}
               <p className="text-sm text-slate-200 leading-relaxed font-medium">
-                Alerta de paro de ensamble: Inventario de obleas 3nm cae a <strong>cero en 34 días</strong> (800 u/día). Paro proyectado de planta: <strong className="text-rose-400">15 de Julio de 2026</strong>.
+                Inventario de obleas 3nm cae a <strong>cero en 34 días</strong> (800 u/día). Paro proyectado de planta: <strong className="text-rose-400">15 de Julio de 2026</strong>.
               </p>
-
-              {/* Visual Stock Countdown Meter */}
-              <div className="space-y-1.5 pt-1">
-                <div className="flex justify-between text-xs font-mono text-slate-300">
-                  <span>Buffer: 34 días restantes vs 90 días meta</span>
-                  <span className="text-rose-400 font-bold">37% Capacidad</span>
-                </div>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-gradient-to-r from-rose-500 to-amber-400 w-[37%]" />
-                </div>
-              </div>
-
-              {/* Interactive Hover Deep-Dive Overlay */}
-              {activeOverlay === 'almacen' && (
-                <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md rounded-2xl p-5 border-2 border-amber-400 z-30 flex flex-col justify-between animate-zoom-entrance shadow-2xl">
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between border-b border-amber-800 pb-2">
-                      <span className="text-xs font-mono font-bold text-amber-300 uppercase flex items-center gap-1.5">
-                        <Info className="h-4 w-4" />
-                        Desglose Detallado de Almacenes
-                      </span>
-                      <span className="text-xs font-mono text-emerald-400 font-bold">BigQuery: Stock.csv</span>
-                    </div>
-                    <ul className="text-xs sm:text-sm text-slate-200 space-y-2 font-sans">
-                      <li>&bull; <strong>Austin Central (TX):</strong> 18 días de stock (Consumo: 500 u/día).</li>
-                      <li>&bull; <strong>Monterrey Hub (MX):</strong> 16 días de stock (Consumo: 300 u/día).</li>
-                      <li>&bull; <strong>Frankfurt Logistics (DE):</strong> +12 días de buffer reasignables.</li>
-                    </ul>
-                  </div>
-                  <div className="text-xs font-mono text-amber-300 bg-amber-950/90 p-2.5 rounded-xl border border-amber-700 flex items-center justify-between">
-                    <span>Acción: Activar puente aéreo Frankfurt-Austin</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </div>
-                </div>
-              )}
             </div>
-          )}
 
-          {/* Pillar 3: Tesorería */}
-          {(query_focus === 'TESORERIA' || query_focus === 'MULTI_DEPT') && (
-            <div
-              onMouseEnter={() => setActiveOverlay('tesoreria')}
-              onMouseLeave={() => setActiveOverlay(null)}
-              className="bg-slate-950/90 p-5 sm:p-6 rounded-2xl border-2 border-purple-500/60 hover:border-purple-400 shadow-xl shadow-purple-950/40 space-y-4 relative group transition-all hover:scale-[1.01]"
-            >
+            {/* Pillar 3: Tesorería */}
+            <div className="bg-slate-950/90 p-5 sm:p-6 rounded-2xl border-2 border-purple-500/60 hover:border-purple-400 shadow-xl shadow-purple-950/40 space-y-4 relative group transition-all hover:scale-[1.01]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2.5 text-sm sm:text-base font-extrabold text-purple-300">
                   <Building2 className="h-5 w-5 text-purple-400" />
@@ -393,51 +464,13 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
                   $14.2M Sin Cobertura
                 </span>
               </div>
-
-              {/* Ultra-Concise Glanceable Punchline for EBC */}
               <p className="text-sm text-slate-200 leading-relaxed font-medium">
-                <strong>2 contratos forwards en USD/TWD</strong> con DBS Bank y Standard Chartered sin cobertura en Q3, con riesgo de pérdida cambiaria de <strong className="text-rose-400">$3.85M USD</strong>.
+                <strong>2 contratos forwards en USD/TWD</strong> con DBS y Standard Chartered sin cobertura en Q3, con riesgo de pérdida cambiaria de <strong className="text-rose-400">$3.85M USD</strong>.
               </p>
-
-              {/* Visual Slippage Exposure Meter */}
-              <div className="space-y-1.5 pt-1">
-                <div className="flex justify-between text-xs font-mono text-slate-300">
-                  <span>Exposición Cambiaria: $14.2M @ Risk</span>
-                  <span className="text-emerald-400 font-bold">Protección 74%</span>
-                </div>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden flex">
-                  <div className="h-full bg-emerald-500 w-[74%]" title="Protegible con Collar 74%" />
-                  <div className="h-full bg-rose-500 w-[26%]" title="Riesgo Residual 26%" />
-                </div>
-              </div>
-
-              {/* Interactive Hover Deep-Dive Overlay */}
-              {activeOverlay === 'tesoreria' && (
-                <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-md rounded-2xl p-5 border-2 border-purple-400 z-30 flex flex-col justify-between animate-zoom-entrance shadow-2xl">
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between border-b border-purple-800 pb-2">
-                      <span className="text-xs font-mono font-bold text-purple-300 uppercase flex items-center gap-1.5">
-                        <Info className="h-4 w-4" />
-                        Desglose Detallado de Contratos FX
-                      </span>
-                      <span className="text-xs font-mono text-emerald-400 font-bold">BigQuery: FX_Forwards.csv</span>
-                    </div>
-                    <ul className="text-xs sm:text-sm text-slate-200 space-y-2 font-sans">
-                      <li>&bull; <strong>DBS Bank Singapore:</strong> $8.5M USD/TWD Forward @ 32.15 (Expira 15-Ago-2026).</li>
-                      <li>&bull; <strong>Standard Chartered HK:</strong> $5.7M USD/TWD Forward @ 32.22 (Expira 28-Sep-2026).</li>
-                      <li>&bull; <strong>Estructura Recomendada:</strong> Swaption Collar $63M (Prima: $450K).</li>
-                    </ul>
-                  </div>
-                  <div className="text-xs font-mono text-purple-300 bg-purple-950/90 p-2.5 rounded-xl border border-purple-700 flex items-center justify-between">
-                    <span>Acción: Autorizar Swaption Collar de $63M</span>
-                    <ChevronRight className="h-4 w-4" />
-                  </div>
-                </div>
-              )}
             </div>
-          )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 3. GROUNDED BIGQUERY RECORDSET TABLE */}
       {grounded_data_table && (

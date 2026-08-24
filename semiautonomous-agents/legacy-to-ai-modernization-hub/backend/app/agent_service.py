@@ -87,28 +87,30 @@ async def process_agent_query(request: AgentQueryRequest) -> AgentQueryResponse:
     query_focus = "MULTI_DEPT"
     dynamic_kpis = []
 
+    # 1. Explicit Multi-Department Master Scenario Check
     is_multi_dept = (
-        ("taiwan" in q_lower or "taiwán" in q_lower or "bloqueo" in q_lower or "bottleneck" in q_lower) and
-        ("inventario" in q_lower or "fx" in q_lower or "ebitda" in q_lower or "contrato" in q_lower or "stoppage" in q_lower or "quedan" in q_lower or "comprometid" in q_lower)
-    ) or ("consolid" in q_lower or "todo" in q_lower)
+        ("bloqueo de 90" in q_lower or "90 días" in q_lower or "90 dias" in q_lower) and
+        ("inventario" in q_lower or "quedan" in q_lower or "paro" in q_lower) and
+        ("fx" in q_lower or "contrato" in q_lower or "cobertura" in q_lower)
+    ) or ("multi-departamento" in q_lower or "consolid" in q_lower or "todo" in q_lower)
 
-    if is_multi_dept:
-        query_focus = "MULTI_DEPT"
-        bq_step = execute_chain_step_bigquery(4)
-        grounded_table = {
-            "title": "Consolidado Multi-Departamento (Compras + Almacén + Tesorería en BigQuery)",
-            "dataset": bq_step["dataset"],
-            "total_rows": bq_step["total_rows"],
-            "headers": bq_step["headers"],
-            "rows": bq_step["data"][:8],
-        }
-        dynamic_kpis = [
-            {"label": "Riesgo Portafolio (VaR 99%)", "value": f"${shock_impact.value_at_risk_99_m}M", "subtext": f"+{shock_impact.var_delta_pct}% sobre base", "status": "ELEVADO (+64%)", "status_type": "danger"},
-            {"label": "Arrastre en EBITDA", "value": f"-${shock_impact.ebitda_impact_m}M", "subtext": "Compresión margen operativo", "status": "ACCIÓN REQUERIDA", "status_type": "danger"},
-            {"label": "Cojín de Liquidez", "value": f"${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M", "subtext": "Reserva disponible post-estrés", "status": shock_impact.liquidity_buffer_status, "status_type": "warning" if shock_impact.liquidity_buffer_status != "STABLE" else "success"},
-            {"label": "Capital Regulatorio", "value": "100%", "subtext": "Basel III & Dodd-Frank", "status": "BASEL III OK", "status_type": "success"},
-        ]
-    elif "órden" in q_lower or "orden" in q_lower or "compras" in q_lower or "po" in q_lower or "proveedor" in q_lower:
+    # 2. Specific Single-Domain Checks
+    is_compras = (
+        ("órden" in q_lower or "orden" in q_lower or "compras" in q_lower or "po" in q_lower or "proveedor" in q_lower or "tsmc" in q_lower or "foxconn" in q_lower or "ase" in q_lower) and
+        not is_multi_dept
+    )
+
+    is_almacen = (
+        ("inventario" in q_lower or "stock" in q_lower or "almacen" in q_lower or "almacén" in q_lower or "paro" in q_lower) and
+        not is_multi_dept
+    )
+
+    is_tesoreria = (
+        ("fx" in q_lower or "cobertura" in q_lower or "forward" in q_lower or "tesoreria" in q_lower or "tesorería" in q_lower or "twd" in q_lower or "swaption" in q_lower or "collar" in q_lower) and
+        not is_multi_dept
+    )
+
+    if is_compras:
         query_focus = "COMPRAS"
         bq_step = execute_chain_step_bigquery(1)
         grounded_table = {
@@ -124,7 +126,7 @@ async def process_agent_query(request: AgentQueryRequest) -> AgentQueryResponse:
             {"label": "Retraso Logístico Estimado", "value": "+45 a 90 Días", "subtext": "Cuello de botella en Kaohsiung", "status": "ALERTA EMBARQUE", "status_type": "danger"},
             {"label": "Proveedores Alternativos", "value": "3 Fábricas", "subtext": "Austin, Dresden y Singapur", "status": "DISPONIBLE", "status_type": "success"},
         ]
-    elif "inventario" in q_lower or "stock" in q_lower or "almacen" in q_lower or "almacén" in q_lower or "paro" in q_lower:
+    elif is_almacen:
         query_focus = "ALMACEN"
         bq_step = execute_chain_step_bigquery(2)
         grounded_table = {
@@ -140,7 +142,7 @@ async def process_agent_query(request: AgentQueryRequest) -> AgentQueryResponse:
             {"label": "Consumo Diario Promedio", "value": "800 U / Día", "subtext": "Capacidad nominal de planta", "status": "CONSUMO ALTO", "status_type": "info"},
             {"label": "Buffer Reasignable (Frankfurt)", "value": "+12 Días Extra", "subtext": "Desvío aéreo de contingencia", "status": "VIABLE", "status_type": "success"},
         ]
-    elif "fx" in q_lower or "cobertura" in q_lower or "forward" in q_lower or "tesoreria" in q_lower or "twd" in q_lower:
+    elif is_tesoreria:
         query_focus = "TESORERIA"
         bq_step = execute_chain_step_bigquery(3)
         grounded_table = {
@@ -160,16 +162,16 @@ async def process_agent_query(request: AgentQueryRequest) -> AgentQueryResponse:
         query_focus = "MULTI_DEPT"
         bq_step = execute_chain_step_bigquery(4)
         grounded_table = {
-            "title": "Consolidado Multi-Departamento (Compras + Almacén + Tesorería)",
+            "title": "Consolidado Multi-Departamento (Compras + Almacén + Tesorería en BigQuery)",
             "dataset": bq_step["dataset"],
             "total_rows": bq_step["total_rows"],
             "headers": bq_step["headers"],
-            "rows": bq_step["data"][:6],
+            "rows": bq_step["data"][:8],
         }
         dynamic_kpis = [
-            {"label": "Riesgo Portafolio (VaR 99%)", "value": f"${shock_impact.value_at_risk_99_m}M", "subtext": f"+{shock_impact.var_delta_pct}% sobre base", "status": "ELEVADO", "status_type": "danger"},
-            {"label": "Arrastre en EBITDA", "value": f"-${shock_impact.ebitda_impact_m}M", "subtext": "Compresión de margen", "status": "ACCIÓN REQUERIDA", "status_type": "danger"},
-            {"label": "Cojín de Liquidez", "value": f"${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M", "subtext": "Reserva post-estrés", "status": shock_impact.liquidity_buffer_status, "status_type": "success"},
+            {"label": "Riesgo Portafolio (VaR 99%)", "value": f"${shock_impact.value_at_risk_99_m}M", "subtext": f"+{shock_impact.var_delta_pct}% sobre base", "status": "ELEVADO (+64%)", "status_type": "danger"},
+            {"label": "Arrastre en EBITDA", "value": f"-${shock_impact.ebitda_impact_m}M", "subtext": "Compresión margen operativo", "status": "ACCIÓN REQUERIDA", "status_type": "danger"},
+            {"label": "Cojín de Liquidez", "value": f"${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M", "subtext": "Reserva disponible post-estrés", "status": shock_impact.liquidity_buffer_status, "status_type": "warning" if shock_impact.liquidity_buffer_status != "STABLE" else "success"},
             {"label": "Capital Regulatorio", "value": "100%", "subtext": "Basel III & Dodd-Frank", "status": "BASEL III OK", "status_type": "success"},
         ]
 
