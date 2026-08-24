@@ -88,15 +88,38 @@ async def process_agent_query(request: AgentQueryRequest) -> AgentQueryResponse:
     dynamic_kpis = []
 
     # 1. Domain Detection tailored to the EBC Mexican enterprise audience
-    is_logistica = any(k in q_lower for k in ["puerto", "veracruz", "manzanillo", "cice", "senda", "promologistics", "contenedor", "teus", "aduan", "flete", "buque"])
-    is_farma_alimentos = any(k in q_lower for k in ["silanes", "cremer", "gloria", "farma", "médica", "medica", "lacto", "api", "envasado", "toluca", "guadalajara", "caducidad", "materia prima"])
-    is_retail_fx = any(k in q_lower for k in ["boxito", "macropay", "cklass", "retail", "usd/mxn", "tipo de cambio", "dólar", "dolar", "margen", "comercial", "forward"])
-    is_hr_ratings = any(k in q_lower for k in ["hr ratings", "calificaci", "rating", "solvencia", "crédito", "credito", "banxico", "var 99"])
-    is_multi_dept = any(k in q_lower for k in ["consolid", "bloqueo de 30", "todo el ebc", "multi-empresa", "hub consolidado"]) or (
-        (is_logistica and is_farma_alimentos) or (is_logistica and is_retail_fx)
-    )
+    is_multi_dept = any(k in q_lower for k in ["consolid", "bloqueo de 30", "todo el ebc", "multi-empresa", "hub consolidado", "todos los departamentos"])
+    is_hr_ratings = any(k in q_lower for k in ["hr ratings", "calificaci", "rating", "solvencia", "crédito", "credito", "dictamen", "banxico", "var 99"]) and not is_multi_dept
+    is_farma_alimentos = (any(k in q_lower for k in ["silanes", "cremer", "gloria", "farma", "médica", "medica", "lacto", "api", "envasado", "paro", "buffer"]) or ("insumos" in q_lower and "retraso" in q_lower)) and not is_multi_dept
+    is_logistica = any(k in q_lower for k in ["puerto", "veracruz", "cice", "senda", "promologistics", "contenedor", "teus", "aduan", "flete", "buque", "congestión", "demorad"]) and not is_farma_alimentos and not is_multi_dept
+    is_retail_fx = any(k in q_lower for k in ["boxito", "macropay", "cklass", "retail", "usd/mxn", "tipo de cambio", "dólar", "dolar", "margen", "comercial", "forward"]) and not is_hr_ratings and not is_multi_dept
 
-    if is_logistica and not is_multi_dept:
+    if is_hr_ratings:
+        query_focus = "HR_RATINGS"
+        grounded_table = {
+            "title": "Matriz de Solvencia, Liquidez y Calificación Crediticia (Metodología HR Ratings)",
+            "dataset": "vtxdemos.ebc_credit_ratings_live",
+            "total_rows": 18,
+            "headers": ["Empresa / Deudor", "Calificación Vigente", "Escenario Estrés", "VaR 99% (10d)", "Cojín Liquidez", "Dictamen Solvencia"],
+            "rows": [
+                {"empresa": "Consorcio EBC Consolidado", "rating": "HR AA+", "estres": "Dólar $21.20 / Tasas +150bps", "var": "$118.4M USD", "liquidez": "$580.0M USD", "dictamen": "SOLVENTE // GRADO INVERSIÓN"},
+                {"empresa": "GSI Proan (Logística Valores)", "rating": "HR AAA", "estres": "Volatilidad Efectivo +20%", "var": "$14.2M USD", "liquidez": "$125.0M USD", "dictamen": "MÁXIMA SOLVENCIA"},
+                {"empresa": "Macropay (Cartera Retail)", "rating": "HR A+", "estres": "Morosidad +3.5% / FX $20.80", "var": "$28.6M USD", "liquidez": "$92.0M USD", "dictamen": "VULNERABILIDAD MODERADA"},
+                {"empresa": "Boxito (Comercial / Mayoreo)", "rating": "HR AA-", "estres": "Inflación Costos +8.0%", "var": "$22.1M USD", "liquidez": "$84.0M USD", "dictamen": "SOLVENTE CON COBERTURA"},
+            ],
+        }
+        dynamic_kpis = [
+            {"label": "VaR de Portafolio (99%)", "value": "$118.4M USD", "subtext": "Bajo estrés macroeconómico", "status": "HR AA+ VIGILANCIA", "status_type": "danger"},
+            {"label": "Impacto en EBITDA Anual", "value": "-$98.5M USD", "subtext": "Choque cambiario y logístico", "status": "ESTRÉS SEVERO", "status_type": "danger"},
+            {"label": "Cojín de Liquidez Post-Estrés", "value": "$580.0M USD", "subtext": "Reserva de capital disponible", "status": "HR AAA SOLVENTE", "status_type": "success"},
+            {"label": "Rating Crediticio Proyectado", "value": "HR AA+", "subtext": "Metodología HR Ratings 2026", "status": "GRADO DE INVERSIÓN", "status_type": "success"},
+        ]
+        synthesis_text = """### Dictamen de Calificación Crediticia y Solvencia (HR Ratings Metodología)
+Bajo el escenario de estrés macroeconómico con alza de tasas Banxico (+150bps) y tipo de cambio a $21.20, el **VaR de Portafolio 99% asciende a $118.4M USD** y el arrastre en EBITDA es de **-$98.5M USD**.
+
+### Solvencia y Grado de Inversión
+El cojín de liquidez corporativo disponible de **$580.0M USD** permite absorber el choque sin riesgo de insolvencia, ratificando la calificación crediticia corporativa en **HR AA+ (Grado de Inversión Estable)**."""
+    elif is_logistica:
         query_focus = "LOGISTICA"
         grounded_table = {
             "title": "Registro de Contenedores y Demoras en Terminales Portuarias (BigQuery: CICE / Manzanillo)",
@@ -224,6 +247,7 @@ Bajo el escenario de disrupción portuaria de 30 días y estrés cambiario evalu
 - **Manufactura (Cremería Americana & Lab. Silanes)**: 21 días de buffer de materias primas antes de paro en Toluca/GDL (16 de Julio de 2026).
 - **Retail & Finanzas (Boxito, Macropay & HR Ratings)**: $85M USD expuestos al tipo de cambio con un VaR 99% de ${shock_impact.value_at_risk_99_m}M USD y cojín de liquidez de ${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M USD."""
     model_used = MODEL_NAME
+    client = _get_genai_client()
 
     if client:
         try:
@@ -234,19 +258,20 @@ Pregunta del Ejecutivo: "{request.query}"
 Foco del Análisis: {query_focus}
 
 Datos de Verdad de BigQuery:
-- Compras: $320.6M USD en 12 órdenes abiertas con TSMC ($107.5M en Obleas 3nm y Sustratos), Foxconn ($68.0M en Sensores) y ASE Tech ($85.5M en Memorias).
-- Almacén: Stock de seguridad descenderá a 34 días al ritmo de consumo de 800 u/día. Paro de ensamblaje previsto para el 15 de Julio de 2026.
-- Tesorería: $14.2M USD en 2 contratos forwards USD/TWD sin cobertura con DBS Bank y Standard Chartered.
+- Logística: 1,420 TEUs demorados en puertos de Grupo CICE Veracruz y Manzanillo Contecon con sobrecosto de $4.85M USD. Desvío por tren a Monterrey viable.
+- Manufactura: 21 días de buffer de materias primas (Grasa Butírica Gloria y APIs Silanes) antes de paro el 16 de Julio de 2026. Reserva en Querétaro de +14 días.
+- Retail & FX: $85.0M USD expuestos a tipo de cambio USD/MXN a $20.80 (Boxito $28.5M, Macropay $36.2M). Cobertura forward a $19.40 ahorra $3.60M USD.
+- Solvencia & HR Ratings: VaR 99% de ${shock_impact.value_at_risk_99_m}M USD y liquidez de ${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M USD. Rating: HR AA+.
 
 Métricas de Estrés Calculadas:
 - VaR Portafolio (99%): ${shock_impact.value_at_risk_99_m}M (+{shock_impact.var_delta_pct}%)
 - Arrastre en EBITDA: -${shock_impact.ebitda_impact_m}M
 - Cojín de Liquidez: {shock_impact.liquidity_buffer_status} (Reserva disponible: ${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M)
 
-Proporciona una síntesis ejecutiva en Español enfocada estrictamente en responder la pregunta del usuario:
+Proporciona una síntesis ejecutiva concisa en Español:
 1. Dictamen Directo sobre la variable consultada.
-2. Impacto Operativo y Financiero.
-3. Recomendación de Mitigación Concreta.
+2. Impacto Operativo y Financiero en las empresas involucradas.
+3. Recomendación de Mitigación Concreta (Ferrocarril, Querétaro, Forward, o Solvencia).
 """
             def _call_gemini():
                 return client.models.generate_content(
@@ -258,36 +283,40 @@ Proporciona una síntesis ejecutiva en Español enfocada estrictamente en respon
             if response and response.text:
                 synthesis_text = response.text
         except Exception:
-            synthesis_text = ""
+            pass
 
-    # High-quality fallback synthesis in Spanish
+    # High-quality fallback synthesis in Spanish for Mexican enterprise domains
     if not synthesis_text:
-        if query_focus == "COMPRAS":
-            synthesis_text = f"""### Diagnóstico de Compras y Órdenes Abiertas (BigQuery Ground Truth)
-Se identificaron **12 órdenes de compra abiertas por $320.6M USD** con proveedores clave en Taiwán. La concentración principal se localiza en **TSMC ($107.5M)** para obleas de proceso 3nm y sustratos FCBGA, **Foxconn ($68.0M)** para ensambles ópticos y **ASE Technology ($85.5M)** para empaquetado de memorias HBM3e.
+        if query_focus in ["LOGISTICA", "COMPRAS"]:
+            synthesis_text = f"""### Diagnóstico de Logística Portuaria y Fletes (BigQuery Ground Truth)
+Se identificaron **1,420 TEUs demorados** en terminales marítimas mexicanas. La concentración principal se localiza en **Grupo CICE Veracruz (840 TEUs)** con retraso de +14 días y **Contecon Manzanillo (580 TEUs)** con retraso de +18 días, generando un sobrecosto proyectado de **$4.85M USD** por demoras y estadías.
 
-### Impacto en Entregas y Mitigación
-Los plazos de entrega proyectan un retraso promedio de **45 a 90 días** debido a la congestión de fletes en Kaohsiung. Se recomienda desviar 30% del volumen a plantas secundarias en Austin y Singapur."""
-        elif query_focus == "ALMACEN":
-            synthesis_text = f"""### Diagnóstico de Almacén y Riesgo de Paro de Planta (BigQuery Ground Truth)
-Al ritmo de consumo diario de **800 unidades/día**, el stock de seguridad de obleas 3nm se agotará en **34 días**. El paro de la línea de ensamblaje en Austin y Monterrey ocurrirá el **15 de Julio de 2026** si no se reciben embarques adicionales.
+### Plan de Mitigación Intermodal
+Se recomienda autorizar la activación del corredor ferroviario con **Ferromex / KCSM** para desviar hasta 650 TEUs semanales hacia el hub de Monterrey (Grupo Senda), reduciendo el retraso promedio a solo 5 días y recuperando **+$1.46M USD** en sobrecostos."""
+        elif query_focus in ["MANUFACTURA", "ALMACEN"]:
+            synthesis_text = f"""### Diagnóstico de Manufactura y Stock de Seguridad (BigQuery Ground Truth)
+Al ritmo de consumo nominal de **1,200 lotes/día**, el stock de seguridad en planta se agotará en **21 días**. El paro de las líneas de envasado en **Planta Toluca (Laboratorios Silanes)** y **Planta Guadalajara (Cremería Americana - Mantequilla Gloria)** ocurrirá el **16 de Julio de 2026** si no se reciben materias primas.
 
-### Capacidad de Reasignación de Emergencia
-Se identificó un stock de seguridad reasignable de **+12 días extra en el almacén de Frankfurt**, el cual puede ser trasladado vía puente aéreo de emergencia para extender la operación hasta Agosto."""
-        elif query_focus == "TESORERIA":
-            synthesis_text = f"""### Diagnóstico de Tesorería y Contratos Forwards FX (BigQuery Ground Truth)
-Existen **$14.2M USD en 2 contratos forwards cambiarios en USD/TWD** con DBS Bank y Standard Chartered que vencen en Q3 sin cobertura cambiaria activa, exponiendo a la tesorería a una pérdida proyectada de **$3.85M USD**.
+### Inyección de Reserva Estratégica
+Se cuenta con una reserva estratégica de materias primas en el **Almacén Regulador de Querétaro (+14 días extra)**, lista para ser transferida de inmediato para extender la operación hasta Agosto de 2026."""
+        elif query_focus in ["RETAIL_FX", "TESORERIA"]:
+            synthesis_text = f"""### Diagnóstico de Retail, Margen y Riesgo Cambiario (BigQuery Ground Truth)
+Existen **$85.0M USD en compras importadas expuestas** al tipo de cambio USD/MXN a $20.80 (**Boxito $28.5M USD**, **Macropay $36.2M USD** y **Cklass $20.3M USD**), proyectando una erosión de margen EBITDA de **-$4.20M USD**.
 
-### Mandato de Cobertura Inmediata
-Se recomienda la ejecución de una estructura de derivados **Receiver Swaption Collar de $63.0M USD** (Costo: $450K USD) para neutralizar el 74% de la pérdida por slippage cambiario."""
+### Cobertura Cambiaria Recomendada
+Se recomienda contratar contratos forwards cambiarios en USD/MXN a un tipo de cambio garantizado de **$19.40** por $60.0M USD con Banorte, BBVA y Santander, logrando un ahorro neto proyectado de **+$3.60M USD** (ROI de cobertura: 6.0x)."""
+        elif query_focus == "HR_RATINGS":
+            synthesis_text = f"""### Dictamen de Calificación Crediticia y Solvencia (HR Ratings Metodología)
+Bajo el escenario de estrés macroeconómico con alza de tasas Banxico (+150bps) y tipo de cambio a $21.20, el **VaR de Portafolio 99% asciende a $118.4M USD** y el arrastre en EBITDA es de **-$98.5M USD**.
+
+### Solvencia y Grado de Inversión
+El cojín de liquidez corporativo disponible de **$580.0M USD** permite absorber el choque sin riesgo de insolvencia, ratificando la calificación crediticia corporativa en **HR AA+ (Grado de Inversión Estable)**."""
         else:
-            synthesis_text = f"""### Dictamen de Riesgo Ejecutivo (BigQuery Ground Truth)
-Bajo el escenario evaluado con **{params.supply_chain_stress_index:.0f}/100 en estrés de cadena de suministro**, el Riesgo Total de Portafolio (VaR 99% a 10 días) asciende a **${shock_impact.value_at_risk_99_m}M USD** (+{shock_impact.var_delta_pct}% sobre la base) y el arrastre en EBITDA es de **-${shock_impact.ebitda_impact_m}M USD**.
-
-### Diagnóstico de Transmisión Multi-Departamento
-- **Compras**: $320.6M USD comprometidos en 12 órdenes abiertas con TSMC, Foxconn y ASE Tech.
-- **Almacén**: Solo quedan **34 días de stock de seguridad** antes del paro de planta (15 de Julio de 2026).
-- **Tesorería**: $14.2M USD en forwards USD/TWD expuestos sin cobertura cambiaria."""
+            synthesis_text = f"""### Diagnóstico Integral Multi-Empresa EBC (BigQuery Ground Truth)
+Bajo el escenario de disrupción portuaria de 30 días y estrés cambiario evaluado en Google Cloud BigQuery:
+- **Logística (Grupo CICE & Promologistics)**: 1,420 TEUs varados en Veracruz y Manzanillo con sobrecosto de $4.85M USD.
+- **Manufactura (Cremería Americana & Lab. Silanes)**: 21 días de buffer de materias primas antes de paro en Toluca/GDL (16 de Julio de 2026).
+- **Retail & Finanzas (Boxito, Macropay & HR Ratings)**: $85M USD expuestos al tipo de cambio con un VaR 99% de ${shock_impact.value_at_risk_99_m}M USD y cojín de liquidez de ${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M USD."""
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000.0
 
@@ -325,15 +354,28 @@ async def generate_board_memo(request: BoardMemoRequest) -> BoardMemoResponse:
 
     # Determine query focus
     q_lower = request.query_context.lower() if request.query_context else ""
-    is_logistica = any(k in q_lower for k in ["puerto", "veracruz", "manzanillo", "cice", "senda", "promologistics", "contenedor", "teus", "aduan", "flete", "buque"])
-    is_farma_alimentos = any(k in q_lower for k in ["silanes", "cremer", "gloria", "farma", "médica", "medica", "lacto", "api", "envasado", "toluca", "guadalajara", "caducidad", "materia prima"])
-    is_retail_fx = any(k in q_lower for k in ["boxito", "macropay", "cklass", "retail", "usd/mxn", "tipo de cambio", "dólar", "dolar", "margen", "comercial", "forward"])
-    is_hr_ratings = any(k in q_lower for k in ["hr ratings", "calificaci", "rating", "solvencia", "crédito", "credito", "banxico", "var 99"])
-    is_multi_dept = any(k in q_lower for k in ["consolid", "bloqueo de 30", "todo el ebc", "multi-empresa", "hub consolidado"]) or (
-        (is_logistica and is_farma_alimentos) or (is_logistica and is_retail_fx)
-    )
+    is_multi_dept = any(k in q_lower for k in ["consolid", "bloqueo de 30", "todo el ebc", "multi-empresa", "hub consolidado", "todos los departamentos"])
+    is_hr_ratings = any(k in q_lower for k in ["hr ratings", "calificaci", "rating", "solvencia", "crédito", "credito", "dictamen", "banxico", "var 99"]) and not is_multi_dept
+    is_farma_alimentos = (any(k in q_lower for k in ["silanes", "cremer", "gloria", "farma", "médica", "medica", "lacto", "api", "envasado", "paro", "buffer"]) or ("insumos" in q_lower and "retraso" in q_lower)) and not is_multi_dept
+    is_logistica = any(k in q_lower for k in ["puerto", "veracruz", "cice", "senda", "promologistics", "contenedor", "teus", "aduan", "flete", "buque", "congestión", "demorad"]) and not is_farma_alimentos and not is_multi_dept
+    is_retail_fx = any(k in q_lower for k in ["boxito", "macropay", "cklass", "retail", "usd/mxn", "tipo de cambio", "dólar", "dolar", "margen", "comercial", "forward"]) and not is_hr_ratings and not is_multi_dept
 
-    if is_logistica and not is_multi_dept:
+    if is_hr_ratings:
+        query_focus = "HR_RATINGS"
+        memo_title = "Dictamen de Calificación Crediticia y Solvencia Corporativa (Metodología HR Ratings)"
+        key_metrics = [
+            {"metric": "VaR Portafolio (99%)", "value": "$118.4M USD", "status": "HR AA+ VIGILANCIA"},
+            {"metric": "Impacto en EBITDA", "value": "-$98.5M USD", "status": "ESTRÉS SEVERO"},
+            {"metric": "Cojín de Liquidez", "value": "$580.0M USD", "status": "HR AAA SOLVENTE"},
+            {"metric": "Rating Crediticio", "value": "HR AA+", "status": "GRADO DE INVERSIÓN"},
+        ]
+        recommended_actions = [
+            "1. Ratificar la calificación crediticia corporativa en HR AA+ con perspectiva estable bajo la metodología de estrés de HR Ratings.",
+            "2. Validar que el cojín de liquidez disponible ($580.0M USD) supera el umbral prudencial para absorber el choque sin degradación de deuda.",
+            "3. Mantener vigilancia trimestral sobre el índice de cobertura del servicio de la deuda (DSCR).",
+        ]
+        exec_summary = "Dictamen de calificación en BigQuery: VaR 99% de $118.4M USD y liquidez de $580.0M USD. Calificación crediticia ratificada en HR AA+ (Grado de Inversión)."
+    elif is_logistica:
         query_focus = "LOGISTICA"
         memo_title = "Resolución del Consejo: Plan de Mitigación Portuaria y Desvío Intermodal (Veracruz / Manzanillo)"
         key_metrics = [
@@ -348,7 +390,7 @@ async def generate_board_memo(request: BoardMemoRequest) -> BoardMemoResponse:
             "3. Habilitar patios de almacenamiento seco de contingencia en Promologistics CDMX para evitar costos de estadía marítima.",
         ]
         exec_summary = "Evaluación logística en BigQuery: 1,420 TEUs demorados en terminales de Grupo CICE Veracruz y Manzanillo con sobrecosto proyectado de $4.85M USD. Se aprueba desvío ferroviario."
-    elif is_farma_alimentos and not is_multi_dept:
+    elif is_farma_alimentos:
         query_focus = "MANUFACTURA"
         memo_title = "Resolución del Consejo: Continuidad Operativa en Plantas y Blindaje de Materias Primas"
         key_metrics = [
@@ -363,7 +405,7 @@ async def generate_board_memo(request: BoardMemoRequest) -> BoardMemoResponse:
             "3. Priorizar la producción de medicamentos esenciales y productos lácteos de alto margen con insumos disponibles.",
         ]
         exec_summary = "Evaluación de manufactura en BigQuery: 21 días de inventario de materias primas críticas antes del paro de envasado (16 de Julio de 2026). Stock de Querétaro activado."
-    elif is_retail_fx and not is_multi_dept:
+    elif is_retail_fx:
         query_focus = "RETAIL_FX"
         memo_title = "Resolución del Consejo: Blindaje de Margen Comercial Retail y Cobertura Cambiaria USD/MXN"
         key_metrics = [
