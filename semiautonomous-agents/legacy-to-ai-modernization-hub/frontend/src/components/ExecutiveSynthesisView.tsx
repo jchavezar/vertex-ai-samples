@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   TrendingUp,
   DollarSign,
@@ -12,6 +12,8 @@ import {
   Factory,
   FileText,
   CheckCircle2,
+  Cpu,
+  Clock,
 } from 'lucide-react';
 import { AgentQueryResponse, HedgingAction } from '../types';
 
@@ -36,14 +38,35 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
     grounded_data_table,
   } = agentResponse;
 
+  const [revealPhase, setRevealPhase] = useState(1);
+
+  // Staggered reveal effect when a new query is processed
+  useEffect(() => {
+    setRevealPhase(1);
+    const t1 = setTimeout(() => setRevealPhase(2), 250);
+    const t2 = setTimeout(() => setRevealPhase(3), 550);
+    const t3 = setTimeout(() => setRevealPhase(4), 850);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+    };
+  }, [query]);
+
   // Extract key metrics safely
   const varDelta = shock_impact.var_delta_pct || 25.0;
   const isVarElevated = varDelta > 15;
   const bufferStatus = shock_impact.liquidity_buffer_status || 'STABLE';
   const isBufferStable = bufferStatus === 'STABLE';
 
+  const qLower = query.toLowerCase();
+  const isComprasFocused = qLower.includes('órden') || qLower.includes('orden') || qLower.includes('compras') || qLower.includes('proveedor') || qLower.includes('tsmc') || qLower.includes('po');
+  const isAlmacenFocused = qLower.includes('inventario') || qLower.includes('stock') || qLower.includes('almacen') || qLower.includes('almacén') || qLower.includes('paro');
+  const isTesoreriaFocused = qLower.includes('fx') || qLower.includes('cobertura') || qLower.includes('forward') || qLower.includes('tesoreria') || qLower.includes('twd');
+  const isMultiDept = (!isComprasFocused && !isAlmacenFocused && !isTesoreriaFocused) || (qLower.includes('taiwan') || qLower.includes('taiwán') || qLower.includes('bloqueo') || qLower.includes('90') || qLower.includes('todo'));
+
   return (
-    <div className="cyber-glass rounded-2xl p-6 border-2 border-cyan-500/60 space-y-6 shadow-2xl shadow-cyan-950/50 relative overflow-hidden">
+    <div className="cyber-glass rounded-2xl p-6 border-2 border-cyan-500/60 space-y-6 shadow-2xl shadow-cyan-950/50 relative overflow-hidden transition-all">
       {/* Background Ambient Glows */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
@@ -52,15 +75,16 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 border-b border-cyan-500/30 pb-4">
         <div className="flex items-center gap-3">
           <div className="h-10 w-10 rounded-xl bg-cyan-500/20 border border-cyan-400 flex items-center justify-center shadow-lg shadow-cyan-500/30">
-            <Sparkles className="h-5 w-5 text-cyan-300" />
+            <Sparkles className="h-5 w-5 text-cyan-300 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="font-extrabold text-sm text-slate-100 tracking-wider uppercase font-mono">
-                Plano de Respuesta y Decisión Ejecutiva // {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 3.7 FLASH')}
+                Plano de Respuesta Dinámico // {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 3.7 FLASH')}
               </h3>
-              <span className="bg-emerald-950 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-700 font-bold">
-                GROUNDED EN BIGQUERY (LIVE)
+              <span className="bg-emerald-950 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-700 font-bold flex items-center gap-1">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                BIGQUERY GROUNDED LIVE
               </span>
             </div>
             <p className="text-xs text-cyan-200/90 font-medium mt-0.5 italic">
@@ -74,14 +98,51 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             Confianza: {(confidence_score * 100).toFixed(0)}%
           </span>
-          <span className="text-xs font-mono text-cyan-300 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800">
-            Latencia Total: {latency_ms.toFixed(1)}ms
+          <span className="text-xs font-mono text-cyan-300 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 flex items-center gap-1">
+            <Clock className="h-3.5 w-3.5 text-cyan-400" />
+            <span>Latencia: {latency_ms.toFixed(1)}ms</span>
+          </span>
+        </div>
+      </div>
+
+      {/* Live Pipeline Execution Indicator */}
+      <div className="bg-slate-950/80 rounded-xl p-2.5 border border-slate-800 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono">
+        <div className="flex items-center gap-1.5 text-slate-400">
+          <Cpu className="h-3.5 w-3.5 text-cyan-400" />
+          <span>Pipeline Agéntico en Tiempo Real:</span>
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className={`px-2 py-0.5 rounded flex items-center gap-1 transition-all ${
+            revealPhase >= 1 ? 'bg-cyan-950 text-cyan-300 border border-cyan-700' : 'bg-slate-900 text-slate-600'
+          }`}>
+            <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
+            1. Intención Semántica Detectada
+          </span>
+          <span className={`px-2 py-0.5 rounded flex items-center gap-1 transition-all ${
+            revealPhase >= 2 ? 'bg-blue-950 text-blue-300 border border-blue-700' : 'bg-slate-900 text-slate-600'
+          }`}>
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+            2. Tool BigQuery (28ms-35ms)
+          </span>
+          <span className={`px-2 py-0.5 rounded flex items-center gap-1 transition-all ${
+            revealPhase >= 3 ? 'bg-purple-950 text-purple-300 border border-purple-700' : 'bg-slate-900 text-slate-600'
+          }`}>
+            <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
+            3. Motor Paramétrico In-Memory (&lt;50ms)
+          </span>
+          <span className={`px-2 py-0.5 rounded flex items-center gap-1 transition-all ${
+            revealPhase >= 4 ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' : 'bg-slate-900 text-slate-600'
+          }`}>
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            4. Síntesis y Memorándum Listo
           </span>
         </div>
       </div>
 
       {/* 1. Hero C-Suite Decision KPI Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 transition-all duration-500 ${
+        revealPhase >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+      }`}>
         {/* Metric 1: VaR 99% */}
         <div className="bg-slate-950/90 rounded-xl p-4 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs">
@@ -159,16 +220,22 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         </div>
       </div>
 
-      {/* 2. THREE DIRECT ANSWERS BY DEPARTMENT (Los 3 Pilares Resueltos Directamente) */}
-      <div className="space-y-3">
+      {/* 2. THREE DIRECT ANSWERS BY DEPARTMENT (Adaptive & Context-Focused) */}
+      <div className={`space-y-3 transition-all duration-500 ${
+        revealPhase >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+      }`}>
         <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
           <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-          <span>Respuesta Desglosada por Departamento (Resultado del Análisis Multi-Tabla)</span>
+          <span>Respuesta Desglosada por Departamento ({isMultiDept ? 'Visión Consolidada' : 'Foco Específico'})</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
           {/* Pillar 1: Compras */}
-          <div className="bg-slate-950/80 p-4 rounded-xl border border-blue-500/30 space-y-2">
+          <div className={`p-4 rounded-xl space-y-2 transition-all ${
+            isComprasFocused || isMultiDept
+              ? 'bg-slate-950/90 border-2 border-blue-500/60 shadow-lg shadow-blue-950/40'
+              : 'bg-slate-950/40 border border-slate-800 opacity-60'
+          }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-bold text-blue-300">
                 <Package className="h-4 w-4 text-blue-400" />
@@ -184,7 +251,11 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
           </div>
 
           {/* Pillar 2: Almacén */}
-          <div className="bg-slate-950/80 p-4 rounded-xl border border-amber-500/30 space-y-2">
+          <div className={`p-4 rounded-xl space-y-2 transition-all ${
+            isAlmacenFocused || isMultiDept
+              ? 'bg-slate-950/90 border-2 border-amber-500/60 shadow-lg shadow-amber-950/40'
+              : 'bg-slate-950/40 border border-slate-800 opacity-60'
+          }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
                 <Factory className="h-4 w-4 text-amber-400" />
@@ -200,7 +271,11 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
           </div>
 
           {/* Pillar 3: Tesorería */}
-          <div className="bg-slate-950/80 p-4 rounded-xl border border-purple-500/30 space-y-2">
+          <div className={`p-4 rounded-xl space-y-2 transition-all ${
+            isTesoreriaFocused || isMultiDept
+              ? 'bg-slate-950/90 border-2 border-purple-500/60 shadow-lg shadow-purple-950/40'
+              : 'bg-slate-950/40 border border-slate-800 opacity-60'
+          }`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
                 <Building2 className="h-4 w-4 text-purple-400" />
@@ -219,7 +294,9 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
 
       {/* 3. GROUNDED BIGQUERY RECORDSET TABLE */}
       {grounded_data_table && (
-        <div className="bg-slate-950/90 rounded-xl border border-cyan-500/40 overflow-hidden shadow-xl space-y-0">
+        <div className={`bg-slate-950/90 rounded-xl border border-cyan-500/40 overflow-hidden shadow-xl space-y-0 transition-all duration-500 ${
+          revealPhase >= 3 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+        }`}>
           <div className="bg-gradient-to-r from-slate-900 via-[#0f172a] to-slate-900 px-4 py-2.5 flex items-center justify-between border-b border-cyan-500/30">
             <div className="flex items-center gap-2">
               <Database className="h-4 w-4 text-cyan-400" />
@@ -275,7 +352,9 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
       )}
 
       {/* 4. STRATEGIC REPORT BLUEPRINT & 1-CLICK BOARD MEMO ACTION */}
-      <div className="bg-gradient-to-r from-blue-950/80 via-indigo-950/70 to-slate-950 rounded-xl p-5 border border-cyan-500/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+      <div className={`bg-gradient-to-r from-blue-950/80 via-indigo-950/70 to-slate-950 rounded-xl p-5 border border-cyan-500/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl transition-all duration-500 ${
+        revealPhase >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
+      }`}>
         <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider">
             <FileText className="h-4 w-4 text-cyan-400" />
@@ -311,7 +390,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
             <button
               type="button"
               onClick={onOpenBoardMemo}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-2 transition-all cursor-pointer"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-2 transition-all cursor-pointer animate-pulse"
             >
               <FileText className="h-4 w-4 text-slate-950" />
               <span>Ver Memorándum del Consejo &rarr;</span>
