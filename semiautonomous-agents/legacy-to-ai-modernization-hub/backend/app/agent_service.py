@@ -18,7 +18,7 @@ from .shock_engine import compute_shock_impact
 # Load environment with override=True per rules
 load_dotenv(override=True)
 
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
 GCP_PROJECT = os.getenv("GCP_PROJECT", "vtxdemos")
 GCP_REGION = os.getenv("GCP_REGION", "us-central1")
 

@@ -3,7 +3,6 @@ import {
   Sparkles,
   Send,
   FileText,
-  ShieldCheck,
   Zap,
   TrendingUp,
   RefreshCw,
@@ -21,6 +20,7 @@ import { ShockSimulatorSliders } from './ShockSimulatorSliders';
 import { DynamicRiskCharts } from './DynamicRiskCharts';
 import { ExecutiveMemoModal } from './ExecutiveMemoModal';
 import { AgentSwarmStatus } from './AgentSwarmStatus';
+import { ExecutiveSynthesisView } from './ExecutiveSynthesisView';
 
 interface AgentNativeCanvasProps {
   onUpdateLatency: (latencyMs: number) => void;
@@ -219,41 +219,10 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
 
       {/* Agent Reasoning & Executive Synthesis Card (if query executed) */}
       {agentResponse && (
-        <div className="cyber-glass rounded-2xl p-5 border border-emerald-500/40 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-emerald-400" />
-              <h3 className="font-extrabold text-sm text-slate-100 tracking-wide uppercase">
-                Executive Risk Synthesis // {agentResponse.model_used}
-              </h3>
-            </div>
-            <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-800">
-              Confidence: {(agentResponse.confidence_score * 100).toFixed(0)}% &bull; {agentResponse.latency_ms}ms
-            </span>
-          </div>
-
-          <div className="text-xs text-slate-300 leading-relaxed font-sans space-y-2 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80 whitespace-pre-wrap font-mono text-[11px]">
-            {agentResponse.synthesis_markdown}
-          </div>
-
-          {/* Reasoning Trace Accordion */}
-          <div className="space-y-1.5">
-            <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block">
-              Autonomous Agent Reasoning Trace:
-            </span>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-[10px] font-mono">
-              {agentResponse.reasoning_trace.map((step, i) => (
-                <div
-                  key={i}
-                  className="bg-slate-900/60 p-2 rounded-lg border border-slate-800 text-slate-300 flex items-center gap-2"
-                >
-                  <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-                  <span>{step}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <ExecutiveSynthesisView
+          agentResponse={agentResponse}
+          onExecuteHedge={handleExecuteHedge}
+        />
       )}
 
       {/* What-If Shock Sliders */}
