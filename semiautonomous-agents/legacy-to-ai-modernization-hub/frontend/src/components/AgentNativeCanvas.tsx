@@ -14,6 +14,7 @@ import {
   Factory,
   Building2,
   Activity,
+  Maximize2,
 } from 'lucide-react';
 import {
   ShockParameters,
@@ -109,62 +110,57 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // High-Visibility EBC Scenario Cards (Engineered for 65"-100" Displays)
+  // High-Visibility EBC Scenario Cards (Optimized for 16:9 / 21:9 Widescreen Displays)
   const samplePrompts = [
     {
       id: 1,
       icon: ShieldAlert,
-      title: '1. Análisis Multi-Departamento Consolidado',
-      highlight: 'Bloqueo Taiwán 90 Días // Compras + Almacén + Tesorería',
+      title: '1. Multi-Departamento',
+      highlight: 'Bloqueo Taiwán 90 Días // Todo',
       text: 'Si nuestro proveedor en Taiwán tiene un bloqueo de 90 días, ¿cuáles órdenes están comprometidas, cuántos días de inventario nos quedan antes de parar la línea y qué contratos FX están expuestos?',
-      badge: 'ESCENARIO COMPLETO (TODO)',
-      color: 'from-cyan-500/20 via-blue-500/20 to-indigo-500/20 border-cyan-400',
+      badge: 'ESCENARIO COMPLETO',
+      color: 'from-cyan-500/20 via-blue-500/20 to-slate-900 border-cyan-400 hover:border-cyan-300',
       badgeColor: 'bg-cyan-500 text-slate-950',
-      span: 'md:col-span-2',
     },
     {
       id: 2,
       icon: Activity,
-      title: '2. Choque Macroeconómico & Gráficas VaR 99%',
-      highlight: 'Fed +125bps & Curvas de Sensibilidad Q1-Q4',
+      title: '2. Choque Macro & VaR 99%',
+      highlight: 'Fed +125bps & Curvas de Sensibilidad',
       text: 'Simula un choque macroeconómico con alza de tasas Fed +125bps, bloqueo en Taiwán y muestra las curvas de riesgo VaR y sensibilidad de flujo de caja.',
       badge: 'CHARTS & SLIDERS',
-      color: 'from-purple-500/20 via-indigo-500/20 to-slate-900 border-purple-500/50',
+      color: 'from-purple-500/20 via-slate-900 to-slate-900 border-purple-500/50 hover:border-purple-400',
       badgeColor: 'bg-purple-950 text-purple-300 border border-purple-700',
-      span: 'md:col-span-1',
     },
     {
       id: 3,
       icon: Package,
-      title: '3. Compras y Órdenes de Proveedores',
-      highlight: 'TSMC ($107.5M), Foxconn ($68M) y ASE Tech ($85.5M)',
+      title: '3. Compras & Proveedores',
+      highlight: 'TSMC ($107.5M), Foxconn & ASE',
       text: '¿Cuáles son las órdenes de compra abiertas y montos comprometidos con Taiwán?',
       badge: 'COMPRAS',
-      color: 'from-blue-500/20 via-slate-900 to-slate-900 border-blue-500/50',
+      color: 'from-blue-500/20 via-slate-900 to-slate-900 border-blue-500/50 hover:border-blue-400',
       badgeColor: 'bg-blue-950 text-blue-300 border border-blue-700',
-      span: 'md:col-span-1',
     },
     {
       id: 4,
       icon: Factory,
-      title: '4. Almacén y Riesgo de Paro de Planta',
-      highlight: 'Buffer de 34 Días // Paro Proyectado 15 de Julio 2026',
+      title: '4. Almacén & Paro de Planta',
+      highlight: '34 Días Buffer // Paro 15 Jul 2026',
       text: '¿Cuántos días de inventario nos quedan antes del paro de planta en ensamble?',
       badge: 'ALMACÉN',
-      color: 'from-amber-500/20 via-slate-900 to-slate-900 border-amber-500/50',
+      color: 'from-amber-500/20 via-slate-900 to-slate-900 border-amber-500/50 hover:border-amber-400',
       badgeColor: 'bg-amber-950 text-amber-300 border border-amber-700',
-      span: 'md:col-span-1',
     },
     {
       id: 5,
       icon: Building2,
-      title: '5. Tesorería y Contratos Forwards FX',
-      highlight: '$14.2M Descubiertos // Swaption Collar $63M',
+      title: '5. Tesorería & Forwards FX',
+      highlight: '$14.2M Descubiertos // Swaption Collar',
       text: '¿Qué contratos forwards en USD/TWD están descubiertos y qué cobertura se recomienda?',
       badge: 'TESORERÍA',
-      color: 'from-purple-500/20 via-slate-900 to-slate-900 border-purple-500/50',
+      color: 'from-purple-500/20 via-slate-900 to-slate-900 border-purple-500/50 hover:border-purple-400',
       badgeColor: 'bg-purple-950 text-purple-300 border border-purple-700',
-      span: 'md:col-span-1',
     },
   ];
 
@@ -201,7 +197,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
       qLower.includes('mitigac'));
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 py-6 space-y-8">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-8 right-8 z-50 bg-emerald-900/95 text-emerald-100 border-2 border-emerald-400 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-lg flex items-center gap-3 text-sm font-mono animate-bounce">
@@ -210,7 +206,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
         </div>
       )}
 
-      {/* Top Banner: EBC Command Canvas Header */}
+      {/* Top Banner: Full Widescreen EBC Header */}
       <div className="cyber-glass rounded-2xl p-6 border-2 border-cyan-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl">
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 rounded-2xl bg-gradient-to-br from-cyan-500 via-blue-600 to-indigo-600 p-0.5 shadow-xl shadow-cyan-500/30 shrink-0">
@@ -219,12 +215,13 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
             </div>
           </div>
           <div>
-            <div className="flex items-center gap-3">
-              <h2 className="font-black text-lg sm:text-xl lg:text-2xl text-slate-100 tracking-wide uppercase">
+            <div className="flex items-center gap-3 flex-wrap">
+              <h2 className="font-black text-lg sm:text-xl lg:text-2xl text-slate-100 tracking-wide uppercase font-sans">
                 AGENT-NATIVE EXECUTIVE COMMAND CANVAS (2026)
               </h2>
-              <span className="px-3 py-1 text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-700 rounded-full font-bold">
-                GENERATIVE UI
+              <span className="px-3 py-1 text-xs font-mono bg-cyan-950 text-cyan-300 border border-cyan-700 rounded-full font-bold flex items-center gap-1.5">
+                <Maximize2 className="h-3 w-3 text-cyan-400" />
+                WIDESCREEN 100&quot; EBC DISPLAY
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300 font-medium mt-1">
@@ -252,7 +249,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
         </button>
       </div>
 
-      {/* Large-Display EBC Prompt Bar & Fast Scenario Selector */}
+      {/* Full Widescreen EBC Prompt Bar & 5-Column Horizontal Scenarios */}
       <div className="cyber-glass rounded-3xl p-6 sm:p-8 border-2 border-cyan-500/40 space-y-6 shadow-2xl">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -272,7 +269,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
         <form onSubmit={handleQuerySubmit} className="flex flex-col sm:flex-row items-stretch gap-3">
           <div className="relative flex-1">
             <textarea
-              rows={query.length > 100 ? 3 : query.length > 50 ? 2 : 1}
+              rows={query.length > 120 ? 2 : 1}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
@@ -299,18 +296,18 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
           </button>
         </form>
 
-        {/* EBC High-Visibility Quick Scenario Cards (Engineered for 100" Displays) */}
+        {/* 5-Column Widescreen Horizon Grid (Perfect for 100" Displays) */}
         <div className="space-y-3 pt-2">
           <div className="flex items-center justify-between">
             <span className="text-xs sm:text-sm font-mono font-black text-cyan-300 uppercase tracking-wider block">
-              ⚡ Escenarios Ejecutivos Pre-Configurados (Clic para Lanzar):
+              ⚡ Escenarios Ejecutivos Pre-Configurados (Clic para Lanzar en Widescreen):
             </span>
             <span className="text-xs font-mono text-slate-400">
               Datos 100% Reales de BigQuery
             </span>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             {samplePrompts.map((p) => {
               const IconComponent = p.icon;
               return (
@@ -321,27 +318,28 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
                     setQuery(p.text);
                     handleQuerySubmit(undefined, p.text);
                   }}
-                  className={`p-5 rounded-2xl text-left transition-all border-2 bg-gradient-to-br ${p.color} hover:scale-[1.01] active:scale-[0.99] flex flex-col justify-between gap-3 cursor-pointer shadow-lg hover:shadow-cyan-500/20 ${p.span}`}
+                  className={`p-5 rounded-2xl text-left transition-all border-2 bg-gradient-to-br ${p.color} hover:scale-[1.02] active:scale-[0.98] flex flex-col justify-between gap-3 cursor-pointer shadow-lg hover:shadow-cyan-500/30 h-full`}
                 >
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5">
-                      <div className="h-8 w-8 rounded-xl bg-slate-950/80 border border-slate-700 flex items-center justify-center shrink-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <div className="h-7 w-7 rounded-lg bg-slate-950/80 border border-slate-700 flex items-center justify-center shrink-0">
                         <IconComponent className="h-4 w-4 text-cyan-400" />
                       </div>
                       <h4 className="font-extrabold text-sm sm:text-base text-slate-100 font-sans">
                         {p.title}
                       </h4>
                     </div>
-                    <span className={`text-[10px] font-mono px-2.5 py-1 rounded-full font-black uppercase tracking-wider shrink-0 ${p.badgeColor}`}>
-                      {p.badge}
-                    </span>
                   </div>
 
-                  <div className="text-xs sm:text-sm font-bold text-cyan-300 font-mono">
+                  <span className={`text-[10px] font-mono px-2.5 py-0.5 rounded-full font-black uppercase tracking-wider self-start ${p.badgeColor}`}>
+                    {p.badge}
+                  </span>
+
+                  <div className="text-xs font-bold text-cyan-300 font-mono">
                     &bull; {p.highlight}
                   </div>
 
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans line-clamp-2">
+                  <p className="text-xs text-slate-300 leading-snug font-sans line-clamp-2">
                     &ldquo;{p.text}&rdquo;
                   </p>
                 </button>
@@ -353,19 +351,19 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
 
       {/* INITIAL STATE HERO (Shown when NO query has been executed yet) */}
       {!agentResponse && (
-        <div className="cyber-glass rounded-3xl p-10 border-2 border-slate-800 text-center space-y-6 shadow-2xl">
+        <div className="cyber-glass rounded-3xl p-12 border-2 border-slate-800 text-center space-y-6 shadow-2xl">
           <div className="h-16 w-16 rounded-3xl bg-cyan-500/10 border-2 border-cyan-500/40 flex items-center justify-center mx-auto shadow-2xl shadow-cyan-500/30">
             <Sparkles className="h-8 w-8 text-cyan-400 animate-pulse" />
           </div>
-          <div className="space-y-2 max-w-2xl mx-auto">
+          <div className="space-y-2 max-w-3xl mx-auto">
             <h3 className="text-xl sm:text-2xl font-black text-slate-100 tracking-wide uppercase font-sans">
-              Canvas Agéntico Generativo Listo para Presentación EBC
+              Canvas Agéntico Generativo Listo para Presentación EBC en Pantalla Gigante
             </h3>
             <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
-              Selecciona uno de los escenarios ejecutivos arriba o escribe una pregunta en lenguaje natural. Los componentes, tablas y métricas aparecerán dinámicamente según la intención detectada.
+              Selecciona uno de los 5 escenarios ejecutivos arriba o escribe una pregunta en lenguaje natural. Los componentes, tablas y métricas aparecerán horizontalmente según la intención detectada.
             </p>
           </div>
-          <div className="flex flex-wrap items-center justify-center gap-6 text-sm font-mono text-slate-400 pt-4 border-t border-slate-800/80 max-w-xl mx-auto">
+          <div className="flex flex-wrap items-center justify-center gap-8 text-sm font-mono text-slate-400 pt-4 border-t border-slate-800/80 max-w-2xl mx-auto">
             <span className="flex items-center gap-2">
               <Database className="h-4 w-4 text-cyan-400" />
               BigQuery: vtxdemos.ebc_modernization_demo
@@ -373,6 +371,10 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
             <span className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-emerald-400" />
               Gemini 3.7 Flash Engine
+            </span>
+            <span className="flex items-center gap-2">
+              <Maximize2 className="h-4 w-4 text-purple-400" />
+              100&quot; Widescreen Layout
             </span>
           </div>
         </div>
