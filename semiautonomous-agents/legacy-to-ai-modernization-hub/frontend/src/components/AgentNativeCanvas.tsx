@@ -222,6 +222,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
         <ExecutiveSynthesisView
           agentResponse={agentResponse}
           onExecuteHedge={handleExecuteHedge}
+          onOpenBoardMemo={handleGenerateMemo}
         />
       )}
 
