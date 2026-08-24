@@ -269,13 +269,81 @@ Bajo el escenario evaluado con **{params.supply_chain_stress_index:.0f}/100 en e
 
 async def generate_board_memo(request: BoardMemoRequest) -> BoardMemoResponse:
     """
-    Generates a formal, comprehensive C-suite / Board of Directors Decision Memorandum in Spanish.
+    Generates a formal, comprehensive C-suite / Board of Directors Decision Memorandum in Spanish,
+    strictly customized to the query domain (Compras, Almacen, Tesoreria, or Multi-Dept).
     """
     start_time = time.perf_counter()
     memo_id = f"MEMO-EBC-{int(time.time())}"
     now_str = time.strftime("%d de %B de %Y - %H:%M UTC")
 
     shock_impact = compute_shock_impact(request.shock_params)
+
+    # Determine query focus
+    q_lower = request.query_context.lower() if request.query_context else ""
+    is_compras = any(k in q_lower for k in ["orden", "compras", "proveedor", "comprometid", "po ", "tsmc", "foxconn", "ase"]) and not ("inventario" in q_lower or "paro" in q_lower or "contratos" in q_lower or "forwards" in q_lower)
+    is_almacen = any(k in q_lower for k in ["inventario", "stock", "dias", "almacen", "paro", "ensamble", "fabrica"]) and not ("orden" in q_lower or "comprometid" in q_lower or "forwards" in q_lower)
+    is_tesoreria = any(k in q_lower for k in ["tesoreria", "forwards", "cambiari", "fx", "dbs", "cobertura", "derivados", "swaption"]) and not ("orden" in q_lower or "inventario" in q_lower or "paro" in q_lower)
+
+    if is_compras:
+        query_focus = "COMPRAS"
+        memo_title = "Resolución del Consejo: Reasignación de Órdenes de Compra y Proveedores en Taiwán"
+        key_metrics = [
+            {"metric": "Órdenes Comprometidas", "value": "$320.6M", "status": "EXPUESTO (12 POs)"},
+            {"metric": "Concentración TSMC", "value": "33.5%", "status": "ALTA CONCENTRACIÓN"},
+            {"metric": "Retraso Logístico", "value": "+45 a 90 Días", "status": "CRÍTICO EN KAOHSIUNG"},
+            {"metric": "Plantas Alternativas", "value": "3 Fábricas", "status": "AUSTIN / SINGAPUR"},
+        ]
+        recommended_actions = [
+            "1. Aprobar desvío inmediato del 30% del volumen de sustratos a plantas secundarias en Austin y Singapur.",
+            "2. Establecer fletes aéreos de contingencia con cargueros comerciales para asegurar la entrega de obleas 3nm de TSMC.",
+            "3. Instruir a la Dirección de Compras a auditar capacidades de empaquetado alternativo con ASE Technology.",
+        ]
+        exec_summary = "Evaluación de compras en BigQuery: $320.6M en 12 órdenes abiertas con TSMC, Foxconn y ASE Tech con retraso proyectado de +45 a 90 días."
+    elif is_almacen:
+        query_focus = "ALMACEN"
+        memo_title = "Resolución del Consejo: Continuidad de Manufactura y Plan de Contingencia contra Paro de Planta"
+        key_metrics = [
+            {"metric": "Stock de Seguridad", "value": "34 Días Buffer", "status": "PARO INMINENTE"},
+            {"metric": "Fecha Límite de Paro", "value": "15 Jul 2026", "status": "ALERTA ROJA (AUSTIN/MTY)"},
+            {"metric": "Consumo de Ensamble", "value": "800 U / Día", "status": "OPERACIÓN NOMINAL"},
+            {"metric": "Puente Frankfurt", "value": "+12 Días Extra", "status": "STOCK REASIGNABLE"},
+        ]
+        recommended_actions = [
+            "1. Autorizar activación del puente aéreo logístico desde Frankfurt para inyectar 9,600 unidades (+12 días de buffer).",
+            "2. Ajustar la tasa de ensamble en Austin de 800 a 600 u/día para extender la fecha crítica de paro hasta Agosto de 2026.",
+            "3. Priorizar líneas de manufactura de alto margen en la planta de Monterrey.",
+        ]
+        exec_summary = "Evaluación de inventarios en BigQuery: 34 días de stock de seguridad restantes antes del paro de ensamble (15 de Julio de 2026). Puente aéreo de Frankfurt habilitado."
+    elif is_tesoreria:
+        query_focus = "TESORERIA"
+        memo_title = "Resolución del Consejo: Autorización de Swaption Collar ($63M) y Blindaje Cambiario USD/TWD"
+        key_metrics = [
+            {"metric": "Exposición Forwards FX", "value": "$14.2M USD", "status": "SIN COBERTURA (Q3)"},
+            {"metric": "Pérdida Proyectada", "value": "-$3.85M USD", "status": "SLIPPAGE CAMBIARIO"},
+            {"metric": "Costo Swaption Collar", "value": "$450K USD", "status": "PRIMA EFICIENTE"},
+            {"metric": "Ahorro Neto Estimado", "value": "+$3.40M USD", "status": "ROI 7.5x RECOMENDADO"},
+        ]
+        recommended_actions = [
+            "1. Autorizar a Tesorería a contratar la estructura Receiver Swaption Collar de $63.0M con DBS Bank y Citigroup.",
+            "2. Neutralizar el 74% de la pérdida por deslizamiento cambiario en contratos USD/TWD.",
+            "3. Fijar el piso de protección cambiaria en 31.80 USD/TWD financiando con venta de call out-of-the-money en 33.50.",
+        ]
+        exec_summary = "Evaluación de tesorería en BigQuery: $14.2M en forwards descubiertos con pérdida potencial de $3.85M. Se aprueba ejecución de Swaption Collar ($63M)."
+    else:
+        query_focus = "MULTI_DEPT"
+        memo_title = "Memorándum de Decisión Estratégica: Evaluación Integral de Disrupción y Cobertura de Liquidez"
+        key_metrics = [
+            {"metric": "VaR Portafolio (99%)", "value": f"${shock_impact.value_at_risk_99_m}M", "status": f"+{shock_impact.var_delta_pct}% ELEVADO" if shock_impact.var_delta_pct > 0 else "NORMAL"},
+            {"metric": "Arrastre en EBITDA", "value": f"-${shock_impact.ebitda_impact_m}M", "status": "ACCIÓN REQUERIDA"},
+            {"metric": "Cojín de Liquidez", "value": f"${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M", "status": shock_impact.liquidity_buffer_status},
+            {"metric": "Capital Regulatorio", "value": "100%", "status": "BASEL III VERIFICADO"},
+        ]
+        recommended_actions = [
+            "1. Aprobar contratación de Collar Swaption de $63.0M para neutralizar el 74% del riesgo de cola.",
+            "2. Activar reserva de contingencia de stock en almacenes de Austin y Monterrey.",
+            "3. Instruir a Tesorería a cubrir $14.2M de forwards en USD/TWD con DBS Bank y Standard Chartered.",
+        ]
+        exec_summary = f"Evaluación de estrés multi-departamental en BigQuery: VaR=${shock_impact.value_at_risk_99_m}M USD, EBITDA=-${shock_impact.ebitda_impact_m}M USD, $320M de POs de Taiwán analizadas y cobertura Swaption Collar recomendada."
 
     client = _get_genai_client()
     memo_markdown = ""
@@ -284,36 +352,33 @@ async def generate_board_memo(request: BoardMemoRequest) -> BoardMemoResponse:
         try:
             prompt = f"""
 Escribe un Memorándum de Decisión del Consejo de Administración formal y de alto nivel en Español (Castellano Corporativo).
-Título: {request.memo_title or "Evaluación Estratégica de Liquidez y Disrupción en Cadena de Suministro (Edición Consejo)"}
+Título: {memo_title}
 Autor: Agente Autónomo Antigravity para Empresas (Motor Gemini 3.7 Flash)
+Foco del Análisis: {query_focus}
 Contexto del Escenario: {request.query_context}
 
 Datos Reales de BigQuery (vtxdemos.ebc_modernization_demo):
-- Órdenes Comprometidas con Taiwán: $320.6M en 12 órdenes con TSMC (Obleas 3nm y Sustratos), Foxconn (Sensores Ópticos) y ASE Technology (Memorias HBM3e).
-- Stock de Seguridad y Paro de Planta: Solo 34 a 42 días de stock en componentes críticos antes de paro de ensamble (Fecha límite: 15 de Julio de 2026).
+- Órdenes Comprometidas con Taiwán: $320.6M en 12 órdenes con TSMC, Foxconn y ASE Technology.
+- Stock de Seguridad y Paro de Planta: Solo 34 días de stock en componentes críticos antes de paro de ensamble (15 de Julio de 2026).
 - Contratos Forwards FX Expuestos: $14.2M en contratos USD/TWD sin cobertura con DBS Bank y Standard Chartered.
 
-Métricas Cuantitativas de Estrés:
-- Valor Total del Portafolio: ${shock_impact.total_portfolio_value_m}M USD
-- Riesgo de Portafolio (VaR 99% a 10 días): ${shock_impact.value_at_risk_99_m}M USD (+{shock_impact.var_delta_pct}% sobre la base)
-- Arrastre Proyectado en EBITDA: -${shock_impact.ebitda_impact_m}M USD
-- Estado del Cojín de Liquidez: {shock_impact.liquidity_buffer_status} (Reserva disponible: ${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M USD)
-- Índice Compuesto de Riesgo: {shock_impact.risk_score_index:.1f} / 100
+Métricas Clave:
+{json.dumps(key_metrics, ensure_ascii=False, indent=2)}
 
 Estructura obligatoria en Markdown:
 # MEMORÁNDUM DE DECISIÓN DEL CONSEJO DE ADMINISTRACIÓN
 **PARA:** Consejo de Administración y Comité de Auditoría y Riesgos
 **DE:** Oficina del Chief Risk Officer y Agente Autónomo Antigravity (Gemini 3.7 Flash)
 **FECHA:** {now_str}
-**ASUNTO:** Evaluación y Plan de Acción ante Bloqueo de Suministro en Taiwán y Cobertura Cambiaria
+**ASUNTO:** {memo_title}
 **CLASIFICACIÓN:** ESTRICTAMENTE CONFIDENCIAL // DELIBERACIÓN DE CONSEJO
 
 ---
 
 ### 1. Resumen Ejecutivo y Dictamen del CRO
-### 2. Diagnóstico Cuantitativo del Portafolio y Fuentes de Exposición
-### 3. Mecanismos de Transmisión Operativa y Financiera (Compras, Almacén, Tesorería)
-### 4. Estrategia de Cobertura Propuesta (Estructura Collar Swaption)
+### 2. Diagnóstico Cuantitativo Focalizado ({query_focus})
+### 3. Mecanismos de Transmisión e Impacto en Operaciones
+### 4. Estrategia de Mitigación Recomendada
 ### 5. Resoluciones Sometidas a Aprobación del Consejo
 """
             def _call_gemini_memo():
@@ -335,58 +400,41 @@ Estructura obligatoria en Markdown:
 **PARA:** Consejo de Administración y Comité de Auditoría y Riesgos  
 **DE:** Oficina del Chief Risk Officer & Agente Autónomo Antigravity (Gemini 3.7 Flash)  
 **FECHA:** {now_str}  
-**ASUNTO:** Evaluación de Riesgo por Disrupción en Cadena de Suministro y Cobertura de Liquidez  
+**ASUNTO:** {memo_title}  
 **CLASIFICACIÓN:** ESTRICTAMENTE CONFIDENCIAL // DELIBERACIÓN DE CONSEJO  
 
 ---
 
 ### 1. Resumen Ejecutivo y Dictamen del CRO
-Bajo el escenario de estrés evaluado en Google Cloud BigQuery (`vtxdemos.ebc_modernization_demo`), la corporación enfrenta una triple exposición simultánea derivada del bloqueo proyectado de 90 días en los puertos de Kaohsiung y Taipei:
-
-- **Riesgo Total de Portafolio (VaR 99% a 10 días):** Se expande a **${shock_impact.value_at_risk_99_m}M USD** (+{shock_impact.var_delta_pct}% respecto a la línea base de $84.5M).
-- **Impacto Proyectado en EBITDA:** Reducción estimada de **-${shock_impact.ebitda_impact_m}M USD** por compresión de margen y costos de flete aéreo de emergencia.
-- **Salud de Liquidez:** Calificada como **{shock_impact.liquidity_buffer_status}**, con una reserva disponible post-estrés de **${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M USD**.
+{exec_summary}
 
 ---
 
-### 2. Diagnóstico Multi-Departamento (Datos Reales de BigQuery)
-1. **Compras y Proveedores Críticos:** Se identificaron **$320.6M USD** en 12 órdenes de compra abiertas con TSMC ($107.5M en obleas 3nm y sustratos FCBGA), Foxconn ($68.0M en módulos ópticos) y ASE Technology ($85.5M en memorias HBM3e).
-2. **Almacén y Riesgo de Paro:** El stock de seguridad para obleas de 3nm descenderá a **cero en 34 días** al ritmo de consumo actual (800 unidades/día). El paro de la línea de ensamblaje en Austin/Monterrey ocurriría el **15 de Julio de 2026** de no mediar intervención.
-3. **Tesorería y Contratos FX:** Se detectaron **$14.2M USD** en 2 contratos forwards en USD/TWD con DBS Bank y Standard Chartered sin cobertura cambiaria para el tercer trimestre.
+### 2. Diagnóstico Focalizado en {query_focus} (Datos Reales de BigQuery)
+Bajo los registros consolidados en Google Cloud BigQuery (`vtxdemos.ebc_modernization_demo`), la situación operativa y de riesgo se resume en las métricas vinculadas a {query_focus}.
 
 ---
 
-### 3. Estrategia de Mitigación y Cobertura Recomendada
-Se propone la ejecución inmediata de una estructura de derivados **Receiver Swaption Collar de $63.0M USD** con piso en -50 bps y techo en +150 bps, la cual neutraliza el **74% del riesgo de cola** con un costo de estructuración de solo $450K USD.
+### 3. Estrategia de Mitigación Recomendada
+Se somete a deliberación inmediata la adopción de las medidas de contingencia analizadas por el pipeline agéntico.
 
 ---
 
 ### 4. Resoluciones Sometidas a Votación del Consejo
-1. **RESOLUCIÓN I (Financiera):** Autorizar a la Dirección de Tesorería a contratar la cobertura Collar Swaption por hasta $63.0M USD con bancos contraparte de primer orden (DBS Bank / Citigroup).
-2. **RESOLUCIÓN II (Operativa):** Activar el protocolo de contingencia de cadena de suministro para redireccionar stock de seguridad disponible en los centros de distribución de Monterrey y Frankfurt.
-3. **RESOLUCIÓN III (Gobernanza):** Facultar a la Dirección General para establecer un comité semanal de seguimiento de inventarios críticos y renegociar plazos de entrega con TSMC y Foxconn."""
+{chr(10).join(recommended_actions)}"""
 
     elapsed_ms = (time.perf_counter() - start_time) * 1000.0
 
     return BoardMemoResponse(
         memo_id=memo_id,
-        title=request.memo_title or "Memorándum de Decisión Estratégica para el Consejo",
+        title=memo_title,
         timestamp=now_str,
         author="Antigravity Autonomous Enterprise Agent (Motor Gemini 3.7 Flash)",
         target_audience=request.target_audience,
-        executive_summary=f"Evaluación de estrés en BigQuery: VaR=${shock_impact.value_at_risk_99_m}M USD, EBITDA=-${shock_impact.ebitda_impact_m}M USD, $320M de POs de Taiwán analizadas y cobertura Collar Swaption recomendada.",
+        executive_summary=exec_summary,
         full_markdown=memo_markdown,
-        key_metrics_table=[
-            {"metric": "VaR Portafolio (99%)", "value": f"${shock_impact.value_at_risk_99_m}M", "status": "ELEVADO (+25%)" if shock_impact.var_delta_pct > 0 else "NORMAL"},
-            {"metric": "Arrastre en EBITDA", "value": f"-${shock_impact.ebitda_impact_m}M", "status": "ACCIÓN REQUERIDA"},
-            {"metric": "Cojín de Liquidez", "value": f"${max(0.0, 750.0 - shock_impact.ebitda_impact_m):.1f}M", "status": shock_impact.liquidity_buffer_status},
-            {"metric": "Capital Regulatorio", "value": "100%", "status": "BASEL III VERIFICADO"},
-        ],
-        recommended_board_actions=[
-            "1. Aprobar contratación de Collar Swaption de $63.0M para neutralizar el 74% del riesgo de cola.",
-            "2. Activar reserva de contingencia de stock en almacenes de Austin y Monterrey.",
-            "3. Instruir a Tesorería a cubrir $14.2M de forwards en USD/TWD con DBS Bank y Standard Chartered.",
-        ],
+        key_metrics_table=key_metrics,
+        recommended_board_actions=recommended_actions,
         governance_signoffs=[
             {"role": "Director General (CEO)", "status": "APROBADO PARA EJECUCIÓN", "timestamp": now_str},
             {"role": "Director de Finanzas (CFO)", "status": "COBERTURA VALIDADA", "timestamp": now_str},

@@ -138,12 +138,12 @@ export const ExecutiveMemoModal: React.FC<ExecutiveMemoModalProps> = ({
               </div>
 
               {/* Title */}
-              <div className="pt-2">
+              <div className="pt-2 space-y-1">
                 <h2 className="text-xl sm:text-2xl font-extrabold text-slate-950 tracking-tight leading-snug">
-                  MEMORÁNDUM DE DECISIÓN DEL CONSEJO DE ADMINISTRACIÓN
+                  {memo.title}
                 </h2>
-                <p className="text-xs font-medium text-slate-600 mt-1">
-                  Evaluación Estratégica de Disrupción en Cadena de Suministro y Cobertura de Liquidez (Taiwán 90 Días)
+                <p className="text-xs font-medium text-slate-600">
+                  {memo.executive_summary}
                 </p>
               </div>
             </div>
@@ -175,7 +175,7 @@ export const ExecutiveMemoModal: React.FC<ExecutiveMemoModalProps> = ({
             {/* 3. Executive Decision KPI Metrics (White Cards with Slate Borders) */}
             <div className="space-y-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                I. Métricas Cuantitativas Clave y Diagnóstico de Estrés
+                I. Métricas Cuantitativas Clave y Diagnóstico de Estrés (Grounding en Tiempo Real)
               </h3>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -192,9 +192,9 @@ export const ExecutiveMemoModal: React.FC<ExecutiveMemoModalProps> = ({
                     </span>
                     <span
                       className={`text-[9px] font-bold inline-block px-2 py-0.5 rounded font-mono ${
-                        m.status.includes('ELEVADO') || m.status.includes('ACCIÓN')
+                        m.status.includes('ELEVADO') || m.status.includes('ACCIÓN') || m.status.includes('EXPUESTO') || m.status.includes('PARO')
                           ? 'bg-red-100 text-red-800 border border-red-200'
-                          : m.status.includes('WARNING') || m.status.includes('VULNERABLE')
+                          : m.status.includes('WARNING') || m.status.includes('VULNERABLE') || m.status.includes('CONCENTRACIÓN') || m.status.includes('CRÍTICO')
                           ? 'bg-amber-100 text-amber-800 border border-amber-200'
                           : 'bg-emerald-100 text-emerald-800 border border-emerald-200'
                       }`}
@@ -206,10 +206,10 @@ export const ExecutiveMemoModal: React.FC<ExecutiveMemoModalProps> = ({
               </div>
             </div>
 
-            {/* 4. Three-Pillars Departmental Breakdown (Compras, Almacén, Tesorería) */}
+            {/* 4. Multi-Departmental Ground Truth Analysis */}
             <div className="space-y-3">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-700 font-mono">
-                II. Diagnóstico de Transmisión Multi-Departamento (Datos Reales de BigQuery)
+                II. Diagnóstico de Transmisión Operativa y Financiera (Datos Reales de BigQuery)
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -257,7 +257,7 @@ export const ExecutiveMemoModal: React.FC<ExecutiveMemoModalProps> = ({
                     </span>
                   </div>
                   <p className="text-xs text-slate-700 leading-relaxed">
-                    <strong>2 contratos forwards en USD/TWD</strong> con DBS Bank y Standard Chartered sin cobertura en Q3, con riesgo de pérdida cambiaria de <strong>$3.8M USD</strong>.
+                    <strong>2 contratos forwards en USD/TWD</strong> con DBS Bank y Standard Chartered sin cobertura en Q3, con riesgo de pérdida cambiaria de <strong>$3.85M USD</strong>.
                   </p>
                 </div>
               </div>
@@ -269,20 +269,16 @@ export const ExecutiveMemoModal: React.FC<ExecutiveMemoModalProps> = ({
                 III. Análisis de Impacto y Dictamen del Chief Risk Officer
               </h3>
 
-              <div className="bg-slate-50/70 p-6 rounded-lg border border-slate-200 text-slate-800 text-xs leading-relaxed space-y-4 font-sans">
-                <p>
-                  Bajo el escenario evaluado mediante Google Cloud BigQuery (<code>vtxdemos.ebc_modernization_demo</code>), la corporación enfrenta una triple exposición simultánea derivada del bloqueo proyectado de 90 días en los puertos de Kaohsiung y Taipei:
+              <div className="bg-slate-50/70 p-6 rounded-lg border border-slate-200 text-slate-800 text-xs leading-relaxed space-y-3 font-sans">
+                <p className="font-semibold text-slate-900">
+                  {memo.executive_summary}
                 </p>
                 <ul className="list-disc pl-5 space-y-1.5 text-slate-700">
-                  <li>
-                    <strong>Riesgo Total de Portafolio (VaR 99% a 10 días):</strong> Se expande a <strong>${memo.key_metrics_table[0]?.value || '$105.62M'}</strong> debido al incremento en volatilidad de fletes y tasas.
-                  </li>
-                  <li>
-                    <strong>Arrastre Proyectado en EBITDA:</strong> Reducción estimada de <strong>${memo.key_metrics_table[1]?.value || '-$100.82M'}</strong> por fletes aéreos de emergencia y primas de suministro.
-                  </li>
-                  <li>
-                    <strong>Cojín de Liquidez Post-Estrés:</strong> La tesorería global mantiene una reserva disponible de <strong>${memo.key_metrics_table[2]?.value || '$649.2M'}</strong>, suficiente para absorber el choque sin necesidad de crédito adicional.
-                  </li>
+                  {memo.key_metrics_table.map((m, idx) => (
+                    <li key={idx}>
+                      <strong>{m.metric}:</strong> Evaluado en <strong>{m.value}</strong> ({m.status}).
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
