@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import {
   DollarSign,
-  ShieldCheck,
-  TrendingDown,
+  ArrowDownRight,
+  ArrowUpRight,
   Zap,
   CheckCircle2,
-  ArrowRight,
+  Lock,
+  Building2,
 } from 'lucide-react';
 import { GroundedTableData, HedgingAction } from '../../types';
 
@@ -19,17 +20,24 @@ export const TesoreriaWaterfallView: React.FC<TesoreriaWaterfallViewProps> = ({
   onExecuteHedge,
 }) => {
   const [activeTab, setActiveTab] = useState<'waterfall' | 'table'>('waterfall');
-  const [hedgeExecuted, setHedgeExecuted] = useState(false);
+  const [executed, setExecuted] = useState(false);
 
-  const handleAuthorizeHedge = () => {
-    setHedgeExecuted(true);
+  // Financial bridge: $85.0M Compras USD -> -$4.20M Deval USD/MXN -> -$0.60M Prima Forward -> +$3.60M Ahorro Fix -> -$0.60M Neto Final
+  const initialExposure = 85.0; // $85.0M USD
+  const fxDevaluationLoss = -4.20; // -$4.20M USD
+  const forwardPremiumCost = -0.60; // -$0.60M USD
+  const forwardHedgeSavings = 3.60; // +$3.60M USD
+  const netProtectedImpact = Number((fxDevaluationLoss + forwardPremiumCost + forwardHedgeSavings).toFixed(2)); // -$1.20M USD
+
+  const handleExecute = () => {
+    setExecuted(true);
     if (onExecuteHedge) {
       onExecuteHedge({
-        action: 'Execute $63M Receiver Swaption Collar',
-        hedged_risk: 'Neutraliza el 74% del Slippage USD/TWD',
-        cost_basis_k: 450,
-        projected_savings_m: 3.4,
-        urgency: 'CRITICAL',
+        action: 'Forward Cambiario USD/MXN Fix @ $19.40 ($60.0M USD)',
+        hedged_risk: 'Volatilidad USD/MXN en Compras Retail',
+        cost_basis_k: 600,
+        projected_savings_m: forwardHedgeSavings,
+        urgency: 'INMEDIATA (T+0)',
       });
     }
   };
@@ -40,19 +48,19 @@ export const TesoreriaWaterfallView: React.FC<TesoreriaWaterfallViewProps> = ({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-purple-950/90 via-slate-900 to-indigo-950/90 p-5 rounded-2xl border-2 border-purple-500/50 shadow-xl">
         <div className="flex items-center gap-3.5">
           <div className="h-12 w-12 rounded-xl bg-purple-500/20 border-2 border-purple-400 flex items-center justify-center shadow-lg shadow-purple-500/30">
-            <DollarSign className="h-6 w-6 text-purple-300 animate-pulse" />
+            <Building2 className="h-6 w-6 text-purple-300 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base sm:text-lg font-black text-slate-100 font-sans tracking-wide">
-                GRÁFICO WATERFALL DE P&L & BLINDAJE CON DERIVADOS FX
+                RETAIL, TIPO DE CAMBIO & BLINDAJE DE MARGEN EBITDA (BOXITO / MACROPAY)
               </h3>
               <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-purple-900 text-purple-200 border border-purple-600 font-bold">
                 BIGQUERY LIVE
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300">
-              Análisis de pérdida cambiaria por $3.85M en forwards USD/TWD y recuperación de $3.40M vía Swaption Collar.
+              Evaluación de $85.0M USD en compras importadas expuestas a USD/MXN $20.80 y contratación de forward a $19.40.
             </p>
           </div>
         </div>
@@ -67,7 +75,7 @@ export const TesoreriaWaterfallView: React.FC<TesoreriaWaterfallViewProps> = ({
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Cascada Financiera (Waterfall)
+            Cascada P&L y Cobertura
           </button>
           <button
             type="button"
@@ -78,136 +86,158 @@ export const TesoreriaWaterfallView: React.FC<TesoreriaWaterfallViewProps> = ({
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Tabla de Forwards BigQuery ({tableData?.total_rows || 24})
+            Contratos FX BigQuery ({tableData?.total_rows || 24})
           </button>
         </div>
       </div>
 
-      {/* Interactive Visual Metaphor: Financial Waterfall Chart */}
+      {/* Interactive Visual Metaphor: Financial P&L Waterfall Bridge */}
       {activeTab === 'waterfall' && (
-        <div className="space-y-6">
-          <div className="bg-slate-950/90 rounded-3xl p-6 sm:p-8 border-2 border-purple-500/40 shadow-2xl space-y-6 relative overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <span className="text-xs sm:text-sm font-mono font-bold text-purple-300 uppercase tracking-wider flex items-center gap-2">
-                <TrendingDown className="h-4 w-4 text-rose-400" />
-                Puente de Transmisión de Pérdida Cambiaria & Cobertura
-              </span>
-              <span className="text-xs font-mono text-slate-400">
-                Ahorro Neto Estimado: <strong className="text-emerald-400 font-bold">+$3.40M USD (ROI 7.5x)</strong>
-              </span>
-            </div>
+        <div className="bg-slate-950/90 rounded-3xl p-6 sm:p-8 border-2 border-purple-500/40 shadow-2xl space-y-6 relative overflow-hidden">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+            <span className="text-xs sm:text-sm font-mono font-bold text-purple-300 uppercase tracking-wider flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Puente de P&L: Erosión por Tipo de Cambio USD/MXN vs Blindaje con Contrato Forward
+            </span>
+            <span className="text-xs font-mono text-slate-400">
+              Margen Protegido: <strong className="text-emerald-400 font-bold">85.7% del Riesgo Neutralizado</strong>
+            </span>
+          </div>
 
-            {/* Financial Waterfall Steps Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-              {/* Step 1: Notional Exposed */}
-              <div className="bg-slate-900/90 p-4 rounded-2xl border-2 border-slate-700 space-y-2 flex flex-col justify-between">
-                <div>
-                  <span className="text-[11px] font-mono text-slate-400 font-bold block">1. Exposición Base</span>
-                  <div className="text-xl font-mono font-black text-slate-100">$14.20M</div>
-                  <p className="text-xs text-slate-400 mt-1">2 contratos forwards USD/TWD descubiertos en Q3.</p>
-                </div>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-slate-400 w-full" />
+          {/* 5-Column Visual Financial Waterfall Bridge */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 items-stretch">
+            {/* Step 1: Base Exposure */}
+            <div className="bg-slate-900/90 p-4 rounded-2xl border-2 border-slate-700 flex flex-col justify-between space-y-2 shadow-md">
+              <div>
+                <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider block font-bold">
+                  1. Compras USD
+                </span>
+                <div className="text-xl sm:text-2xl font-mono font-black text-slate-100">
+                  ${initialExposure}M USD
                 </div>
               </div>
-
-              {/* Step 2: FX Slippage Devaluation */}
-              <div className="bg-slate-900/90 p-4 rounded-2xl border-2 border-rose-500/50 space-y-2 flex flex-col justify-between">
-                <div>
-                  <span className="text-[11px] font-mono text-rose-300 font-bold block">2. Devaluación TWD (+12%)</span>
-                  <div className="text-xl font-mono font-black text-rose-400">-$3.85M</div>
-                  <p className="text-xs text-slate-400 mt-1">Pérdida por deslizamiento cambiario en DBS y Standard Chartered.</p>
-                </div>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-rose-500 w-[70%]" />
-                </div>
-              </div>
-
-              {/* Step 3: Swaption Collar Cost */}
-              <div className="bg-slate-900/90 p-4 rounded-2xl border-2 border-amber-500/50 space-y-2 flex flex-col justify-between">
-                <div>
-                  <span className="text-[11px] font-mono text-amber-300 font-bold block">3. Prima de Cobertura</span>
-                  <div className="text-xl font-mono font-black text-amber-400">-$0.45M</div>
-                  <p className="text-xs text-slate-400 mt-1">Costo de estructura Receiver Swaption Collar ($63M).</p>
-                </div>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-500 w-[15%]" />
-                </div>
-              </div>
-
-              {/* Step 4: Protected Recovery */}
-              <div className="bg-slate-900/90 p-4 rounded-2xl border-2 border-emerald-500/50 space-y-2 flex flex-col justify-between">
-                <div>
-                  <span className="text-[11px] font-mono text-emerald-300 font-bold block">4. Recuperación Cobertura</span>
-                  <div className="text-xl font-mono font-black text-emerald-400">+$3.40M</div>
-                  <p className="text-xs text-slate-400 mt-1">74% de la pérdida neutralizada por el strike de piso.</p>
-                </div>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 w-[88%]" />
-                </div>
-              </div>
-
-              {/* Step 5: Net Final Position */}
-              <div className={`p-4 rounded-2xl border-2 transition-all space-y-2 flex flex-col justify-between ${
-                hedgeExecuted
-                  ? 'bg-emerald-950/80 border-emerald-400 shadow-xl shadow-emerald-950/50'
-                  : 'bg-slate-900/90 border-purple-500/60'
-              }`}>
-                <div>
-                  <span className="text-[11px] font-mono text-cyan-300 font-bold block">5. Impacto Neto Final</span>
-                  <div className="text-xl font-mono font-black text-slate-100">
-                    {hedgeExecuted ? '-$0.45M' : '-$3.85M'}
-                  </div>
-                  <p className="text-xs text-slate-300 mt-1">
-                    {hedgeExecuted ? 'Portafolio 100% blindado contra colapso de TWD.' : 'Exposición no cubierta activa.'}
-                  </p>
-                </div>
-                <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className={`h-full ${hedgeExecuted ? 'bg-emerald-400 w-full' : 'bg-rose-500 w-[30%]'}`} />
-                </div>
+              <p className="text-[11px] text-slate-300 leading-snug">
+                Volumen importado por Boxito ($28.5M), Macropay ($36.2M) y Cklass ($20.3M).
+              </p>
+              <div className="text-[10px] font-mono bg-slate-950 px-2 py-1 rounded text-slate-400">
+                Línea Base: $18.50
               </div>
             </div>
 
-            {/* Derivative Structure Breakdown & 1-Click Authorization */}
-            <div className="bg-gradient-to-r from-purple-950/80 via-slate-900 to-indigo-950/80 rounded-2xl p-6 border-2 border-purple-500/50 space-y-4">
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="h-5 w-5 text-emerald-400" />
-                    <span className="font-extrabold text-sm sm:text-base text-slate-100 font-mono uppercase">
-                      Estructura Recomendada: Receiver Swaption Collar ($63.0M Notional)
-                    </span>
-                  </div>
-                  <p className="text-xs sm:text-sm text-slate-300">
-                    Fija piso de protección en 31.80 USD/TWD y financia el costo con venta de call out-of-the-money en 33.50 USD/TWD.
-                  </p>
+            {/* Step 2: Unhedged Slippage Loss */}
+            <div className="bg-rose-950/70 p-4 rounded-2xl border-2 border-rose-500/60 flex flex-col justify-between space-y-2 shadow-md">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-rose-300 uppercase tracking-wider font-bold">
+                    2. Deval. USD/MXN
+                  </span>
+                  <ArrowDownRight className="h-4 w-4 text-rose-400" />
                 </div>
-
-                <button
-                  type="button"
-                  disabled={hedgeExecuted}
-                  onClick={handleAuthorizeHedge}
-                  className={`px-6 py-3.5 rounded-xl font-mono text-xs sm:text-sm font-black flex items-center gap-2 transition-all cursor-pointer shrink-0 ${
-                    hedgeExecuted
-                      ? 'bg-slate-800 text-emerald-400 border border-emerald-600 cursor-default'
-                      : 'bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-slate-950 shadow-xl shadow-purple-500/30'
-                  }`}
-                >
-                  {hedgeExecuted ? (
-                    <>
-                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      <span>Swaption Collar Ejecutado</span>
-                    </>
-                  ) : (
-                    <>
-                      <Zap className="h-4 w-4" />
-                      <span>Autorizar Cobertura ($63M)</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </>
-                  )}
-                </button>
+                <div className="text-xl sm:text-2xl font-mono font-black text-rose-300">
+                  {fxDevaluationLoss}M USD
+                </div>
+              </div>
+              <p className="text-[11px] text-rose-200/90 leading-snug">
+                Erosión de margen operativo si el dólar alcanza <strong>$20.80 MXN/USD</strong> sin cobertura.
+              </p>
+              <div className="text-[10px] font-mono bg-rose-950 px-2 py-1 rounded text-rose-300 font-bold">
+                PÉRDIDA DESCUBIERTA
               </div>
             </div>
+
+            {/* Step 3: Forward Premium Cost */}
+            <div className="bg-amber-950/60 p-4 rounded-2xl border-2 border-amber-500/60 flex flex-col justify-between space-y-2 shadow-md">
+              <div>
+                <span className="text-[10px] font-mono text-amber-300 uppercase tracking-wider block font-bold">
+                  3. Costo Forward
+                </span>
+                <div className="text-xl sm:text-2xl font-mono font-black text-amber-300">
+                  {forwardPremiumCost}M USD
+                </div>
+              </div>
+              <p className="text-[11px] text-amber-200/90 leading-snug">
+                Costo de prima y comisión bancaria para contratar forward cambiario institucional.
+              </p>
+              <div className="text-[10px] font-mono bg-amber-950 px-2 py-1 rounded text-amber-300 font-bold">
+                PRIMA FIJA (0.7%)
+              </div>
+            </div>
+
+            {/* Step 4: Forward Hedge Savings */}
+            <div className="bg-emerald-950/70 p-4 rounded-2xl border-2 border-emerald-500/60 flex flex-col justify-between space-y-2 shadow-md">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono text-emerald-300 uppercase tracking-wider font-bold">
+                    4. Ahorro Cobertura
+                  </span>
+                  <ArrowUpRight className="h-4 w-4 text-emerald-400" />
+                </div>
+                <div className="text-xl sm:text-2xl font-mono font-black text-emerald-300">
+                  +${forwardHedgeSavings}M USD
+                </div>
+              </div>
+              <p className="text-[11px] text-emerald-200/90 leading-snug">
+                Beneficio garantizado al liquidar a <strong>$19.40 MXN/USD</strong> en vez de $20.80 en ventanilla.
+              </p>
+              <div className="text-[10px] font-mono bg-emerald-950 px-2 py-1 rounded text-emerald-300 font-bold">
+                AHORRO RECUPERADO
+              </div>
+            </div>
+
+            {/* Step 5: Net Impact */}
+            <div className="bg-gradient-to-br from-indigo-950 to-slate-900 p-4 rounded-2xl border-2 border-indigo-400 flex flex-col justify-between space-y-2 shadow-lg">
+              <div>
+                <span className="text-[10px] font-mono text-indigo-300 uppercase tracking-wider block font-bold">
+                  5. Impacto Neto
+                </span>
+                <div className="text-xl sm:text-2xl font-mono font-black text-emerald-400">
+                  {netProtectedImpact}M USD
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-snug">
+                Riesgo mitigado casi en su totalidad. EBITDA y márgenes comerciales de retail blindados.
+              </p>
+              <div className="text-[10px] font-mono bg-indigo-950 px-2 py-1 rounded text-indigo-300 font-black">
+                ROI COBERTURA: 6.0x
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Hedge Execution Trigger Box */}
+          <div className="bg-gradient-to-r from-purple-950/70 via-slate-900 to-indigo-950/70 p-5 rounded-2xl border-2 border-purple-500/50 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-lg">
+            <div className="space-y-1 text-center sm:text-left">
+              <div className="flex items-center justify-center sm:justify-start gap-2">
+                <Lock className="h-4 w-4 text-purple-400" />
+                <span className="font-bold text-sm text-slate-100 font-mono">
+                  Contrato Recomendado: Forward Cambiario USD/MXN Fix @ $19.40 ($60.0M USD)
+                </span>
+              </div>
+              <p className="text-xs text-slate-300">
+                Instituciones: <strong>Banorte, BBVA & Santander</strong> &bull; Ahorro neto estimado: <strong className="text-emerald-400 font-mono">+$3.60M USD</strong> en Q3/Q4.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleExecute}
+              className={`px-6 py-3 rounded-xl font-mono text-xs sm:text-sm font-black flex items-center gap-2 transition-all cursor-pointer shrink-0 ${
+                executed
+                  ? 'bg-slate-800 text-emerald-400 border border-emerald-500 cursor-default'
+                  : 'bg-gradient-to-r from-purple-500 to-emerald-400 hover:from-purple-400 hover:to-emerald-300 text-slate-950 shadow-xl shadow-purple-500/30'
+              }`}
+            >
+              {executed ? (
+                <>
+                  <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                  <span>Forward Ejecutado & Confirmado</span>
+                </>
+              ) : (
+                <>
+                  <Zap className="h-5 w-5 fill-slate-950" />
+                  <span>Autorizar Forward Cambiario @ $19.40</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
       )}
@@ -220,7 +250,7 @@ export const TesoreriaWaterfallView: React.FC<TesoreriaWaterfallViewProps> = ({
               {tableData.title}
             </span>
             <span className="text-xs font-mono bg-purple-950 text-purple-300 px-3 py-1 rounded-lg border border-purple-700 font-bold">
-              {tableData.total_rows} Registros en BigQuery
+              {tableData.total_rows} Contratos en BigQuery
             </span>
           </div>
 

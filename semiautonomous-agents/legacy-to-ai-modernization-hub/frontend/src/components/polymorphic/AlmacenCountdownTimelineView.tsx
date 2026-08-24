@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import {
   Factory,
-  Plane,
-  Flame,
-  Calendar,
-  Sliders,
+  Clock,
+  CheckCircle2,
+  Sparkles,
 } from 'lucide-react';
 import { GroundedTableData } from '../../types';
 
@@ -15,24 +14,23 @@ interface AlmacenCountdownTimelineViewProps {
 export const AlmacenCountdownTimelineView: React.FC<AlmacenCountdownTimelineViewProps> = ({
   tableData,
 }) => {
-  const [burnRate, setBurnRate] = useState(800);
-  const [enableAirbridge, setEnableAirbridge] = useState(false);
+  const [burnRate, setBurnRate] = useState(1200); // Lotes/day
+  const [enableQueretaroBuffer, setEnableQueretaroBuffer] = useState(false);
   const [activeTab, setActiveTab] = useState<'timeline' | 'table'>('timeline');
 
-  // Baseline 34 days at 800 units/day = 27,200 units total stock
-  const totalStockUnits = 27200;
-  const airbridgeExtraUnits = enableAirbridge ? 9600 : 0; // +12 days at 800u/d
-  const effectiveStock = totalStockUnits + airbridgeExtraUnits;
-  const calculatedDaysRemaining = Math.round(effectiveStock / burnRate);
+  // Baseline units: 25,200 lotes across critical pharma/food lines
+  const totalStockUnits = 25200;
+  const queretaroBufferUnits = enableQueretaroBuffer ? 16800 : 0;
+  const totalAvailableStock = totalStockUnits + queretaroBufferUnits;
 
-  // Projected stoppage date calculation
-  const today = new Date();
-  const stoppageDate = new Date(today.getTime() + calculatedDaysRemaining * 24 * 60 * 60 * 1000);
-  const dateFormatted = stoppageDate.toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  // Days buffer calculation
+  const remainingDays = Math.max(1, Math.round(totalAvailableStock / burnRate));
+  
+  // Calculate projected date
+  const now = new Date(2026, 5, 25); // June 25, 2026 baseline
+  const projectedShutdownDate = new Date(now.getTime() + remainingDays * 24 * 60 * 60 * 1000);
+  const dateOptions: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+  const formattedShutdownDate = projectedShutdownDate.toLocaleDateString('es-MX', dateOptions);
 
   return (
     <div className="space-y-6 animate-zoom-entrance">
@@ -45,14 +43,14 @@ export const AlmacenCountdownTimelineView: React.FC<AlmacenCountdownTimelineView
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base sm:text-lg font-black text-slate-100 font-sans tracking-wide">
-                LÍNEA DE TIEMPO GANTT & CUENTA REGRESIVA DE PARO DE PLANTA
+                CONTINUIDAD DE MANUFACTURA & BUFFER DE PARO (SILANES / GLORIA)
               </h3>
               <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-amber-900 text-amber-200 border border-amber-600 font-bold">
                 BIGQUERY LIVE
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300">
-              Análisis de inventario disponible para obleas 3nm y sustratos FCBGA en Austin, Monterrey y Frankfurt.
+              Monitoreo de stock de seguridad para principios activos (Silanes) y grasa butírica (Cremería Gloria) ante retrasos portuarios.
             </p>
           </div>
         </div>
@@ -67,7 +65,7 @@ export const AlmacenCountdownTimelineView: React.FC<AlmacenCountdownTimelineView
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Línea de Tiempo & Gantt
+            Línea de Tiempo & Buffer
           </button>
           <button
             type="button"
@@ -78,160 +76,177 @@ export const AlmacenCountdownTimelineView: React.FC<AlmacenCountdownTimelineView
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Tabla de Stock BigQuery ({tableData?.total_rows || 81})
+            Inventario en Planta ({tableData?.total_rows || 88})
           </button>
         </div>
       </div>
 
-      {/* Interactive Visual Metaphor: Countdown & Gantt Burn-Down Bar */}
+      {/* Interactive Visual Metaphor: Countdown & Gantt Timeline */}
       {activeTab === 'timeline' && (
-        <div className="space-y-6">
-          <div className="bg-slate-950/90 rounded-3xl p-6 sm:p-8 border-2 border-amber-500/40 shadow-2xl space-y-6 relative overflow-hidden">
-            {/* Header Status & Countdown Date */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800 pb-4">
-              <div className="space-y-1">
-                <span className="text-xs sm:text-sm font-mono font-bold text-amber-300 uppercase tracking-wider flex items-center gap-2">
-                  <Flame className="h-4 w-4 text-rose-400" />
-                  Horizonte Crítico de Agotamiento de Stock
-                </span>
-                <div className="text-2xl sm:text-3xl font-mono font-black text-slate-100 flex items-center gap-3">
-                  <span>{calculatedDaysRemaining} Días Restantes</span>
-                  <span className={`text-xs font-mono px-3 py-1 rounded-full font-bold uppercase ${
-                    calculatedDaysRemaining <= 34 ? 'bg-rose-950 text-rose-300 border border-rose-700' : 'bg-emerald-950 text-emerald-300 border border-emerald-700'
-                  }`}>
-                    {calculatedDaysRemaining <= 34 ? 'PARO INMINENTE' : 'OPERACIÓN EXTENDIDA'}
-                  </span>
-                </div>
+        <div className="bg-slate-950/90 rounded-3xl p-6 sm:p-8 border-2 border-amber-500/40 shadow-2xl space-y-6 relative overflow-hidden">
+          {/* Big Prominent Countdown Hero Banner */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center bg-gradient-to-br from-slate-900 to-amber-950/50 p-6 rounded-2xl border-2 border-amber-500/40">
+            <div className="md:col-span-4 text-center md:text-left space-y-1">
+              <span className="text-xs font-mono font-bold text-amber-300 uppercase tracking-wider flex items-center justify-center md:justify-start gap-1.5">
+                <Clock className="h-4 w-4" />
+                Cuenta Regresiva de Stock Crítico
+              </span>
+              <div className="text-4xl sm:text-5xl lg:text-6xl font-mono font-black text-amber-400">
+                {remainingDays} <span className="text-2xl text-slate-300 font-sans">Días</span>
               </div>
-
-              <div className="text-left sm:text-right bg-slate-900/80 p-3 rounded-xl border border-slate-800 font-mono">
-                <div className="text-xs text-slate-400">Fecha Estimada de Paro:</div>
-                <div className="text-sm sm:text-base font-black text-rose-400 flex items-center gap-1.5 justify-end">
-                  <Calendar className="h-4 w-4" />
-                  <span>{dateFormatted}</span>
-                </div>
-              </div>
+              <p className="text-xs text-slate-400">
+                Hasta agotamiento total de stock sin desvío
+              </p>
             </div>
 
-            {/* Visual Timeline Gantt Bar */}
-            <div className="space-y-2 pt-2">
-              <div className="flex justify-between text-xs font-mono text-slate-300">
-                <span>Hoy (Día 0)</span>
-                <span>Buffer Actual ({calculatedDaysRemaining} Días)</span>
-                <span className="text-rose-400 font-bold">Límite Meta (90 Días)</span>
+            <div className="md:col-span-8 space-y-3">
+              <div className="flex items-center justify-between text-xs font-mono">
+                <span className="text-slate-300 font-bold">Fecha Límite Proyectada de Paro de Envasado:</span>
+                <span className={`px-3 py-1 rounded-lg font-bold ${
+                  remainingDays < 25 ? 'bg-rose-950 text-rose-300 border border-rose-600' : 'bg-emerald-950 text-emerald-300 border border-emerald-600'
+                }`}>
+                  {formattedShutdownDate}
+                </span>
               </div>
 
-              {/* Progress Track */}
-              <div className="h-6 w-full bg-slate-900 rounded-2xl overflow-hidden p-1 border border-slate-800 flex relative">
+              {/* Progress Bar of Buffer Burn */}
+              <div className="h-4 bg-slate-900 rounded-full overflow-hidden border border-slate-700 p-0.5 relative">
                 <div
-                  className={`h-full rounded-xl transition-all duration-500 flex items-center justify-end pr-2 text-[10px] font-mono font-black text-slate-950 ${
-                    calculatedDaysRemaining <= 34
-                      ? 'bg-gradient-to-r from-rose-500 via-amber-400 to-rose-500 shadow-lg shadow-rose-500/30'
-                      : 'bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 shadow-lg shadow-emerald-500/30'
+                  className={`h-full rounded-full transition-all duration-500 ${
+                    remainingDays < 20
+                      ? 'bg-gradient-to-r from-rose-600 to-rose-400'
+                      : remainingDays < 35
+                      ? 'bg-gradient-to-r from-amber-500 to-yellow-400'
+                      : 'bg-gradient-to-r from-emerald-500 to-teal-400'
                   }`}
-                  style={{ width: `${Math.min(100, Math.max(15, (calculatedDaysRemaining / 90) * 100))}%` }}
-                >
-                  {calculatedDaysRemaining} DÍAS
-                </div>
-                {/* 90 Days Target Marker */}
-                <div className="absolute right-0 top-0 bottom-0 w-1 bg-rose-500/60" />
+                  style={{ width: `${Math.min(100, (remainingDays / 60) * 100)}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+                <span>0 Días (Paro Total de Envasado)</span>
+                <span>21 Días (Buffer Silanes/Gloria)</span>
+                <span>45+ Días (Operación Normal Segura)</span>
               </div>
             </div>
+          </div>
 
-            {/* Warehouse Facilities Status Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-              {/* Austin Central */}
-              <div className="bg-slate-900/90 p-4 rounded-2xl border-2 border-rose-500/40 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-slate-100">Austin Central (TX)</span>
-                  <span className="text-xs font-mono text-rose-400 font-bold">18 Días Buffer</span>
-                </div>
-                <p className="text-xs text-slate-300">Línea de ensamble principal. Consumo nominal: 500 u/día. Agotamiento proyectado el 30 de Junio.</p>
-                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-rose-500 w-[20%]" />
-                </div>
-              </div>
-
-              {/* Monterrey Hub */}
-              <div className="bg-slate-900/90 p-4 rounded-2xl border-2 border-amber-500/40 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-slate-100">Monterrey Hub (MX)</span>
-                  <span className="text-xs font-mono text-amber-400 font-bold">16 Días Buffer</span>
-                </div>
-                <p className="text-xs text-slate-300">Ensamblaje de tarjetas y periféricos. Consumo: 300 u/día. Agotamiento proyectado el 28 de Junio.</p>
-                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className="h-full bg-amber-500 w-[18%]" />
-                </div>
-              </div>
-
-              {/* Frankfurt Airbridge */}
-              <div className={`p-4 rounded-2xl border-2 transition-all space-y-2 ${
-                enableAirbridge
-                  ? 'bg-emerald-950/70 border-emerald-500/80 shadow-lg shadow-emerald-950/40'
-                  : 'bg-slate-900/90 border-slate-800'
-              }`}>
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-xs text-slate-100 flex items-center gap-1.5">
-                    <Plane className="h-3.5 w-3.5 text-cyan-400" />
-                    Frankfurt Logistics (DE)
-                  </span>
-                  <span className="text-xs font-mono text-emerald-400 font-bold">+12 Días Extra</span>
-                </div>
-                <p className="text-xs text-slate-300">
-                  Stock disponible: 9,600 unidades para reasignación aérea hacia Austin y Monterrey.
-                </p>
-                <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                  <div className={`h-full ${enableAirbridge ? 'bg-emerald-400 w-full' : 'bg-slate-700 w-0'}`} />
-                </div>
-              </div>
-            </div>
-
-            {/* Interactive What-If Controls for Plant Operations */}
-            <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 space-y-4">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs sm:text-sm font-mono font-bold text-slate-200">
-                  <Sliders className="h-4 w-4 text-amber-400" />
-                  <span>Simulador de Tasa de Consumo de Ensamble:</span>
-                </div>
-                <span className="text-xs font-mono font-black text-amber-300 bg-amber-950 px-3 py-1 rounded-lg border border-amber-800">
-                  {burnRate} Unidades / Día
+          {/* Plantas y Almacenes Breakdown Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Planta 1: Lab Silanes Toluca */}
+            <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-slate-700 space-y-2.5 shadow-md">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-200">Planta Toluca (Lab. Silanes)</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800 font-bold">
+                  22 DÍAS BUFFER
                 </span>
               </div>
+              <div className="text-lg font-mono font-black text-slate-100">
+                APIs Farma & Ampolletas
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Insumos para medicamentos metabólicos en contenedor demorado en Manzanillo. Consumo: <strong>600 lotes/día</strong>.
+              </p>
+              <div className="pt-2 border-t border-slate-800 flex justify-between text-xs font-mono text-slate-400">
+                <span>Stock Restante:</span>
+                <span className="text-amber-300 font-bold">13,200 Lotes</span>
+              </div>
+            </div>
 
-              <input
-                type="range"
-                min={400}
-                max={1000}
-                step={50}
-                value={burnRate}
-                onChange={(e) => setBurnRate(Number(e.target.value))}
-                className="w-full accent-amber-400 h-2 bg-slate-800 rounded-lg cursor-pointer"
-              />
+            {/* Planta 2: Cremería Gloria GDL */}
+            <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-slate-700 space-y-2.5 shadow-md">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-slate-200">Planta GDL (Cremería Gloria)</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-bold">
+                  21 DÍAS BUFFER
+                </span>
+              </div>
+              <div className="text-lg font-mono font-black text-slate-100">
+                Grasa Butírica & Empaque
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Línea de envasado de Mantequilla Gloria. Materia prima láctea con cadena de frío garantizada. Consumo: <strong>600 lotes/día</strong>.
+              </p>
+              <div className="pt-2 border-t border-slate-800 flex justify-between text-xs font-mono text-slate-400">
+                <span>Stock Restante:</span>
+                <span className="text-amber-300 font-bold">12,000 Lotes</span>
+              </div>
+            </div>
 
-              <div className="flex items-center justify-between text-xs font-mono text-slate-400">
-                <span>400 U/D (Turno Mínimo Reducido)</span>
-                <span>800 U/D (Operación Nominal 100%)</span>
-                <span>1,000 U/D (Alta Demanda Pico)</span>
+            {/* Planta 3: Cedis Regulador Querétaro */}
+            <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-emerald-500/60 space-y-2.5 shadow-md">
+              <div className="flex items-center justify-between">
+                <span className="font-bold text-xs text-emerald-300">Almacén Querétaro</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 font-bold">
+                  STOCK REASIGNABLE
+                </span>
+              </div>
+              <div className="text-lg font-mono font-black text-slate-100">
+                +14 Días de Respaldo
+              </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Reserva estratégica de materias primas e insumos secos lista para inyección inmediata a Toluca y Guadalajara.
+              </p>
+              <div className="pt-2 border-t border-slate-800 flex justify-between text-xs font-mono text-slate-400">
+                <span>Capacidad Extra:</span>
+                <span className="text-emerald-400 font-bold">+16,800 Lotes</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Interactive Controls: Burn Rate & Queretaro Airbridge Toggle */}
+          <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 space-y-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Slider: Assembly Burn Rate */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs sm:text-sm font-mono font-bold text-slate-200">
+                  <span>Ritmo de Envasado en Plantas:</span>
+                  <span className="text-amber-300 bg-amber-950 px-2.5 py-0.5 rounded border border-amber-800">
+                    {burnRate} Lotes / Día
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min={600}
+                  max={1800}
+                  step={100}
+                  value={burnRate}
+                  onChange={(e) => setBurnRate(Number(e.target.value))}
+                  className="w-full accent-amber-400 h-2 bg-slate-800 rounded-lg cursor-pointer"
+                />
+                <div className="flex items-center justify-between text-[11px] font-mono text-slate-400">
+                  <span>600 (Ritmo Mínimo de Crisis)</span>
+                  <span>1,200 (Nominal)</span>
+                  <span>1,800 (Pico Operativo)</span>
+                </div>
               </div>
 
-              {/* Action Buttons: Toggle Airbridge & Executive Resolution */}
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-3 border-t border-slate-800">
+              {/* Action Button: Activate Queretaro Reserve */}
+              <div className="flex flex-col justify-between gap-2">
+                <span className="text-xs sm:text-sm font-mono font-bold text-slate-200">
+                  Plan de Contingencia Inmediato:
+                </span>
                 <button
                   type="button"
-                  onClick={() => setEnableAirbridge(!enableAirbridge)}
-                  className={`px-5 py-2.5 rounded-xl font-mono text-xs font-black flex items-center gap-2 transition-all cursor-pointer ${
-                    enableAirbridge
-                      ? 'bg-emerald-500 text-slate-950 shadow-lg shadow-emerald-500/30'
-                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                  onClick={() => setEnableQueretaroBuffer(!enableQueretaroBuffer)}
+                  className={`w-full py-3 px-4 rounded-xl font-mono text-xs font-black flex items-center justify-center gap-2.5 transition-all cursor-pointer ${
+                    enableQueretaroBuffer
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/30'
+                      : 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600'
                   }`}
                 >
-                  <Plane className="h-4 w-4" />
-                  <span>{enableAirbridge ? 'Puente Aéreo Frankfurt Activado (+12 Días)' : 'Activar Puente Aéreo Frankfurt (+12 Días)'}</span>
+                  {enableQueretaroBuffer ? (
+                    <>
+                      <CheckCircle2 className="h-4 w-4 text-white" />
+                      <span>Stock de Querétaro Activo (+14 Días Buffer Inyectados)</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4 text-emerald-400" />
+                      <span>Activar Transferencia desde Querétaro (+16,800 Lotes)</span>
+                    </>
+                  )}
                 </button>
-
-                <div className="text-xs text-slate-300 font-mono">
-                  Impacto: <strong className="text-emerald-400">+{calculatedDaysRemaining - 34} días</strong> ganados sobre la línea base.
-                </div>
               </div>
             </div>
           </div>
@@ -246,7 +261,7 @@ export const AlmacenCountdownTimelineView: React.FC<AlmacenCountdownTimelineView
               {tableData.title}
             </span>
             <span className="text-xs font-mono bg-amber-950 text-amber-300 px-3 py-1 rounded-lg border border-amber-700 font-bold">
-              {tableData.total_rows} Registros en BigQuery
+              {tableData.total_rows} Líneas de Inventario en BigQuery
             </span>
           </div>
 

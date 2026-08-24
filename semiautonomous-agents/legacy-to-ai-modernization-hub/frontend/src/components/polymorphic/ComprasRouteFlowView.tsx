@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import {
-  Package,
   Truck,
   ArrowRight,
-  ShieldCheck,
   AlertTriangle,
   RotateCcw,
   Sliders,
   CheckCircle2,
+  Train,
+  Anchor,
 } from 'lucide-react';
 import { GroundedTableData } from '../../types';
 
@@ -18,16 +18,17 @@ interface ComprasRouteFlowViewProps {
 export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
   tableData,
 }) => {
-  const [divertPct, setDivertPct] = useState(30);
+  const [divertPct, setDivertPct] = useState(40);
   const [activeTab, setActiveTab] = useState<'flow' | 'table'>('flow');
   const [appliedAlternative, setAppliedAlternative] = useState(false);
 
-  // Dynamic calculations based on diversion slider
-  const totalNotional = 320.6;
-  const delayedNotional = Number((totalNotional * (1 - divertPct / 100)).toFixed(1));
-  const divertedNotional = Number((totalNotional * (divertPct / 100)).toFixed(1));
-  const originalDelayDays = 65;
-  const mitigatedDelayDays = Math.max(15, Math.round(originalDelayDays * (1 - divertPct / 120)));
+  // Total TEUs = 1,420
+  const totalTeus = 1420;
+  const divertedTeus = Math.round(totalTeus * (divertPct / 100));
+  const delayedTeus = totalTeus - divertedTeus;
+  const originalDelayDays = 18;
+  const mitigatedDelayDays = Math.max(5, Math.round(originalDelayDays * (1 - divertPct / 130)));
+  const savedCostMillions = Number(((divertedTeus / totalTeus) * 4.85 * 0.75).toFixed(2));
 
   return (
     <div className="space-y-6 animate-zoom-entrance">
@@ -35,19 +36,19 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-blue-950/90 via-slate-900 to-indigo-950/90 p-5 rounded-2xl border-2 border-blue-500/50 shadow-xl">
         <div className="flex items-center gap-3.5">
           <div className="h-12 w-12 rounded-xl bg-blue-500/20 border-2 border-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
-            <Truck className="h-6 w-6 text-blue-300 animate-pulse" />
+            <Anchor className="h-6 w-6 text-blue-300 animate-pulse" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-base sm:text-lg font-black text-slate-100 font-sans tracking-wide">
-                MAPA DE FLUJO LOGÍSTICO & ASIGNACIÓN DE PROVEEDORES
+                RED DE TERMINALES PORTUARIAS & DESVÍO INTERMODAL (CICE / MANZANILLO)
               </h3>
               <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-blue-900 text-blue-200 border border-blue-600 font-bold">
                 BIGQUERY LIVE
               </span>
             </div>
             <p className="text-xs sm:text-sm text-slate-300">
-              Visualización topológica de los $320.6M USD comprometidos con proveedores en Taiwán y rutas de desvío.
+              Mapeo de 1,420 TEUs demorados en puertos mexicanos y activación del corredor ferroviario con Ferromex a Monterrey.
             </p>
           </div>
         </div>
@@ -62,7 +63,7 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Diagrama de Nodos y Rutas
+            Diagrama Intermodal y Rutas
           </button>
           <button
             type="button"
@@ -73,7 +74,7 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            Tabla de Órdenes BigQuery ({tableData?.total_rows || 12})
+            Tabla de Terminales BigQuery ({tableData?.total_rows || 142})
           </button>
         </div>
       </div>
@@ -81,40 +82,39 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
       {/* Interactive Visual Metaphor: Supply Chain Route & Node Network */}
       {activeTab === 'flow' && (
         <div className="space-y-6">
-          {/* Main Visual Flow Canvas */}
           <div className="bg-slate-950/90 rounded-3xl p-6 sm:p-8 border-2 border-blue-500/40 shadow-2xl space-y-6 relative overflow-hidden">
             <div className="flex items-center justify-between border-b border-slate-800 pb-4">
               <span className="text-xs sm:text-sm font-mono font-bold text-blue-300 uppercase tracking-wider flex items-center gap-2">
-                <Package className="h-4 w-4" />
-                Flujo de Cadena de Suministro: Origen Kaohsiung &rarr; Destino Austin TX
+                <Truck className="h-4 w-4" />
+                Corredor Logístico: Terminales Veracruz & Manzanillo &rarr; Hub Intermodal Monterrey
               </span>
               <span className="text-xs font-mono text-slate-400">
-                Retraso Mitigado: <strong className="text-emerald-400 font-bold">{mitigatedDelayDays} Días</strong> (vs 65 días base)
+                Retraso Mitigado: <strong className="text-emerald-400 font-bold">{mitigatedDelayDays} Días</strong> (vs 18 días base)
               </span>
             </div>
 
             {/* Topographic Visual Nodes Flow */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-center">
-              {/* Origin Node: Kaohsiung Chokepoint */}
+              {/* Origin Node: Maritime Port Terminals */}
               <div className="lg:col-span-3 bg-gradient-to-br from-rose-950/80 to-slate-900 p-5 rounded-2xl border-2 border-rose-500/60 shadow-lg space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono font-bold text-rose-300 flex items-center gap-1.5">
                     <AlertTriangle className="h-4 w-4 text-rose-400" />
-                    Origen (Cuello de Botella)
+                    Puertos de Entrada
                   </span>
                   <span className="text-[10px] font-mono bg-rose-900 text-rose-200 px-2 py-0.5 rounded font-bold">
-                    BLOQUEO
+                    CONGESTIÓN
                   </span>
                 </div>
-                <div className="text-xl font-mono font-black text-slate-100">
-                  Puerto de Kaohsiung
+                <div className="text-lg sm:text-xl font-mono font-black text-slate-100">
+                  Veracruz & Manzanillo
                 </div>
                 <p className="text-xs text-slate-300 leading-snug">
-                  12 POs comprometidas por <strong>${totalNotional}M USD</strong>. Retraso estimado marítimo de +45 a 90 días.
+                  <strong>1,420 TEUs varados</strong> en muelles. Retrasos de 16 a 22 días por saturación de atraque y aforo aduanal.
                 </p>
                 <div className="pt-2 border-t border-rose-900/60 flex justify-between text-[11px] font-mono">
-                  <span className="text-slate-400">Tránsito normal:</span>
-                  <span className="text-rose-300 font-bold">+65 días retraso</span>
+                  <span className="text-slate-400">Sobrecosto estadías:</span>
+                  <span className="text-rose-300 font-bold">$4.85M USD</span>
                 </div>
               </div>
 
@@ -125,46 +125,46 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
                 </div>
               </div>
 
-              {/* Middle Suppliers Allocation Breakdown */}
+              {/* Middle Terminals Breakdown */}
               <div className="lg:col-span-4 bg-slate-900/90 p-5 rounded-2xl border-2 border-slate-700 shadow-lg space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono font-bold text-cyan-300">
-                    Proveedores Clave Expuestos (Taiwán)
+                    Terminales Portuarias Expuestas
                   </span>
-                  <span className="text-xs font-mono text-slate-400">3 Fábricas</span>
+                  <span className="text-xs font-mono text-slate-400">3 Operadores</span>
                 </div>
 
                 <div className="space-y-2">
                   <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-xs text-slate-200">TSMC (Hsinchu)</div>
-                      <div className="text-[10px] text-slate-400 font-mono">Obleas 3nm SoC & FCBGA</div>
+                      <div className="font-bold text-xs text-slate-200">Grupo CICE (Veracruz)</div>
+                      <div className="text-[10px] text-slate-400 font-mono">Bahía Norte &bull; Carga Contenerizada</div>
                     </div>
                     <div className="text-right font-mono">
-                      <div className="text-xs font-black text-cyan-400">$107.5M</div>
-                      <div className="text-[10px] text-slate-500">33.5% del total</div>
+                      <div className="text-xs font-black text-cyan-400">840 TEUs</div>
+                      <div className="text-[10px] text-rose-400 font-bold">+14 Días Retraso</div>
                     </div>
                   </div>
 
                   <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-xs text-slate-200">ASE Technology (Kaohsiung)</div>
-                      <div className="text-[10px] text-slate-400 font-mono">Empaquetado HBM3e</div>
+                      <div className="font-bold text-xs text-slate-200">Contecon (Manzanillo)</div>
+                      <div className="text-[10px] text-slate-400 font-mono">Cuenca Pacífico &bull; Farma e Insumos</div>
                     </div>
                     <div className="text-right font-mono">
-                      <div className="text-xs font-black text-indigo-400">$85.5M</div>
-                      <div className="text-[10px] text-slate-500">26.7% del total</div>
+                      <div className="text-xs font-black text-indigo-400">580 TEUs</div>
+                      <div className="text-[10px] text-rose-400 font-bold">+18 Días Retraso</div>
                     </div>
                   </div>
 
                   <div className="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex items-center justify-between">
                     <div>
-                      <div className="font-bold text-xs text-slate-200">Foxconn (Taipei)</div>
-                      <div className="text-[10px] text-slate-400 font-mono">Chasis Óptico y Sensores</div>
+                      <div className="font-bold text-xs text-slate-200">Promologistics (Cedis Central)</div>
+                      <div className="text-[10px] text-slate-400 font-mono">Hub Cross-Docking CDMX</div>
                     </div>
                     <div className="text-right font-mono">
-                      <div className="text-xs font-black text-blue-400">$68.0M</div>
-                      <div className="text-[10px] text-slate-500">21.2% del total</div>
+                      <div className="text-xs font-black text-emerald-400">310 TEUs</div>
+                      <div className="text-[10px] text-emerald-400 font-bold">Operación Activa</div>
                     </div>
                   </div>
                 </div>
@@ -177,26 +177,26 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
                 </div>
               </div>
 
-              {/* Destination Node: Mitigated Allocation */}
+              {/* Destination Node: Rail Intermodal Corridor */}
               <div className="lg:col-span-3 bg-gradient-to-br from-emerald-950/80 to-slate-900 p-5 rounded-2xl border-2 border-emerald-500/60 shadow-lg space-y-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono font-bold text-emerald-300 flex items-center gap-1.5">
-                    <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                    Destino & Desvío
+                    <Train className="h-4 w-4 text-emerald-400" />
+                    Corredor Ferroviario
                   </span>
                   <span className="text-[10px] font-mono bg-emerald-900 text-emerald-200 px-2 py-0.5 rounded font-bold">
-                    ACTIVO
+                    FERROMEX / KCSM
                   </span>
                 </div>
-                <div className="text-xl font-mono font-black text-slate-100">
-                  Austin Assembly (TX)
+                <div className="text-lg sm:text-xl font-mono font-black text-slate-100">
+                  Hub Monterrey (Senda)
                 </div>
                 <p className="text-xs text-slate-300 leading-snug">
-                  Volumen asegurado: <strong>${divertedNotional}M USD</strong> vía plantas secundarias en Austin y Singapur.
+                  Capacidad de desvío ferroviario: <strong>{divertedTeus} TEUs</strong> trasladados directamente a Monterrey.
                 </p>
                 <div className="pt-2 border-t border-emerald-900/60 flex justify-between text-[11px] font-mono">
-                  <span className="text-slate-400">Retraso final:</span>
-                  <span className="text-emerald-300 font-black">+{mitigatedDelayDays} días (Ahorro: {65 - mitigatedDelayDays}d)</span>
+                  <span className="text-slate-400">Ahorro en sobrecostos:</span>
+                  <span className="text-emerald-300 font-black">+${savedCostMillions}M USD</span>
                 </div>
               </div>
             </div>
@@ -206,17 +206,17 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2 text-xs sm:text-sm font-mono font-bold text-slate-200">
                   <Sliders className="h-4 w-4 text-cyan-400" />
-                  <span>Simulador de Desvío a Plantas Secundarias (Austin, Dresden, Singapur):</span>
+                  <span>Simulador de Desvío Intermodal a Ferrocarril (Ferromex / Grupo Senda):</span>
                 </div>
                 <span className="text-xs font-mono font-black text-cyan-300 bg-cyan-950 px-3 py-1 rounded-lg border border-cyan-800">
-                  {divertPct}% Re-Asignado (${divertedNotional}M USD)
+                  {divertPct}% Desviado por Tren ({divertedTeus} TEUs)
                 </span>
               </div>
 
               <input
                 type="range"
                 min={0}
-                max={70}
+                max={75}
                 step={5}
                 value={divertPct}
                 onChange={(e) => setDivertPct(Number(e.target.value))}
@@ -224,14 +224,14 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
               />
 
               <div className="flex items-center justify-between text-xs font-mono text-slate-400">
-                <span>0% (Todo en Kaohsiung &bull; +65 días retraso)</span>
-                <span>35% (Óptimo de Capacidad Alterna)</span>
-                <span>70% (Desvío Máximo de Emergencia)</span>
+                <span>0% (Todo en Carretera &bull; +18 días retraso)</span>
+                <span>40% (Capacidad Ferroviaria Óptima Ferromex)</span>
+                <span>75% (Desvío Máximo Intermodal a Monterrey)</span>
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2 border-t border-slate-800">
                 <div className="text-xs text-slate-300">
-                  Volumen en riesgo remanente: <strong className="text-rose-400 font-mono">${delayedNotional}M USD</strong> &bull; Capacidad reasignada: <strong className="text-emerald-400 font-mono">${divertedNotional}M USD</strong>
+                  TEUs en riesgo remanente en puerto: <strong className="text-rose-400 font-mono">{delayedTeus} TEUs</strong> &bull; TEUs desfogados por tren: <strong className="text-emerald-400 font-mono">{divertedTeus} TEUs</strong>
                 </div>
 
                 <button
@@ -246,12 +246,12 @@ export const ComprasRouteFlowView: React.FC<ComprasRouteFlowViewProps> = ({
                   {appliedAlternative ? (
                     <>
                       <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                      <span>Ruta de Desvío Aplicada ({divertPct}%)</span>
+                      <span>Desvío Ferroviario Aplicado ({divertPct}%)</span>
                     </>
                   ) : (
                     <>
                       <RotateCcw className="h-4 w-4" />
-                      <span>Aplicar Desvío Logístico</span>
+                      <span>Autorizar Desvío Intermodal</span>
                     </>
                   )}
                 </button>
