@@ -1,0 +1,27 @@
+# Local Environment & Secrets
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+client_secret*.json
+*_token.json
+
+# Node & Build
+node_modules/
+dist/
+.vite/
+
+# Python & Virtual Environments
+__pycache__/
+*.py[cod]
+.venv/
+env/
+.pytest_cache/
+
+# System Files
+.DS_Store
+*.log

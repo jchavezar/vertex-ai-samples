@@ -1,0 +1,360 @@
+import asyncio
+import json
+import os
+import time
+from typing import Optional, Dict, Any, List
+from dotenv import load_dotenv
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+from sse_starlette.sse import EventSourceResponse
+from google import genai
+
+# Load .env with override=True
+load_dotenv(override=True)
+
+app = FastAPI(title="Antigravity Managed Agent Sandbox API", version="1.0.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Configuration & GenAI Client Initialization (ADC Vertex AI)
+GCP_PROJECT = os.environ.get("VERTEX_PROJECT_ID", os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))
+if GCP_PROJECT == "jesusarguelles-sandbox":
+    GCP_PROJECT = "vtxdemos"
+
+LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "global")
+AGENT_MODEL = "antigravity-preview-05-2026"
+
+print(f"[BACKEND INIT] Target Project: {GCP_PROJECT} | Location: {LOCATION} | Agent: {AGENT_MODEL}", flush=True)
+
+from google.genai import types
+
+client = genai.Client(
+    vertexai=True,
+    project=GCP_PROJECT,
+    location=LOCATION,
+    http_options=types.HttpOptions(timeout=600.0)
+)
+
+SYSTEM_PROMPT = (
+    "You are an autonomous senior executive engineer and quantitative data scientist operating inside a dedicated remote Linux sandbox environment with root /workspace access. "
+    "You have access to Google Search and Web URL tools to fetch live, real-world data from the internet. "
+    "CRITICAL RULES: "
+    "1. Always perform the entire requested task completely in your response. Never stop after merely listing directories or planning. "
+    "2. When asked to create dashboards, datasets, or scripts, ALWAYS call `create_file` directly to write them to /workspace (e.g. /workspace/risk_dashboard.html) in your very first tool call. "
+    "3. When creating visual HTML/JS dashboards, make them self-contained with responsive modern CSS, interactive sliders, SVG charts, and JavaScript logic. "
+    "4. Keep execution decisive, structured, fast, and boardroom-ready."
+)
+
+session_files_cache: Dict[str, Dict[str, str]] = {}
+
+class ChatRequest(BaseModel):
+    message: str
+    environment_id: Optional[str] = None
+    previous_interaction_id: Optional[str] = None
+    system_instruction: Optional[str] = None
+
+
+@app.get("/api/health")
+async def health():
+    return {
+        "status": "healthy",
+        "project": GCP_PROJECT,
+        "location": LOCATION,
+        "agent": AGENT_MODEL,
+        "streaming": "native_async_sse",
+        "tools": ["google_search", "url_context", "sandbox_code_execution", "live_artifacts"],
+    }
+
+
+@app.get("/api/files")
+async def get_files(environment_id: Optional[str] = None):
+    if environment_id and environment_id in session_files_cache:
+        return {"environment_id": environment_id, "files": session_files_cache[environment_id]}
+    return {"environment_id": environment_id, "files": {}}
+
+
+def create_stream_with_retry(kwargs: dict, max_retries: int = 5, retry_delay: int = 2):
+    """Submits streaming interaction with retry against transient state transitions."""
+    for attempt in range(1, max_retries + 1):
+        try:
+            return client.interactions.create(**kwargs)
+        except Exception as e:
+            err_msg = str(e)
+            if "invalid state" in err_msg and attempt < max_retries:
+                print(f"[RETRY] Backend state transitioning. Attempt {attempt}/{max_retries}...", flush=True)
+                time.sleep(retry_delay)
+            else:
+                raise e
+
+
+@app.post("/api/chat")
+async def chat_stream(req: ChatRequest):
+    async def event_generator():
+        start_time = time.time()
+        
+        turn_kwargs: Dict[str, Any] = {
+            "agent": AGENT_MODEL,
+            "input": req.message,
+            "system_instruction": req.system_instruction or SYSTEM_PROMPT,
+            "tools": [{"type": "google_search"}, {"type": "url_context"}],
+            "background": True,
+            "stream": True,  # Native Real-Time Event Async Streaming!
+            "timeout": 600.0,
+        }
+
+        if req.previous_interaction_id:
+            turn_kwargs["previous_interaction_id"] = req.previous_interaction_id
+
+        if req.environment_id:
+            turn_kwargs["environment"] = req.environment_id
+        else:
+            turn_kwargs["environment"] = {"type": "remote"}
+
+        yield {
+            "event": "status",
+            "data": json.dumps({"status": "submitting", "message": "Connecting to real-time agent event stream..."})
+        }
+
+        try:
+            # Connect directly to Google Cloud's native SSE stream
+            stream_response = await asyncio.to_thread(
+                create_stream_with_retry, turn_kwargs
+            )
+
+            current_env_id = req.environment_id
+            current_interaction_id = None
+            accumulated_text = []
+            captured_files: Dict[str, str] = session_files_cache.get(req.environment_id, {}).copy() if req.environment_id else {}
+            active_steps: Dict[int, Dict[str, Any]] = {}
+
+            # Iterate over the live SSE event stream
+            def get_next_event():
+                try:
+                    return next(stream_response)
+                except StopIteration:
+                    return None
+
+            while True:
+                event = await asyncio.to_thread(get_next_event)
+                if event is None:
+                    break
+
+                event_type = getattr(event, "event_type", None)
+
+                if event_type == "interaction.created":
+                    inter = getattr(event, "interaction", None)
+                    if inter:
+                        current_interaction_id = getattr(inter, "id", None)
+                        current_env_id = getattr(inter, "environment_id", current_env_id)
+                        yield {
+                            "event": "init",
+                            "data": json.dumps({
+                                "interaction_id": current_interaction_id,
+                                "environment_id": current_env_id,
+                                "status": "in_progress"
+                            })
+                        }
+
+                elif event_type == "interaction.status_update":
+                    yield {
+                        "event": "status",
+                        "data": json.dumps({
+                            "status": getattr(event, "status", "in_progress"),
+                            "elapsed": round(time.time() - start_time, 2)
+                        })
+                    }
+
+                elif event_type == "step.start":
+                    idx = getattr(event, "index", 0)
+                    step_obj = getattr(event, "step", None)
+                    st_type = getattr(step_obj, "type", None) if step_obj else None
+                    name = getattr(step_obj, "name", None) if step_obj else None
+                    
+                    if not name and st_type:
+                        if "google_search" in str(st_type):
+                            name = "google_search"
+                        elif "url_context" in str(st_type):
+                            name = "url_context"
+                        else:
+                            name = st_type
+
+                    active_steps[idx] = {
+                        "type": st_type or "step",
+                        "name": name,
+                        "raw_arguments": "",
+                        "arguments": {},
+                        "result": ""
+                    }
+
+                elif event_type == "step.delta":
+                    idx = getattr(event, "index", 0)
+                    delta = getattr(event, "delta", None)
+                    if delta:
+                        delta_type = getattr(delta, "type", None)
+                        
+                        # Text streaming (token-by-token to UI)
+                        if delta_type == "text" and hasattr(delta, "text") and delta.text:
+                            accumulated_text.append(delta.text)
+                            yield {
+                                "event": "token",
+                                "data": json.dumps({"text": delta.text})
+                            }
+
+                        # Function Call arguments streaming
+                        elif delta_type == "arguments_delta" and hasattr(delta, "arguments") and delta.arguments:
+                            if idx in active_steps:
+                                active_steps[idx]["raw_arguments"] += delta.arguments
+                                try:
+                                    parsed = json.loads(active_steps[idx]["raw_arguments"])
+                                    active_steps[idx]["arguments"] = parsed
+                                    
+                                    # Detect file creation live
+                                    if active_steps[idx].get("name") == "create_file":
+                                        target = parsed.get("TargetFile")
+                                        content = parsed.get("Content")
+                                        if target and content:
+                                            captured_files[target] = content
+                                            if current_env_id:
+                                                if current_env_id not in session_files_cache:
+                                                    session_files_cache[current_env_id] = {}
+                                                session_files_cache[current_env_id][target] = content
+                                except Exception:
+                                    pass
+
+                                yield {
+                                    "event": "step",
+                                    "data": json.dumps({
+                                        "type": active_steps[idx].get("type"),
+                                        "name": active_steps[idx].get("name"),
+                                        "arguments": active_steps[idx].get("arguments"),
+                                        "result": active_steps[idx].get("result")
+                                    })
+                                }
+
+                        # Function Result / Command output streaming
+                        elif delta_type == "function_result":
+                            res_obj = getattr(delta, "result", None)
+                            out = getattr(res_obj, "Output", None) if res_obj else None
+                            if idx in active_steps:
+                                if out:
+                                    active_steps[idx]["result"] = str(out)
+                                yield {
+                                    "event": "step",
+                                    "data": json.dumps({
+                                        "type": active_steps[idx].get("type"),
+                                        "name": active_steps[idx].get("name"),
+                                        "arguments": active_steps[idx].get("arguments"),
+                                        "result": active_steps[idx].get("result")
+                                    })
+                                }
+
+                elif event_type == "step.stop":
+                    idx = getattr(event, "index", 0)
+                    step_obj = getattr(event, "step", None)
+                    if step_obj and idx in active_steps:
+                        # Try parsing raw arguments if not yet parsed
+                        if not active_steps[idx]["arguments"] and active_steps[idx].get("raw_arguments"):
+                            try:
+                                active_steps[idx]["arguments"] = json.loads(active_steps[idx]["raw_arguments"])
+                            except Exception:
+                                pass
+                        
+                        st_args = getattr(step_obj, "arguments", None)
+                        if st_args:
+                            if isinstance(st_args, dict):
+                                active_steps[idx]["arguments"] = st_args
+                            elif isinstance(st_args, str):
+                                try:
+                                    active_steps[idx]["arguments"] = json.loads(st_args)
+                                except Exception:
+                                    pass
+
+                        if active_steps[idx].get("name") == "create_file":
+                            args = active_steps[idx].get("arguments", {})
+                            if isinstance(args, dict):
+                                target = args.get("TargetFile")
+                                content = args.get("Content")
+                                if target and content:
+                                    captured_files[target] = content
+                                    if current_env_id:
+                                        if current_env_id not in session_files_cache:
+                                            session_files_cache[current_env_id] = {}
+                                        session_files_cache[current_env_id][target] = content
+
+                        yield {
+                            "event": "step",
+                            "data": json.dumps({
+                                "type": active_steps[idx].get("type"),
+                                "name": active_steps[idx].get("name"),
+                                "arguments": active_steps[idx].get("arguments"),
+                                "result": active_steps[idx].get("result")
+                            })
+                        }
+
+                elif event_type == "interaction.completed":
+                    inter = getattr(event, "interaction", None)
+                    if inter:
+                        current_interaction_id = getattr(inter, "id", current_interaction_id)
+                        current_env_id = getattr(inter, "environment_id", current_env_id)
+
+                    if current_env_id and captured_files:
+                        session_files_cache[current_env_id] = captured_files
+
+                    final_text = "".join(accumulated_text)
+                    yield {
+                        "event": "done",
+                        "data": json.dumps({
+                            "interaction_id": current_interaction_id,
+                            "environment_id": current_env_id,
+                            "output_text": final_text,
+                            "status": "completed",
+                            "elapsed": round(time.time() - start_time, 2),
+                            "files": captured_files,
+                            "usage": getattr(inter, "usage", None).model_dump() if (inter and getattr(inter, "usage", None)) else None
+                        })
+                    }
+                    return
+
+                elif event_type == "error":
+                    yield {
+                        "event": "error",
+                        "data": json.dumps({
+                            "status": "error",
+                            "error": str(event)
+                        })
+                    }
+                    return
+
+            # If stream finished without explicit completed event
+            final_text = "".join(accumulated_text)
+            yield {
+                "event": "done",
+                "data": json.dumps({
+                    "interaction_id": current_interaction_id,
+                    "environment_id": current_env_id,
+                    "output_text": final_text,
+                    "status": "completed",
+                    "elapsed": round(time.time() - start_time, 2),
+                    "files": captured_files
+                })
+            }
+
+        except Exception as exc:
+            yield {
+                "event": "error",
+                "data": json.dumps({"error": str(exc)})
+            }
+
+    return EventSourceResponse(event_generator())
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8090, reload=False)

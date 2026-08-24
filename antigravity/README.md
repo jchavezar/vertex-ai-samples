@@ -20,6 +20,17 @@
 ## 🌐 ANTIGRAVITY SYSTEMS INDEX
 
 <table width="100%" border="0" cellspacing="0" cellpadding="20">
+  <!-- ROW 0: MANAGED AGENTS & AUTONOMOUS CLOUD SANDBOX -->
+  <tr>
+    <td colspan="2" valign="top" style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 24px;">
+      <span style="background: #8B5CF6; color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; font-family: monospace;">FLAGSHIP // GAOS RUNTIME</span>
+      <br/><br/>
+      <strong style="font-size: 18px;">PROJECT: VERTEX AI MANAGED AGENT SANDBOX & A2A WIRE-TAP</strong><br/>
+      Next-generation autonomous computing platform. Deploys dedicated, stateful Linux microVM containers (<code>/workspace</code>) for heavy computation, autonomous Google Search grounding, one-click interactive HTML5 dashboard compilation, and a 4-node <strong>Agent-to-Agent (A2A)</strong> adversarial risk audit protocol.<br/>
+      <br/>
+      <a href="../antigravity-sandbox-chat/">ACCESS_TERMINAL &rarr;</a> &nbsp;|&nbsp; <a href="../agy-recipes/managed-agent-sandbox-chat/">VIEW_RECIPE_BLUEPRINT &rarr;</a>
+    </td>
+  </tr>
   <!-- ROW 1: SEARCH & FINANCE -->
   <tr>
     <td width="50%" valign="top">

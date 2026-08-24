@@ -1,0 +1,15 @@
+[project]
+name = "antigravity-backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.141.1",
+    "google-genai>=0.8.0",
+    "httpx>=0.28.1",
+    "pydantic>=2.13.4",
+    "python-dotenv>=1.2.3",
+    "sse-starlette>=3.4.8",
+    "uvicorn>=0.52.4",
+]
