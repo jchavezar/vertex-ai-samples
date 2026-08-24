@@ -240,11 +240,17 @@ async def chat_stream(req: ChatRequest):
 
                         # Function Result / Command output streaming
                         elif delta_type == "function_result":
-                            res_obj = getattr(delta, "result", None)
-                            out = getattr(res_obj, "Output", None) if res_obj else None
+                            res_obj = getattr(delta, "result", None) or getattr(delta, "response", None)
                             if idx in active_steps:
-                                if out:
-                                    active_steps[idx]["result"] = str(out)
+                                if res_obj is not None:
+                                    if hasattr(res_obj, "Output") and getattr(res_obj, "Output") is not None:
+                                        active_steps[idx]["result"] = str(getattr(res_obj, "Output"))
+                                    elif isinstance(res_obj, dict):
+                                        out = res_obj.get("Output") or res_obj.get("output") or res_obj.get("entries") or res_obj.get("files") or res_obj
+                                        active_steps[idx]["result"] = json.dumps(out, indent=2) if isinstance(out, (dict, list)) else str(out)
+                                    else:
+                                        active_steps[idx]["result"] = str(res_obj)
+
                                 yield {
                                     "event": "step",
                                     "data": json.dumps({
@@ -275,6 +281,17 @@ async def chat_stream(req: ChatRequest):
                                     active_steps[idx]["arguments"] = json.loads(st_args)
                                 except Exception:
                                     pass
+
+                        # Capture step result if available on step_obj
+                        st_res = getattr(step_obj, "result", None) or getattr(step_obj, "response", None) or getattr(step_obj, "output", None)
+                        if st_res is not None and not active_steps[idx].get("result"):
+                            if hasattr(st_res, "Output") and getattr(st_res, "Output") is not None:
+                                active_steps[idx]["result"] = str(getattr(st_res, "Output"))
+                            elif isinstance(st_res, dict):
+                                out = st_res.get("Output") or st_res.get("output") or st_res.get("entries") or st_res.get("files") or st_res
+                                active_steps[idx]["result"] = json.dumps(out, indent=2) if isinstance(out, (dict, list)) else str(out)
+                            else:
+                                active_steps[idx]["result"] = str(st_res)
 
                         if active_steps[idx].get("name") == "create_file":
                             args = active_steps[idx].get("arguments", {})

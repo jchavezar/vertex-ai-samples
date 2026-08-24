@@ -1068,12 +1068,14 @@ export default function App() {
                                         {st.name === 'create_file' && <FileCode className="w-3.5 h-3.5 text-amber-600" />}
                                         {st.name === 'run_command' && <Terminal className="w-3.5 h-3.5 text-emerald-600" />}
                                         {st.name === 'view_file' && <FolderOpen className="w-3.5 h-3.5 text-indigo-600" />}
+                                        {st.name === 'list_dir' && <FolderOpen className="w-3.5 h-3.5 text-indigo-600" />}
                                         <span>
                                           {st.name === 'google_search' ? 'google_search (Live Web Query)' :
                                            st.name === 'url_context' ? 'url_context (Web Scrape)' :
                                            st.name === 'create_file' ? 'create_file (Disk Write)' :
                                            st.name === 'run_command' ? 'run_command (Execution)' :
                                            st.name === 'view_file' ? 'view_file (Disk Read)' :
+                                           st.name === 'list_dir' ? 'list_dir (Inspect Workspace)' :
                                            st.name || st.type}
                                         </span>
                                       </span>
@@ -1086,6 +1088,11 @@ export default function App() {
                                           <div>
                                             <span className="text-zinc-500 text-[10px] block">Command Executed:</span>
                                             <code className="text-emerald-700 font-bold">$ {st.arguments.CommandLine}</code>
+                                          </div>
+                                        ) : st.name === 'list_dir' ? (
+                                          <div>
+                                            <span className="text-zinc-500 text-[10px] block">Ruta Inspeccionada:</span>
+                                            <code className="text-indigo-700 font-bold font-mono">{st.arguments?.DirectoryPath || st.arguments?.path || '/workspace (Directorio Raíz)'}</code>
                                           </div>
                                         ) : st.name === 'create_file' ? (
                                           <div className="space-y-1">
@@ -1118,10 +1125,14 @@ export default function App() {
                                       </div>
                                     )}
 
-                                    {st.result && (
+                                    {st.result !== undefined && (
                                       <div className="text-[10px] text-zinc-700 bg-zinc-100/80 p-2 rounded-md max-h-24 overflow-y-auto border-l-2 border-emerald-500">
-                                        <span className="text-zinc-500 block mb-0.5 font-sans font-medium">Output:</span>
-                                        <pre className="whitespace-pre-wrap font-mono">{st.result}</pre>
+                                        <span className="text-zinc-500 block mb-0.5 font-sans font-medium">Resultado:</span>
+                                        <pre className="whitespace-pre-wrap font-mono">
+                                          {st.name === 'list_dir' && (!st.result || st.result === '[]' || st.result === '{}' || st.result.trim() === '')
+                                            ? '[ Directorio /workspace limpio y vacío (0 archivos previos) ]'
+                                            : st.result}
+                                        </pre>
                                       </div>
                                     )}
                                   </div>
