@@ -12,6 +12,9 @@ dependencies = [
     "httpx>=0.27.0",
     "google-genai>=0.1.0",
     "numpy>=1.26.0",
+    "pandas>=3.0.5",
+    "db-dtypes>=1.7.1",
+    "google-cloud-bigquery>=3.43.0",
 ]
 
 [tool.hatch.build.targets.wheel]

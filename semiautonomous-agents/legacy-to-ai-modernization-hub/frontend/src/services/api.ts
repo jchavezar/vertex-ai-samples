@@ -38,6 +38,15 @@ export async function exportLegacyCsv(): Promise<any> {
   return res.json();
 }
 
+export async function executeChainStep(stepId: number): Promise<any> {
+  const res = await fetch(`${API_BASE}/legacy/execute-chain-step/${stepId}`, {
+    method: 'GET',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!res.ok) throw new Error(`Chain step execution failed: ${res.statusText}`);
+  return res.json();
+}
+
 export async function calculateShock(params: ShockParameters): Promise<ShockImpactData> {
   const res = await fetch(`${API_BASE}/shock/calculate`, {
     method: 'POST',

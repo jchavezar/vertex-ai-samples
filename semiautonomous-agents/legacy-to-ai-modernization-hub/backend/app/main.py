@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
 from .agent_service import generate_board_memo, process_agent_query
+from .bigquery_service import execute_chain_step_bigquery
 from .legacy_data import query_legacy_database
 from .models import (
     AgentQueryRequest,
@@ -94,6 +95,16 @@ async def export_legacy_csv():
         "queue_position": 47,
         "queue_server": "batch-worker-prod-08.corp",
     }
+
+
+@app.get("/api/legacy/execute-chain-step/{step_id}")
+@app.post("/api/legacy/execute-chain-step/{step_id}")
+async def execute_chain_step(step_id: int):
+    """
+    Executes a real BigQuery SQL query corresponding to the selected multi-department step.
+    Measures real GCP query latency and returns true cloud data.
+    """
+    return execute_chain_step_bigquery(step_id)
 
 
 # ==========================================
