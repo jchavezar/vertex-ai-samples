@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Zap,
   RefreshCw,
@@ -54,6 +54,19 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
   const [executedHedges, setExecutedHedges] = useState<string[]>([]);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
+  const topRef = useRef<HTMLDivElement>(null);
+  const responseRef = useRef<HTMLDivElement>(null);
+
+  const scrollToResponse = () => {
+    setTimeout(() => {
+      responseRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 150);
+  };
+
+  const scrollToTop = () => {
+    topRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
   // Fast recalculation (<50ms)
   const refreshShockCalculations = async (updatedParams = params) => {
     try {
@@ -80,6 +93,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
       setAgentResponse(response);
       setImpact(response.shock_impact);
       onUpdateLatency(response.latency_ms);
+      scrollToResponse();
     } catch (err) {
       console.error('Agent query error:', err);
     } finally {
@@ -197,7 +211,7 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
       qLower.includes('mitigac'));
 
   return (
-    <div className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 py-6 space-y-8">
+    <div ref={topRef} className="w-full max-w-[1920px] mx-auto px-4 sm:px-8 lg:px-12 py-6 space-y-8">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-8 right-8 z-50 bg-emerald-900/95 text-emerald-100 border-2 border-emerald-400 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-lg flex items-center gap-3 text-sm font-mono animate-bounce">
@@ -382,11 +396,14 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
 
       {/* 1. AGENT SYNTHESIS & DYNAMIC KPI VIEW (Appears dynamically upon query) */}
       {agentResponse && (
-        <ExecutiveSynthesisView
-          agentResponse={agentResponse}
-          onExecuteHedge={handleExecuteHedge}
-          onOpenBoardMemo={handleGenerateMemo}
-        />
+        <div ref={responseRef} className="scroll-mt-6">
+          <ExecutiveSynthesisView
+            agentResponse={agentResponse}
+            onExecuteHedge={handleExecuteHedge}
+            onOpenBoardMemo={handleGenerateMemo}
+            onScrollToTop={scrollToTop}
+          />
+        </div>
       )}
 
       {/* 2. WHAT-IF SHOCK SLIDERS (ONLY shown if query is macro/stress related!) */}
