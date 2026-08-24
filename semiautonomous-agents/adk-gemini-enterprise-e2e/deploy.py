@@ -53,8 +53,8 @@ def _build_app():
     from agent import root_agent  # local import after vertexai.init()
     return reasoning_engines.AdkApp(
         agent=root_agent,
-        app_name="executive_intelligence_agent",
-        enable_tracing=True
+        enable_tracing=True,
+        env_vars=RUNTIME_ENV
     )
 
 

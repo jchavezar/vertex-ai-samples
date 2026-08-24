@@ -31,7 +31,7 @@ def test_remote_stream_query(prompt: str):
         sys.exit(1)
 
     console.print(Panel.fit(
-        f"[bold blue]Testing Remote Vertex AI Agent Engine Query[/bold blue]\n"
+        f"[bold blue]Testing Live Vertex AI Agent Engine Query[/bold blue]\n"
         f"[cyan]Resource:[/cyan] {RESOURCE}\n"
         f"[cyan]Prompt:[/cyan] {prompt}"
     ))
@@ -39,24 +39,46 @@ def test_remote_stream_query(prompt: str):
     creds, _ = google.auth.default()
     creds.refresh(google.auth.transport.requests.Request())
 
-    # Direct REST streamQuery SSE endpoint
-    url = f"https://{LOCATION}-aiplatform.googleapis.com/v1/{RESOURCE}:streamQuery?alt=sse"
     headers = {
         "Authorization": f"Bearer {creds.token}",
         "Content-Type": "application/json",
         "x-goog-user-project": PROJECT,
     }
-    payload = {
+
+    # Step 1: Create session
+    console.print("[cyan][1/2] Creating agent session via async_create_session...[/cyan]")
+    session_url = f"https://{LOCATION}-aiplatform.googleapis.com/v1/{RESOURCE}:query"
+    session_payload = {
+        "class_method": "async_create_session",
+        "input": {
+            "user_id": "executive_tester"
+        }
+    }
+    s_resp = requests.post(session_url, headers=headers, json=session_payload)
+    if s_resp.status_code != 200:
+        console.print(f"[bold red]Session creation failed ({s_resp.status_code}):[/bold red] {s_resp.text}")
+        return
+
+    session_data = s_resp.json()
+    output_obj = session_data.get("output", {})
+    session_id = output_obj.get("id") if isinstance(output_obj, dict) else output_obj
+    console.print(f"  [green]✓[/green] Session created: [bold]{session_id}[/bold]")
+
+    # Step 2: Stream query
+    console.print("[cyan][2/2] Streaming query via async_stream_query...[/cyan]\n")
+    stream_url = f"https://{LOCATION}-aiplatform.googleapis.com/v1/{RESOURCE}:streamQuery?alt=sse"
+    query_payload = {
         "class_method": "async_stream_query",
         "input": {
+            "user_id": "executive_tester",
+            "session_id": session_id,
             "message": prompt
         }
     }
 
-    console.print("[cyan]Connecting to live Agent Engine stream...[/cyan]\n")
-    response = requests.post(url, headers=headers, json=payload, stream=True)
+    response = requests.post(stream_url, headers=headers, json=query_payload, stream=True)
     if response.status_code != 200:
-        console.print(f"[bold red]Query failed ({response.status_code}):[/bold red] {response.text}")
+        console.print(f"[bold red]Stream Query failed ({response.status_code}):[/bold red] {response.text}")
         return
 
     for line in response.iter_lines():
@@ -65,14 +87,27 @@ def test_remote_stream_query(prompt: str):
             if decoded.startswith("data: "):
                 raw_data = decoded[6:]
                 try:
-                    data = json.loads(raw_data)
-                    console.print(data)
+                    event = json.loads(raw_data)
+                    # Check for tool calls / parts
+                    content = event.get("content", {})
+                    parts = content.get("parts", [])
+                    for p in parts:
+                        if "text" in p:
+                            console.print(p["text"], end="")
+                        elif "functionCall" in p:
+                            fc = p["functionCall"]
+                            console.print(f"\n[bold yellow]⚡ [REMOTE TOOL CALL][/bold yellow] [bold]{fc.get('name')}[/bold]({fc.get('args')})")
+                        elif "functionResponse" in p:
+                            fr = p["functionResponse"]
+                            console.print(f"[bold magenta]↩ [REMOTE TOOL RESPONSE][/bold magenta] {fr.get('response')}\n")
                 except Exception:
                     console.print(raw_data)
 
-    console.print("\n[bold green]✓ Remote Stream Query Finished![/bold green]")
+    console.print("\n\n" + "="*60)
+    console.print("[bold green]✓ Live Remote Stream Query Succeeded![/bold green]")
+    console.print("="*60)
 
 
 if __name__ == "__main__":
-    prompt = sys.argv[1] if len(sys.argv) > 1 else "Calculate enterprise valuation for $450M EBITDA with 9% growth and 9% WACC, then perform an SR 11-7 model audit."
+    prompt = sys.argv[1] if len(sys.argv) > 1 else "Calculate enterprise valuation for $500M EBITDA with 8% growth, 8.5% WACC, and 14.5x exit multiple. Then perform an SR 11-7 model audit."
     test_remote_stream_query(prompt)
