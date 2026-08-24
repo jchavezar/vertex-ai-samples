@@ -1,12 +1,18 @@
 <div align="center">
 
 # 🤖 End-to-End ADK Agent Blueprint: Vertex AI Agent Engine & Gemini Enterprise
-### *Complete Reference Architecture for Enterprise ADK Agents with Cloud Trace, Cloud Logging, and Gemini Enterprise A2A Invocation*
+### *Complete Reference Architecture for Enterprise ADK Agents with Cloud Trace, Cloud Logging, and Gemini Enterprise Registration*
 
 [![Google ADK](https://img.shields.io/badge/Google_ADK-LlmAgent_Framework-EA4335?style=for-the-badge&logo=google&logoColor=white)](https://github.com/google/adk-python)
 [![Vertex AI](https://img.shields.io/badge/Runtime-Vertex_AI_Agent_Engine-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com/vertex-ai)
 [![Gemini Enterprise](https://img.shields.io/badge/Registry-Gemini_Enterprise_A2A_v1-8B5CF6?style=for-the-badge&logo=google&logoColor=white)](https://cloud.google.com)
 [![Observability](https://img.shields.io/badge/Telemetry-Cloud_Trace_+_Logging-10B981?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com)
+
+<br/>
+
+<img src="assets/gemini_enterprise_ui_live.png" alt="Gemini Enterprise Live UI Execution" width="100%" style="border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.5);" />
+
+*Live UI Demonstration: Executive Intelligence Analyst ADK agent executing real-time DCF valuation modeling directly inside Gemini Enterprise.*
 
 </div>
 
@@ -16,8 +22,6 @@
 
 This blueprint provides the canonical, end-to-end reference implementation for engineering enterprise AI agents using the **Google Agent Development Kit (ADK)**, deploying them to the **Vertex AI Agent Engine (Reasoning Engine runtime)** with full distributed observability, registering them directly into **Gemini Enterprise (Discovery Engine Assist API)**, and invoking them via the **Gemini Enterprise A2A protocol**.
 
-Any Antigravity agent or developer can reproduce and deploy this complete architecture from scratch by following the step-by-step instructions below.
-
 ---
 
 ## 🏛️ End-to-End Architecture Topology
@@ -25,7 +29,7 @@ Any Antigravity agent or developer can reproduce and deploy this complete archit
 ```mermaid
 flowchart TD
     subgraph GEMINI_ENTERPRISE ["Gemini Enterprise (Discovery Engine)"]
-        UserUI["Executive Chat Interface\n(Gemini Enterprise Agent Gallery)"]
+        UserUI["Executive Chat Interface\n(Gemini Enterprise UI)"]
         A2AAPI["Discovery Engine A2A Stream API\n(/agents/{AGENT_ID}/a2a/v1/message:stream)"]
     end
 
@@ -57,6 +61,31 @@ flowchart TD
     AE -.->|Automatic Telemetry| Logging
     AE -.->|Automatic Telemetry| Monitoring
 ```
+
+---
+
+## ⚡ EBC Fast-Demo Mode (Zero-Wait Live Presentations)
+
+When presenting to customers in an Executive Briefing Center (EBC) or re-running demonstrations:
+
+1. **Instant Health & Re-Use Check (< 1s)**:
+   ```bash
+   # Reuses live Vertex AI Reasoning Engine & Gemini Enterprise Agent instantly
+   cd semiautonomous-agents/adk-gemini-enterprise-e2e
+   uv run python deploy.py
+   uv run python register.py
+   ```
+2. **Instant Live Boardroom Test (< 2s)**:
+   ```bash
+   uv run python scripts/test_gemini_enterprise.py "Perform an acquisition valuation for Apex Global ($650M EBITDA, 9.5% growth, 9% WACC, 13x exit multiple) and audit under SR 11-7."
+   ```
+
+3. **Forcing Cold Rebuilds / Fresh Code Changes**:
+   * If code changes or fresh cloud provisioning is explicitly requested:
+     ```bash
+     uv run python deploy.py new
+     uv run python register.py new
+     ```
 
 ---
 
@@ -125,22 +154,6 @@ Event     : gen_ai.choice | gen_ai.system: vertex_ai | model: gemini-2.5-flash
 ```bash
 cd semiautonomous-agents/adk-gemini-enterprise-e2e
 cp .env.example .env
-```
-
-Ensure `.env` contains:
-```env
-GOOGLE_GENAI_USE_VERTEXAI=true
-GOOGLE_CLOUD_PROJECT=vtxdemos
-GOOGLE_CLOUD_LOCATION=global
-VERTEX_PROJECT_ID=vtxdemos
-LOCATION=us-central1
-STAGING_BUCKET=gs://vtxdemos-staging
-
-# Gemini Enterprise Discovery Engine
-GE_PROJECT_ID=vtxdemos
-GE_PROJECT_NUMBER=254356041555
-AS_APP=agentspace-testing_1748446185255
-AGENT_DISPLAY_NAME=Executive Intelligence Analyst
 ```
 
 ---
