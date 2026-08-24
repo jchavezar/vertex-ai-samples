@@ -1,157 +1,164 @@
-# Legacy to AI-Native Modernization Hub
+<div align="center">
 
-> **Executive Briefing Center (EBC) Interactive Showcase**  
-> *Transforming Monolithic 2015 Enterprise ERPs into 2026 Reactive Agent-Native Canvases in 10 Seconds.*
+# ⚡ Legacy to AI-Native Modernization Hub (EBC Showcase)
+### *Executive Briefing Center Showcase: Live 3-Minute Autonomous Enterprise Application Transformation*
+
+[![React 19](https://img.shields.io/badge/Frontend-React_19_+_Tailwind-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev/)
+[![FastAPI](https://img.shields.io/badge/Backend-FastAPI_+_Python_3.12-009688?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![Google GenAI](https://img.shields.io/badge/AI_Engine-Gemini_2.5_Flash-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://cloud.google.com/vertex-ai)
+[![Antigravity](https://img.shields.io/badge/Modernizer-Antigravity_Autonomous_Agent-8B5CF6?style=for-the-badge&logo=googlecloud&logoColor=white)](https://cloud.google.com)
+
+<br/>
+
+<img src="assets/03_agent_native_reactive_canvas.png" alt="2026 Agent-Native Dynamic Executive Canvas" width="100%" style="border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 50px rgba(0,0,0,0.6);" />
+
+*The Modernized Result: 2026 Agent-Native Executive Canvas with 50ms reactive What-If shock sliders, dynamic SVG VaR curves, and autonomous board memo generation.*
+
+</div>
 
 ---
 
-## Executive Summary
+## 🌟 Executive Summary & Boardroom Narrative
 
-Enterprise leaders today face a critical operational chasm: their core systems of record (ERPs, core banking systems, global supply chain databases) remain locked in **2015-era monolithic data tables**. These legacy interfaces force business leaders to wait **4.2 seconds per query**, navigate rigid 20-column grids, queue overnight CSV exports, and wait 3 days for business analysts to build static Excel models.
+This showcase demonstrates **"How AI is Changing Applications"** for enterprise leaders (CIOs, CTOs, Heads of Architecture).
 
-The **Antigravity Modernization Hub** demonstrates the quantum leap made possible by **Autonomous Refactoring** and **Agent-Native Canvases (React 19 + Google ADK + Gemini 2.5/3 Engine)**:
+Instead of explaining abstract AI theory, this hub provides a **live, 3-minute before-and-after modernization** that demonstrates how Antigravity autonomously refactors a clunky legacy relational ERP into a high-performance **Agent-Native Generative Canvas**.
+
+---
+
+## 🏛️ The 3 Eras of Enterprise Applications
+
+```
+┌──────────────────────────────────────┬──────────────────────────────────────┬──────────────────────────────────────┐
+│       ERA 1: STATIC WEB (2015)       │     ERA 2: AI SIDECAR (2023)         │     ERA 3: AGENT-NATIVE (2026)       │
+├──────────────────────────────────────┼──────────────────────────────────────┼──────────────────────────────────────┤
+│ • 20-column pagination grid          │ • Legacy app + generic chat sidebar  │ • Intent-driven Natural Action Canvas│
+│ • Rigid multi-factor filter forms    │ • Copy-pasting data back and forth   │ • Real-time 50ms What-If Sliders     │
+│ • Slow SQL queries (~1,400ms latency)│ • Disconnected hallucinations        │ • Dynamic SVG parametric risk curves │
+│ • 14-minute queued batch CSV exports │ • Zero real-time action or governance│ • One-click cryptographic board memos│
+└──────────────────────────────────────┴──────────────────────────────────────┴──────────────────────────────────────┘
+```
+
+---
+
+## 🎬 The 3-Act Boardroom Script & Speaker Playbook
+
+Follow this exact 5-minute speaker script during your Executive Briefing Center (EBC) presentation:
 
 ```mermaid
-graph LR
-    subgraph "2015 Legacy System"
-        A[Oracle / SAP ERP] -->|4,200ms Latency| B[20-Col Paginated Table]
-        B -->|Batch Queue| C[Manual CSV Export]
-        C -->|3-Day Delay| D[Static Excel Pivot]
-    end
-
-    subgraph "Antigravity Autonomous Refactor (12s)"
-        E[AST Schema Discovery] --> F[ADK Tool Synthesis]
-        F --> G[Generative UI Compilation]
-    end
-
-    subgraph "2026 Agent-Native Canvas"
-        H[Natural Language Query] --> I[50ms Shock Math Engine]
-        I --> J[Reactive SVG VaR Curves]
-        J --> K[1-Click Boardroom Memo]
-    end
-
-    A -.->|Auto-Refactor| E
-    G -.->|Instant Deploy| H
+flowchart LR
+    A1["🎬 Act I: Legacy Pain\n(2015 ERP Grid & Form)"] --> A2["🎬 Act II: Antigravity Refactor\n(12s Autonomous Synthesis)"]
+    A2 --> A3["🎬 Act III: Agent-Native Canvas\n(50ms Reactive Cockpit)"]
 ```
 
 ---
 
-## The 3-Act Boardroom Demonstration Script
+### 🎬 Act I: The Enterprise Pain (45 seconds)
 
-This project is purpose-built for C-level executive briefings, board meetings, and architectural reviews. Follow this 3-act presentation flow:
+<div align="center">
+  <img src="assets/01_legacy_2015_erp_view.png" alt="Act I: Legacy 2015 ERP View" width="95%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
+</div>
 
-```
-┌────────────────────────────────────────────────────────────────────────┐
-│                        3-ACT BOARDROOM DEMO FLOW                       │
-├───────────────────┬────────────────────────────┬───────────────────────┤
-│  ACT I (2 mins)   │  ACT II (1 min)            │  ACT III (3 mins)     │
-│  The 2015 Legacy  │  Antigravity Autonomous    │  Agent-Native Canvas  │
-│  Paralysis        │  Refactor Pipeline         │  & What-If Shock Sim  │
-└───────────────────┴────────────────────────────┴───────────────────────┘
-```
+#### What to Say:
+> *"Every enterprise in Mexico and globally operates hundreds of core systems that look like this 2015 ERP: 20-column relational tables, rigid filter dropdowns, and slow queries. When the Board asks 'What is our exposure if supplier costs rise 15%?', someone has to click 'Export CSV', wait 14 minutes for an overnight batch job, spend 3 days in Excel, and email a slide deck."*
 
-### Act I: The 2015 Legacy Paralysis
-1. **Navigate to:** `2015 Legacy ERP` view.
-2. **The Hook:** *"This is how Fortune 500 treasurers and supply chain officers manage $3.45B in risk today."*
-3. **Action:** Click **Run Query** or apply a filter. Watch the 1,400ms – 4,200ms table scan delay with the classic hourglass spinner.
-4. **Friction Point:** Click **Export CSV**. Show the classic popup: *"Your export is enqueued to overnight batch cluster (Estimated wait: 14 mins). In 2015, the executive waits 3 days for analysts to pivot this CSV."*
-
-### Act II: The 10-Second Antigravity Autonomous Refactor
-1. **Action:** Click **Trigger Autonomous Refactor**.
-2. **The Hook:** *"Instead of a 6-month consulting sprint, Antigravity synthesizes an agent-native application autonomously in real-time."*
-3. **Live Visuals:**
-   - **Stage 1 (Schema Discovery):** Scans 20 denormalized columns, AST structures, and identifies query latency bottlenecks.
-   - **Stage 2 (ADK Tool Synthesis):** Autonomously synthesizes Google ADK Python tools, Pydantic validations, and wires Gemini reasoning.
-   - **Stage 3 (Dynamic Canvas Generation):** Synthesizes dynamic React 19 Generative UI components, 50ms SVG charts, and reactive shock sliders.
-4. **Performance Metric:** Highlight the transition: **4,200ms &rarr; 45ms (93% latency reduction)**.
-
-### Act III: The 2026 Agent-Native Superpower
-1. **Navigate to:** `2026 Agent Canvas`.
-2. **Natural Language Grounding:** Enter: *"Simulate a +125bps Fed rate hike and Red Sea shipping bottleneck."*
-3. **Reactive Shock Sliders:** Drag the **Interest Rate** slider to `+125 bps` and **Supply Chain Stress** to `85/100`. Watch the Value-at-Risk (VaR) distribution curve and quarterly EBITDA recalculate in **&lt; 50ms**.
-4. **A2A Sentinel Swarm:** Show the live background agents (Liquidity Rebalancer, Supply Chain Sentinel, Basel III Guardrail).
-5. **The Boardroom Climax:** Click **Generate Executive Board Memo**. In 400ms, Gemini 2.5/3 synthesizes a complete C-suite Decision Memorandum with board resolutions and governance sign-offs.
+#### What to Click:
+1. Click **"Run Query"** $\rightarrow$ Highlight the **1,402ms** simulated Oracle RAC query latency.
+2. Click **"Export CSV"** $\rightarrow$ Show the **"QUEUED_BATCH_PROCESSING: Estimated wait 14 mins"** modal.
+3. Click the top-right button: **"Trigger Autonomous Refactor"**.
 
 ---
 
-## Architectural Architecture & Tech Stack
+### 🎬 Act II: Antigravity Autonomous Modernization (90 seconds)
 
-```mermaid
-flowchart TB
-    subgraph Frontend["React 19 + Tailwind CSS + Vite (Port 5178)"]
-        UI_Toggle[Split-View / 3-Act Selector]
-        Legacy_UI[Windows 7 / SAP ERP 2015 Table]
-        Modal_Refactor[Autonomous Refactor SSE Visualizer]
-        Canvas_UI[2026 Agent-Native Command Canvas]
-        Sliders[Reactive What-If Sliders]
-        Charts[Dynamic SVG VaR & Cashflow Charts]
-    end
+<div align="center">
+  <img src="assets/02_antigravity_refactor_pipeline.png" alt="Act II: Antigravity Autonomous Refactor Pipeline" width="95%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
+</div>
 
-    subgraph Backend["FastAPI + Python 3.12 (Port 8008)"]
-        Router[FastAPI Gateway Router]
-        Legacy_Data[Legacy Oracle 11g Simulator]
-        Refactor_Pipe[Antigravity 3-Stage Refactor SSE Engine]
-        Shock_Math[50ms Quantitative Risk & VaR Engine]
-        Agent_Service[Google GenAI / Gemini 2.5 Flash / Gemini 3]
-    end
+#### What to Say:
+> *"Instead of initiating a 6-month consulting migration with 10 engineers, we instruct Antigravity to modernize this application autonomously. In 12 seconds, Antigravity executes a 3-stage refactor:"*
+> 1. **Schema & API Discovery**: Analyzes the relational schema, foreign keys, and slow endpoints.
+> 2. **ADK Tool & Reasoning Synthesis**: Synthesizes typed Python analytical functions (`calculate_shock`, `audit_model_risk`).
+> 3. **Generative Canvas Compilation**: Compiles a streaming React 19 interface with sub-50ms reactive sliders.
 
-    Canvas_UI -->|NL Query / Board Memo| Agent_Service
-    Sliders -->|50ms Math Call| Shock_Math
-    Modal_Refactor -->|SSE Stream| Refactor_Pipe
-    Legacy_UI -->|Paginated Query| Legacy_Data
-```
-
-| Layer | Technology | Key Capabilities |
-| :--- | :--- | :--- |
-| **Frontend** | React 19, TypeScript, Tailwind CSS, Lucide Icons, Vite | Sub-50ms render, optimistic state updates, dynamic SVG curves |
-| **Backend Gateway** | FastAPI, Python 3.12, Uvicorn | SSE streaming, high-throughput REST, clean OpenAPI docs |
-| **Agent Reasoning** | Google GenAI SDK (`gemini-2.5-flash`, `gemini-3-flash-preview`) | Natural language intent extraction, boardroom memo generation |
-| **Math Engine** | NumPy, Parametric VaR, Sensitivity Math | 50ms recalculations for multi-factor shocks |
-| **Package Manager** | `uv` (Python) & `npm` (Node.js) | Isolated, reproducible dependency management |
+#### What to Show:
+* Watch the real-time Server-Sent Events (SSE) progress bar reach **100%**.
+* Point out the **93x Performance Acceleration Metric** (from 4,200ms batch flow to <50ms reactive loop).
+* Click **"Launch 2026 Agent Canvas"**.
 
 ---
 
-## Quickstart & Local Launch
+### 🎬 Act III: The Agent-Native Masterpiece (90 seconds)
 
-### Prerequisites
-- Python 3.12+ and `uv`
-- Node.js 18+ and `npm`
+<div align="center">
+  <img src="assets/03_agent_native_reactive_canvas.png" alt="Act III: 2026 Agent-Native Dynamic Executive Canvas" width="95%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
+</div>
 
-### One-Command Launch
+#### What to Say:
+> *"This is what an application looks like in the AI era. We no longer write static database queries or navigate 20 columns. The interface is completely self-adapting and intent-driven."*
+
+#### What to Click & Demonstrate:
+1. **Interactive Stress Sliders**:
+   * Drag the **"Interest Rate Shift"** slider to **+125 bps** or **"Supply Chain Stress"** to **65/100**.
+   * Show that the **99% Value-at-Risk (VaR) SVG curve** and **Quarterly Cash Flow timeline** recalculate locally in **under 50ms**!
+2. **Natural Language Executive Prompt**:
+   * Click one of the quick scenario chips: *"Simulate +75bps Fed rate hike and Red Sea maritime bottleneck"*.
+   * Watch Gemini 2.5 Flash synthesize regional fragility ratings and autonomous hedging directives in real time.
+3. **One-Click Boardroom Decision Memo**:
+   * Click **"Generate Executive Board Memo"** (Top right).
+
+---
+
+### 📋 Executive Boardroom Memorandum Modal
+
+<div align="center">
+  <img src="assets/04_executive_boardroom_memo_modal.png" alt="Executive Boardroom Memorandum Modal" width="95%" style="border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);" />
+</div>
+
+*Instantly outputs a confidential, board-ready strategic memorandum with cryptographic signoffs, risk mitigation tables, and audit timestamps in under 200ms.*
+
+---
+
+## 🛠️ Step-by-Step Antigravity Reproduction & Teardown Recipe
+
+### 1. Launch the Showcase Environment
 ```bash
-cd /Users/jesusarguelles/IdeaProjects/vertex-ai-samples/semiautonomous-agents/legacy-to-ai-modernization-hub
+cd semiautonomous-agents/legacy-to-ai-modernization-hub
 ./start.sh
 ```
+* **Frontend**: `http://localhost:5178`
+* **FastAPI Backend**: `http://localhost:8008`
 
-### Access Ports
-- **Frontend UI:** [http://localhost:5178](http://localhost:5178)
-- **Backend API & Swagger Docs:** [http://localhost:8008/docs](http://localhost:8008/docs)
-
----
-
-## Environment Variables (`.env`)
-
-```ini
-PORT=8008
-FRONTEND_PORT=5178
-VITE_API_URL=http://localhost:8008
-
-# Vertex AI / Google GenAI Configuration
-GCP_PROJECT=vtxdemos
-GCP_REGION=us-central1
-GEMINI_MODEL=gemini-2.5-flash
-
-# Optional Direct API Key (if not using ADC)
-# GEMINI_API_KEY=your-gemini-api-key
+### 2. Run Automated Verification Tests
+```bash
+uv run agy-recipes/legacy-to-ai-modernization/scripts/test_recipe.py
+```
+*Output*:
+```text
+✓ /api/health -> 200 OK (Model: gemini-2.5-flash)
+✓ /api/legacy/query -> 200 OK (Returned 5 records across 20 relational columns)
+✓ /api/shock/calculate -> 200 OK (VaR 99%: $140.9M in 0.02ms)
+✓ /api/agent/query -> 200 OK (Autonomous Synthesis generated in 0.1ms)
+✓ /api/agent/board-memo -> 200 OK (Generated Cryptographic Board Memo in 0.2ms)
+✓ All 5 Modernization Hub Endpoints & Calculation Engines Passed!
 ```
 
+### 3. Teardown & Reset
+```bash
+uv run agy-recipes/legacy-to-ai-modernization/scripts/teardown.py
+```
+*Cleanly terminates background listeners and removes local cache states.*
+
 ---
 
-## API Reference Summary
+## 🔒 Security & Zero-Leak Guarantee
 
-- `POST /api/legacy/query` - Paginated 2015 ERP dataset with simulated latency (1,400ms).
-- `POST /api/legacy/export-csv` - Queued batch CSV export simulator.
-- `GET /api/refactor/stream` - SSE stream delivering real-time AST synthesis and metric diffs.
-- `POST /api/shock/calculate` - 50ms quantitative shock impact calculation.
-- `POST /api/agent/query` - Natural language query processing with Gemini reasoning.
-- `POST /api/agent/board-memo` - One-click Executive Board Decision Memo generation.
+- **Zero Hardcoded Secrets**: Uses Application Default Credentials (ADC) for Vertex AI calls.
+- **Strict Isolation**: Runs on isolated, configurable ports (`8008` / `5178`) with proactive conflict resolution.
+- **Frontier Models Only**: Enforces `gemini-2.5-flash` and `gemini-3-flash-preview`.
+
+---
+
+<div align="center">
+  <sub>Engineered for Executive Briefing Center (EBC) Showcases & Antigravity Live Modernization Demos</sub>
+</div>
