@@ -127,6 +127,13 @@ export interface AgentQueryResponse {
   shock_impact: ShockImpactData;
   latency_ms: number;
   model_used: string;
+  grounded_data_table?: {
+    title: string;
+    dataset: string;
+    total_rows: number;
+    headers: string[];
+    rows: any[];
+  };
 }
 
 export interface BoardMemoResponse {

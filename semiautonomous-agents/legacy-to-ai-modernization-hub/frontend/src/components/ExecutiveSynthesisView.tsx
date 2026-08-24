@@ -4,11 +4,10 @@ import {
   DollarSign,
   Droplets,
   Zap,
-  AlertTriangle,
   ArrowRight,
   Sparkles,
-  Building2,
   ShieldCheck,
+  Database,
 } from 'lucide-react';
 import { AgentQueryResponse, HedgingAction } from '../types';
 
@@ -21,8 +20,14 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
   agentResponse,
   onExecuteHedge,
 }) => {
-  const { shock_impact, latency_ms, confidence_score, reasoning_trace, model_used } =
-    agentResponse;
+  const {
+    shock_impact,
+    latency_ms,
+    confidence_score,
+    reasoning_trace,
+    model_used,
+    grounded_data_table,
+  } = agentResponse;
 
   // Extract key metrics safely
   const varDelta = shock_impact.var_delta_pct || 25.0;
@@ -79,19 +84,17 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
           </div>
           <div className="flex items-center gap-1.5 text-[10px] font-mono">
             <span
-              className={`px-1.5 py-0.5 rounded font-bold ${
-                isVarElevated
-                  ? 'bg-amber-950 text-amber-300 border border-amber-800/80'
-                  : 'bg-emerald-950 text-emerald-300 border border-emerald-800/80'
+              className={`px-1.5 py-0.2 rounded font-bold ${
+                isVarElevated ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-emerald-950 text-emerald-300'
               }`}
             >
-              +{varDelta.toFixed(1)}% vs Baseline
+              {varDelta > 0 ? `+${varDelta.toFixed(1)}%` : `${varDelta.toFixed(1)}%`} vs Baseline
             </span>
           </div>
         </div>
 
         {/* Metric 2: EBITDA Drag */}
-        <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800 hover:border-rose-500/40 transition-all space-y-2">
+        <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800 hover:border-emerald-500/40 transition-all space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs">
             <span className="font-mono text-[11px] uppercase tracking-wider">Projected EBITDA Drag</span>
             <DollarSign className="h-4 w-4 text-rose-400" />
@@ -99,26 +102,26 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
           <div className="text-xl font-mono font-extrabold text-rose-400">
             -${shock_impact.ebitda_impact_m.toFixed(2)}M
           </div>
-          <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400">
-            <span className="px-1.5 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800/80 font-bold">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono">
+            <span className="bg-rose-950 text-rose-300 px-1.5 py-0.2 rounded border border-rose-800 font-bold">
               Margin Compression
             </span>
           </div>
         </div>
 
         {/* Metric 3: Liquidity Buffer */}
-        <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-2">
+        <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800 hover:border-emerald-500/40 transition-all space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs">
             <span className="font-mono text-[11px] uppercase tracking-wider">Liquidity Cushion</span>
-            <Droplets className={`h-4 w-4 ${isBufferStable ? 'text-cyan-400' : 'text-amber-400'}`} />
+            <Droplets className={`h-4 w-4 ${isBufferStable ? 'text-emerald-400' : 'text-rose-400'}`} />
           </div>
           <div className="text-xl font-mono font-extrabold text-slate-100 flex items-center gap-2">
             ${Math.max(0, 750 - shock_impact.ebitda_impact_m).toFixed(1)}M
             <span
-              className={`text-xs px-2 py-0.5 rounded font-bold ${
+              className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
                 isBufferStable
-                  ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
-                  : 'bg-amber-950 text-amber-400 border border-amber-800'
+                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                  : 'bg-rose-950 text-rose-300 border border-rose-800'
               }`}
             >
               {bufferStatus}
@@ -129,15 +132,15 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
           </div>
         </div>
 
-        {/* Metric 4: Basel III Capital Adequacy */}
-        <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800 hover:border-violet-500/40 transition-all space-y-2">
+        {/* Metric 4: Capital Adequacy */}
+        <div className="bg-slate-950/80 rounded-xl p-4 border border-slate-800 hover:border-emerald-500/40 transition-all space-y-2">
           <div className="flex items-center justify-between text-slate-400 text-xs">
             <span className="font-mono text-[11px] uppercase tracking-wider">Capital Adequacy</span>
-            <ShieldCheck className="h-4 w-4 text-violet-400" />
+            <ShieldCheck className="h-4 w-4 text-emerald-400" />
           </div>
           <div className="text-xl font-mono font-extrabold text-slate-100 flex items-center gap-2">
             100%
-            <span className="text-xs px-2 py-0.5 rounded bg-violet-950 text-violet-400 border border-violet-800 font-bold">
+            <span className="bg-purple-950 text-purple-300 text-[10px] font-mono px-2 py-0.5 rounded border border-purple-800 font-bold">
               VERIFIED
             </span>
           </div>
@@ -147,69 +150,78 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         </div>
       </div>
 
-      {/* 2. Executive Risk Verdict Card */}
-      <div className="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 rounded-xl p-4 border border-slate-700/80 space-y-2 shadow-inner">
-        <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-200 uppercase tracking-wider">
-          <span className="h-2 w-2 rounded-full bg-emerald-400" />
-          <span>Executive Risk Verdict</span>
+      {/* 2. Executive Synthesis Verdict Callout */}
+      <div className="bg-slate-950/90 rounded-xl p-4 border border-slate-800 space-y-2">
+        <div className="flex items-center gap-2 text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
+          <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
+          <span>Executive Risk Verdict & AI Summary</span>
         </div>
-        <p className="text-xs text-slate-300 leading-relaxed font-sans font-medium">
-          Under the queried macroeconomic shock scenario, total Portfolio Value-at-Risk expands to{' '}
-          <strong className="text-slate-100 font-mono bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700">
-            ${shock_impact.value_at_risk_99_m.toFixed(2)}M
-          </strong>{' '}
-          (+{varDelta.toFixed(1)}% variance). Total annualized EBITDA drag is bounded at{' '}
-          <strong className="text-rose-300 font-mono bg-rose-950/60 px-1.5 py-0.5 rounded border border-rose-800">
-            -${shock_impact.ebitda_impact_m.toFixed(2)}M
-          </strong>
-          , maintaining an adequate treasury liquidity buffer of{' '}
-          <strong className="text-emerald-300 font-mono bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800">
-            ${Math.max(0, 750 - shock_impact.ebitda_impact_m).toFixed(1)}M
-          </strong>
-          .
+        <p className="text-xs text-slate-200 leading-relaxed font-sans">
+          Bajo el escenario consultado, el <strong>Riesgo Total de Portafolio (VaR 99%)</strong> se sitúa en{' '}
+          <strong className="text-emerald-300 font-mono">${shock_impact.value_at_risk_99_m.toFixed(2)}M</strong>{' '}
+          con un arrastre total proyectado en EBITDA de{' '}
+          <strong className="text-rose-400 font-mono">-${shock_impact.ebitda_impact_m.toFixed(2)}M</strong>.
+          La tesorería global mantiene una reserva de liquidez post-estrés de{' '}
+          <strong className="text-cyan-300 font-mono">${Math.max(0, 750 - shock_impact.ebitda_impact_m).toFixed(1)}M</strong>.
         </p>
       </div>
 
-      {/* 3. Transmission Channels 3-Column Visual Grid */}
-      <div className="space-y-2">
-        <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block">
-          Primary Transmission Channels & Vulnerability Map:
-        </span>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {/* Channel 1 */}
-          <div className="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800/80 space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-semibold text-amber-300">
-              <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />
-              <span>Primary Operational Drag</span>
+      {/* 3. GROUNDED BIGQUERY RECORDSET TABLE (Shows exact records answering the question) */}
+      {grounded_data_table && (
+        <div className="bg-slate-950/90 rounded-xl border border-cyan-500/40 overflow-hidden shadow-xl">
+          <div className="bg-gradient-to-r from-slate-900 via-[#0f172a] to-slate-900 px-4 py-2.5 flex items-center justify-between border-b border-cyan-500/30">
+            <div className="flex items-center gap-2">
+              <Database className="h-4 w-4 text-cyan-400" />
+              <span className="font-bold text-xs text-cyan-300 uppercase tracking-wider font-mono">
+                {grounded_data_table.title}
+              </span>
             </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              APAC semiconductor fabrication delays and maritime logistics bottlenecks on critical inventory lines.
-            </p>
+            <div className="flex items-center gap-2 text-[11px] font-mono">
+              <span className="bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800">
+                BigQuery Grounded ({grounded_data_table.total_rows} registros)
+              </span>
+              <span className="text-slate-400 text-[10px]">
+                {grounded_data_table.dataset}
+              </span>
+            </div>
           </div>
 
-          {/* Channel 2 */}
-          <div className="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800/80 space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-semibold text-cyan-300">
-              <Droplets className="h-3.5 w-3.5 text-cyan-400" />
-              <span>Liquidity Buffer Health</span>
-            </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Rated <strong className="text-emerald-400 font-mono">STABLE</strong> with ${Math.max(0, 750 - shock_impact.ebitda_impact_m).toFixed(1)}M post-stress treasury cash reserve.
-            </p>
-          </div>
-
-          {/* Channel 3 */}
-          <div className="bg-slate-950/60 rounded-xl p-3.5 border border-slate-800/80 space-y-1.5">
-            <div className="flex items-center gap-2 text-xs font-semibold text-violet-300">
-              <Building2 className="h-3.5 w-3.5 text-violet-400" />
-              <span>Counterparty Concentration</span>
-            </div>
-            <p className="text-[11px] text-slate-400 leading-relaxed">
-              Concentration exposure localized to Tier-1 APAC suppliers and Rotterdam clearing counterparties.
-            </p>
+          <div className="overflow-x-auto max-h-64 overflow-y-auto">
+            <table className="w-full text-left border-collapse whitespace-nowrap text-[11px] font-sans">
+              <thead>
+                <tr className="bg-slate-900/90 text-slate-300 border-b border-slate-800 font-mono text-[10px]">
+                  {grounded_data_table.headers.map((h, idx) => (
+                    <th key={idx} className="p-2.5 font-bold uppercase tracking-wider text-slate-300 border-r border-slate-800/80">
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-800/60 font-mono text-xs">
+                {grounded_data_table.rows.map((row, idx) => {
+                  const values = Object.values(row);
+                  return (
+                    <tr
+                      key={idx}
+                      className={`hover:bg-cyan-950/30 transition-colors ${
+                        idx % 2 === 0 ? 'bg-slate-950/40' : 'bg-slate-900/40'
+                      }`}
+                    >
+                      {values.map((val: any, cIdx: number) => (
+                        <td key={cIdx} className="p-2.5 text-slate-200 border-r border-slate-800/60">
+                          {typeof val === 'number'
+                            ? `$${val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+                            : String(val)}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </div>
-      </div>
+      )}
 
       {/* 4. Strategic Mitigation Mandate Hero Banner */}
       <div className="bg-gradient-to-r from-blue-950/60 via-indigo-950/50 to-slate-950 rounded-xl p-4 border border-blue-500/40 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-lg shadow-blue-950/30">
@@ -241,7 +253,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
               });
             }
           }}
-          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/25 flex items-center gap-2 shrink-0 transition-all"
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs shadow-lg shadow-cyan-500/25 flex items-center gap-2 shrink-0 transition-all cursor-pointer"
         >
           <Zap className="h-3.5 w-3.5" />
           <span>Execute Mitigation</span>

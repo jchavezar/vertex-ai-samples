@@ -119,6 +119,7 @@ class AgentQueryResponse(BaseModel):
     shock_impact: ShockImpactData
     latency_ms: float
     model_used: str
+    grounded_data_table: Optional[Dict[str, Any]] = None
 
 
 class BoardMemoRequest(BaseModel):

@@ -139,6 +139,46 @@ Under the queried scenario with **{params.interest_rate_bps:+.0f} bps interest r
 ### Strategic Mitigation Mandate
 The Antigravity Autonomous Agent recommends immediate execution of a **${shock_impact.value_at_risk_99_m * 0.6:.0f}M Receiver Swaption Collar** and activation of dual-sourcing inventory reserves to neutralize 74% of the projected tail-risk."""
 
+    # Query appropriate BigQuery table based on user query intent
+    from .bigquery_service import execute_chain_step_bigquery
+    grounded_table = None
+    if "órden" in q_lower or "orden" in q_lower or "taiwan" in q_lower or "taiwán" in q_lower or "compras" in q_lower or "po" in q_lower:
+        bq_step = execute_chain_step_bigquery(1)
+        grounded_table = {
+            "title": "Órdenes de Compra Abiertas con Proveedores de Taiwán (BigQuery Ground Truth)",
+            "dataset": bq_step["dataset"],
+            "total_rows": bq_step["total_rows"],
+            "headers": bq_step["headers"],
+            "rows": bq_step["data"][:8],
+        }
+    elif "inventario" in q_lower or "stock" in q_lower or "almacen" in q_lower or "almacén" in q_lower:
+        bq_step = execute_chain_step_bigquery(2)
+        grounded_table = {
+            "title": "Stock de Seguridad y Días de Buffer en Almacenes (BigQuery Ground Truth)",
+            "dataset": bq_step["dataset"],
+            "total_rows": bq_step["total_rows"],
+            "headers": bq_step["headers"],
+            "rows": bq_step["data"][:8],
+        }
+    elif "fx" in q_lower or "cobertura" in q_lower or "forward" in q_lower or "tesoreria" in q_lower:
+        bq_step = execute_chain_step_bigquery(3)
+        grounded_table = {
+            "title": "Contratos Cambiarios y Forwards Expuestos (BigQuery Ground Truth)",
+            "dataset": bq_step["dataset"],
+            "total_rows": bq_step["total_rows"],
+            "headers": bq_step["headers"],
+            "rows": bq_step["data"][:8],
+        }
+    else:
+        bq_step = execute_chain_step_bigquery(4)
+        grounded_table = {
+            "title": "Consolidado Multi-Departamento (Compras + Almacén + Tesorería)",
+            "dataset": bq_step["dataset"],
+            "total_rows": bq_step["total_rows"],
+            "headers": bq_step["headers"],
+            "rows": bq_step["data"][:6],
+        }
+
     elapsed_ms = (time.perf_counter() - start_time) * 1000.0
 
     return AgentQueryResponse(
@@ -158,6 +198,7 @@ The Antigravity Autonomous Agent recommends immediate execution of a **${shock_i
         shock_impact=shock_impact,
         latency_ms=round(elapsed_ms, 2),
         model_used=model_used,
+        grounded_data_table=grounded_table,
     )
 
 
