@@ -28,7 +28,8 @@ import {
   Maximize2,
   LayoutDashboard,
   Share2,
-  Zap
+  Zap,
+  Brain
 } from 'lucide-react';
 
 interface Step {
@@ -110,6 +111,90 @@ function parseCsv(csvText: string) {
   const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
   const rows = lines.slice(1).map(line => line.split(',').map(c => c.trim().replace(/^"|"$/g, '')));
   return { headers, rows };
+}
+
+interface ParsedContent {
+  thoughts: string[];
+  finalAnswer: string;
+  isPureThinking: boolean;
+}
+
+function parseThinkingAndAnswer(rawText: string): ParsedContent {
+  if (!rawText || !rawText.trim()) {
+    return { thoughts: [], finalAnswer: '', isPureThinking: false };
+  }
+
+  // 1. Explicit <thought> tags
+  const tagMatch = rawText.match(/<thought>([\s\S]*?)<\/thought>/i);
+  if (tagMatch) {
+    const thoughtText = tagMatch[1].trim();
+    const remaining = rawText.replace(/<thought>[\s\S]*?<\/thought>/i, '').trim();
+    const thoughtItems = thoughtText.split('\n').map(s => s.trim()).filter(Boolean);
+    return {
+      thoughts: thoughtItems.length > 0 ? thoughtItems : [thoughtText],
+      finalAnswer: remaining,
+      isPureThinking: !remaining && !!thoughtText,
+    };
+  }
+
+  // 2. Multi-step reasoning pattern detection
+  const paragraphs = rawText.split(/\n\n+/);
+  const thoughts: string[] = [];
+  const answerParts: string[] = [];
+  let inThinkingPhase = true;
+
+  for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i].trim();
+    if (!p) continue;
+
+    // Report headers or tables mean thinking phase is concluded
+    const isReportHeader = /^#{1,6}\s+/m.test(p) || 
+                           /^(Executive Summary|Summary Report|Audit Findings|Conclusion|Key Findings|Consensus Reached|Consolidated|Final Report|M&A Valuation|Analysis|Resolution)/i.test(p) || 
+                           /\|.*\|.*\|/m.test(p);
+
+    if (isReportHeader) {
+      inThinkingPhase = false;
+    }
+
+    const isThought = /^(I will|Let me|Let's|First,|Next,|Now I will|I am going to|I need to|Plan:|Thought:|Thinking:)/i.test(p);
+
+    if (inThinkingPhase && isThought) {
+      const subSentences = p.split(/(?=[A-Z][^.?!]*\b(?:I will|I need to|I am going to|Let me)\b)/g)
+                            .map(s => s.trim())
+                            .filter(s => s.length > 5);
+      if (subSentences.length > 0) {
+        thoughts.push(...subSentences);
+      } else {
+        thoughts.push(p);
+      }
+    } else {
+      inThinkingPhase = false;
+      answerParts.push(p);
+    }
+  }
+
+  if (paragraphs.length === 1 && thoughts.length === 0) {
+    const single = paragraphs[0];
+    const subSentences = single.split(/(?=[A-Z][^.?!]*\b(?:I will|I need to|I am going to|Let me)\b)/g)
+                               .map(s => s.trim())
+                               .filter(s => s.length > 5);
+    if (subSentences.length > 1 && subSentences.every(s => /^(I will|I need|I am|Let)/i.test(s))) {
+      return {
+        thoughts: Array.from(new Set(subSentences)),
+        finalAnswer: '',
+        isPureThinking: true,
+      };
+    }
+  }
+
+  const finalAnswer = answerParts.join('\n\n').trim();
+  const dedupedThoughts = Array.from(new Set(thoughts));
+
+  return {
+    thoughts: dedupedThoughts,
+    finalAnswer: finalAnswer,
+    isPureThinking: dedupedThoughts.length > 0 && !finalAnswer,
+  };
 }
 
 function ExecutiveHtmlFrame({ path, content, onExpand }: { path: string; content: string; onExpand: () => void }) {
@@ -284,199 +369,6 @@ function extractFilesFromSteps(steps: Step[] = []): Record<string, string> {
   return files;
 }
 
-const DEFAULT_RISK_DASHBOARD_HTML = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>M&A Executive Risk & Valuation Engine</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-  </style>
-</head>
-<body class="bg-zinc-950 text-zinc-100 p-6 min-h-screen">
-  <div class="max-w-4xl mx-auto space-y-6">
-    <div class="flex items-center justify-between border-b border-zinc-800 pb-4">
-      <div>
-        <h1 class="text-xl font-bold text-white tracking-tight">Executive M&A Risk & Valuation Sensitivity Engine</h1>
-        <p class="text-xs text-zinc-400 mt-0.5">Real-Time Autonomous Monte Carlo & Valuation Stress-Testing Model</p>
-      </div>
-      <span class="px-2.5 py-1 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-xs font-mono font-semibold">
-        95% Confidence Verified
-      </span>
-    </div>
-
-    <!-- Top KPI Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4 shadow-sm">
-        <span class="text-xs font-medium text-zinc-400">Target Valuation Benchmark</span>
-        <div id="val-display" class="text-2xl font-bold text-white mt-1 font-mono">$4,514.0B</div>
-        <span class="text-[11px] text-emerald-400 mt-1 block">▲ +25.7% vs Peer Baseline</span>
-      </div>
-      <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4 shadow-sm">
-        <span class="text-xs font-medium text-zinc-400">Implied 95% Value-at-Risk (VaR)</span>
-        <div id="var-display" class="text-2xl font-bold text-amber-400 mt-1 font-mono">$184.2B</div>
-        <span class="text-[11px] text-zinc-400 mt-1 block">Maximum 1-Year Downside Exposure</span>
-      </div>
-      <div class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-4 shadow-sm">
-        <span class="text-xs font-medium text-zinc-400">M&A Committee Recommendation</span>
-        <div id="rec-display" class="text-2xl font-bold text-emerald-400 mt-1 font-mono">ACQUIRE (OVERWEIGHT)</div>
-        <span class="text-[11px] text-zinc-400 mt-1 block">Score: 88.4 / 100 Risk Adjusted</span>
-      </div>
-    </div>
-
-    <!-- Interactive Sliders -->
-    <div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-5 space-y-4">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400">Live Executive Sensitivity Controls</h2>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div>
-          <div class="flex justify-between text-xs font-mono mb-1.5">
-            <span class="text-zinc-300">Discount Rate (WACC)</span>
-            <span id="wacc-val" class="text-amber-400 font-bold">8.5%</span>
-          </div>
-          <input id="wacc-slider" type="range" min="5.0" max="15.0" step="0.25" value="8.5" class="w-full accent-amber-500 cursor-pointer">
-        </div>
-
-        <div>
-          <div class="flex justify-between text-xs font-mono mb-1.5">
-            <span class="text-zinc-300">Revenue Growth Shock</span>
-            <span id="growth-val" class="text-blue-400 font-bold">+12.0%</span>
-          </div>
-          <input id="growth-slider" type="range" min="-20.0" max="30.0" step="1.0" value="12.0" class="w-full accent-blue-500 cursor-pointer">
-        </div>
-
-        <div>
-          <div class="flex justify-between text-xs font-mono mb-1.5">
-            <span class="text-zinc-300">Synergy Realization</span>
-            <span id="synergy-val" class="text-emerald-400 font-bold">75%</span>
-          </div>
-          <input id="synergy-slider" type="range" min="0" max="100" step="5" value="75" class="w-full accent-emerald-500 cursor-pointer">
-        </div>
-      </div>
-
-      <!-- Shock Scenarios -->
-      <div class="pt-2 flex flex-wrap items-center gap-2">
-        <span class="text-[11px] text-zinc-400 mr-2">Instant Scenario Shocks:</span>
-        <button onclick="applyShock('base')" class="px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-xs text-white cursor-pointer transition border border-zinc-700">Baseline</button>
-        <button onclick="applyShock('bull')" class="px-2.5 py-1 rounded bg-emerald-950/80 hover:bg-emerald-900 text-emerald-300 text-xs border border-emerald-700/60 cursor-pointer transition">🚀 High Growth (+25%)</button>
-        <button onclick="applyShock('bear')" class="px-2.5 py-1 rounded bg-rose-950/80 hover:bg-rose-900 text-rose-300 text-xs border border-rose-700/60 cursor-pointer transition">💥 Recession Shock (-15%)</button>
-        <button onclick="applyShock('stag')" class="px-2.5 py-1 rounded bg-amber-950/80 hover:bg-amber-900 text-amber-300 text-xs border border-amber-700/60 cursor-pointer transition">⚡ Stagflation (WACC 12%)</button>
-      </div>
-    </div>
-
-    <!-- Sensitivity Tornado Chart -->
-    <div class="bg-zinc-900/80 border border-zinc-800 rounded-xl p-5">
-      <h2 class="text-xs font-bold uppercase tracking-wider text-zinc-400 mb-4">Enterprise Valuation Sensitivity Impact</h2>
-      <div class="space-y-3 font-mono text-xs">
-        <div>
-          <div class="flex justify-between mb-1">
-            <span class="text-zinc-300">Revenue Growth Velocity</span>
-            <span id="chart-growth-label" class="text-blue-400 font-semibold">+$480.2B</span>
-          </div>
-          <div class="w-full h-3 bg-zinc-800 rounded-full overflow-hidden">
-            <div id="chart-growth-bar" class="h-full bg-blue-500 rounded-full transition-all duration-300" style="width: 78%;"></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="flex justify-between mb-1">
-            <span class="text-zinc-300">WACC / Cost of Capital Friction</span>
-            <span id="chart-wacc-label" class="text-rose-400 font-semibold">-$310.5B</span>
-          </div>
-          <div class="w-full h-3 bg-zinc-800 rounded-full overflow-hidden">
-            <div id="chart-wacc-bar" class="h-full bg-rose-500 rounded-full transition-all duration-300" style="width: 62%;"></div>
-          </div>
-        </div>
-
-        <div>
-          <div class="flex justify-between mb-1">
-            <span class="text-zinc-300">Cost Synergy Integration Margin</span>
-            <span id="chart-synergy-label" class="text-emerald-400 font-semibold">+$245.0B</span>
-          </div>
-          <div class="w-full h-3 bg-zinc-800 rounded-full overflow-hidden">
-            <div id="chart-synergy-bar" class="h-full bg-emerald-500 rounded-full transition-all duration-300" style="width: 54%;"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    function updateModel() {
-      const wacc = parseFloat(document.getElementById('wacc-slider').value);
-      const growth = parseFloat(document.getElementById('growth-slider').value);
-      const synergy = parseFloat(document.getElementById('synergy-slider').value);
-
-      document.getElementById('wacc-val').innerText = wacc.toFixed(2) + '%';
-      document.getElementById('growth-val').innerText = (growth >= 0 ? '+' : '') + growth.toFixed(1) + '%';
-      document.getElementById('synergy-val').innerText = synergy + '%';
-
-      const baseVal = 4514.0;
-      const growthImpact = (growth / 100) * baseVal * 0.85;
-      const waccImpact = ((8.5 - wacc) / 100) * baseVal * 0.65;
-      const synergyImpact = (synergy / 100) * 320.0;
-      const finalVal = Math.max(1000, baseVal + growthImpact + waccImpact + synergyImpact);
-
-      const varExposure = Math.max(50, (wacc * 18.5) - (growth * 2.2));
-
-      document.getElementById('val-display').innerText = '$' + finalVal.toFixed(1) + 'B';
-      document.getElementById('var-display').innerText = '$' + varExposure.toFixed(1) + 'B';
-
-      const rec = document.getElementById('rec-display');
-      if (finalVal > 4800) {
-        rec.innerText = 'STRONG BUY (AGGRESSIVE)';
-        rec.className = 'text-2xl font-bold text-emerald-400 mt-1 font-mono';
-      } else if (finalVal > 4100) {
-        rec.innerText = 'ACQUIRE (OVERWEIGHT)';
-        rec.className = 'text-2xl font-bold text-emerald-400 mt-1 font-mono';
-      } else {
-        rec.innerText = 'HOLD / HEDGE';
-        rec.className = 'text-2xl font-bold text-amber-400 mt-1 font-mono';
-      }
-
-      const gWidth = Math.min(100, Math.max(10, Math.abs(growthImpact / baseVal) * 300 + 40));
-      document.getElementById('chart-growth-bar').style.width = gWidth + '%';
-      document.getElementById('chart-growth-label').innerText = (growthImpact >= 0 ? '+' : '') + '$' + growthImpact.toFixed(1) + 'B';
-
-      const wWidth = Math.min(100, Math.max(10, (wacc / 15) * 85));
-      document.getElementById('chart-wacc-bar').style.width = wWidth + '%';
-      document.getElementById('chart-wacc-label').innerText = '-$' + (wacc * 36.5).toFixed(1) + 'B';
-
-      const sWidth = Math.min(100, Math.max(10, synergy));
-      document.getElementById('chart-synergy-bar').style.width = sWidth + '%';
-      document.getElementById('chart-synergy-label').innerText = '+$' + synergyImpact.toFixed(1) + 'B';
-    }
-
-    function applyShock(scenario) {
-      if (scenario === 'base') {
-        document.getElementById('wacc-slider').value = 8.5;
-        document.getElementById('growth-slider').value = 12.0;
-        document.getElementById('synergy-slider').value = 75;
-      } else if (scenario === 'bull') {
-        document.getElementById('wacc-slider').value = 7.0;
-        document.getElementById('growth-slider').value = 25.0;
-        document.getElementById('synergy-slider').value = 95;
-      } else if (scenario === 'bear') {
-        document.getElementById('wacc-slider').value = 10.5;
-        document.getElementById('growth-slider').value = -15.0;
-        document.getElementById('synergy-slider').value = 35;
-      } else if (scenario === 'stag') {
-        document.getElementById('wacc-slider').value = 12.5;
-        document.getElementById('growth-slider').value = -5.0;
-        document.getElementById('synergy-slider').value = 50;
-      }
-      updateModel();
-    }
-
-    document.getElementById('wacc-slider').addEventListener('input', updateModel);
-    document.getElementById('growth-slider').addEventListener('input', updateModel);
-    document.getElementById('synergy-slider').addEventListener('input', updateModel);
-    updateModel();
-  </script>
-</body>
-</html>`;
-
 const A2A_POD_AGENTS = [
   {
     id: "deal_lead_01",
@@ -633,11 +525,9 @@ export default function App() {
   const [lastInteractionId, setLastInteractionId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedSteps, setExpandedSteps] = useState<Record<string, boolean>>({});
+  const [expandedThoughts, setExpandedThoughts] = useState<Record<string, boolean>>({});
   const [now, setNow] = useState<number>(Date.now());
-  const [sandboxFiles, setSandboxFiles] = useState<Record<string, string>>({
-    '/workspace/risk_dashboard.html': DEFAULT_RISK_DASHBOARD_HTML,
-    '/workspace/market_comparison.csv': 'Metric,Apple (AAPL),Microsoft (MSFT)\\nMarket Cap ($B),4514.0,3590.0\\nTTM Revenue ($B),466.89,331.90\\nPrice-to-Sales (P/S),9.67x,10.82x\\nQ4 Revenue ($B),102.47,90.00\\nGross Margin (%),46.2%,69.8%'
-  });
+  const [sandboxFiles, setSandboxFiles] = useState<Record<string, string>>({});
   const [activePreviewFile, setActivePreviewFile] = useState<{ path: string; content: string } | null>(null);
   const [showFileExplorer, setShowFileExplorer] = useState(false);
   const [showA2AInspector, setShowA2AInspector] = useState(false);
@@ -695,6 +585,13 @@ export default function App() {
 
   const toggleStepExpand = (msgId: string) => {
     setExpandedSteps(prev => ({
+      ...prev,
+      [msgId]: prev[msgId] === undefined ? false : !prev[msgId]
+    }));
+  };
+
+  const toggleThoughtExpand = (msgId: string) => {
+    setExpandedThoughts(prev => ({
       ...prev,
       [msgId]: prev[msgId] === undefined ? false : !prev[msgId]
     }));
@@ -1027,17 +924,14 @@ export default function App() {
               );
 
               // Detect created files in this turn
+              // Extract files created ONLY in this turn (zero artificial injection)
               const turnFiles: Record<string, string> = {
                 ...(msg.files || {}),
                 ...extractFilesFromSteps(msg.steps || [])
               };
 
-              // Also include any session files for this turn if present
-              Object.entries(sandboxFiles).forEach(([p, c]) => {
-                if (p.endsWith('.html') || p.endsWith('.csv') || p.endsWith('.md')) {
-                  if (!turnFiles[p]) turnFiles[p] = c;
-                }
-              });
+              // Parse thinking/planning vs final consolidated answer
+              const { thoughts, finalAnswer } = parseThinkingAndAnswer(msg.text || '');
 
               return (
                 <div
@@ -1046,7 +940,7 @@ export default function App() {
                 >
                   {/* Message Bubble Card */}
                   <div
-                    className={`max-w-[95%] md:max-w-[90%] rounded-2xl p-5 space-y-3.5 overflow-hidden break-words transition-all ${
+                    className={`max-w-[95%] md:max-w-[90%] rounded-2xl p-5 space-y-4 overflow-hidden break-words transition-all ${
                       msg.sender === 'user'
                         ? 'bg-zinc-900 text-white shadow-xs'
                         : 'bg-white border border-zinc-200 shadow-xs text-zinc-800 w-full'
@@ -1092,8 +986,57 @@ export default function App() {
                     {msg.sender === 'user' ? (
                       <p className="whitespace-pre-wrap text-sm leading-relaxed">{msg.text}</p>
                     ) : (
-                      <div className="space-y-3.5">
-                        {/* Verified Sandbox Execution Drawer */}
+                      <div className="space-y-4">
+                        {/* 1. DYNAMIC THINKING & REASONING FLOW (Collapsible / Expandable) */}
+                        {thoughts.length > 0 && (
+                          <div className="rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/50 via-indigo-50/30 to-white overflow-hidden shadow-2xs">
+                            <button
+                              onClick={() => toggleThoughtExpand(msg.id)}
+                              className="w-full px-3.5 py-2.5 flex items-center justify-between bg-purple-100/50 hover:bg-purple-100/80 transition-colors text-purple-900 font-mono text-[11px] cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2">
+                                <div className="p-1 rounded-md bg-purple-600 text-white shadow-2xs">
+                                  <Brain className="w-3.5 h-3.5 animate-pulse" />
+                                </div>
+                                <span className="font-bold text-purple-950">
+                                  Proceso de Razonamiento Agéntico ({thoughts.length} pasos cognitivos)
+                                </span>
+                                {msg.status === 'in_progress' && (
+                                  <span className="px-2 py-0.2 rounded-full bg-purple-200 text-purple-800 text-[10px] font-bold animate-pulse">
+                                    Pensando en vivo...
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1 text-purple-700 font-sans text-xs">
+                                <span className="text-[11px] font-medium">
+                                  {expandedThoughts[msg.id] !== false ? 'Ocultar' : 'Ver Detalles'}
+                                </span>
+                                {expandedThoughts[msg.id] !== false ? (
+                                  <ChevronDown className="w-3.5 h-3.5" />
+                                ) : (
+                                  <ChevronRight className="w-3.5 h-3.5" />
+                                )}
+                              </div>
+                            </button>
+
+                            {expandedThoughts[msg.id] !== false && (
+                              <div className="p-3.5 space-y-2 border-t border-purple-200/60 font-sans text-xs text-zinc-700">
+                                {thoughts.map((th, thIdx) => (
+                                  <div key={thIdx} className="flex items-start gap-2.5 p-2 rounded-lg bg-white/80 border border-purple-100 shadow-2xs">
+                                    <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 shrink-0">
+                                      {(thIdx + 1).toString().padStart(2, '0')}
+                                    </span>
+                                    <p className="text-zinc-800 leading-relaxed font-sans text-[12px]">
+                                      {th}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* 2. VERIFIED SANDBOX OPERATIONS (Tool calls like bash, view_file, etc.) */}
                         {toolSteps.length > 0 && (
                           <div className="rounded-xl border border-zinc-200 bg-zinc-50/70 overflow-hidden text-xs">
                             <button
@@ -1103,7 +1046,7 @@ export default function App() {
                               <div className="flex items-center gap-2">
                                 <ShieldCheck className="w-4 h-4 text-emerald-600" />
                                 <span className="font-semibold text-zinc-800">
-                                  Verified Sandbox Operations ({toolSteps.length} actions)
+                                  Operaciones de Ejecución en Sandbox ({toolSteps.length} acciones)
                                 </span>
                               </div>
                               {expandedSteps[msg.id] !== false ? (
@@ -1188,7 +1131,7 @@ export default function App() {
                           </div>
                         )}
 
-                        {/* Direct Inline Executive Visualizers (HTML Dashboards & CSV Datasets) */}
+                        {/* 3. DIRECT INLINE EXECUTIVE ARTIFACTS (Only when created during this turn) */}
                         {Object.entries(turnFiles).map(([filePath, content]) => {
                           if (filePath.endsWith('.html')) {
                             return (
@@ -1211,7 +1154,7 @@ export default function App() {
                           return null;
                         })}
 
-                        {/* Interactive Artifact Badges (Download & Explorer) */}
+                        {/* 4. ARTIFACT BADGES (Only for files generated in this turn) */}
                         {Object.keys(turnFiles).length > 0 && (
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 my-2">
                             {Object.entries(turnFiles).map(([filePath, content]) => {
@@ -1236,7 +1179,7 @@ export default function App() {
                                     </div>
                                     <div className="overflow-hidden font-mono">
                                       <span className="text-xs font-semibold text-zinc-900 block truncate">{filename}</span>
-                                      <span className="text-[10px] text-zinc-400 font-sans">{content.length} bytes · Sandbox Disk</span>
+                                      <span className="text-[10px] text-zinc-400 font-sans">{content.length} bytes · Generado en Sandbox</span>
                                     </div>
                                   </div>
 
@@ -1262,9 +1205,15 @@ export default function App() {
                           </div>
                         )}
 
-                        {/* Conversational Natural Markdown Output */}
-                        {msg.text ? (
-                          <div className="text-zinc-800 leading-relaxed text-[14px]">
+                        {/* 5. CONSOLIDATED FINAL SYNTHESIS / ANSWER */}
+                        {finalAnswer ? (
+                          <div className="text-zinc-800 leading-relaxed text-[14px] pt-1">
+                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-zinc-100">
+                              <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-900 text-white flex items-center gap-1">
+                                <Sparkles className="w-3 h-3 text-amber-300" />
+                                Respuesta Ejecutiva Consolidada
+                              </span>
+                            </div>
                             <ReactMarkdown
                               remarkPlugins={[remarkGfm]}
                               components={{
@@ -1341,13 +1290,13 @@ export default function App() {
                                 }
                               }}
                             >
-                              {msg.text}
+                              {finalAnswer}
                             </ReactMarkdown>
                           </div>
                         ) : msg.status === 'in_progress' ? (
                           <div className="flex items-center gap-2 text-xs text-zinc-500 py-1 font-sans">
-                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-600 animate-pulse"></div>
-                            <span>Executing in remote Linux sandbox...</span>
+                            <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
+                            <span>Ejecutando operaciones en el sandbox y consolidando respuesta final...</span>
                           </div>
                         ) : null}
 
