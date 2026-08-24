@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import {
-  TrendingUp,
-  DollarSign,
-  Droplets,
-  Zap,
   Sparkles,
-  ShieldCheck,
   Database,
   Building2,
   Package,
   Factory,
   FileText,
-  CheckCircle2,
   Cpu,
   Clock,
+  Zap,
+  TrendingUp,
+  AlertTriangle,
+  Layers,
 } from 'lucide-react';
 import { AgentQueryResponse, HedgingAction } from '../types';
 
@@ -36,6 +34,8 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
     reasoning_trace,
     model_used,
     grounded_data_table,
+    dynamic_kpis,
+    query_focus = 'MULTI_DEPT',
   } = agentResponse;
 
   const [revealPhase, setRevealPhase] = useState(1);
@@ -43,9 +43,9 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
   // Staggered reveal effect when a new query is processed
   useEffect(() => {
     setRevealPhase(1);
-    const t1 = setTimeout(() => setRevealPhase(2), 250);
-    const t2 = setTimeout(() => setRevealPhase(3), 550);
-    const t3 = setTimeout(() => setRevealPhase(4), 850);
+    const t1 = setTimeout(() => setRevealPhase(2), 200);
+    const t2 = setTimeout(() => setRevealPhase(3), 450);
+    const t3 = setTimeout(() => setRevealPhase(4), 700);
     return () => {
       clearTimeout(t1);
       clearTimeout(t2);
@@ -53,17 +53,13 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
     };
   }, [query]);
 
-  // Extract key metrics safely
-  const varDelta = shock_impact.var_delta_pct || 25.0;
-  const isVarElevated = varDelta > 15;
-  const bufferStatus = shock_impact.liquidity_buffer_status || 'STABLE';
-  const isBufferStable = bufferStatus === 'STABLE';
-
-  const qLower = query.toLowerCase();
-  const isComprasFocused = qLower.includes('órden') || qLower.includes('orden') || qLower.includes('compras') || qLower.includes('proveedor') || qLower.includes('tsmc') || qLower.includes('po');
-  const isAlmacenFocused = qLower.includes('inventario') || qLower.includes('stock') || qLower.includes('almacen') || qLower.includes('almacén') || qLower.includes('paro');
-  const isTesoreriaFocused = qLower.includes('fx') || qLower.includes('cobertura') || qLower.includes('forward') || qLower.includes('tesoreria') || qLower.includes('twd');
-  const isMultiDept = (!isComprasFocused && !isAlmacenFocused && !isTesoreriaFocused) || (qLower.includes('taiwan') || qLower.includes('taiwán') || qLower.includes('bloqueo') || qLower.includes('90') || qLower.includes('todo'));
+  // Default fallback KPIs if not provided
+  const kpis = dynamic_kpis && dynamic_kpis.length > 0 ? dynamic_kpis : [
+    { label: 'Riesgo Portafolio (VaR 99%)', value: `$${shock_impact.value_at_risk_99_m.toFixed(2)}M`, subtext: `+${shock_impact.var_delta_pct}% vs baseline`, status: 'ELEVADO', status_type: 'danger' as const },
+    { label: 'Arrastre en EBITDA', value: `-$${shock_impact.ebitda_impact_m.toFixed(2)}M`, subtext: 'Compresión margen operativo', status: 'ACCIÓN REQUERIDA', status_type: 'danger' as const },
+    { label: 'Cojín de Liquidez', value: `$${Math.max(0, 750 - shock_impact.ebitda_impact_m).toFixed(1)}M`, subtext: 'Reserva post-estrés', status: shock_impact.liquidity_buffer_status, status_type: (shock_impact.liquidity_buffer_status === 'STABLE' ? 'success' : 'warning') as 'success' | 'warning' },
+    { label: 'Capital Regulatorio', value: '100%', subtext: 'Basel III & Dodd-Frank', status: 'VERIFICADO', status_type: 'success' as const },
+  ];
 
   return (
     <div className="cyber-glass rounded-2xl p-6 border-2 border-cyan-500/60 space-y-6 shadow-2xl shadow-cyan-950/50 relative overflow-hidden transition-all">
@@ -82,9 +78,17 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
               <h3 className="font-extrabold text-sm text-slate-100 tracking-wider uppercase font-mono">
                 Plano de Respuesta Dinámico // {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 3.7 FLASH')}
               </h3>
-              <span className="bg-emerald-950 text-emerald-300 text-[10px] font-mono px-2 py-0.5 rounded border border-emerald-700 font-bold flex items-center gap-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
-                BIGQUERY GROUNDED LIVE
+              <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold flex items-center gap-1 ${
+                query_focus === 'COMPRAS'
+                  ? 'bg-blue-950 text-blue-300 border border-blue-700'
+                  : query_focus === 'ALMACEN'
+                  ? 'bg-amber-950 text-amber-300 border border-amber-700'
+                  : query_focus === 'TESORERIA'
+                  ? 'bg-purple-950 text-purple-300 border border-purple-700'
+                  : 'bg-emerald-950 text-emerald-300 border border-emerald-700'
+              }`}>
+                <span className="h-1.5 w-1.5 rounded-full bg-cyan-400 animate-ping" />
+                FOCO: {query_focus} (BIGQUERY LIVE)
               </span>
             </div>
             <p className="text-xs text-cyan-200/90 font-medium mt-0.5 italic">
@@ -116,19 +120,19 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
             revealPhase >= 1 ? 'bg-cyan-950 text-cyan-300 border border-cyan-700' : 'bg-slate-900 text-slate-600'
           }`}>
             <span className="h-1.5 w-1.5 rounded-full bg-cyan-400" />
-            1. Intención Semántica Detectada
+            1. Intención Detectada ({query_focus})
           </span>
           <span className={`px-2 py-0.5 rounded flex items-center gap-1 transition-all ${
             revealPhase >= 2 ? 'bg-blue-950 text-blue-300 border border-blue-700' : 'bg-slate-900 text-slate-600'
           }`}>
             <span className="h-1.5 w-1.5 rounded-full bg-blue-400" />
-            2. Tool BigQuery (28ms-35ms)
+            2. BigQuery Live Scan (28ms-35ms)
           </span>
           <span className={`px-2 py-0.5 rounded flex items-center gap-1 transition-all ${
             revealPhase >= 3 ? 'bg-purple-950 text-purple-300 border border-purple-700' : 'bg-slate-900 text-slate-600'
           }`}>
             <span className="h-1.5 w-1.5 rounded-full bg-purple-400" />
-            3. Motor Paramétrico In-Memory (&lt;50ms)
+            3. KPIs Dinámicos ({kpis.length} métricas)
           </span>
           <span className={`px-2 py-0.5 rounded flex items-center gap-1 transition-all ${
             revealPhase >= 4 ? 'bg-emerald-950 text-emerald-300 border border-emerald-700' : 'bg-slate-900 text-slate-600'
@@ -139,156 +143,130 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         </div>
       </div>
 
-      {/* 1. Hero C-Suite Decision KPI Metrics */}
+      {/* 1. DYNAMIC CONTEXT-SPECIFIC KPI METRICS CARDS (Adapts strictly to the question!) */}
       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 transition-all duration-500 ${
         revealPhase >= 1 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
       }`}>
-        {/* Metric 1: VaR 99% */}
-        <div className="bg-slate-950/90 rounded-xl p-4 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span className="font-mono text-[11px] uppercase tracking-wider">Riesgo Portafolio (VaR 99%)</span>
-            <TrendingUp className={`h-4 w-4 ${isVarElevated ? 'text-amber-400' : 'text-emerald-400'}`} />
+        {kpis.map((kpi, idx) => (
+          <div
+            key={idx}
+            className={`p-4 rounded-xl transition-all space-y-1.5 border ${
+              kpi.status_type === 'danger'
+                ? 'bg-slate-950/90 border-rose-500/40 hover:border-rose-500/80 shadow-lg shadow-rose-950/20'
+                : kpi.status_type === 'warning'
+                ? 'bg-slate-950/90 border-amber-500/40 hover:border-amber-500/80 shadow-lg shadow-amber-950/20'
+                : kpi.status_type === 'info'
+                ? 'bg-slate-950/90 border-blue-500/40 hover:border-blue-500/80 shadow-lg shadow-blue-950/20'
+                : 'bg-slate-950/90 border-emerald-500/40 hover:border-emerald-500/80 shadow-lg shadow-emerald-950/20'
+            }`}
+          >
+            <div className="flex items-center justify-between text-slate-400 text-xs">
+              <span className="font-mono text-[11px] uppercase tracking-wider text-slate-300 font-bold">
+                {kpi.label}
+              </span>
+              {kpi.status_type === 'danger' ? (
+                <AlertTriangle className="h-4 w-4 text-rose-400" />
+              ) : kpi.status_type === 'warning' ? (
+                <AlertTriangle className="h-4 w-4 text-amber-400" />
+              ) : (
+                <TrendingUp className="h-4 w-4 text-emerald-400" />
+              )}
+            </div>
+            <div className="text-xl font-mono font-black text-slate-100">
+              {kpi.value}
+            </div>
+            <div className="flex items-center justify-between gap-1 text-[10px] font-mono pt-0.5">
+              <span className="text-slate-400 truncate max-w-[140px]">{kpi.subtext}</span>
+              <span
+                className={`px-1.5 py-0.2 rounded font-bold shrink-0 ${
+                  kpi.status_type === 'danger'
+                    ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                    : kpi.status_type === 'warning'
+                    ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                    : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                }`}
+              >
+                {kpi.status}
+              </span>
+            </div>
           </div>
-          <div className="text-xl font-mono font-extrabold text-slate-100">
-            ${shock_impact.value_at_risk_99_m.toFixed(2)}M
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px] font-mono">
-            <span
-              className={`px-1.5 py-0.2 rounded font-bold ${
-                isVarElevated ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-emerald-950 text-emerald-300'
-              }`}
-            >
-              {varDelta > 0 ? `+${varDelta.toFixed(1)}%` : `${varDelta.toFixed(1)}%`} vs Baseline
-            </span>
-          </div>
-        </div>
-
-        {/* Metric 2: EBITDA Drag */}
-        <div className="bg-slate-950/90 rounded-xl p-4 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span className="font-mono text-[11px] uppercase tracking-wider">Arrastre en EBITDA</span>
-            <DollarSign className="h-4 w-4 text-rose-400" />
-          </div>
-          <div className="text-xl font-mono font-extrabold text-rose-400">
-            -${shock_impact.ebitda_impact_m.toFixed(2)}M
-          </div>
-          <div className="flex items-center gap-1.5 text-[10px] font-mono">
-            <span className="bg-rose-950 text-rose-300 px-1.5 py-0.2 rounded border border-rose-800 font-bold">
-              Compresión de Margen
-            </span>
-          </div>
-        </div>
-
-        {/* Metric 3: Liquidity Buffer */}
-        <div className="bg-slate-950/90 rounded-xl p-4 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span className="font-mono text-[11px] uppercase tracking-wider">Cojín de Liquidez</span>
-            <Droplets className={`h-4 w-4 ${isBufferStable ? 'text-emerald-400' : 'text-rose-400'}`} />
-          </div>
-          <div className="text-xl font-mono font-extrabold text-slate-100 flex items-center gap-2">
-            ${Math.max(0, 750 - shock_impact.ebitda_impact_m).toFixed(1)}M
-            <span
-              className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
-                isBufferStable
-                  ? 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                  : 'bg-rose-950 text-rose-300 border border-rose-800'
-              }`}
-            >
-              {bufferStatus}
-            </span>
-          </div>
-          <div className="text-[10px] font-mono text-slate-400">
-            Reserva Post-Estrés
-          </div>
-        </div>
-
-        {/* Metric 4: Capital Adequacy */}
-        <div className="bg-slate-950/90 rounded-xl p-4 border border-slate-800 hover:border-cyan-500/40 transition-all space-y-2">
-          <div className="flex items-center justify-between text-slate-400 text-xs">
-            <span className="font-mono text-[11px] uppercase tracking-wider">Capital Regulatorio</span>
-            <ShieldCheck className="h-4 w-4 text-emerald-400" />
-          </div>
-          <div className="text-xl font-mono font-extrabold text-slate-100 flex items-center gap-2">
-            100%
-            <span className="bg-purple-950 text-purple-300 text-[10px] font-mono px-2 py-0.5 rounded border border-purple-800 font-bold">
-              VERIFICADO
-            </span>
-          </div>
-          <div className="text-[10px] font-mono text-slate-400">
-            Basel III & Dodd-Frank
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* 2. THREE DIRECT ANSWERS BY DEPARTMENT (Adaptive & Context-Focused) */}
+      {/* 2. ADAPTIVE DEPARTMENTAL BREAKDOWN (Shows ONLY what was queried!) */}
       <div className={`space-y-3 transition-all duration-500 ${
         revealPhase >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2'
       }`}>
         <div className="flex items-center gap-2 text-xs font-mono font-bold text-slate-300 uppercase tracking-wider">
-          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-          <span>Respuesta Desglosada por Departamento ({isMultiDept ? 'Visión Consolidada' : 'Foco Específico'})</span>
+          <Layers className="h-4 w-4 text-cyan-400" />
+          <span>
+            {query_focus === 'COMPRAS'
+              ? 'Diagnóstico Exclusivo de Compras y Órdenes de Proveedores'
+              : query_focus === 'ALMACEN'
+              ? 'Diagnóstico Exclusivo de Almacén y Riesgo de Paro de Planta'
+              : query_focus === 'TESORERIA'
+              ? 'Diagnóstico Exclusivo de Tesorería y Contratos Cambiarios FX'
+              : 'Diagnóstico Consolidado Multi-Departamento (Compras + Almacén + Tesorería)'}
+          </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        {/* Dynamic Conditional Cards Grid */}
+        <div className={`grid gap-3.5 ${
+          query_focus === 'MULTI_DEPT' ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1'
+        }`}>
           {/* Pillar 1: Compras */}
-          <div className={`p-4 rounded-xl space-y-2 transition-all ${
-            isComprasFocused || isMultiDept
-              ? 'bg-slate-950/90 border-2 border-blue-500/60 shadow-lg shadow-blue-950/40'
-              : 'bg-slate-950/40 border border-slate-800 opacity-60'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-bold text-blue-300">
-                <Package className="h-4 w-4 text-blue-400" />
-                <span>1. Compras (Órdenes Comprometidas)</span>
+          {(query_focus === 'COMPRAS' || query_focus === 'MULTI_DEPT') && (
+            <div className="bg-slate-950/90 p-4 rounded-xl border-2 border-blue-500/60 shadow-lg shadow-blue-950/40 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-blue-300">
+                  <Package className="h-4 w-4 text-blue-400" />
+                  <span>1. Compras & Proveedores (Órdenes Comprometidas)</span>
+                </div>
+                <span className="text-[10px] font-mono bg-blue-950 text-blue-300 px-2 py-0.5 rounded border border-blue-800 font-bold">
+                  $320.6M USD
+                </span>
               </div>
-              <span className="text-[10px] font-mono bg-blue-950 text-blue-300 px-1.5 py-0.5 rounded border border-blue-800 font-bold">
-                $320.6M
-              </span>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                <strong>12 órdenes de compra abiertas</strong> con proveedores clave: <strong>TSMC</strong> ($107.5M en obleas 3nm y sustratos), <strong>Foxconn</strong> ($68.0M en módulos ópticos) y <strong>ASE Technology</strong> ($85.5M en memorias HBM3e). Retraso proyectado de 45 a 90 días en puerto de Kaohsiung.
+              </p>
             </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              <strong>12 órdenes abiertas</strong> con proveedores clave: <strong>TSMC</strong> ($107.5M en obleas 3nm y sustratos), <strong>Foxconn</strong> ($68.0M en módulos ópticos) y <strong>ASE Technology</strong> ($85.5M en memorias HBM3e).
-            </p>
-          </div>
+          )}
 
           {/* Pillar 2: Almacén */}
-          <div className={`p-4 rounded-xl space-y-2 transition-all ${
-            isAlmacenFocused || isMultiDept
-              ? 'bg-slate-950/90 border-2 border-amber-500/60 shadow-lg shadow-amber-950/40'
-              : 'bg-slate-950/40 border border-slate-800 opacity-60'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
-                <Factory className="h-4 w-4 text-amber-400" />
-                <span>2. Almacén (Riesgo de Paro de Línea)</span>
+          {(query_focus === 'ALMACEN' || query_focus === 'MULTI_DEPT') && (
+            <div className="bg-slate-950/90 p-4 rounded-xl border-2 border-amber-500/60 shadow-lg shadow-amber-950/40 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-amber-300">
+                  <Factory className="h-4 w-4 text-amber-400" />
+                  <span>2. Almacén & Manufactura (Riesgo de Paro de Línea)</span>
+                </div>
+                <span className="text-[10px] font-mono bg-amber-950 text-amber-300 px-2 py-0.5 rounded border border-amber-800 font-bold">
+                  34 Días Buffer
+                </span>
               </div>
-              <span className="text-[10px] font-mono bg-amber-950 text-amber-300 px-1.5 py-0.5 rounded border border-amber-800 font-bold">
-                34 Días Buffer
-              </span>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Alerta crítica de paro de ensamble: El inventario de seguridad para obleas 3nm y sustratos caerá a <strong>cero en 34 días</strong> (consumo: 800 unidades/día). Paro proyectado de la línea de ensamblaje en Austin y Monterrey para el <strong>15 de Julio de 2026</strong>. Frankfurt cuenta con 12 días reasignables.
+              </p>
             </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              Alerta de paro de ensamble: El inventario de seguridad para obleas 3nm y sustratos caerá a <strong>cero en 34 días</strong> (consumo: 800 unidades/día). Paro de planta proyectado para el <strong>15 de Julio de 2026</strong>.
-            </p>
-          </div>
+          )}
 
           {/* Pillar 3: Tesorería */}
-          <div className={`p-4 rounded-xl space-y-2 transition-all ${
-            isTesoreriaFocused || isMultiDept
-              ? 'bg-slate-950/90 border-2 border-purple-500/60 shadow-lg shadow-purple-950/40'
-              : 'bg-slate-950/40 border border-slate-800 opacity-60'
-          }`}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
-                <Building2 className="h-4 w-4 text-purple-400" />
-                <span>3. Tesorería (Contratos FX Expuestos)</span>
+          {(query_focus === 'TESORERIA' || query_focus === 'MULTI_DEPT') && (
+            <div className="bg-slate-950/90 p-4 rounded-xl border-2 border-purple-500/60 shadow-lg shadow-purple-950/40 space-y-2">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-bold text-purple-300">
+                  <Building2 className="h-4 w-4 text-purple-400" />
+                  <span>3. Tesorería & Finanzas (Contratos FX Forwards)</span>
+                </div>
+                <span className="text-[10px] font-mono bg-rose-950 text-rose-300 px-2 py-0.5 rounded border border-rose-800 font-bold">
+                  $14.2M Sin Cobertura
+                </span>
               </div>
-              <span className="text-[10px] font-mono bg-rose-950 text-rose-300 px-1.5 py-0.5 rounded border border-rose-800 font-bold">
-                $14.2M Sin Cobertura
-              </span>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                Exposición cambiaria directa: <strong>2 contratos forwards en USD/TWD</strong> por $14.2M con DBS Bank y Standard Chartered vencen sin cobertura en Q3, generando un riesgo de pérdida cambiaria de <strong>$3.85M USD</strong>.
+              </p>
             </div>
-            <p className="text-[11px] text-slate-300 leading-relaxed">
-              Exposición cambiaria crítica: <strong>2 contratos forwards en USD/TWD</strong> por $14.2M con DBS Bank y Standard Chartered vencen sin cobertura en Q3, generando un riesgo de pérdida cambiaria de $3.8M.
-            </p>
-          </div>
+          )}
         </div>
       </div>
 
@@ -358,33 +336,34 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         <div className="space-y-1.5 max-w-2xl">
           <div className="flex items-center gap-2 text-xs font-mono font-bold text-cyan-300 uppercase tracking-wider">
             <FileText className="h-4 w-4 text-cyan-400" />
-            <span>Resolución para el Consejo de Administración // Plan de Acción Listo</span>
+            <span>Resolución Oficial de Consejo // Plan de Acción Generado</span>
           </div>
           <p className="text-xs text-slate-200 leading-relaxed font-sans">
-            El agente ha preparado el <strong>Memorándum Oficial de Decisión del Consejo</strong> con la recomendación de ejecutar un{' '}
-            <strong className="text-cyan-300 font-mono font-bold">Collar Swaption de $63.0M</strong> y activar la reserva de stock en Monterrey/Austin para blindar el 74% del riesgo de cola.
+            El agente ha formulado el <strong>Memorándum Oficial del Consejo de Administración</strong> adaptado específicamente a <strong>{query_focus}</strong>, listo para descarga y firma digital ejecutiva.
           </p>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <button
-            type="button"
-            onClick={() => {
-              if (onExecuteHedge) {
-                onExecuteHedge({
-                  action: 'Execute $63M Receiver Swaption Collar',
-                  hedged_risk: 'Mitigate 74% Tail Risk',
-                  cost_basis_k: 450,
-                  projected_savings_m: Number((shock_impact.value_at_risk_99_m * 0.6).toFixed(1)),
-                  urgency: 'HIGH',
-                });
-              }
-            }}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs border border-cyan-500/40 flex items-center gap-1.5 transition-all cursor-pointer"
-          >
-            <Zap className="h-3.5 w-3.5" />
-            <span>Ejecutar Cobertura ($63M)</span>
-          </button>
+          {(query_focus === 'TESORERIA' || query_focus === 'MULTI_DEPT') && (
+            <button
+              type="button"
+              onClick={() => {
+                if (onExecuteHedge) {
+                  onExecuteHedge({
+                    action: 'Execute $63M Receiver Swaption Collar',
+                    hedged_risk: 'Mitigate 74% Tail Risk',
+                    cost_basis_k: 450,
+                    projected_savings_m: Number((shock_impact.value_at_risk_99_m * 0.6).toFixed(1)),
+                    urgency: 'HIGH',
+                  });
+                }
+              }}
+              className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold text-xs border border-cyan-500/40 flex items-center gap-1.5 transition-all cursor-pointer"
+            >
+              <Zap className="h-3.5 w-3.5" />
+              <span>Ejecutar Cobertura ($63M)</span>
+            </button>
+          )}
 
           {onOpenBoardMemo && (
             <button
@@ -393,7 +372,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
               className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-2 transition-all cursor-pointer animate-pulse"
             >
               <FileText className="h-4 w-4 text-slate-950" />
-              <span>Ver Memorándum del Consejo &rarr;</span>
+              <span>Ver Memorándum Oficial &rarr;</span>
             </button>
           )}
         </div>

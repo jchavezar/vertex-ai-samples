@@ -134,6 +134,14 @@ export interface AgentQueryResponse {
     headers: string[];
     rows: any[];
   };
+  dynamic_kpis?: Array<{
+    label: string;
+    value: string;
+    subtext: string;
+    status: string;
+    status_type: 'danger' | 'warning' | 'success' | 'info';
+  }>;
+  query_focus?: 'COMPRAS' | 'ALMACEN' | 'TESORERIA' | 'MULTI_DEPT';
 }
 
 export interface BoardMemoResponse {

@@ -120,6 +120,8 @@ class AgentQueryResponse(BaseModel):
     latency_ms: float
     model_used: str
     grounded_data_table: Optional[Dict[str, Any]] = None
+    dynamic_kpis: Optional[List[Dict[str, Any]]] = None
+    query_focus: Optional[str] = "MULTI_DEPT"
 
 
 class BoardMemoRequest(BaseModel):
