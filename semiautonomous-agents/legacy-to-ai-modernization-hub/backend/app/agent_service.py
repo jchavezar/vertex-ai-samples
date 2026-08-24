@@ -142,7 +142,22 @@ The Antigravity Autonomous Agent recommends immediate execution of a **${shock_i
     # Query appropriate BigQuery table based on user query intent
     from .bigquery_service import execute_chain_step_bigquery
     grounded_table = None
-    if "órden" in q_lower or "orden" in q_lower or "taiwan" in q_lower or "taiwán" in q_lower or "compras" in q_lower or "po" in q_lower:
+
+    is_multi_dept = (
+        ("taiwan" in q_lower or "taiwán" in q_lower or "bloqueo" in q_lower or "bottleneck" in q_lower) and
+        ("inventario" in q_lower or "fx" in q_lower or "ebitda" in q_lower or "contrato" in q_lower or "stoppage" in q_lower or "quedan" in q_lower or "comprometid" in q_lower)
+    ) or ("consolid" in q_lower or "todo" in q_lower)
+
+    if is_multi_dept:
+        bq_step = execute_chain_step_bigquery(4)
+        grounded_table = {
+            "title": "Consolidado Multi-Departamento (Compras + Almacén + Tesorería en BigQuery)",
+            "dataset": bq_step["dataset"],
+            "total_rows": bq_step["total_rows"],
+            "headers": bq_step["headers"],
+            "rows": bq_step["data"][:8],
+        }
+    elif "órden" in q_lower or "orden" in q_lower or "compras" in q_lower or "po" in q_lower:
         bq_step = execute_chain_step_bigquery(1)
         grounded_table = {
             "title": "Órdenes de Compra Abiertas con Proveedores de Taiwán (BigQuery Ground Truth)",

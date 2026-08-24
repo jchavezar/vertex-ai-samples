@@ -68,7 +68,7 @@ def execute_chain_step_bigquery(step_id: int) -> Dict[str, Any]:
         SELECT 
             p.po_id, 
             p.vendor_name, 
-            p.part_code, 
+            p.part_name, 
             p.notional_usd, 
             i.safety_stock_days, 
             i.stoppage_risk,
@@ -79,9 +79,9 @@ def execute_chain_step_bigquery(step_id: int) -> Dict[str, Any]:
         ORDER BY p.notional_usd DESC
         LIMIT 50;
         """
-        title = "Consolidado Multi-Departamento (Compras + Almacén + Tesorería)"
+        title = "Consolidado Multi-Departamento (Compras + Almacén + Tesorería en BigQuery)"
         csv_name = "Consolidated_Taiwan_Risk_Analysis.csv"
-        headers = ["PO ID", "Proveedor", "Código SKU", "Monto Expuesto ($)", "Días Stock Buffer", "Riesgo Paro", "Fecha Límite"]
+        headers = ["PO ID", "Proveedor", "Componente", "Monto Expuesto ($)", "Días Stock Buffer", "Riesgo Paro", "Fecha Límite"]
 
     else:
         raise ValueError(f"Invalid step_id: {step_id}")
