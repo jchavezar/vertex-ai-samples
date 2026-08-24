@@ -1,0 +1,24 @@
+[project]
+name = "adk-gemini-enterprise-e2e"
+version = "0.1.0"
+description = "End-to-end Google ADK Agent deployed to Vertex AI Agent Engine with Cloud Trace, Cloud Logging, and Gemini Enterprise Registration."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "google-adk>=0.1.0",
+    "google-cloud-aiplatform[adk,agent_engines]>=1.75.0",
+    "google-genai>=1.0.0",
+    "google-auth>=2.30.0",
+    "pydantic>=2.0.0",
+    "requests>=2.31.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.0.0",
+    "cloudpickle>=3.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["agent"]

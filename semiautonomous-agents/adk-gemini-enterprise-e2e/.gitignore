@@ -1,0 +1,13 @@
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.pfx
+credentials.json
+client_secret*.json
+*_token.json
+__pycache__/
+*.py[cod]
+.venv/

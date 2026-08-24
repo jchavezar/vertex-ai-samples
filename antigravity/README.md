@@ -22,13 +22,21 @@
 <table width="100%" border="0" cellspacing="0" cellpadding="20">
   <!-- ROW 0: MANAGED AGENTS & AUTONOMOUS CLOUD SANDBOX -->
   <tr>
-    <td colspan="2" valign="top" style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 24px;">
-      <span style="background: #8B5CF6; color: white; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; font-family: monospace;">FLAGSHIP // GAOS RUNTIME</span>
+    <td width="50%" valign="top" style="background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 20px;">
+      <span style="background: #8B5CF6; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; font-family: monospace;">FLAGSHIP // GAOS RUNTIME</span>
       <br/><br/>
-      <strong style="font-size: 18px;">PROJECT: VERTEX AI MANAGED AGENT SANDBOX & A2A WIRE-TAP</strong><br/>
-      Next-generation autonomous computing platform. Deploys dedicated, stateful Linux microVM containers (<code>/workspace</code>) for heavy computation, autonomous Google Search grounding, one-click interactive HTML5 dashboard compilation, and a 4-node <strong>Agent-to-Agent (A2A)</strong> adversarial risk audit protocol.<br/>
+      <strong style="font-size: 16px;">PROJECT: MANAGED AGENT SANDBOX & A2A WIRE-TAP</strong><br/>
+      Autonomous computing platform. Dedicated MicroVM containers (<code>/workspace</code>), live Google Search grounding, dynamic HTML5 dashboards, and 4-node A2A adversarial governance.<br/>
       <br/>
-      <a href="../antigravity-sandbox-chat/">ACCESS_TERMINAL &rarr;</a> &nbsp;|&nbsp; <a href="../agy-recipes/managed-agent-sandbox-chat/">VIEW_RECIPE_BLUEPRINT &rarr;</a>
+      <a href="../antigravity-sandbox-chat/">ACCESS_TERMINAL &rarr;</a> &nbsp;|&nbsp; <a href="../agy-recipes/managed-agent-sandbox-chat/">RECIPE &rarr;</a>
+    </td>
+    <td width="50%" valign="top" style="background: rgba(66, 133, 244, 0.05); border: 1px solid rgba(66, 133, 244, 0.3); border-radius: 12px; padding: 20px;">
+      <span style="background: #4285F4; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; font-family: monospace;">ENTERPRISE // AGENT ENGINE</span>
+      <br/><br/>
+      <strong style="font-size: 16px;">PROJECT: ADK GEMINI ENTERPRISE E2E</strong><br/>
+      End-to-end Google ADK Agent deployed to Vertex AI Agent Engine with Cloud Trace, Cloud Logging, OpenTelemetry, and direct Gemini Enterprise registration.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/adk-gemini-enterprise-e2e/">VIEW_AGENT_CORE &rarr;</a> &nbsp;|&nbsp; <a href="../agy-recipes/adk-gemini-enterprise-e2e/">RECIPE &rarr;</a>
     </td>
   </tr>
   <!-- ROW 1: SEARCH & FINANCE -->
