@@ -103,8 +103,8 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({ onUpdateLa
   };
 
   const samplePrompts = [
+    'Si nuestro proveedor en Taiwán tiene un bloqueo de 90 días, ¿cuál es el impacto en EBITDA y contratos FX?',
     'Simulate +75bps Fed rate hike and Red Sea maritime bottleneck',
-    'What is our EBITDA downside if supplier default probability hits 5%?',
     'Synthesize dynamic collar hedge to protect APAC cash flows',
   ];
 

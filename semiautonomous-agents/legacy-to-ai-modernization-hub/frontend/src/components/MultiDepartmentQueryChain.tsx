@@ -84,137 +84,150 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
   };
 
   return (
-    <div className="bg-[#f0f3f6] border-2 border-[#7f8c8d] rounded-lg p-4 mb-5 shadow-inner font-sans text-slate-800">
+    <div className="bg-[#f0f3f6] border-2 border-[#7f8c8d] rounded-xl p-4 mb-5 shadow-lg font-sans text-slate-800">
       {/* Top Scenario Banner */}
-      <div className="bg-[#34495e] text-white p-3 rounded flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-md">
-        <div className="flex items-center gap-2.5">
-          <div className="p-1.5 bg-amber-500/20 border border-amber-400/40 rounded text-amber-300">
+      <div className="bg-[#2c3e50] text-white p-3.5 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-3 shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-amber-500/20 border border-amber-400/50 rounded-lg text-amber-300">
             <AlertTriangle className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="font-bold text-xs uppercase tracking-wider text-amber-300">
-              Traditional 3-Day Enterprise Bottleneck: Multi-Department SQL & CSV Consolidation Chain
-            </h4>
-            <p className="text-[11px] text-slate-300 font-mono mt-0.5">
-              Scenario: &ldquo;If Taiwan supplier bottlenecks expand 90 days, what is our total cash & FX exposure?&rdquo;
+            <div className="flex items-center gap-2">
+              <h4 className="font-bold text-xs uppercase tracking-wider text-amber-300">
+                La Realidad Tradicional: Cadena Manual de Consultas SQL y Cruce en Excel (3 Días)
+              </h4>
+              <span className="bg-red-900/80 text-red-200 text-[10px] font-mono px-2 py-0.5 rounded border border-red-700 font-bold">
+                ENFOQUE LEGACY
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-200 font-mono mt-0.5">
+              Pregunta de Negocio: <strong>&ldquo;Si nuestro proveedor principal en Taiwán sufre un bloqueo de 90 días, ¿cuál es nuestro impacto en flujo de caja, qué contratos FX están expuestos y qué crédito debemos activar?&rdquo;</strong>
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
             onClick={runAllSteps}
-            className="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded shadow flex items-center gap-1.5 transition-all"
+            className="bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg shadow flex items-center gap-1.5 transition-all cursor-pointer"
           >
             <RefreshCw className="h-3.5 w-3.5" />
-            <span>Simulate Full 3-Day Cycle</span>
+            <span>Simular Ciclo Completo (3 Días)</span>
           </button>
           <button
             type="button"
             onClick={resetAll}
-            className="bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-semibold px-2.5 py-1.5 rounded transition-all"
+            className="bg-slate-700 hover:bg-slate-600 text-slate-200 text-[11px] font-semibold px-2.5 py-1.5 rounded-lg transition-all cursor-pointer"
           >
-            Reset
+            Reiniciar
           </button>
         </div>
       </div>
 
-      {/* 4-Step Chain Tabs */}
+      {/* 4-Step Chain Tabs with Business Questions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 my-3">
         {/* Step 1 Tab */}
         <button
           type="button"
           onClick={() => setActiveTab(1)}
-          className={`p-2.5 rounded border text-left transition-all ${
+          className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
             activeTab === 1
-              ? 'bg-white border-blue-600 shadow-md ring-1 ring-blue-500'
+              ? 'bg-white border-blue-600 shadow-md ring-2 ring-blue-500/40'
               : 'bg-[#e2e8f0] border-slate-300 hover:bg-slate-100'
           }`}
         >
           <div className="flex items-center justify-between text-[11px] font-bold">
-            <span className="text-slate-700">1. Group A (Procurement)</span>
+            <span className="text-slate-800 font-bold">1. Compras (Oracle RAC)</span>
             {step1State === 'done' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
             {step1State === 'running' && <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />}
           </div>
-          <p className="text-[10px] text-slate-500 font-mono mt-1">Oracle RAC // Open POs</p>
+          <p className="text-[10px] text-slate-600 mt-1 font-medium line-clamp-1">
+            ¿Cuáles son las órdenes abiertas con Taiwán?
+          </p>
         </button>
 
         {/* Step 2 Tab */}
         <button
           type="button"
           onClick={() => setActiveTab(2)}
-          className={`p-2.5 rounded border text-left transition-all ${
+          className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
             activeTab === 2
-              ? 'bg-white border-blue-600 shadow-md ring-1 ring-blue-500'
+              ? 'bg-white border-blue-600 shadow-md ring-2 ring-blue-500/40'
               : 'bg-[#e2e8f0] border-slate-300 hover:bg-slate-100'
           }`}
         >
           <div className="flex items-center justify-between text-[11px] font-bold">
-            <span className="text-slate-700">2. Group B (Warehouse)</span>
+            <span className="text-slate-800 font-bold">2. Almacén (SAP HANA)</span>
             {step2State === 'done' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
             {step2State === 'running' && <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />}
           </div>
-          <p className="text-[10px] text-slate-500 font-mono mt-1">SAP HANA // Safety Stock</p>
+          <p className="text-[10px] text-slate-600 mt-1 font-medium line-clamp-1">
+            ¿Cuántos días de inventario de seguridad quedan?
+          </p>
         </button>
 
         {/* Step 3 Tab */}
         <button
           type="button"
           onClick={() => setActiveTab(3)}
-          className={`p-2.5 rounded border text-left transition-all ${
+          className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
             activeTab === 3
-              ? 'bg-white border-blue-600 shadow-md ring-1 ring-blue-500'
+              ? 'bg-white border-blue-600 shadow-md ring-2 ring-blue-500/40'
               : 'bg-[#e2e8f0] border-slate-300 hover:bg-slate-100'
           }`}
         >
           <div className="flex items-center justify-between text-[11px] font-bold">
-            <span className="text-slate-700">3. Group C (Treasury)</span>
+            <span className="text-slate-800 font-bold">3. Tesorería (SQL Server)</span>
             {step3State === 'done' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
             {step3State === 'running' && <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />}
           </div>
-          <p className="text-[10px] text-slate-500 font-mono mt-1">SQL Server // FX Swaps</p>
+          <p className="text-[10px] text-slate-600 mt-1 font-medium line-clamp-1">
+            ¿Qué contratos de cobertura FX están expuestos?
+          </p>
         </button>
 
         {/* Step 4 Tab */}
         <button
           type="button"
           onClick={() => setActiveTab(4)}
-          className={`p-2.5 rounded border text-left transition-all ${
+          className={`p-3 rounded-lg border text-left transition-all cursor-pointer ${
             activeTab === 4
-              ? 'bg-white border-amber-600 shadow-md ring-1 ring-amber-500'
+              ? 'bg-white border-amber-600 shadow-md ring-2 ring-amber-500/40'
               : 'bg-[#e2e8f0] border-slate-300 hover:bg-slate-100'
           }`}
         >
           <div className="flex items-center justify-between text-[11px] font-bold">
-            <span className="text-slate-800">4. Human Excel Merge</span>
+            <span className="text-slate-900 font-bold">4. Cruce en Excel</span>
             {step4State === 'done' && <CheckCircle2 className="h-4 w-4 text-emerald-600" />}
             {step4State === 'running' && <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />}
           </div>
-          <p className="text-[10px] text-amber-700 font-bold font-mono mt-1">VLOOKUP & Reconcile (3 Days)</p>
+          <p className="text-[10px] text-amber-700 font-bold mt-1">
+            BUSCARV y PPT (Demora 3 Días)
+          </p>
         </button>
       </div>
 
       {/* Active Step Panel */}
-      <div className="bg-white border border-[#bdc3c7] rounded p-4 shadow-sm">
+      <div className="bg-white border border-[#bdc3c7] rounded-lg p-4 shadow-sm">
         {activeTab === 1 && (
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Database className="h-4 w-4 text-blue-700" />
                 <span className="font-bold text-xs text-slate-800 uppercase">
-                  Step 1: Query Group A — Procurement ERP (Oracle Database)
+                  Paso 1: Consulta a Compras // Base de Datos Oracle RAC (erp-prod-db04.corp)
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-slate-500">Host: erp-prod-db04.corp</span>
+              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;Órdenes abiertas con Taiwán&rdquo;</span>
             </div>
 
             <div className="bg-[#1e272e] text-[#d2dae2] p-3 rounded font-mono text-[11px] leading-relaxed border border-slate-700 overflow-x-auto">
               <code>
-                SELECT po.vendor_id, v.vendor_name, po.part_code, SUM(po.notional_usd) AS total_committed<br />
+                SELECT po.po_id, v.vendor_name, po.part_code, SUM(po.notional_usd) AS total_committed<br />
                 FROM po_headers po JOIN vendor_master v ON po.vendor_id = v.vendor_id<br />
                 WHERE v.country_code = 'TW' AND po.status = 'OPEN'<br />
-                GROUP BY po.vendor_id, v.vendor_name, po.part_code;
+                GROUP BY po.po_id, v.vendor_name, po.part_code;
               </code>
             </div>
 
@@ -223,20 +236,20 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
                 type="button"
                 disabled={step1State === 'running'}
                 onClick={runStep1}
-                className="bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs px-4 py-2 rounded shadow flex items-center gap-2 transition-all disabled:opacity-50"
+                className="bg-blue-700 hover:bg-blue-800 text-white font-bold text-xs px-4 py-2 rounded-lg shadow flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {step1State === 'running' ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Database className="h-3.5 w-3.5" />
                 )}
-                <span>{step1State === 'running' ? 'Executing Query (1,400ms)...' : 'Execute SQL Query 1 (Oracle)'}</span>
+                <span>{step1State === 'running' ? 'Ejecutando Consulta en Oracle (1,400ms)...' : 'Ejecutar Consulta 1 (Oracle)'}</span>
               </button>
 
               {step1State === 'done' && (
-                <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded flex items-center gap-2 font-mono">
+                <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 font-mono">
                   <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
-                  <span>✓ Output: <strong>PO_Commitments_APAC.csv</strong> (1,240 rows, $320M open commitments across 12 vendors)</span>
+                  <span>✓ Resultado Generado: <strong>PO_Commitments_APAC.csv</strong> (1,240 registros &bull; $320M comprometidos en 12 órdenes abiertas)</span>
                 </div>
               )}
             </div>
@@ -249,10 +262,10 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
               <div className="flex items-center gap-2">
                 <Database className="h-4 w-4 text-indigo-700" />
                 <span className="font-bold text-xs text-slate-800 uppercase">
-                  Step 2: Query Group B — Supply Chain & Warehouse (SAP HANA)
+                  Paso 2: Consulta a Almacén // Base de Datos SAP HANA (sap-hana-wh02.corp)
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-slate-500">Host: sap-hana-wh02.corp</span>
+              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;Stock de seguridad y consumo&rdquo;</span>
             </div>
 
             <div className="bg-[#1e272e] text-[#d2dae2] p-3 rounded font-mono text-[11px] leading-relaxed border border-slate-700 overflow-x-auto">
@@ -268,20 +281,20 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
                 type="button"
                 disabled={step2State === 'running'}
                 onClick={runStep2}
-                className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-xs px-4 py-2 rounded shadow flex items-center gap-2 transition-all disabled:opacity-50"
+                className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-xs px-4 py-2 rounded-lg shadow flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {step2State === 'running' ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Database className="h-3.5 w-3.5" />
                 )}
-                <span>{step2State === 'running' ? 'Executing Query (1,100ms)...' : 'Execute SQL Query 2 (SAP HANA)'}</span>
+                <span>{step2State === 'running' ? 'Ejecutando Consulta en SAP HANA (1,100ms)...' : 'Ejecutar Consulta 2 (SAP HANA)'}</span>
               </button>
 
               {step2State === 'done' && (
-                <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded flex items-center gap-2 font-mono">
+                <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 font-mono">
                   <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
-                  <span>✓ Output: <strong>Warehouse_Runout_Risk.csv</strong> (840 rows, only 42 days buffer before assembly halt)</span>
+                  <span>✓ Resultado Generado: <strong>Warehouse_Runout_Risk.csv</strong> (840 registros &bull; Alerta: Solo 42 días de stock antes de paro de planta)</span>
                 </div>
               )}
             </div>
@@ -294,10 +307,10 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
               <div className="flex items-center gap-2">
                 <Database className="h-4 w-4 text-purple-700" />
                 <span className="font-bold text-xs text-slate-800 uppercase">
-                  Step 3: Query Group C — Treasury & Derivatives (SQL Server)
+                  Paso 3: Consulta a Tesorería // SQL Server (treasury-mssql-01.corp)
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-slate-500">Host: treasury-mssql-01.corp</span>
+              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;Coberturas cambiarias y forwards expuestos&rdquo;</span>
             </div>
 
             <div className="bg-[#1e272e] text-[#d2dae2] p-3 rounded font-mono text-[11px] leading-relaxed border border-slate-700 overflow-x-auto">
@@ -313,20 +326,20 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
                 type="button"
                 disabled={step3State === 'running'}
                 onClick={runStep3}
-                className="bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs px-4 py-2 rounded shadow flex items-center gap-2 transition-all disabled:opacity-50"
+                className="bg-purple-700 hover:bg-purple-800 text-white font-bold text-xs px-4 py-2 rounded-lg shadow flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {step3State === 'running' ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Database className="h-3.5 w-3.5" />
                 )}
-                <span>{step3State === 'running' ? 'Executing Query (950ms)...' : 'Execute SQL Query 3 (SQL Server)'}</span>
+                <span>{step3State === 'running' ? 'Ejecutando Consulta en SQL Server (950ms)...' : 'Ejecutar Consulta 3 (SQL Server)'}</span>
               </button>
 
               {step3State === 'done' && (
-                <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded flex items-center gap-2 font-mono">
+                <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 font-mono">
                   <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
-                  <span>✓ Output: <strong>Treasury_FX_Exposure.csv</strong> (310 rows, 2 unhedged contracts, $14.2M unhedged)</span>
+                  <span>✓ Resultado Generado: <strong>Treasury_FX_Exposure.csv</strong> (310 contratos &bull; 2 forwards sin cobertura por $14.2M expuestos)</span>
                 </div>
               )}
             </div>
@@ -339,23 +352,23 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
               <div className="flex items-center gap-2">
                 <FileSpreadsheet className="h-4 w-4 text-amber-700" />
                 <span className="font-bold text-xs text-slate-800 uppercase">
-                  Step 4: Manual Excel Consolidation (VLOOKUPs, Pivot Tables & Human Reconciliation)
+                  Paso 4: Consolidación Manual en Excel (BUSCARV, Tablas Dinámicas y Correos)
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-amber-700 font-bold bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
-                ⏳ Human Bottleneck: ~2.5 Business Days
+              <span className="text-[11px] font-mono text-amber-800 font-bold bg-amber-100 px-2 py-0.5 rounded border border-amber-300">
+                ⏳ Demora del Proceso Humano: 2.5 a 3 Días Hábiles
               </span>
             </div>
 
-            <div className="bg-amber-50/70 border border-amber-300 rounded p-3 text-xs text-slate-700 space-y-2">
-              <div className="flex items-center gap-2 text-amber-800 font-bold">
+            <div className="bg-amber-50/80 border border-amber-300 rounded-lg p-3 text-xs text-slate-700 space-y-2">
+              <div className="flex items-center gap-2 text-amber-900 font-bold">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <span>The Human Friction Points in Traditional Systems:</span>
+                <span>Puntos de fricción del proceso tradicional:</span>
               </div>
-              <ul className="list-disc list-inside space-y-1 text-[11px] font-mono text-slate-600">
-                <li>Analyst must manually join 3 CSVs via <code>=XLOOKUP(A2, PO_Commitments!A:A, Inventory!C:C)</code>.</li>
-                <li>Unmatched vendor SKU codes require 4 back-and-forth emails between Supply Chain and Treasury.</li>
-                <li>CFO/Board presentation must be manually prepared as a 12-slide PowerPoint.</li>
+              <ul className="list-disc list-inside space-y-1 text-[11px] font-mono text-slate-700">
+                <li>El analista debe cruzar manualmente los 3 CSVs con fórmulas de <code>=BUSCARV(A2, PO_Commitments!A:A, Inventory!C:C)</code>.</li>
+                <li>Los códigos de SKU no coinciden exactamente, requiriendo 4 hilos de correos entre Compras y Tesorería.</li>
+                <li>La presentación para el Director General y el Consejo se debe armar a mano en PowerPoint con gráficas estáticas.</li>
               </ul>
             </div>
 
@@ -364,19 +377,22 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
                 type="button"
                 disabled={step4State === 'running'}
                 onClick={runStep4}
-                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded shadow flex items-center gap-2 transition-all disabled:opacity-50"
+                className="bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs px-4 py-2 rounded-lg shadow flex items-center gap-2 transition-all disabled:opacity-50 cursor-pointer"
               >
                 {step4State === 'running' ? (
                   <RefreshCw className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <FileSpreadsheet className="h-3.5 w-3.5" />
                 )}
-                <span>{step4State === 'running' ? 'Reconciling Spreadsheets in Excel...' : '📊 Consolidate & Join Spreadsheets (Takes 3 Days)'}</span>
+                <span>{step4State === 'running' ? 'Conciliando Spreadsheets en Excel...' : '📊 Consolidar en Excel (Tarda 3 Días)'}</span>
               </button>
 
               {step4State === 'done' && (
-                <div className="bg-emerald-100 border border-emerald-400 text-emerald-900 text-xs px-3 py-1.5 rounded font-mono font-bold">
-                  ✓ Consolidated Result: $105.6M Net Cash at Risk &bull; -$100.8M EBITDA Impact (Calculated after 3 days)
+                <div className="bg-emerald-100 border border-emerald-400 text-emerald-950 text-xs px-3.5 py-2 rounded-lg font-mono font-bold space-y-1 shadow-sm">
+                  <div className="text-emerald-900 font-bold">✓ Resultado Consolidado (Listo después de 3 días):</div>
+                  <div className="text-[11px] text-emerald-800">
+                    Riesgo Total de Portafolio: <strong>$105.6M</strong> &bull; Impacto en EBITDA: <strong>-$100.8M</strong> &bull; Faltante de Cobertura: <strong>$14.2M</strong>
+                  </div>
                 </div>
               )}
             </div>
@@ -385,16 +401,16 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
       </div>
 
       {/* The Antigravity Modernization Superpower CTA Banner */}
-      <div className="mt-4 bg-gradient-to-r from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-white p-4 rounded-xl border border-cyan-500/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
+      <div className="mt-4 bg-gradient-to-r from-[#0f172a] via-[#1e1b4b] to-[#0f172a] text-white p-4 rounded-xl border border-cyan-500/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xl">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <Zap className="h-4 w-4 text-cyan-400 animate-pulse" />
             <span className="text-xs font-bold text-cyan-300 uppercase tracking-wider">
-              The AI Agentic Transformation // Zero Human Friction
+              La Transformación Agéntica con IA // Cero Fricción Humana
             </span>
           </div>
           <p className="text-xs text-slate-200 font-medium">
-            Instead of 4 manual SQL queries and 3 days of Excel VLOOKUPs, <strong>Antigravity executes all tools concurrently in 35ms</strong> and compiles the live 2026 Interactive Boardroom Cockpit!
+            En lugar de 4 consultas manuales y 3 días de Excel, <strong>Antigravity ejecuta todas las herramientas en 35ms</strong> y entrega el Canvas Interactivo 2026 en automático con una sola pregunta.
           </p>
         </div>
 
@@ -404,7 +420,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
           className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-extrabold text-xs shadow-lg shadow-cyan-500/30 flex items-center gap-2 shrink-0 transition-all cursor-pointer"
         >
           <Sparkles className="h-4 w-4 text-slate-950" />
-          <span>Trigger Agentic Chain (3.5s)</span>
+          <span>Resolver Todo en Automático (3.5s)</span>
           <ArrowRight className="h-4 w-4 text-slate-950" />
         </button>
       </div>
