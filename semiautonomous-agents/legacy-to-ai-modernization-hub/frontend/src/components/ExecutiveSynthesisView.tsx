@@ -1,24 +1,24 @@
 import React, { useState, useEffect } from 'react';
 import {
   Sparkles,
-  Database,
-  Building2,
   Factory,
   FileText,
-  Cpu,
-  Clock,
   TrendingUp,
   AlertTriangle,
-  Layers,
   ArrowUpCircle,
   Truck,
   DollarSign,
   ShieldCheck,
+  Info,
+  Calculator,
+  Clock,
+  Cpu,
 } from 'lucide-react';
 import { AgentQueryResponse, HedgingAction } from '../types';
 import { ComprasRouteFlowView } from './polymorphic/ComprasRouteFlowView';
 import { AlmacenCountdownTimelineView } from './polymorphic/AlmacenCountdownTimelineView';
 import { TesoreriaWaterfallView } from './polymorphic/TesoreriaWaterfallView';
+import { ConsolidadoMultiEmpresaView } from './polymorphic/ConsolidadoMultiEmpresaView';
 
 interface ExecutiveSynthesisViewProps {
   agentResponse: AgentQueryResponse;
@@ -59,6 +59,60 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
       clearTimeout(t3);
     };
   }, [query]);
+
+  // Helper to provide detailed mathematical and data grounding explanation on hover
+  const getKpiExplanation = (label: string) => {
+    const l = label.toLowerCase();
+    if (l.includes('var') || l.includes('riesgo')) {
+      return {
+        title: 'Desglose Matemático del VaR 99%',
+        formula: 'VaR(99%, 10d) = 2.326 × σ × √10 × Activos',
+        explanation: 'Calculado bajo estrés conjunto: tasas Banxico (+150bps), dólar a $20.80 y 30 días de retraso portuario.',
+        breakdown: [
+          { label: 'Retail & FX (Boxito / Macropay)', val: '$46.89M (36.8%)' },
+          { label: 'Logística (Grupo CICE / Manzanillo)', val: '$42.50M (33.3%)' },
+          { label: 'Manufactura (Silanes / Gloria)', val: '$38.20M (29.9%)' },
+        ],
+        dataset: 'vtxdemos.ebc_credit_ratings_live',
+      };
+    } else if (l.includes('ebitda') || l.includes('arrastre') || l.includes('erosión')) {
+      return {
+        title: 'Composición del Arrastre en EBITDA',
+        formula: 'Δ EBITDA = Sobrecosto Fletes + Deslizamiento FX + Costo Paro Planta',
+        explanation: 'Impacto directo en margen operativo por retrasos marítimos y compras en dólares sin cobertura.',
+        breakdown: [
+          { label: 'Sobrecosto Fletes CICE/Manzanillo', val: '-$4.85M USD' },
+          { label: 'Erosión Cambiaria Boxito/Macropay', val: '-$4.20M USD' },
+          { label: 'Pérdida Paro Envasado Anual', val: '-$116.95M USD' },
+        ],
+        dataset: 'vtxdemos.ebc_enterprise_hub_live',
+      };
+    } else if (l.includes('liquidez') || l.includes('cojín') || l.includes('buffer')) {
+      return {
+        title: 'Respaldo y Cobertura de Liquidez',
+        formula: 'Liquidez Residual = Líneas de Crédito ($750M) - Pérdida Estresada',
+        explanation: 'Capacidad de capital para absorber el choque sin insolvencia ni liquidación forzosa de inventarios.',
+        breakdown: [
+          { label: 'Líneas Bancarias (Banorte, BBVA)', val: '$450.0M USD' },
+          { label: 'Efectivo Disponible en Caja', val: '$174.0M USD' },
+          { label: 'Razón de Cobertura (DSCR)', val: '4.2x (Solvente)' },
+        ],
+        dataset: 'vtxdemos.ebc_treasury_liquidity_live',
+      };
+    } else {
+      return {
+        title: 'Dictamen de Calificación y Solvencia',
+        formula: 'Metodología Corporativa HR Ratings (Escala Nacional)',
+        explanation: 'Apalancamiento Deuda Neta/EBITDA de 2.3x (muy por debajo del umbral crítico de 3.5x para Grado de Inversión).',
+        breakdown: [
+          { label: 'Apalancamiento Deuda/EBITDA', val: '2.3x (Límite 3.5x)' },
+          { label: 'Calificación Crediticia', val: 'HR AA+ (Estable)' },
+          { label: 'Cumplimiento Regulatorio', val: '100% Basel III' },
+        ],
+        dataset: 'vtxdemos.ebc_credit_ratings_live',
+      };
+    }
+  };
 
   // Default fallback KPIs if not provided
   const kpis = dynamic_kpis && dynamic_kpis.length > 0 ? dynamic_kpis : [
@@ -146,7 +200,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
   const HeaderIcon = themeStyles.icon;
 
   return (
-    <div className={`cyber-glass rounded-3xl p-6 sm:p-8 lg:p-10 border-2 ${themeStyles.border} space-y-8 shadow-2xl ${themeStyles.shadow} relative overflow-hidden transition-all animate-zoom-entrance`}>
+    <div className={`cyber-glass rounded-3xl p-6 sm:p-8 lg:p-10 border-2 ${themeStyles.border} space-y-8 shadow-2xl ${themeStyles.shadow} relative overflow-visible transition-all animate-zoom-entrance`}>
       {/* Background Ambient Glows & Scanline */}
       <div className={`absolute top-0 right-0 w-96 h-96 ${themeStyles.glow} rounded-full blur-3xl pointer-events-none -mr-20 -mt-20`} />
       <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
@@ -231,57 +285,102 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         </div>
       </div>
 
-      {/* 1. DYNAMIC CONTEXT-SPECIFIC KPI METRICS CARDS (EBC Glanceable High-Contrast Design) */}
+      {/* 1. DYNAMIC CONTEXT-SPECIFIC KPI METRICS CARDS WITH INTERACTIVE HOVER EXPLANATIONS */}
       <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ${
         revealPhase >= 1 ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
       }`}>
-        {kpis.map((kpi, idx) => (
-          <div
-            key={idx}
-            className={`p-5 sm:p-6 rounded-2xl transition-all space-y-3 border-2 relative group hover:scale-[1.03] hover:z-20 cursor-default shadow-xl ${
-              kpi.status_type === 'danger'
-                ? 'bg-slate-950/90 border-rose-500/50 hover:border-rose-400 shadow-rose-950/30'
-                : kpi.status_type === 'warning'
-                ? 'bg-slate-950/90 border-amber-500/50 hover:border-amber-400 shadow-amber-950/30'
-                : kpi.status_type === 'info'
-                ? 'bg-slate-950/90 border-blue-500/50 hover:border-blue-400 shadow-blue-950/30'
-                : 'bg-slate-950/90 border-emerald-500/50 hover:border-emerald-400 shadow-emerald-950/30'
-            }`}
-          >
-            <div className="flex items-center justify-between text-slate-400 text-xs sm:text-sm">
-              <span className="font-mono text-xs uppercase tracking-wider text-slate-200 font-extrabold truncate">
-                {kpi.label}
-              </span>
-              {kpi.status_type === 'danger' ? (
-                <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0" />
-              ) : kpi.status_type === 'warning' ? (
-                <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
-              ) : (
-                <TrendingUp className="h-5 w-5 text-emerald-400 shrink-0" />
-              )}
-            </div>
-            
-            {/* Big High-Impact Figure for EBC Wall Monitors */}
-            <div className="text-3xl sm:text-4xl font-mono font-black text-slate-100 tracking-tight">
-              {kpi.value}
-            </div>
+        {kpis.map((kpi, idx) => {
+          const explanation = getKpiExplanation(kpi.label);
+          return (
+            <div
+              key={idx}
+              className={`p-5 sm:p-6 rounded-2xl transition-all space-y-3 border-2 relative group hover:scale-[1.03] hover:z-30 cursor-pointer shadow-xl ${
+                kpi.status_type === 'danger'
+                  ? 'bg-slate-950/90 border-rose-500/50 hover:border-rose-400 shadow-rose-950/30'
+                  : kpi.status_type === 'warning'
+                  ? 'bg-slate-950/90 border-amber-500/50 hover:border-amber-400 shadow-amber-950/30'
+                  : kpi.status_type === 'info'
+                  ? 'bg-slate-950/90 border-blue-500/50 hover:border-blue-400 shadow-blue-950/30'
+                  : 'bg-slate-950/90 border-emerald-500/50 hover:border-emerald-400 shadow-emerald-950/30'
+              }`}
+            >
+              <div className="flex items-center justify-between text-slate-400 text-xs sm:text-sm">
+                <span className="font-mono text-xs uppercase tracking-wider text-slate-200 font-extrabold truncate flex items-center gap-1.5">
+                  {kpi.label}
+                  <Info className="h-3.5 w-3.5 text-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity" />
+                </span>
+                {kpi.status_type === 'danger' ? (
+                  <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0" />
+                ) : kpi.status_type === 'warning' ? (
+                  <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
+                ) : (
+                  <TrendingUp className="h-5 w-5 text-emerald-400 shrink-0" />
+                )}
+              </div>
+              
+              {/* Big High-Impact Figure for EBC Wall Monitors */}
+              <div className="text-3xl sm:text-4xl font-mono font-black text-slate-100 tracking-tight">
+                {kpi.value}
+              </div>
 
-            <div className="flex items-center justify-between gap-2 text-xs font-mono pt-2 border-t border-slate-800/80">
-              <span className="text-slate-400 truncate">{kpi.subtext}</span>
-              <span
-                className={`px-2.5 py-0.5 rounded-full font-black shrink-0 text-[10px] uppercase ${
-                  kpi.status_type === 'danger'
-                    ? 'bg-rose-950 text-rose-300 border border-rose-800'
-                    : kpi.status_type === 'warning'
-                    ? 'bg-amber-950 text-amber-300 border border-amber-800'
-                    : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                }`}
-              >
-                {kpi.status}
-              </span>
+              <div className="flex items-center justify-between gap-2 text-xs font-mono pt-2 border-t border-slate-800/80">
+                <span className="text-slate-400 truncate">{kpi.subtext}</span>
+                <span
+                  className={`px-2.5 py-0.5 rounded-full font-black shrink-0 text-[10px] uppercase ${
+                    kpi.status_type === 'danger'
+                      ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                      : kpi.status_type === 'warning'
+                      ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                      : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                  }`}
+                >
+                  {kpi.status}
+                </span>
+              </div>
+
+              {/* Floating Explanatory Popover (Revealed Instantly on Hover) */}
+              <div className="absolute left-0 bottom-full mb-3 w-80 sm:w-96 bg-slate-900/98 backdrop-blur-xl p-5 rounded-2xl border-2 border-cyan-400 shadow-2xl shadow-cyan-950/80 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 space-y-3 font-sans">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                  <span className="font-mono text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Calculator className="h-4 w-4 text-cyan-400" />
+                    {explanation.title}
+                  </span>
+                  <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
+                    CÁLCULO & ORIGEN
+                  </span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="text-[11px] font-mono text-slate-300 bg-slate-950/90 p-2.5 rounded-xl border border-slate-800 font-bold">
+                    {explanation.formula}
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {explanation.explanation}
+                  </p>
+                </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
+                  <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
+                    Contribución por Empresa:
+                  </span>
+                  <div className="space-y-1">
+                    {explanation.breakdown.map((b: { label: string; val: string }, bIdx: number) => (
+                      <div key={bIdx} className="flex items-center justify-between text-xs font-mono">
+                        <span className="text-slate-300">{b.label}:</span>
+                        <span className="text-cyan-300 font-bold">{b.val}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                  <span>Dataset:</span>
+                  <span className="text-emerald-400 font-bold">{explanation.dataset}</span>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* 2. DYNAMIC POLYMORPHIC METAPHOR DISPATCHER (Radically different UI per Intent) */}
@@ -310,111 +409,10 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
 
       {/* 2D. MULTI-EMPRESA EBC / HR RATINGS CONSOLIDADO */}
       {(query_focus === 'MULTI_DEPT' || query_focus === 'HR_RATINGS') && (
-        <div className="space-y-6">
-          <div className="bg-slate-950/90 rounded-3xl p-6 sm:p-8 border-2 border-cyan-500/40 space-y-6 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-4">
-              <span className="text-sm sm:text-base font-mono font-black text-slate-200 uppercase tracking-wider flex items-center gap-2.5">
-                <Layers className="h-5 w-5 text-cyan-400" />
-                Diagnóstico Consolidado Multi-Empresa EBC (CICE + Silanes + Gloria + Boxito + HR Ratings)
-              </span>
-              <span className="text-xs font-mono text-cyan-400">
-                Ground Truth Unificado en BigQuery
-              </span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {/* Pillar 1: Logística y Puertos (Grupo CICE & Manzanillo) */}
-              <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-blue-500/60 space-y-3 shadow-lg">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-blue-300 flex items-center gap-2">
-                    <Truck className="h-4 w-4 text-blue-400" />
-                    1. Logística & Puertos (CICE)
-                  </span>
-                  <span className="text-xs font-mono bg-blue-950 text-blue-300 px-2.5 py-0.5 rounded-full border border-blue-700 font-bold">
-                    1,420 TEUs
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Contenedores demorados en <strong>Veracruz (CICE)</strong> y <strong>Manzanillo</strong> con sobrecosto de <strong>$4.85M USD</strong>. Desvío intermodal a Monterrey viable.
-                </p>
-              </div>
-
-              {/* Pillar 2: Manufactura y Farma (Silanes & Gloria) */}
-              <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-amber-500/60 space-y-3 shadow-lg">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-amber-300 flex items-center gap-2">
-                    <Factory className="h-4 w-4 text-amber-400" />
-                    2. Manufactura & Farma
-                  </span>
-                  <span className="text-xs font-mono bg-amber-950 text-amber-300 px-2.5 py-0.5 rounded-full border border-amber-700 font-bold">
-                    21 Días Buffer
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Stock de seguridad de <strong>Grasa Butírica (Gloria)</strong> y <strong>APIs (Silanes)</strong> cae a cero el <strong>16 de Julio de 2026</strong>. Reserva en Querétaro de +14d.
-                </p>
-              </div>
-
-              {/* Pillar 3: Retail y Tipo de Cambio (Boxito & Macropay) */}
-              <div className="bg-slate-900/90 p-5 rounded-2xl border-2 border-purple-500/60 space-y-3 shadow-lg">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-sm text-purple-300 flex items-center gap-2">
-                    <Building2 className="h-4 w-4 text-purple-400" />
-                    3. Retail & Margen FX
-                  </span>
-                  <span className="text-xs font-mono bg-rose-950 text-rose-300 px-2.5 py-0.5 rounded-full border border-rose-700 font-bold">
-                    $85.0M USD Expuestos
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Compras de importación de <strong>Boxito</strong> y <strong>Macropay</strong> expuestas a USD/MXN a $20.80. Cobertura forward garantiza ahorro de <strong>+$3.60M USD</strong>.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Grounded Table for Multi-Dept */}
-          {grounded_data_table && (
-            <div className="bg-slate-950/90 rounded-2xl border-2 border-cyan-500/40 overflow-hidden shadow-2xl">
-              <div className="bg-gradient-to-r from-slate-900 via-[#0f172a] to-slate-900 px-5 py-3.5 flex items-center justify-between border-b border-cyan-500/30">
-                <div className="flex items-center gap-2.5">
-                  <Database className="h-5 w-5 text-cyan-400" />
-                  <span className="font-bold text-sm text-cyan-300 uppercase tracking-wider font-mono">
-                    {grounded_data_table.title}
-                  </span>
-                </div>
-                <span className="bg-cyan-950 text-cyan-300 px-3 py-1 rounded-lg border border-cyan-700 font-bold text-xs font-mono">
-                  {grounded_data_table.total_rows} Registros Consolidados
-                </span>
-              </div>
-
-              <div className="overflow-x-auto max-h-72 overflow-y-auto">
-                <table className="w-full text-left border-collapse whitespace-nowrap text-xs sm:text-sm font-sans">
-                  <thead>
-                    <tr className="bg-slate-900/90 text-slate-300 border-b border-slate-800 font-mono text-xs">
-                      {grounded_data_table.headers.map((h, idx) => (
-                        <th key={idx} className="p-3.5 font-bold uppercase tracking-wider text-slate-200 border-r border-slate-800/80">
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-800/60 font-mono text-xs sm:text-sm">
-                    {grounded_data_table.rows.map((row, idx) => (
-                      <tr key={idx} className={idx % 2 === 0 ? 'bg-slate-950/60' : 'bg-slate-900/60'}>
-                        {Object.values(row).map((val: any, cIdx: number) => (
-                          <td key={cIdx} className="p-3.5 text-slate-100 border-r border-slate-800/60">
-                            {typeof val === 'number' ? `$${val.toLocaleString()}` : String(val)}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
+        <ConsolidadoMultiEmpresaView
+          tableData={grounded_data_table}
+          shockImpact={shock_impact}
+        />
       )}
 
       {/* 3. STRATEGIC REPORT BLUEPRINT & 1-CLICK BOARD MEMO ACTION */}
