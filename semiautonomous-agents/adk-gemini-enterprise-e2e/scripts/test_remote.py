@@ -1,4 +1,13 @@
-"""Test query against a deployed Vertex AI Agent Engine / Reasoning Engine."""
+"""Test query against a deployed Vertex AI Agent Engine / Reasoning Engine.
+
+🤖 ANTIGRAVITY AGENT HITL MANDATE:
+Before proceeding with remote testing, verify PROJECT_ID, REGION, and AGENT_ENGINE_RESOURCE.
+If not set in .env, prompt the human:
+"Ask the human for PROJECT_ID, REGION, STAGING_BUCKET, and GE_PROJECT_NUMBER before proceeding if they are not in .env. Do NOT proceed until confirmed."
+
+REQUIRED DEPENDENCIES:
+  uv add google-cloud-aiplatform[adk,agent_engines] google-genai requests google-auth rich pydantic cloudpickle
+"""
 from __future__ import annotations
 
 import json
@@ -20,9 +29,9 @@ from rich.panel import Panel
 
 console = Console()
 
-PROJECT = os.environ.get("VERTEX_PROJECT_ID", os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))
-LOCATION = os.environ.get("LOCATION", "us-central1")
-RESOURCE = os.environ.get("AGENT_ENGINE_RESOURCE", "")
+PROJECT = os.environ.get("PROJECT_ID", os.environ.get("VERTEX_PROJECT_ID", os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))).strip()
+LOCATION = os.environ.get("REGION", os.environ.get("LOCATION", "us-central1")).strip()
+RESOURCE = os.environ.get("AGENT_ENGINE_RESOURCE", "").strip()
 
 
 def test_remote_stream_query(prompt: str):

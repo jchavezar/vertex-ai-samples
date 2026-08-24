@@ -1,4 +1,12 @@
-"""Local sanity check for the ADK Agent — tests offline tool calling and response generation."""
+"""Local sanity check for the ADK Agent — tests offline tool calling and response generation.
+
+🤖 ANTIGRAVITY AGENT HITL MANDATE:
+Before proceeding, verify PROJECT_ID and REGION. If not set in .env, prompt the human:
+"Ask the human for PROJECT_ID, REGION, STAGING_BUCKET, and GE_PROJECT_NUMBER before proceeding if they are not in .env. Do NOT proceed until confirmed."
+
+REQUIRED DEPENDENCIES:
+  uv add google-cloud-aiplatform[adk,agent_engines] google-genai requests google-auth rich pydantic cloudpickle
+"""
 from __future__ import annotations
 
 import asyncio
@@ -12,10 +20,12 @@ sys.path.insert(0, str(ROOT))
 from dotenv import load_dotenv
 load_dotenv(ROOT / ".env", override=True)
 
-# Explicitly override project and location to vtxdemos
-project_id = os.environ.get("VERTEX_PROJECT_ID", os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))
+# Explicitly resolve project and location
+project_id = os.environ.get("PROJECT_ID", os.environ.get("VERTEX_PROJECT_ID", os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))).strip()
 if project_id == "jesusarguelles-sandbox":
     project_id = "vtxdemos"
+
+location = os.environ.get("REGION", os.environ.get("LOCATION", "us-central1")).strip()
 
 os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
 os.environ["GOOGLE_GENAI_USE_VERTEXAI"] = "true"

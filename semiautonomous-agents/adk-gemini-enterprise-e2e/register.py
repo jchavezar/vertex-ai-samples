@@ -1,5 +1,13 @@
 """Register the deployed ADK Agent in Gemini Enterprise and share with ALL_USERS.
 
+🤖 ANTIGRAVITY AGENT HITL MANDATE:
+Before proceeding with Gemini Enterprise registration, if PROJECT_ID, REGION, STAGING_BUCKET, or GE_PROJECT_NUMBER
+are missing from the environment or .env, prompt the user:
+"Ask the human for PROJECT_ID, REGION, STAGING_BUCKET, and GE_PROJECT_NUMBER before proceeding if they are not in .env. Do NOT proceed until confirmed."
+
+REQUIRED DEPENDENCIES:
+  uv add google-cloud-aiplatform[adk,agent_engines] google-genai requests google-auth rich pydantic cloudpickle
+
 Features:
 - Fast-Path EBC Layer: Checks if the agent is already registered and active in Gemini Enterprise, reusing it instantly.
 - Explicit flags: `register.py new` / `--force` (re-register), `register.py share <id>` (re-share).
@@ -24,12 +32,12 @@ from rich.panel import Panel
 
 console = Console()
 
-GE_PROJECT_ID = os.environ.get("GE_PROJECT_ID", "vtxdemos")
-GE_PROJECT_NUMBER = os.environ.get("GE_PROJECT_NUMBER", "254356041555")
-AS_APP = os.environ.get("AS_APP", "agentspace-testing_1748446185255")
-AGENT_ENGINE_RESOURCE = os.environ.get("AGENT_ENGINE_RESOURCE", "projects/254356041555/locations/us-central1/reasoningEngines/166063089433706496")
+GE_PROJECT_ID = os.environ.get("GE_PROJECT_ID", os.environ.get("PROJECT_ID", os.environ.get("VERTEX_PROJECT_ID", os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")))).strip()
+GE_PROJECT_NUMBER = os.environ.get("GE_PROJECT_NUMBER", "254356041555").strip()
+AS_APP = os.environ.get("AS_APP", "agentspace-testing_1748446185255").strip()
+AGENT_ENGINE_RESOURCE = os.environ.get("AGENT_ENGINE_RESOURCE", "projects/254356041555/locations/us-central1/reasoningEngines/166063089433706496").strip()
 
-AGENT_DISPLAY_NAME = os.environ.get("AGENT_DISPLAY_NAME", "Executive Financial & Risk Intelligence Analyst")
+AGENT_DISPLAY_NAME = os.environ.get("AGENT_DISPLAY_NAME", "Executive Financial & Risk Intelligence Analyst").strip()
 AGENT_DESCRIPTION = os.environ.get(
     "AGENT_DESCRIPTION",
     "Autonomous ADK quantitative agent for DCF enterprise valuation, M&A risk sensitivity, and OCC/FRB SR 11-7 model governance.",

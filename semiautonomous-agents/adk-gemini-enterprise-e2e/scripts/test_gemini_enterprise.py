@@ -1,4 +1,13 @@
-"""Test query directly through Gemini Enterprise using Discovery Engine A2A Protocol."""
+"""Test query directly through Gemini Enterprise using Discovery Engine A2A Protocol.
+
+🤖 ANTIGRAVITY AGENT HITL MANDATE:
+Before proceeding with Gemini Enterprise testing, verify GE_PROJECT_NUMBER and AS_APP.
+If not set in .env, prompt the human:
+"Ask the human for PROJECT_ID, REGION, STAGING_BUCKET, and GE_PROJECT_NUMBER before proceeding if they are not in .env. Do NOT proceed until confirmed."
+
+REQUIRED DEPENDENCIES:
+  uv add google-cloud-aiplatform[adk,agent_engines] google-genai requests google-auth rich pydantic cloudpickle
+"""
 from __future__ import annotations
 
 import json
@@ -20,10 +29,10 @@ from rich.panel import Panel
 
 console = Console()
 
-PROJECT_NUMBER = os.environ.get("GE_PROJECT_NUMBER", "254356041555")
-ENGINE_ID = os.environ.get("AS_APP", "agentspace-testing_1748446185255")
-# Discovered registered agent ID
-AGENT_ID = "2534784902238349177"
+PROJECT_NUMBER = os.environ.get("GE_PROJECT_NUMBER", "254356041555").strip()
+ENGINE_ID = os.environ.get("AS_APP", "agentspace-testing_1748446185255").strip()
+# Discovered registered agent ID or override via env
+AGENT_ID = os.environ.get("GE_AGENT_ID", "2534784902238349177").strip()
 
 
 def query_gemini_enterprise_agent(prompt: str):

@@ -1,5 +1,13 @@
 """Deploy ADK Executive Intelligence Agent to Vertex AI Agent Engine with Cloud Trace & Cloud Logging.
 
+🤖 ANTIGRAVITY AGENT HITL MANDATE:
+Before proceeding with deployment, if PROJECT_ID, REGION, STAGING_BUCKET, or GE_PROJECT_NUMBER
+are missing from the environment or .env, prompt the user:
+"Ask the human for PROJECT_ID, REGION, STAGING_BUCKET, and GE_PROJECT_NUMBER before proceeding if they are not in .env. Do NOT proceed until confirmed."
+
+REQUIRED DEPENDENCIES:
+  uv add google-cloud-aiplatform[adk,agent_engines] google-genai requests google-auth rich pydantic cloudpickle
+
 Features:
 - Fast-Path EBC Layer: Automatically detects active live deployments and reuses them instantly.
 - Explicit flags: `deploy.py new` (force fresh deploy), `deploy.py update` (hot reload).
@@ -24,13 +32,13 @@ from rich.panel import Panel
 
 console = Console()
 
-PROJECT = os.environ.get("VERTEX_PROJECT_ID", os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))
+PROJECT = os.environ.get("PROJECT_ID", os.environ.get("VERTEX_PROJECT_ID", os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"))).strip()
 if PROJECT == "jesusarguelles-sandbox":
     PROJECT = "vtxdemos"
 
-DEPLOY_LOCATION = os.environ.get("LOCATION", "us-central1")
-STAGING_BUCKET = os.environ.get("STAGING_BUCKET", "gs://vtxdemos-staging")
-DISPLAY_NAME = os.environ.get("AGENT_DISPLAY_NAME", "Executive Intelligence Analyst")
+DEPLOY_LOCATION = os.environ.get("REGION", os.environ.get("LOCATION", "us-central1")).strip()
+STAGING_BUCKET = os.environ.get("STAGING_BUCKET", "gs://vtxdemos-staging").strip()
+DISPLAY_NAME = os.environ.get("AGENT_DISPLAY_NAME", "Executive Intelligence Analyst").strip()
 
 RUNTIME_ENV = {
     "GOOGLE_GENAI_USE_VERTEXAI": "true",

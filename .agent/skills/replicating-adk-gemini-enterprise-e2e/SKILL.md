@@ -36,6 +36,15 @@ When presenting to customers in an Executive Briefing Center (EBC) or re-running
 
 ## 🛠️ Step-by-Step Reproduction Blueprint (From Scratch)
 
+### ⚠️ Mandatory HITL Checkpoint
+If `PROJECT_ID`, `REGION`, `STAGING_BUCKET`, or `GE_PROJECT_NUMBER` are not in `.env`, the agent must ask:
+> "Ask the human for PROJECT_ID, REGION, STAGING_BUCKET, and GE_PROJECT_NUMBER before proceeding if they are not in .env. Do NOT proceed until confirmed."
+
+### Dependencies
+```bash
+uv add "google-cloud-aiplatform[adk,agent_engines]" google-genai requests google-auth rich pydantic cloudpickle python-dotenv
+```
+
 ### 1. Environment & Setup
 Verify ADC authentication and staging bucket:
 ```bash

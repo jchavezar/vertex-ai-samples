@@ -148,17 +148,108 @@ Event     : gen_ai.choice | gen_ai.system: vertex_ai | model: gemini-2.5-flash
 
 ---
 
-## 🛠️ The Antigravity Replication Blueprint: Build from Scratch
+## 🤖 ANTIGRAVITY AGENT PROMPT & EXECUTION BLUEPRINT (For AI Agents building this from scratch)
 
-### Step 1: Environment & Project Setup
+This section provides the strict operational protocol for an autonomous **Antigravity AI Agent** operating in a clean environment without pre-loaded skills or prior session memory.
+
+### 1. ⚠️ Mandatory Human-in-the-Loop (HITL) Checkpoint
+> [!IMPORTANT]
+> When executing or deploying this project from scratch, if `PROJECT_ID`, `REGION`, `STAGING_BUCKET`, or `GE_PROJECT_NUMBER` are not present in `.env` or verified in the active shell environment, the agent **MUST** pause and prompt the user using the exact protocol below:
+> 
+> **"Ask the human for PROJECT_ID, REGION, STAGING_BUCKET, and GE_PROJECT_NUMBER before proceeding if they are not in .env. Do NOT proceed until confirmed."**
+
+### 2. 📦 Zero-Proprietary Dependencies & Environment Setup
+This blueprint requires **zero proprietary CLI tools** or custom wrapper scripts. Everything is managed through `uv` and standard Google Cloud SDKs.
+
+Install all required runtime and development dependencies:
 ```bash
-cd semiautonomous-agents/adk-gemini-enterprise-e2e
+uv add "google-cloud-aiplatform[adk,agent_engines]" google-genai requests google-auth rich pydantic cloudpickle python-dotenv
+```
+
+### 3. ⚙️ Environment Configuration Template (`.env`)
+Create `.env` from `.env.example` and populate verified target resources:
+```bash
 cp .env.example .env
 ```
+Ensure `.env` contains:
+```env
+# Google Cloud Vertex AI & ADK Configuration
+GOOGLE_GENAI_USE_VERTEXAI=true
+GOOGLE_CLOUD_PROJECT=<PROJECT_ID>
+GOOGLE_CLOUD_LOCATION=global
+VERTEX_PROJECT_ID=<PROJECT_ID>
+PROJECT_ID=<PROJECT_ID>
+LOCATION=<REGION>
+REGION=<REGION>
+STAGING_BUCKET=gs://<STAGING_BUCKET>
+AGENT_MODEL=gemini-2.5-flash
+
+# Gemini Enterprise / Discovery Engine v1alpha
+GE_PROJECT_ID=<PROJECT_ID>
+GE_PROJECT_NUMBER=<GE_PROJECT_NUMBER>
+AS_APP=<DISCOVERY_ENGINE_APP_ID>
+AGENT_DISPLAY_NAME=Executive Intelligence Analyst
+GE_AGENT_ID=<REGISTERED_AGENT_ID>
+
+# Deployed Cloud Runtime (Auto-populated by deploy.py)
+AGENT_ENGINE_RESOURCE=projects/<PROJECT_NUMBER>/locations/<REGION>/reasoningEngines/<ENGINE_ID>
+```
+
+### 4. 🔄 Step-by-Step Antigravity Agent Execution Protocol
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User as Human / Architect
+    participant Agent as Antigravity AI Agent
+    participant Local as Local Sandbox (uv)
+    participant Vertex as Vertex AI Agent Engine
+    participant GE as Gemini Enterprise (A2A)
+
+    Agent->>User: HITL Prompt for PROJECT_ID, REGION, STAGING_BUCKET, GE_PROJECT_NUMBER
+    User-->>Agent: Confirmed GCP Project & Staging Bucket
+    Agent->>Local: uv run python scripts/test_local.py (Verify Tools & LLM Output)
+    Local-->>Agent: ✓ Local Smoke Test PASSED
+    Agent->>Vertex: uv run python deploy.py (AdkApp with OpenTelemetry Spans)
+    Vertex-->>Agent: ✓ Reasoning Engine Deployed (AGENT_ENGINE_RESOURCE)
+    Agent->>GE: uv run python register.py (Register & Share ALL_USERS)
+    GE-->>Agent: ✓ GE Agent Registered & Enabled
+    Agent->>GE: uv run python scripts/test_gemini_enterprise.py (Live A2A Stream)
+    GE-->>Agent: ✓ Live Stream & SR 11-7 Valuation Verified
+    Agent->>User: Deliver Live Verification Report & Endpoints
+```
+
+1. **Step 1: Local Offline Tool & Logic Verification**:
+   ```bash
+   uv run python scripts/test_local.py
+   ```
+   *Expectation*: Tests `calculate_enterprise_dcf` and `audit_model_risk_sr117` in an `InMemoryRunner` using `gemini-2.5-flash`. Exits with code 0.
+
+2. **Step 2: Cloud Runtime Deployment to Vertex AI Agent Engine**:
+   ```bash
+   # Reuses active live deployment in < 1s, or pass 'new' to force fresh deployment:
+   uv run python deploy.py
+   ```
+   *Expectation*: Initializes Vertex AI, packages `agent/`, deploys `reasoning_engines.AdkApp` with `enable_tracing=True`, and writes `AGENT_ENGINE_RESOURCE` to `.env`.
+
+3. **Step 3: Direct Registration into Gemini Enterprise Assist API**:
+   ```bash
+   # Reuses active registration in < 1s, or pass 'new' to force re-registration:
+   uv run python register.py
+   ```
+   *Expectation*: Calls Discovery Engine v1alpha REST API with ADC bearer tokens, binds the reasoning engine, and patches `sharingConfig` to `ALL_USERS`.
+
+4. **Step 4: Live Verification via Gemini Enterprise A2A Stream API**:
+   ```bash
+   uv run python scripts/test_gemini_enterprise.py
+   ```
+   *Expectation*: Streams prompt through Discovery Engine A2A API (`/a2a/v1/message:stream`), resolves `adkAuthor: executive_intelligence_agent`, and renders the grounded valuation & risk audit table.
 
 ---
 
-### Step 2: Define ADK Agent Core (`agent/agent.py`)
+## 🛠️ Complete Reference Files & Core Implementations
+
+### Agent Core Implementation (`agent/agent.py`)
 ```python
 from google.adk.agents import LlmAgent
 from typing import Annotated
@@ -183,34 +274,6 @@ root_agent = LlmAgent(
 
 ---
 
-### Step 3: Local Offline Smoke Test (`scripts/test_local.py`)
-```bash
-uv run python scripts/test_local.py
-```
-
----
-
-### Step 4: Deploy to Vertex AI Agent Engine (`deploy.py`)
-```bash
-uv run python deploy.py
-```
-
----
-
-### Step 5: Register into Gemini Enterprise (`register.py`)
-```bash
-uv run python register.py
-```
-
----
-
-### Step 6: Test Invocation via Gemini Enterprise A2A (`scripts/test_gemini_enterprise.py`)
-```bash
-uv run python scripts/test_gemini_enterprise.py
-```
-
----
-
 ## 🔒 Security & Zero-Leak Guarantee
 
 - **Zero API Keys in Code**: Pure Application Default Credentials (ADC) IAM authentication.
@@ -222,3 +285,4 @@ uv run python scripts/test_gemini_enterprise.py
 <div align="center">
   <sub>Engineered for Antigravity Framework Replication & Enterprise Proving Grounds</sub>
 </div>
+

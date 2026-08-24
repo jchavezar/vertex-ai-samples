@@ -18,6 +18,18 @@ This recipe automates the provisioning, local verification, cloud runtime deploy
 - `roles/discoveryengine.admin`
 - `roles/storage.objectAdmin` (for staging bucket)
 
+## 🤖 Antigravity Agent HITL Prompt & Mandates
+
+> [!IMPORTANT]
+> When executing or deploying this recipe from scratch, if `PROJECT_ID`, `REGION`, `STAGING_BUCKET`, or `GE_PROJECT_NUMBER` are not present in `.env` or confirmed by the user, the agent **MUST** pause and prompt the user:
+> 
+> **"Ask the human for PROJECT_ID, REGION, STAGING_BUCKET, and GE_PROJECT_NUMBER before proceeding if they are not in .env. Do NOT proceed until confirmed."**
+
+### Dependencies
+```bash
+uv add "google-cloud-aiplatform[adk,agent_engines]" google-genai requests google-auth rich pydantic cloudpickle python-dotenv
+```
+
 ## Reproduction Workflow
 ```bash
 # 1. Setup & Environment Validation
@@ -32,6 +44,9 @@ uv run python deploy.py
 # 4. Register in Gemini Enterprise
 uv run python register.py
 
-# 5. Teardown
+# 5. Live E2E A2A Test
+uv run python scripts/test_gemini_enterprise.py
+
+# 6. Teardown (Optional)
 uv run agy-recipes/adk-gemini-enterprise-e2e/scripts/teardown.py
 ```
