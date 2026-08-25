@@ -156,16 +156,28 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
     }
   };
 
-  // Default fallback KPIs if not provided
-  const kpis = dynamic_kpis && dynamic_kpis.length > 0 ? dynamic_kpis : [
-    { label: 'Riesgo Portafolio (VaR 99%)', value: `$${shock_impact.value_at_risk_99_m.toFixed(2)}M`, subtext: `+${shock_impact.var_delta_pct}% vs baseline`, status: 'ELEVADO', status_type: 'danger' as const },
-    { label: 'Arrastre en EBITDA', value: `-$${shock_impact.ebitda_impact_m.toFixed(2)}M`, subtext: 'Compresión margen operativo', status: 'ACCIÓN REQUERIDA', status_type: 'danger' as const },
-    { label: 'Cojín de Liquidez', value: `$${Math.max(0, 750 - shock_impact.ebitda_impact_m).toFixed(1)}M`, subtext: 'Reserva post-estrés', status: shock_impact.liquidity_buffer_status, status_type: (shock_impact.liquidity_buffer_status === 'STABLE' ? 'success' : 'warning') as 'success' | 'warning' },
-    { label: 'Capital Regulatorio', value: '100%', subtext: 'Basel III & Dodd-Frank', status: 'VERIFICADO', status_type: 'success' as const },
-  ];
+  // Default fallback KPIs only for enterprise scenario queries
+  const kpis = query_focus === 'GENERAL'
+    ? []
+    : (dynamic_kpis && dynamic_kpis.length > 0
+        ? dynamic_kpis
+        : [
+            { label: 'Riesgo Portafolio (VaR 99%)', value: `$${shock_impact.value_at_risk_99_m.toFixed(2)}M`, subtext: `+${shock_impact.var_delta_pct}% vs baseline`, status: 'ELEVADO', status_type: 'danger' as const },
+            { label: 'Arrastre en EBITDA', value: `-$${shock_impact.ebitda_impact_m.toFixed(2)}M`, subtext: 'Compresión margen operativo', status: 'ACCIÓN REQUERIDA', status_type: 'danger' as const },
+            { label: 'Cojín de Liquidez', value: `$${Math.max(0, 750 - shock_impact.ebitda_impact_m).toFixed(1)}M`, subtext: 'Reserva post-estrés', status: shock_impact.liquidity_buffer_status, status_type: (shock_impact.liquidity_buffer_status === 'STABLE' ? 'success' : 'warning') as 'success' | 'warning' },
+            { label: 'Capital Regulatorio', value: '100%', subtext: 'Basel III & Dodd-Frank', status: 'VERIFICADO', status_type: 'success' as const },
+          ]);
 
   // Theme styling per domain to make each response visually unique for the EBC Mexican audience
   const themeStyles = {
+    GENERAL: {
+      border: 'border-cyan-500/60',
+      shadow: 'shadow-cyan-950/60',
+      badgeBg: 'bg-cyan-950 text-cyan-300 border-cyan-500',
+      glow: 'bg-cyan-500/15',
+      icon: Bot,
+      title: 'Respuesta del Agente // Google Vertex AI & Live Web Grounding',
+    },
     LOGISTICA: {
       border: 'border-blue-500/60',
       shadow: 'shadow-blue-950/60',
@@ -304,146 +316,148 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
             revealPhase >= 1 ? 'bg-cyan-950 text-cyan-300 border border-cyan-600 shadow-sm' : 'bg-slate-900 text-slate-600'
           }`}>
             <span className="h-2 w-2 rounded-full bg-cyan-400" />
-            1. Intención Detectada ({query_focus})
+            {query_focus === 'GENERAL' ? '1. Consulta Web / General' : `1. Intención Detectada (${query_focus})`}
           </span>
           <span className={`px-3 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
             revealPhase >= 2 ? 'bg-blue-950 text-blue-300 border border-blue-600 shadow-sm' : 'bg-slate-900 text-slate-600'
           }`}>
             <span className="h-2 w-2 rounded-full bg-blue-400" />
-            2. BigQuery Live Scan (28ms-35ms)
+            {query_focus === 'GENERAL' ? '2. Invocando Google Search Tool' : '2. BigQuery Live Scan (28ms-35ms)'}
           </span>
           <span className={`px-3 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
             revealPhase >= 3 ? 'bg-purple-950 text-purple-300 border border-purple-600 shadow-sm' : 'bg-slate-900 text-slate-600'
           }`}>
             <span className="h-2 w-2 rounded-full bg-purple-400" />
-            3. Metáfora Visual Polymorphic ({query_focus})
+            {query_focus === 'GENERAL' ? '3. Grounding Web en Tiempo Real' : `3. Metáfora Visual Polymorphic (${query_focus})`}
           </span>
           <span className={`px-3 py-1 rounded-lg flex items-center gap-1.5 transition-all ${
             revealPhase >= 4 ? 'bg-emerald-950 text-emerald-300 border border-emerald-600 shadow-sm' : 'bg-slate-900 text-slate-600'
           }`}>
             <span className="h-2 w-2 rounded-full bg-emerald-400" />
-            4. Síntesis y Memorándum Listo
+            {query_focus === 'GENERAL' ? '4. Respuesta y Síntesis Agéntica' : '4. Síntesis y Memorándum Listo'}
           </span>
         </div>
       </div>
 
-      {/* 1. DYNAMIC CONTEXT-SPECIFIC KPI METRICS CARDS WITH INTERACTIVE HOVER EXPLANATIONS */}
-      <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ${
-        revealPhase >= 1 ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
-      }`}>
-        {kpis.map((kpi, idx) => {
-          const explanation = getKpiExplanation(kpi.label, kpi.value);
-          return (
-            <div
-              key={idx}
-              className={`p-5 sm:p-6 rounded-2xl transition-all space-y-3 border-2 relative group hover:scale-[1.03] hover:z-30 cursor-pointer shadow-xl ${
-                kpi.status_type === 'danger'
-                  ? 'bg-slate-950/90 border-rose-500/50 hover:border-rose-400 shadow-rose-950/30'
-                  : kpi.status_type === 'warning'
-                  ? 'bg-slate-950/90 border-amber-500/50 hover:border-amber-400 shadow-amber-950/30'
-                  : kpi.status_type === 'info'
-                  ? 'bg-slate-950/90 border-blue-500/50 hover:border-blue-400 shadow-blue-950/30'
-                  : 'bg-slate-950/90 border-emerald-500/50 hover:border-emerald-400 shadow-emerald-950/30'
-              }`}
-            >
-              <div className="flex items-center justify-between text-slate-400 text-xs sm:text-sm">
-                <span className="font-mono text-xs uppercase tracking-wider text-slate-200 font-extrabold truncate flex items-center gap-1.5">
-                  {kpi.label}
-                  <Info className="h-3.5 w-3.5 text-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity" />
-                </span>
-                {kpi.status_type === 'danger' ? (
-                  <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0" />
-                ) : kpi.status_type === 'warning' ? (
-                  <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
-                ) : (
-                  <TrendingUp className="h-5 w-5 text-emerald-400 shrink-0" />
-                )}
-              </div>
-              
-              {/* Big High-Impact Figure for EBC Wall Monitors */}
-              <div className="text-3xl sm:text-4xl font-mono font-black text-slate-100 tracking-tight">
-                {kpi.value}
-              </div>
-
-              <div className="flex items-center justify-between gap-2 text-xs font-mono pt-2 border-t border-slate-800/80">
-                <span className="text-slate-400 truncate">{kpi.subtext}</span>
-                <span
-                  className={`px-2.5 py-0.5 rounded-full font-black shrink-0 text-[10px] uppercase ${
-                    kpi.status_type === 'danger'
-                      ? 'bg-rose-950 text-rose-300 border border-rose-800'
-                      : kpi.status_type === 'warning'
-                      ? 'bg-amber-950 text-amber-300 border border-amber-800'
-                      : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
-                  }`}
-                >
-                  {kpi.status}
-                </span>
-              </div>
-
-              {/* Floating Explanatory Popover (Revealed Instantly on Hover with Solid Opaque Background) */}
-              <div className="absolute left-0 top-full mt-3 w-80 sm:w-[480px] bg-[#060a14] border-2 border-cyan-400 p-5 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,1)] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-[999] space-y-3 font-sans max-h-[520px] overflow-y-auto ring-2 ring-cyan-500/50">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                  <span className="font-mono text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <Calculator className="h-4 w-4 text-cyan-400" />
-                    {explanation.title}
+      {/* 1. DYNAMIC CONTEXT-SPECIFIC KPI METRICS CARDS WITH INTERACTIVE HOVER EXPLANATIONS (Only for Domain Scenarios) */}
+      {query_focus !== 'GENERAL' && kpis.length > 0 && (
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ${
+          revealPhase >= 1 ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
+        }`}>
+          {kpis.map((kpi, idx) => {
+            const explanation = getKpiExplanation(kpi.label, kpi.value);
+            return (
+              <div
+                key={idx}
+                className={`p-5 sm:p-6 rounded-2xl transition-all space-y-3 border-2 relative group hover:scale-[1.03] hover:z-30 cursor-pointer shadow-xl ${
+                  kpi.status_type === 'danger'
+                    ? 'bg-slate-950/90 border-rose-500/50 hover:border-rose-400 shadow-rose-950/30'
+                    : kpi.status_type === 'warning'
+                    ? 'bg-slate-950/90 border-amber-500/50 hover:border-amber-400 shadow-amber-950/30'
+                    : kpi.status_type === 'info'
+                    ? 'bg-slate-950/90 border-blue-500/50 hover:border-blue-400 shadow-blue-950/30'
+                    : 'bg-slate-950/90 border-emerald-500/50 hover:border-emerald-400 shadow-emerald-950/30'
+                }`}
+              >
+                <div className="flex items-center justify-between text-slate-400 text-xs sm:text-sm">
+                  <span className="font-mono text-xs uppercase tracking-wider text-slate-200 font-extrabold truncate flex items-center gap-1.5">
+                    {kpi.label}
+                    <Info className="h-3.5 w-3.5 text-cyan-400 opacity-60 group-hover:opacity-100 transition-opacity" />
                   </span>
-                  <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
-                    EVIDENCIA BIGQUERY
+                  {kpi.status_type === 'danger' ? (
+                    <AlertTriangle className="h-5 w-5 text-rose-400 shrink-0" />
+                  ) : kpi.status_type === 'warning' ? (
+                    <AlertTriangle className="h-5 w-5 text-amber-400 shrink-0" />
+                  ) : (
+                    <TrendingUp className="h-5 w-5 text-emerald-400 shrink-0" />
+                  )}
+                </div>
+                
+                {/* Big High-Impact Figure for EBC Wall Monitors */}
+                <div className="text-3xl sm:text-4xl font-mono font-black text-slate-100 tracking-tight">
+                  {kpi.value}
+                </div>
+
+                <div className="flex items-center justify-between gap-2 text-xs font-mono pt-2 border-t border-slate-800/80">
+                  <span className="text-slate-400 truncate">{kpi.subtext}</span>
+                  <span
+                    className={`px-2.5 py-0.5 rounded-full font-black shrink-0 text-[10px] uppercase ${
+                      kpi.status_type === 'danger'
+                        ? 'bg-rose-950 text-rose-300 border border-rose-800'
+                        : kpi.status_type === 'warning'
+                        ? 'bg-amber-950 text-amber-300 border border-amber-800'
+                        : 'bg-emerald-950 text-emerald-300 border border-emerald-800'
+                    }`}
+                  >
+                    {kpi.status}
                   </span>
                 </div>
 
-                <div className="space-y-2">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Fórmula:</span>
-                    <div className="text-[11px] font-mono text-slate-200 bg-[#0c1324] p-2.5 rounded-xl border border-slate-800 font-bold">
-                      {explanation.formula}
-                    </div>
+                {/* Floating Explanatory Popover (Revealed Instantly on Hover with Solid Opaque Background) */}
+                <div className="absolute left-0 top-full mt-3 w-80 sm:w-[480px] bg-[#060a14] border-2 border-cyan-400 p-5 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,1)] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-[999] space-y-3 font-sans max-h-[520px] overflow-y-auto ring-2 ring-cyan-500/50">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                    <span className="font-mono text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Calculator className="h-4 w-4 text-cyan-400" />
+                      {explanation.title}
+                    </span>
+                    <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
+                      EVIDENCIA BIGQUERY
+                    </span>
                   </div>
 
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono text-cyan-400 uppercase font-bold">Sustitución Aritmética Exacta:</span>
-                    <div className="text-[11px] font-mono text-cyan-200 bg-[#0c1933] p-2.5 rounded-xl border border-cyan-700/60 font-black">
-                      {explanation.math_evidence}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Consulta SQL BigQuery:</span>
-                    <pre className="text-[10px] font-mono text-emerald-300 bg-[#050912] p-2.5 rounded-xl border border-slate-800 overflow-x-auto whitespace-pre">
-                      {explanation.sql_query}
-                    </pre>
-                  </div>
-
-                  <p className="text-xs text-slate-300 leading-relaxed pt-1">
-                    {explanation.explanation}
-                  </p>
-                </div>
-
-                <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
-                  <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
-                    Desglose por Empresa / Operador en la Sala:
-                  </span>
-                  <div className="space-y-1">
-                    {explanation.breakdown.map((b: { label: string; val: string }, bIdx: number) => (
-                      <div key={bIdx} className="flex items-center justify-between text-xs font-mono">
-                        <span className="text-slate-300">{b.label}:</span>
-                        <span className="text-cyan-300 font-bold">{b.val}</span>
+                  <div className="space-y-2">
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Fórmula:</span>
+                      <div className="text-[11px] font-mono text-slate-200 bg-[#0c1324] p-2.5 rounded-xl border border-slate-800 font-bold">
+                        {explanation.formula}
                       </div>
-                    ))}
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-cyan-400 uppercase font-bold">Sustitución Aritmética Exacta:</span>
+                      <div className="text-[11px] font-mono text-cyan-200 bg-[#0c1933] p-2.5 rounded-xl border border-cyan-700/60 font-black">
+                        {explanation.math_evidence}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1">
+                      <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Consulta SQL BigQuery:</span>
+                      <pre className="text-[10px] font-mono text-emerald-300 bg-[#050912] p-2.5 rounded-xl border border-slate-800 overflow-x-auto whitespace-pre">
+                        {explanation.sql_query}
+                      </pre>
+                    </div>
+
+                    <p className="text-xs text-slate-300 leading-relaxed pt-1">
+                      {explanation.explanation}
+                    </p>
+                  </div>
+
+                  <div className="space-y-1.5 pt-2 border-t border-slate-800/80">
+                    <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider block">
+                      Desglose por Empresa / Operador en la Sala:
+                    </span>
+                    <div className="space-y-1">
+                      {explanation.breakdown.map((b: { label: string; val: string }, bIdx: number) => (
+                        <div key={bIdx} className="flex items-center justify-between text-xs font-mono">
+                          <span className="text-slate-300">{b.label}:</span>
+                          <span className="text-cyan-300 font-bold">{b.val}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-400">
+                    <span>Tabla BigQuery:</span>
+                    <span className="text-emerald-400 font-bold">{explanation.dataset}</span>
                   </div>
                 </div>
-
-                <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-[10px] font-mono text-slate-400">
-                  <span>Tabla BigQuery:</span>
-                  <span className="text-emerald-400 font-bold">{explanation.dataset}</span>
-                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
 
-      {/* 2. AGENTIC EXECUTIVE AI SYNTHESIS (Gemini 2.5 Pro / Flash Grounded in BigQuery) */}
+      {/* 2. AGENTIC EXECUTIVE AI SYNTHESIS (Gemini 2.5 Pro / Flash Grounded in BigQuery & Google Search) */}
       <div className={`bg-gradient-to-br from-[#0c1427] via-[#09101f] to-[#060a14] border-2 border-cyan-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/40 relative overflow-hidden space-y-4 transition-all duration-500 ${
         revealPhase >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}>
@@ -456,18 +470,20 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
               <h4 className="text-sm sm:text-base font-bold font-mono text-cyan-300 tracking-wide uppercase flex items-center gap-2">
                 <span>Resumen Ejecutivo de IA // Diagnóstico Agéntico en Vivo</span>
                 <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
-                  {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 3.7 FLASH')}
+                  {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 2.5 FLASH')}
                 </span>
               </h4>
               <span className="text-[11px] font-mono text-slate-400">
-                Grounding en BigQuery ({grounded_data_table?.dataset || 'vtxdemos.ebc_enterprise_hub_live'}) &bull; Latencia: {latency_ms.toFixed(1)}ms
+                {query_focus === 'GENERAL'
+                  ? `Google Search Grounding Tool \u2022 Latencia: ${latency_ms.toFixed(1)}ms`
+                  : `Grounding en BigQuery (${grounded_data_table?.dataset || 'vtxdemos.ebc_enterprise_hub_live'}) \u2022 Latencia: ${latency_ms.toFixed(1)}ms`}
               </span>
             </div>
           </div>
           <div className="flex items-center gap-2 font-mono text-xs">
             <span className="bg-emerald-950 text-emerald-300 px-3 py-1 rounded-full border border-emerald-700 font-bold flex items-center gap-1.5 shadow-xs">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              BigQuery Live Grounded
+              {query_focus === 'GENERAL' ? 'Google Search Live Grounded' : 'BigQuery Live Grounded'}
             </span>
           </div>
         </div>
@@ -499,65 +515,56 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         </div>
       </div>
 
-      {/* 3. DYNAMIC POLYMORPHIC METAPHOR DISPATCHER (Radically different UI per Intent) */}
-      
-      {/* 2A. LOGÍSTICA & PUERTOS (Grupo CICE, Senda, Promologistics) */}
-      {(query_focus === 'LOGISTICA' || query_focus === 'COMPRAS') && (
-        <ComprasRouteFlowView
-          tableData={grounded_data_table}
-        />
-      )}
-
-      {/* 2B. MANUFACTURA & FARMA (Lab. Silanes, Cremería Gloria, Médica Sur) */}
-      {(query_focus === 'MANUFACTURA' || query_focus === 'ALMACEN') && (
-        <AlmacenCountdownTimelineView
-          tableData={grounded_data_table}
-        />
-      )}
-
-      {/* 2C. RETAIL, TIPO DE CAMBIO & MARGEN (Boxito, Macropay, Cklass) */}
-      {(query_focus === 'RETAIL_FX' || query_focus === 'TESORERIA') && (
-        <TesoreriaWaterfallView
-          tableData={grounded_data_table}
-          onExecuteHedge={onExecuteHedge}
-        />
-      )}
-
-      {/* 2D. MULTI-EMPRESA EBC / HR RATINGS CONSOLIDADO */}
-      {(query_focus === 'MULTI_DEPT' || query_focus === 'HR_RATINGS') && (
-        <ConsolidadoMultiEmpresaView
-          tableData={grounded_data_table}
-          shockImpact={shock_impact}
-        />
-      )}
-
-      {/* 3. STRATEGIC REPORT BLUEPRINT & 1-CLICK BOARD MEMO ACTION */}
-      <div className={`bg-gradient-to-r from-blue-950/90 via-indigo-950/80 to-slate-950 rounded-2xl p-6 sm:p-8 border-2 border-cyan-500/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl transition-all duration-500 ${
-        revealPhase >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-      }`}>
-        <div className="space-y-2 max-w-3xl">
-          <div className="flex items-center gap-2.5 text-sm sm:text-base font-mono font-black text-cyan-300 uppercase tracking-wider">
-            <FileText className="h-5 w-5 text-cyan-400" />
-            <span>Resolución Oficial de Consejo // Plan de Acción Listo</span>
-          </div>
-          <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-sans">
-            El agente ha formulado el <strong>Memorándum Oficial del Consejo de Administración</strong> adaptado a <strong>{query_focus}</strong>, listo para exportación en papel blanco oficial y firma digital ejecutiva.
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3 shrink-0 flex-wrap">
-          {onOpenBoardMemo && (
-            <button
-              type="button"
-              onClick={onOpenBoardMemo}
-              className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 transition-all cursor-pointer animate-pulse"
-            >
-              <FileText className="h-5 w-5 text-slate-950" />
-              <span>Ver Memorándum Oficial &rarr;</span>
-            </button>
+      {/* 3. DYNAMIC POLYMORPHIC METAPHOR DISPATCHER (Only for Domain Scenarios) */}
+      {query_focus !== 'GENERAL' && (
+        <>
+          {(query_focus === 'LOGISTICA' || query_focus === 'COMPRAS') && (
+            <ComprasRouteFlowView tableData={grounded_data_table} />
           )}
+
+          {(query_focus === 'MANUFACTURA' || query_focus === 'ALMACEN') && (
+            <AlmacenCountdownTimelineView tableData={grounded_data_table} />
+          )}
+
+          {(query_focus === 'RETAIL_FX' || query_focus === 'TESORERIA') && (
+            <TesoreriaWaterfallView tableData={grounded_data_table} onExecuteHedge={onExecuteHedge} />
+          )}
+
+          {(query_focus === 'MULTI_DEPT' || query_focus === 'HR_RATINGS') && (
+            <ConsolidadoMultiEmpresaView tableData={grounded_data_table} shockImpact={shock_impact} />
+          )}
+        </>
+      )}
+
+      {/* 4. STRATEGIC REPORT BLUEPRINT & 1-CLICK BOARD MEMO ACTION (Only for Domain Scenarios) */}
+      {query_focus !== 'GENERAL' && (
+        <div className={`bg-gradient-to-r from-blue-950/90 via-indigo-950/80 to-slate-950 rounded-2xl p-6 sm:p-8 border-2 border-cyan-500/50 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-2xl transition-all duration-500 ${
+          revealPhase >= 4 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+        }`}>
+          <div className="space-y-2 max-w-3xl">
+            <div className="flex items-center gap-2.5 text-sm sm:text-base font-mono font-black text-cyan-300 uppercase tracking-wider">
+              <FileText className="h-5 w-5 text-cyan-400" />
+              <span>Resolución Oficial de Consejo // Plan de Acción Listo</span>
+            </div>
+            <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-sans">
+              El agente ha formulado el <strong>Memorándum Oficial del Consejo de Administración</strong> adaptado a <strong>{query_focus}</strong>, listo para exportación en papel blanco oficial y firma digital ejecutiva.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 shrink-0 flex-wrap">
+            {onOpenBoardMemo && (
+              <button
+                type="button"
+                onClick={onOpenBoardMemo}
+                className="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-xs sm:text-sm shadow-xl shadow-cyan-500/30 flex items-center gap-2.5 transition-all cursor-pointer animate-pulse"
+              >
+                <FileText className="h-5 w-5 text-slate-950" />
+                <span>Ver Memorándum Oficial &rarr;</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 4. Autonomous Agent Reasoning Trace */}
       <div className="space-y-2 border-t border-slate-800/80 pt-4">

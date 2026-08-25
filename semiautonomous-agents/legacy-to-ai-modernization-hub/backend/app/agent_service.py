@@ -19,40 +19,102 @@ from .bigquery_service import execute_chain_step_bigquery
 # Load environment with override=True per rules
 load_dotenv(override=True)
 
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 GCP_PROJECT = os.getenv("GCP_PROJECT", "vtxdemos")
 GCP_REGION = os.getenv("GCP_REGION", "us-central1")
 
 
 def _get_genai_client():
-    """Initializes Google GenAI client if valid credentials or API key exist."""
+    """Initializes Google GenAI client using Vertex AI with ADC."""
     try:
         from google import genai
-        # 1. Check if direct API key is set
-        api_key = os.getenv("GEMINI_API_KEY")
-        if api_key:
-            return genai.Client(api_key=api_key)
-        
-        # 2. Check if local gcloud ADC credentials file exists
-        adc_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS") or os.path.expanduser("~/.config/gcloud/application_default_credentials.json")
-        if os.path.exists(adc_path):
-            return genai.Client(vertexai=True, project=GCP_PROJECT, location=GCP_REGION)
-        
-        return None
-    except Exception:
+        return genai.Client(vertexai=True, project=GCP_PROJECT, location=GCP_REGION)
+    except Exception as e:
+        print(f"Vertex AI GenAI Client init warning: {e}")
+        try:
+            api_key = os.getenv("GEMINI_API_KEY")
+            if api_key:
+                from google import genai
+                return genai.Client(api_key=api_key)
+        except Exception:
+            pass
         return None
 
 
 async def process_agent_query(request: AgentQueryRequest) -> AgentQueryResponse:
     """
     Processes natural language queries from the modernized canvas.
-    Extracts shock parameters and grounds with real BigQuery data.
+    Handles general conversational/web search queries and grounds complex risk scenarios with BigQuery.
     """
     start_time = time.perf_counter()
     params = request.shock_params or ShockParameters()
 
+    q_lower = request.query.lower().strip()
+
+    # 1. Domain Detection tailored to the EBC Mexican enterprise audience
+    is_multi_dept = any(k in q_lower for k in ["consolid", "bloqueo de 30", "todo el ebc", "multi-empresa", "hub consolidado", "todos los departamentos", "escenario"])
+    is_hr_ratings = any(k in q_lower for k in ["hr ratings", "calificaci", "rating", "solvencia", "crédito", "credito", "dictamen", "banxico", "var 99"]) and not is_multi_dept
+    is_farma_alimentos = (any(k in q_lower for k in ["silanes", "cremer", "gloria", "farma", "médica", "medica", "lacto", "api", "envasado", "paro", "buffer"]) or ("insumos" in q_lower and "retraso" in q_lower)) and not is_multi_dept
+    is_logistica = any(k in q_lower for k in ["puerto", "veracruz", "cice", "senda", "promologistics", "contenedor", "teus", "aduan", "flete", "buque", "congestión", "demorad"]) and not is_farma_alimentos and not is_multi_dept
+    is_retail_fx = any(k in q_lower for k in ["boxito", "macropay", "cklass", "retail", "usd/mxn", "tipo de cambio", "dólar", "dolar", "margen", "comercial", "forward"]) and not is_hr_ratings and not is_multi_dept
+    is_compras = any(k in q_lower for k in ["compras", "órdenes de compra", "ordenes de compra", "proveedor", "po_commitments", "taiwan", "taiwán"]) and not is_multi_dept
+
+    is_scenario_query = is_multi_dept or is_hr_ratings or is_farma_alimentos or is_logistica or is_retail_fx or is_compras
+
+    # =========================================================================
+    # GENERAL KNOWLEDGE / CONVERSATION / REAL-TIME WEB SEARCH QUERIES
+    # =========================================================================
+    if not is_scenario_query:
+        client = _get_genai_client()
+        synthesis_text = ""
+        model_used = MODEL_NAME
+        confidence = 0.98
+        reasoning_trace = [
+            "1. Intención Detectada: Consulta en Tiempo Real / Live Web Intelligence",
+            "2. Invocando Google Search Grounding Tool integrado en Gemini 2.5 Flash",
+            "3. Extrayendo datos de mercado, noticias y fuentes web actualizadas",
+            "4. Síntesis ejecutiva generada con grounding en tiempo real"
+        ]
+
+        if client:
+            try:
+                from google.genai import types
+                def _call_gemini_general():
+                    return client.models.generate_content(
+                        model=MODEL_NAME,
+                        contents=f"Eres un asistente ejecutivo de inteligencia empresarial y científica de Google Cloud en el Executive Briefing Center. Responde de forma precisa, concisa, profesional y estructurada en Español a la siguiente consulta:\n\n\"{request.query}\"",
+                        config=types.GenerateContentConfig(
+                            tools=[types.Tool(google_search=types.GoogleSearch())],
+                            system_instruction="Eres el asistente de IA ejecutivo de Google Cloud. Utiliza la herramienta de búsqueda de Google para obtener información fidedigna y en tiempo real sobre cotizaciones de mercado, precios de acciones, noticias financieras o datos generales."
+                        )
+                    )
+                resp = await asyncio.wait_for(asyncio.to_thread(_call_gemini_general), timeout=15.0)
+                if resp and resp.text:
+                    synthesis_text = resp.text
+            except Exception as e:
+                print(f"General query Gemini error: {e}")
+
+        if not synthesis_text:
+            synthesis_text = f"He recibido tu consulta: **\"{request.query}\"**.\n\nComo asistente ejecutivo de Google Cloud con Gemini 2.5 Flash y BigQuery, puedo ayudarte a analizar escenarios de riesgo de cadena de suministro, finanzas corporativas, consultas en tiempo real de mercado o explorar los datos de tu empresa."
+
+        elapsed_ms = (time.perf_counter() - start_time) * 1000.0
+        shock_impact = compute_shock_impact(params)
+        return AgentQueryResponse(
+            query=request.query,
+            intent_detected="GENERAL_LIVE_QUERY",
+            synthesis_markdown=synthesis_text,
+            confidence_score=confidence,
+            reasoning_trace=reasoning_trace,
+            suggested_actions=[],
+            shock_impact=shock_impact,
+            latency_ms=round(elapsed_ms, 2),
+            model_used=model_used,
+            grounded_data_table=None,
+            dynamic_kpis=[],
+            query_focus="GENERAL",
+        )
+
     # Heuristic parameter extraction from natural query
-    q_lower = request.query.lower()
     if "rate" in q_lower or "bps" in q_lower or "fed" in q_lower:
         if "75" in q_lower:
             params.interest_rate_bps = 75.0

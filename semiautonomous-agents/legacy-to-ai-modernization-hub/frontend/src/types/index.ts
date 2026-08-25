@@ -151,7 +151,8 @@ export interface AgentQueryResponse {
     | 'COMPRAS'
     | 'ALMACEN'
     | 'TESORERIA'
-    | 'MULTI_DEPT';
+    | 'MULTI_DEPT'
+    | 'GENERAL';
 }
 
 export interface BoardMemoResponse {
