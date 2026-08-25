@@ -45,16 +45,16 @@ client = genai.Client(
 SYSTEM_PROMPT = (
     "You are an autonomous senior executive engineer and quantitative data scientist operating inside a dedicated remote Linux sandbox environment with root /workspace access. "
     "You have access to Google Search and Web URL tools to fetch live, real-world data from the internet. "
-    "CRITICAL SPEED & EXECUTION RULES: "
-    "1. ULTRA-FAST SINGLE-TURN DECISIVENESS: Time is critical for executive demonstrations. Minimize multi-step back-and-forth roundtrips! "
-    "   - Do NOT run redundant exploratory steps (e.g. do not call `list_dir` on an empty directory). "
-    "   - If searching Google, issue focused queries in a single step, then immediately write the requested artifacts. "
-    "   - Write complete, beautiful, production-ready code and dashboards directly on the first attempt without intermediate draft files. "
-    "2. SANDBOX PYTHON RUNTIME: The Linux sandbox has standard Python 3 with built-in modules (csv, json, math, statistics, sqlite3, urllib, html, datetime, random, os, sys, etc.). "
-    "   - Write high-performance Python code using these built-in libraries (or generate self-contained HTML/JS visualizations with Chart.js / Plotly CDN). "
-    "   - Never stall on long package installations (`pip install` / `apt-get`). "
-    "3. MANDATORY ARTIFACT DELIVERY: When generating HTML dashboards, CSV datasets, or scripts, ALWAYS write them using `create_file(TargetFile='/workspace/<filename>', Content='...')` or execute them in Python and call `view_file(AbsolutePath='/workspace/<filename>')`. "
-    "4. BOARDROOM-READY VISUAL DASHBOARDS: Always ensure HTML files are modern, interactive, dark-themed (#090d16), responsive, and feature live visual charts (Chart.js / Tailwind CSS) with interactive sliders or KPI cards."
+    "CRITICAL SPEED & EXECUTION MANDATE: "
+    "1. SINGLE-QUERY FAST GROUNDING: When searching Google for multiple tickers or market metrics, issue ONE single consolidated search query in 1 step (e.g. query='Alphabet GOOGL Amazon AMZN Microsoft MSFT stock price market cap revenue August 2026') instead of multiple separate turns. "
+    "2. ULTRA-FAST SINGLE-TURN DECISIVENESS: Time is critical for executive demonstrations. Minimize multi-step roundtrips! "
+    "   - Do NOT run exploratory steps (e.g. do NOT call `list_dir` on an empty directory). "
+    "   - Immediately generate the complete, beautiful, production-ready code or dashboard directly on the first attempt without intermediate drafts. "
+    "3. SANDBOX PYTHON RUNTIME: The Linux sandbox has standard Python 3 with built-in modules (csv, json, math, statistics, sqlite3, urllib, html, datetime, random, os, sys, etc.). "
+    "   - Write high-performance Python code using these built-in libraries. "
+    "   - Never stall on package installations (`pip install` / `apt-get`). "
+    "4. MANDATORY ARTIFACT DELIVERY: When generating HTML dashboards, CSV datasets, or scripts, ALWAYS write them using `create_file(TargetFile='/workspace/<filename>', Content='...')` or execute them in Python and call `view_file(AbsolutePath='/workspace/<filename>')`. "
+    "5. BOARDROOM-READY VISUAL DASHBOARDS: Always ensure HTML files are modern, interactive, dark-themed (#090d16), responsive, and feature live visual charts (Chart.js / Tailwind CSS) with interactive sliders and KPI cards."
 )
 
 session_files_cache: Dict[str, Dict[str, str]] = {}
@@ -248,6 +248,18 @@ async def chat_stream(req: ChatRequest):
                         "result": ""
                     }
 
+                    # Instantly notify frontend that a tool operation has started!
+                    yield {
+                        "event": "step",
+                        "data": json.dumps({
+                            "type": st_type or "step",
+                            "name": name or "running_operation",
+                            "arguments": {},
+                            "result": None,
+                            "status": "running"
+                        })
+                    }
+
                 elif event_type == "step.delta":
                     idx = getattr(event, "index", 0)
                     delta = getattr(event, "delta", None)
@@ -260,6 +272,12 @@ async def chat_stream(req: ChatRequest):
                             yield {
                                 "event": "token",
                                 "data": json.dumps({"text": delta.text})
+                            }
+
+                        elif delta_type == "thought" and hasattr(delta, "thought") and delta.thought:
+                            yield {
+                                "event": "thought",
+                                "data": json.dumps({"thought": delta.thought})
                             }
 
                         # Function Call arguments streaming

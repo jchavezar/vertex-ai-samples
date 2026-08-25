@@ -1387,9 +1387,57 @@ export default function App() {
                             </ReactMarkdown>
                           </div>
                         ) : msg.status === 'in_progress' ? (
-                          <div className="flex items-center gap-2 text-xs text-zinc-500 py-1 font-sans">
-                            <div className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></div>
-                            <span>Ejecutando operaciones en el sandbox y consolidando respuesta final...</span>
+                          <div className="rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-zinc-50/60 p-4 space-y-3 shadow-2xs">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2.5">
+                                <div className="relative flex h-2.5 w-2.5">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                                </div>
+                                <span className="font-semibold text-xs text-zinc-900 font-mono">
+                                  Pipeline de Ejecución Agéntica en Vivo
+                                </span>
+                              </div>
+                              <span className="text-[11px] font-mono text-zinc-500 bg-white border border-zinc-200 px-2 py-0.5 rounded-md">
+                                {displayTime || '0.0s'}
+                              </span>
+                            </div>
+
+                            {/* Dynamic Step Pipeline Status */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px] font-mono pt-1">
+                              <div className="p-2 rounded-lg bg-white border border-zinc-200 flex items-center gap-2 shadow-2xs">
+                                <Cpu className="w-3.5 h-3.5 text-sky-600 shrink-0" />
+                                <div className="min-w-0">
+                                  <div className="text-[10px] text-zinc-400 font-bold uppercase">Entorno</div>
+                                  <div className="text-zinc-800 truncate font-semibold">Linux MicroVM Activo</div>
+                                </div>
+                              </div>
+                              <div className="p-2 rounded-lg bg-white border border-zinc-200 flex items-center gap-2 shadow-2xs">
+                                <Search className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                                <div className="min-w-0">
+                                  <div className="text-[10px] text-zinc-400 font-bold uppercase">Grounding</div>
+                                  <div className="text-zinc-800 truncate font-semibold">Google Search Engine</div>
+                                </div>
+                              </div>
+                              <div className="p-2 rounded-lg bg-white border border-zinc-200 flex items-center gap-2 shadow-2xs">
+                                <Terminal className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                <div className="min-w-0">
+                                  <div className="text-[10px] text-zinc-400 font-bold uppercase">Sandbox Compute</div>
+                                  <div className="text-zinc-800 truncate font-semibold">
+                                    {toolSteps.length > 0 ? `${toolSteps.length} acción(es) ejecutadas` : 'Invocando Operaciones...'}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 text-xs text-zinc-600 font-sans pt-0.5">
+                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+                              <span>
+                                {toolSteps.length > 0
+                                  ? `Ejecutando ${toolSteps[toolSteps.length - 1].name || 'operación'} en /workspace y compilando artefactos...`
+                                  : 'Conectando herramientas nativas y extrayendo datos en tiempo real...'}
+                              </span>
+                            </div>
                           </div>
                         ) : null}
 
