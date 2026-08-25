@@ -94,8 +94,8 @@ const EBC_DEMO_TRACKS = [
   {
     title: "Interactive Board-Ready HTML Risk Dashboard",
     tag: "Visual Charts UI",
-    desc: "Generate a standalone interactive HTML dashboard with visual risk charts & sensitivity bars.",
-    prompt: "Use `create_file` to directly generate a standalone, self-contained interactive HTML/JS dashboard at '/workspace/risk_dashboard.html' featuring executive risk distribution cards, interactive sensitivity metric bars, and key decision indicators for our M&A committee."
+    desc: "Search live market multiples for Tech Giants & generate interactive HTML dashboard.",
+    prompt: "Search Google for the latest stock prices, market capitalization, and recent revenue for Alphabet (GOOGL), Amazon (AMZN), and Microsoft (MSFT). Then use `create_file` to generate a standalone, self-contained interactive HTML/JS dashboard at '/workspace/risk_dashboard.html' grounded in this live real-world data with interactive sensitivity metric bars, comparative charts, and key decision indicators for our M&A committee."
   },
   {
     title: "Self-Healing Software Pipeline",
@@ -838,7 +838,16 @@ export default function App() {
     return null;
   };
 
-  const fileKeys = Object.keys(sandboxFiles);
+  // Strict deduplication of sandbox files by base filename
+  const deduplicatedSandboxFiles: Record<string, string> = {};
+  for (const [key, content] of Object.entries(sandboxFiles)) {
+    const baseName = key.split('/').pop() || key;
+    const existingKey = Object.keys(deduplicatedSandboxFiles).find(k => (k.split('/').pop() || k) === baseName);
+    if (!existingKey) {
+      deduplicatedSandboxFiles[key] = content;
+    }
+  }
+  const fileKeys = Object.keys(deduplicatedSandboxFiles);
 
   return (
     <div className="flex h-screen bg-[#fafafa] text-zinc-900 antialiased font-sans overflow-hidden">
@@ -987,11 +996,21 @@ export default function App() {
                 }
               }
 
-              const turnFiles: Record<string, string> = {
+              const rawTurnFiles: Record<string, string> = {
                 ...textMentionedFiles,
                 ...(msg.files || {}),
                 ...extractFilesFromSteps(msg.steps || [])
               };
+
+              // Strict deduplication by base filename to prevent duplicate frames/badges
+              const turnFiles: Record<string, string> = {};
+              for (const [key, content] of Object.entries(rawTurnFiles)) {
+                const baseName = key.split('/').pop() || key;
+                const existingKey = Object.keys(turnFiles).find(k => (k.split('/').pop() || k) === baseName);
+                if (!existingKey) {
+                  turnFiles[key] = content;
+                }
+              }
 
               // Parse thinking/planning vs final consolidated answer
               const { thoughts, finalAnswer } = parseThinkingAndAnswer(msg.text || '');
