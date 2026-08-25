@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Local dev server for Vector Search Canvas. Mirrors the multimodal-search
-# dev.sh — high port to dodge collisions, absolute path to uvicorn so nohup
-# doesn't strip PATH and break us.
+# Local dev server for Vector Search Canvas.
+# Runs FastAPI backend on high port (8770) with hot-reload enabled.
 set -euo pipefail
 
 PORT="${PORT:-8770}"
@@ -10,13 +9,14 @@ HOST="${HOST:-127.0.0.1}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}"
 
-VENV_UVICORN="$(cd "${SCRIPT_DIR}/../shutter-vibe-engine" && pwd)/.venv/bin/uvicorn"
-if [[ -x "${VENV_UVICORN}" ]]; then
-  UVICORN="${VENV_UVICORN}"
+if [[ -x "${SCRIPT_DIR}/.venv/bin/uvicorn" ]]; then
+  UVICORN="${SCRIPT_DIR}/.venv/bin/uvicorn"
+elif [[ -x "${SCRIPT_DIR}/../shutter-vibe-engine/.venv/bin/uvicorn" ]]; then
+  UVICORN="${SCRIPT_DIR}/../shutter-vibe-engine/.venv/bin/uvicorn"
 elif command -v uvicorn >/dev/null 2>&1; then
   UVICORN="$(command -v uvicorn)"
 else
-  echo "ERROR: uvicorn not found. Expected at ${VENV_UVICORN} or on PATH." >&2
+  echo "ERROR: uvicorn not found. Please activate your virtualenv or install dependencies: pip install -r app/requirements.txt" >&2
   exit 1
 fi
 

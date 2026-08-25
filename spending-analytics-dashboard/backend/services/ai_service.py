@@ -1,30 +1,42 @@
 import os
 import json
+import logging
+
+os.environ['GOOGLE_CLOUD_PROJECT'] = os.environ.get('GOOGLE_CLOUD_PROJECT', 'vtxdemos')
+os.environ['GOOGLE_CLOUD_LOCATION'] = os.environ.get('GOOGLE_CLOUD_LOCATION', 'us-central1')
+os.environ['GOOGLE_GENAI_USE_VERTEXAI'] = 'True'
+
 from google import genai
 from google.genai import types
 from typing import Dict, Any, List
 
+logger = logging.getLogger(__name__)
+
 class AIService:
     def __init__(self):
-        os.environ['GOOGLE_CLOUD_PROJECT'] = 'vtxdemos'
-        os.environ['GOOGLE_CLOUD_LOCATION'] = 'us-central1'
-        os.environ['GOOGLE_GENAI_USE_VERTEXAI'] = 'True'
+        self.project = os.environ.get('GOOGLE_CLOUD_PROJECT', 'vtxdemos')
+        self.location = os.environ.get('GOOGLE_CLOUD_LOCATION', 'us-central1')
         self.model_name = 'gemini-2.5-flash'
-        self.client = genai.Client(location='us-central1')
+        self.client = genai.Client(
+            vertexai=True,
+            project=self.project,
+            location=self.location
+        )
+
 
     def generate_spending_audit_report(self, kpis: Dict[str, Any], categories: List[Dict[str, Any]], cardholders: Dict[str, Any], top_merchants: List[Dict[str, Any]]) -> Dict[str, Any]:
         prompt = f"""
 You are an elite AI Chief Financial Officer and Personal Wealth Strategist.
-Analyze this comprehensive 1-month credit card spending dataset for a household consisting of DINORAH GUERRA and JESUS CHAVEZ.
+Analyze this comprehensive credit card spending dataset for a household.
 
 Key Financial Statistics:
-- Total Gross Spent: ${kpis['total_gross']:,.2f}
-- Total Refunds/Credits: ${kpis['total_refunds']:,.2f}
-- Net Total Spent: ${kpis['total_net']:,.2f}
-- Total Transactions: {kpis['total_count']}
-- Average Transaction Size: ${kpis['avg_transaction']:,.2f}
-- Top Spent Merchant: {kpis['top_merchant']} (${kpis['top_merchant_amount']:,.2f})
-- Top Spent Category: {kpis['top_category']} (${kpis['top_category_amount']:,.2f})
+- Total Gross Spent: ${kpis.get('total_gross', 0):,.2f}
+- Total Refunds/Credits: ${kpis.get('total_refunds', 0):,.2f}
+- Net Total Spent: ${kpis.get('total_net', 0):,.2f}
+- Total Transactions: {kpis.get('total_count', 0)}
+- Average Transaction Size: ${kpis.get('avg_transaction', 0):,.2f}
+- Top Spent Merchant: {kpis.get('top_merchant', 'N/A')} (${kpis.get('top_merchant_amount', 0):,.2f})
+- Top Spent Category: {kpis.get('top_category', 'N/A')} (${kpis.get('top_category_amount', 0):,.2f})
 
 Category Spend Breakdown:
 {json.dumps(categories, indent=2)}
@@ -35,13 +47,48 @@ Cardholder Comparison:
 Top Spent Merchants:
 {json.dumps(top_merchants, indent=2)}
 
-Provide a structured AI Spending Audit in JSON format with the following fields:
-1. `spending_persona_title`: A creative, accurate title for this household's spending personality (e.g. "The High-End NYC Gourmet & Fashion Duo")
-2. `executive_summary`: 2-3 paragraph sharp narrative detailing where money is going.
-3. `detected_patterns`: Array of 4-5 specific, insightful patterns detected by AI (e.g., food delivery frequency, travel spend, refund behavior, card member habits). Each item has `title`, `description`, and `severity` ("high", "medium", "info").
-4. `top_anomalies`: Array of 2-3 unexpected spending outliers or spikes. Each with `merchant_or_category`, `amount`, and `insight`.
-5. `cardholder_insights`: Narrative comparing Dinorah Guerra vs Jesus Chavez spending styles and favorite categories.
-6. `actionable_savings_tips`: Array of 4 concrete strategies to reduce spending next month (with estimated monthly savings amount).
+Provide a deep, highly actionable AI Spending Audit and Cost Optimization report in JSON format with the following exact schema:
+{{
+  "spending_persona_title": "Creative descriptive title for this household (e.g. 'The High-End NYC Gourmet & Fashion Enthusiasts')",
+  "executive_summary": "Comprehensive 2-3 paragraph financial breakdown of where household capital is concentrated, recurring leakages, luxury outflows, and discretionary vs essential ratios.",
+  "detected_patterns": [
+    {{
+      "title": "Specific pattern name (e.g. 'High-Frequency Food Delivery Outflow')",
+      "description": "Clear explanation of the spending behavior, frequency, and financial impact.",
+      "severity": "high"
+    }}
+  ],
+  "top_anomalies": [
+    {{
+      "merchant_or_category": "Merchant or Category name",
+      "amount": 278.48,
+      "insight": "Why this represents an anomaly or spike and what caused it."
+    }}
+  ],
+  "cardholder_insights": "Detailed comparison of card members spending habits, individual category priorities, and contribution to total household outflow.",
+  "actionable_savings_tips": [
+    {{
+      "title": "Clear action step (e.g. 'Cap Food Delivery to 2x Weekly')",
+      "description": "Concrete steps to execute this reduction without sacrificing lifestyle quality.",
+      "monthly_savings": 320,
+      "annual_savings": 3840,
+      "category": "Food & Dining",
+      "difficulty": "Easy"
+    }}
+  ],
+  "cost_optimization_roadmap": [
+    {{
+      "phase": "Immediate (Days 1-30)",
+      "target": "Quick Wins: Cancel redundant subscriptions and audit return credits",
+      "potential_cut": "$250 - $450/month"
+    }},
+    {{
+      "phase": "Mid-Term (Months 2-3)",
+      "target": "Behavioral Shifts: Batch food delivery & establish luxury apparel monthly budgets",
+      "potential_cut": "$600 - $900/month"
+    }}
+  ]
+}}
 
 Return ONLY valid JSON matching this schema.
 """
@@ -53,11 +100,18 @@ Return ONLY valid JSON matching this schema.
                 temperature=0.2
             )
         )
-        return json.loads(response.text)
+        text = response.text.strip()
+        if text.startswith("```json"):
+            text = text[7:]
+        if text.startswith("```"):
+            text = text[3:]
+        if text.endswith("```"):
+            text = text[:-3]
+        return json.loads(text.strip())
 
     def answer_spending_query(self, user_query: str, dataset_summary: str) -> str:
         prompt = f"""
-You are an expert AI Assistant specializing in personal finance and expense analysis.
+You are an expert AI Assistant specializing in personal finance, expense optimization, and credit card analytics.
 You have access to the user's detailed enriched credit card spending dataset summary below:
 
 --- DATASET CONTEXT ---
@@ -66,7 +120,7 @@ You have access to the user's detailed enriched credit card spending dataset sum
 
 User Question: "{user_query}"
 
-Provide a helpful, precise, friendly, and analytical answer. Use formatting (bullet points, bold text, dollar amounts) where applicable.
+Provide a helpful, precise, friendly, and analytical answer. Use formatting (bullet points, bold text, dollar amounts, savings tips) where applicable.
 """
         response = self.client.models.generate_content(
             model=self.model_name,

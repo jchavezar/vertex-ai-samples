@@ -9,8 +9,12 @@ import CardholderComparison from './components/CardholderComparison';
 import TransactionsTable from './components/TransactionsTable';
 import AskAIAssistant from './components/AskAIAssistant';
 import SpendGalaxyModal from './components/SpendGalaxyModal';
+import SubscriptionsTracker from './components/SubscriptionsTracker';
+import GmailAuthModal from './components/GmailAuthModal';
+import PipelineTraceConsole from './components/PipelineTraceConsole';
+import UploadStatementModal from './components/UploadStatementModal';
 
-import { DollarSign, RefreshCw, ShoppingBag, CreditCard, Sparkles, TrendingUp, Tag, Store, Orbit } from 'lucide-react';
+import { DollarSign, RefreshCw, ShoppingBag, CreditCard, Sparkles, TrendingUp, Tag, Store, Orbit, Repeat, Terminal } from 'lucide-react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview');
@@ -26,14 +30,71 @@ export default function App() {
   const [timeline, setTimeline] = useState([]);
   const [tags, setTags] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [subscriptionsData, setSubscriptionsData] = useState(null);
   const [auditReport, setAuditReport] = useState(null);
+  const [gmailStatus, setGmailStatus] = useState({ connected: false, email: '' });
   
+  // Modal / Drawer state
+  const [isGmailAuthOpen, setIsGmailAuthOpen] = useState(false);
+  const [isTraceConsoleOpen, setIsTraceConsoleOpen] = useState(false);
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [pendingUploadFiles, setPendingUploadFiles] = useState([]);
+  const [toastNotification, setToastNotification] = useState(null); // { message, type: 'success'|'error'|'info' }
+
   // Loading states
   const [loading, setLoading] = useState(true);
   const [auditLoading, setAuditLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
+  const showToast = (message, type = 'success') => {
+    setToastNotification({ message, type });
+    setTimeout(() => setToastNotification(null), 5000);
+  };
+
   const API_BASE = '/api';
+
+  const fetchGmailStatus = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/gmail/status`);
+      if (res.ok) {
+        const data = await res.json();
+        setGmailStatus(data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch Gmail status:", err);
+    }
+  };
+
+  const handleConnectGmail = async (email) => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/gmail/connect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setGmailStatus(data);
+        setIsGmailAuthOpen(false);
+      }
+    } catch (err) {
+      console.error("Failed to connect Gmail:", err);
+    }
+  };
+
+  const handleDisconnectGmail = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/auth/gmail/disconnect`, {
+        method: 'POST'
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setGmailStatus(data);
+      }
+    } catch (err) {
+      console.error("Failed to disconnect Gmail:", err);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -46,46 +107,39 @@ export default function App() {
         merchRes,
         timeRes,
         tagsRes,
-        txRes
+        txRes,
+        subRes
       ] = await Promise.all([
-        fetch(`${API_BASE}/kpis`),
-        fetch(`${API_BASE}/analytics/categories`),
-        fetch(`${API_BASE}/analytics/expense-types`),
-        fetch(`${API_BASE}/analytics/cardholders`),
-        fetch(`${API_BASE}/analytics/merchants`),
-        fetch(`${API_BASE}/analytics/timeline`),
-        fetch(`${API_BASE}/analytics/tags`),
-        fetch(`${API_BASE}/transactions`)
+        fetch(`${API_BASE}/kpis`).catch(() => null),
+        fetch(`${API_BASE}/analytics/categories`).catch(() => null),
+        fetch(`${API_BASE}/analytics/expense-types`).catch(() => null),
+        fetch(`${API_BASE}/analytics/cardholders`).catch(() => null),
+        fetch(`${API_BASE}/analytics/merchants`).catch(() => null),
+        fetch(`${API_BASE}/analytics/timeline`).catch(() => null),
+        fetch(`${API_BASE}/analytics/tags`).catch(() => null),
+        fetch(`${API_BASE}/transactions`).catch(() => null),
+        fetch(`${API_BASE}/analytics/subscriptions`).catch(() => null)
       ]);
 
-      const [
-        kpiData,
-        catData,
-        expData,
-        cardData,
-        merchData,
-        timeData,
-        tagsData,
-        txData
-      ] = await Promise.all([
-        kpiRes.json(),
-        catRes.json(),
-        expRes.json(),
-        cardRes.json(),
-        merchRes.json(),
-        timeRes.json(),
-        tagsRes.json(),
-        txRes.json()
-      ]);
+      const kpiData = kpiRes && kpiRes.ok ? await kpiRes.json() : null;
+      const catData = catRes && catRes.ok ? await catRes.json() : [];
+      const expData = expRes && expRes.ok ? await expRes.json() : [];
+      const cardData = cardRes && cardRes.ok ? await cardRes.json() : {};
+      const merchData = merchRes && merchRes.ok ? await merchRes.json() : [];
+      const timeData = timeRes && timeRes.ok ? await timeRes.json() : [];
+      const tagsData = tagsRes && tagsRes.ok ? await tagsRes.json() : [];
+      const txData = txRes && txRes.ok ? await txRes.json() : [];
+      const subData = subRes && subRes.ok ? await subRes.json() : null;
 
-      setKpis(kpiData);
-      setCategories(catData);
-      setExpenseTypes(expData);
-      setCardholdersData(cardData);
-      setMerchants(merchData);
-      setTimeline(timeData);
-      setTags(tagsData);
-      setTransactions(txData);
+      if (kpiData) setKpis(kpiData);
+      if (catData) setCategories(catData);
+      if (expData) setExpenseTypes(expData);
+      if (cardData) setCardholdersData(cardData);
+      if (merchData) setMerchants(merchData);
+      if (timeData) setTimeline(timeData);
+      if (tagsData) setTags(tagsData);
+      if (txData) setTransactions(txData);
+      if (subData) setSubscriptionsData(subData);
     } catch (err) {
       console.error("Failed to load backend analytics:", err);
     } finally {
@@ -106,12 +160,20 @@ export default function App() {
     }
   };
 
-  const handleUploadCSV = async (file) => {
-    if (!file) return;
+  const handleExecuteUpload = async (files, isFullRerun) => {
+    if (!files || (Array.isArray(files) && files.length === 0)) return;
     setIsUploading(true);
+    if (isFullRerun) {
+      setIsTraceConsoleOpen(true); // Open live trace console to watch pipeline execution
+    }
     try {
+      const fileList = Array.isArray(files) ? files : [files];
       const formData = new FormData();
-      formData.append('file', file);
+      
+      fileList.forEach(f => {
+        formData.append('files', f);
+      });
+      formData.append('run_pipeline', isFullRerun ? 'true' : 'false');
 
       const res = await fetch(`${API_BASE}/upload-csv`, {
         method: 'POST',
@@ -120,33 +182,39 @@ export default function App() {
 
       if (!res.ok) {
         const err = await res.json();
-        alert(`CSV Upload Error: ${err.detail || 'Failed to process CSV'}`);
+        showToast(`Statement Ingestion Error: ${err.detail || 'Failed to process statement files'}`, 'error');
         return;
       }
 
       const data = await res.json();
-      alert(`🎉 ${data.message}`);
+      setIsUploadModalOpen(false);
+      showToast(`🎉 ${data.message}`, 'success');
 
-      // Refresh all analytics & dataset
+      // Refresh all analytics, transactions, subscriptions & dataset
       await fetchData();
       fetchAIAudit(true);
     } catch (err) {
       console.error("Upload error:", err);
-      alert("Failed to upload CSV file.");
+      showToast("Failed to upload statement files.", 'error');
     } finally {
       setIsUploading(false);
     }
   };
 
+
   useEffect(() => {
     fetchData();
     fetchAIAudit(false);
+    fetchGmailStatus();
   }, []);
+
+  // Available cardholders list
+  const availableCardholders = Object.keys(cardholdersData);
 
   // Filter transactions when cardholder filter changes
   const displayTransactions = cardholder === 'ALL'
     ? transactions
-    : transactions.filter(t => t.card_member.toLowerCase() === cardholder.toLowerCase());
+    : transactions.filter(t => t.card_member.toLowerCase().includes(cardholder.toLowerCase()));
 
   // Transactions belonging to selected galaxy category
   const galaxyTransactions = galaxyCategory
@@ -169,11 +237,18 @@ export default function App() {
         cardholder={cardholder}
         setCardholder={setCardholder}
         dateRange={kpis?.date_range || {}}
+        availableCardholders={availableCardholders}
+        gmailStatus={gmailStatus}
+        onOpenGmailAuth={() => setIsGmailAuthOpen(true)}
+        onOpenTraceConsole={() => setIsTraceConsoleOpen(true)}
         onTriggerAIAudit={() => {
           setActiveTab('audit');
           fetchAIAudit(true);
         }}
-        onUploadCSV={handleUploadCSV}
+        onUploadCSV={(files) => {
+          setPendingUploadFiles(files);
+          setIsUploadModalOpen(true);
+        }}
         isUploading={isUploading}
       />
 
@@ -190,41 +265,55 @@ export default function App() {
             {/* OVERVIEW TAB */}
             {activeTab === 'overview' && (
               <div className="space-y-8 animate-fadeIn">
-                {/* Metric Cards Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                {/* Metric Cards Grid: Clear Separation of Purchases, Real Returns, and Statement Payments */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                   <MetricCard
-                    title="Gross Expenses"
+                    title="Gross Purchases"
                     amount={kpis?.total_gross || 0}
-                    subtitle={`Across ${kpis?.total_count || 0} total transactions`}
+                    subtitle={`${kpis?.purchases_count || 0} purchase charges`}
                     icon={DollarSign}
                     color="indigo"
-                    trend="+100%"
                     trendType="positive"
                   />
                   <MetricCard
-                    title="Refunds & Credits"
-                    amount={kpis?.total_refunds || 0}
-                    subtitle="11 returned items / credits"
+                    title="Real Merchant Returns"
+                    amount={kpis?.total_merchant_returns || kpis?.total_refunds || 0}
+                    subtitle={`${kpis?.returns_count || 0} merchandise refunds`}
                     icon={RefreshCw}
                     color="emerald"
-                    trend="Savings"
+                    trend="Refunded"
                     trendType="positive"
                   />
                   <MetricCard
-                    title="Net Outflow"
+                    title="Net Actual Spend"
                     amount={kpis?.total_net || 0}
-                    subtitle={`Avg $${kpis?.avg_transaction} per purchase`}
+                    subtitle="Purchases minus Returns"
                     icon={TrendingUp}
                     color="cyan"
                   />
                   <MetricCard
-                    title="Top Category"
+                    title="Statement Payments"
+                    amount={kpis?.total_statement_payments || 0}
+                    subtitle={`${kpis?.payments_count || 0} autopay/bank payouts`}
+                    icon={CreditCard}
+                    color="amber"
+                  />
+                  <MetricCard
+                    title="Top Spend Category"
                     amount={kpis?.top_category || 'Dining'}
                     subtitle={`$${kpis?.top_category_amount?.toLocaleString()} spent`}
                     icon={ShoppingBag}
                     color="violet"
                   />
                 </div>
+
+                {/* Recurring Subscriptions Tracker Banner */}
+                {subscriptionsData && (
+                  <SubscriptionsTracker
+                    subscriptionData={subscriptionsData}
+                    cardholderFilter={cardholder}
+                  />
+                )}
 
                 {/* Charts Section: Timeline & Category Doughnut */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -250,7 +339,7 @@ export default function App() {
                   <div className="p-6 rounded-2xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-xl">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <h3 className="text-base font-bold text-slate-100">Top 10 Merchants Leaderboard</h3>
+                        <h3 className="text-base font-bold text-slate-100">Top Merchants Leaderboard</h3>
                         <p className="text-xs text-slate-400">Highest individual merchant gross spending</p>
                       </div>
                       <Store className="w-5 h-5 text-indigo-400" />
@@ -293,7 +382,7 @@ export default function App() {
               </div>
             )}
 
-            {/* AI AUDIT TAB */}
+            {/* AI AUDIT & RECOMMENDATIONS TAB */}
             {activeTab === 'audit' && (
               <div className="animate-fadeIn">
                 <AIAuditDrawer
@@ -301,6 +390,20 @@ export default function App() {
                   isLoading={auditLoading}
                   onRefresh={() => fetchAIAudit(true)}
                 />
+              </div>
+            )}
+
+            {/* SUBSCRIPTIONS TAB */}
+            {activeTab === 'subscriptions' && (
+              <div className="animate-fadeIn">
+                {subscriptionsData ? (
+                  <SubscriptionsTracker
+                    subscriptionData={subscriptionsData}
+                    cardholderFilter={cardholder}
+                  />
+                ) : (
+                  <div className="p-12 text-center text-slate-400">Loading recurring subscriptions...</div>
+                )}
               </div>
             )}
 
@@ -317,7 +420,7 @@ export default function App() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-lg font-bold text-slate-100">Enriched Transaction Ledger</h2>
-                    <p className="text-xs text-slate-400">Displaying {displayTransactions.length} transactions enriched with Gemini AI labels and necessity scores</p>
+                    <p className="text-xs text-slate-400">Displaying {displayTransactions.length} transactions with cross-statement returns & AI necessity scores</p>
                   </div>
                 </div>
                 <TransactionsTable transactions={displayTransactions} />
@@ -343,10 +446,60 @@ export default function App() {
         />
       )}
 
+      {/* Upload Statement Modal with Agentic Pipeline Option */}
+      <UploadStatementModal
+        isOpen={isUploadModalOpen}
+        files={pendingUploadFiles}
+        isUploading={isUploading}
+        gmailStatus={gmailStatus}
+        onConfirmUpload={handleExecuteUpload}
+        onCancel={() => setIsUploadModalOpen(false)}
+        onOpenGmailAuth={() => {
+          setIsUploadModalOpen(false);
+          setIsGmailAuthOpen(true);
+        }}
+      />
+
+      {/* Gmail OAuth Connection Modal */}
+      {isGmailAuthOpen && (
+        <GmailAuthModal
+          authStatus={gmailStatus}
+          onConnect={handleConnectGmail}
+          onDisconnect={handleDisconnectGmail}
+          onClose={() => setIsGmailAuthOpen(false)}
+        />
+      )}
+
+      {/* Real-Time ADK Pipeline Trace & Debug Console */}
+      <PipelineTraceConsole
+        isOpen={isTraceConsoleOpen}
+        onClose={() => setIsTraceConsoleOpen(false)}
+      />
+
       {/* Footer */}
       <footer className="mt-16 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500 relative z-10">
-        <p>PulseSpend AI • Engineered with FastAPI, React, Chart.js & Gemini 2.5 Flash</p>
+        <p>PulseSpend AI • Powered by FastAPI, React, Chart.js & Gemini 3.7 Flash</p>
       </footer>
+
+      {/* Floating Glass Toast Notification */}
+      {toastNotification && (
+        <div className="fixed top-6 right-6 z-50 animate-bounce transition-all">
+          <div className={`px-5 py-3.5 rounded-2xl border backdrop-blur-2xl shadow-2xl flex items-center gap-3 text-xs font-semibold ${
+            toastNotification.type === 'error'
+              ? 'bg-red-950/90 border-red-500/50 text-red-200 shadow-red-500/20'
+              : 'bg-slate-900/90 border-indigo-500/50 text-slate-100 shadow-indigo-500/20'
+          }`}>
+            <Sparkles className={`w-4 h-4 shrink-0 ${toastNotification.type === 'error' ? 'text-red-400' : 'text-cyan-400 animate-spin'}`} />
+            <span>{toastNotification.message}</span>
+            <button
+              onClick={() => setToastNotification(null)}
+              className="ml-2 text-slate-400 hover:text-white cursor-pointer"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

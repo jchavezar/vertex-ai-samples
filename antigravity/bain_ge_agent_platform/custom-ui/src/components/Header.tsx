@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDashboardStore } from '../store/dashboardStore';
 
 export function Header() {
@@ -11,60 +10,62 @@ export function Header() {
   } = useDashboardStore();
 
   return (
-    <header className="w-full bg-[#faf9f6] border-b border-[#d8d6d0] px-6 py-3.5 flex flex-wrap items-center justify-between font-sans flex-shrink-0 gap-6">
-      {/* Left: Ticker & Market Status */}
-      <div className="flex flex-wrap items-center gap-8 flex-1 min-w-[320px]">
-        <div className="flex flex-col gap-1 min-w-[280px]">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <span className="font-bold text-lg sm:text-xl tracking-tight text-[#1a1a19] uppercase whitespace-nowrap">
+    <header className="w-full bg-white/95 backdrop-blur-md border-b border-slate-200/80 px-6 py-3 flex flex-wrap items-center justify-between font-sans flex-shrink-0 gap-4 shadow-sm">
+      {/* Left: Bain & Company Brand + Live Diligence Context */}
+      <div className="flex flex-wrap items-center gap-6 flex-1 min-w-[300px]">
+        <div className="flex flex-col gap-0.5">
+          <div className="flex items-center gap-2.5">
+            <span className="font-extrabold text-base sm:text-lg tracking-tight text-slate-900 uppercase">
               BAIN & COMPANY
             </span>
-            <span className="text-xs font-mono text-[#7c7a75] whitespace-nowrap">
-              // GEMINI ENTERPRISE AGENT PLATFORM
+            <span className="text-xs font-mono font-medium text-slate-400">
+              / GEMINI ENTERPRISE
             </span>
-            <span className="text-[10px] font-mono bg-[#1a1a19] text-[#faf9f6] px-2 py-0.5 font-bold whitespace-nowrap">
+            <span className="text-[10px] font-mono bg-slate-900 text-white px-2 py-0.5 font-bold tracking-wider rounded-md">
               LIVE DILIGENCE
             </span>
           </div>
-          <span className="text-[11px] font-mono text-[#7c7a75] uppercase tracking-wider truncate">
+          <span className="text-[11px] font-medium text-slate-500 tracking-wide truncate">
             MERIDIAN TECHNOLOGIES (MRDN) • M&A ADVISORY ENGINE
           </span>
         </div>
 
-        {/* Live Financial Ticker Summary */}
-        <div className="flex items-center gap-6 sm:gap-8 border-l border-[#d8d6d0] pl-6 sm:pl-8 flex-wrap">
-          <div className="flex flex-col">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xs font-mono text-[#7c7a75]">USD</span>
-              <span className="font-bold text-xl sm:text-2xl tracking-tight text-[#1a1a19] font-mono">207.32</span>
+        {/* Live Financial Ticker Summary Card */}
+        <div className="hidden lg:flex items-center gap-6 border-l border-slate-200 pl-6 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="flex flex-col">
+              <div className="flex items-baseline gap-1">
+                <span className="text-[11px] font-mono text-slate-400 font-semibold">USD</span>
+                <span className="font-bold text-xl tracking-tight text-slate-900 font-mono">207.32</span>
+              </div>
             </div>
-            <span className="text-xs font-mono text-red-600 flex items-center gap-1 font-bold">
+            <span className="text-[11px] font-mono font-semibold text-rose-600 bg-rose-50 border border-rose-200/80 px-2 py-0.5 rounded-full flex items-center gap-0.5">
               ▼ -0.89%
             </span>
           </div>
 
-          <div className="flex flex-col border-l border-[#d8d6d0] pl-6 sm:pl-8">
-            <span className="text-[10px] font-mono text-[#7c7a75] uppercase tracking-wider">MARKET CAP</span>
-            <span className="font-bold text-base sm:text-lg text-[#1a1a19] font-mono mt-0.5">7.76B</span>
+          <div className="flex flex-col border-l border-slate-200 pl-6">
+            <span className="text-[10px] font-mono text-slate-400 font-semibold uppercase tracking-wider">MARKET CAP</span>
+            <span className="font-bold text-sm text-slate-800 font-mono mt-0.5">7.76B</span>
           </div>
 
-          <div className="flex flex-col border-l border-[#d8d6d0] pl-6 sm:pl-8">
-            <span className="text-[10px] font-mono text-[#7c7a75] uppercase tracking-wider">P/E RATIO</span>
-            <span className="font-bold text-base sm:text-lg text-[#1a1a19] font-mono mt-0.5">13.2</span>
+          <div className="flex flex-col border-l border-slate-200 pl-6">
+            <span className="text-[10px] font-mono text-slate-400 font-semibold uppercase tracking-wider">P/E RATIO</span>
+            <span className="font-bold text-sm text-slate-800 font-mono mt-0.5">13.2</span>
           </div>
         </div>
       </div>
 
       {/* Right: Model Selection, ADC Proxy, Entra Auth, and Settings */}
-      <div className="flex flex-wrap items-center gap-4 flex-shrink-0">
+      <div className="flex flex-wrap items-center gap-3 flex-shrink-0">
         {/* Model Selection Dropdown */}
-        <div className="flex items-center gap-2 border border-[#d8d6d0] bg-[#f4f3ef] px-4 py-1.5 shadow-sm rounded-full">
-          <span className="w-2 h-2 rounded-full bg-[#00c2cb] animate-pulse" />
-          <span className="text-[10px] font-mono text-[#7c7a75] uppercase font-bold hidden sm:inline">MODEL:</span>
+        <div className="flex items-center gap-2 border border-slate-200 bg-slate-50/80 hover:bg-slate-100/80 transition-colors px-3 py-1.5 shadow-sm rounded-xl">
+          <span className="w-2 h-2 rounded-full bg-cyan-500 animate-pulse" />
+          <span className="text-[10px] font-mono text-slate-500 uppercase font-bold hidden sm:inline">MODEL:</span>
           <select
             value={selectedModel}
             onChange={(e) => setSelectedModel(e.target.value)}
-            className="bg-transparent text-xs font-mono font-bold text-[#1a1a19] focus:outline-none cursor-pointer pl-1 truncate max-w-[180px] sm:max-w-none"
+            className="bg-transparent text-xs font-mono font-semibold text-slate-800 focus:outline-none cursor-pointer pl-0.5 truncate max-w-[180px] sm:max-w-none"
           >
             <option value="Gemini 3.0 Flash (Global)">Gemini 3.0 Flash (Global)</option>
             <option value="Gemini 2.5 Flash">Gemini 2.5 Flash</option>
@@ -75,10 +76,10 @@ export function Header() {
 
         {/* ADC PROXY Status Badge */}
         <div 
-          className="flex items-center gap-2 bg-[#1a1a19] text-[#faf9f6] px-3.5 py-1.5 text-xs font-mono font-bold tracking-wider cursor-help border border-[#1a1a19] hidden md:flex rounded-full"
+          className="flex items-center gap-2 bg-slate-900 text-white px-3.5 py-1.5 text-xs font-mono font-medium tracking-wider cursor-help shadow-sm rounded-xl"
           title="ADC Proxy Active: Forwarding /api traffic to Vertex AI Agent Runtime in us-central1 via Local Google Cloud credentials"
         >
-          <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
+          <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
           ADC PROXY
         </div>
 
@@ -86,26 +87,26 @@ export function Header() {
         <button 
           type="button"
           onClick={() => setShowAuthDrawer(true)}
-          className="flex items-center gap-2.5 bg-[#f4f3ef] border border-[#d8d6d0] px-4 py-1.5 text-xs font-sans font-medium text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer shadow-sm rounded-full"
+          className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 border border-slate-200/90 px-3.5 py-1.5 text-xs font-sans font-medium text-slate-800 transition-all cursor-pointer shadow-sm rounded-xl"
           title="View Two-Pillar Enterprise Auth Configuration"
         >
-          <div className="grid grid-cols-2 gap-0.5 w-3.5 h-3.5">
+          <div className="grid grid-cols-2 gap-0.5 w-3.5 h-3.5 flex-shrink-0">
             <div className="bg-[#f25022]" />
             <div className="bg-[#7fba00]" />
             <div className="bg-[#00a4ef]" />
             <div className="bg-[#ffb900]" />
           </div>
-          <span className="font-bold font-sans truncate max-w-[140px] sm:max-w-none">
+          <span className="font-semibold text-slate-800 truncate max-w-[140px] sm:max-w-none">
             {entraToken ? (accountName || 'Bain Partner') : 'Sign in with Microsoft'}
           </span>
-          {entraToken && <span className="w-1.5 h-1.5 bg-green-500 rounded-full flex-shrink-0" />}
+          {entraToken && <span className="w-2 h-2 bg-emerald-500 rounded-full flex-shrink-0" />}
         </button>
 
         {/* Technical Flow / Settings Gear Overlay Modal Button */}
         <button 
           type="button"
           onClick={() => setShowAuthDrawer(true)}
-          className="bg-[#f4f3ef] border border-[#d8d6d0] p-2 text-[#7c7a75] hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer shadow-sm flex-shrink-0 rounded-full"
+          className="bg-slate-50 hover:bg-slate-100 border border-slate-200/90 p-2 text-slate-500 hover:text-slate-900 transition-colors cursor-pointer shadow-sm flex-shrink-0 rounded-xl"
           title="Open Technical Flow & Auth Settings Overlay"
         >
           <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">

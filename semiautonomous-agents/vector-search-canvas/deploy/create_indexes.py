@@ -14,14 +14,14 @@ from __future__ import annotations
 
 import json
 import sys
-import time
+import os
 from pathlib import Path
 
 from google.cloud import aiplatform
 
-PROJECT  = "vtxdemos"
-LOCATION = "us-central1"
-DIMS     = 3072  # gemini-embedding-2-preview output dim
+PROJECT  = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
+LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
+DIMS     = int(os.environ.get("INDEX_DIMS", "3072"))  # gemini-embedding-2-preview output dim
 
 TREE_AH_NAME    = "vs-canvas-tree-ah"
 BRUTE_NAME      = "vs-canvas-bruteforce"

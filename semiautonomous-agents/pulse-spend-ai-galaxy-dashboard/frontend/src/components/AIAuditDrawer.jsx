@@ -105,27 +105,83 @@ export default function AIAuditDrawer({ auditData, isLoading, onRefresh }) {
         </div>
       </div>
 
-      {/* Actionable Savings Tips */}
-      <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-950/30 via-slate-900/60 to-slate-900/60 border border-emerald-500/30 backdrop-blur-xl">
-        <h3 className="text-base font-bold text-slate-100 mb-4 flex items-center gap-2">
-          <Lightbulb className="w-5 h-5 text-emerald-400" /> AI Wealth Strategy & Savings Plan
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {auditData.actionable_savings_tips?.map((tip, i) => (
-            <div key={i} className="p-4 rounded-xl bg-slate-950/60 border border-slate-800/80 flex items-start gap-3">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-semibold text-slate-200 mb-1">{typeof tip === 'string' ? tip : tip.title || tip.recommendation}</p>
-                {tip.savings && (
-                  <span className="text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20 inline-block mt-1">
-                    Est. Savings: ${tip.savings}
-                  </span>
-                )}
+        {/* Actionable Savings Tips */}
+        <div className="p-6 rounded-2xl bg-gradient-to-br from-emerald-950/30 via-slate-900/60 to-slate-900/60 border border-emerald-500/30 backdrop-blur-xl space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-base font-bold text-slate-100 flex items-center gap-2">
+              <Lightbulb className="w-5 h-5 text-emerald-400" /> AI Wealth Strategy & Savings Plan
+            </h3>
+            <span className="text-xs font-semibold text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">
+              💎 Actionable Monthly Reductions
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {auditData.actionable_savings_tips?.map((tip, i) => {
+              const title = typeof tip === 'string' ? tip : tip.title || tip.recommendation;
+              const desc = tip.description || '';
+              const monthly = tip.monthly_savings || tip.savings || 0;
+              const annual = tip.annual_savings || (monthly ? monthly * 12 : 0);
+
+              return (
+                <div key={i} className="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80 hover:border-emerald-500/40 transition-all flex flex-col justify-between space-y-2">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-slate-100 mb-1">{title}</p>
+                      {desc && <p className="text-[11px] text-slate-400 leading-relaxed">{desc}</p>}
+                    </div>
+                  </div>
+
+                  {(monthly > 0 || annual > 0) && (
+                    <div className="flex items-center gap-2 pt-2 border-t border-slate-800/60 pl-8">
+                      {monthly > 0 && (
+                        <span className="text-[11px] font-bold text-emerald-300 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+                          Save ${monthly}/mo
+                        </span>
+                      )}
+                      {annual > 0 && (
+                        <span className="text-[11px] font-medium text-slate-400">
+                          (${annual.toLocaleString()}/yr)
+                        </span>
+                      )}
+                      {tip.difficulty && (
+                        <span className="text-[10px] text-slate-500 ml-auto uppercase font-bold">
+                          {tip.difficulty}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Cost Optimization Roadmap */}
+          {auditData.cost_optimization_roadmap && auditData.cost_optimization_roadmap.length > 0 && (
+            <div className="pt-4 border-t border-slate-800/80 mt-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3 flex items-center gap-1.5">
+                <ChevronRight className="w-4 h-4 text-emerald-400" /> Phased Cost Reduction Roadmap
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {auditData.cost_optimization_roadmap.map((phase, idx) => (
+                  <div key={idx} className="p-3.5 rounded-xl bg-slate-950/50 border border-slate-800 flex items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                        {phase.phase}
+                      </span>
+                      <p className="text-xs font-semibold text-slate-200 mt-1">{phase.target}</p>
+                    </div>
+                    <span className="text-xs font-bold font-mono text-emerald-300 whitespace-nowrap">
+                      {phase.potential_cut}
+                    </span>
+                  </div>
+                ))}
               </div>
             </div>
-          ))}
+          )}
         </div>
       </div>
-    </div>
-  );
+    );
 }
+

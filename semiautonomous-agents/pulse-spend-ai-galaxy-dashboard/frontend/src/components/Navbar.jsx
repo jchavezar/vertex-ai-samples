@@ -1,13 +1,13 @@
 import React, { useRef } from 'react';
-import { Sparkles, CreditCard, Calendar, UserCheck, Upload, DollarSign, MessageSquareText, LayoutDashboard, BrainCircuit, Loader2 } from 'lucide-react';
+import { Sparkles, CreditCard, Calendar, UserCheck, Upload, DollarSign, MessageSquareText, LayoutDashboard, BrainCircuit, Loader2, Repeat, Mail, Terminal } from 'lucide-react';
 
-export default function Navbar({ activeTab, setActiveTab, cardholder, setCardholder, dateRange, onTriggerAIAudit, onUploadCSV, isUploading, availableCardholders = [] }) {
+export default function Navbar({ activeTab, setActiveTab, cardholder, setCardholder, dateRange, onTriggerAIAudit, onUploadCSV, isUploading, availableCardholders = [], gmailStatus, onOpenGmailAuth, onOpenTraceConsole }) {
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file && onUploadCSV) {
-      onUploadCSV(file);
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (files.length > 0 && onUploadCSV) {
+      onUploadCSV(files);
     }
   };
 
@@ -25,7 +25,7 @@ export default function Navbar({ activeTab, setActiveTab, cardholder, setCardhol
                 PulseSpend AI
               </h1>
               <span className="px-2 py-0.5 text-xs font-semibold rounded-full bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center gap-1">
-                <Sparkles className="w-3 h-3" /> Gemini 2.5
+                <Sparkles className="w-3 h-3" /> Gemini 3.7 Flash
               </span>
             </div>
             <p className="text-xs text-slate-400">Intelligent Expense Intelligence & Spend Galaxy Constellations</p>
@@ -33,10 +33,34 @@ export default function Navbar({ activeTab, setActiveTab, cardholder, setCardhol
         </div>
 
         {/* Global Controls: Date Range, Cardholder Filter, Upload CSV, AI Audit */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          {/* Gmail Agent Integration Button */}
+          <button
+            onClick={onOpenGmailAuth}
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-semibold transition-all cursor-pointer ${
+              gmailStatus?.connected
+                ? 'bg-emerald-950/50 border-emerald-500/40 text-emerald-300 hover:bg-emerald-900/50'
+                : 'bg-red-950/40 border-red-500/30 text-red-300 hover:bg-red-900/40'
+            }`}
+            title="Manage Gmail Receipt Agent connection"
+          >
+            <Mail className="w-3.5 h-3.5" />
+            <span>{gmailStatus?.connected ? '🟢 Gmail Synced' : '🔗 Connect Gmail'}</span>
+          </button>
+
+          {/* Trace Console Toggle */}
+          <button
+            onClick={onOpenTraceConsole}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-semibold text-slate-300 transition-all cursor-pointer"
+            title="Open real-time ADK Agent execution debugger"
+          >
+            <Terminal className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="hidden sm:inline">Trace Console</span>
+          </button>
+
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs text-slate-300">
             <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-            <span>{dateRange.start || '07/02/2026'} - {dateRange.end || '07/26/2026'}</span>
+            <span>{dateRange?.start || '07/02/2026'} - {dateRange?.end || '07/26/2026'}</span>
           </div>
 
           <div className="flex items-center gap-1 bg-slate-900/80 p-1 rounded-lg border border-slate-800">
@@ -53,35 +77,36 @@ export default function Navbar({ activeTab, setActiveTab, cardholder, setCardhol
                 ))
               ) : (
                 <>
-                  <option value="ALEX MORGAN" className="bg-slate-900">Alex Morgan</option>
-                  <option value="JORDAN TAYLOR" className="bg-slate-900">Jordan Taylor</option>
+                  <option value="DINORAH GUERRA" className="bg-slate-900">Dinorah Guerra</option>
+                  <option value="JESUS CHAVEZ" className="bg-slate-900">Jesus Chavez</option>
                 </>
               )}
             </select>
           </div>
 
-          {/* Hidden File Input */}
+          {/* Hidden Multi-File Input */}
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleFileChange}
             accept=".csv"
+            multiple
             className="hidden"
           />
 
-          {/* Upload Button */}
+          {/* Upload Statements Button */}
           <button
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 shadow-sm transition-all cursor-pointer disabled:opacity-50"
-            title="Import Amex CSV statement"
+            title="Import 1 or multiple Amex CSV statements (e.g. last 3 statements)"
           >
             {isUploading ? (
               <Loader2 className="w-3.5 h-3.5 animate-spin text-cyan-400" />
             ) : (
               <Upload className="w-3.5 h-3.5 text-cyan-400" />
             )}
-            {isUploading ? 'Enriching CSV...' : 'Import Amex CSV'}
+            {isUploading ? 'Piping Statements...' : '📥 Upload Statements (1-3+ CSVs)'}
           </button>
 
           <button
@@ -93,6 +118,7 @@ export default function Navbar({ activeTab, setActiveTab, cardholder, setCardhol
           </button>
         </div>
       </div>
+
 
       {/* Navigation Tabs */}
       <div className="max-w-7xl mx-auto mt-4 pt-3 border-t border-slate-800/60 flex items-center gap-2 overflow-x-auto">
@@ -121,6 +147,18 @@ export default function Navbar({ activeTab, setActiveTab, cardholder, setCardhol
         </button>
 
         <button
+          onClick={() => setActiveTab('subscriptions')}
+          className={`flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-lg transition-all ${
+            activeTab === 'subscriptions'
+              ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
+          }`}
+        >
+          <Repeat className="w-4 h-4" />
+          Subscriptions & Recurring
+        </button>
+
+        <button
           onClick={() => setActiveTab('cardholders')}
           className={`flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-lg transition-all ${
             activeTab === 'cardholders'
@@ -136,7 +174,7 @@ export default function Navbar({ activeTab, setActiveTab, cardholder, setCardhol
           onClick={() => setActiveTab('transactions')}
           className={`flex items-center gap-2 px-4 py-2 text-xs font-medium rounded-lg transition-all ${
             activeTab === 'transactions'
-              ? 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30'
+              ? 'bg-blue-600/20 text-blue-300 border border-blue-500/30'
               : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/50'
           }`}
         >
@@ -159,3 +197,4 @@ export default function Navbar({ activeTab, setActiveTab, cardholder, setCardhol
     </header>
   );
 }
+

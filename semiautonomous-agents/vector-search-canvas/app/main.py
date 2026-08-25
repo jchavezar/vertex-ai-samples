@@ -40,17 +40,24 @@ from google.cloud.aiplatform.matching_engine.matching_engine_index_endpoint impo
 )
 
 ROOT = Path(__file__).parent
-CFG  = json.loads((ROOT.parent / "deploy" / "indexes.json").read_text())
+CFG_PATH = ROOT.parent / "deploy" / "indexes.json"
+if CFG_PATH.exists():
+    try:
+        CFG = json.loads(CFG_PATH.read_text())
+    except Exception:
+        CFG = {}
+else:
+    CFG = {}
 
-PROJECT  = CFG["project"]
-LOCATION = CFG["location"]
-TREE_AH_INDEX = CFG["tree_ah_index"]
-BRUTE_INDEX   = CFG["brute_index"]
-ENDPOINT_NAME = CFG["endpoint"]
-DEPLOYED_TREE = CFG["deployed_tree"]
-DEPLOYED_BRUTE = CFG["deployed_brute"]
+PROJECT = os.environ.get("GOOGLE_CLOUD_PROJECT", CFG.get("project", "vtxdemos"))
+LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", CFG.get("location", "us-central1"))
+TREE_AH_INDEX = os.environ.get("TREE_AH_INDEX", CFG.get("tree_ah_index", ""))
+BRUTE_INDEX = os.environ.get("BRUTE_INDEX", CFG.get("brute_index", ""))
+ENDPOINT_NAME = os.environ.get("INDEX_ENDPOINT", CFG.get("endpoint", ""))
+DEPLOYED_TREE = os.environ.get("DEPLOYED_TREE", CFG.get("deployed_tree", "vs_canvas_tree_ah"))
+DEPLOYED_BRUTE = os.environ.get("DEPLOYED_BRUTE", CFG.get("deployed_brute", "vs_canvas_brute"))
 
-EMBED_MODEL = "gemini-embedding-2-preview"
+EMBED_MODEL = os.environ.get("EMBED_MODEL", "gemini-embedding-2-preview")
 
 aiplatform.init(project=PROJECT, location=LOCATION)
 _GENAI = genai.Client(vertexai=True, project=PROJECT, location=LOCATION)
@@ -60,6 +67,8 @@ _ENDPOINT = None
 def endpoint() -> aiplatform.MatchingEngineIndexEndpoint:
     global _ENDPOINT
     if _ENDPOINT is None:
+        if not ENDPOINT_NAME:
+            raise HTTPException(503, "No index endpoint configured. Run deploy/create_indexes.py first.")
         _ENDPOINT = aiplatform.MatchingEngineIndexEndpoint(ENDPOINT_NAME)
     return _ENDPOINT
 
@@ -143,18 +152,21 @@ def _call_one(deployed_id: str, vec: list[float], req: SearchReq) -> dict:
             req.leaf_nodes_to_search_percent_override)
 
     t0 = time.perf_counter()
-    resp = endpoint().find_neighbors(**kwargs)
-    dt_ms = (time.perf_counter() - t0) * 1000.0
-
-    hits = []
-    if resp and resp[0]:
-        for n in resp[0]:
-            hits.append({
-                "id": n.id,
-                "similarity": 1.0 - float(n.distance),
-                "distance": float(n.distance),
-            })
-    return {"hits": hits, "latency_ms": round(dt_ms, 1)}
+    try:
+        resp = endpoint().find_neighbors(**kwargs)
+        dt_ms = (time.perf_counter() - t0) * 1000.0
+        hits = []
+        if resp and resp[0]:
+            for n in resp[0]:
+                hits.append({
+                    "id": n.id,
+                    "similarity": 1.0 - float(n.distance),
+                    "distance": float(n.distance),
+                })
+        return {"hits": hits, "latency_ms": round(dt_ms, 1)}
+    except Exception as e:
+        dt_ms = (time.perf_counter() - t0) * 1000.0
+        return {"hits": [], "latency_ms": round(dt_ms, 1), "error": str(e)}
 
 
 def recall(approx: list[dict], exact: list[dict]) -> dict:

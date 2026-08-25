@@ -181,8 +181,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   setAccountName: (name) => set({ accountName: name }),
   // Default Reasoning Engine ID — bain-financial-secure-agent with real
   // Agent Gateway policy guard wired through bain-ge-policy-svc.
-  // Deployed 2026-06-30. Override via the Settings drawer if needed.
-  reasoningEngineId: '5347864578560622592',
+  reasoningEngineId: '216675808683491328',
   setReasoningEngineId: (id) => set({ reasoningEngineId: id }),
   showAuthDrawer: false,
   setShowAuthDrawer: (show) => set({ showAuthDrawer: show }),

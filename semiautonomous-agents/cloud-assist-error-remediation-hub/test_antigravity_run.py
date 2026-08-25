@@ -1,3 +1,4 @@
+#%%
 import os
 import sys
 import time
@@ -97,3 +98,5 @@ try:
         
 except Exception as e:
     print(f"\nExecution Failed: {e}")
+
+# %%

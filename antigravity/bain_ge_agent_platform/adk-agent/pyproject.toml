@@ -7,7 +7,7 @@ requires-python = ">=3.12"
 dependencies = [
     "cloudpickle==3.1.2",
     "fastmcp==3.1.1",
-    "google-adk>=2.3.0",
+    "google-adk[agent-identity]>=2.3.0",
     "google-auth==2.49.1",
     "google-cloud-aiplatform[adk,agent_engines]>=1.158.0",
     "google-cloud-discoveryengine==0.13.12",

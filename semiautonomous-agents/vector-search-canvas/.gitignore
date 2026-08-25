@@ -1,6 +1,28 @@
+# Data & Secrets (MANDATORY)
 .env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+client_secret*.json
+credentials.json
+*_token.json
+
+# Environment & Dependencies
 .venv/
+env/
+venv/
 __pycache__/
 *.pyc
-*.log
+*.pyo
+*.pyd
+.pytest_cache/
 node_modules/
+
+# Logs & OS artifacts
+*.log
+.DS_Store
+.idea/
+.vscode/

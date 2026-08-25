@@ -65,3 +65,8 @@ semiautonomous-agents/gemini_api_latency/
 
 # Backup Files
 **/*.bak
+
+# Temp folders
+tmp/
+/tmp/
+

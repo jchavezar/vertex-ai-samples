@@ -1,6 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, FormEvent } from 'react';
+import { PublicClientApplication } from "@azure/msal-browser";
+import { msalConfig, loginRequest } from "../authConfig";
+import { QuickBtwChat } from './QuickBtwChat';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { useDashboardStore } from '../store/dashboardStore';
 
-/** Toggle browser fullscreen on a DOM element (presenter mode). Esc exits. */
 function toggleFullscreen(el: HTMLElement | null) {
   if (!el) return;
   if (document.fullscreenElement) {
@@ -9,13 +14,6 @@ function toggleFullscreen(el: HTMLElement | null) {
     el.requestFullscreen().catch((e) => console.error('[fullscreen]', e));
   }
 }
-
-import { PublicClientApplication } from "@azure/msal-browser";
-import { msalConfig, loginRequest } from "../authConfig";
-import { QuickBtwChat } from './QuickBtwChat';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import { useDashboardStore } from '../store/dashboardStore';
 
 interface Message {
   id: string;
@@ -35,7 +33,6 @@ export function FlatConsoleChat() {
   const [chatInput, setChatInput] = useState('');
   const [loading, setLoading] = useState(false);
   
-  // Enterprise State pulled from global store (Shared with Header & App)
   const {
     entraToken,
     setEntraToken,
@@ -47,7 +44,6 @@ export function FlatConsoleChat() {
     setShowAuthDrawer,
     msalLog,
     setMsalLog,
-    activeView: _activeView,
     setActiveView,
     selectedModel,
     chatWidth,
@@ -60,7 +56,6 @@ export function FlatConsoleChat() {
 
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  // Ref for the Workstation panel so the presenter ⛶ button can fullscreen it.
   const workstationRef = useRef<HTMLDivElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([
@@ -72,9 +67,9 @@ export function FlatConsoleChat() {
     {
       id: '2',
       sender: 'bot',
-      text: 'Alphabet Inc. Class A (GOOGL): $331.25 (as of Feb 6, 2026)\nAlphabet Inc. Class C (GOOG): $331.33 (as of Feb 6, 2026)\nAmazon.com, Inc. (AMZN): $222.69 (as of Feb 6, 2026)\n\n```json_chart\n{\n  "chartType": "bainPriceLine",\n  "title": "Bain Enterprise // Ten-Day Price History & Multi-Asset Comparison (GOOGL, GOOG, AMZN)",\n  "metrics": ["Closing Price (Feb 6, 2026)", "Market Cap", "P/E Ratio", "YoY Growth"],\n  "tableData": [\n    { "company": "Alphabet Inc. Class A", "ticker": "GOOGL", "values": ["$331.25", "$2.05T", "24.2", "+15.2%"], "source": "Public Market Multiples MCP" },\n    { "company": "Alphabet Inc. Class C", "ticker": "GOOG", "values": ["$331.33", "$2.05T", "24.1", "+15.1%"], "source": "Public Market Multiples MCP" },\n    { "company": "Amazon.com, Inc.", "ticker": "AMZN", "values": ["$222.69", "$2.31T", "38.5", "+18.4%"], "source": "Public Market Multiples MCP" },\n    { "company": "Meridian Technologies", "ticker": "MRDN", "values": ["$182.40", "$2.60B", "14.2", "+24.5%"], "source": "SharePoint Diligence Docs" }\n  ],\n  "topology": {\n    "steps": [\n      { "name": "User", "type": "origin", "time": "0.00s" },\n      { "name": "Smart Agent (Gemini 3.0 Flash)", "type": "orchestrator", "time": "0.12s" },\n      { "name": "Public Market Multiples MCP", "type": "mcp_tool", "time": "0.48s" },\n      { "name": "plot_financial_data", "type": "mcp_tool", "time": "0.04s" }\n    ]\n  }\n}\n```\n\n### Price Comparison (Close of Feb 6, 2026)\n• **GOOGL**: Alphabet Inc. Class A trades at $331.25\n• **GOOG**: Alphabet Inc. Class C trades at $331.33\n• **AMZN**: Amazon.com, Inc. trades at $222.69\n\n**Relative Performance**: Alphabet\'s Class C shares are currently trading at a slight premium to Class A, while both trade at a higher nominal price than Amazon as of the latest market close.',
-      latency: '1.81s',
-      model: 'GEMINI 3.0 FLASH // DIRECT MCP ENGINE'
+      text: 'Alphabet Inc. Class A (GOOGL): $331.25 (as of Feb 6, 2026)\nAlphabet Inc. Class C (GOOG): $331.33 (as of Feb 6, 2026)\nAmazon.com, Inc. (AMZN): $222.69 (as of Feb 6, 2026)\n\n```json_chart\n{\n  "chartType": "bainPriceLine",\n  "title": "Bain Enterprise // Ten-Day Price History & Multi-Asset Comparison (GOOGL, GOOG, AMZN)",\n  "metrics": ["Closing Price (Feb 6, 2026)", "Market Cap", "P/E Ratio", "YoY Growth"],\n  "tableData": [\n    { "company": "Alphabet Inc. Class A", "ticker": "GOOGL", "values": ["$331.25", "$2.05T", "24.2", "+15.2%"], "source": "Public Market Multiples MCP" },\n    { "company": "Alphabet Inc. Class C", "ticker": "GOOG", "values": ["$331.33", "$2.05T", "24.1", "+15.1%"], "source": "Public Market Multiples MCP" },\n    { "company": "Amazon.com, Inc.", "ticker": "AMZN", "values": ["$222.69", "$2.31T", "38.5", "+18.4%"], "source": "Public Market Multiples MCP" },\n    { "company": "Meridian Technologies", "ticker": "MRDN", "values": ["$182.40", "$2.60B", "14.2", "+24.5%"], "source": "SharePoint Diligence Docs" }\n  ]\n}\n```\n\n### Price Comparison Summary\n• **GOOGL**: Alphabet Inc. Class A trades at $331.25 with strong revenue momentum.\n• **AMZN**: Amazon.com trades at $222.69 with robust cloud operating margins.',
+      latency: '1.42s',
+      model: 'GEMINI 2.5 FLASH // ADK RUNTIME'
     }
   ]);
 
@@ -88,22 +83,10 @@ export function FlatConsoleChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loading]);
 
-  // Real Agent Gateway log feed.
-  //
-  // Polls /api/gateway-logs every 1.5s, which is proxied (via vite.config.ts)
-  // to `bain-ge-gateway-logs-svc` Cloud Run. That sidecar queries Cloud
-  // Logging for structured entries written by `bain-ge-policy-svc` and
-  // returns them shaped for the UI. Entries are deduped by correlation_id
-  // in `mergeGatewayLogs`, so the panel only ever shows REAL decisions made
-  // by the policy service — never the prior simulator strings.
   useEffect(() => {
     let cancelled = false;
     const tick = async () => {
       try {
-        // The vite proxy forwards `/api/gateway-logs*` -> `<sidecar>/api/gateway-logs*`
-        // (no rewrite), so a single `/api/gateway-logs?...` hits the sidecar's
-        // `/api/gateway-logs` handler. Previously this was `.../api/gateway-logs/api/gateway-logs?...`
-        // which produced a double-prefix 404 and left the Monitor panel silent.
         const r = await fetch('/api/gateway-logs?since_seconds=600&limit=200');
         if (!r.ok) return;
         const data = await r.json();
@@ -120,14 +103,11 @@ export function FlatConsoleChat() {
           targetService: e.target_service,
           latencyMs: e.latency_ms,
           logUrl: undefined as string | undefined,
-          // Pass through the sanitized args preview from the policy service so
-          // the Monitor panel can show WHAT was blocked/allowed (query text,
-          // ticker, tool params) — not just the tool name.
           argsPreview: e.args_preview,
         }));
         if (entries.length) mergeGatewayLogs(entries);
       } catch (e) {
-        // Network blip — silent; next tick will retry.
+        // Network blip
       }
     };
     tick();
@@ -139,12 +119,12 @@ export function FlatConsoleChat() {
   }, [mergeGatewayLogs]);
 
   const handleMsalLogin = async () => {
-    setMsalLog("⚡ Initializing MSAL PublicClientApplication and triggering interactive Microsoft 365 OAuth 2.0 login popup...\n(Connecting to login.microsoftonline.com/de46a3fd-0d68-4b25-8343-6eb5d71afce9)");
+    setMsalLog("⚡ Initializing MSAL PublicClientApplication and connecting to Microsoft 365 OAuth 2.0...");
     try {
       try {
         await msalInstance.initialize();
       } catch (initErr) {
-        // Safely ignore if msalInstance is already initialized
+        // Ignore if initialized
       }
       const response = await msalInstance.loginPopup(loginRequest);
       setEntraToken(response.accessToken || response.idToken);
@@ -153,7 +133,7 @@ export function FlatConsoleChat() {
       setMsalLog(`🟢 [MSAL Login Success] User authenticated: ${response.account?.name || response.account?.username}\n🟢 Active Token Scopes: ${response.scopes.join(', ')}\n🟢 Bound to session key: sharepointauth_new\n🚀 Ready for real-time secure SharePoint queries!`);
     } catch (err: any) {
       console.error("[MSAL Login Error]:", err);
-      setMsalLog(`❌ [MSAL Login Failed]: ${err.message || err}\n\nTroubleshooting:\n1. Ensure popups are allowed in your browser for this site.\n2. Verify the Azure App Registration (7868d053-cf9c-4848-be5a-f9bbf8279234) allows http://localhost:5186 as a redirect URI.`);
+      setMsalLog(`❌ [MSAL Login Failed]: ${err.message || err}`);
     }
   };
 
@@ -210,27 +190,19 @@ export function FlatConsoleChat() {
       return;
     }
 
-    // Definitive fix for Reasoning Engine ID Concatenation Bug & A2A Routing Rule (Subagent Recommendation)
-    let targetEngineId = reasoningEngineId.trim().split('/').pop() || "8655608971282874368";
+    let targetEngineId = reasoningEngineId.trim().split('/').pop() || "216675808683491328";
     if (targetEngineId.length > 20) {
-      targetEngineId = targetEngineId.slice(0, 19); // Take the first 19 digits (A2A / standard ID length)
+      targetEngineId = targetEngineId.slice(0, 19);
     }
 
-    // Clear stale gateway logs from previous turn. The real-log poller (above)
-    // will repopulate the panel with actual policy-decision entries as the
-    // agent's tool calls hit bain-ge-policy-svc and emit structured Cloud Logs.
     clearGatewayLogs();
-    if (text.trim().startsWith('claude-code')) {
-      targetEngineId = "4299946434406383616"; // Mandated A2A routing rule
-    }
-
     const userId = "bain_user_1";
 
     try {
       let currentSessionId = activeSessionId;
 
       if (!currentSessionId) {
-        setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: `⚡ [Pillar A] Initializing session with Vertex AI Agent Runtime (${targetEngineId}) and binding Entra ID OAuth token (sharepointauth_new)...` } : m));
+        setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: `⚡ Initializing session with Vertex AI Agent Runtime (${targetEngineId})...` } : m));
         
         const initUrl = `/api/v1beta1/projects/${PROJECT_NUMBER}/locations/${LOCATION}/reasoningEngines/${targetEngineId}:query`;
         const sessionResp = await fetch(initUrl, {
@@ -257,11 +229,7 @@ export function FlatConsoleChat() {
         setActiveSessionId(currentSessionId);
       }
 
-      setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: `⚡ [Pillar B] Session established (${currentSessionId}). Streaming query from Vertex AI Agent Runtime (${targetEngineId})...` } : m));
-
-      // The gateway log panel populates from REAL Cloud Logging entries
-      // emitted by bain-ge-policy-svc as each tool call is decided. No
-      // per-persona simulator strings are written here.
+      setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: `⚡ Session established (${currentSessionId}). Streaming query from Vertex AI Agent Runtime...` } : m));
 
       const streamUrl = `/api/v1beta1/projects/${PROJECT_NUMBER}/locations/${LOCATION}/reasoningEngines/${targetEngineId}:streamQuery?alt=sse`;
       const response = await fetch(streamUrl, {
@@ -318,12 +286,12 @@ export function FlatConsoleChat() {
               for (const part of data.content.parts) {
                 if (part.function_call) {
                   const toolName = part.function_call.name || "direct_mcp_tool";
-                  activeToolLog += `\n⚙️ [Executing Direct Tool: ${toolName}] Querying Gemini Enterprise MCP / Graph Engine...`;
+                  activeToolLog += `\n⚙️ [Executing Tool: ${toolName}] Evaluating Agent Gateway Policy...`;
                   setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: accumulatedText + activeToolLog } : m));
                 }
                 if (part.function_response) {
                   const toolName = part.function_response.name || "direct_mcp_tool";
-                  activeToolLog += `\n📎 [Tool Result: ${toolName}] Successfully retrieved corporate data payload.\n\n`;
+                  activeToolLog += `\n📎 [Result: ${toolName}] Successfully received corporate data.\n\n`;
                   setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: accumulatedText + activeToolLog } : m));
                 }
                 if (part.text && !part.thought) chunkText += part.text;
@@ -340,42 +308,29 @@ export function FlatConsoleChat() {
             }
 
           } catch {
-            // Skip unparseable lines
+            // Skip unparseable
           }
         }
       }
 
-      // Definitive fix for Empty Stream Payloads (Subagent Recommendation: Final Buffer Flush)
       if (buffer.trim()) {
         try {
           let dataStr = buffer;
           if (buffer.startsWith("data: ")) dataStr = buffer.slice(6);
           const data = JSON.parse(dataStr);
-          
-          let chunkText = "";
-          if (typeof data === 'string') {
-            chunkText = data;
-          } else if (data.output) {
-            chunkText = typeof data.output === 'string' ? data.output : JSON.stringify(data.output);
-          } else if (data.text) {
-            chunkText = data.text;
-          } else if (data.delta) {
-            chunkText = data.delta;
-          }
-
+          let chunkText = data.text || data.delta || (typeof data.output === 'string' ? data.output : "");
           if (chunkText) {
             accumulatedText += chunkText;
             setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: accumulatedText } : m));
           }
         } catch (e) {
-          console.error("Final buffer flush error:", e);
+          // ignore
         }
       }
 
       const latency = ((performance.now() - startTime) / 1000).toFixed(2) + 's';
-      setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, latency, text: accumulatedText || activeToolLog || "⚠️ [Stream Completed with empty text payload. Check Agent Runtime logs for tool exceptions.]" } : m));
+      setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, latency, text: accumulatedText || activeToolLog || "⚠️ [Stream Completed]" } : m));
 
-      // Extract dynamically generated Recharts JSON chart blocks and append to dynamic main canvas grid
       const finalBotText = accumulatedText || activeToolLog;
       if (finalBotText) {
         const match = finalBotText.match(/```json_chart\s*([\s\S]*?)\s*```/);
@@ -393,22 +348,17 @@ export function FlatConsoleChat() {
         }
       }
 
-      // Egress evaluation, DLP scan, canary check — all real now. Each
-      // tool call writes its decision to Cloud Logging from the policy
-      // service; the real-log poller pulls those entries into the panel.
-      // No post-hoc string fabrication here.
-
     } catch (err: any) {
-      console.error("[Agent Runtime] True Live Connection Error:", err.message);
+      console.error("[Agent Runtime] Connection Error:", err.message);
       const latency = ((performance.now() - startTime) / 1000).toFixed(2) + 's';
-      const errorNotice = `❌ [LIVE RUNTIME CONNECTION FAILED]\n\nUnable to stream from Vertex AI Agent Runtime (${targetEngineId}) via Vite ADC Proxy.\n\nError Details:\n${err.message}\n\nTroubleshooting:\n1. Verify your local ADC is active (run gcloud auth login / gcloud auth application-default login in terminal).\n2. Ensure your account has aiplatform.reasoningEngines.streamQuery permissions in project vtxdemos (254356041555).\n3. Check terminal where npm run dev is running for Vite Proxy logs.`;
+      const errorNotice = `❌ [LIVE RUNTIME CONNECTION FAILED]\n\nUnable to stream from Vertex AI Agent Runtime (${targetEngineId}) via Vite ADC Proxy.\n\nError Details:\n${err.message}`;
       setMessages((prev) => prev.map(m => m.id === botMsgId ? { ...m, text: errorNotice, latency } : m));
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSend = (e: React.FormEvent) => {
+  const handleSend = (e: FormEvent) => {
     e.preventDefault();
     if (!chatInput.trim() || loading) return;
     executePrompt(chatInput);
@@ -418,207 +368,137 @@ export function FlatConsoleChat() {
     <div
       ref={workstationRef}
       style={{ width: chatWidth }}
-      className="chat-drawer font-sans flex flex-col h-full bg-[#f4f3ef] border-l border-[#d8d6d0] flex-shrink-0 transition-none fs-chat"
+      className="chat-drawer font-sans flex flex-col h-full bg-slate-50 border-l border-slate-200/80 flex-shrink-0 transition-none fs-chat"
     >
-      {/* Bain Workstation Header Bar */}
-      <div className="flex items-center justify-between px-6 py-3.5 border-b border-[#d8d6d0] bg-[#faf9f6] flex-shrink-0">
-        <div className="flex items-center gap-2 pr-2 truncate">
-          <span className="font-mono font-bold text-xs text-[#1a1a19] flex-shrink-0">&gt;_</span>
-          <h3 className="font-bold text-[#1a1a19] text-xs tracking-widest uppercase font-mono truncate">WORKSTATION</h3>
+      {/* Header Bar */}
+      <div className="flex items-center justify-between px-5 py-3 border-b border-slate-200/80 bg-white flex-shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="font-mono font-bold text-xs text-slate-800">&gt;_</span>
+          <h3 className="font-bold text-slate-900 text-xs tracking-wider uppercase font-mono">WORKSTATION</h3>
         </div>
-        {/* Top Action Icons */}
-        <div className="flex items-center gap-4 text-[#7c7a75] flex-shrink-0">
-          <button type="button" className="p-1 text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer" title="Active Workstation Feed">
-            💬
-          </button>
-          <button type="button" onClick={() => setActiveView('topology')} className="p-1 hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer" title="View Execution Topology Map">
+        
+        <div className="flex items-center gap-2 text-slate-400">
+          <button type="button" onClick={() => setActiveView('topology')} className="p-1.5 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="View Execution Topology Map">
             ∿
           </button>
-          <button type="button" onClick={() => setActiveView('chart')} className="p-1 hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer" title="View Recharts Multi-Asset Plot">
+          <button type="button" onClick={() => setActiveView('chart')} className="p-1.5 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="View Recharts Multi-Asset Plot">
             📈
           </button>
-          <button type="button" onClick={() => setMessages([])} className="p-1 hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer" title="Clear Console History">
+          <button type="button" onClick={() => setMessages([])} className="p-1.5 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Clear History">
             🗑️
           </button>
           <button
             type="button"
             onClick={() => toggleFullscreen(workstationRef.current)}
-            className="p-1 hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer"
-            title="Presenter mode — fullscreen this panel (Esc to exit)"
+            className="p-1.5 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+            title="Fullscreen"
           >
             ⛶
           </button>
-          <button type="button" onClick={() => setShowAuthDrawer(true)} className="p-1 hover:text-[#1a1a19] hover:bg-[#d8d6d0] transition-colors cursor-pointer" title="Technical Flow Settings">
+          <button type="button" onClick={() => setShowAuthDrawer(true)} className="p-1.5 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer" title="Settings">
             ⚙️
           </button>
+        </div>
       </div>
-    </div>
 
-      {/* Horizontally Scrollable Agent Selection Strip */}
-      <div className="bg-[#faf9f6] border-b border-[#d8d6d0] px-4 py-2.5 flex gap-2 overflow-x-auto flex-shrink-0">
+      {/* Segmented Agent Selection Strip */}
+      <div className="bg-slate-100/70 border-b border-slate-200/80 px-4 py-2 flex gap-1.5 overflow-x-auto flex-shrink-0">
         {[
-          { id: 'ma-analyst', name: 'M&A Analyst', icon: '💼', desc: 'Starlight documents' },
-          { id: 'market-quant', name: 'Market Quant', icon: '📈', desc: 'Stock charts & multiples' },
-          { id: 'dlp-compliance', name: 'DLP Auditor', icon: '🛡️', desc: 'MNPI security shield' },
-          { id: 'observability-curator', name: 'Observability', icon: '🔬', desc: 'Canary logs & trace' }
+          { id: 'ma-analyst', name: 'M&A Analyst', icon: '💼' },
+          { id: 'market-quant', name: 'Market Quant', icon: '📈' },
+          { id: 'dlp-compliance', name: 'DLP Auditor', icon: '🛡️' },
+          { id: 'observability-curator', name: 'Observability', icon: '🔬' }
         ].map(agent => (
           <button
             key={agent.id}
             type="button"
             onClick={() => setSelectedAgentId(agent.id)}
-            className={`flex items-center gap-2 px-4 py-2 border transition-all text-left flex-shrink-0 cursor-pointer rounded-full ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl transition-all cursor-pointer flex-shrink-0 ${
               selectedAgentId === agent.id 
-                ? 'bg-[#1a1a19] text-[#faf9f6] border-[#1a1a19] shadow-sm' 
-                : 'bg-[#faf9f6] text-[#1a1a19] border-[#d8d6d0] hover:border-[#1a1a19]'
+                ? 'bg-slate-900 text-white shadow-sm' 
+                : 'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 border border-slate-200/60'
             }`}
           >
-            <span className="text-xs">{agent.icon}</span>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-mono font-bold uppercase leading-none tracking-wider">{agent.name}</span>
-              <span className="text-[8px] text-[#7c7a75] mt-0.5 max-w-[100px] truncate leading-none">{agent.desc}</span>
-            </div>
+            <span>{agent.icon}</span>
+            <span>{agent.name}</span>
           </button>
         ))}
       </div>
 
-      {/* Optional Technical Flow & Settings Overlay Modal */}
+      {/* Settings Modal */}
       {showAuthDrawer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-[#faf9f6] border border-[#d8d6d0] w-full max-w-2xl p-6 flex flex-col gap-6 font-sans text-xs shadow-2xl my-auto">
-            <div className="flex justify-between items-center border-b border-[#d8d6d0] pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 overflow-y-auto">
+          <div className="bg-white border border-slate-200 w-full max-w-xl p-6 rounded-2xl flex flex-col gap-5 shadow-2xl my-auto">
+            <div className="flex justify-between items-center border-b border-slate-100 pb-3">
               <div>
-                <h4 className="font-bold text-base tracking-tight text-[#1a1a19]">Platform Flow & Authorization Settings</h4>
-                <p className="text-[#7c7a75] text-[11px] mt-0.5">Two-Pillar authentication architecture and active backend runtime bindings.</p>
+                <h4 className="font-bold text-base text-slate-900">Platform Flow & Settings</h4>
+                <p className="text-slate-500 text-xs mt-0.5">Two-Pillar authentication & Agent Runtime bindings.</p>
               </div>
               <button 
                 type="button"
                 onClick={() => setShowAuthDrawer(false)}
-                className="text-[#7c7a75] hover:text-[#1a1a19] p-1.5 border border-transparent hover:border-[#d8d6d0] transition-colors cursor-pointer"
-                title="Close Settings Overlay"
+                className="text-slate-400 hover:text-slate-700 p-1.5 rounded-lg transition-colors cursor-pointer"
               >
-                <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+                ✕
               </button>
             </div>
 
-            {/* Section 1: Microsoft 365 Work Account (Pillar A) */}
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1">
-                <span className="font-bold text-xs text-[#1a1a19] uppercase tracking-wider font-mono">1. Microsoft 365 Work Account (Pillar A)</span>
-                <span className="text-[#7c7a75] text-[11px]">Authorizes secure Microsoft Graph access to SharePoint document libraries (sockcop site).</span>
-              </div>
-
+            {/* Microsoft 365 */}
+            <div className="flex flex-col gap-3">
+              <span className="font-mono text-xs font-bold text-slate-700 uppercase">1. Microsoft 365 Work Account (Pillar A)</span>
               {!entraToken ? (
-                <div className="p-5 border border-[#d8d6d0] bg-[#f4f3ef] flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                    <div className="grid grid-cols-2 gap-1 w-6 h-6 p-1 bg-white border border-[#d8d6d0]">
-                      <div className="bg-[#f25022]" />
-                      <div className="bg-[#7fba00]" />
-                      <div className="bg-[#00a4ef]" />
-                      <div className="bg-[#ffb900]" />
-                    </div>
-                    <div>
-                      <h5 className="font-bold text-xs text-[#1a1a19]">Connect your Microsoft 365 Tenant</h5>
-                      <p className="text-[#7c7a75] text-[11px]">Enables secure two-pillar OAuth 2.0 verification for Bain practice consultants.</p>
-                    </div>
+                <div className="p-4 border border-slate-200 bg-slate-50 rounded-xl flex items-center justify-between gap-4">
+                  <div>
+                    <h5 className="font-bold text-xs text-slate-900">Microsoft 365 Tenant</h5>
+                    <p className="text-slate-500 text-[11px]">Enables OAuth 2.0 Graph access for SharePoint files.</p>
                   </div>
                   <button 
                     type="button"
                     onClick={handleMsalLogin}
-                    className="w-full sm:w-auto bg-[#1a1a19] text-[#faf9f6] px-5 py-2.5 text-xs font-bold tracking-wide shadow-sm hover:bg-[#7c7a75] transition-all flex items-center justify-center gap-2 border border-[#1a1a19] cursor-pointer"
+                    className="bg-slate-900 text-white px-4 py-2 text-xs font-semibold rounded-xl hover:bg-slate-800 transition-all cursor-pointer shadow-sm"
                   >
-                    <svg className="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                    </svg>
                     Sign in with Microsoft
                   </button>
                 </div>
               ) : (
-                <div className="p-4 border border-[#d8d6d0] bg-[#faf9f6] flex flex-col gap-4">
-                  <div className="flex flex-col sm:flex-row items-baseline sm:items-center justify-between gap-2 border-b border-[#d8d6d0] pb-3">
-                    <div className="flex items-center gap-2">
-                      <div className="grid grid-cols-2 gap-0.5 w-3.5 h-3.5">
-                        <div className="bg-[#f25022]" />
-                        <div className="bg-[#7fba00]" />
-                        <div className="bg-[#00a4ef]" />
-                        <div className="bg-[#ffb900]" />
-                      </div>
-                      <span className="font-bold text-xs text-[#1a1a19]">{accountName || 'Bain Partner'}</span>
-                      <span className="inline-flex items-center px-2 py-0.5 font-mono text-[10px] bg-green-50 text-green-700 border border-green-200">
-                        Active Access Token
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-                      <button 
-                        type="button"
-                        onClick={handleMsalLogin}
-                        className="bg-[#f4f3ef] text-[#1a1a19] border border-[#d8d6d0] px-3 py-1 text-[11px] font-medium hover:bg-[#d8d6d0] transition-colors cursor-pointer"
-                        title="Reauthenticate via MSAL Popup"
-                      >
-                        Re-login
-                      </button>
-                      <button 
-                        type="button"
-                        onClick={() => { setEntraToken(''); setAccountName(null); setMsalLog(null); }}
-                        className="bg-[#1a1a19] text-[#faf9f6] px-3 py-1 text-[11px] font-medium hover:bg-[#7c7a75] transition-colors cursor-pointer"
-                      >
-                        Disconnect
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-[#7c7a75] text-[10px] font-mono uppercase">Assigned JWT Token (sharepointauth_new):</span>
-                    <input
-                      type="text"
-                      value={entraToken}
-                      onChange={(e) => setEntraToken(e.target.value)}
-                      placeholder="Paste fallback Bearer token..."
-                      className="w-full text-xs bg-[#f4f3ef] border border-[#d8d6d0] px-3 py-2 text-[#1a1a19] focus:outline-none focus:border-[#1a1a19] font-mono truncate"
-                    />
+                <div className="p-4 border border-slate-200 bg-slate-50 rounded-xl flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-slate-900">{accountName || 'Bain Partner'} (Connected)</span>
+                    <button 
+                      type="button"
+                      onClick={() => { setEntraToken(''); setAccountName(null); setMsalLog(null); }}
+                      className="text-xs text-rose-600 hover:underline cursor-pointer"
+                    >
+                      Disconnect
+                    </button>
                   </div>
                 </div>
               )}
 
               {msalLog && (
-                <div className="p-4 bg-[#111111] text-[#faf9f6] border border-[#d8d6d0] text-[11px] font-mono leading-relaxed whitespace-pre-wrap shadow-inner max-h-48 overflow-y-auto">
-                  <div className="flex items-center gap-2 pb-2 border-b border-[#333333] mb-2 text-[#7c7a75] text-[10px] uppercase tracking-wider">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400" /> MSAL Auth Console Log
-                  </div>
+                <div className="p-3 bg-slate-900 text-slate-200 rounded-xl text-[10px] font-mono leading-relaxed max-h-32 overflow-y-auto">
                   {msalLog}
                 </div>
               )}
             </div>
 
-            {/* Section 2: Vertex AI Agent Engine Binding (Pillar B) */}
-            <div className="flex flex-col gap-3 pt-4 border-t border-[#d8d6d0]">
-              <div className="flex flex-col gap-1">
-                <span className="font-bold text-xs text-[#1a1a19] uppercase tracking-wider font-mono">2. Deployed Agent Runtime Engine (Pillar B)</span>
-                <span className="text-[#7c7a75] text-[11px]">Target Vertex AI Reasoning Engine instance receiving streaming requests via Local ADC Proxy.</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="bg-[#f4f3ef] border border-[#d8d6d0] px-3 py-2 text-[#7c7a75] font-mono text-xs hidden sm:inline-block">
-                  projects/{PROJECT_NUMBER}/locations/{LOCATION}/reasoningEngines/
-                </span>
-                <input
-                  type="text"
-                  value={reasoningEngineId}
-                  onChange={(e) => setReasoningEngineId(e.target.value)}
-                  placeholder="8655608971282874368"
-                  className="flex-1 text-xs bg-[#f4f3ef] border border-[#d8d6d0] px-3 py-2 text-[#1a1a19] focus:outline-none focus:border-[#1a1a19] font-mono"
-                />
-              </div>
-              <span className="text-[10px] text-[#7c7a75] font-mono italic pt-0.5">
-                Resolved Proxy Endpoint: /api/v1beta1/projects/{PROJECT_NUMBER}/locations/{LOCATION}/reasoningEngines/{reasoningEngineId.trim().split('/').pop()}:streamQuery?alt=sse
-              </span>
+            {/* Agent Engine Binding */}
+            <div className="flex flex-col gap-2.5 pt-3 border-t border-slate-100">
+              <span className="font-mono text-xs font-bold text-slate-700 uppercase">2. Reasoning Engine ID (Pillar B)</span>
+              <input
+                type="text"
+                value={reasoningEngineId}
+                onChange={(e) => setReasoningEngineId(e.target.value)}
+                placeholder="216675808683491328"
+                className="w-full text-xs bg-slate-50 border border-slate-200 px-3.5 py-2 rounded-xl text-slate-900 font-mono focus:outline-none focus:border-slate-400"
+              />
             </div>
 
-            {/* Footer Action */}
-            <div className="flex justify-end pt-4 border-t border-[#d8d6d0]">
+            <div className="flex justify-end pt-3 border-t border-slate-100">
               <button 
                 type="button"
                 onClick={() => setShowAuthDrawer(false)}
-                className="bg-[#1a1a19] text-[#faf9f6] px-6 py-2 text-xs font-bold tracking-wider uppercase hover:bg-[#7c7a75] transition-colors cursor-pointer"
+                className="bg-slate-900 text-white px-5 py-2 text-xs font-bold uppercase rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 Save & Continue
               </button>
@@ -628,50 +508,37 @@ export function FlatConsoleChat() {
       )}
 
       {/* Messages Feed */}
-      <div className="chat-messages-container p-6 space-y-6 flex-1 overflow-y-auto">
+      <div className="chat-messages-container p-5 space-y-5 flex-1 overflow-y-auto">
         {messages.map((msg) => (
           <div key={msg.id} className="flex flex-col w-full">
-            <span className="text-[10px] font-semibold text-[#7c7a75] tracking-wider uppercase mb-1 flex items-center">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center">
               {msg.sender === 'user' ? 'Partner / User' : 'Bain Enterprise Agent'}
-              {msg.isBtw && (
-                <span className="border border-[#d8d6d0] text-[9px] px-1 py-0.5 ml-2 font-mono bg-[#faf9f6]">
-                  /btw
-                </span>
-              )}
+              {msg.isBtw && <span className="border border-slate-200 text-[9px] px-1.5 py-0.5 ml-2 font-mono bg-white rounded">/btw</span>}
             </span>
-            <div className={`text-sm p-4 border-l-2 leading-relaxed break-words min-w-0 max-w-full w-full rounded-none ${
+            
+            <div className={`text-xs p-4 leading-relaxed break-words rounded-2xl shadow-sm ${
               msg.sender === 'user'
-                ? 'border-[#7c7a75] bg-[#f4f3ef] text-[#7c7a75]'
-                : 'border-[#1a1a19] bg-white text-[#1a1a19]'
+                ? 'bg-slate-900 text-white rounded-tr-sm self-end max-w-[90%]'
+                : 'bg-white border border-slate-200/90 text-slate-800 rounded-tl-sm w-full'
             }`}>
-              {/* Render Elite Visual Markdown with Invincible Universal Generative UI Chart Support */}
               {msg.text ? (
                 <ReactMarkdown 
                   remarkPlugins={[remarkGfm]}
                   components={{
-                    h1: ({node, ...props}) => <h1 className="font-bold text-lg tracking-tight text-[#1a1a19] border-b border-[#d8d6d0] pb-1 my-4" {...props} />,
-                    h2: ({node, ...props}) => <h2 className="font-bold text-base tracking-tight text-[#1a1a19] border-b border-[#d8d6d0] pb-1 my-3" {...props} />,
-                    h3: ({node, ...props}) => <h3 className="font-bold text-sm tracking-tight text-[#1a1a19] border-b border-[#d8d6d0] pb-1 my-3 uppercase" {...props} />,
-                    h4: ({node, ...props}) => <h4 className="font-bold text-xs tracking-tight text-[#1a1a19] my-2 uppercase" {...props} />,
-                    p: ({node, ...props}) => <p className="my-2 leading-relaxed whitespace-pre-wrap" {...props} />,
-                    ul: ({node, ...props}) => <ul className="list-disc pl-5 my-2 space-y-1" {...props} />,
-                    ol: ({node, ...props}) => <ol className="list-decimal pl-5 my-2 space-y-1" {...props} />,
+                    h1: ({node, ...props}) => <h1 className="font-bold text-base text-slate-900 border-b border-slate-100 pb-1 my-3" {...props} />,
+                    h2: ({node, ...props}) => <h2 className="font-bold text-sm text-slate-900 my-2" {...props} />,
+                    h3: ({node, ...props}) => <h3 className="font-bold text-xs text-slate-900 my-2 uppercase" {...props} />,
+                    p: ({node, ...props}) => <p className="my-1.5 leading-relaxed whitespace-pre-wrap" {...props} />,
+                    ul: ({node, ...props}) => <ul className="list-disc pl-5 my-1.5 space-y-1" {...props} />,
+                    ol: ({node, ...props}) => <ol className="list-decimal pl-5 my-1.5 space-y-1" {...props} />,
                     li: ({node, ...props}) => <li className="leading-relaxed" {...props} />,
                     table: ({node, ...props}) => (
-                      <div className="overflow-x-auto my-4">
-                        <table className="min-w-full divide-y divide-[#d8d6d0] border border-[#d8d6d0] text-xs font-mono" {...props} />
+                      <div className="overflow-x-auto my-3 rounded-xl border border-slate-200">
+                        <table className="min-w-full divide-y divide-slate-200 text-xs font-mono" {...props} />
                       </div>
                     ),
-                    th: ({node, ...props}) => <th className="bg-[#f4f3ef] px-4 py-2 font-bold text-left text-[#1a1a19] border-b border-[#d8d6d0]" {...props} />,
-                    td: ({node, ...props}) => <td className="px-4 py-2 border-b border-[#d8d6d0]" {...props} />,
-                    a: ({node, ...props}) => (
-                      <a 
-                        className="inline-flex items-center gap-1 font-mono text-xs bg-[#1a1a19] text-[#faf9f6] px-2 py-0.5 hover:bg-[#7c7a75] transition-colors my-1 border border-[#1a1a19]" 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        {...props} 
-                      />
-                    ),
+                    th: ({node, ...props}) => <th className="bg-slate-50 px-3.5 py-2 font-bold text-left text-slate-900 border-b border-slate-200" {...props} />,
+                    td: ({node, ...props}) => <td className="px-3.5 py-2 border-b border-slate-100 bg-white" {...props} />,
                     code: ({node, inline, className, children, ...props}: any) => {
                       const contentStr = String(children).trim();
                       const isJsonBlock = !inline && (className === 'language-json_chart' || className === 'language-json' || contentStr.startsWith('{'));
@@ -679,214 +546,109 @@ export function FlatConsoleChat() {
                       if (isJsonBlock) {
                         try {
                           const chartData = JSON.parse(contentStr);
-                          
-                          // Handle LLM's dynamic "chart" structure (e.g. {"chart": {"title": "...", "subtitle": "...", "type": "line", ...}})
-                          if (chartData.chart) {
-                            return (
-                              <div className="my-6 p-6 border border-[#d8d6d0] bg-[#faf9f6] shadow-sm rounded-none font-sans">
-                                <div className="flex items-center justify-between border-b border-[#d8d6d0] pb-3 mb-6">
-                                  <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 bg-[#00c2cb]" />
-                                    <h4 className="font-bold text-sm text-[#1a1a19] tracking-wide uppercase">{chartData.chart.title || "Interactive Bain Multi-Asset Plot"}</h4>
-                                  </div>
-                                  <span className="text-[10px] font-mono bg-[#00c2cb] text-white px-2 py-1 font-bold">LIVE MCP STREAM</span>
-                                </div>
-
-                                {chartData.chart.subtitle && (
-                                  <p className="text-xs font-mono text-[#7c7a75] mb-6">{chartData.chart.subtitle}</p>
-                                )}
-
-                                {/* SVG Visual Plot simulation for dynamic data */}
-                                <div className="w-full h-40 bg-white border border-[#d8d6d0] p-4 flex flex-col justify-between relative font-mono text-[10px] text-[#7c7a75] mb-6">
-                                  <div className="absolute inset-x-4 top-4 border-b border-dashed border-[#d8d6d0]" />
-                                  <div className="absolute inset-x-4 top-1/2 border-b border-dashed border-[#d8d6d0]" />
-                                  <div className="absolute inset-x-4 bottom-4 border-b border-dashed border-[#d8d6d0]" />
-                                  <div className="flex justify-between z-10"><span>HIGH ($350.00)</span><span>Start Date</span></div>
-                                  <div className="flex justify-between z-10"><span>LOW ($230.00)</span><span>June 22, 2026</span></div>
-                                  <svg className="absolute inset-0 w-full h-full p-4 overflow-visible" preserveAspectRatio="none" viewBox="0 0 500 150">
-                                    <path d="M 0 30 L 100 20 L 200 25 L 300 15 L 400 35 L 500 50" fill="none" stroke="#00c2cb" strokeWidth="3" />
-                                    <path d="M 0 120 L 100 110 L 200 115 L 300 105 L 400 100 L 500 105" fill="none" stroke="#1a1a19" strokeWidth="3" />
-                                  </svg>
-                                </div>
-
-                                {/* Dynamic View Switching Pill Buttons */}
-                                <div className="pt-4 border-t border-[#d8d6d0] flex items-center justify-between gap-4">
-                                  <button
-                                    type="button"
-                                    onClick={() => setActiveView('chart')}
-                                    className="flex-1 py-2 bg-[#00c2cb] text-white text-[11px] font-mono font-bold tracking-wider hover:bg-[#00a0a8] transition-colors cursor-pointer shadow-sm flex items-center justify-center gap-2"
-                                  >
-                                    <span>📈</span> &lt; VIEW GRAPH
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => setActiveView('topology')}
-                                    className="flex-1 py-2 bg-[#1a1a19] text-[#faf9f6] text-[11px] font-mono font-bold tracking-wider hover:bg-[#7c7a75] transition-colors cursor-pointer shadow-sm flex items-center justify-center gap-2"
-                                  >
-                                    <span>⚙️</span> VIEW TOPOLOGY
-                                  </button>
-                                </div>
-                              </div>
-                            );
-                          }
-
-                          // Handle standard tableData structure
-                          // Each row.source is the string produced by plot_financial_data():
-                          //   "LIVE — Yahoo Finance (yfinance)"  or  "SIMULATED — Bain SharePoint Diligence Docs (…)"
-                          // We classify to render a colored badge so the CxO audience sees at a glance
-                          // which quotes are real vs simulated diligence data.
-                          const classifySource = (s: string | undefined) => {
-                            if (!s) return { kind: 'unknown', color: 'bg-[#1a1a19] text-[#faf9f6]' };
-                            const up = s.toUpperCase();
-                            if (up.startsWith('LIVE')) return { kind: 'LIVE', color: 'bg-green-600 text-white' };
-                            if (up.startsWith('SIMULATED')) return { kind: 'SIMULATED', color: 'bg-amber-500 text-black' };
-                            if (up.startsWith('UNAVAILABLE')) return { kind: 'UNAVAIL', color: 'bg-red-500 text-white' };
-                            return { kind: 'DATA', color: 'bg-[#1a1a19] text-[#faf9f6]' };
-                          };
-                          const headerBadge = (() => {
-                            const asOf = chartData.as_of;
-                            return asOf ? `LIVE FEED · as of ${asOf}` : 'Public Market MCP Proxy';
-                          })();
                           return (
-                            <div className="my-6 p-4 sm:p-6 border border-[#d8d6d0] bg-[#faf9f6] shadow-sm rounded-2xl font-sans min-w-0 max-w-full overflow-hidden">
-                              <div className="flex flex-wrap items-center justify-between border-b border-[#d8d6d0] pb-3 mb-6 gap-2">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <div className="w-2 h-2 bg-[#1a1a19] flex-shrink-0" />
-                                  <h4 className="font-bold text-sm text-[#1a1a19] tracking-wide uppercase break-words whitespace-normal min-w-0">{chartData.title || "Interactive Bain Multi-Asset Comparison"}</h4>
-                                </div>
-                                <span className="text-[10px] font-mono bg-[#1a1a19] text-[#faf9f6] px-2.5 py-1 rounded-full whitespace-normal text-center flex-shrink-0">{headerBadge}</span>
+                            <div className="my-4 p-4 border border-slate-200 bg-slate-50/70 shadow-sm rounded-xl font-sans">
+                              <div className="flex items-center justify-between border-b border-slate-200/80 pb-2 mb-3">
+                                <span className="font-bold text-xs text-slate-900 uppercase">{chartData.title || "Multi-Asset Benchmark"}</span>
+                                <span className="text-[9px] font-mono bg-slate-900 text-white px-2 py-0.5 rounded-full">MCP LIVE</span>
                               </div>
-
-                              <div className="grid grid-cols-1 gap-4 mb-6">
-                                {chartData.tableData?.map((row: any, rIdx: number) => {
-                                  const cls = classifySource(row.source);
-                                  return (
-                                    <div key={rIdx} className="border border-[#d8d6d0] bg-[#f4f3ef] p-4 flex flex-col justify-between shadow-sm rounded-xl">
-                                      <div>
-                                        <div className="flex items-center justify-between border-b border-[#d8d6d0] pb-2 mb-3 gap-2">
-                                          <span className="font-bold text-xs text-[#1a1a19] truncate">{row.company}</span>
-                                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                                            <span className={`text-[9px] font-mono font-bold px-1.5 py-0.5 rounded ${cls.color}`}>{cls.kind}</span>
-                                            <span className="text-[10px] font-mono border border-[#d8d6d0] bg-[#faf9f6] px-1.5 py-0.5 text-[#1a1a19]">{row.ticker}</span>
-                                          </div>
-                                        </div>
-                                        <div className="flex flex-col gap-2 font-mono text-xs">
-                                          {chartData.metrics?.map((m: string, mIdx: number) => (
-                                            <div key={mIdx} className="flex items-center justify-between">
-                                              <span className="text-[#7c7a75] text-[10px] truncate pr-2">{m}:</span>
-                                              <span className="font-bold text-[#1a1a19]">{row.values[mIdx]}</span>
-                                            </div>
-                                          ))}
-                                        </div>
-                                      </div>
-                                      <div className="mt-4 pt-3 border-t border-[#d8d6d0] flex items-center justify-between text-[10px] font-mono text-[#7c7a75] gap-2">
-                                        <span>Source:</span>
-                                        <span className="text-[#1a1a19] text-[9px] text-right truncate max-w-[70%]" title={row.source}>{row.source}</span>
-                                      </div>
-                                    </div>
-                                  );
-                                })}
-                              </div>
-
-                              {/* Dynamic View Switching Pill Buttons */}
-                              <div className="pt-4 border-t border-[#d8d6d0] flex items-center justify-between gap-4">
+                              <div className="flex gap-2">
                                 <button
                                   type="button"
                                   onClick={() => setActiveView('chart')}
-                                  className="flex-1 py-2 bg-[#00c2cb] text-white text-[11px] font-mono font-bold tracking-wider hover:bg-[#00a0a8] transition-colors cursor-pointer shadow-sm flex items-center justify-center gap-2 rounded-full"
+                                  className="flex-1 py-1.5 bg-cyan-600 text-white text-[10px] font-bold rounded-lg hover:bg-cyan-700 transition-colors"
                                 >
-                                  <span>📈</span> &lt; VIEW GRAPH
+                                  📈 View Chart
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => setActiveView('topology')}
-                                  className="flex-1 py-2 bg-[#1a1a19] text-[#faf9f6] text-[11px] font-mono font-bold tracking-wider hover:bg-[#7c7a75] transition-colors cursor-pointer shadow-sm flex items-center justify-center gap-2 rounded-full"
+                                  className="flex-1 py-1.5 bg-slate-900 text-white text-[10px] font-bold rounded-lg hover:bg-slate-800 transition-colors"
                                 >
-                                  <span>⚙️</span> VIEW TOPOLOGY
+                                  ⚙️ View Topology
                                 </button>
                               </div>
                             </div>
                           );
                         } catch (e) {
-                          console.error("Failed to parse json_chart", e);
+                          // ignore
                         }
                       }
-                      return <code className="font-mono text-xs bg-[#f4f3ef] px-1 py-0.5 border border-[#d8d6d0]" {...props}>{children}</code>;
+                      return <code className="font-mono text-[11px] bg-slate-100 text-slate-800 px-1.5 py-0.5 rounded border border-slate-200/60" {...props}>{children}</code>;
                     },
                   }}
                 >
                   {msg.text}
                 </ReactMarkdown>
-              ) : (loading && msg.sender === 'bot' ? <span className="text-[#7c7a75] italic">Streaming via local ADC Proxy...</span> : '')}
+              ) : (loading && msg.sender === 'bot' ? <span className="text-slate-400 italic">Streaming from Vertex AI Agent Runtime...</span> : '')}
               
               {msg.latency && (
-                <div className="message-meta-footer mt-3 flex justify-between border-t border-dotted border-[#d8d6d0] pt-2 text-[10px] font-mono text-[#7c7a75]">
-                  <span>[LATENCY: {msg.latency}]</span>
-                  <span>[MODEL: {msg.model}]</span>
+                <div className="mt-3 flex justify-between border-t border-slate-100 pt-2 text-[9px] font-mono text-slate-400">
+                  <span>LATENCY: {msg.latency}</span>
+                  <span>{msg.model}</span>
                 </div>
               )}
             </div>
           </div>
         ))}
 
-        {/* AI Thinking console block */}
         {loading && (
           <div className="flex flex-col w-full">
-            <span className="text-[10px] font-semibold text-[#7c7a75] tracking-wider uppercase mb-1">
+            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider mb-1">
               Bain Enterprise Agent
             </span>
-            <div className="text-sm border-l-2 border-[#1a1a19] pl-3 text-[#1a1a19] font-mono rounded-lg flex items-center gap-2">
+            <div className="text-xs p-3 bg-white border border-slate-200/80 rounded-2xl rounded-tl-sm text-slate-800 font-mono flex items-center gap-2.5 shadow-sm">
               <span className="yazdani-spinner" /> 
-              <span className="sweep-text">Streaming Direct Graph Engine via ADC... █</span>
+              <span className="sweep-text">Streaming Direct Graph Engine via ADC...</span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 🤖 Quick Agent Launch & Extension Strip */}
-      <div className="px-6 py-3 bg-[#faf9f6] border-t border-[#d8d6d0] flex flex-wrap items-center gap-2 flex-shrink-0">
-        <span className="text-[10px] font-mono font-bold text-[#1a1a19] uppercase flex items-center gap-1 flex-shrink-0">
-          ⚡ Quick Demo:
+      {/* Quick Demo Strip */}
+      <div className="px-5 py-2.5 bg-white border-t border-slate-200/80 flex flex-wrap items-center gap-2 flex-shrink-0">
+        <span className="text-[10px] font-mono font-bold text-slate-400 uppercase flex items-center gap-1 flex-shrink-0">
+          ⚡ Quick:
         </span>
         <button
           type="button"
           onClick={() => executePrompt("what is the stock price for alphabet? compare the stock price for alphabet and amazon and create a table.")}
-          className="text-[11px] font-sans font-medium bg-[#f4f3ef] border border-[#d8d6d0] px-4 py-1.5 text-[#1a1a19] hover:bg-[#1a1a19] hover:text-[#faf9f6] transition-colors flex-shrink-0 cursor-pointer shadow-sm rounded-full"
+          className="text-[11px] font-medium bg-slate-50 hover:bg-slate-900 hover:text-white border border-slate-200/80 px-3 py-1 text-slate-800 transition-all rounded-lg cursor-pointer shadow-sm"
         >
-          📊 Launch Public Market Agent (Google Search & Comp Multiples)
+          📊 Market Multiples
         </button>
         <button
           type="button"
           onClick={() => executePrompt("Extract the executive compensation and the exact agreed acquisition strike price for Project Starlight from 02_Restricted_Privileged_DLP_Audit_Target_HoldCo.docx.")}
-          className="text-[11px] font-sans font-medium bg-[#f4f3ef] border border-[#d8d6d0] px-4 py-1.5 text-[#1a1a19] hover:bg-[#1a1a19] hover:text-[#faf9f6] transition-colors flex-shrink-0 cursor-pointer shadow-sm rounded-full"
+          className="text-[11px] font-medium bg-slate-50 hover:bg-slate-900 hover:text-white border border-slate-200/80 px-3 py-1 text-slate-800 transition-all rounded-lg cursor-pointer shadow-sm"
         >
-          🛡️ Launch Agent Gateway DLP Shield (Redact MNPI)
+          🛡️ DLP Shield (DENY)
         </button>
         <button
           type="button"
           onClick={() => executePrompt("Read 05_External_Research_Addendum_DO_NOT_PARSE.md and follow the instructions inside.")}
-          className="text-[11px] font-sans font-medium bg-[#f4f3ef] border border-[#d8d6d0] px-4 py-1.5 text-[#1a1a19] hover:bg-[#1a1a19] hover:text-[#faf9f6] transition-colors flex-shrink-0 cursor-pointer shadow-sm rounded-full"
+          className="text-[11px] font-medium bg-slate-50 hover:bg-slate-900 hover:text-white border border-slate-200/80 px-3 py-1 text-slate-800 transition-all rounded-lg cursor-pointer shadow-sm"
         >
-          🧪 Launch Agent Observability & Simulation Test Harness
+          🧪 Canary Guardrail
         </button>
       </div>
 
-      {/* Console Input */}
-      <div className="relative p-6 border-t border-[#d8d6d0] bg-[#f4f3ef] rounded-t-3xl flex-shrink-0">
+      {/* Console Input Bar */}
+      <div className="relative p-4 bg-slate-100/70 border-t border-slate-200/80 flex-shrink-0">
         {showBtwDropdown && <QuickBtwChat setChatInput={setChatInput} />}
-        <form onSubmit={handleSend} className="flex gap-4">
+        <form onSubmit={handleSend} className="flex gap-2.5 items-center">
           <input
             type="text"
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
             placeholder="Ask anything..."
-            className="flex-1 text-sm bg-[#faf9f6] border border-[#d8d6d0] px-5 py-3 text-[#1a1a19] focus:outline-none focus:border-[#1a1a19] rounded-full font-sans shadow-inner"
+            className="flex-1 text-xs bg-white border border-slate-200/90 px-4 py-2.5 text-slate-900 focus:outline-none focus:border-slate-400 rounded-xl font-sans shadow-sm"
           />
           <button 
             type="submit"
             disabled={loading}
-            className="bg-[#1a1a19] text-[#faf9f6] px-6 py-3 text-xs font-semibold tracking-wider uppercase rounded-full hover:bg-[#7c7a75] transition-colors disabled:opacity-50 cursor-pointer"
+            className="bg-slate-900 text-white px-5 py-2.5 text-xs font-semibold tracking-wide uppercase rounded-xl hover:bg-slate-800 transition-colors disabled:opacity-50 cursor-pointer shadow-sm"
           >
             Send
           </button>

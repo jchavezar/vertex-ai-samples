@@ -4,24 +4,20 @@
 
 /*
  * Presenter mode — fullscreen zoom for demo panels.
- *
- * Panels tag themselves with .fs-monitor / .fs-chat / .fs-canvas. When the
- * browser Fullscreen API activates on one, the :fullscreen pseudo-class
- * matches and we boost the intrinsic type sizes so text reads from the back
- * of the room on a projector. Esc key exits fullscreen natively.
  */
 .fs-monitor:fullscreen,
 .fs-chat:fullscreen,
 .fs-canvas:fullscreen {
-  padding: 4rem !important;
+  padding: 3rem !important;
   overflow-y: auto !important;
   max-width: none !important;
   width: 100vw !important;
   height: 100vh !important;
+  background: #0f172a !important;
 }
 .fs-monitor:fullscreen {
-  font-size: 20px !important;
-  line-height: 1.5 !important;
+  font-size: 18px !important;
+  line-height: 1.6 !important;
 }
 .fs-monitor:fullscreen * {
   font-size: inherit !important;
@@ -30,35 +26,47 @@
 .fs-monitor:fullscreen .text-\[9px\],
 .fs-monitor:fullscreen .text-\[9\.5px\],
 .fs-monitor:fullscreen .text-\[8\.5px\] {
-  font-size: 18px !important;
+  font-size: 15px !important;
 }
-.fs-monitor:fullscreen .text-xs { font-size: 22px !important; }
+.fs-monitor:fullscreen .text-xs { font-size: 18px !important; }
 .fs-monitor:fullscreen h3,
 .fs-monitor:fullscreen .font-bold {
   font-weight: 700;
 }
 .fs-chat:fullscreen {
-  font-size: 18px !important;
+  font-size: 17px !important;
+  background: #f8fafc !important;
 }
-.fs-chat:fullscreen .text-sm { font-size: 20px !important; }
-.fs-chat:fullscreen .text-xs { font-size: 16px !important; }
-.fs-chat:fullscreen .text-\[10px\],
-.fs-chat:fullscreen .text-\[11px\] { font-size: 14px !important; }
-
+.fs-chat:fullscreen .text-sm { font-size: 18px !important; }
+.fs-chat:fullscreen .text-xs { font-size: 15px !important; }
 
 @layer base {
-  /* Strict Flexbox Height Bounding Chain */
   html, body, #root {
     height: 100%;
     overflow: hidden;
     margin: 0;
     padding: 0;
-    font-family: 'Space Grotesk', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+    color: #0f172a;
+    background-color: #f8fafc;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  :root {
-    --text-color: #1a1a19;
-    --text-muted: #7c7a75;
+  /* Custom Slim Scrollbars */
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
   }
 }
 
@@ -67,45 +75,38 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  background-color: #faf9f6;
+  background-color: #f8fafc;
 }
 
 .main-content {
   display: flex;
   flex-direction: row;
   flex: 1;
-  min-height: 0; /* Critical: forces child elements to stay within remaining space */
+  min-height: 0;
   overflow: hidden;
-}
-
-.news-section {
-  flex: 1;
-  overflow-y: auto;
-  min-width: 0; /* Prevents text elements from stretching horizontal width */
 }
 
 .chat-drawer {
   display: flex;
   flex-direction: column;
-  flex-shrink: 0; /* Prevents compression */
+  flex-shrink: 0;
   height: 100%;
-  width: 440px;
-  background-color: #f4f3ef;
-  border-left: 0.5px solid #d8d6d0;
+  background-color: #f8fafc;
+  border-left: 1px solid #e2e8f0;
 }
 
 .chat-messages-container {
   flex: 1;
   overflow-y: auto;
-  min-height: 0; /* Critical: allows container to shrink and scroll instead of expanding parent height */
+  min-height: 0;
 }
 
-/* Morphing Asterisk (technical ink shifting effect) */
+/* Technical Ink Spinner */
 .yazdani-spinner {
   display: inline-block;
-  font-size: 1rem;
-  color: var(--text-color);
-  animation: spinner-glow 0.6s ease-in-out infinite alternate;
+  font-size: 0.95rem;
+  color: #0f172a;
+  animation: spinner-glow 0.8s ease-in-out infinite alternate;
 }
 
 .yazdani-spinner::before {
@@ -125,26 +126,26 @@
 }
 
 @keyframes spinner-glow {
-  0% { opacity: 0.5; transform: scale(0.85); }
-  100% { opacity: 1; transform: scale(1.15); }
+  0% { opacity: 0.4; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1.1); }
 }
 
-/* Linear Technical Gray Sweep */
+/* Linear Technical Gradient Sweep */
 .sweep-text {
-  color: var(--text-color);
+  color: #0f172a;
   background: linear-gradient(
     90deg,
-    var(--text-color) 0%,
-    var(--text-color) 35%,
-    var(--text-muted) 50%,
-    var(--text-color) 65%,
-    var(--text-color) 100%
+    #0f172a 0%,
+    #0f172a 35%,
+    #64748b 50%,
+    #0f172a 65%,
+    #0f172a 100%
   );
   background-size: 300% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: text-sweep 1.8s ease-in-out infinite;
+  animation: text-sweep 2s ease-in-out infinite;
 }
 
 @keyframes text-sweep {
