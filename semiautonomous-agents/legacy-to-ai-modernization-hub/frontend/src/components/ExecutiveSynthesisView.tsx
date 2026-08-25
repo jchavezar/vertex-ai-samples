@@ -470,7 +470,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
               <h4 className="text-sm sm:text-base font-bold font-mono text-cyan-300 tracking-wide uppercase flex items-center gap-2">
                 <span>Resumen Ejecutivo de IA // Diagnóstico Agéntico en Vivo</span>
                 <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
-                  {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 2.5 FLASH')}
+                  GEMINI 3.7 FLASH
                 </span>
               </h4>
               <span className="text-[11px] font-mono text-slate-400">

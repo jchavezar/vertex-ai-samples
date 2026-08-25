@@ -358,6 +358,11 @@ function extractFilesFromSteps(steps: Step[] = []): Record<string, string> {
   for (const st of steps) {
     if (st.name === 'create_file' && st.arguments?.TargetFile && st.arguments?.Content) {
       files[st.arguments.TargetFile] = st.arguments.Content;
+    } else if ((st.name === 'view_file' || st.name === 'read_file') && st.result) {
+      const target = st.arguments?.AbsolutePath || st.arguments?.path || st.arguments?.TargetFile;
+      if (target) {
+        files[target] = st.result;
+      }
     } else if (st.name === 'run_command' && st.arguments?.CommandLine) {
       const cmd = String(st.arguments.CommandLine);
       const match = cmd.match(/cat\s+<<\s*['"]?([A-Za-z0-9_]+)['"]?\s*>\s*([^\s\n]+)\s*\n([\s\S]*?)\n\1/);
