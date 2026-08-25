@@ -596,6 +596,42 @@ export default function App() {
     URL.revokeObjectURL(url);
   };
 
+  const fetchSandboxFile = async (filename: string, envId?: string) => {
+    const targetEnv = envId || environmentId;
+    if (!targetEnv) return;
+    try {
+      const res = await fetch('/api/fetch_file', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ environment_id: targetEnv, filename })
+      });
+      const data = await res.json();
+      if (data.content) {
+        setSandboxFiles(prev => ({ ...prev, [data.filename]: data.content, [filename]: data.content }));
+        return data.content;
+      }
+    } catch (e) {
+      console.error('Error fetching file:', e);
+    }
+  };
+
+  // Automatically fetch any files mentioned in agent messages that are not yet cached
+  useEffect(() => {
+    if (!environmentId) return;
+    for (const msg of messages) {
+      if (msg.sender === 'agent' && msg.text) {
+        const matches = msg.text.match(/[\w\-]+\.(?:html|csv|json|png|svg|py|md|txt)/g);
+        if (matches) {
+          for (const fname of matches) {
+            if (!sandboxFiles[fname] && !sandboxFiles[`/workspace/${fname}`]) {
+              fetchSandboxFile(fname, msg.environmentId || environmentId);
+            }
+          }
+        }
+      }
+    }
+  }, [messages, environmentId, sandboxFiles]);
+
   const toggleStepExpand = (msgId: string) => {
     setExpandedSteps(prev => ({
       ...prev,
@@ -936,9 +972,23 @@ export default function App() {
                 s => s.type && !s.type.includes('model_output') && !s.type.includes('user_input')
               );
 
-              // Detect created files in this turn
-              // Extract files created ONLY in this turn (zero artificial injection)
+              // Detect created files in this turn and match with cached sandbox files
+              const textMentionedFiles: Record<string, string> = {};
+              if (msg.text) {
+                const matches = msg.text.match(/[\w\-]+\.(?:html|csv|json|png|svg|py|md|txt)/g);
+                if (matches) {
+                  for (const f of matches) {
+                    if (sandboxFiles[f]) {
+                      textMentionedFiles[f] = sandboxFiles[f];
+                    } else if (sandboxFiles[`/workspace/${f}`]) {
+                      textMentionedFiles[f] = sandboxFiles[`/workspace/${f}`];
+                    }
+                  }
+                }
+              }
+
               const turnFiles: Record<string, string> = {
+                ...textMentionedFiles,
                 ...(msg.files || {}),
                 ...extractFilesFromSteps(msg.steps || [])
               };
@@ -1397,6 +1447,36 @@ export default function App() {
             >
               <X className="w-4 h-4" />
             </button>
+          </div>
+
+          <div className="p-3 border-b border-zinc-200 bg-zinc-50/50 space-y-2">
+            <div className="text-[11px] font-medium text-zinc-600">Fetch / Sync File from Sandbox:</div>
+            <div className="flex items-center gap-1.5">
+              <input
+                id="sandbox-fetch-input"
+                type="text"
+                placeholder="e.g. stock_dashboard.html"
+                className="flex-1 px-2.5 py-1.5 text-xs font-mono border border-zinc-200 rounded-lg bg-white focus:outline-none focus:border-blue-500"
+                defaultValue="stock_dashboard.html"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    const val = (e.target as HTMLInputElement).value.trim();
+                    if (val) fetchSandboxFile(val);
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  const inputEl = document.getElementById('sandbox-fetch-input') as HTMLInputElement;
+                  if (inputEl && inputEl.value.trim()) {
+                    fetchSandboxFile(inputEl.value.trim());
+                  }
+                }}
+                className="px-2.5 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium cursor-pointer shadow-2xs"
+              >
+                Sync
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-3 space-y-2">
