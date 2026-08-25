@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Sparkles,
   Factory,
@@ -13,6 +15,8 @@ import {
   Calculator,
   Clock,
   Cpu,
+  Bot,
+  CheckCircle2,
 } from 'lucide-react';
 import { AgentQueryResponse, HedgingAction } from '../types';
 import { ComprasRouteFlowView } from './polymorphic/ComprasRouteFlowView';
@@ -43,6 +47,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
     grounded_data_table,
     dynamic_kpis,
     query_focus = 'MULTI_DEPT',
+    synthesis_markdown,
   } = agentResponse;
 
   const [revealPhase, setRevealPhase] = useState(1);
@@ -375,8 +380,8 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
                 </span>
               </div>
 
-              {/* Floating Explanatory Popover (Revealed Instantly on Hover) */}
-              <div className="absolute left-0 bottom-full mb-3 w-80 sm:w-[420px] bg-slate-900/98 backdrop-blur-xl p-5 rounded-2xl border-2 border-cyan-400 shadow-2xl shadow-cyan-950/80 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-200 z-50 space-y-3 font-sans max-h-[500px] overflow-y-auto">
+              {/* Floating Explanatory Popover (Revealed Instantly on Hover with Solid Opaque Background) */}
+              <div className="absolute left-0 top-full mt-3 w-80 sm:w-[480px] bg-[#060a14] border-2 border-cyan-400 p-5 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,1)] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-[999] space-y-3 font-sans max-h-[520px] overflow-y-auto ring-2 ring-cyan-500/50">
                 <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                   <span className="font-mono text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
                     <Calculator className="h-4 w-4 text-cyan-400" />
@@ -390,21 +395,21 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
                 <div className="space-y-2">
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Fórmula:</span>
-                    <div className="text-[11px] font-mono text-slate-300 bg-slate-950/90 p-2 rounded-xl border border-slate-800 font-bold">
+                    <div className="text-[11px] font-mono text-slate-200 bg-[#0c1324] p-2.5 rounded-xl border border-slate-800 font-bold">
                       {explanation.formula}
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono text-cyan-400 uppercase font-bold">Sustitución Aritmética Exacta:</span>
-                    <div className="text-[11px] font-mono text-cyan-200 bg-cyan-950/60 p-2 rounded-xl border border-cyan-700/60 font-black">
+                    <div className="text-[11px] font-mono text-cyan-200 bg-[#0c1933] p-2.5 rounded-xl border border-cyan-700/60 font-black">
                       {explanation.math_evidence}
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <span className="text-[10px] font-mono text-slate-400 uppercase font-bold">Consulta SQL BigQuery:</span>
-                    <pre className="text-[10px] font-mono text-emerald-300 bg-slate-950 p-2 rounded-xl border border-slate-800 overflow-x-auto whitespace-pre">
+                    <pre className="text-[10px] font-mono text-emerald-300 bg-[#050912] p-2.5 rounded-xl border border-slate-800 overflow-x-auto whitespace-pre">
                       {explanation.sql_query}
                     </pre>
                   </div>
@@ -438,7 +443,63 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         })}
       </div>
 
-      {/* 2. DYNAMIC POLYMORPHIC METAPHOR DISPATCHER (Radically different UI per Intent) */}
+      {/* 2. AGENTIC EXECUTIVE AI SYNTHESIS (Gemini 2.5 Pro / Flash Grounded in BigQuery) */}
+      <div className={`bg-gradient-to-br from-[#0c1427] via-[#09101f] to-[#060a14] border-2 border-cyan-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/40 relative overflow-hidden space-y-4 transition-all duration-500 ${
+        revealPhase >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+      }`}>
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3.5 flex-wrap gap-2">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-cyan-500/20 border border-cyan-400 flex items-center justify-center text-cyan-300 shadow-md">
+              <Bot className="h-5 w-5 animate-pulse" />
+            </div>
+            <div>
+              <h4 className="text-sm sm:text-base font-bold font-mono text-cyan-300 tracking-wide uppercase flex items-center gap-2">
+                <span>Resumen Ejecutivo de IA // Diagnóstico Agéntico en Vivo</span>
+                <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
+                  {model_used.toUpperCase().replace('GEMINI-2.5-FLASH', 'GEMINI 3.7 FLASH')}
+                </span>
+              </h4>
+              <span className="text-[11px] font-mono text-slate-400">
+                Grounding en BigQuery ({grounded_data_table?.dataset || 'vtxdemos.ebc_enterprise_hub_live'}) &bull; Latencia: {latency_ms.toFixed(1)}ms
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 font-mono text-xs">
+            <span className="bg-emerald-950 text-emerald-300 px-3 py-1 rounded-full border border-emerald-700 font-bold flex items-center gap-1.5 shadow-xs">
+              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+              BigQuery Live Grounded
+            </span>
+          </div>
+        </div>
+
+        {/* Synthesis Markdown Render with Executive Styling */}
+        <div className="text-slate-200 text-sm sm:text-base leading-relaxed font-sans space-y-3 bg-[#070c18] p-5 rounded-2xl border border-slate-800/90 shadow-inner">
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm]}
+            components={{
+              h3({ children }) {
+                return <h3 className="text-base sm:text-lg font-bold text-cyan-300 font-mono mt-2 mb-1.5 border-b border-slate-800 pb-1">{children}</h3>;
+              },
+              p({ children }) {
+                return <p className="text-slate-200 text-sm leading-relaxed mb-2 last:mb-0">{children}</p>;
+              },
+              strong({ children }) {
+                return <strong className="text-cyan-200 font-bold font-mono">{children}</strong>;
+              },
+              ul({ children }) {
+                return <ul className="list-disc list-inside space-y-1 my-2 text-slate-200 text-sm">{children}</ul>;
+              },
+              li({ children }) {
+                return <li className="text-slate-200">{children}</li>;
+              }
+            }}
+          >
+            {synthesis_markdown || "El agente ha procesado la consulta en tiempo real cruzando todas las fuentes de datos en BigQuery."}
+          </ReactMarkdown>
+        </div>
+      </div>
+
+      {/* 3. DYNAMIC POLYMORPHIC METAPHOR DISPATCHER (Radically different UI per Intent) */}
       
       {/* 2A. LOGÍSTICA & PUERTOS (Grupo CICE, Senda, Promologistics) */}
       {(query_focus === 'LOGISTICA' || query_focus === 'COMPRAS') && (
