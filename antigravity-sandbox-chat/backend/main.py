@@ -311,26 +311,34 @@ async def chat_stream(req: ChatRequest):
                                     })
                                 }
 
-                        # Function Result / Command output streaming
+                        # Function Result / Command output streaming (Captures STDOUT, STDERR & ExitCode)
                         elif delta_type == "function_result":
                             res_obj = getattr(delta, "result", None) or getattr(delta, "response", None)
-                            if idx in active_steps:
-                                if res_obj is not None:
-                                    if hasattr(res_obj, "Output") and getattr(res_obj, "Output") is not None:
-                                        active_steps[idx]["result"] = str(getattr(res_obj, "Output"))
-                                    elif isinstance(res_obj, dict):
-                                        out = res_obj.get("Output") or res_obj.get("output") or res_obj.get("entries") or res_obj.get("files") or res_obj
-                                        active_steps[idx]["result"] = json.dumps(out, indent=2) if isinstance(out, (dict, list)) else str(out)
-                                    else:
-                                        active_steps[idx]["result"] = str(res_obj)
+                            res_text = ""
+                            if res_obj is not None:
+                                if hasattr(res_obj, "Output") and getattr(res_obj, "Output") is not None:
+                                    res_text = str(getattr(res_obj, "Output"))
+                                elif isinstance(res_obj, dict):
+                                    out = res_obj.get("Output") or res_obj.get("output") or res_obj.get("entries") or res_obj.get("files") or res_obj
+                                    res_text = json.dumps(out, indent=2) if isinstance(out, (dict, list)) else str(out)
+                                else:
+                                    res_text = str(res_obj)
 
+                            # Find target step index (either current or preceding function_call)
+                            target_idx = idx
+                            if target_idx not in active_steps or not active_steps[target_idx].get("arguments"):
+                                if (idx - 1) in active_steps:
+                                    target_idx = idx - 1
+
+                            if target_idx in active_steps:
+                                active_steps[target_idx]["result"] = res_text
                                 yield {
                                     "event": "step",
                                     "data": json.dumps({
-                                        "type": active_steps[idx].get("type"),
-                                        "name": active_steps[idx].get("name"),
-                                        "arguments": active_steps[idx].get("arguments"),
-                                        "result": active_steps[idx].get("result")
+                                        "type": active_steps[target_idx].get("type"),
+                                        "name": active_steps[target_idx].get("name"),
+                                        "arguments": active_steps[target_idx].get("arguments"),
+                                        "result": active_steps[target_idx].get("result")
                                     })
                                 }
 

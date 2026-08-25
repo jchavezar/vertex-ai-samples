@@ -1288,14 +1288,31 @@ export default function App() {
                                       </div>
                                     )}
 
-                                    {st.result !== undefined && (
-                                      <div className="text-[10px] text-zinc-700 bg-zinc-100/80 p-2 rounded-md max-h-24 overflow-y-auto border-l-2 border-emerald-500">
-                                        <span className="text-zinc-500 block mb-0.5 font-sans font-medium">Resultado:</span>
-                                        <pre className="whitespace-pre-wrap font-mono">
-                                          {st.name === 'list_dir' && (!st.result || st.result === '[]' || st.result === '{}' || st.result.trim() === '')
-                                            ? '[ Directorio /workspace limpio y vacío (0 archivos previos) ]'
-                                            : st.result}
-                                        </pre>
+                                    {st.result !== undefined && st.result !== null && (
+                                      <div className="text-[11px] font-mono rounded-lg overflow-hidden border border-zinc-800 bg-zinc-950 text-zinc-200 shadow-inner">
+                                        <div className="px-3 py-1.5 bg-zinc-900 border-b border-zinc-800 flex items-center justify-between text-[10px] text-zinc-400">
+                                          <div className="flex items-center gap-1.5">
+                                            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                            <span className="font-semibold text-zinc-300">
+                                              {st.name === 'run_command' ? 'Terminal Output (STDOUT / STDERR)' :
+                                               st.name === 'google_search' ? 'Google Grounding Output' :
+                                               st.name === 'create_file' ? 'Disk Write Verification' :
+                                               'Resultado de Ejecución'}
+                                            </span>
+                                          </div>
+                                          <span className="text-[9px] uppercase tracking-wider text-emerald-400 font-bold">
+                                            {st.result.includes('error') || st.result.includes('FAIL') || st.result.includes('Traceback')
+                                              ? '⚠️ Runtime Alert'
+                                              : '✓ Process Exit: 0'}
+                                          </span>
+                                        </div>
+                                        <div className="p-3 max-h-56 overflow-y-auto space-y-1">
+                                          <pre className="whitespace-pre-wrap font-mono leading-relaxed text-[11px] text-emerald-300">
+                                            {st.name === 'list_dir' && (!st.result || st.result === '[]' || st.result === '{}' || st.result.trim() === '')
+                                              ? '[ Directorio /workspace limpio y verificado (0 archivos previos) ]'
+                                              : st.result}
+                                          </pre>
+                                        </div>
                                       </div>
                                     )}
                                   </div>
