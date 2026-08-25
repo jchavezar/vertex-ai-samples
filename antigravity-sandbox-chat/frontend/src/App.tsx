@@ -556,6 +556,14 @@ export default function App() {
     scrollToBottom();
   }, [messages, isLoading]);
 
+  // Auto-grow textarea height dynamically with multi-line input and newlines
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${Math.min(Math.max(textareaRef.current.scrollHeight, 24), 220)}px`;
+    }
+  }, [input]);
+
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
@@ -1334,7 +1342,7 @@ export default function App() {
         {/* Floating Minimalist Input Bar */}
         <footer className="p-4 md:p-5 bg-white/80 border-t border-zinc-200/80 backdrop-blur-md shrink-0">
           <div className="max-w-4xl mx-auto flex items-center gap-2.5">
-            <div className="flex-1 bg-white rounded-xl border border-zinc-300 focus-within:border-zinc-800 focus-within:ring-1 focus-within:ring-zinc-800 transition-all px-3 py-2 shadow-xs">
+            <div className="flex-1 bg-white rounded-xl border border-zinc-300 focus-within:border-zinc-800 focus-within:ring-1 focus-within:ring-zinc-800 transition-all px-3.5 py-2.5 shadow-xs flex items-center">
               <textarea
                 ref={textareaRef}
                 value={input}
@@ -1343,11 +1351,11 @@ export default function App() {
                 placeholder={
                   environmentId
                     ? "Instruct agent inside active sandbox (e.g. 'Generate interactive risk_dashboard.html')..."
-                    : "Type an instruction (e.g. 'Search Google for live tech stocks and run Monte Carlo simulation')..."
+                    : "Type an instruction (e.g. 'Create a python script to analyze Google, Amazon and Microsoft stocks and generate interactive HTML chart')..."
                 }
                 rows={1}
                 disabled={isLoading}
-                className="w-full bg-transparent border-0 resize-none text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none max-h-32 min-h-[22px]"
+                className="w-full bg-transparent border-0 resize-none text-sm text-zinc-900 placeholder-zinc-400 focus:outline-none max-h-56 min-h-[24px] overflow-y-auto leading-relaxed block"
               />
             </div>
 
