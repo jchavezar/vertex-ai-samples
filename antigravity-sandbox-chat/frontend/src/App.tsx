@@ -1468,56 +1468,84 @@ export default function App() {
                             </ReactMarkdown>
                           </div>
                         ) : msg.status === 'in_progress' ? (
-                          <div className="rounded-xl border border-amber-200/80 bg-gradient-to-br from-amber-50/40 via-white to-zinc-50/60 p-4 space-y-3 shadow-2xs">
+                          <div className="rounded-xl border border-amber-300/90 bg-gradient-to-br from-amber-50/50 via-white to-orange-50/30 p-4 space-y-3.5 shadow-xs">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2.5">
-                                <div className="relative flex h-2.5 w-2.5">
+                                <div className="relative flex h-3 w-3">
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+                                  <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
                                 </div>
-                                <span className="font-semibold text-xs text-zinc-900 font-mono">
-                                  Pipeline de Ejecución Agéntica en Vivo
+                                <span className="font-bold text-xs text-zinc-900 font-mono flex items-center gap-1.5">
+                                  <span>Pipeline de Ejecución Agéntica en Vivo</span>
+                                  <span className="text-[10px] font-normal px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+                                    Behind-The-Scenes
+                                  </span>
                                 </span>
                               </div>
-                              <span className="text-[11px] font-mono text-zinc-500 bg-white border border-zinc-200 px-2 py-0.5 rounded-md">
+                              <span className="text-[11px] font-mono font-bold text-amber-900 bg-amber-100/80 border border-amber-300 px-2.5 py-0.5 rounded-md tabular-nums">
                                 {displayTime || '0.0s'}
                               </span>
                             </div>
 
-                            {/* Dynamic Step Pipeline Status */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 text-[11px] font-mono pt-1">
-                              <div className="p-2 rounded-lg bg-white border border-zinc-200 flex items-center gap-2 shadow-2xs">
+                            {/* Dynamic 4-Stage Pipeline Status */}
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] font-mono">
+                              <div className="p-2 rounded-lg bg-white border border-amber-200 flex items-center gap-2 shadow-2xs">
                                 <Cpu className="w-3.5 h-3.5 text-sky-600 shrink-0" />
                                 <div className="min-w-0">
-                                  <div className="text-[10px] text-zinc-400 font-bold uppercase">Entorno</div>
-                                  <div className="text-zinc-800 truncate font-semibold">Linux MicroVM Activo</div>
+                                  <div className="text-[9px] text-zinc-400 font-bold uppercase">Entorno</div>
+                                  <div className="text-zinc-900 truncate font-semibold text-[11px]">MicroVM Activo</div>
                                 </div>
                               </div>
-                              <div className="p-2 rounded-lg bg-white border border-zinc-200 flex items-center gap-2 shadow-2xs">
+                              <div className="p-2 rounded-lg bg-white border border-amber-200 flex items-center gap-2 shadow-2xs">
                                 <Search className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                                 <div className="min-w-0">
-                                  <div className="text-[10px] text-zinc-400 font-bold uppercase">Grounding</div>
-                                  <div className="text-zinc-800 truncate font-semibold">Google Search Engine</div>
+                                  <div className="text-[9px] text-zinc-400 font-bold uppercase">Grounding</div>
+                                  <div className="text-zinc-900 truncate font-semibold text-[11px]">Google Search</div>
                                 </div>
                               </div>
-                              <div className="p-2 rounded-lg bg-white border border-zinc-200 flex items-center gap-2 shadow-2xs">
+                              <div className="p-2 rounded-lg bg-white border border-amber-200 flex items-center gap-2 shadow-2xs">
                                 <Terminal className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                                 <div className="min-w-0">
-                                  <div className="text-[10px] text-zinc-400 font-bold uppercase">Sandbox Compute</div>
-                                  <div className="text-zinc-800 truncate font-semibold">
-                                    {toolSteps.length > 0 ? `${toolSteps.length} acción(es) ejecutadas` : 'Invocando Operaciones...'}
+                                  <div className="text-[9px] text-zinc-400 font-bold uppercase">Sandbox Compute</div>
+                                  <div className="text-zinc-900 truncate font-semibold text-[11px]">
+                                    {toolSteps.length > 0 ? `${toolSteps.length} acción(es)` : 'Invocando...'}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="p-2 rounded-lg bg-white border border-amber-200 flex items-center gap-2 shadow-2xs">
+                                <FileCode className="w-3.5 h-3.5 text-purple-600 shrink-0" />
+                                <div className="min-w-0">
+                                  <div className="text-[9px] text-zinc-400 font-bold uppercase">Artefactos</div>
+                                  <div className="text-zinc-900 truncate font-semibold text-[11px]">
+                                    {Object.keys(turnFiles).length > 0 ? `${Object.keys(turnFiles).length} generado(s)` : 'Escribiendo...'}
                                   </div>
                                 </div>
                               </div>
                             </div>
 
-                            <div className="flex items-center gap-2 text-xs text-zinc-600 font-sans pt-0.5">
-                              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                              <span>
+                            {/* Live Behind-The-Scenes Action Tracker */}
+                            <div className="p-2.5 rounded-lg bg-amber-50/80 border border-amber-200/80 space-y-1">
+                              <div className="flex items-center justify-between text-[11px] font-mono text-amber-900">
+                                <div className="flex items-center gap-2">
+                                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+                                  <span className="font-bold">
+                                    {toolSteps.length > 0
+                                      ? `Ejecutando herramienta: ${toolSteps[toolSteps.length - 1].name || 'operación'}`
+                                      : 'Conectando con Google Search & MicroVM Linux...'}
+                                  </span>
+                                </div>
+                              </div>
+                              <p className="text-[11px] text-zinc-600 font-sans pl-4">
                                 {toolSteps.length > 0
-                                  ? `Ejecutando ${toolSteps[toolSteps.length - 1].name || 'operación'} en /workspace y compilando artefactos...`
-                                  : 'Conectando herramientas nativas y extrayendo datos en tiempo real...'}
-                              </span>
+                                  ? (toolSteps[toolSteps.length - 1].name === 'create_file'
+                                      ? `Escribiendo archivo ${toolSteps[toolSteps.length - 1].arguments?.TargetFile || 'en /workspace'} con código interactivo...`
+                                      : toolSteps[toolSteps.length - 1].name === 'run_command'
+                                      ? `Ejecutando script en microVM: ${toolSteps[toolSteps.length - 1].arguments?.CommandLine || 'Python compute'}`
+                                      : toolSteps[toolSteps.length - 1].name === 'google_search'
+                                      ? 'Extrayendo métricas de cotizaciones en tiempo real desde Google...'
+                                      : `Procesando operación en sandbox (${toolSteps.length} pasos completados)...`)
+                                  : 'Extrayendo datos de mercado en tiempo real, calculando múltiplos y estructurando el dashboard en /workspace...'}
+                              </p>
                             </div>
                           </div>
                         ) : null}
