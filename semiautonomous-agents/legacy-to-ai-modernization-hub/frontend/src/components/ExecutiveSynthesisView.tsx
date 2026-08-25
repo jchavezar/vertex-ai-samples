@@ -17,6 +17,7 @@ import {
   Cpu,
   Bot,
   CheckCircle2,
+  X,
 } from 'lucide-react';
 import { AgentQueryResponse, HedgingAction } from '../types';
 import { ComprasRouteFlowView } from './polymorphic/ComprasRouteFlowView';
@@ -252,6 +253,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
   };
 
   const HeaderIcon = themeStyles.icon;
+  const [pinnedKpiIndex, setPinnedKpiIndex] = useState<number | null>(null);
 
   return (
     <div className={`cyber-glass rounded-3xl p-6 sm:p-8 lg:p-10 border-2 ${themeStyles.border} space-y-8 shadow-2xl ${themeStyles.shadow} relative overflow-visible transition-all animate-zoom-entrance`}>
@@ -341,7 +343,7 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
 
       {/* 1. DYNAMIC CONTEXT-SPECIFIC KPI METRICS CARDS WITH INTERACTIVE HOVER EXPLANATIONS (Only for Domain Scenarios) */}
       {query_focus !== 'GENERAL' && kpis.length > 0 && (
-        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 ${
+        <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 transition-all duration-500 relative z-30 ${
           revealPhase >= 1 ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
         }`}>
           {kpis.map((kpi, idx) => {
@@ -349,7 +351,8 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
             return (
               <div
                 key={idx}
-                className={`p-5 sm:p-6 rounded-2xl transition-all space-y-3 border-2 relative group hover:scale-[1.03] hover:z-30 cursor-pointer shadow-xl ${
+                onClick={() => setPinnedKpiIndex(pinnedKpiIndex === idx ? null : idx)}
+                className={`p-5 sm:p-6 rounded-2xl transition-all space-y-3 border-2 relative group hover:scale-[1.03] z-20 hover:z-50 cursor-pointer shadow-xl ${
                   kpi.status_type === 'danger'
                     ? 'bg-slate-950/90 border-rose-500/50 hover:border-rose-400 shadow-rose-950/30'
                     : kpi.status_type === 'warning'
@@ -394,15 +397,29 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
                 </div>
 
                 {/* Floating Explanatory Popover (Revealed Instantly on Hover with Solid Opaque Background) */}
-                <div className="absolute left-0 top-full mt-3 w-80 sm:w-[480px] bg-[#060a14] border-2 border-cyan-400 p-5 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,1)] opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-[999] space-y-3 font-sans max-h-[520px] overflow-y-auto ring-2 ring-cyan-500/50">
+                <div className={`absolute left-0 top-full mt-3 w-80 sm:w-[480px] bg-[#060a14] border-2 border-cyan-400 p-5 rounded-2xl shadow-[0_30px_70px_rgba(0,0,0,1)] transition-all duration-150 z-[9999] space-y-3 font-sans max-h-[520px] overflow-y-auto ring-2 ring-cyan-500/50 ${
+                  pinnedKpiIndex === idx
+                    ? 'opacity-100 pointer-events-auto block'
+                    : 'opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto'
+                }`}>
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
                     <span className="font-mono text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-1.5">
                       <Calculator className="h-4 w-4 text-cyan-400" />
                       {explanation.title}
                     </span>
-                    <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
-                      EVIDENCIA BIGQUERY
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono bg-cyan-950 text-cyan-300 px-2 py-0.5 rounded border border-cyan-800 font-bold">
+                        EVIDENCIA BIGQUERY
+                      </span>
+                      {pinnedKpiIndex === idx && (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); setPinnedKpiIndex(null); }}
+                          className="p-1 rounded text-slate-400 hover:text-white hover:bg-slate-800"
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -457,8 +474,8 @@ export const ExecutiveSynthesisView: React.FC<ExecutiveSynthesisViewProps> = ({
         </div>
       )}
 
-      {/* 2. AGENTIC EXECUTIVE AI SYNTHESIS (Gemini 2.5 Pro / Flash Grounded in BigQuery & Google Search) */}
-      <div className={`bg-gradient-to-br from-[#0c1427] via-[#09101f] to-[#060a14] border-2 border-cyan-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/40 relative overflow-hidden space-y-4 transition-all duration-500 ${
+      {/* 2. AGENTIC EXECUTIVE AI SYNTHESIS (Gemini 3.7 Flash Grounded in BigQuery & Google Search) */}
+      <div className={`bg-gradient-to-br from-[#0c1427] via-[#09101f] to-[#060a14] border-2 border-cyan-500/60 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-cyan-950/40 relative z-10 space-y-4 transition-all duration-500 ${
         revealPhase >= 2 ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
       }`}>
         <div className="flex items-center justify-between border-b border-slate-800 pb-3.5 flex-wrap gap-2">
