@@ -119,6 +119,47 @@ interface ParsedContent {
   isPureThinking: boolean;
 }
 
+function segmentThoughts(rawText: string): string[] {
+  if (!rawText) return [];
+  
+  // 1. Separate joined punctuation like "task.I will" or "exists.I will" into "task. I will"
+  const clean = rawText
+    .replace(/([.?!])([A-Z])/g, '$1 $2')
+    .replace(/<thought>|<\/thought>/gi, ' ')
+    .trim();
+
+  // 2. Identify sentence splits and thought transition keywords
+  const rawSegments = clean
+    .split(/(?<=[.?!])\s+(?=[A-Z])|(?=\b(?:I will|Now I will|I need to|Let me|Let's|I am going to|I will now|Next,|First,|Finally,|We will|I should|I shall)\b)/gi)
+    .map(s => s.trim())
+    .filter(s => s.length > 10);
+
+  // 3. Normalize and deduplicate repeated thoughts while maintaining sequence
+  const result: string[] = [];
+  const seenNorm = new Set<string>();
+
+  for (const seg of rawSegments) {
+    const normalized = seg.toLowerCase().replace(/[^a-z0-9]/g, '').trim();
+    if (normalized.length < 8) continue;
+
+    let isDupe = false;
+    for (const prev of seenNorm) {
+      if (prev === normalized || (normalized.length > 25 && prev.includes(normalized)) || (prev.length > 25 && normalized.includes(prev))) {
+        isDupe = true;
+        break;
+      }
+    }
+
+    if (!isDupe) {
+      seenNorm.add(normalized);
+      const polished = seg.charAt(0).toUpperCase() + seg.slice(1);
+      result.push(polished);
+    }
+  }
+
+  return result;
+}
+
 function parseThinkingAndAnswer(rawText: string): ParsedContent {
   if (!rawText || !rawText.trim()) {
     return { thoughts: [], finalAnswer: '', isPureThinking: false };
@@ -129,7 +170,7 @@ function parseThinkingAndAnswer(rawText: string): ParsedContent {
   if (tagMatch) {
     const thoughtText = tagMatch[1].trim();
     const remaining = rawText.replace(/<thought>[\s\S]*?<\/thought>/i, '').trim();
-    const thoughtItems = thoughtText.split('\n').map(s => s.trim()).filter(Boolean);
+    const thoughtItems = segmentThoughts(thoughtText);
     return {
       thoughts: thoughtItems.length > 0 ? thoughtItems : [thoughtText],
       finalAnswer: remaining,
@@ -139,7 +180,7 @@ function parseThinkingAndAnswer(rawText: string): ParsedContent {
 
   // 2. Multi-step reasoning pattern detection
   const paragraphs = rawText.split(/\n\n+/);
-  const thoughts: string[] = [];
+  const rawThinkingParts: string[] = [];
   const answerParts: string[] = [];
   let inThinkingPhase = true;
 
@@ -150,7 +191,8 @@ function parseThinkingAndAnswer(rawText: string): ParsedContent {
     // Report headers or tables mean thinking phase is concluded
     const isReportHeader = /^#{1,6}\s+/m.test(p) || 
                            /^(Executive Summary|Summary Report|Audit Findings|Conclusion|Key Findings|Consensus Reached|Consolidated|Final Report|M&A Valuation|Analysis|Resolution)/i.test(p) || 
-                           /\|.*\|.*\|/m.test(p);
+                           /\|.*\|.*\|/m.test(p) ||
+                           p.startsWith('```');
 
     if (isReportHeader) {
       inThinkingPhase = false;
@@ -159,41 +201,33 @@ function parseThinkingAndAnswer(rawText: string): ParsedContent {
     const isThought = /^(I will|Let me|Let's|First,|Next,|Now I will|I am going to|I need to|Plan:|Thought:|Thinking:)/i.test(p);
 
     if (inThinkingPhase && isThought) {
-      const subSentences = p.split(/(?=[A-Z][^.?!]*\b(?:I will|I need to|I am going to|Let me)\b)/g)
-                            .map(s => s.trim())
-                            .filter(s => s.length > 5);
-      if (subSentences.length > 0) {
-        thoughts.push(...subSentences);
-      } else {
-        thoughts.push(p);
-      }
+      rawThinkingParts.push(p);
     } else {
       inThinkingPhase = false;
       answerParts.push(p);
     }
   }
 
-  if (paragraphs.length === 1 && thoughts.length === 0) {
+  if (paragraphs.length === 1 && rawThinkingParts.length === 0) {
     const single = paragraphs[0];
-    const subSentences = single.split(/(?=[A-Z][^.?!]*\b(?:I will|I need to|I am going to|Let me)\b)/g)
-                               .map(s => s.trim())
-                               .filter(s => s.length > 5);
-    if (subSentences.length > 1 && subSentences.every(s => /^(I will|I need|I am|Let)/i.test(s))) {
+    const segmented = segmentThoughts(single);
+    if (segmented.length > 1 && segmented.every(s => /^(I will|I need|I am|Let|Now|First|Next)/i.test(s))) {
       return {
-        thoughts: Array.from(new Set(subSentences)),
+        thoughts: segmented,
         finalAnswer: '',
         isPureThinking: true,
       };
     }
   }
 
+  const combinedThinking = rawThinkingParts.join(' ');
+  const thoughts = segmentThoughts(combinedThinking);
   const finalAnswer = answerParts.join('\n\n').trim();
-  const dedupedThoughts = Array.from(new Set(thoughts));
 
   return {
-    thoughts: dedupedThoughts,
+    thoughts,
     finalAnswer: finalAnswer,
-    isPureThinking: dedupedThoughts.length > 0 && !finalAnswer,
+    isPureThinking: thoughts.length > 0 && !finalAnswer,
   };
 }
 
@@ -1074,24 +1108,25 @@ export default function App() {
                           <div className="rounded-xl border border-purple-200/80 bg-gradient-to-br from-purple-50/50 via-indigo-50/30 to-white overflow-hidden shadow-2xs">
                             <button
                               onClick={() => toggleThoughtExpand(msg.id)}
-                              className="w-full px-3.5 py-2.5 flex items-center justify-between bg-purple-100/50 hover:bg-purple-100/80 transition-colors text-purple-900 font-mono text-[11px] cursor-pointer"
+                              className="w-full px-3.5 py-2.5 flex items-center justify-between bg-purple-100/60 hover:bg-purple-100/90 transition-colors text-purple-900 font-mono text-[11px] cursor-pointer"
                             >
                               <div className="flex items-center gap-2">
                                 <div className="p-1 rounded-md bg-purple-600 text-white shadow-2xs">
                                   <Brain className="w-3.5 h-3.5 animate-pulse" />
                                 </div>
                                 <span className="font-bold text-purple-950">
-                                  Proceso de Razonamiento Agéntico ({thoughts.length} pasos cognitivos)
+                                  Proceso de Razonamiento Agéntico ({thoughts.length} pasos cognitivos secuenciados)
                                 </span>
                                 {msg.status === 'in_progress' && (
-                                  <span className="px-2 py-0.2 rounded-full bg-purple-200 text-purple-800 text-[10px] font-bold animate-pulse">
+                                  <span className="px-2 py-0.5 rounded-full bg-purple-200 text-purple-800 text-[10px] font-bold animate-pulse flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-600 animate-ping"></span>
                                     Pensando en vivo...
                                   </span>
                                 )}
                               </div>
                               <div className="flex items-center gap-1 text-purple-700 font-sans text-xs">
                                 <span className="text-[11px] font-medium">
-                                  {expandedThoughts[msg.id] !== false ? 'Ocultar' : 'Ver Detalles'}
+                                  {expandedThoughts[msg.id] !== false ? 'Ocultar' : 'Ver Pasos'}
                                 </span>
                                 {expandedThoughts[msg.id] !== false ? (
                                   <ChevronDown className="w-3.5 h-3.5" />
@@ -1102,17 +1137,49 @@ export default function App() {
                             </button>
 
                             {expandedThoughts[msg.id] !== false && (
-                              <div className="p-3.5 space-y-2 border-t border-purple-200/60 font-sans text-xs text-zinc-700">
-                                {thoughts.map((th, thIdx) => (
-                                  <div key={thIdx} className="flex items-start gap-2.5 p-2 rounded-lg bg-white/80 border border-purple-100 shadow-2xs">
-                                    <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-800 shrink-0">
-                                      {(thIdx + 1).toString().padStart(2, '0')}
-                                    </span>
-                                    <p className="text-zinc-800 leading-relaxed font-sans text-[12px]">
-                                      {th}
-                                    </p>
-                                  </div>
-                                ))}
+                              <div className="p-3.5 space-y-2.5 border-t border-purple-200/60 font-sans">
+                                {thoughts.map((th, thIdx) => {
+                                  const isLatest = thIdx === thoughts.length - 1 && msg.status === 'in_progress';
+                                  return (
+                                    <div
+                                      key={thIdx}
+                                      className={`flex items-start gap-3 p-2.5 rounded-xl transition-all duration-200 ${
+                                        isLatest
+                                          ? 'bg-purple-100/70 border border-purple-300 shadow-xs ring-1 ring-purple-400/40'
+                                          : 'bg-white/90 border border-purple-100/90 shadow-2xs hover:border-purple-200'
+                                      }`}
+                                    >
+                                      {/* Animated Step Badge */}
+                                      <div className="flex flex-col items-center shrink-0">
+                                        <span
+                                          className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-md flex items-center gap-1 ${
+                                            isLatest
+                                              ? 'bg-purple-700 text-white shadow-2xs animate-pulse'
+                                              : 'bg-purple-100 text-purple-900 border border-purple-200/60'
+                                          }`}
+                                        >
+                                          Step {(thIdx + 1).toString().padStart(2, '0')}
+                                        </span>
+                                      </div>
+
+                                      {/* Thought Text */}
+                                      <div className="flex-1 min-w-0">
+                                        <p className="text-zinc-800 leading-relaxed text-[12px] font-normal">
+                                          {th}
+                                        </p>
+                                      </div>
+
+                                      {/* Status icon */}
+                                      <div className="shrink-0 pt-0.5">
+                                        {isLatest ? (
+                                          <div className="w-2 h-2 rounded-full bg-purple-600 animate-ping" />
+                                        ) : (
+                                          <Check className="w-3.5 h-3.5 text-purple-400" />
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
                               </div>
                             )}
                           </div>
