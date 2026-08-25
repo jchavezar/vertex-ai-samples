@@ -44,6 +44,7 @@ interface Message {
   id: string;
   sender: 'user' | 'agent';
   text: string;
+  thoughtText?: string;
   timestamp: string;
   startTimestamp?: number;
   status?: 'submitting' | 'in_progress' | 'completed' | 'error';
@@ -160,9 +161,11 @@ function segmentThoughts(rawText: string): string[] {
   return result;
 }
 
-function parseThinkingAndAnswer(rawText: string): ParsedContent {
+function parseThinkingAndAnswer(rawText: string, streamedThoughtText?: string): ParsedContent {
+  const streamedThoughts = streamedThoughtText ? segmentThoughts(streamedThoughtText) : [];
+
   if (!rawText || !rawText.trim()) {
-    return { thoughts: [], finalAnswer: '', isPureThinking: false };
+    return { thoughts: streamedThoughts, finalAnswer: '', isPureThinking: streamedThoughts.length > 0 };
   }
 
   // 1. Explicit <thought> tags
@@ -171,10 +174,11 @@ function parseThinkingAndAnswer(rawText: string): ParsedContent {
     const thoughtText = tagMatch[1].trim();
     const remaining = rawText.replace(/<thought>[\s\S]*?<\/thought>/i, '').trim();
     const thoughtItems = segmentThoughts(thoughtText);
+    const mergedThoughts = Array.from(new Set([...streamedThoughts, ...thoughtItems]));
     return {
-      thoughts: thoughtItems.length > 0 ? thoughtItems : [thoughtText],
+      thoughts: mergedThoughts.length > 0 ? mergedThoughts : (thoughtText ? [thoughtText] : streamedThoughts),
       finalAnswer: remaining,
-      isPureThinking: !remaining && !!thoughtText,
+      isPureThinking: !remaining && (!!thoughtText || streamedThoughts.length > 0),
     };
   }
 
@@ -212,8 +216,9 @@ function parseThinkingAndAnswer(rawText: string): ParsedContent {
     const single = paragraphs[0];
     const segmented = segmentThoughts(single);
     if (segmented.length > 1 && segmented.every(s => /^(I will|I need|I am|Let|Now|First|Next)/i.test(s))) {
+      const merged = Array.from(new Set([...streamedThoughts, ...segmented]));
       return {
-        thoughts: segmented,
+        thoughts: merged,
         finalAnswer: '',
         isPureThinking: true,
       };
@@ -221,13 +226,14 @@ function parseThinkingAndAnswer(rawText: string): ParsedContent {
   }
 
   const combinedThinking = rawThinkingParts.join(' ');
-  const thoughts = segmentThoughts(combinedThinking);
+  const textThoughts = segmentThoughts(combinedThinking);
+  const allThoughts = Array.from(new Set([...streamedThoughts, ...textThoughts]));
   const finalAnswer = answerParts.join('\n\n').trim();
 
   return {
-    thoughts,
+    thoughts: allThoughts,
     finalAnswer: finalAnswer,
-    isPureThinking: thoughts.length > 0 && !finalAnswer,
+    isPureThinking: allThoughts.length > 0 && !finalAnswer,
   };
 }
 
@@ -781,6 +787,14 @@ export default function App() {
                     return {
                       ...m,
                       text: (m.text || '') + (data.text || ''),
+                      status: 'in_progress',
+                    };
+                  } else if (currentEvent === 'thought') {
+                    // Live thought-by-thought streaming
+                    return {
+                      ...m,
+                      thoughtText: (m.thoughtText || '') + (data.thought || ''),
+                      status: 'in_progress',
                     };
                   } else if (currentEvent === 'step') {
                     const existingSteps = m.steps || [];
@@ -1047,7 +1061,7 @@ export default function App() {
               }
 
               // Parse thinking/planning vs final consolidated answer
-              const { thoughts, finalAnswer } = parseThinkingAndAnswer(msg.text || '');
+              const { thoughts, finalAnswer } = parseThinkingAndAnswer(msg.text || '', msg.thoughtText);
 
               return (
                 <div
