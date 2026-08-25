@@ -280,8 +280,8 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
         </div>
 
         {/* Large Prominent Prompt Textarea for EBC */}
-        <form onSubmit={handleQuerySubmit} className="flex flex-col sm:flex-row items-stretch gap-3">
-          <div className="relative flex-1">
+        <form onSubmit={handleQuerySubmit} className="flex flex-col sm:flex-row items-center gap-3">
+          <div className="relative flex-1 w-full">
             <textarea
               rows={query.length > 120 ? 2 : 1}
               value={query}
@@ -293,13 +293,13 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
                 }
               }}
               placeholder="Escribe una pregunta para consultar BigQuery en vivo (ej. 'Si nuestro proveedor en Taiwán tiene un bloqueo de 90 días, ¿cuáles órdenes están comprometidas, cuántos días de inventario nos quedan y qué contratos FX están expuestos?')"
-              className="w-full bg-slate-950/90 border-2 border-slate-700 hover:border-cyan-500/80 text-slate-100 placeholder-slate-400 text-sm sm:text-base p-4 sm:p-5 rounded-2xl focus:outline-none focus:border-cyan-400 shadow-inner font-medium resize-y min-h-[58px] leading-relaxed transition-all"
+              className="w-full bg-slate-950/90 border-2 border-slate-700 hover:border-cyan-500/80 text-slate-100 placeholder-slate-400 text-sm sm:text-base px-5 py-3.5 sm:py-4 rounded-2xl focus:outline-none focus:border-cyan-400 shadow-inner font-medium resize-none min-h-[58px] leading-snug transition-all"
             />
           </div>
           <button
             type="submit"
             disabled={queryLoading}
-            className="px-8 py-4 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm sm:text-base shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer shrink-0 h-[58px]"
+            className="w-full sm:w-auto px-8 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm sm:text-base shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer shrink-0 h-[58px]"
           >
             {queryLoading ? (
               <RefreshCw className="h-5 w-5 animate-spin" />
