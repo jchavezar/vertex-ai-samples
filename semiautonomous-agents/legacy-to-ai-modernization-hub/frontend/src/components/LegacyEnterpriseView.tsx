@@ -37,6 +37,49 @@ export const LegacyEnterpriseView: React.FC<LegacyEnterpriseViewProps> = ({
   const [exportInfo, setExportInfo] = useState<any>(null);
   const [stepQueryResult, setStepQueryResult] = useState<any>(null);
 
+  // Dynamic filter for active BigQuery step results
+  const filteredStepData = React.useMemo(() => {
+    if (!stepQueryResult?.data) return [];
+    return stepQueryResult.data.filter((row: any) => {
+      if (search.trim()) {
+        const q = search.toLowerCase().trim();
+        const match = Object.values(row).some(v => String(v).toLowerCase().includes(q));
+        if (!match) return false;
+      }
+      if (currency) {
+        const c = currency.toLowerCase();
+        const matchCcy = Object.entries(row).some(([k, v]) =>
+          (k.toLowerCase().includes('currency') || k.toLowerCase().includes('ccy') || k.toLowerCase().includes('moneda')) &&
+          String(v).toLowerCase().includes(c)
+        );
+        if (!matchCcy && !Object.values(row).some(v => String(v).toLowerCase() === c)) {
+          return false;
+        }
+      }
+      if (riskRating) {
+        const r = riskRating.toLowerCase();
+        const matchRisk = Object.entries(row).some(([k, v]) =>
+          (k.toLowerCase().includes('risk') || k.toLowerCase().includes('tier')) &&
+          String(v).toLowerCase().includes(r)
+        );
+        if (!matchRisk && !Object.values(row).some(v => String(v).toLowerCase() === r)) {
+          return false;
+        }
+      }
+      if (clearingHouse) {
+        const ch = clearingHouse.toLowerCase();
+        const matchCh = Object.entries(row).some(([k, v]) =>
+          (k.toLowerCase().includes('clearing') || k.toLowerCase().includes('facility')) &&
+          String(v).toLowerCase().includes(ch)
+        );
+        if (!matchCh && !Object.values(row).some(v => String(v).toLowerCase() === ch)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [stepQueryResult, search, currency, riskRating, clearingHouse]);
+
   const loadData = async (targetPage = page) => {
     setLoading(true);
     try {
@@ -241,7 +284,13 @@ export const LegacyEnterpriseView: React.FC<LegacyEnterpriseViewProps> = ({
           </span>
           |
           <span>
-            Rows: <strong className="text-slate-900">{stepQueryResult ? stepQueryResult.total_rows : (data?.total_records || 0)}</strong>
+            Rows: <strong className="text-slate-900">
+              {stepQueryResult
+                ? (search.trim() || currency || riskRating || clearingHouse
+                    ? `${filteredStepData.length} (filtrados de ${stepQueryResult.total_rows})`
+                    : stepQueryResult.total_rows)
+                : (data?.total_records || 0)}
+            </strong>
           </span>
           {stepQueryResult && (
             <>
@@ -307,25 +356,34 @@ export const LegacyEnterpriseView: React.FC<LegacyEnterpriseViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {stepQueryResult.data.map((row: any, idx: number) => {
-                  const values = Object.values(row);
-                  return (
-                    <tr
-                      key={idx}
-                      className={`hover:bg-amber-50/80 transition-colors ${
-                        idx % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]'
-                      }`}
-                    >
-                      {values.map((val: any, cIdx: number) => (
-                        <td key={cIdx} className="p-2.5 border-r border-slate-200 font-mono text-slate-800">
-                          {typeof val === 'number'
-                            ? val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
-                            : String(val)}
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                })}
+                {filteredStepData.length > 0 ? (
+                  filteredStepData.map((row: any, idx: number) => {
+                    const values = Object.values(row);
+                    return (
+                      <tr
+                        key={idx}
+                        className={`hover:bg-amber-50/80 transition-colors ${
+                          idx % 2 === 0 ? 'bg-white' : 'bg-[#f8fafc]'
+                        }`}
+                      >
+                        {values.map((val: any, cIdx: number) => (
+                          <td key={cIdx} className="p-2.5 border-r border-slate-200 font-mono text-slate-800">
+                            {typeof val === 'number'
+                              ? val.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+                              : String(val)}
+                          </td>
+                        ))}
+                      </tr>
+                    );
+                  })
+                ) : (
+                  <tr>
+                    <td colSpan={stepQueryResult.headers.length} className="p-8 text-center text-slate-500 font-mono">
+                      <AlertTriangle className="h-6 w-6 text-amber-500 mx-auto mb-2" />
+                      <span>No se encontraron registros que coincidan con "{search}".</span>
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
