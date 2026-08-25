@@ -124,7 +124,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
               </span>
             </div>
             <p className="text-[11px] text-slate-200 font-mono mt-0.5">
-              Pregunta de Negocio: <strong>&ldquo;Si nuestro proveedor principal en Taiwán sufre un bloqueo de 90 días, ¿cuál es nuestro impacto en flujo de caja, qué contratos FX están expuestos y qué crédito debemos activar?&rdquo;</strong>
+              Pregunta de Negocio: <strong>&ldquo;Si nuestros proveedores en Taiwán sufren un retraso de 90 días, ¿cuál es el monto en órdenes de compra abiertas ($685.9M), qué SKUs agotarán stock de seguridad en menos de 90 días (28 a 88 días) y qué contratos FX están sin cobertura ($582.1M)?&rdquo;</strong>
             </p>
           </div>
         </div>
@@ -169,7 +169,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
             {step1State === 'running' && <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />}
           </div>
           <p className="text-[10px] text-slate-600 mt-1 font-medium line-clamp-1">
-            ¿Cuáles son las órdenes abiertas con Taiwán?
+            ¿Cuáles son las 77 órdenes abiertas con Taiwán ($685.9M)?
           </p>
         </button>
 
@@ -192,7 +192,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
             {step2State === 'running' && <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />}
           </div>
           <p className="text-[10px] text-slate-600 mt-1 font-medium line-clamp-1">
-            ¿Cuántos días de stock de seguridad quedan?
+            ¿Qué 81 SKUs tienen stock crítico (&lt;90 días de buffer)?
           </p>
         </button>
 
@@ -215,7 +215,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
             {step3State === 'running' && <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />}
           </div>
           <p className="text-[10px] text-slate-600 mt-1 font-medium line-clamp-1">
-            ¿Qué contratos de cobertura FX están expuestos?
+            ¿Cuáles son los 31 contratos FX sin cobertura ($582.1M)?
           </p>
         </button>
 
@@ -238,7 +238,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
             {step4State === 'running' && <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />}
           </div>
           <p className="text-[10px] text-amber-700 font-bold mt-1">
-            BUSCARV y PPT (Demora 3 Días)
+            BUSCARV (77 POs + 81 SKUs + 31 FX) (Demora 3 Días)
           </p>
         </button>
       </div>
@@ -254,7 +254,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
                   Paso 1: Consulta a Compras // Google Cloud BigQuery (`vtxdemos.ebc_modernization_demo.procurement_po_commitments`)
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;Órdenes abiertas con Taiwán&rdquo;</span>
+              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;77 órdenes abiertas en Taiwán ($685.9M USD)&rdquo;</span>
             </div>
 
             <div className="bg-[#1e272e] text-[#d2dae2] p-3 rounded font-mono text-[11px] leading-relaxed border border-slate-700 overflow-x-auto">
@@ -284,7 +284,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
               {step1State === 'done' && (
                 <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 font-mono">
                   <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
-                  <span>✓ Resultado BigQuery: <strong>PO_Commitments_APAC.csv</strong> (Latencia real: {stepLatencies[1] || 480}ms &bull; $320M en 8 órdenes)</span>
+                  <span>✓ Resultado BigQuery: <strong>PO_Commitments_APAC.csv</strong> (Latencia real: {stepLatencies[1] || 1200}ms &bull; $685.9M en 77 órdenes abiertas)</span>
                 </div>
               )}
             </div>
@@ -300,7 +300,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
                   Paso 2: Consulta a Almacén // Google Cloud BigQuery (`vtxdemos.ebc_modernization_demo.inventory_positions`)
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;Stock de seguridad y consumo&rdquo;</span>
+              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;81 SKUs con stock de seguridad crítico (&lt;90 días de buffer)&rdquo;</span>
             </div>
 
             <div className="bg-[#1e272e] text-[#d2dae2] p-3 rounded font-mono text-[11px] leading-relaxed border border-slate-700 overflow-x-auto">
@@ -330,7 +330,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
               {step2State === 'done' && (
                 <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 font-mono">
                   <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
-                  <span>✓ Resultado BigQuery: <strong>Warehouse_Runout_Risk.csv</strong> (Latencia real: {stepLatencies[2] || 510}ms &bull; Solo 34 a 45 días de stock restante)</span>
+                  <span>✓ Resultado BigQuery: <strong>Warehouse_Runout_Risk.csv</strong> (Latencia real: {stepLatencies[2] || 1000}ms &bull; 81 SKUs críticos con solo 28 a 88 días de stock restante)</span>
                 </div>
               )}
             </div>
@@ -346,7 +346,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
                   Paso 3: Consulta a Tesorería // Google Cloud BigQuery (`vtxdemos.ebc_modernization_demo.treasury_fx_derivatives`)
                 </span>
               </div>
-              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;Coberturas cambiarias y forwards expuestos&rdquo;</span>
+              <span className="text-[11px] font-mono text-slate-500 font-bold">Pregunta: &ldquo;31 contratos cambiarios forwards sin cobertura ($582.1M USD)&rdquo;</span>
             </div>
 
             <div className="bg-[#1e272e] text-[#d2dae2] p-3 rounded font-mono text-[11px] leading-relaxed border border-slate-700 overflow-x-auto">
@@ -376,7 +376,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
               {step3State === 'done' && (
                 <div className="bg-emerald-50 border border-emerald-300 text-emerald-800 text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 font-mono">
                   <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
-                  <span>✓ Resultado BigQuery: <strong>Treasury_FX_Exposure.csv</strong> (Latencia real: {stepLatencies[3] || 430}ms &bull; 2 forwards sin cobertura por $14.2M)</span>
+                  <span>✓ Resultado BigQuery: <strong>Treasury_FX_Exposure.csv</strong> (Latencia real: {stepLatencies[3] || 1200}ms &bull; 31 forwards sin cobertura por $582.1M USD)</span>
                 </div>
               )}
             </div>
@@ -403,7 +403,7 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
                 <span>Puntos de fricción del proceso tradicional:</span>
               </div>
               <ul className="list-disc list-inside space-y-1 text-[11px] font-mono text-slate-700">
-                <li>El analista debe cruzar manualmente los 3 CSVs con fórmulas de <code>=BUSCARV(A2, PO_Commitments!A:A, Inventory!C:C)</code>.</li>
+                <li>El analista debe cruzar manualmente los 3 CSVs (77 órdenes de compras con 81 SKUs de almacén y 31 contratos FX).</li>
                 <li>Los códigos de SKU no coinciden exactamente, requiriendo 4 hilos de correos entre Compras y Tesorería.</li>
                 <li>La presentación para el Director General y el Consejo se debe armar a mano en PowerPoint con gráficas estáticas.</li>
               </ul>
@@ -426,9 +426,9 @@ export const MultiDepartmentQueryChain: React.FC<MultiDepartmentQueryChainProps>
 
               {step4State === 'done' && (
                 <div className="bg-emerald-100 border border-emerald-400 text-emerald-950 text-xs px-3.5 py-2 rounded-lg font-mono font-bold space-y-1 shadow-sm">
-                  <div className="text-emerald-900 font-bold">✓ Resultado Consolidado (Listo después de 3 días):</div>
+                  <div className="text-emerald-900 font-bold">✓ Resultado Consolidado (Listo después de 3 días de trabajo manual):</div>
                   <div className="text-[11px] text-emerald-800">
-                    Riesgo Total de Portafolio: <strong>$105.6M</strong> &bull; Impacto en EBITDA: <strong>-$100.8M</strong> &bull; Faltante de Cobertura: <strong>$14.2M</strong>
+                    Órdenes en Taiwán: <strong>$685.9M (77 POs)</strong> &bull; Inventario Crítico: <strong>81 SKUs (28-88 días buffer)</strong> &bull; Exposición FX Sin Cobertura: <strong>$582.1M (31 Forwards)</strong>
                   </div>
                 </div>
               )}
