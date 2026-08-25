@@ -74,34 +74,34 @@ interface A2AMessage {
 
 const EBC_DEMO_TRACKS = [
   {
-    title: "A2A Adversarial Red-Team & Forensic Consensus",
-    tag: "A2A Multi-Agent",
-    desc: "Orchestrate 3 agents (Deal Lead, Quant Worker & Red-Team Auditor) disputing assumptions to reach verified consensus.",
+    title: "Live Tech Giants Valuation Dashboard",
+    tag: "Search + Live HTML",
+    desc: "Fetch live Google Search metrics for GOOGL, AMZN & MSFT and render interactive HTML dashboard.",
+    prompt: "Search Google for the latest stock prices, market cap, and revenue for Alphabet (GOOGL), Amazon (AMZN), and Microsoft (MSFT). In 1 single step, use `create_file` to write an interactive dark-mode HTML dashboard at '/workspace/risk_dashboard.html' featuring live price cards, interactive sensitivity sliders, and comparative Chart.js bars."
+  },
+  {
+    title: "10,000-Run Monte Carlo Simulation",
+    tag: "Instant Sandbox Compute",
+    desc: "Run 10,000 Monte Carlo iterations in Python, export CSV distribution & generate interactive VaR curve.",
+    prompt: "Execute a Python script at '/workspace/monte_carlo.py' running a 10,000-iteration Monte Carlo supply chain disruption simulation in Python. Save the distribution dataset to '/workspace/var_distribution.csv' and generate an interactive HTML distribution visualizer at '/workspace/var_simulation.html'."
+  },
+  {
+    title: "Real-Time Anomaly Forensics & Radar",
+    tag: "Python Forensics",
+    desc: "Generate 500 corporate transactions, detect statistical outliers (>3.0σ), and render interactive radar chart.",
+    prompt: "Execute a Python script at '/workspace/detect_anomalies.py' generating 500 expense transactions and detecting statistical anomalies (>3.0σ). Save flagged items to '/workspace/fraud_anomalies.csv' and create an interactive HTML radar visualizer at '/workspace/fraud_radar.html'."
+  },
+  {
+    title: "Algorithmic Order Matcher & Test Suite",
+    tag: "Code Execution",
+    desc: "Write algorithmic order matching engine with unit tests, execute in Linux sandbox & verify 100% pass.",
+    prompt: "Write a high-performance algorithmic order matching engine in '/workspace/order_matcher.py' with automated unit tests in '/workspace/test_matcher.py', execute `python3 test_matcher.py` in the sandbox, and verify 100% test pass status."
+  },
+  {
+    title: "A2A Multi-Agent Forensic Consensus",
+    tag: "A2A Wire-Tap",
+    desc: "Orchestrate 3 agents (Deal Lead, Quant Worker & Red-Team Auditor) disputing assumptions to reach consensus.",
     prompt: "Execute an Agent-to-Agent (A2A) M&A valuation audit: Deal Lead requests initial 10k Monte Carlo valuation, Red-Team Risk Auditor challenges terminal growth assumptions, Quant Agent recalibrates in Linux sandbox, and CRO signs reconciled Board Memorandum."
-  },
-  {
-    title: "Live M&A Market Intelligence",
-    tag: "Search + Compute",
-    desc: "Search Google for live AAPL & MSFT Q2 earnings, calculate valuation multiples, and save to CSV.",
-    prompt: "Search Google for the latest stock prices, market cap, and recent financial revenue for Apple (AAPL) and Microsoft (MSFT). Create a Python script to compute valuation multiples (P/S ratio, market cap difference), execute it to save '/workspace/market_comparison.csv', and generate an executive report in 'market_report.md'."
-  },
-  {
-    title: "10,000-Iteration Monte Carlo Stress Test",
-    tag: "Heavy Compute",
-    desc: "Simulate 10,000 supply chain disruption scenarios in Python & compute 95% Value-at-Risk.",
-    prompt: "Create and execute a Python script '/workspace/monte_carlo_stress_test.py' running a 10,000-iteration Monte Carlo simulation of global freight costs under a +15% fuel spike and -8% tariff shock. Calculate the 95% Value-at-Risk (VaR), save the distribution to '/workspace/stress_test_results.csv', and output the executive risk summary to 'risk_briefing.md'."
-  },
-  {
-    title: "Interactive Board-Ready HTML Risk Dashboard",
-    tag: "Visual Charts UI",
-    desc: "Search live market multiples for Tech Giants & generate interactive HTML dashboard.",
-    prompt: "Search Google for the latest stock prices, market capitalization, and recent revenue for Alphabet (GOOGL), Amazon (AMZN), and Microsoft (MSFT). Then use `create_file` to generate a standalone, self-contained interactive HTML/JS dashboard at '/workspace/risk_dashboard.html' grounded in this live real-world data with interactive sensitivity metric bars, comparative charts, and key decision indicators for our M&A committee."
-  },
-  {
-    title: "Self-Healing Software Pipeline",
-    tag: "Autonomous Debugging",
-    desc: "Write order processing code with unit tests, catch deliberate runtime failure, and self-repair.",
-    prompt: "Create a Python script '/workspace/order_engine.py' with automated unit tests in '/workspace/test_engine.py'. Run the tests with python3, catch any intentional edge-case bugs, refactor the code in place, and prove all tests pass with 100% test coverage."
   }
 ];
 
