@@ -19,7 +19,7 @@ from .bigquery_service import execute_chain_step_bigquery
 # Load environment with override=True per rules
 load_dotenv(override=True)
 
-MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+MODEL_NAME = os.getenv("GEMINI_MODEL", "gemini-3.7-flash")
 GCP_PROJECT = os.getenv("GCP_PROJECT", "vtxdemos")
 GCP_REGION = os.getenv("GCP_REGION", "us-central1")
 
@@ -67,12 +67,12 @@ async def process_agent_query(request: AgentQueryRequest) -> AgentQueryResponse:
     if not is_scenario_query:
         client = _get_genai_client()
         synthesis_text = ""
-        model_used = MODEL_NAME
+        model_used = "Gemini 3.7 Flash"
         confidence = 0.98
         reasoning_trace = [
             "1. Intención Detectada: Consulta en Tiempo Real / Live Web Intelligence",
-            "2. Invocando Google Search Grounding Tool integrado en Gemini 2.5 Flash",
-            "3. Extrayendo datos de mercado, noticias y fuentes web actualizadas",
+            "2. Invocando Google Search Grounding Tool integrado en Gemini 3.7 Flash",
+            "3. Extrayendo datos de mercado, cotizaciones y fuentes actualizadas",
             "4. Síntesis ejecutiva generada con grounding en tiempo real"
         ]
 
@@ -88,14 +88,14 @@ async def process_agent_query(request: AgentQueryRequest) -> AgentQueryResponse:
                             system_instruction="Eres el asistente de IA ejecutivo de Google Cloud. Utiliza la herramienta de búsqueda de Google para obtener información fidedigna y en tiempo real sobre cotizaciones de mercado, precios de acciones, noticias financieras o datos generales."
                         )
                     )
-                resp = await asyncio.wait_for(asyncio.to_thread(_call_gemini_general), timeout=15.0)
+                resp = await asyncio.wait_for(asyncio.to_thread(_call_gemini_general), timeout=8.0)
                 if resp and resp.text:
                     synthesis_text = resp.text
             except Exception as e:
                 print(f"General query Gemini error: {e}")
 
         if not synthesis_text:
-            synthesis_text = f"He recibido tu consulta: **\"{request.query}\"**.\n\nComo asistente ejecutivo de Google Cloud con Gemini 2.5 Flash y BigQuery, puedo ayudarte a analizar escenarios de riesgo de cadena de suministro, finanzas corporativas, consultas en tiempo real de mercado o explorar los datos de tu empresa."
+            synthesis_text = f"He recibido tu consulta: **\"{request.query}\"**.\n\nComo asistente ejecutivo de Google Cloud con Gemini 3.7 Flash y BigQuery, puedo ayudarte a analizar escenarios de riesgo de cadena de suministro, finanzas corporativas, consultas en tiempo real de mercado o explorar los datos de tu empresa."
 
         elapsed_ms = (time.perf_counter() - start_time) * 1000.0
         shock_impact = compute_shock_impact(params)

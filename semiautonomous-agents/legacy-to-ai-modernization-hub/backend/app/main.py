@@ -53,7 +53,7 @@ async def health_check():
         "status": "healthy",
         "service": "legacy-to-ai-modernization-hub",
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "model_target": os.getenv("GEMINI_MODEL", "gemini-2.5-flash"),
+        "model_target": os.getenv("GEMINI_MODEL", "gemini-3.7-flash"),
     }
 
 

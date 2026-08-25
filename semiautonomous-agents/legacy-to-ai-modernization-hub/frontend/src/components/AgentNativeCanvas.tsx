@@ -280,10 +280,10 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
         </div>
 
         {/* Large Prominent Prompt Textarea for EBC */}
-        <form onSubmit={handleQuerySubmit} className="flex flex-col sm:flex-row items-center gap-3">
+        <form onSubmit={handleQuerySubmit} className="flex flex-col sm:flex-row items-stretch gap-3">
           <div className="relative flex-1 w-full">
             <textarea
-              rows={query.length > 120 ? 2 : 1}
+              rows={query.length > 180 ? 3 : 2}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
@@ -293,13 +293,13 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
                 }
               }}
               placeholder="Escribe una pregunta para consultar BigQuery en vivo (ej. 'Si nuestro proveedor en Taiwán tiene un bloqueo de 90 días, ¿cuáles órdenes están comprometidas, cuántos días de inventario nos quedan y qué contratos FX están expuestos?')"
-              className="w-full bg-slate-950/90 border-2 border-slate-700 hover:border-cyan-500/80 text-slate-100 placeholder-slate-400 text-sm sm:text-base px-5 py-3.5 sm:py-4 rounded-2xl focus:outline-none focus:border-cyan-400 shadow-inner font-medium resize-none min-h-[58px] leading-snug transition-all"
+              className="w-full bg-slate-950/90 border-2 border-slate-700 hover:border-cyan-500/80 text-slate-100 placeholder-slate-400 text-sm sm:text-base px-5 py-3 sm:py-3.5 rounded-2xl focus:outline-none focus:border-cyan-400 shadow-inner font-medium resize-none min-h-[64px] leading-normal transition-all"
             />
           </div>
           <button
             type="submit"
             disabled={queryLoading}
-            className="w-full sm:w-auto px-8 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm sm:text-base shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer shrink-0 h-[58px]"
+            className="w-full sm:w-auto px-8 rounded-2xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black text-sm sm:text-base shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-2.5 transition-all disabled:opacity-50 cursor-pointer shrink-0 min-h-[54px] sm:min-h-0 self-stretch"
           >
             {queryLoading ? (
               <RefreshCw className="h-5 w-5 animate-spin" />
@@ -390,6 +390,72 @@ export const AgentNativeCanvas: React.FC<AgentNativeCanvasProps> = ({
               <Maximize2 className="h-4 w-4 text-purple-400" />
               100&quot; Widescreen Layout
             </span>
+          </div>
+        </div>
+      )}
+
+      {/* 0. LIVE FORENSIC EXECUTION PIPELINE (Shown while queryLoading is true) */}
+      {queryLoading && (
+        <div className="cyber-glass rounded-3xl p-6 sm:p-8 border-2 border-cyan-500/60 bg-gradient-to-br from-cyan-950/40 via-slate-900/90 to-slate-950 space-y-6 shadow-2xl animate-pulse">
+          <div className="flex items-center justify-between border-b border-cyan-800/60 pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-cyan-500/20 border border-cyan-400">
+                <Sparkles className="h-6 w-6 text-cyan-300 animate-spin" />
+              </div>
+              <div>
+                <h3 className="font-extrabold text-base sm:text-lg text-slate-100 uppercase tracking-wider font-mono flex items-center gap-2">
+                  <span>Procesando Consulta Agéntica en Vivo</span>
+                  <span className="text-xs px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                    Behind-The-Scenes
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-400 font-mono">
+                  Sincronizando Gemini 3.7 Flash &bull; BigQuery Grounding &bull; VaR 99% Stress Model
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 font-mono text-xs text-cyan-300 bg-slate-950 px-3 py-1.5 rounded-xl border border-cyan-800">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+              <span>Ejecutando en Vivo...</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-cyan-500/40 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-mono text-cyan-400">
+                <span>PASO 01</span>
+                <CheckCircle2 className="h-4 w-4 text-cyan-400" />
+              </div>
+              <p className="font-bold text-xs text-slate-200">Detección de Intención Semántica</p>
+              <p className="text-[11px] text-slate-400">Identificando entidades EBC (CICE, Silanes, Gloria, Boxito, HR Ratings)...</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-cyan-500/40 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-mono text-cyan-400">
+                <span>PASO 02</span>
+                <Database className="h-4 w-4 text-cyan-400 animate-pulse" />
+              </div>
+              <p className="font-bold text-xs text-slate-200">BigQuery Grounding Activo</p>
+              <p className="text-[11px] text-slate-400">Extrayendo datos de 100k órdenes en vtxdemos.ebc_modernization_demo...</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-cyan-500/40 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-mono text-cyan-400">
+                <span>PASO 03</span>
+                <Zap className="h-4 w-4 text-emerald-400 animate-pulse" />
+              </div>
+              <p className="font-bold text-xs text-slate-200">Gemini 3.7 Flash Reasoning</p>
+              <p className="text-[11px] text-slate-400">Sintetizando impacto de estrés financiero, buffers de planta y liquidez...</p>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-950/80 border border-cyan-500/40 space-y-2">
+              <div className="flex items-center justify-between text-[11px] font-mono text-cyan-400">
+                <span>PASO 04</span>
+                <Maximize2 className="h-4 w-4 text-purple-400" />
+              </div>
+              <p className="font-bold text-xs text-slate-200">Ensamblado Polimórfico</p>
+              <p className="text-[11px] text-slate-400">Generando layout widescreen interactivo para visualización ejecutiva...</p>
+            </div>
           </div>
         </div>
       )}
