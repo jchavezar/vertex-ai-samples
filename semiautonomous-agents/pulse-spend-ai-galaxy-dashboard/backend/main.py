@@ -27,7 +27,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-ENRICHED_DATA_PATH = "/Users/jesusarguelles/.gemini/jetski/brain/bcc57a77-5608-4a79-bef0-a6bce4cafa40/scratch/enriched_dataset.json"
+PRIMARY_DATA_PATH = "/Users/jesusarguelles/.gemini/jetski/brain/bcc57a77-5608-4a79-bef0-a6bce4cafa40/scratch/enriched_dataset.json"
+FALLBACK_DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "enriched_dataset.json")
+ENRICHED_DATA_PATH = PRIMARY_DATA_PATH if os.path.exists(PRIMARY_DATA_PATH) else FALLBACK_DATA_PATH
 
 analytics_service: Optional[AnalyticsService] = AnalyticsService(ENRICHED_DATA_PATH) if os.path.exists(ENRICHED_DATA_PATH) else None
 ai_service: Optional[AIService] = None

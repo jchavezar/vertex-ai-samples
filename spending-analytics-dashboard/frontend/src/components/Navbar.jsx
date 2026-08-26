@@ -77,8 +77,11 @@ export default function Navbar({ activeTab, setActiveTab, cardholder, setCardhol
                 ))
               ) : (
                 <>
-                  <option value="DINORAH GUERRA" className="bg-slate-900">Dinorah Guerra</option>
-                  <option value="JESUS CHAVEZ" className="bg-slate-900">Jesus Chavez</option>
+                  <option value="ALEXANDER WRIGHT" className="bg-slate-900">Alexander Wright (CEO)</option>
+                  <option value="ELENA VANCE" className="bg-slate-900">Elena Vance (CFO)</option>
+                  <option value="MARCUS CHEN" className="bg-slate-900">Marcus Chen (CTO)</option>
+                  <option value="SOPHIA MARTINEZ" className="bg-slate-900">Sophia Martinez (VP Product)</option>
+                  <option value="DAVID ROSS" className="bg-slate-900">David Ross (VP Operations)</option>
                 </>
               )}
             </select>

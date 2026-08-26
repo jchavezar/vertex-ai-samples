@@ -7,7 +7,7 @@ from google import genai
 
 logger = logging.getLogger(__name__)
 
-CACHE_DIR = "/Users/jesusarguelles/.gemini/jetski/brain/bcc57a77-5608-4a79-bef0-a6bce4cafa40/scratch"
+CACHE_DIR = os.path.join(os.path.dirname(__file__), "..", "..", "data")
 EMBEDDINGS_CACHE_PATH = os.path.join(CACHE_DIR, "semantic_embeddings.npz")
 DATASET_PATH = os.path.join(CACHE_DIR, "enriched_dataset.json")
 RECEIPTS_CACHE_PATH = os.path.join(CACHE_DIR, "receipts_cache.json")

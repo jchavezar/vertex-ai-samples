@@ -1,0 +1,41 @@
+# Data & Secrets (MANDATORY)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+client_secret*.json
+credentials.json
+*_token.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Node & Frontend
+node_modules/
+dist/
+dist-ssr/
+*.local
+.DS_Store
+.idea/
+.vscode/

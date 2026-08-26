@@ -12,7 +12,7 @@ from services.gmail_service import GmailService
 
 logger = logging.getLogger(__name__)
 
-CACHE_FILE_PATH = "/Users/jesusarguelles/.gemini/jetski/brain/bcc57a77-5608-4a79-bef0-a6bce4cafa40/scratch/receipts_cache.json"
+CACHE_FILE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "data", "receipts_cache.json")
 
 # Global Execution Trace Log & Pipeline State
 GLOBAL_TRACE_LOGS: List[Dict[str, Any]] = []
@@ -71,9 +71,9 @@ GROUNDED_GMAIL_RECEIPTS = {
         "delivery_status": "Delivered to Front Door / Reception",
         "raw_email": """From: Amazon.com <auto-confirm@amazon.com>
 Subject: Your Amazon.com order #114-8932014-9921458 has shipped!
-To: Jesus Chavez <jchavezar@gmail.com>
+To: Alexander Wright <alexander.wright@enterprise.com>
 
-Hello Jesus,
+Hello Alexander,
 Thank you for shopping with Amazon.com! We thought you'd like to know that your items have shipped and are scheduled for delivery.
 
 Order #114-8932014-9921458
@@ -87,7 +87,7 @@ Shipped Items:
 Merchandise Subtotal: $74.54
 Estimated Tax: $6.62
 Shipping & Handling: Free Prime Delivery
-Total Charged to Amex Platinum ending in ...4012: $74.54
+Total Charged to Amex Corporate ending in ...10041: $74.54
 
 Manage or return your order: https://www.amazon.com/gp/css/returns/homepage.html""",
         "items": [
@@ -104,7 +104,7 @@ Manage or return your order: https://www.amazon.com/gp/css/returns/homepage.html
         "delivery_status": "Completed in Soho Flagship Store",
         "raw_email": """From: Alo Yoga <receipts@aloyoga.com>
 Subject: Alo Yoga Soho E-Receipt - Order #ALO-982314
-To: Dinorah Guerra <dinorah@example.com>
+To: Elena Vance <elena.vance@enterprise.com>
 
 Thank you for visiting Alo Soho!
 
@@ -119,7 +119,7 @@ Items Purchased:
 
 Subtotal: $414.00
 NY State & City Sales Tax (8.875%): $36.74
-Total Paid via Amex ending in ...1008: $414.00
+Total Paid via Amex ending in ...82014: $414.00
 
 Return Policy:
 Full refund within 30 days of purchase in unworn condition with original tags attached.
@@ -139,10 +139,10 @@ Start a return online at: https://www.aloyoga.com/returns""",
         "delivery_status": "Confirmed E-Ticket Issued",
         "raw_email": """From: Delta Air Lines <ticketreceipt@delta.com>
 Subject: Your Flight Receipt and Itinerary - Confirmation #K9Z8PW
-To: Jesus Chavez <jchavezar@gmail.com>
+To: Marcus Chen <marcus.chen@enterprise.com>
 
 DELTA E-TICKET CONFIRMATION
-Passenger: JESUS CHAVEZ
+Passenger: MARCUS CHEN
 Frequent Flyer: SkyMiles #2948104820 (Platinum Medallion)
 Confirmation Code: K9Z8PW
 
@@ -153,7 +153,7 @@ Flight Itinerary:
 Breakdown:
 - Base Airfare (JFK-SFO): $485.00
 - U.S. Transportation Tax & Security Fees: $41.14
-Total Charged to American Express Platinum: $526.14
+Total Charged to American Express Corporate: $526.14
 
 Baggage: 1 Checked Bag Included (Platinum Medallion Benefit).
 Manage Itinerary: https://www.delta.com/mytrips""",
@@ -170,7 +170,7 @@ Manage Itinerary: https://www.delta.com/mytrips""",
         "delivery_status": "Completed at Whole Foods Tribeca",
         "raw_email": """From: Whole Foods Market <no-reply@wholefoods.com>
 Subject: Your Whole Foods Market Digital Receipt - Order #WF-94821
-To: Jesus Chavez <jchavezar@gmail.com>
+To: Sophia Martinez <sophia.martinez@enterprise.com>
 
 Whole Foods Market - Tribeca Store #1042
 Prime Savings Applied (-$4.50)
@@ -201,9 +201,9 @@ Total Paid via Apple Pay (Amex): $74.54""",
         "delivery_status": "Delivered to Residence",
         "raw_email": """From: Sephora <shop@sephora.com>
 Subject: Sephora Order Confirmation #W94821908
-To: Dinorah Guerra <dinorah@example.com>
+To: Elena Vance <elena.vance@enterprise.com>
 
-Beauty Insider Account: DINORAH GUERRA (Rouge Member)
+Beauty Insider Account: ELENA VANCE (Rouge Member)
 Order #W94821908
 
 Items in Shipment:
@@ -231,7 +231,7 @@ Returns accepted within 30 days for full refund. https://www.sephora.com/returns
         "delivery_status": "Delivered to Customer Door",
         "raw_email": """From: Grubhub <orders@eat.grubhub.com>
 Subject: Your receipt from Grubhub - Order #GH-849201
-To: Jesus Chavez <jchavezar@gmail.com>
+To: David Ross <david.ross@enterprise.com>
 
 Restaurant: Parm Soho, New York, NY
 Delivery Time: 7:42 PM
@@ -247,7 +247,6 @@ Delivery Fee: $1.99
 Driver Tip: $7.00
 Total Paid (Amex): $55.81""",
         "items": [
-            {"name": "Spicy Rigatoni Vodka with Fresh Mozzarella", "sku": "GH-PARM-01", "unit_price": 24.50, "quantity": 1, "category": "Entree"},
             {"name": "Caesar Salad with Rosemary Croutons", "sku": "GH-PARM-02", "unit_price": 14.00, "quantity": 1, "category": "Salad"},
             {"name": "San Pellegrino Sparkling Water (500ml)", "sku": "GH-DRK-01", "unit_price": 4.50, "quantity": 1, "category": "Beverage"}
         ]
@@ -501,3 +500,14 @@ class ReceiptAgentOrchestrator:
                 "Itemized breakdown synthesized by Gemini 3.7 Flash."
             ]
         }
+
+def get_traces():
+    return list(GLOBAL_TRACE_LOGS)
+
+def clear_traces():
+    GLOBAL_TRACE_LOGS.clear()
+    return {"status": "cleared"}
+
+def get_pipeline_status():
+    return dict(PIPELINE_STATE)
+

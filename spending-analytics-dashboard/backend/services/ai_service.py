@@ -17,11 +17,37 @@ class AIService:
         self.project = os.environ.get('GOOGLE_CLOUD_PROJECT', 'vtxdemos')
         self.location = os.environ.get('GOOGLE_CLOUD_LOCATION', 'us-central1')
         self.model_name = 'gemini-2.5-flash'
-        self.client = genai.Client(
-            vertexai=True,
-            project=self.project,
-            location=self.location
-        )
+        self._init_client()
+
+    def _init_client(self):
+        try:
+            self.client = genai.Client(
+                vertexai=True,
+                project=self.project,
+                location=self.location
+            )
+        except Exception as e:
+            logger.error(f"Failed to initialize GenAI client in AIService: {e}")
+
+    def _call_generate_with_retry(self, prompt: str, is_json: bool = False, max_attempts: int = 3):
+        for attempt in range(max_attempts):
+            try:
+                config = types.GenerateContentConfig(
+                    response_mime_type='application/json' if is_json else None,
+                    temperature=0.2
+                ) if is_json else types.GenerateContentConfig(temperature=0.3)
+                
+                response = self.client.models.generate_content(
+                    model=self.model_name,
+                    contents=prompt,
+                    config=config
+                )
+                return response
+            except Exception as e:
+                logger.warning(f"AIService generate_content attempt {attempt+1} failed: {e}. Re-instantiating client...")
+                self._init_client()
+                if attempt == max_attempts - 1:
+                    raise e
 
 
     def generate_spending_audit_report(self, kpis: Dict[str, Any], categories: List[Dict[str, Any]], cardholders: Dict[str, Any], top_merchants: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -92,14 +118,7 @@ Provide a deep, highly actionable AI Spending Audit and Cost Optimization report
 
 Return ONLY valid JSON matching this schema.
 """
-        response = self.client.models.generate_content(
-            model=self.model_name,
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type='application/json',
-                temperature=0.2
-            )
-        )
+        response = self._call_generate_with_retry(prompt, is_json=True)
         text = response.text.strip()
         if text.startswith("```json"):
             text = text[7:]
@@ -122,8 +141,5 @@ User Question: "{user_query}"
 
 Provide a helpful, precise, friendly, and analytical answer. Use formatting (bullet points, bold text, dollar amounts, savings tips) where applicable.
 """
-        response = self.client.models.generate_content(
-            model=self.model_name,
-            contents=prompt
-        )
+        response = self._call_generate_with_retry(prompt, is_json=False)
         return response.text

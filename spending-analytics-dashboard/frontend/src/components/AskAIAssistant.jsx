@@ -37,7 +37,7 @@ export default function AskAIAssistant() {
 
   const sampleQuestions = [
     "How much did we spend on food delivery apps?",
-    "Compare Dinorah vs Jesus spending breakdown",
+    "Compare Alexander vs Elena vs Marcus spending breakdown",
     "What were our top 3 single largest purchases?",
     "Analyze our total fashion & luxury spending",
     "How much money was returned in refunds?"

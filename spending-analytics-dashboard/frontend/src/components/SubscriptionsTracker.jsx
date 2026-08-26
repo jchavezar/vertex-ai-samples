@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Repeat, Sparkles, DollarSign, Calendar, AlertCircle, CheckCircle, ShieldAlert, ArrowUpRight, Filter } from 'lucide-react';
+import { getUserConfig } from '../utils/userConfig';
 
 export default function SubscriptionsTracker({ subscriptionData, cardholderFilter = 'ALL' }) {
   const [selectedCategory, setSelectedCategory] = useState('ALL');
@@ -31,25 +32,11 @@ export default function SubscriptionsTracker({ subscriptionData, cardholderFilte
 
   const getMemberTag = (memberName) => {
     if (!memberName) return null;
-    const isDinorah = memberName.toUpperCase().includes('DINORAH');
-    const isJesus = memberName.toUpperCase().includes('JESUS');
-    if (isDinorah) {
-      return (
-        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-pink-500/10 text-pink-300 border border-pink-500/20">
-          🟣 Dinorah
-        </span>
-      );
-    }
-    if (isJesus) {
-      return (
-        <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
-          🔵 Jesus
-        </span>
-      );
-    }
+    const userCfg = getUserConfig(memberName);
     return (
-      <span className="px-2 py-0.5 text-[10px] font-bold rounded-full bg-slate-800 text-slate-300 border border-slate-700">
-        👤 {memberName.split(' ')[0]}
+      <span className={`px-2 py-0.5 text-[10px] font-bold rounded-full border inline-flex items-center gap-1 ${userCfg.badgeClass}`}>
+        <span>{userCfg.iconEmoji}</span>
+        <span>{userCfg.short} ({userCfg.tag})</span>
       </span>
     );
   };

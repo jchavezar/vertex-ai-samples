@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discovery Engine OAuth Handshake — 4 PM Notebook APIs Highlighted</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #f8fafc;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    #viewport {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .mermaid {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mermaid svg {
+      width: 100% !important;
+      height: 100% !important;
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .controls {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #cbd5e1;
+      padding: 6px 10px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+      z-index: 100;
+    }
+    .controls button {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #0f172a;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .controls button:hover {
+      background: #0284c7;
+      color: white;
+      border-color: #0284c7;
+    }
+    .legend-top {
+      position: fixed;
+      top: 18px;
+      left: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid #cbd5e1;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      z-index: 100;
+    }
+    .legend-tag {
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="legend-top">
+    <span>📌 Visual Guide:</span>
+    <span class="legend-tag">🟡 [API 1..4] = The 4 Discovery Engine API calls from PM Notebook</span>
+  </div>
+
+  <div class="controls">
+    <button id="zoom-in">Zoom In (+)</button>
+    <button id="zoom-out">Zoom Out (-)</button>
+    <button id="reset">Reset</button>
+  </div>
+
+  <div id="viewport">
+    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    actor User as 👤 End User
+    participant WebApp as 💻 Web App (localhost:5175)
+    participant Popup as 🪟 OAuth Popup
+    participant IdP as 🔐 Microsoft / ServiceNow
+    participant GoogleRedirect as 🌐 Google Redirect Handler<br/>(vertexaisearch.cloud.google.com)
+    participant Backend as ⚙️ FastAPI Backend (localhost:8004)
+    participant DiscoveryEngine as ☁️ Vertex AI Discovery Engine
+
+    Note over WebApp,DiscoveryEngine: ── 1. PRE-FLIGHT DOMAIN & WIDGET CONFIG ──
+    WebApp->>Backend: Request Domain Allowlist
+    Backend->>DiscoveryEngine: 🟡 [API 1 - Cell 6] PATCH .../widgetConfigs/default_search_widget_config<br/>(allowlist_custom_domain)
+    
+    WebApp->>Backend: Fetch Connectors & Auth URIs
+    Backend->>DiscoveryEngine: 🟡 [API 2 - Cell 7] GET .../widgetConfigs/default_search_widget_config?customDomain=...<br/>(get_widget_config)
+    DiscoveryEngine-->>Backend: Returns dynamic authorizationUri for each connector
+    Backend-->>WebApp: Returns Connectors List (ServiceNow, SharePoint, Outlook)
+
+    Note over User,GoogleRedirect: ── 2. USER LOGIN & REDIRECT FLOW ──
+    User->>WebApp: Clicks "Authorize ↗"
+    WebApp->>Popup: window.open(authorizationUri)
+    Popup->>IdP: User signs in & grants consent
+    IdP->>GoogleRedirect: Redirects with auth code
+    GoogleRedirect-->>WebApp: window.opener.postMessage(redirectUri) [Notebook Cell 10]
+    WebApp->>Popup: Closes Popup Window
+
+    Note over WebApp,DiscoveryEngine: ── 3. TOKEN STORAGE & ENGINE STATE ──
+    WebApp->>Backend: Forward fullRedirectUri
+    Backend->>DiscoveryEngine: 🟡 [API 3 - Cell 13] POST .../dataConnector:acquireAndStoreRefreshToken<br/>(post_refresh_token)
+    
+    WebApp->>Backend: Request Status -> AUTHORIZED
+    Backend->>DiscoveryEngine: 🟡 [API 4 - Cell 15] POST .../engines/{id}:updateEngineUserData<br/>(change_connector_auth -> AUTHORIZED)
+    
+    WebApp->>WebApp: UI turns Green "AUTHORIZED" ✅
+
+    opt Revoke / Disconnect
+        User->>WebApp: Clicks "Revoke (EXPIRED)"
+        WebApp->>Backend: Request Status -> EXPIRED
+        Backend->>DiscoveryEngine: 🟡 [API 4 - Cell 18] POST .../engines/{id}:updateEngineUserData<br/>(change_connector_auth -> EXPIRED)
+    end
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'default',
+      themeVariables: {
+        fontSize: '17px',
+        fontFamily: 'Plus Jakarta Sans, sans-serif',
+        actorBkg: '#0284c7',
+        actorTextColor: '#ffffff',
+        actorBorder: '#0369a1',
+        actorLineColor: '#0284c7',
+        signalColor: '#0f172a',
+        signalTextColor: '#0f172a',
+        labelBoxBkgColor: '#f8fafc',
+        labelBoxBorderColor: '#cbd5e1',
+        labelTextColor: '#0f172a',
+        loopTextColor: '#0f172a',
+        noteBorderColor: '#d97706',
+        noteBkgColor: '#fef3c7',
+        noteTextColor: '#92400e',
+        sequenceNumberColor: '#ffffff'
+      },
+      sequence: {
+        actorMargin: 70,
+        boxMargin: 15,
+        boxTextMargin: 8,
+        noteMargin: 14,
+        messageMargin: 45,
+        mirrorActors: false,
+        width: 180,
+        height: 75
+      }
+    });
+
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const svgElement = document.querySelector('.mermaid svg');
+        if (svgElement) {
+          const panZoom = svgPanZoom(svgElement, {
+            zoomEnabled: true,
+            controlIconsEnabled: false,
+            fit: true,
+            center: true,
+            minZoom: 0.5,
+            maxZoom: 10
+          });
+
+          document.getElementById('zoom-in').addEventListener('click', () => panZoom.zoomIn());
+          document.getElementById('zoom-out').addEventListener('click', () => panZoom.zoomOut());
+          document.getElementById('reset').addEventListener('click', () => {
+            panZoom.resetZoom();
+            panZoom.center();
+          });
+        }
+      }, 500);
+    });
+  </script>
+</body>
+</html>

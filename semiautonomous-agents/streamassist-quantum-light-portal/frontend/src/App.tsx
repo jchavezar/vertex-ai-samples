@@ -82,6 +82,17 @@ interface StreamEventLog {
   expanded?: boolean;
 }
 
+interface FederatedConnector {
+  id: string;
+  name?: string;
+  displayName: string;
+  dataSource?: string;
+  authState: 'AUTHORIZED' | 'NOT_AUTHORIZED' | 'EXPIRED' | string;
+  authorizationUri?: string;
+  iconLink?: string;
+  dataStores?: string[];
+}
+
 interface BackendConfig {
   PROJECT_NUMBER: string;
   PROJECT_ID: string;
@@ -105,11 +116,43 @@ export default function App() {
   const username = accounts[0]?.username || '';
 
   // Tab Navigation
-  const [activeTab, setActiveTab] = useState<'chat' | 'security' | 'telemetry'>('chat');
+  const [activeTab, setActiveTab] = useState<'chat' | 'workflow' | 'security' | 'telemetry'>('chat');
 
-  // Backend Config
+  // Workflow Agent Runner State
+  const [availableWorkflows, setAvailableWorkflows] = useState<any[]>([]);
+  const [selectedWorkflowId, setSelectedWorkflowId] = useState('10124597458587638985');
+  const [workflowTopicInput, setWorkflowTopicInput] = useState('google tpu');
+  const [workflowAgentId, setWorkflowAgentId] = useState('10124597458587638985');
+  const [workflowScheduleId, setWorkflowScheduleId] = useState<string | null>(null);
+  const [workflowTriggerId, setWorkflowTriggerId] = useState<string | null>('manual_trigger');
+  const [workflowRunning, setWorkflowRunning] = useState(false);
+  const [workflowSession, setWorkflowSession] = useState<string | null>(null);
+  const [workflowNodes, setWorkflowNodes] = useState<{
+    id: string;
+    label: string;
+    status: 'idle' | 'running' | 'completed' | 'interrupted' | 'error';
+    outputs?: any;
+    error?: string;
+  }[]>([
+    { id: 'manual_trigger', label: 'Manual Trigger', status: 'idle' },
+    { id: 'research_agent', label: 'Document Researcher', status: 'idle' },
+    { id: 'document_selection', label: 'Document Selection', status: 'idle' },
+    { id: 'summarizer_agent', label: 'Document Summarizer', status: 'idle' },
+  ]);
+  const [workflowLogs, setWorkflowLogs] = useState<string[]>([]);
+  const [workflowHitlAction, setWorkflowHitlAction] = useState<any | null>(null);
+  const [workflowHitlInput, setWorkflowHitlInput] = useState('2,3');
+  const [workflowSummaryResult, setWorkflowSummaryResult] = useState<string | null>(null);
+  const [workflowMetrics, setWorkflowMetrics] = useState<{ duration_ms: number } | null>(null);
+
+  // Backend Config & Discovery State
   const [config, setConfig] = useState<BackendConfig | null>(null);
   const [discoveredStores, setDiscoveredStores] = useState<string[]>([]);
+  const [connectorsList, setConnectorsList] = useState<FederatedConnector[]>([]);
+  const [allowlistedDomains, setAllowlistedDomains] = useState<string[]>([]);
+  const [allowlistLoading, setAllowlistLoading] = useState(false);
+  const [allowlistSuccess, setAllowlistSuccess] = useState<string | null>(null);
+  const [authActionLoading, setAuthActionLoading] = useState<Record<string, boolean>>({});
   const [discoveryLoading, setDiscoveryLoading] = useState(false);
 
   // Chat State
@@ -143,6 +186,34 @@ export default function App() {
   const telemetryEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // Helper to fetch Widget Config with origin domain
+  const fetchWidgetConfig = useCallback(async (customToken?: string) => {
+    setDiscoveryLoading(true);
+    try {
+      const origin = window.location.origin;
+      const t = customToken || entraToken;
+      const res = await fetch(`/api/discovery/widget-config?custom_domain=${encodeURIComponent(origin)}`, {
+        headers: t ? { 'X-Entra-Id-Token': t } : {},
+      });
+      const data = await res.json();
+      if (data.connectors && data.connectors.length > 0) {
+        setConnectorsList(data.connectors);
+      }
+      if (data.discovered_datastores && data.discovered_datastores.length > 0) {
+        setDiscoveredStores(data.discovered_datastores);
+      } else if (data.fallback_datastores) {
+        setDiscoveredStores(data.fallback_datastores);
+      }
+      if (data.allowlistedDomains) {
+        setAllowlistedDomains(data.allowlistedDomains);
+      }
+    } catch (err) {
+      console.error("Failed to load widget config:", err);
+    } finally {
+      setDiscoveryLoading(false);
+    }
+  }, [entraToken]);
+
   // Load config on mount
   useEffect(() => {
     fetch('/api/config')
@@ -150,19 +221,88 @@ export default function App() {
       .then(data => setConfig(data))
       .catch(err => console.error("Error loading config:", err));
 
-    setDiscoveryLoading(true);
-    fetch('/api/discovery/widget-config')
+    fetchWidgetConfig();
+    
+    // Fetch Workflow Agents list
+    fetch('/api/workflow/agents')
       .then(res => res.json())
       .then(data => {
-        if (data.discovered_datastores && data.discovered_datastores.length > 0) {
-          setDiscoveredStores(data.discovered_datastores);
-        } else if (data.fallback_datastores) {
-          setDiscoveredStores(data.fallback_datastores);
+        if (data.workflows && data.workflows.length > 0) {
+          setAvailableWorkflows(data.workflows);
+          // Default to Document Research and Summarizer if available, or first
+          const docWf = data.workflows.find((w: any) => w.agentId === '10124597458587638985') || data.workflows[0];
+          if (docWf) {
+            handleSelectWorkflow(docWf);
+          }
         }
       })
-      .catch(() => {})
-      .finally(() => setDiscoveryLoading(false));
-  }, []);
+      .catch(err => console.error("Error loading workflow agents:", err));
+  }, [fetchWidgetConfig]);
+
+  // Select active workflow template
+  const handleSelectWorkflow = (wf: any) => {
+    setSelectedWorkflowId(wf.agentId);
+    setWorkflowAgentId(wf.agentId);
+    setWorkflowTriggerId(wf.triggerId || (wf.triggerType === 'MANUAL_TRIGGER' ? 'manual_trigger' : null));
+    setWorkflowScheduleId(wf.scheduleId || null);
+    setWorkflowSession(null);
+    setWorkflowHitlAction(null);
+    setWorkflowSummaryResult(null);
+    setWorkflowLogs([]);
+    
+    if (wf.nodes && wf.nodes.length > 0) {
+      setWorkflowNodes(wf.nodes.map((n: any) => ({
+        id: n.id,
+        label: n.displayName || n.id,
+        status: 'idle'
+      })));
+    }
+  };
+
+  // OAuth Popup Message Listener (Product Notebook Step 3.1 & Step 4)
+  useEffect(() => {
+    const handlePopupMessage = async (event: MessageEvent) => {
+      // Accept redirect messages from Google Discovery Engine OAuth redirect handler
+      if (event.origin === 'https://vertexaisearch.cloud.google.com' || event.origin === window.location.origin) {
+        console.log("OAuth Redirect Event from Google received:", event.data);
+        const redirectData = typeof event.data === 'string' ? event.data : event.data?.fullRedirectUri || event.data?.url;
+        
+        if (redirectData && (typeof redirectData === 'string' && redirectData.includes('code='))) {
+          try {
+            // Step 4: Call AcquireAndStoreRefreshToken
+            const resp = await fetch('/api/connector/acquire-and-store-refresh-token', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                ...(entraToken ? { 'X-Entra-Id-Token': entraToken } : {})
+              },
+              body: JSON.stringify({ full_redirect_uri: redirectData })
+            });
+            const resData = await resp.json();
+            
+            if (resData.success) {
+              // Step 5: Update Engine User Data to AUTHORIZED
+              await fetch('/api/connector/update-auth-state', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  ...(entraToken ? { 'X-Entra-Id-Token': entraToken } : {})
+                },
+                body: JSON.stringify({ auth_state: 'AUTHORIZED' })
+              });
+              
+              await fetchWidgetConfig();
+            }
+          } catch (err) {
+            console.error("Error saving connector refresh token:", err);
+          }
+        }
+      }
+    };
+
+    window.addEventListener('message', handlePopupMessage);
+    return () => window.removeEventListener('message', handlePopupMessage);
+  }, [entraToken, fetchWidgetConfig]);
 
   // Auto-scroll chat
   useEffect(() => {
@@ -235,6 +375,218 @@ export default function App() {
       setSpConnected(false);
     } finally {
       setSpCheckLoading(false);
+    }
+  };
+
+  // Allowlist Domain Handler (Notebook Step 2 - Cell 6)
+  const handleAllowlistDomain = async () => {
+    setAllowlistLoading(true);
+    setAllowlistSuccess(null);
+    try {
+      const origin = window.location.origin;
+      const res = await fetch('/api/discovery/allowlist-domain', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(entraToken ? { 'X-Entra-Id-Token': entraToken } : {})
+        },
+        body: JSON.stringify({ domain: origin })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setAllowlistSuccess(`Domain ${origin} successfully registered in Discovery Engine WidgetConfig!`);
+        await fetchWidgetConfig();
+      } else {
+        setAllowlistSuccess(`Response: ${typeof data.response === 'string' ? data.response : JSON.stringify(data.response || data.error)}`);
+      }
+    } catch (e: any) {
+      setAllowlistSuccess(`Error: ${e.message}`);
+    } finally {
+      setAllowlistLoading(false);
+    }
+  };
+
+  // Authorize connector via Google-provided authorizationUri (Notebook Step 2 & 3)
+  const handleAuthorizeConnector = (authUri?: string) => {
+    if (!authUri) {
+      alert("No dynamic authorizationUri available for this connector. Ensure the domain is allowlisted first.");
+      return;
+    }
+    const width = 600;
+    const height = 700;
+    const left = window.screenX + (window.outerWidth - width) / 2;
+    const top = window.screenY + (window.outerHeight - height) / 2;
+    window.open(
+      authUri,
+      'google-discoveryengine-oauth',
+      `width=${width},height=${height},left=${left},top=${top},status=no,resizable=yes`
+    );
+  };
+
+  // Revoke / Unauthorize connector handler (Notebook Step 6 - Cell 18)
+  const handleRevokeConnector = async (connectorId: string) => {
+    setAuthActionLoading(prev => ({ ...prev, [connectorId]: true }));
+    try {
+      const res = await fetch('/api/connector/update-auth-state', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(entraToken ? { 'X-Entra-Id-Token': entraToken } : {})
+        },
+        body: JSON.stringify({ collection_id: connectorId, auth_state: 'EXPIRED' })
+      });
+      await res.json();
+      await fetchWidgetConfig();
+    } catch (err) {
+      console.error("Failed to revoke connector:", err);
+    } finally {
+      setAuthActionLoading(prev => ({ ...prev, [connectorId]: false }));
+    }
+  };
+
+  // Run Workflow Agent Execution
+  const runWorkflowExecution = async (isConfirm: boolean = false) => {
+    if (workflowRunning) return;
+    setWorkflowRunning(true);
+    if (!isConfirm) {
+      setWorkflowHitlAction(null);
+      setWorkflowSummaryResult(null);
+      setWorkflowMetrics(null);
+      setWorkflowLogs([]);
+      setWorkflowNodes(prev => prev.map(n => ({ ...n, status: 'idle', outputs: undefined, error: undefined })));
+    }
+
+    const logEntry = (msg: string) => {
+      setWorkflowLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+    };
+
+    logEntry(isConfirm ? "Resuming workflow with human input confirmation..." : `Triggering StreamAssist Workflow execution: [${selectedWorkflowId}]...`);
+
+    try {
+      // Build payload
+      const payload: any = {
+        agent_id: workflowAgentId,
+        session_token: workflowSession,
+        action_confirmed: isConfirm,
+      };
+
+      if (workflowScheduleId) {
+        payload.schedule_id = workflowScheduleId;
+      } else if (workflowTriggerId) {
+        payload.trigger_id = workflowTriggerId;
+      }
+
+      if (!isConfirm && workflowTopicInput) {
+        payload.input_variables = { topic: workflowTopicInput };
+      }
+
+      if (isConfirm && workflowHitlAction) {
+        // Human confirmation / parameter submission
+        const paramDecl = workflowHitlAction.parameterDeclaration || {};
+        const paramProps = paramDecl.properties || {};
+        const firstParamKey = Object.keys(paramProps)[0] || 'selected_numbers';
+
+        payload.action_execution_params = {
+          agentName: workflowHitlAction.agentName,
+          actionName: workflowHitlAction.actionName || 'flow_request_input',
+          actionInvocationId: workflowHitlAction.invocationId || workflowHitlAction.actionInvocationId,
+          args: {
+            [firstParamKey]: workflowHitlInput
+          }
+        };
+      }
+
+      const response = await fetch('/api/workflow/run', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(entraToken ? { 'X-Entra-Id-Token': entraToken } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let buffer = '';
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              const jsonStr = line.replace('data: ', '').trim();
+              if (!jsonStr) continue;
+
+              try {
+                const event = JSON.parse(jsonStr);
+
+                if (event.type === 'init') {
+                  if (event.session && event.session !== '-') {
+                    setWorkflowSession(event.session);
+                    logEntry(`Session initialized: ${event.session}`);
+                  }
+                } else if (event.type === 'session_info') {
+                  if (event.session) {
+                    setWorkflowSession(event.session);
+                    logEntry(`Session bound: ${event.session}`);
+                  }
+                } else if (event.type === 'node_start') {
+                  if (!event.isRoot) {
+                    logEntry(`▶️ Started node: ${event.nodeId}`);
+                    setWorkflowNodes(prev => prev.map(n => n.id === event.nodeId ? { ...n, status: 'running' } : n));
+                  }
+                } else if (event.type === 'node_resume') {
+                  if (!event.isRoot) {
+                    logEntry(`🔄 Resumed node: ${event.nodeId}`);
+                    setWorkflowNodes(prev => prev.map(n => n.id === event.nodeId ? { ...n, status: 'running' } : n));
+                  }
+                } else if (event.type === 'node_end') {
+                  if (!event.isRoot) {
+                    logEntry(`✅ Completed node: ${event.nodeId}`);
+                    setWorkflowNodes(prev => prev.map(n => n.id === event.nodeId ? { ...n, status: 'completed', outputs: event.outputs } : n));
+                    if (event.outputs?.summary) {
+                      setWorkflowSummaryResult(event.outputs.summary);
+                    } else if (event.outputs?.research_results_text) {
+                      // Optional: preview research results
+                    }
+                  }
+                } else if (event.type === 'node_interrupt') {
+                  logEntry(`⏸️ Node interrupted: ${event.nodeId} (Waiting for Human Input / Confirmation)`);
+                  setWorkflowNodes(prev => prev.map(n => n.id === event.nodeId ? { ...n, status: 'interrupted' } : n));
+                } else if (event.type === 'hitl_confirmation') {
+                  logEntry(`⚠️ Human-in-the-loop action received: ${event.actionInvocation?.actionName || 'Request Input'}`);
+                  setWorkflowHitlAction(event.actionInvocation);
+                } else if (event.type === 'node_error') {
+                  logEntry(`❌ Error in node ${event.nodeId}: ${JSON.stringify(event.error)}`);
+                  setWorkflowNodes(prev => prev.map(n => n.id === event.nodeId ? { ...n, status: 'error', error: JSON.stringify(event.error) } : n));
+                } else if (event.type === 'text') {
+                  logEntry(`💬 ${event.delta}`);
+                  setWorkflowSummaryResult(prev => (prev || '') + event.delta);
+                } else if (event.type === 'metrics') {
+                  setWorkflowMetrics({ duration_ms: event.duration_ms });
+                  logEntry(`⏱️ Execution duration: ${event.duration_ms}ms`);
+                }
+              } catch (parseErr) {
+                console.error("Workflow event parse error:", parseErr);
+              }
+            }
+          }
+        }
+      }
+    } catch (err: any) {
+      logEntry(`❌ Workflow run error: ${err.message}`);
+    } finally {
+      setWorkflowRunning(false);
     }
   };
 
@@ -563,6 +915,18 @@ export default function App() {
           </button>
 
           <button
+            onClick={() => setActiveTab('workflow')}
+            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
+              activeTab === 'workflow'
+                ? 'bg-white text-indigo-700 shadow-sm font-bold border border-slate-200/60'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Cpu className="w-3.5 h-3.5 text-indigo-500" />
+            Workflow Agents
+          </button>
+
+          <button
             onClick={() => setActiveTab('security')}
             className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
               activeTab === 'security'
@@ -618,19 +982,27 @@ export default function App() {
             
             {/* Top Info Banner */}
             <div className="glass-panel p-4 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <div className="flex items-center gap-1.5 text-slate-700 font-medium">
                   <Database className="w-4 h-4 text-sky-500" />
-                  <span>Connector:</span>
-                  <span className="font-mono font-bold bg-slate-100 px-2 py-0.5 rounded text-slate-800">
-                    {config?.CONNECTOR_ID || 'sharepoint-data-def-connector'}
-                  </span>
+                  <span>Grounding Connectors:</span>
+                  <div className="flex items-center gap-1">
+                    <span className="font-semibold bg-sky-50 text-sky-700 border border-sky-200 px-2 py-0.5 rounded text-[11px]">
+                      ✉️ Outlook
+                    </span>
+                    <span className="font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded text-[11px]">
+                      📁 SharePoint
+                    </span>
+                    <span className="font-semibold bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded text-[11px]">
+                      🎫 ServiceNow
+                    </span>
+                  </div>
                 </div>
 
-                <div className="hidden sm:flex items-center gap-1 text-slate-500">
+                <div className="hidden md:flex items-center gap-1 text-slate-500">
                   <span>Stores:</span>
                   <span className="font-semibold text-slate-700">
-                    {discoveryLoading ? 'Discovering...' : `${discoveredStores.length || 5} active entities (file, page, comment, event, attachment)`}
+                    {discoveryLoading ? 'Discovering...' : `${discoveredStores.length || 14} active entity stores`}
                   </span>
                 </div>
               </div>
@@ -925,6 +1297,365 @@ export default function App() {
           </div>
         )}
 
+        {/* ── TAB: WORKFLOW AGENTS RUNNER ────────────────────────────────────────── */}
+        {activeTab === 'workflow' && (
+          <div className="space-y-6">
+            {/* Header Description & Workflow Selector */}
+            <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <div className="flex items-center gap-2 text-indigo-600">
+                    <Cpu className="w-6 h-6" />
+                    <h2 className="text-lg font-bold text-slate-900">Workflow Agent Execution Hub (StreamAssist)</h2>
+                  </div>
+                  <p className="text-xs text-slate-600 leading-relaxed max-w-3xl mt-1">
+                    Execute and stream multi-step autonomous workflows directly via Google Discovery Engine StreamAssist. Visualizes live node lifecycles, research agents, Outlook integration, LLM consolidation, and Human-in-the-Loop confirmations.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => runWorkflowExecution(false)}
+                    disabled={workflowRunning}
+                    className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2 ${
+                      workflowRunning
+                        ? 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                        : 'bg-gradient-to-r from-indigo-600 to-sky-600 text-white hover:opacity-95 shadow-indigo-500/20'
+                    }`}
+                  >
+                    {workflowRunning ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        Executing Workflow...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4 fill-white" />
+                        Run Workflow
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Workflow Template Selector Buttons */}
+              {availableWorkflows.length > 0 && (
+                <div className="pt-2 border-t border-slate-100">
+                  <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2">
+                    Select Workflow Template
+                  </span>
+                  <div className="flex flex-wrap gap-2">
+                    {availableWorkflows.map((wf: any) => {
+                      const isSelected = selectedWorkflowId === wf.agentId;
+                      return (
+                        <button
+                          key={wf.agentId}
+                          onClick={() => handleSelectWorkflow(wf)}
+                          className={`px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all flex items-center gap-2 ${
+                            isSelected
+                              ? 'bg-indigo-50 border-indigo-300 text-indigo-900 shadow-sm font-bold ring-2 ring-indigo-500/20'
+                              : 'bg-white/80 border-slate-200 text-slate-700 hover:bg-slate-50'
+                          }`}
+                        >
+                          <Sparkles className={`w-3.5 h-3.5 ${isSelected ? 'text-indigo-600' : 'text-slate-400'}`} />
+                          <div className="text-left">
+                            <div>{wf.displayName}</div>
+                            <div className="text-[10px] text-slate-400 font-mono font-normal">{wf.agentId}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Dynamic Parameter / Manual Trigger Controls */}
+              <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-slate-100 text-xs">
+                {workflowTriggerId === 'manual_trigger' && (
+                  <div className="flex items-center gap-2 bg-indigo-50/70 border border-indigo-200/80 px-3 py-1.5 rounded-xl">
+                    <span className="font-bold text-indigo-900 text-xs flex items-center gap-1">
+                      <Search className="w-3.5 h-3.5 text-indigo-600" /> Topic / Query:
+                    </span>
+                    <input
+                      type="text"
+                      value={workflowTopicInput}
+                      onChange={(e) => setWorkflowTopicInput(e.target.value)}
+                      placeholder="e.g. google tpu, quantum computing"
+                      className="bg-white border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 px-2.5 py-1 rounded-lg text-xs font-semibold text-indigo-950 w-56"
+                    />
+                  </div>
+                )}
+
+                <div className="flex items-center gap-1.5 font-mono text-[11px] bg-slate-100 px-3 py-1.5 rounded-lg text-slate-700 border border-slate-200">
+                  <span className="font-bold text-slate-500">Agent:</span>
+                  <span className="font-mono text-indigo-700 font-bold">{workflowAgentId}</span>
+                </div>
+
+                {workflowScheduleId && (
+                  <div className="flex items-center gap-1.5 font-mono text-[11px] bg-slate-100 px-3 py-1.5 rounded-lg text-slate-700 border border-slate-200">
+                    <span className="font-bold text-slate-500">Schedule:</span>
+                    <span className="font-mono text-indigo-700">{workflowScheduleId}</span>
+                  </div>
+                )}
+
+                {workflowSession && (
+                  <span className="text-[11px] font-mono text-slate-500 truncate max-w-xs">
+                    Session: {workflowSession.split('/').pop()}
+                  </span>
+                )}
+                {workflowMetrics && (
+                  <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-bold text-[11px] flex items-center gap-1">
+                    <Clock className="w-3 h-3" />
+                    {workflowMetrics.duration_ms} ms
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Visual Workflow Node Pipeline */}
+            <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <Layers className="w-4 h-4 text-indigo-600" />
+                  Live Node Execution Pipeline (Google Agent Flow Engine)
+                </h3>
+                {workflowRunning && (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 animate-pulse">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-indigo-600" />
+                    Executing Flow Nodes...
+                  </span>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {workflowNodes.map((node, idx) => {
+                  let statusBg = 'border-slate-200 bg-white/60 text-slate-500';
+                  let badge = <span className="text-[10px] font-bold text-slate-400 uppercase">Idle</span>;
+
+                  if (node.status === 'running') {
+                    statusBg = 'border-indigo-500 bg-indigo-50/80 text-indigo-900 shadow-lg shadow-indigo-500/10 ring-2 ring-indigo-400/30';
+                    badge = (
+                      <span className="text-[10px] font-bold text-indigo-700 bg-indigo-100 px-2.5 py-0.5 rounded-full flex items-center gap-1 animate-pulse">
+                        <RefreshCw className="w-3 h-3 animate-spin text-indigo-600" /> In Progress
+                      </span>
+                    );
+                  } else if (node.status === 'completed') {
+                    statusBg = 'border-emerald-300 bg-emerald-50/60 text-emerald-900';
+                    badge = (
+                      <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <Check className="w-3 h-3 text-emerald-600" /> Complete
+                      </span>
+                    );
+                  } else if (node.status === 'interrupted') {
+                    statusBg = 'border-amber-400 bg-amber-50 text-amber-900 shadow-md shadow-amber-200 ring-2 ring-amber-400/50';
+                    badge = (
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-200 px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3 text-amber-600" /> User Input Required
+                      </span>
+                    );
+                  } else if (node.status === 'error') {
+                    statusBg = 'border-rose-300 bg-rose-50 text-rose-900';
+                    badge = (
+                      <span className="text-[10px] font-bold text-rose-700 bg-rose-100 px-2 py-0.5 rounded-full">
+                        Error
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <div key={node.id} className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 transition-all duration-300 ${statusBg}`}>
+                      <div className="flex items-center justify-between">
+                        <span className="text-[10px] font-extrabold uppercase text-slate-400">Step {idx + 1}</span>
+                        {badge}
+                      </div>
+                      <div>
+                        <h4 className="font-bold text-sm text-slate-900">{node.label}</h4>
+                        <p className="text-[11px] font-mono text-slate-500 mt-0.5">{node.id}</p>
+                      </div>
+                      {node.outputs && (
+                        <div className="pt-2 border-t border-slate-200/60 text-[10px] font-mono text-slate-700 max-h-24 overflow-y-auto space-y-1">
+                          {Object.keys(node.outputs).map((k) => (
+                            <div key={k} className="truncate">
+                              <span className="font-bold text-indigo-700">{k}:</span> {typeof node.outputs[k] === 'string' ? node.outputs[k].substring(0, 50) + '...' : JSON.stringify(node.outputs[k])}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* POP-UP MODAL WINDOW FOR HUMAN-IN-THE-LOOP & DOCUMENT SELECTION / EMAIL SENDING */}
+            {workflowHitlAction && (
+              <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+                <div className="glass-panel w-full max-w-2xl rounded-2xl p-6 flex flex-col space-y-5 shadow-2xl border-2 border-sky-400 bg-white">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="flex items-center gap-2 text-slate-900">
+                      <div className="w-8 h-8 rounded-lg bg-sky-500 flex items-center justify-center text-white shadow-sm">
+                        {workflowHitlAction.actionName === 'outlook_email_agent__send_mail' ? (
+                          <Send className="w-4 h-4" />
+                        ) : (
+                          <HelpCircle className="w-4 h-4" />
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-sm text-slate-900">
+                          {workflowHitlAction.actionName === 'outlook_email_agent__send_mail'
+                            ? 'Outlook Email Agent: Send Mail'
+                            : 'Document Selection & Workflow Input'}
+                        </h3>
+                        <p className="text-[11px] text-slate-500">
+                          {workflowHitlAction.actionName === 'outlook_email_agent__send_mail'
+                            ? 'Human confirmation required to dispatch email via Outlook Connector'
+                            : 'Review the discovered documents and select which ones to summarize'}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-mono bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full font-bold border border-sky-200">
+                      HITL Input
+                    </span>
+                  </div>
+
+                  <div className="space-y-4">
+                    {/* Content or Document List preview */}
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 mb-1">
+                        {workflowHitlAction.parameterDeclaration?.title ? 'Discovered Documents' : 'Content Preview'}
+                      </label>
+                      <div className="p-3.5 bg-slate-50 rounded-xl text-slate-800 font-sans text-xs whitespace-pre-wrap max-h-56 overflow-y-auto border border-slate-200 leading-relaxed font-mono">
+                        {workflowHitlAction.parameterDeclaration?.title || workflowHitlAction.args?.Content}
+                      </div>
+                    </div>
+
+                    {/* Email specific fields */}
+                    {workflowHitlAction.actionName === 'outlook_email_agent__send_mail' && (
+                      <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">ContentType</label>
+                            <input
+                              type="text"
+                              readOnly
+                              value={workflowHitlAction.args?.ContentType || 'text'}
+                              className="w-full text-xs font-mono bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-slate-700"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-bold text-slate-700 mb-1">Subject</label>
+                            <input
+                              type="text"
+                              readOnly
+                              value={workflowHitlAction.args?.Subject || 'Daily Outlook Inbox Summary'}
+                              className="w-full text-xs font-semibold bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-slate-800"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-xs font-bold text-slate-700 mb-1">ToRecipients</label>
+                          <input
+                            type="text"
+                            readOnly
+                            value={workflowHitlAction.args?.ToRecipients || 'admin@sockcop.onmicrosoft.com'}
+                            className="w-full text-xs font-mono bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-slate-800 font-bold"
+                          />
+                        </div>
+                      </>
+                    )}
+
+                    {/* Generic input parameter field (e.g. document selection numbers) */}
+                    {workflowHitlAction.actionName !== 'outlook_email_agent__send_mail' && (
+                      <div>
+                        <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                          <span>Enter Selected Document Numbers:</span>
+                          <span className="text-[11px] font-normal text-slate-500">e.g. 2,3 or 1,3,5</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={workflowHitlInput}
+                          onChange={(e) => setWorkflowHitlInput(e.target.value)}
+                          placeholder="e.g. 2,3"
+                          className="w-full text-xs font-mono bg-white border border-indigo-300 focus:ring-2 focus:ring-indigo-400 px-3 py-2 rounded-lg text-slate-900 font-bold"
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button
+                      onClick={() => setWorkflowHitlAction(null)}
+                      className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => runWorkflowExecution(true)}
+                      disabled={workflowRunning}
+                      className="px-6 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-600/20 transition-all flex items-center gap-1.5"
+                    >
+                      {workflowRunning ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                      {workflowHitlAction.actionName === 'outlook_email_agent__send_mail' ? 'Send Email' : 'Submit Selection & Summarize'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Generated Summary Card */}
+            {workflowSummaryResult && (
+              <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sky-600">
+                    <FileText className="w-5 h-5" />
+                    <h3 className="text-sm font-bold text-slate-900">Consolidated Workflow Summary</h3>
+                  </div>
+                  <button
+                    onClick={() => handleCopy(workflowSummaryResult, 'wf-summary')}
+                    className="text-xs text-sky-600 hover:text-sky-800 flex items-center gap-1 font-semibold"
+                  >
+                    {copiedKey === 'wf-summary' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    Copy Summary
+                  </button>
+                </div>
+                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-800 whitespace-pre-wrap leading-relaxed font-sans">
+                  {workflowSummaryResult}
+                </div>
+              </div>
+            )}
+
+            {/* Live Streaming Logs & Thoughts */}
+            <div className="glass-panel p-5 rounded-2xl border border-slate-200 space-y-2">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <Terminal className="w-4 h-4 text-slate-600" />
+                  Live Flow Execution Logs & Intermediate Thoughts ({workflowLogs.length} events)
+                </h3>
+                {workflowLogs.length > 0 && (
+                  <button
+                    onClick={() => setWorkflowLogs([])}
+                    className="text-[11px] text-slate-400 hover:text-slate-600 font-semibold"
+                  >
+                    Clear Logs
+                  </button>
+                )}
+              </div>
+              <div className="bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-[11px] leading-relaxed max-h-64 overflow-y-auto space-y-1">
+                {workflowLogs.length > 0 ? (
+                  workflowLogs.map((log, i) => (
+                    <div key={i} className={log.includes('▶️') ? 'text-indigo-300 font-bold' : log.includes('✅') ? 'text-emerald-300 font-bold' : log.includes('⚠️') ? 'text-amber-300 font-bold' : 'text-slate-300'}>
+                      {log}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-slate-500 italic">No execution events yet. Click "Run Daily Brief Workflow" above.</div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── TAB 2: SECURITY & WIF AUTH STUDIO ────────────────────────────────── */}
         {activeTab === 'security' && (
           <div className="space-y-6">
@@ -1093,6 +1824,144 @@ export default function App() {
                 </div>
               </div>
 
+            </div>
+
+            {/* ── PRODUCT TEAM OFFICIAL WORKFLOW: DOMAIN ALLOWLISTING & FEDERATED CONNECTORS ── */}
+            <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-sky-600">
+                    <Globe className="w-5 h-5" />
+                    <h3 className="text-sm font-bold text-slate-900">Custom Domain Allowlist & Discovery Engine Widget Config</h3>
+                  </div>
+                  <p className="text-xs text-slate-500">
+                    Step 2 of the official Product Notebook: registers this origin URL into <code>widgetConfigs/default_search_widget_config</code> so Google Discovery Engine generates dynamic <code>authorizationUri</code> parameters.
+                  </p>
+                </div>
+                <button
+                  onClick={handleAllowlistDomain}
+                  disabled={allowlistLoading}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white transition-all shadow-sm flex items-center justify-center gap-1.5 shrink-0"
+                >
+                  {allowlistLoading ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <ShieldCheck className="w-3.5 h-3.5" />}
+                  Allowlist Current Domain ({typeof window !== 'undefined' ? window.location.origin : 'localhost'})
+                </button>
+              </div>
+
+              {allowlistSuccess && (
+                <div className="p-3 rounded-xl bg-sky-50 border border-sky-200 text-sky-900 text-xs font-mono break-all">
+                  {allowlistSuccess}
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2 pt-1 border-t border-slate-100 text-xs">
+                <span className="font-semibold text-slate-600">Currently Allowlisted Domains in Engine:</span>
+                {allowlistedDomains.length > 0 ? (
+                  allowlistedDomains.map((dom, i) => (
+                    <span key={i} className="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono text-[11px] border border-slate-200">
+                      {dom}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-slate-400 italic text-[11px]">No custom domains explicitly allowlisted yet</span>
+                )}
+              </div>
+            </div>
+
+            {/* ── FEDERATED CONNECTORS & AUTHORIZATION STATUS (NOTEBOOK STEPS 2, 3, 5, 6) ── */}
+            <div className="glass-panel p-6 rounded-2xl border border-slate-200 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-indigo-600">
+                  <Database className="w-5 h-5" />
+                  <h3 className="text-sm font-bold text-slate-900">Federated Search Connectors Discovery & Lifecycle</h3>
+                </div>
+                <button
+                  onClick={() => fetchWidgetConfig()}
+                  disabled={discoveryLoading}
+                  className="text-xs text-slate-600 hover:text-slate-900 flex items-center gap-1 font-semibold"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${discoveryLoading ? 'animate-spin' : ''}`} />
+                  Refresh Widget Config
+                </button>
+              </div>
+
+              <p className="text-xs text-slate-500">
+                Extracted dynamically via <code>GetWidgetConfig(customDomain={typeof window !== 'undefined' ? window.location.origin : 'localhost'})</code>. Connectors in an <code>AUTHORIZED</code> state can be revoked (<code>EXPIRED</code>) or re-authorized at any time.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {connectorsList.length > 0 ? (
+                  connectorsList.map((conn) => {
+                    const isAuth = conn.authState === 'AUTHORIZED';
+                    const isExpired = conn.authState === 'EXPIRED';
+                    const isLoading = authActionLoading[conn.id];
+
+                    return (
+                      <div key={conn.id} className="p-4 rounded-xl border border-slate-200 bg-white/70 space-y-3 flex flex-col justify-between">
+                        <div className="space-y-2">
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex items-center gap-2">
+                              {conn.iconLink ? (
+                                <img src={conn.iconLink} alt={conn.displayName} className="w-6 h-6 rounded" />
+                              ) : (
+                                <div className="w-6 h-6 rounded bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs">
+                                  {conn.displayName.charAt(0)}
+                                </div>
+                              )}
+                              <div>
+                                <h4 className="text-xs font-bold text-slate-800">{conn.displayName}</h4>
+                                <span className="text-[10px] text-slate-400 font-mono">{conn.id}</span>
+                              </div>
+                            </div>
+
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
+                              isAuth
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                                : isExpired
+                                ? 'bg-amber-50 text-amber-700 border-amber-200'
+                                : 'bg-slate-100 text-slate-600 border-slate-200'
+                            }`}>
+                              {conn.authState || 'NOT_AUTHORIZED'}
+                            </span>
+                          </div>
+
+                          {conn.dataSource && (
+                            <div className="text-[11px] text-slate-500">
+                              <span className="font-medium">Data Source:</span> {conn.dataSource}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+                          {isAuth ? (
+                            <button
+                              onClick={() => handleRevokeConnector(conn.id)}
+                              disabled={isLoading}
+                              className="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 transition-colors flex items-center justify-center gap-1"
+                            >
+                              {isLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                              Revoke (EXPIRED)
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleAuthorizeConnector(conn.authorizationUri)}
+                              disabled={isLoading || !conn.authorizationUri}
+                              className="flex-1 py-1.5 px-3 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition-colors flex items-center justify-center gap-1 shadow-sm disabled:bg-slate-200 disabled:text-slate-400"
+                            >
+                              {isLoading ? <RefreshCw className="w-3 h-3 animate-spin" /> : <Lock className="w-3 h-3" />}
+                              {conn.authorizationUri ? 'Authorize ↗' : 'Allowlist domain first'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="col-span-full p-6 text-center text-xs text-slate-500 border border-dashed border-slate-200 rounded-xl">
+                    No federated search connectors found in WidgetConfig or awaiting discovery.
+                  </div>
+                )}
+              </div>
             </div>
 
           </div>

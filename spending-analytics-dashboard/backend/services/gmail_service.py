@@ -4,8 +4,10 @@ import time
 import base64
 import logging
 from typing import Dict, Any, List, Optional
-import requests
-from google.cloud import secretmanager
+try:
+    from google.cloud import secretmanager
+except ImportError:
+    secretmanager = None
 
 logger = logging.getLogger(__name__)
 
@@ -28,7 +30,7 @@ class GmailService:
             raw = resp.payload.data.decode("utf-8")
             data = json.loads(raw)
             self.access_token = data.get("access_token")
-            self.user_email = data.get("user_info", {}).get("email", "jesusarguelles@google.com")
+            self.user_email = data.get("user_info", {}).get("email", "executive@enterprise.com")
             self.is_connected = True
             logger.info(f"GmailService initialized for {self.user_email}")
         except Exception as e:

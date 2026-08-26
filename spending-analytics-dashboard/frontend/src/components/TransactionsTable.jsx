@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, ArrowUpDown, Filter, Eye, Tag, AlertCircle, Sparkles, Receipt, CheckCircle2, RotateCcw } from 'lucide-react';
 import DeepReceiptModal from './DeepReceiptModal';
 import { GmailLogo } from './SpendGalaxyModal';
+import { getUserConfig, ALL_EXECUTIVE_USERS_LIST } from '../utils/userConfig';
 
 const GMAIL_GROUNDED_KEYWORDS = ['amazon', 'alo yoga', 'delta', 'whole foods', 'sephora', 'grubhub', 'doordash', 'target', 'google', 'macy'];
 
@@ -112,8 +113,9 @@ export default function TransactionsTable({ transactions = [], onOpenGmailAuth, 
             className="bg-slate-950/80 text-xs text-slate-300 px-3 py-2 rounded-xl border border-slate-800 focus:outline-none cursor-pointer"
           >
             <option value="ALL">All Cardholders</option>
-            <option value="DINORAH GUERRA">Dinorah Guerra</option>
-            <option value="JESUS CHAVEZ">Jesus Chavez</option>
+            {ALL_EXECUTIVE_USERS_LIST.map(u => (
+              <option key={u.name} value={u.name}>{u.name} ({u.short})</option>
+            ))}
           </select>
 
           {/* Category */}
@@ -166,6 +168,7 @@ export default function TransactionsTable({ transactions = [], onOpenGmailAuth, 
             <tbody className="divide-y divide-slate-800/50">
               {filteredTransactions.map((tx) => {
                 const isGmailGrounded = isGmailGroundedMerchant(tx.clean_merchant, tx.raw_description);
+                const userCfg = getUserConfig(tx.card_member);
                 return (
                   <tr key={tx.id} className="hover:bg-slate-800/30 transition-colors">
                     <td className="py-3 px-4 font-mono text-slate-400 whitespace-nowrap">{tx.date}</td>
@@ -194,14 +197,8 @@ export default function TransactionsTable({ transactions = [], onOpenGmailAuth, 
                       </div>
                     </td>
                     <td className="py-3 px-4">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${
-                        tx.card_member.toUpperCase().includes('DINORAH')
-                          ? 'bg-pink-500/10 text-pink-300 border-pink-500/20'
-                          : tx.card_member.toUpperCase().includes('JESUS')
-                          ? 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20'
-                          : 'bg-slate-800 text-slate-300 border-slate-700'
-                      }`}>
-                        {tx.card_member.toUpperCase().includes('DINORAH') ? 'Dinorah' : tx.card_member.toUpperCase().includes('JESUS') ? 'Jesus' : tx.card_member}
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold border ${userCfg.badgeClass}`}>
+                        {userCfg.short} ({userCfg.tag})
                       </span>
                     </td>
                     <td className="py-3 px-4">

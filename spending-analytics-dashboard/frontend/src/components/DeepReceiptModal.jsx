@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Sparkles, Receipt, FileText, CheckCircle2, Clock, RotateCcw, ShieldCheck, Tag, ExternalLink, RefreshCw, Loader2, ArrowRight, Mail, Terminal, Database, HelpCircle, Columns, Truck, Check } from 'lucide-react';
 import { GmailLogo } from './SpendGalaxyModal';
+import { getUserConfig } from '../utils/userConfig';
 
 export default function DeepReceiptModal({ transaction, onClose, onOpenGmailAuth, onOpenTraceConsole, isGmailConnected }) {
   const [receiptData, setReceiptData] = useState(null);
@@ -35,8 +36,7 @@ export default function DeepReceiptModal({ transaction, onClose, onOpenGmailAuth
 
   if (!transaction) return null;
 
-  const isDinorah = transaction.card_member?.toUpperCase().includes('DINORAH');
-  const isJesus = transaction.card_member?.toUpperCase().includes('JESUS');
+  const userCfg = getUserConfig(transaction.card_member);
   const isGmailGrounded = receiptData?.grounding_source === "GMAIL_MCP_GROUNDED" || receiptData?.gmail_source_matched;
 
   return (
@@ -173,8 +173,8 @@ export default function DeepReceiptModal({ transaction, onClose, onOpenGmailAuth
                       </div>
                       <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">
                         <span className="text-[9px] text-slate-400 uppercase font-semibold block">Card Member</span>
-                        <span className={`text-xs font-bold truncate block ${isDinorah ? 'text-pink-400' : isJesus ? 'text-cyan-400' : 'text-slate-200'}`}>
-                          {transaction.card_member}
+                        <span className="text-xs font-bold truncate block text-slate-200">
+                          {transaction.card_member} ({userCfg.role})
                         </span>
                       </div>
                       <div className="p-2.5 rounded-xl bg-slate-950/70 border border-slate-800">

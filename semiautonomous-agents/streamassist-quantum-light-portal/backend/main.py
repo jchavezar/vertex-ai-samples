@@ -187,25 +187,82 @@ async def get_config():
     }
 
 
-@app.get("/api/discovery/widget-config")
-async def get_widget_config(request: Request):
-    """Dynamically queries Discovery Engine Widget Configuration to discover datastores."""
+class AllowlistDomainRequest(BaseModel):
+    domain: str
+
+
+@app.post("/api/discovery/allowlist-domain")
+async def allowlist_custom_domain(request: Request, body: AllowlistDomainRequest):
+    """Allows custom domain in the Engine widget config (Notebook Step 2 - Cell 6)."""
     token, auth_source = _get_bearer_token(request)
     headers = _gcp_headers(token)
+    
+    update_request = {
+        "name": f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/{ENGINE_ID}/widgetConfigs/default_search_widget_config",
+        "accessSettings": {
+            "allowlistedDomains": [body.domain],
+            "enableWebApp": True
+        }
+    }
+    params = {"updateMask": "accessSettings"}
     try:
-        resp = requests.get(WIDGET_CONFIG_URL, headers=headers, timeout=15)
+        resp = requests.patch(WIDGET_CONFIG_URL, headers=headers, json=update_request, params=params, timeout=15)
+        return {
+            "success": resp.ok,
+            "status_code": resp.status_code,
+            "domain": body.domain,
+            "auth_source": auth_source,
+            "response": resp.json() if resp.ok else resp.text
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+@app.get("/api/discovery/widget-config")
+async def get_widget_config(request: Request, custom_domain: Optional[str] = None):
+    """
+    Dynamically queries Discovery Engine Widget Configuration.
+    Passes customDomain to obtain dynamic authorizationUri for all connectors (Notebook Step 2 - Cell 7).
+    """
+    token, auth_source = _get_bearer_token(request)
+    headers = _gcp_headers(token)
+    params = {}
+    if custom_domain:
+        params["getWidgetConfigRequestOption.customDomain"] = custom_domain
+    
+    try:
+        resp = requests.get(WIDGET_CONFIG_URL, headers=headers, params=params, timeout=15)
         if resp.ok:
             data = resp.json()
             collections = data.get("collectionComponents", [])
             datastores = []
-            if collections:
-                datastores = [ds.get("name") for ds in collections[0].get("dataStoreComponents", [])]
+            connectors = []
+            
+            for comp in collections:
+                for ds in comp.get("dataStoreComponents", []):
+                    if ds.get("name"):
+                        datastores.append(ds.get("name"))
+                
+                auth_state_data = comp.get("connectorAuthState", {})
+                conn_id = comp.get("id") or comp.get("name", "").split("/")[-1]
+                connectors.append({
+                    "id": conn_id,
+                    "name": comp.get("name"),
+                    "displayName": comp.get("displayName") or conn_id,
+                    "dataSource": comp.get("dataSource"),
+                    "authState": auth_state_data.get("authState", "NOT_AUTHORIZED"),
+                    "authorizationUri": auth_state_data.get("authorizationUri"),
+                    "iconLink": comp.get("connectorIconLink"),
+                    "dataStores": [ds.get("id") for ds in comp.get("dataStoreComponents", [])]
+                })
+
             return {
                 "success": True,
                 "auth_source": auth_source,
                 "widget_config": data,
+                "connectors": connectors,
                 "discovered_datastores": datastores,
-                "collection_name": collections[0].get("name") if collections else None
+                "allowlistedDomains": data.get("accessSettings", {}).get("allowlistedDomains", [])
             }
         else:
             return {
@@ -229,35 +286,399 @@ async def get_widget_config(request: Request):
         }
 
 
+class AcquireStoreRefreshTokenRequest(BaseModel):
+    collection_id: Optional[str] = None
+    full_redirect_uri: str
+
+
+@app.post("/api/connector/acquire-and-store-refresh-token")
+async def acquire_store_refresh_token(request: Request, body: AcquireStoreRefreshTokenRequest):
+    """Posts redirect URI containing auth code to acquire and store refresh token (Notebook Step 4 - Cell 13)."""
+    token, auth_source = _get_bearer_token(request)
+    headers = _gcp_headers(token)
+    coll_id = body.collection_id or CONNECTOR_ID
+    url = f"{BASE_URL_GLOBAL}/{coll_id}/dataConnector:acquireAndStoreRefreshToken"
+    try:
+        resp = requests.post(url, headers=headers, json={"fullRedirectUri": body.full_redirect_uri}, timeout=30)
+        return {
+            "success": resp.ok,
+            "status_code": resp.status_code,
+            "auth_source": auth_source,
+            "response": resp.json() if resp.ok else resp.text
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
+class UpdateAuthStateRequest(BaseModel):
+    collection_id: Optional[str] = None
+    auth_state: str = "AUTHORIZED"  # 'AUTHORIZED' or 'EXPIRED'
+
+
+@app.post("/api/connector/update-auth-state")
+async def update_auth_state(request: Request, body: UpdateAuthStateRequest):
+    """Updates connector authorization state in Engine user data (Notebook Step 5 & 6 - Cells 15 & 18)."""
+    token, auth_source = _get_bearer_token(request)
+    headers = _gcp_headers(token)
+    coll_id = body.collection_id or CONNECTOR_ID
+    
+    update_url = f"{ENGINE_URL}:updateEngineUserData"
+    connector_name = f"projects/{PROJECT_NUMBER}/locations/global/collections/{coll_id}/dataConnector"
+    
+    update_request_body = {
+        "engine": f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/{ENGINE_ID}",
+        "engineUserData": {
+            "connectorAuthStates": [
+                {
+                    "dataConnector": connector_name,
+                    "authState": body.auth_state
+                }
+            ]
+        },
+        "addEntitiesOnly": True
+    }
+    params = {"updateMask": "connectorAuthStates"}
+    try:
+        resp = requests.post(update_url, headers=headers, params=params, json=update_request_body, timeout=15)
+        return {
+            "success": resp.ok,
+            "status_code": resp.status_code,
+            "auth_state": body.auth_state,
+            "auth_source": auth_source,
+            "response": resp.json() if resp.ok else resp.text
+        }
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+
 class StreamAssistRequest(BaseModel):
     query: str
     session_token: Optional[str] = None
     entra_token: Optional[str] = None
     auth_mode: Optional[str] = "auto"
+    data_stores: Optional[List[str]] = None
+
+
+def _get_all_engine_datastores(token: str) -> List[str]:
+    headers = _gcp_headers(token)
+    try:
+        resp = requests.get(WIDGET_CONFIG_URL, headers=headers, timeout=10)
+        if resp.ok:
+            data = resp.json()
+            datastores = []
+            for comp in data.get("collectionComponents", []):
+                for ds in comp.get("dataStoreComponents", []):
+                    ds_name = ds.get("name")
+                    if ds_name:
+                        if not ds_name.startswith("projects/"):
+                            ds_name = f"projects/{PROJECT_NUMBER}/locations/global/{ds_name}"
+                        datastores.append(ds_name)
+            if datastores:
+                return datastores
+    except Exception:
+        pass
+
+    return [
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/outlook-connector_1784199575073_mail",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/outlook-connector_1784199575073_mail-attachment",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/outlook-connector_1784199575073_calendar",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/outlook-connector_1784199575073_contact",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/sharepoint-data-def-connector_attachment",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/sharepoint-data-def-connector_comment",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/sharepoint-data-def-connector_event",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/sharepoint-data-def-connector_page",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/sharepoint-data-def-connector_file",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/servicenow-connector-1777047657_incident",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/servicenow-connector-1777047657_knowledge",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/servicenow-connector-1777047657_catalog",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/servicenow-connector-1777047657_users",
+        f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/servicenow-connector-1777047657_attachment",
+    ]
 
 
 @app.post("/api/stream-assist")
 async def stream_assist_sse(request: Request, body: StreamAssistRequest):
     """
     Core Server-Sent Events (SSE) Streaming endpoint for StreamAssist using native httpx async streaming.
+    Passes all federated datastores (Outlook, SharePoint, ServiceNow) discovered from Engine.
     """
     gcp_token, auth_source = _get_bearer_token(request, body.entra_token, body.auth_mode or "auto")
     
-    ds_base = f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/dataStores/{CONNECTOR_ID}"
-    data_store_specs = [{"dataStore": f"{ds_base}_{et}"} for et in ENTITY_TYPES]
+    target_stores = body.data_stores or _get_all_engine_datastores(gcp_token)
+    data_store_specs = [{"dataStore": ds} for ds in target_stores]
 
     payload = {
         "query": {"text": body.query},
         "toolsSpec": {
             "vertexAiSearchSpec": {
                 "dataStoreSpecs": data_store_specs
-            }
+            },
+            "toolRegistry": "default_tool_registry"
+        },
+        "userMetadata": {
+            "timeZone": "America/New_York"
         }
     }
     if body.session_token:
         payload["session"] = body.session_token
 
     headers = _gcp_headers(gcp_token)
+
+
+class WorkflowRunRequest(BaseModel):
+    agent_id: str = "17087445254002779162"
+    schedule_id: Optional[str] = None
+    trigger_id: Optional[str] = None
+    input_variables: Optional[Dict[str, Any]] = None
+    session_token: Optional[str] = None
+    query_text: Optional[str] = " "
+    action_confirmed: bool = False
+    action_execution_params: Optional[Dict[str, Any]] = None
+    auth_mode: Optional[str] = "auto"
+    entra_token: Optional[str] = None
+
+
+@app.get("/api/workflow/agents")
+async def list_workflow_agents(request: Request):
+    """
+    Discovers all Workflow Agents configured in Google Discovery Engine.
+    Returns agent details, flow nodes, triggers, and schemas.
+    """
+    gcp_token, _ = _get_bearer_token(request)
+    headers = _gcp_headers(gcp_token)
+    list_url = f"https://discoveryengine.googleapis.com/v1alpha/projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/{ENGINE_ID}/assistants/default_assistant/agents"
+    try:
+        resp = requests.get(list_url, headers=headers, timeout=15)
+        if resp.ok:
+            agents_data = resp.json().get("agents", [])
+            workflows = []
+            for a in agents_data:
+                wf_def = a.get("workflowAgentDefinition")
+                if wf_def and "agentFlow" in wf_def:
+                    agent_id = a.get("name", "").split("/")[-1]
+                    flow = wf_def.get("agentFlow", {})
+                    nodes = flow.get("nodes", [])
+                    edges = flow.get("edges", [])
+                    
+                    # Detect primary trigger type and ID
+                    trigger_type = "MANUAL_TRIGGER"
+                    trigger_id = "manual_trigger"
+                    input_schema = {}
+                    schedule_id = None
+                    
+                    for n in nodes:
+                        nt = n.get("nodeType")
+                        if nt == "SCHEDULE_TRIGGER":
+                            trigger_type = "SCHEDULE_TRIGGER"
+                            trigger_id = n.get("id", "schedule")
+                            schedule_id = n.get("scheduleTrigger", {}).get("schedule", {}).get("scheduleId", "schedule_schedule")
+                            break
+                        elif nt == "MANUAL_TRIGGER":
+                            trigger_type = "MANUAL_TRIGGER"
+                            trigger_id = n.get("id", "manual_trigger")
+                            input_schema = n.get("outputSchema", {}).get("properties", {})
+                            break
+
+                    workflows.append({
+                        "agentId": agent_id,
+                        "displayName": a.get("displayName", agent_id),
+                        "description": a.get("description", ""),
+                        "state": a.get("state", "PRIVATE"),
+                        "triggerType": trigger_type,
+                        "triggerId": trigger_id,
+                        "scheduleId": schedule_id,
+                        "inputSchema": input_schema,
+                        "nodes": [
+                            {
+                                "id": n.get("id"),
+                                "displayName": n.get("displayName", n.get("id")),
+                                "description": n.get("description", ""),
+                                "nodeType": n.get("nodeType")
+                            }
+                            for n in nodes
+                        ],
+                        "edges": edges
+                    })
+            return {"workflows": workflows}
+        return {"workflows": [], "error": resp.text}
+    except Exception as e:
+        return {"workflows": [], "error": str(e)}
+
+
+@app.post("/api/workflow/run")
+async def run_workflow_agent(request: Request, body: WorkflowRunRequest):
+    """
+    Executes a Workflow Agent using pure Discovery Engine StreamAssist.
+    Step 1: Creates session if needed or executes asyncAssistRequest.
+    Step 2: Streams node progress, request info, and Human-In-The-Loop interrupt events.
+    """
+    gcp_token, auth_source = _get_bearer_token(request, body.entra_token, body.auth_mode or "auto")
+    headers = _gcp_headers(gcp_token)
+    
+    target_stores = _get_all_engine_datastores(gcp_token)
+    data_store_specs = [{"dataStore": ds} for ds in target_stores]
+
+    # If no session passed, use '-' which Discovery Engine allocates dynamically
+    session_name = body.session_token or "-"
+
+    query_str = "Action Confirmed" if body.action_confirmed else (body.query_text or "")
+    if not query_str.strip():
+        if body.input_variables and body.input_variables.get("topic"):
+            query_str = f"Research and summarize documents on the topic: {body.input_variables.get('topic')}"
+        else:
+            query_str = " "
+
+    # Format full agent resource path if a raw numeric ID was passed
+    agent_ref = body.agent_id
+    if not agent_ref.startswith("projects/"):
+        agent_ref = f"projects/{PROJECT_NUMBER}/locations/global/collections/default_collection/engines/{ENGINE_ID}/assistants/default_assistant/agents/{body.agent_id}"
+
+    # Build agentSpec configuration
+    spec_entry: Dict[str, Any] = {"agentId": agent_ref}
+    if body.schedule_id:
+        spec_entry["scheduleId"] = body.schedule_id
+    elif body.trigger_id:
+        spec_entry["triggerId"] = body.trigger_id
+    if body.input_variables:
+        spec_entry["inputVariables"] = body.input_variables
+
+    # Build StreamAssist Workflow payload
+    stream_payload: Dict[str, Any] = {
+        "session": session_name,
+        "query": {"parts": [{"text": query_str}]},
+        "answerGenerationMode": "AGENT",
+        "agentsConfig": {
+            "agent": agent_ref
+        },
+        "agentsSpec": {
+            "agentSpecs": [spec_entry]
+        },
+        "toolsSpec": {
+            "vertexAiSearchSpec": {
+                "dataStoreSpecs": data_store_specs
+            },
+            "webGroundingSpec": {},
+            "toolRegistry": "default_tool_registry"
+        },
+        "languageCode": "en-US",
+        "userMetadata": {
+            "timeZone": "America/New_York"
+        },
+        "assistSkippingMode": "REQUEST_ASSIST"
+    }
+
+    if body.action_execution_params:
+        stream_payload["actionExecutionParams"] = body.action_execution_params
+
+    async def workflow_stream_generator():
+        yield f"data: {json.dumps({'type': 'init', 'session': session_name, 'agent_id': body.agent_id, 'action_confirmed': body.action_confirmed})}\n\n"
+        start_time = time.time()
+        
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            try:
+                async with client.stream("POST", STREAMASSIST_URL, headers=headers, json=stream_payload) as resp:
+                    if resp.status_code != 200:
+                        err_content = await resp.aread()
+                        yield f"data: {json.dumps({'type': 'error', 'status_code': resp.status_code, 'message': err_content.decode('utf-8', errors='ignore')})}\n\n"
+                        yield f"data: {json.dumps({'type': 'done', 'status': 'failed'})}\n\n"
+                        return
+
+                    decoder = json.JSONDecoder()
+                    buffer = ""
+
+                    async for chunk_bytes in resp.aiter_bytes():
+                        if not chunk_bytes:
+                            continue
+                        buffer += chunk_bytes.decode("utf-8", errors="ignore")
+
+                        while True:
+                            buffer = buffer.strip()
+                            if not buffer:
+                                break
+
+                            if buffer.startswith("["):
+                                buffer = buffer[1:].strip()
+                            if buffer.startswith(","):
+                                buffer = buffer[1:].strip()
+                            if buffer.startswith("]"):
+                                buffer = buffer[1:].strip()
+                                break
+
+                            if not buffer:
+                                break
+
+                            try:
+                                obj, idx = decoder.raw_decode(buffer)
+                                buffer = buffer[idx:].strip()
+
+                                # Parse ADK Workflow stream events
+                                assist_resp = obj.get("streamAssistResponse") or obj
+                                sess_info = assist_resp.get("sessionInfo", {})
+                                sess_id = sess_info.get("session")
+                                if sess_id:
+                                    yield f"data: {json.dumps({'type': 'session_info', 'session': sess_id})}\n\n"
+
+                                ans = assist_resp.get("answer", {})
+                                state = ans.get("state")
+                                replies = ans.get("replies", [])
+                                
+                                if state:
+                                    yield f"data: {json.dumps({'type': 'state', 'state': state})}\n\n"
+
+                                for r in replies:
+                                    wf = r.get("workflowAdkEvent")
+                                    if wf:
+                                        node_id = wf.get("nodeId")
+                                        if "startEvent" in wf:
+                                            yield f"data: {json.dumps({'type': 'node_start', 'nodeId': node_id, 'isRoot': wf.get('isRoot', False), 'isTrigger': wf.get('isTrigger', False)})}\n\n"
+                                        elif "resumeEvent" in wf:
+                                            yield f"data: {json.dumps({'type': 'node_resume', 'nodeId': node_id, 'isRoot': wf.get('isRoot', False)})}\n\n"
+                                        elif "endEvent" in wf:
+                                            out_params = wf.get("endEvent", {}).get("outputParameters", {})
+                                            parsed_params = {}
+                                            for k, v in out_params.items():
+                                                parsed_params[k] = v.get("value") if isinstance(v, dict) else v
+                                            yield f"data: {json.dumps({'type': 'node_end', 'nodeId': node_id, 'outputs': parsed_params, 'isRoot': wf.get('isRoot', False)})}\n\n"
+                                        elif "interruptEvent" in wf:
+                                            yield f"data: {json.dumps({'type': 'node_interrupt', 'nodeId': node_id, 'isRoot': wf.get('isRoot', False)})}\n\n"
+                                        elif "errorEvent" in wf:
+                                            yield f"data: {json.dumps({'type': 'node_error', 'nodeId': node_id, 'error': wf.get('errorEvent')})}\n\n"
+
+                                    # Action confirmation / Human-In-The-Loop
+                                    action_inv = r.get("actionInvocation")
+                                    if action_inv:
+                                        yield f"data: {json.dumps({'type': 'hitl_confirmation', 'actionInvocation': action_inv})}\n\n"
+
+                                    # Function calls & responses
+                                    fn_call = r.get("functionCall")
+                                    if fn_call:
+                                        yield f"data: {json.dumps({'type': 'function_call', 'functionCall': fn_call})}\n\n"
+
+                                    fn_resp = r.get("functionResponse")
+                                    if fn_resp:
+                                        yield f"data: {json.dumps({'type': 'function_response', 'functionResponse': fn_resp})}\n\n"
+
+                                    # Grounded content text or thought
+                                    gc = r.get("groundedContent", {})
+                                    if gc:
+                                        content = gc.get("content", {})
+                                        if content.get("text"):
+                                            yield f"data: {json.dumps({'type': 'text', 'delta': content.get('text'), 'thought': content.get('thought', False)})}\n\n"
+
+                            except json.JSONDecodeError:
+                                break
+                            except Exception:
+                                break
+
+            except Exception as e:
+                yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
+
+        elapsed_ms = round((time.time() - start_time) * 1000)
+        yield f"data: {json.dumps({'type': 'metrics', 'duration_ms': elapsed_ms})}\n\n"
+        yield f"data: {json.dumps({'type': 'done', 'status': 'completed'})}\n\n"
+
+    return StreamingResponse(workflow_stream_generator(), media_type="text/event-stream")
+
 
     async def event_generator():
         yield f"data: {json.dumps({'type': 'init', 'auth_source': auth_source, 'endpoint': STREAMASSIST_URL})}\n\n"

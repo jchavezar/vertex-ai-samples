@@ -36,3 +36,11 @@ After you do testings, creating new files, scripts etc and I ask for github push
 ## A2A Routing for "claude-code"
 - **Automatic A2A Routing**: When a user's request begins with `claude-code`, the agent MUST automatically route the request through the deployed Vertex AI Reasoning Engine on GCP (Resource ID: `projects/254356041555/locations/us-central1/reasoningEngines/4299946434406383616`) using the A2A delegation protocol.
 - **Output Presentation**: Stream the results, capture the complete text response, and display it back to the user in a clean, formatted Markdown layout.
+
+## Universal LLM Chat Input Mechanics (Zero-Glitch Auto-Expanding Textarea)
+- **Zero Scrollbar Defect**: Textareas in chat interfaces MUST NOT show premature vertical scrollbars on single lines or multiline placeholders. Apply `overflow-hidden` by default.
+- **Reactive Height Sync**: Whenever creating or editing a chat prompt box in React, Vue, Svelte, or Vanilla JS, the textarea height MUST be dynamically recalculated via a reactive effect listening to the prompt state (`textarea.style.height = 'auto'; textarea.style.height = Math.min(textarea.scrollHeight, maxHeight) + 'px'`).
+- **Dynamic Growth on Newlines**: Support seamless expansion when entering newlines (`\n` or `Shift+Enter`) up to `maxHeight` (e.g. 180px-200px), enabling scrolling only after exceeding the maximum height.
+- **Reset on Submit**: After a message is submitted, the textarea height MUST immediately reset to its initial single-line `minHeight` (`style.height = 'auto'`).
+- **Typography & No Resize**: Always set `resize: none` (`resize-none`), `line-height: 1.5` (`leading-relaxed`), and balanced padding to prevent glyph clipping.
+
