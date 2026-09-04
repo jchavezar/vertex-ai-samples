@@ -24,6 +24,65 @@
     .custom-scroll::-webkit-scrollbar { width: 6px; }
     .custom-scroll::-webkit-scrollbar-track { background: #0f172a; }
     .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+    /* Claude Code Shrinking & Shining Ink Loader (Emerald Variant for LangChain) */
+    .shrinking-shining-ink {
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      background: radial-gradient(circle at 30% 30%, #10b981, #059669, #0f172a);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      animation: 
+        ink-morph 6s ease-in-out infinite alternate,
+        ink-pulse 2s ease-in-out infinite,
+        ink-shine 4s linear infinite;
+      filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.45));
+    }
+
+    @keyframes ink-morph {
+      0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(0deg); }
+      50% { border-radius: 30% 60% 70% 30% / 50% 60% 30% 60%; transform: rotate(180deg); }
+      100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; transform: rotate(360deg); }
+    }
+
+    @keyframes ink-pulse {
+      0%, 100% { transform: scale(0.88); filter: drop-shadow(0 0 3px rgba(16, 185, 129, 0.3)); }
+      50% { transform: scale(1.12); filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.7)); }
+    }
+
+    @keyframes ink-shine {
+      0%, 100% { background: radial-gradient(circle at 20% 20%, #6ee7b7, #059669, #0f172a); }
+      33% { background: radial-gradient(circle at 80% 20%, #a7f3d0, #10b981, #064e3b); }
+      66% { background: radial-gradient(circle at 40% 80%, #34d399, #047857, #020617); }
+    }
+
+    .sweep-text {
+      background: linear-gradient(
+        90deg,
+        #94a3b8 0%,
+        #ffffff 50%,
+        #94a3b8 100%
+      );
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: text-sweep 2s ease-in-out infinite;
+    }
+
+    @keyframes text-sweep {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+
+    .fade-word {
+      transition: opacity 0.25s ease-in-out, transform 0.25s ease-in-out;
+      display: inline-block;
+    }
+    .fade-word.fading {
+      opacity: 0.15;
+      transform: translateY(-2px);
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden font-sans antialiased">
@@ -344,6 +403,16 @@
       docs: 'https://docsmcp.googleapis.com/mcp/v1',
     };
 
+    function getInitials(nameOrEmail) {
+      if (!nameOrEmail) return "U";
+      const clean = nameOrEmail.replace(/@.*/, "").trim();
+      const parts = clean.split(/[._\s-]+/).filter(Boolean);
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return clean.substring(0, 2).toUpperCase();
+    }
+
     async function loadAuthStatus() {
       try {
         const res = await fetch('/api/auth/status');
@@ -363,11 +432,23 @@
 
         if (data.auth_type === 'oauth2_user' && data.user_info) {
           authDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+          const initials = getInitials(data.user_info.name || data.user_info.email);
           authContent.innerHTML = `
-            ${data.user_info.picture ? `<img src="${data.user_info.picture}" class="w-5 h-5 rounded-full border border-emerald-400/50" />` : '<i class="fa-solid fa-user text-emerald-400"></i>'}
+            <div class="relative w-6 h-6 shrink-0 flex items-center justify-center">
+              ${data.user_info.picture ? `
+                <img src="${data.user_info.picture}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden'); this.nextElementSibling.classList.add('flex');" class="w-6 h-6 rounded-full border border-emerald-400/60 object-cover shadow-sm" alt="${data.user_info.name || 'User'}" />
+                <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-[10px] items-center justify-center hidden border border-emerald-400/60 shadow-sm">
+                  ${initials}
+                </div>
+              ` : `
+                <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-[10px] flex items-center justify-center border border-emerald-400/60 shadow-sm">
+                  ${initials}
+                </div>
+              `}
+            </div>
             <div class="flex flex-col">
-              <span class="font-medium text-white">${data.user_info.name || 'User'}</span>
-              <span class="text-[10px] text-emerald-400 font-mono">${data.user_info.email}</span>
+              <span class="font-medium text-white text-xs leading-tight">${data.user_info.name || 'User'}</span>
+              <span class="text-[10px] text-emerald-400 font-mono leading-tight">${data.user_info.email}</span>
             </div>
           `;
           btnSignIn.classList.add('hidden');
@@ -468,6 +549,15 @@
       loadTools(service);
     }
 
+    function setFadeWord(el, newText) {
+      if (!el || el.textContent === newText) return;
+      el.classList.add('fading');
+      setTimeout(() => {
+        el.textContent = newText;
+        el.classList.remove('fading');
+      }, 200);
+    }
+
     async function handleChatSubmit(e) {
       e.preventDefault();
       const input = document.getElementById('messageInput');
@@ -480,7 +570,7 @@
       const sendBtn = document.getElementById('sendButton');
       sendBtn.disabled = true;
 
-      const loadingId = appendLoadingMessage();
+      const card = createThinkingCard(activeService);
 
       try {
         const res = await fetch('/api/chat', {
@@ -488,15 +578,166 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ message: text, service: activeService })
         });
-        const data = await res.json();
-        removeLoadingMessage(loadingId);
-        appendMessage('agent', data.reply, data.tool_activity);
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({ detail: 'Request failed: ' + res.status }));
+          card.markError(errData.detail || 'HTTP Error ' + res.status);
+          sendBtn.disabled = false;
+          return;
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop();
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (trimmed.startsWith('data: ')) {
+              try {
+                const event = JSON.parse(trimmed.slice(6));
+                card.processEvent(event);
+              } catch (err) {
+                console.warn("SSE parse error", err, trimmed);
+              }
+            }
+          }
+        }
       } catch (err) {
-        removeLoadingMessage(loadingId);
-        appendMessage('agent', `Failed to send message: ${err.message}`);
+        card.markError('Network error: ' + err.message);
       } finally {
         sendBtn.disabled = false;
       }
+    }
+
+    function createThinkingCard(service) {
+      const container = document.getElementById('messagesContainer');
+      const cardId = 'thinking-' + Date.now();
+      const msgDiv = document.createElement('div');
+      msgDiv.id = cardId;
+      msgDiv.className = 'flex gap-4 max-w-3xl';
+
+      msgDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center shrink-0 shadow mt-1">
+          <i class="fa-solid fa-link text-white text-xs"></i>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 text-xs text-slate-200 shadow-md space-y-3 w-full">
+          <!-- Dynamic Header Bar: Claude Ink Loader + Monospace Timer + Fade Word -->
+          <div class="flex items-center justify-between border-b border-slate-800/80 pb-2.5">
+            <div class="flex items-center gap-3">
+              <span id="${cardId}-indicator" class="shrinking-shining-ink shrink-0"></span>
+              <div class="flex flex-col">
+                <span class="text-[10px] uppercase font-bold tracking-wider text-emerald-400">LangChain Chunk Thinking Event</span>
+                <span id="${cardId}-fade-word" class="sweep-text text-xs font-medium text-slate-100 fade-word">
+                  Connecting to ${service.toUpperCase()} Remote MCP Gateway...
+                </span>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-950 border border-slate-800 font-mono text-[11px] text-emerald-400 shadow-inner">
+              <i id="${cardId}-clock-icon" class="fa-regular fa-clock text-[10px] animate-spin" style="animation-duration: 3s;"></i>
+              <span id="${cardId}-timer" class="font-bold">0.0s</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Activity Log -->
+          <div id="${cardId}-activity" class="space-y-1.5 font-mono text-[11px] max-h-48 overflow-y-auto custom-scroll pr-1"></div>
+
+          <!-- Final Response Stream Body -->
+          <div id="${cardId}-reply" class="whitespace-pre-wrap text-xs text-slate-100 hidden pt-2 border-t border-slate-800/80 leading-relaxed"></div>
+        </div>
+      `;
+
+      container.appendChild(msgDiv);
+      container.scrollTop = container.scrollHeight;
+
+      const fadeWordEl = document.getElementById(`${cardId}-fade-word`);
+      const timerEl = document.getElementById(`${cardId}-timer`);
+      const clockIcon = document.getElementById(`${cardId}-clock-icon`);
+      const indicator = document.getElementById(`${cardId}-indicator`);
+      const activityEl = document.getElementById(`${cardId}-activity`);
+      const replyEl = document.getElementById(`${cardId}-reply`);
+
+      const startTime = performance.now();
+      const timerInterval = setInterval(() => {
+        const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
+        timerEl.textContent = `${elapsed}s`;
+      }, 100);
+
+      function stopTimer(finalElapsed) {
+        clearInterval(timerInterval);
+        if (finalElapsed !== undefined) {
+          timerEl.textContent = `${finalElapsed}s`;
+        }
+        clockIcon.className = 'fa-solid fa-bolt text-amber-400 text-[10px]';
+      }
+
+      return {
+        id: cardId,
+        processEvent(event) {
+          if (event.type === 'start') {
+            setFadeWord(fadeWordEl, `Session ready. Querying ${event.service.toUpperCase()} with gemini-3.7-flash...`);
+          } else if (event.type === 'status') {
+            setFadeWord(fadeWordEl, event.text);
+          } else if (event.type === 'chunk') {
+            replyEl.classList.remove('hidden');
+            replyEl.textContent += event.text;
+            container.scrollTop = container.scrollHeight;
+          } else if (event.type === 'done') {
+            stopTimer(event.elapsed);
+            indicator.className = 'w-4 h-4 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] border border-emerald-500/40 shrink-0';
+            indicator.innerHTML = '<i class="fa-solid fa-check"></i>';
+            setFadeWord(fadeWordEl, `Completed in ${event.elapsed}s using ${service.toUpperCase()} Remote MCP`);
+            fadeWordEl.className = 'text-xs font-semibold text-emerald-400';
+
+            replyEl.classList.remove('hidden');
+            if (event.reply) {
+              replyEl.textContent = event.reply;
+            }
+            container.scrollTop = container.scrollHeight;
+          } else if (event.type === 'error') {
+            stopTimer(event.elapsed);
+            indicator.className = 'w-4 h-4 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-[10px] border border-rose-500/40 shrink-0';
+            indicator.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            setFadeWord(fadeWordEl, 'Execution encountered an error');
+            fadeWordEl.className = 'text-xs font-semibold text-rose-400';
+
+            const errBox = document.createElement('div');
+            errBox.className = 'p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-300 text-xs space-y-2 mt-2';
+            errBox.innerHTML = `
+              <p class="font-bold flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation text-rose-400"></i> Error</p>
+              <p class="font-mono text-[11px] leading-relaxed whitespace-pre-wrap">${escapeHtml(event.reply || event.error)}</p>
+              ${event.help ? `
+                <div class="mt-2 pt-2 border-t border-rose-500/20 text-[11px] text-slate-300 space-y-1">
+                  <p class="font-semibold text-amber-300"><i class="fa-solid fa-lightbulb text-amber-400 mr-1"></i> Solution:</p>
+                  <p class="leading-relaxed">${escapeHtml(event.help)}</p>
+                </div>
+              ` : ''}
+            `;
+            activityEl.appendChild(errBox);
+            container.scrollTop = container.scrollHeight;
+          }
+        },
+        markError(errMsg) {
+          stopTimer();
+          indicator.className = 'w-4 h-4 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center text-[10px] border border-rose-500/40 shrink-0';
+          indicator.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+          setFadeWord(fadeWordEl, 'Request failed');
+          fadeWordEl.className = 'text-xs font-semibold text-rose-400';
+
+          const errBox = document.createElement('div');
+          errBox.className = 'p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-300 text-xs mt-2';
+          errBox.innerHTML = `<p class="font-mono text-[11px]">${escapeHtml(errMsg)}</p>`;
+          activityEl.appendChild(errBox);
+          container.scrollTop = container.scrollHeight;
+        }
+      };
     }
 
     function sendQuickPrompt(promptText) {

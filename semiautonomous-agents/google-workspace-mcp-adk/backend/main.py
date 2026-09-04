@@ -14,10 +14,14 @@ from typing import Optional, Dict, Any, List
 from pathlib import Path
 from urllib.parse import urlencode
 
+import certifi
+os.environ["SSL_CERT_FILE"] = certifi.where()
+os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
+
 from fastapi import FastAPI, HTTPException, Request, Response, Depends, Cookie, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 import httpx
 import google.auth
@@ -29,9 +33,9 @@ from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnecti
 from google.genai import types
 import dotenv
 
-# Automatically load .env from project root
-dotenv.load_dotenv(Path(__file__).parent.parent / ".env")
-dotenv.load_dotenv()
+# Automatically load .env from project root with override=True
+dotenv.load_dotenv(Path(__file__).parent.parent / ".env", override=True)
+dotenv.load_dotenv(override=True)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("adk_workspace_mcp")
@@ -40,6 +44,7 @@ logger = logging.getLogger("adk_workspace_mcp")
 os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "true")
 DEFAULT_PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
 os.environ["GOOGLE_CLOUD_PROJECT"] = DEFAULT_PROJECT_ID
+os.environ["CLOUDSDK_CORE_PROJECT"] = DEFAULT_PROJECT_ID
 os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "global")
 
 # Customer OAuth App Credentials (configurable via UI or env)
@@ -154,6 +159,8 @@ async def resolve_credentials(session_id: Optional[str] = None):
     """
     global custom_test_token
 
+    target_project = oauth_config.get("project_id") or DEFAULT_PROJECT_ID or "vtxdemos"
+
     # 1. Check Customer OAuth Session
     if session_id and session_id in user_sessions:
         session = user_sessions[session_id]
@@ -169,25 +176,23 @@ async def resolve_credentials(session_id: Optional[str] = None):
         if access_token:
             user = session.get("user_info", {})
             identity = user.get("email", "Authenticated Customer User")
-            proj = oauth_config.get("project_id") or DEFAULT_PROJECT_ID
-            return access_token, proj, identity, "oauth2_user", session
+            return access_token, target_project, identity, "oauth2_user", session
 
     # 2. Check Custom Test Token
     if custom_test_token:
-        proj = oauth_config.get("project_id") or DEFAULT_PROJECT_ID
-        return custom_test_token, proj, "Custom Bearer Token", "custom_token", None
+        return custom_test_token, target_project, "Custom Bearer Token", "custom_token", None
 
     # 3. Fallback to ADC
     try:
         creds, proj = google.auth.default()
         if not creds.valid:
             creds.refresh(GoogleAuthRequest())
-        proj = proj or oauth_config.get("project_id") or DEFAULT_PROJECT_ID
-        identity = getattr(creds, "service_account_email", "ADC Host Principal")
-        return creds.token, proj, identity, "adc", None
+        resolved_project = target_project or proj or "vtxdemos"
+        identity = getattr(creds, "service_account_email", None) or getattr(creds, "quota_project_id", None) or "ADC Host Principal"
+        return creds.token, resolved_project, identity, "adc", None
     except Exception as e:
         logger.warning(f"ADC fallback unavailable: {e}")
-        return None, oauth_config.get("project_id") or DEFAULT_PROJECT_ID, "Unauthenticated", "none", None
+        return None, target_project, "Unauthenticated", "none", None
 
 
 # Request Models
@@ -515,11 +520,17 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
     if not token:
         raise HTTPException(
             status_code=401,
-            detail="Authentication required. Please sign in with your Google account.",
+            detail="Authentication required. Please sign in with your Google account or configure credentials.",
         )
 
     service = req.service if req.service in WORKSPACE_ENDPOINTS else "gmail"
     endpoint_url = WORKSPACE_ENDPOINTS[service]
+
+    # Set project in environment so Vertex AI client uses target project
+    os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
+    os.environ["CLOUDSDK_CORE_PROJECT"] = project_id
+    os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "true")
+    os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "global")
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -528,78 +539,107 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
         "x-goog-user-project": project_id,
     }
 
-    try:
-        # Create ADK McpToolset with Streamable HTTP parameters
-        workspace_toolset = McpToolset(
-            connection_params=StreamableHTTPConnectionParams(
-                url=endpoint_url,
-                headers=headers,
-                timeout=30.0,
-                sse_read_timeout=300.0,
-            ),
-        )
+    async def event_generator():
+        start_time = time.time()
+        yield f"data: {json.dumps({'type': 'start', 'service': service, 'model': 'gemini-3.7-flash', 'auth_type': auth_type, 'project_id': project_id})}\n\n"
+        await asyncio.sleep(0.05)
 
-        agent = Agent(
-            name="workspace_adk_agent",
-            model="gemini-3.7-flash",
-            instruction=(
-                f"You are a Google Workspace AI assistant connected to {service.upper()} via the Model Context Protocol. "
-                f"You are acting on behalf of user '{identity}' in Google Cloud project '{project_id}'. "
-                "You have access to native Workspace tools. Answer accurately and explain any actions clearly."
-            ),
-            tools=[workspace_toolset],
-        )
+        yield f"data: {json.dumps({'type': 'status', 'phase': 'connecting', 'text': f'Connecting to {service.upper()} Remote MCP ({endpoint_url})...'})}\n\n"
 
-        runner = InMemoryRunner(agent=agent)
-        session = await runner.session_service.create_session(
-            app_name=runner.app_name, user_id=identity
-        )
+        try:
+            # Create ADK McpToolset with Streamable HTTP parameters
+            workspace_toolset = McpToolset(
+                connection_params=StreamableHTTPConnectionParams(
+                    url=endpoint_url,
+                    headers=headers,
+                    timeout=30.0,
+                    sse_read_timeout=300.0,
+                ),
+            )
 
-        response_chunks = []
-        tool_activity = []
+            yield f"data: {json.dumps({'type': 'status', 'phase': 'handshake', 'text': f'Negotiating MCP protocol & loading {service.upper()} tool declarations...'})}\n\n"
 
-        async for event in runner.run_async(
-            session_id=session.id,
-            user_id=identity,
-            new_message=types.Content(parts=[types.Part.from_text(text=req.message)]),
-        ):
-            if event.content and event.content.parts:
-                for p in event.content.parts:
-                    if p.text:
-                        response_chunks.append(p.text)
-                    if hasattr(p, "function_call") and p.function_call:
-                        tool_activity.append({
-                            "type": "call",
-                            "name": p.function_call.name,
-                            "args": dict(p.function_call.args or {}),
-                        })
-                    if hasattr(p, "function_response") and p.function_response:
-                        tool_activity.append({
-                            "type": "response",
-                            "name": p.function_response.name,
-                            "response": str(p.function_response.response),
-                        })
+            agent = Agent(
+                name="workspace_adk_agent",
+                model="gemini-3.7-flash",
+                instruction=(
+                    f"You are a Google Workspace AI assistant connected to {service.upper()} via the Model Context Protocol. "
+                    f"You are acting on behalf of user '{identity}' in Google Cloud project '{project_id}'. "
+                    "You have access to native Workspace tools. Answer accurately and explain any actions clearly."
+                ),
+                tools=[workspace_toolset],
+            )
 
-        full_reply = "".join(response_chunks).strip()
-        if not full_reply:
-            full_reply = "I processed your request using the Workspace MCP integration."
+            runner = InMemoryRunner(agent=agent)
+            adk_session = await runner.session_service.create_session(
+                app_name=runner.app_name, user_id=identity
+            )
 
-        return {
-            "reply": full_reply,
-            "service": service,
-            "identity": identity,
-            "auth_type": auth_type,
-            "tool_activity": tool_activity,
-        }
-    except Exception as e:
-        logger.error(f"Chat execution error: {e}")
-        return {
-            "reply": f"An error occurred while executing the ADK agent: {str(e)}",
-            "service": service,
-            "identity": identity,
-            "tool_activity": [],
-            "error": True,
-        }
+            yield f"data: {json.dumps({'type': 'status', 'phase': 'reasoning', 'text': 'Agent reasoning with gemini-3.7-flash chunk by event...'})}\n\n"
+
+            response_chunks = []
+            tool_activity = []
+
+            async for event in runner.run_async(
+                session_id=adk_session.id,
+                user_id=identity,
+                new_message=types.Content(parts=[types.Part.from_text(text=req.message)]),
+            ):
+                if event.content and event.content.parts:
+                    for p in event.content.parts:
+                        # Thinking / reasoning chunk text
+                        thought_val = getattr(p, "thought", None)
+                        if thought_val and isinstance(thought_val, str) and thought_val.strip():
+                            yield f"data: {json.dumps({'type': 'thought', 'text': thought_val.strip()})}\n\n"
+
+                        # Tool invocation
+                        if hasattr(p, "function_call") and p.function_call:
+                            c_name = p.function_call.name
+                            c_args = dict(p.function_call.args or {})
+                            tool_activity.append({"type": "call", "name": c_name, "args": c_args})
+                            args_preview = ", ".join(f"{k}={repr(v)[:20]}" for k, v in list(c_args.items())[:2])
+                            yield f"data: {json.dumps({'type': 'tool_call', 'name': c_name, 'args': c_args, 'text': f'Invoking tool: {c_name}({args_preview})'})}\n\n"
+
+                        # Tool response
+                        if hasattr(p, "function_response") and p.function_response:
+                            r_name = p.function_response.name
+                            r_data = p.function_response.response
+                            tool_activity.append({"type": "response", "name": r_name, "response": str(r_data)})
+                            yield f"data: {json.dumps({'type': 'tool_response', 'name': r_name, 'text': f'Received result from {r_name}'})}\n\n"
+
+                        # Text chunk
+                        if p.text:
+                            response_chunks.append(p.text)
+                            yield f"data: {json.dumps({'type': 'chunk', 'text': p.text})}\n\n"
+
+            full_reply = "".join(response_chunks).strip()
+            if not full_reply:
+                full_reply = "I processed your request using the Workspace MCP integration."
+
+            elapsed = round(time.time() - start_time, 2)
+            yield f"data: {json.dumps({'type': 'done', 'reply': full_reply, 'tool_activity': tool_activity, 'elapsed': elapsed})}\n\n"
+
+        except Exception as e:
+            err_msg = str(e)
+            logger.error(f"Chat execution error: {err_msg}")
+            help_msg = ""
+            if "403" in err_msg and ("Forbidden" in err_msg or "PERMISSION_DENIED" in err_msg):
+                if auth_type == "adc":
+                    help_msg = (
+                        "ADC Host Token lacks Google Workspace OAuth scopes (gmail.modify, drive.readonly, etc.). "
+                        "Please click 'Sign in with Google' at the top right to authorize your Workspace user scopes, "
+                        "or re-authenticate ADC with: "
+                        'gcloud auth application-default login --scopes="https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly"'
+                    )
+                else:
+                    help_msg = (
+                        f"Google Workspace MCP requires IAM role 'roles/mcp.toolUser' in project '{project_id}'. "
+                        f"Run: gcloud projects add-iam-policy-binding {project_id} --member=\"user:{identity}\" --role=\"roles/mcp.toolUser\""
+                    )
+            elapsed = round(time.time() - start_time, 2)
+            yield f"data: {json.dumps({'type': 'error', 'reply': f'Execution error: {err_msg}', 'help': help_msg, 'elapsed': elapsed})}\n\n"
+
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 # Mount Static Files

@@ -14,10 +14,14 @@ from typing import Optional, Dict, Any, List
 from pathlib import Path
 from urllib.parse import urlencode
 
+import certifi
+os.environ["SSL_CERT_FILE"] = certifi.where()
+os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
+
 from fastapi import FastAPI, HTTPException, Request, Response, Depends, Cookie, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse, StreamingResponse
 from pydantic import BaseModel, Field
 import httpx
 import google.auth
@@ -26,9 +30,9 @@ from google import genai
 from google.genai import types
 import dotenv
 
-# Automatically load .env from project root
-dotenv.load_dotenv(Path(__file__).parent.parent / ".env")
-dotenv.load_dotenv()
+# Automatically load .env from project root with override=True
+dotenv.load_dotenv(Path(__file__).parent.parent / ".env", override=True)
+dotenv.load_dotenv(override=True)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("langchain_workspace_mcp")
@@ -36,6 +40,7 @@ logger = logging.getLogger("langchain_workspace_mcp")
 os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "true")
 DEFAULT_PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
 os.environ["GOOGLE_CLOUD_PROJECT"] = DEFAULT_PROJECT_ID
+os.environ["CLOUDSDK_CORE_PROJECT"] = DEFAULT_PROJECT_ID
 os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "global")
 
 oauth_config = {
@@ -136,6 +141,8 @@ async def refresh_access_token(session: Dict[str, Any]) -> Optional[str]:
 async def resolve_credentials(session_id: Optional[str] = None):
     global custom_test_token
 
+    target_project = oauth_config.get("project_id") or DEFAULT_PROJECT_ID or "vtxdemos"
+
     if session_id and session_id in user_sessions:
         session = user_sessions[session_id]
         access_token = session.get("access_token")
@@ -149,23 +156,21 @@ async def resolve_credentials(session_id: Optional[str] = None):
         if access_token:
             user = session.get("user_info", {})
             identity = user.get("email", "Authenticated Customer User")
-            proj = oauth_config.get("project_id") or DEFAULT_PROJECT_ID
-            return access_token, proj, identity, "oauth2_user", session
+            return access_token, target_project, identity, "oauth2_user", session
 
     if custom_test_token:
-        proj = oauth_config.get("project_id") or DEFAULT_PROJECT_ID
-        return custom_test_token, proj, "Custom Bearer Token", "custom_token", None
+        return custom_test_token, target_project, "Custom Bearer Token", "custom_token", None
 
     try:
         creds, proj = google.auth.default()
         if not creds.valid:
             creds.refresh(GoogleAuthRequest())
-        proj = proj or oauth_config.get("project_id") or DEFAULT_PROJECT_ID
-        identity = getattr(creds, "service_account_email", "ADC Host Principal")
-        return creds.token, proj, identity, "adc", None
+        resolved_project = target_project or proj or "vtxdemos"
+        identity = getattr(creds, "service_account_email", None) or getattr(creds, "quota_project_id", None) or "ADC Host Principal"
+        return creds.token, resolved_project, identity, "adc", None
     except Exception as e:
         logger.warning(f"ADC fallback unavailable: {e}")
-        return None, oauth_config.get("project_id") or DEFAULT_PROJECT_ID, "Unauthenticated", "none", None
+        return None, target_project, "Unauthenticated", "none", None
 
 
 class ConfigUpdateRequest(BaseModel):
@@ -453,10 +458,15 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
     token, project_id, identity, auth_type, _ = await resolve_credentials(session_id)
 
     if not token:
-        raise HTTPException(status_code=401, detail="Authentication required.")
+        raise HTTPException(status_code=401, detail="Authentication required. Please sign in with your Google account.")
 
     service = req.service if req.service in WORKSPACE_ENDPOINTS else "gmail"
     endpoint_url = WORKSPACE_ENDPOINTS[service]
+
+    os.environ["GOOGLE_CLOUD_PROJECT"] = project_id
+    os.environ["CLOUDSDK_CORE_PROJECT"] = project_id
+    os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "true")
+    os.environ.setdefault("GOOGLE_CLOUD_LOCATION", "global")
 
     headers = {
         "Authorization": f"Bearer {token}",
@@ -465,66 +475,79 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
         "x-goog-user-project": project_id,
     }
 
-    try:
-        # Step 1: Discover available tools from Workspace Remote MCP Server
-        async with httpx.AsyncClient(headers=headers, timeout=10.0) as client:
-            await client.post(
-                endpoint_url,
-                json={
-                    "jsonrpc": "2.0",
-                    "id": 1,
-                    "method": "initialize",
-                    "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "langchain-agent", "version": "2.0"}},
-                },
+    async def event_generator():
+        start_time = time.time()
+        yield f"data: {json.dumps({'type': 'start', 'service': service, 'model': 'gemini-3.7-flash', 'auth_type': auth_type, 'project_id': project_id})}\n\n"
+        await asyncio.sleep(0.05)
+
+        yield f"data: {json.dumps({'type': 'status', 'phase': 'connecting', 'text': f'Connecting to {service.upper()} Remote MCP ({endpoint_url})...'})}\n\n"
+
+        try:
+            # Step 1: Discover available tools from Workspace Remote MCP Server
+            async with httpx.AsyncClient(headers=headers, timeout=10.0) as client:
+                await client.post(
+                    endpoint_url,
+                    json={
+                        "jsonrpc": "2.0",
+                        "id": 1,
+                        "method": "initialize",
+                        "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "langchain-agent", "version": "2.0"}},
+                    },
+                )
+                res = await client.post(endpoint_url, json={"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}})
+                mcp_tools = res.json().get("result", {}).get("tools", [])
+
+            yield f"data: {json.dumps({'type': 'status', 'phase': 'handshake', 'text': f'Discovered {len(mcp_tools)} tools from {service.upper()} Remote MCP.'})}\n\n"
+
+            # Step 2: Invoke model with GenAI & Gemini 3.7 Flash
+            yield f"data: {json.dumps({'type': 'status', 'phase': 'reasoning', 'text': 'LangChain reasoning with gemini-3.7-flash...'})}\n\n"
+
+            genai_client = genai.Client(
+                vertexai=True,
+                project=project_id,
+                location="global",
             )
-            res = await client.post(endpoint_url, json={"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}})
-            mcp_tools = res.json().get("result", {}).get("tools", [])
 
-        tool_activity = []
+            tools_summary = "\n".join([f"- {t.get('name')}: {t.get('description', '').splitlines()[0]}" for t in mcp_tools[:12]])
 
-        # Step 2: Invoke model with GenAI & Gemini 3.7 Flash
-        genai_client = genai.Client(
-            vertexai=True,
-            project=project_id,
-            location="global",
-        )
+            system_prompt = (
+                f"You are an enterprise AI assistant built with LangChain and integrated with Google Workspace ({service.upper()}) "
+                f"via Model Context Protocol (Streamable HTTP).\n"
+                f"User Identity: {identity} | Google Cloud Project: {project_id}\n"
+                f"Available MCP Tools on {endpoint_url}:\n{tools_summary}\n"
+                f"Provide helpful, accurate answers explaining which Workspace tools execute each task."
+            )
 
-        tools_summary = "\n".join([f"- {t.get('name')}: {t.get('description', '').splitlines()[0]}" for t in mcp_tools[:12]])
+            response_gen = await asyncio.to_thread(
+                genai_client.models.generate_content,
+                model="gemini-3.7-flash",
+                contents=[
+                    types.Content(role="user", parts=[types.Part.from_text(text=f"{system_prompt}\n\nUser Question: {req.message}")])
+                ],
+            )
 
-        system_prompt = (
-            f"You are an enterprise AI assistant built with LangChain and integrated with Google Workspace ({service.upper()}) "
-            f"via Model Context Protocol (Streamable HTTP).\n"
-            f"User Identity: {identity} | Google Cloud Project: {project_id}\n"
-            f"Available MCP Tools on {endpoint_url}:\n{tools_summary}\n"
-            f"Provide helpful, accurate answers explaining which Workspace tools execute each task."
-        )
+            full_reply = response_gen.text.strip() if response_gen.text else "Request processed."
+            yield f"data: {json.dumps({'type': 'chunk', 'text': full_reply})}\n\n"
 
-        response_gen = genai_client.models.generate_content(
-            model="gemini-3.7-flash",
-            contents=[
-                types.Content(role="user", parts=[types.Part.from_text(text=f"{system_prompt}\n\nUser Question: {req.message}")])
-            ],
-        )
+            elapsed = round(time.time() - start_time, 2)
+            yield f"data: {json.dumps({'type': 'done', 'reply': full_reply, 'tool_activity': [], 'elapsed': elapsed})}\n\n"
 
-        full_reply = response_gen.text.strip() if response_gen.text else "Request processed."
+        except Exception as e:
+            err_msg = str(e)
+            logger.error(f"LangChain Chat error: {err_msg}")
+            help_msg = ""
+            if "403" in err_msg and ("Forbidden" in err_msg or "PERMISSION_DENIED" in err_msg):
+                if auth_type == "adc":
+                    help_msg = (
+                        "ADC Host Token lacks Google Workspace OAuth scopes. "
+                        "Click 'Sign in with Google' at top right, or re-authenticate ADC with Workspace scopes."
+                    )
+                else:
+                    help_msg = f"Ensure user has 'roles/mcp.toolUser' in project '{project_id}'."
+            elapsed = round(time.time() - start_time, 2)
+            yield f"data: {json.dumps({'type': 'error', 'reply': f'Error executing LangChain agent: {err_msg}', 'help': help_msg, 'elapsed': elapsed})}\n\n"
 
-        return {
-            "framework": "LangChain",
-            "reply": full_reply,
-            "service": service,
-            "identity": identity,
-            "auth_type": auth_type,
-            "tool_activity": tool_activity,
-        }
-    except Exception as e:
-        logger.error(f"LangChain Chat error: {e}")
-        return {
-            "reply": f"Error executing LangChain agent: {str(e)}",
-            "service": service,
-            "identity": identity,
-            "tool_activity": [],
-            "error": True,
-        }
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 
 frontend_dir = Path(__file__).parent.parent / "frontend"
