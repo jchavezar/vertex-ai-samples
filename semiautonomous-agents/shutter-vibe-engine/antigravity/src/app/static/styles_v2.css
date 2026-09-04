@@ -1844,76 +1844,193 @@ ul { list-style: none; padding: 0; margin: 0; }
 }
 .lh-h2--small { font-size: 22px; letter-spacing: -0.018em; }
 
-/* ----- UNLIMITED CREATIVITY BANNER ----- */
+/* ----- ENVATO PROMO BAR ----- */
+.lh-promo-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lh-lime, #9BE43F);
+  color: #14161c;
+  padding: 8px 18px;
+  border-radius: 999px;
+  margin: 0 auto 18px;
+  width: fit-content;
+  max-width: 100%;
+  box-shadow: 0 4px 14px rgba(155, 228, 63, 0.25);
+}
+.lh-promo-bar__content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.lh-promo-bar__text {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.lh-promo-bar__btn {
+  background: #14161c;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 999px;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.lh-promo-bar__btn:hover {
+  background: #000;
+  transform: scale(1.03);
+}
+
+/* ----- HERO SPLIT (BANNER + PRICING CARD) ----- */
+.lh-hero-split {
+  display: grid;
+  grid-template-columns: 1.55fr 1fr;
+  gap: 20px;
+  align-items: stretch;
+  margin: 4px 0 28px;
+}
+@media (max-width: 960px) {
+  .lh-hero-split {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----- HERO BANNER (LEFT) ----- */
 .lh-banner {
   position: relative;
-  margin: 4px 0 22px;
-  padding: 36px 44px;
-  border-radius: 18px;
+  padding: 34px 38px;
+  border-radius: 20px;
   background:
-    radial-gradient(circle at 85% 18%, rgba(155,228,63,0.18) 0%, transparent 55%),
-    radial-gradient(circle at 12% 90%, rgba(110,86,207,0.20) 0%, transparent 50%),
-    linear-gradient(135deg, #0E1014 0%, #16232A 50%, #112216 100%);
+    radial-gradient(circle at 85% 20%, rgba(155,228,63,0.18) 0%, transparent 60%),
+    radial-gradient(circle at 10% 85%, rgba(110,86,207,0.18) 0%, transparent 55%),
+    linear-gradient(135deg, #0d0f12 0%, #151a21 55%, #101c13 100%);
   color: #fff;
-  display: grid;
-  grid-template-columns: 1.4fr 1fr;
-  align-items: center;
-  gap: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   overflow: hidden;
-  border: 1px solid rgba(255,255,255,0.06);
-  box-shadow: 0 18px 44px rgba(20,22,28,0.18);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 16px 40px rgba(20,22,28,0.14);
+  min-height: 250px;
 }
-.lh-banner::before {
-  content: '';
-  position: absolute; inset: 0;
-  background: radial-gradient(800px 320px at 100% 0%, rgba(155,228,63,0.10) 0%, transparent 70%);
-  pointer-events: none;
+.lh-banner__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--lh-lime, #9BE43F);
+  margin-bottom: 14px;
+  box-shadow: 0 0 12px rgba(155, 228, 63, 0.6);
 }
-.lh-banner__copy { position: relative; z-index: 1; }
+.lh-banner__copy {
+  position: relative;
+  z-index: 2;
+}
+.lh-banner__eyebrow {
+  font-size: 17px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
+}
 .lh-banner__title {
-  font-size: 44px;
+  font-size: 38px;
   font-weight: 900;
-  line-height: 1.03;
-  letter-spacing: -0.028em;
-  margin: 0 0 10px;
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
   color: #fff;
 }
-.lh-banner__title em {
-  font-style: italic;
-  font-weight: 800;
-  color: var(--lh-lime);
+.lh-banner__title em,
+.lh-lime-text {
+  color: var(--lh-lime, #9BE43F);
+  font-style: normal;
+  font-weight: 900;
 }
 .lh-banner__sub {
-  font-size: 14px;
+  font-size: 13.5px;
   color: rgba(255,255,255,0.72);
   margin: 0;
-  max-width: 520px;
-  line-height: 1.5;
+  max-width: 480px;
+  line-height: 1.45;
 }
-.lh-banner__cta-wrap {
-  position: relative; z-index: 1;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
-  justify-self: end;
+
+/* ----- PRICING CARD (RIGHT) ----- */
+.lh-pricing-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 26px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 4px 20px rgba(20, 22, 28, 0.05);
+  position: relative;
 }
-.lh-banner__cta {
-  font-size: 15px;
-  padding: 14px 22px;
-  border-radius: 999px;
-  font-weight: 700;
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-  box-shadow: 0 8px 22px rgba(155,228,63,0.32);
+.lh-pricing-card__from {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 2px;
+  font-weight: 500;
 }
-.lh-banner__hint {
-  font-size: 11.5px;
-  color: rgba(255,255,255,0.55);
-  letter-spacing: 0.01em;
+.lh-pricing-card__price {
+  font-size: 32px;
+  font-weight: 900;
+  color: #111827;
+  letter-spacing: -0.02em;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
 }
-.lh-banner__hint .sparkle { color: var(--lh-lime); margin-right: 4px; }
-@media (max-width: 900px) {
-  .lh-banner { grid-template-columns: 1fr; padding: 26px 24px; }
-  .lh-banner__title { font-size: 32px; }
-  .lh-banner__cta-wrap { justify-self: start; }
+.lh-pricing-card__unit {
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+}
+.lh-pricing-card__features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+.lh-pricing-card__features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  color: #374151;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.lh-pricing-card__features li svg {
+  flex-shrink: 0;
+  color: #111827;
+}
+.lh-pricing-card__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--lh-lime, #9BE43F);
+  color: #111827;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 13px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(155, 228, 63, 0.28);
+}
+.lh-pricing-card__btn:hover {
+  background: #8de02d;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(155, 228, 63, 0.38);
 }
 
 .lh-pill {
@@ -1926,36 +2043,98 @@ ul { list-style: none; padding: 0; margin: 0; }
 }
 .lh-spark { color: #6E56CF; font-size: 10px; }
 
-/* ----- BENTO GRID -----
-   6 columns × N rows, every cell on the same baseline. The AI dark card
-   spans 2 rows; every other card spans 1. Row height is fixed so all
-   cards line up perfectly — no broken-grid feel. */
+/* ================================================================
+   ENVATO ELEMENTS CATEGORY GRID ARCHITECTURE
+   Reverse-engineered from elements.envato.com (HomeNeuePage)
+   Alternating spacer tracks: repeat(N, 24px max-content) 24px
+   Odd cards span 1/3 (top 0), Even cards span 2/4 (shifted down 24px)
+   ================================================================ */
 .lh-bento {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  grid-auto-rows: 380px;          /* row taller than card → vertical slack */
-  grid-auto-flow: row dense;
-  gap: 18px;
+  gap: 16px;
+  width: 100%;
+  margin-top: 18px;
+  margin-bottom: 48px;
+  /* Default: 2 columns (mobile) */
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(6, 24px max-content) 24px;
 }
 
-/* Shared chrome for EVERY card (AI dark + category light). */
+.lh-bento > .lh-card {
+  grid-row: var(--local-2-columns-grid-start, 1) / calc(var(--local-2-columns-grid-start, 1) + 2);
+}
+.lh-bento > .lh-card:nth-of-type(odd) {
+  grid-column-start: 1;
+}
+.lh-bento > .lh-card:nth-of-type(2n) {
+  grid-column-start: 2;
+}
+
+/* 3 columns (tablet, >= 768px) */
+@media (min-width: 768px) {
+  .lh-bento {
+    gap: 18px;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(4, 24px max-content) 24px;
+  }
+  .lh-bento > .lh-card {
+    grid-row: var(--local-3-columns-grid-start, 1) / calc(var(--local-3-columns-grid-start, 1) + 2);
+  }
+  .lh-bento > .lh-card:nth-of-type(3n+1) { grid-column-start: 1; }
+  .lh-bento > .lh-card:nth-of-type(3n+2) { grid-column-start: 2; }
+  .lh-bento > .lh-card:nth-of-type(3n)   { grid-column-start: 3; }
+}
+
+/* 4 columns (laptop / medium desktop, >= 1080px) */
+@media (min-width: 1080px) {
+  .lh-bento {
+    gap: 20px;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(3, 24px max-content) 24px;
+  }
+  .lh-bento > .lh-card {
+    grid-row: var(--local-4-columns-grid-start, 1) / calc(var(--local-4-columns-grid-start, 1) + 2);
+  }
+  .lh-bento > .lh-card:nth-of-type(4n+1) { grid-column-start: 1; }
+  .lh-bento > .lh-card:nth-of-type(4n+2) { grid-column-start: 2; }
+  .lh-bento > .lh-card:nth-of-type(4n+3) { grid-column-start: 3; }
+  .lh-bento > .lh-card:nth-of-type(4n)   { grid-column-start: 4; }
+}
+
+/* 6 columns (wide desktop, >= 1400px) */
+@media (min-width: 1400px) {
+  .lh-bento {
+    gap: 20px;
+    grid-template-columns: repeat(6, 1fr);
+    grid-template-rows: repeat(2, 28px max-content) 28px;
+  }
+  .lh-bento > .lh-card {
+    grid-row: var(--local-6-columns-grid-start, 1) / calc(var(--local-6-columns-grid-start, 1) + 2);
+  }
+  .lh-bento > .lh-card:nth-of-type(6n+1) { grid-column-start: 1; }
+  .lh-bento > .lh-card:nth-of-type(6n+2) { grid-column-start: 2; }
+  .lh-bento > .lh-card:nth-of-type(6n+3) { grid-column-start: 3; }
+  .lh-bento > .lh-card:nth-of-type(6n+4) { grid-column-start: 4; }
+  .lh-bento > .lh-card:nth-of-type(6n+5) { grid-column-start: 5; }
+  .lh-bento > .lh-card:nth-of-type(6n)   { grid-column-start: 6; }
+}
+
+/* Shared chrome for EVERY card */
 .lh-card {
   position: relative;
-  display: flex; flex-direction: column;
+  display: flex;
+  flex-direction: column;
   background: #ffffff;
-  border: 1.5px solid var(--lh-ink);
-  border-radius: 14px;
-  padding: 14px;                  /* identical inset on every card */
-  overflow: hidden;
+  border: 1.5px solid #14161c;
+  border-radius: 16px;
+  padding: 14px;
   cursor: pointer;
-  height: 356px;                  /* fixed; align-self anchors within taller cell */
-  align-self: start;              /* default: top of cell */
-  box-shadow: 0 1px 2px rgba(20,22,28,0.04),
-              0 4px 14px rgba(20,22,28,0.04);    /* subtle floating */
-  transition: transform .32s var(--ease-out),
-              box-shadow .32s var(--ease-out),
+  box-sizing: border-box;
+  box-shadow: 0 1px 3px rgba(20,22,28,0.04), 0 4px 14px rgba(20,22,28,0.04);
+  transition: transform .28s var(--ease-out),
+              box-shadow .28s var(--ease-out),
               border-color .2s ease;
-  grid-row: span var(--lh-row, 1);
+  height: 100%;
 }
 .lh-card:hover {
   transform: translateY(-4px);
@@ -1963,64 +2142,59 @@ ul { list-style: none; padding: 0; margin: 0; }
   box-shadow: 0 16px 36px rgba(20,22,28,0.16);
 }
 
-/* "Broken grid" stagger — every other column anchors to the BOTTOM of its
-   cell instead of the top, so the card sits ~24px lower than its neighbors.
-   Card sizes stay uniform; only their Y position shifts. AI card is excluded. */
-.lh-bento > .lh-card:nth-child(3),
-.lh-bento > .lh-card:nth-child(5),
-.lh-bento > .lh-card:nth-child(8),
-.lh-bento > .lh-card:nth-child(10) {
-  align-self: end;
-}
-
 .lh-card__head {
   flex: 0 0 auto;
-  padding: 4px 4px 10px;          /* sits inside the card's 14px pad */
-  min-height: 54px;               /* keeps thumbnails on the same Y */
+  display: flex;
+  flex-direction: column;
+  row-gap: 3px;
+  padding: 2px 2px 10px;
+  min-height: 52px;
 }
 .lh-card__title {
-  font-size: 17px; font-weight: 800;
-  color: var(--lh-ink);
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--lh-ink, #14161c);
   letter-spacing: -0.018em;
-  line-height: 1.18;
+  line-height: 1.2;
 }
 .lh-card__count {
-  font-size: 12px; color: var(--lh-ink-3);
-  margin-top: 4px; font-weight: 500;
+  font-size: 12.5px;
+  color: var(--lh-ink-3, #6b7280);
+  font-weight: 500;
 }
 
-/* Media area fills the rest of the card; uniform across the grid because
-   the parent .lh-card is a fixed-row grid cell and the head has min-height. */
+/* Media area matches Envato 1:1 square cover with rounded corners */
 .lh-card__media {
   flex: 1 1 auto;
-  border-radius: 10px;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  border-radius: 12px;
   overflow: hidden;
-  background: var(--lh-cream-2);
-  min-height: 0;                  /* allow flex child to shrink */
+  background: var(--lh-cream-2, #f4f4f6);
+  position: relative;
 }
 .lh-card__img {
-  width: 100%; height: 100%;
-  background-size: cover; background-position: center;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
   transition: transform .35s var(--ease-out);
 }
 .lh-card:hover .lh-card__img { transform: scale(1.06); }
 
-/* ----- AI TOOLS DARK CARD (col 1, spans 2 rows) -----
-   Inherits ALL chrome (radius, border-width, padding, shadow) from
-   .lh-card; only overrides surface colors + height (spans both rows). */
+/* ----- AI TOOLS DARK CARD ----- */
 .lh-card--ai {
-  background: var(--lh-dark);
-  border-color: var(--lh-dark);
+  background: #14161c;
+  border-color: #14161c;
   color: #fff;
-  height: auto;                   /* let it span both rows naturally */
-  align-self: stretch;            /* fill the 2-row span */
+  height: 100%;
 }
-.lh-card--ai .lh-card__head { min-height: 0; padding: 4px 4px 12px; }
+.lh-card--ai .lh-card__head { min-height: 52px; padding: 2px 2px 10px; }
 .lh-card--ai .lh-card__title {
   color: #fff;
-  font-size: 19px;
+  font-size: 16px;
   font-weight: 800;
-  line-height: 1.16;
+  line-height: 1.2;
 }
 .lh-plus {
   display: inline-block;
@@ -2034,17 +2208,25 @@ ul { list-style: none; padding: 0; margin: 0; }
 
 .lh-aicard {
   flex: 1 1 auto;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  box-sizing: border-box;
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.08);
-  border-radius: 10px;
+  border-radius: 12px;
   padding: 10px 12px;
-  display: flex; flex-direction: column;
-  gap: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 6px;
   transition: opacity .25s ease;
+  overflow: hidden;
 }
 .lh-aicard__brand {
-  display: flex; align-items: center; gap: 6px;
-  padding-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 5px;
   border-bottom: 1px solid rgba(255,255,255,.08);
 }
 .lh-aicard__brand-name {
@@ -2059,20 +2241,23 @@ ul { list-style: none; padding: 0; margin: 0; }
 .lh-aicard__list {
   display: flex; flex-direction: column;
   gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 .lh-aicard__item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 4px 6px;
+  display: flex; align-items: center; gap: 7px;
+  padding: 3px 5px;
   border-radius: 5px;
-  font-size: 11.5px;
+  font-size: 11px;
   color: rgba(255,255,255,.85);
   cursor: default;
 }
 .lh-aicard__item:hover { background: rgba(255,255,255,.07); color: #fff; }
 .lh-aicard__dot {
-  width: 6px; height: 6px; border-radius: 50%;
+  width: 5px; height: 5px; border-radius: 50%;
   background: var(--lh-lime);
-  opacity: .55;
+  opacity: .7;
   flex-shrink: 0;
 }
 .lh-aicard__name { letter-spacing: -.005em; }
@@ -2081,6 +2266,9 @@ ul { list-style: none; padding: 0; margin: 0; }
 .lh-aicard__hover {
   display: none;
   flex: 1 1 auto;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  box-sizing: border-box;
   flex-direction: column;
   gap: 8px;
 }
@@ -2327,14 +2515,12 @@ ul { list-style: none; padding: 0; margin: 0; }
 
 /* ----- RESPONSIVE ----- */
 @media (max-width: 1280px) {
-  .lh-bento { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 156px; }
   .lh-tools { grid-template-columns: repeat(4, minmax(150px, 1fr)); }
   .lh-collections { grid-template-columns: repeat(2, 1fr); }
   .lh-why { grid-template-columns: 1fr; }
   .lh-why__art { min-height: 120px; }
 }
 @media (max-width: 760px) {
-  .lh-bento { grid-template-columns: repeat(2, 1fr); }
   .lh-tools { grid-template-columns: repeat(2, minmax(140px, 1fr)); }
   .lh-collections { grid-template-columns: 1fr; }
   .lh-why { padding: 24px; }

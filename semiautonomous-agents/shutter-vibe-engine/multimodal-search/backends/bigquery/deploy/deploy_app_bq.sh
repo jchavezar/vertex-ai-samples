@@ -14,7 +14,7 @@ set -euo pipefail
 PROJECT=${GOOGLE_CLOUD_PROJECT:-vtxdemos}
 REGION=${GOOGLE_CLOUD_LOCATION:-us-central1}
 BUCKET=${ENVATO_GCS_BUCKET:-envato-vibe-demo}
-SA="envato-vibe-runner@${PROJECT}.iam.gserviceaccount.com"
+SA=${ENVATO_RUNNER_SA:-"254356041555-compute@developer.gserviceaccount.com"}
 SERVICE="envato-vibe-app-bq"
 IMAGE="gcr.io/${PROJECT}/envato-vibe-app:latest"   # reuse VS image
 

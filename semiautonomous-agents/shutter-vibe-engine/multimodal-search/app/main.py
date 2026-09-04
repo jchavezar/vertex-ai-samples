@@ -108,7 +108,7 @@ LIVE_MODEL = os.environ.get(
     # ids return 1008 model-not-found in our project.
     "ENVATO_LIVE_MODEL", "gemini-live-2.5-flash-preview-native-audio-09-2025",
 )
-CHAT_MODEL = os.environ.get("ENVATO_CHAT_MODEL", "gemini-2.5-flash")
+CHAT_MODEL = os.environ.get("ENVATO_CHAT_MODEL", "gemini-3.7-flash")
 ASSET_CHAT_SYSTEM = (
     "You are an art-director assistant for a creative team browsing the "
     "stock catalogue. The user is asking questions about THIS specific "
@@ -1665,7 +1665,7 @@ class AssetChatRequest(BaseModel):
 
 @app.post("/api/chat/{asset_id}")
 async def api_asset_chat(asset_id: str, body: AssetChatRequest):
-    """Text-only chat about a single asset, using gemini-2.5-flash with the
+    """Text-only chat about a single asset, using gemini-3.7-flash with the
     asset attached as multimodal context. This is the graceful fallback for
     when the user can't (or won't) use the Live voice path."""
     doc = _segment_doc(asset_id)

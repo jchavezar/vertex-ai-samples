@@ -42,25 +42,25 @@
     { key: 'voicegen',  label: 'VoiceGen',   tip: 'Chirp 3 HD — natural-sounding text-to-speech',                       thumb: 'https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg?auto=compress&cs=tinysrgb&w=600' },
     { key: 'soundgen',  label: 'SoundGen',   tip: 'Lyria SFX — sound-effect generation from prompts',                   thumb: 'https://images.pexels.com/photos/1407322/pexels-photo-1407322.jpeg?auto=compress&cs=tinysrgb&w=600' },
     { key: 'embedgen',  label: 'EmbedGen',   tip: 'Gemini Embedding — the engine powering this demo',                   thumb: 'https://images.pexels.com/photos/256381/pexels-photo-256381.jpeg?auto=compress&cs=tinysrgb&w=600' },
-    { key: 'askgen',    label: 'AskGen',     tip: 'Gemini 2.5 Pro — multimodal chat & reasoning',                       thumb: 'https://images.pexels.com/photos/2885320/pexels-photo-2885320.jpeg?auto=compress&cs=tinysrgb&w=600' },
+    { key: 'askgen',    label: 'AskGen',     tip: 'Gemini 3 Pro — multimodal chat & reasoning',                         thumb: 'https://images.pexels.com/photos/2885320/pexels-photo-2885320.jpeg?auto=compress&cs=tinysrgb&w=600' },
   ];
 
   // ---------- bento card definitions ----------
-  // 6-column grid × 2 rows. AI dark card spans 2 rows on the left; the
-  // remaining 10 category cards each span 1 row, filling the 5×2 region
-  // to its right with perfectly uniform card heights.
+  // 6-column grid with Envato staggered 24px spacer tracks.
+  // 12 cards map across 6 cols, 4 cols, 3 cols, and 2 cols with exact grid starts.
   const BENTO_LAYOUT = [
-    { id: 'ai',       title: 'Create with our + AI Tools', kind: 'ai',                                                        col: 1, row: 2 },
-    { id: 'video',    title: 'Video Templates',     modKey: 'video',       fallback: '150,000+', thumb: THUMB.vidtmpl,       col: 1, row: 1 },
-    { id: 'photo',    title: 'Stock Photos',        modKey: 'photo',       fallback: '15.6M+',   thumb: THUMB.photo,         col: 1, row: 1 },
-    { id: 'music',    title: 'Royalty-Free Music',  modKey: 'audio_music', fallback: '340,000+', thumb: THUMB.music,         col: 1, row: 1 },
-    { id: 'sfx',      title: 'Sound Effects',       modKey: 'audio_sfx',   fallback: '930,000+', thumb: THUMB.sfx,           col: 1, row: 1 },
-    { id: 'gtmpl',    title: 'Graphic Templates',   modKey: 'graphic',     fallback: '410,000+', thumb: THUMB.graphic,       col: 1, row: 1 },
-    { id: 'fonts',    title: 'Fonts',               fixed: '76,000+',                            thumb: THUMB.fonts,         col: 1, row: 1 },
-    { id: 'graphics', title: 'Stock Video',         modKey: 'video',       fallback: '270,000+', thumb: THUMB.video,         col: 1, row: 1 },
-    { id: 'threed',   title: '3D',                  fixed: '380,000+',                           thumb: THUMB.threed,        col: 1, row: 1 },
-    { id: 'addons',   title: 'Add-ons',             fixed: '37,000+',                            thumb: THUMB.addons,        col: 1, row: 1 },
-    { id: 'pres',     title: 'Presentation Templates', fixed: '210,000+',                        thumb: THUMB.deck,          col: 1, row: 1 },
+    { id: 'ai',       title: 'Create with our + AI Tools', kind: 'ai',                                                        col: 1, row: 2, starts: { c2: 1, c3: 1, c4: 1, c6: 1 } },
+    { id: 'video',    title: 'Video Templates',     modKey: 'video',       fallback: '150,000+', thumb: THUMB.vidtmpl,       col: 1, row: 1, starts: { c2: 2, c3: 2, c4: 2, c6: 2 } },
+    { id: 'photo',    title: 'Stock Photos',        modKey: 'photo',       fallback: '16.4M+',   thumb: THUMB.photo,         col: 1, row: 1, starts: { c2: 3, c3: 1, c4: 1, c6: 1 } },
+    { id: 'music',    title: 'Royalty-Free Music',  modKey: 'audio_music', fallback: '340,000+', thumb: THUMB.music,         col: 1, row: 1, starts: { c2: 4, c3: 3, c4: 2, c6: 2 } },
+    { id: 'sfx',      title: 'Sound Effects',       modKey: 'audio_sfx',   fallback: '940,000+', thumb: THUMB.sfx,           col: 1, row: 1, starts: { c2: 5, c3: 4, c4: 3, c6: 1 } },
+    { id: 'gtmpl',    title: 'Graphic Templates',   modKey: 'graphic',     fallback: '430,000+', thumb: THUMB.graphic,       col: 1, row: 1, starts: { c2: 6, c3: 3, c4: 4, c6: 2 } },
+    { id: 'fonts',    title: 'Fonts',               fixed: '81,000+',                            thumb: THUMB.fonts,         col: 1, row: 1, starts: { c2: 7, c3: 5, c4: 3, c6: 3 } },
+    { id: 'graphics', title: 'Stock Video',         modKey: 'video',       fallback: '300,000+', thumb: THUMB.video,         col: 1, row: 1, starts: { c2: 8, c3: 6, c4: 4, c6: 4 } },
+    { id: 'threed',   title: '3D',                  fixed: '380,000+',                           thumb: THUMB.threed,        col: 1, row: 1, starts: { c2: 9, c3: 5, c4: 5, c6: 3 } },
+    { id: 'addons',   title: 'Add-ons',             fixed: '39,000+',                            thumb: THUMB.addons,        col: 1, row: 1, starts: { c2: 10, c3: 7, c4: 6, c6: 4 } },
+    { id: 'pres',     title: 'Presentation Templates', fixed: '220,000+',                        thumb: THUMB.deck,          col: 1, row: 1, starts: { c2: 11, c3: 8, c4: 5, c6: 3 } },
+    { id: 'allcat',   title: 'All Categories',      computed: 'all',       fallback: '29.4M+',   thumb: THUMB.all,           col: 1, row: 1, starts: { c2: 12, c3: 7, c4: 6, c6: 4 } },
   ];
 
   // ---------- live counts from /api/stats ----------
@@ -115,8 +115,13 @@
     BENTO_LAYOUT.forEach(card => {
       const span = document.createElement('article');
       span.className = 'lh-card' + (card.kind === 'ai' ? ' lh-card--ai' : '');
-      span.style.setProperty('--lh-row', String(card.row));
       span.dataset.cardId = card.id;
+      if (card.starts) {
+        span.style.setProperty('--local-2-columns-grid-start', String(card.starts.c2));
+        span.style.setProperty('--local-3-columns-grid-start', String(card.starts.c3));
+        span.style.setProperty('--local-4-columns-grid-start', String(card.starts.c4));
+        span.style.setProperty('--local-6-columns-grid-start', String(card.starts.c6));
+      }
 
       if (card.kind === 'ai') {
         span.innerHTML = `
