@@ -102,10 +102,25 @@ sequenceDiagram
 
 ## 4. Customer Onboarding & Setup Guide
 
-### Step 1: Google Cloud Project Configuration
-1. Open [Google Cloud Console](https://console.cloud.google.com/).
-2. Select or create your customer GCP Project (e.g. `customer-prod-ai`).
-3. Enable the required Workspace Remote MCP APIs:
+### Where to Go Quick Reference Map
+Use this table as your master checklist for configuring Google Cloud and Workspace:
+
+| Step | Setup Stage | Exact Location in Google Cloud Console | Direct URL | What to Do |
+| :--- | :--- | :--- | :--- | :--- |
+| **1** | **Enable MCP APIs** | **APIs & Services > Library** | [console.cloud.google.com/apis/library](https://console.cloud.google.com/apis/library) | Enable `gmailmcp`, `drivemcp`, `docsmcp`, `calendarmcp`, `sheetsmcp`, `slidesmcp`, `chatmcp`, and `aiplatform`. |
+| **2** | **OAuth Consent Screen** | **APIs & Services > OAuth consent screen** | [console.cloud.google.com/apis/credentials/consent](https://console.cloud.google.com/apis/credentials/consent) | Choose **Internal** (Workspace org) or **External** (Testing). Add Workspace scopes and add your testing emails to **Test users**. |
+| **3** | **Create Web Client ID** | **APIs & Services > Credentials** | [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) | Click **+ Create Credentials > OAuth client ID > Web application**. Configure JavaScript origins and Authorized redirect URIs. |
+| **4** | **Grant IAM Permissions** | **IAM & Admin > IAM** | [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam) | Grant `roles/mcp.toolUser` to every user email testing the application. |
+| **5** | **Workspace API Access** *(Optional)* | **Google Admin Console > Security** | [admin.google.com/ac/owl](https://admin.google.com/ac/owl) | Under **API controls**, mark the OAuth Client ID as **Trusted** for your organization. |
+| **6** | **Run & Configure App** | **Local Web Browser** | `http://localhost:8002` | Open UI, click **Credentials** to enter Client ID/Secret or add them to `.env`. Click **Sign in with Google**. |
+
+---
+
+### Step-by-Step Instructions
+
+#### Step 1: Google Cloud Project & API Enablement
+1. Open [Google Cloud Console](https://console.cloud.google.com/) and select your project.
+2. Enable the required Workspace Remote MCP APIs via terminal or the [API Library](https://console.cloud.google.com/apis/library):
    ```bash
    gcloud services enable \
      gmailmcp.googleapis.com \
@@ -119,57 +134,81 @@ sequenceDiagram
      --project=YOUR_PROJECT_ID
    ```
 
-### Step 2: Configure OAuth Consent Screen
-1. Navigate to **APIs & Services > OAuth consent screen**.
-2. Select **Internal** (for your Google Workspace organization) or **External** (if testing with specific accounts).
-3. Fill in App Name (e.g. `Enterprise Workspace Agent`) and support email.
-4. Add the required Workspace Scopes:
-   * `https://www.googleapis.com/auth/gmail.modify`
-   * `https://www.googleapis.com/auth/drive.readonly`
-   * `https://www.googleapis.com/auth/calendar`
-   * `https://www.googleapis.com/auth/documents.readonly`
-   * `https://www.googleapis.com/auth/spreadsheets.readonly`
-   * `openid`, `userinfo.email`, `userinfo.profile`
-5. **Add Test Users (Mandatory if External / Testing status)**:
-   * Under the **Test users** section, click **Add users**.
-   * Add every Google account / Workspace email address that will be testing the application (e.g. `user@yourdomain.com`).
-   * *Note*: If a user is not in the Test Users list, Google displays `Error 403: access_denied` during login.
+#### Step 2: Configure OAuth Consent Screen & Add Test Users
+1. Go to **APIs & Services > [OAuth consent screen](https://console.cloud.google.com/apis/credentials/consent)**.
+2. Select User Type:
+   * **Internal**: Recommended if deploying within a Google Workspace organization (all org users can sign in immediately).
+   * **External**: If using standard `@gmail.com` accounts or testing before verification.
+3. Fill in mandatory fields:
+   * **App name**: `Workspace Agent Showcase`
+   * **User support email**: Your email address
+   * **Developer contact email**: Your email address
+4. Click **Save and Continue** to advance to **Scopes**. Click **Add or Remove Scopes** and select:
+   * `openid`
+   * `.../auth/userinfo.email`
+   * `.../auth/userinfo.profile`
+   * `.../auth/gmail.modify`
+   * `.../auth/drive.readonly`
+   * `.../auth/calendar`
+   * `.../auth/documents.readonly`
+   * `.../auth/spreadsheets.readonly`
+5. Click **Save and Continue** to reach **Test users** *(CRITICAL if External/Testing)*:
+   * Click **+ Add users**.
+   * Enter the exact email address of every account that will be signing into the demo (e.g. `your.email@gmail.com`).
+   * *If you skip this step, Google blocks login with `Error 403: access_denied`.*
 
-### Step 3: Create OAuth 2.0 Web Client ID in GCP Console
-1. Navigate to **APIs & Services > Credentials**.
-2. Click **+ Create Credentials > OAuth client ID**.
-3. Select Application type: **Web application**.
-4. Set a name (e.g. `Workspace MCP Web Client`).
-5. **Authorized JavaScript origins**:
+#### Step 3: Create OAuth 2.0 Web Client ID
+1. Go to **APIs & Services > [Credentials](https://console.cloud.google.com/apis/credentials)**.
+2. Click **+ Create Credentials** at the top and select **OAuth client ID**.
+3. Set Application type: **Web application**.
+4. Set Name: `Workspace MCP Web Client`.
+5. Under **Authorized JavaScript origins**, click **+ Add URI** and enter:
    * `http://localhost:8002`
-   * `http://localhost:8003` (if also running LangChain)
-6. **Authorized redirect URIs**:
+   * `http://localhost:8003` *(if also testing LangChain)*
+6. Under **Authorized redirect URIs**, click **+ Add URI** and add BOTH:
    * `http://localhost:8002/api/auth/callback` *(Standard API callback)*
    * `http://localhost:8002` *(Root URL fallback)*
-   * `http://localhost:8003/api/auth/callback` *(For LangChain showcase)*
-   * `http://localhost:8003` *(For LangChain showcase root fallback)*
-   > **Why both?** If Google redirects to the root page (`http://localhost:8002/?code=...`), the application's single-page router automatically detects the code and seamlessly forwards it to the backend token exchange. Adding both guarantees 100% resilience across all browser environments.
+   * `http://localhost:8003/api/auth/callback` *(LangChain callback)*
+   * `http://localhost:8003` *(LangChain root fallback)*
+   > **Note on Resilient Routing:** The application includes a built-in Single-Page Application (SPA) redirect router. If Google redirects to the root page (`http://localhost:8002/?code=...`), the frontend immediately intercepts the code and completes the token exchange. Authorizing both URIs ensures seamless authentication in all browser setups.
 7. Click **Create**.
-8. A modal appears displaying:
-   * **Client ID** (e.g. `254356041555-xxxx.apps.googleusercontent.com`)
-   * **Client secret** (e.g. `GOCSPX-xxxx`)
-9. Copy these values to `.env` or click **Download JSON** (`client_secret_*.json`) to import directly via the UI modal.
+8. A modal appears displaying your **Client ID** (`*.apps.googleusercontent.com`) and **Client secret** (`GOCSPX-*`). You can either copy them directly or click **Download JSON** (`client_secret_*.json`).
 
-### Step 4: Assign IAM Role to End Users
-The Google Workspace Remote MCP Gateway enforces GCP IAM check on all calls. Every user or service account invoking tools must have the `roles/mcp.toolUser` role:
+#### Step 4: Grant IAM Role to End Users
+The Google Cloud Enterprise Service Frontend (ESF) gateway enforces an IAM check on every Workspace MCP request. Every user account must hold the `roles/mcp.toolUser` role:
 ```bash
 gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
-  --member="user:alice@customer.com" \
+  --member="user:your.email@gmail.com" \
   --role="roles/mcp.toolUser" --condition=None
 ```
+*(You can also add this in [IAM & Admin > IAM](https://console.cloud.google.com/iam-admin/iam) by clicking **Grant Access**, entering the user email, and selecting the role **MCP Tool User**).*
 
-### Step 5: Google Workspace Admin Console (If applicable)
-* In the Google Admin console (`admin.google.com`), go to **Security > Access and data control > API controls**.
-* Ensure your newly created Client ID is trusted or permitted to access Workspace data for users in your organization.
+#### Step 5: Configure Credentials in the Application
+Choose whichever method you prefer:
+
+* **Option A: In-App Credentials Modal (Easiest)**:
+  1. Open [http://localhost:8002](http://localhost:8002).
+  2. Click **Credentials** in the top navigation bar.
+  3. Paste your **Client ID** and **Client Secret** (or click **Choose File** to upload the downloaded `client_secret_*.json`).
+  4. Click **Save Configuration**.
+
+* **Option B: Local `.env` File**:
+  Create a `.env` file in the project folder (strictly gitignored by the Zero-Leak Protocol):
+  ```bash
+  cp .env.example .env
+  ```
+  Edit `.env`:
+  ```env
+  GOOGLE_CLOUD_PROJECT=your-gcp-project-id
+  GOOGLE_CLOUD_LOCATION=global
+  GOOGLE_OAUTH_CLIENT_ID=your-client-id.apps.googleusercontent.com
+  GOOGLE_OAUTH_CLIENT_SECRET=GOCSPX-your-secret
+  GOOGLE_OAUTH_REDIRECT_URI=http://localhost:8002
+  ```
 
 ---
 
-## 5. Running the Application
+## 5. Running & Testing the Application
 
 ### 1. Install Dependencies
 ```bash
@@ -178,27 +217,34 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment (Optional)
-You can configure environment variables in `.env` or set them directly inside the UI:
-```bash
-cp .env.example .env
-```
-*`.env` example:*
-```env
-GOOGLE_CLOUD_PROJECT=your-gcp-project-id
-GOOGLE_CLOUD_LOCATION=global
-GOOGLE_OAUTH_CLIENT_ID=xxxx.apps.googleusercontent.com
-GOOGLE_OAUTH_CLIENT_SECRET=GOCSPX-xxxx
-```
-
-### 3. Launch the Server
+### 2. Start the Server
 ```bash
 ./run.sh
 ```
-Open **[http://localhost:8002](http://localhost:8002)**.
+Or run directly:
+```bash
+python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8002
+```
 
-### 4. Authenticate & Chat
-1. Click **Credentials** in the top bar to verify or paste your Client ID/Secret (or upload `client_secret.json`).
-2. Click **Sign in with Google** to complete the official Google Consent flow.
-3. Your user avatar and email will appear in the navbar.
-4. Ask any question or command to interact with Gmail, Drive, Calendar, or Docs!
+### 3. Authenticate & Command Workspace Tools
+1. Open **[http://localhost:8002](http://localhost:8002)** in your browser.
+2. Click **Sign in with Google**.
+3. Select your Google account and review the consent screen showing the requested Workspace permissions.
+4. After approval, you are returned to the application logged in with your profile avatar, name, and email.
+5. In the left panel, switch between **Gmail**, **Google Drive**, **Google Calendar**, and **Google Docs** to see live discovered MCP tools.
+6. Type a command in the chat box, e.g.:
+   * *"What draft tools can I use in Gmail?"*
+   * *"Find recent unread messages or drafts in my Gmail inbox."*
+   * *"List the files available in my Google Drive."*
+
+---
+
+## 6. Troubleshooting Guide
+
+| Issue / Error | Where It Appears | Root Cause | Exact Resolution |
+| :--- | :--- | :--- | :--- |
+| **`Error 400: redirect_uri_mismatch`** | Google OAuth Consent Screen | The redirect URI sent in the login request is not listed in your GCP OAuth Client. | Go to [GCP Credentials](https://console.cloud.google.com/apis/credentials), edit your Web Client ID, and add `http://localhost:8002/api/auth/callback` AND `http://localhost:8002` under **Authorized redirect URIs**. |
+| **`Error 401: invalid_client`** | Google OAuth Consent Screen | Client ID is missing, misspelled, or still has a placeholder value. | Check that your Client ID in `.env` or the Credentials modal ends with `.apps.googleusercontent.com` and matches your GCP Console exactly. |
+| **`Error 403: access_denied`** ("App has not completed the Google verification process") | Google OAuth Consent Screen | OAuth consent screen is in "Testing" mode and the signing-in user is not in the Test Users list. | Go to [OAuth consent screen > Test users](https://console.cloud.google.com/apis/credentials/consent), click **+ Add users**, and enter your account email. |
+| **`403 Forbidden: Caller does not have permission`** | Agent Chat / Tool Execution | The user's Google account lacks the GCP IAM role `roles/mcp.toolUser`. | Run: `gcloud projects add-iam-policy-binding PROJECT_ID --member="user:YOUR_EMAIL" --role="roles/mcp.toolUser" --condition=None`. |
+| **`405 Method Not Allowed`** | MCP Gateway Handshake | Attempting to connect with HTTP GET or Server-Sent Events (SSE). | Remote Google Workspace MCP servers require Streamable HTTP POST with JSON-RPC 2.0. Use `StreamableHTTPConnectionParams` in ADK. |
