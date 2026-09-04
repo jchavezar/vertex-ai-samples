@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google ADK + Workspace MCP Assistant</title>
-  <!-- Tailwind CSS & Lucide Icons -->
+  <title>Google ADK + Workspace Remote MCP Assistant</title>
+  <!-- Tailwind CSS & FontAwesome -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script>
@@ -13,371 +13,657 @@
       theme: {
         extend: {
           colors: {
-            primary: '#3b82f6',
-            surface: '#0f172a',
-            surfaceLight: '#1e293b',
-            accent: '#6366f1',
+            brand: '#4285F4',
+            surface: '#1e293b',
+            background: '#0f172a',
           }
         }
       }
     }
   </script>
   <style>
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body class="bg-slate-950 text-slate-100 flex h-screen overflow-hidden font-sans antialiased">
+<body class="bg-slate-950 text-slate-100 flex flex-col h-screen overflow-hidden font-sans antialiased">
 
-  <!-- LEFT SIDEBAR: AUTH & MCP TOOLS -->
-  <aside class="w-80 sm:w-96 bg-slate-900 border-r border-slate-800 flex flex-col h-full flex-shrink-0">
-    <!-- Header -->
-    <div class="p-4 border-b border-slate-800 flex items-center justify-between">
-      <div class="flex items-center space-x-2.5">
-        <div class="w-9 h-9 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
-          <i class="fa-solid fa-robot text-lg"></i>
-        </div>
-        <div>
-          <h1 class="font-semibold text-sm tracking-tight text-white flex items-center gap-1.5">
-            Google ADK
-            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-blue-500/20 text-blue-300 border border-blue-500/30">v2.1</span>
-          </h1>
-          <p class="text-xs text-slate-400">Workspace MCP Integration</p>
-        </div>
+  <!-- Top Navbar -->
+  <header class="bg-slate-900/90 backdrop-blur border-b border-slate-800 px-6 py-3.5 flex items-center justify-between shrink-0 shadow-lg">
+    <div class="flex items-center gap-3.5">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/20">
+        <i class="fa-solid fa-cube text-white text-lg"></i>
       </div>
-      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
-        Live
-      </span>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-bold text-base tracking-wide text-white">Google ADK</h1>
+          <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/30">Workspace Remote MCP</span>
+        </div>
+        <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
+          <span>Model: <code class="text-blue-400">gemini-3.7-flash</code></span>
+          <span>•</span>
+          <span>Project: <span id="navProjectId" class="text-slate-200 font-mono font-medium">vtxdemos</span></span>
+        </p>
+      </div>
     </div>
 
-    <!-- Scrollable Settings -->
-    <div class="flex-1 overflow-y-auto p-4 space-y-5">
+    <!-- Auth & Actions Controls -->
+    <div class="flex items-center gap-3">
+      <!-- Auth Status Pill -->
+      <div id="authPill" class="flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-slate-800/80 border border-slate-700 text-xs">
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" id="authDot"></span>
+        <div class="flex items-center gap-2" id="authContent">
+          <span class="text-slate-300" id="authText">Checking Auth...</span>
+        </div>
+      </div>
+
+      <!-- Google Sign In Button -->
+      <a id="btnGoogleSignIn" href="/api/auth/login" class="hidden items-center gap-2.5 bg-white hover:bg-slate-100 text-slate-800 font-medium px-3.5 py-1.5 rounded-lg text-xs shadow-md transition-all">
+        <svg class="w-4 h-4" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+        </svg>
+        <span>Sign in with Google</span>
+      </a>
+
+      <!-- Sign Out Button -->
+      <button id="btnSignOut" onclick="logout()" class="hidden items-center gap-1.5 text-xs text-rose-400 hover:text-rose-300 px-2.5 py-1.5 rounded-lg hover:bg-rose-500/10 border border-transparent hover:border-rose-500/30 transition">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+        <span>Sign Out</span>
+      </button>
+
+      <!-- Customer OAuth Configuration Modal Button -->
+      <button onclick="openConfigModal()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs transition shadow-sm" title="Configure OAuth & Customer Project">
+        <i class="fa-solid fa-gear text-slate-400"></i>
+        <span>Credentials</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex-1 flex overflow-hidden">
+
+    <!-- Left Sidebar: Services & Discovered MCP Tools -->
+    <aside class="w-80 border-r border-slate-800 bg-slate-900/60 flex flex-col shrink-0">
       
-      <!-- Auth Status Card -->
-      <div class="bg-slate-950 rounded-xl p-3.5 border border-slate-800 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-shield-halved text-blue-400"></i> Authentication
-          </span>
-          <span id="authBadge" class="text-[10px] px-2 py-0.5 rounded-full font-mono bg-slate-800 text-slate-300">Checking...</span>
+      <!-- Workspace Service Selector -->
+      <div class="p-4 border-b border-slate-800">
+        <label class="text-xs font-semibold text-slate-400 uppercase tracking-wider block mb-2">Google Workspace Service</label>
+        <div class="grid grid-cols-2 gap-2" id="serviceButtons">
+          <button onclick="switchService('gmail')" data-service="gmail" class="service-btn active flex items-center gap-2 p-2 rounded-lg bg-blue-600 text-white text-xs font-medium transition">
+            <i class="fa-regular fa-envelope"></i> Gmail
+          </button>
+          <button onclick="switchService('drive')" data-service="drive" class="service-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
+            <i class="fa-brands fa-google-drive"></i> Drive
+          </button>
+          <button onclick="switchService('calendar')" data-service="calendar" class="service-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
+            <i class="fa-regular fa-calendar"></i> Calendar
+          </button>
+          <button onclick="switchService('docs')" data-service="docs" class="service-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition">
+            <i class="fa-regular fa-file-lines"></i> Docs
+          </button>
         </div>
+      </div>
 
-        <div class="space-y-1 text-xs">
-          <div class="flex justify-between text-slate-400">
-            <span>Project:</span>
-            <span id="authProject" class="font-mono text-slate-200">-</span>
-          </div>
-          <div class="flex justify-between text-slate-400">
-            <span>Bearer Token:</span>
-            <span id="authFingerprint" class="font-mono text-slate-300 text-[11px]">-</span>
-          </div>
-          <div class="flex justify-between text-slate-400">
-            <span>Identity:</span>
-            <span id="authIdentity" class="font-mono text-slate-300 truncate max-w-[170px]">-</span>
-          </div>
+      <!-- Scope Status Banner -->
+      <div class="px-4 py-3 bg-slate-900 border-b border-slate-800">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+          <span>Active Endpoint:</span>
+          <span id="serviceBadge" class="font-mono text-blue-400 text-[11px]">https://gmailmcp...</span>
         </div>
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-slate-400">Tools Discovered:</span>
+          <span id="toolCountBadge" class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 font-mono font-bold text-xs">--</span>
+        </div>
+      </div>
 
-        <!-- Custom Token Toggle -->
-        <details class="group pt-2 border-t border-slate-800/80">
-          <summary class="cursor-pointer text-xs text-blue-400 hover:text-blue-300 flex items-center justify-between select-none">
-            <span>Configure Custom Token</span>
-            <i class="fa-solid fa-chevron-down text-[10px] transition group-open:rotate-180"></i>
-          </summary>
-          <div class="mt-2.5 space-y-2">
-            <input type="password" id="customTokenInput" placeholder="Paste custom OAuth Bearer token..."
-                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500 font-mono">
-            <div class="flex gap-1.5">
-              <button onclick="saveToken()" class="flex-1 bg-blue-600 hover:bg-blue-500 text-white rounded-lg py-1 text-xs font-medium transition">
-                Set Token
+      <!-- Discovered Tools Explorer -->
+      <div class="flex-1 overflow-y-auto p-4 custom-scroll space-y-2" id="toolsList">
+        <div class="text-center py-8 text-slate-500 text-xs">
+          <i class="fa-solid fa-spinner fa-spin text-lg mb-2 text-blue-400"></i>
+          <p>Connecting to Remote MCP Server...</p>
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="p-3 bg-slate-950/60 border-t border-slate-800 text-[11px] text-slate-400 space-y-1">
+        <div class="flex items-center gap-1.5 text-slate-300 font-medium">
+          <i class="fa-solid fa-shield-halved text-blue-400"></i> AuthN & AuthZ Protocol
+        </div>
+        <p class="text-[10px] text-slate-400 leading-relaxed">
+          Google Workspace MCP requires <code class="text-blue-300">roles/mcp.toolUser</code> in GCP and user consent for Workspace scopes.
+        </p>
+      </div>
+    </aside>
+
+    <!-- Right Side: Chat Interface -->
+    <main class="flex-1 flex flex-col bg-slate-950">
+
+      <!-- Chat Messages Container -->
+      <div id="messagesContainer" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scroll">
+        <!-- Welcome Message -->
+        <div class="flex gap-4 max-w-3xl">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 shadow">
+            <i class="fa-solid fa-robot text-white text-sm"></i>
+          </div>
+          <div class="space-y-2">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 text-xs leading-relaxed text-slate-200 shadow-sm">
+              <p class="font-semibold text-white mb-1.5 flex items-center gap-2">
+                <span>Google ADK Enterprise Workspace Assistant</span>
+                <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/30">Ready</span>
+              </p>
+              <p class="text-slate-300 mb-2">
+                I am connected to Google Workspace via the <strong>Remote Model Context Protocol (MCP)</strong> using Google ADK and <code>gemini-3.7-flash</code>.
+              </p>
+              <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800 space-y-1.5 text-[11px]">
+                <p class="text-slate-300 font-medium"><i class="fa-solid fa-key text-amber-400 mr-1.5"></i> Customer AuthN / AuthZ Options:</p>
+                <ul class="list-disc list-inside text-slate-400 space-y-1">
+                  <li><strong>Sign in with Google:</strong> Click the top button to authenticate with your own Google Workspace account.</li>
+                  <li><strong>Customer Credentials:</strong> Click <code class="text-blue-300">Credentials</code> to set your customer GCP Project ID and OAuth Web Client ID.</li>
+                  <li><strong>Immediate Testing:</strong> Ready out-of-the-box using host Application Default Credentials (ADC).</li>
+                </ul>
+              </div>
+            </div>
+            <!-- Suggestion Chips -->
+            <div class="flex flex-wrap gap-2 pt-1">
+              <button onclick="sendQuickPrompt('What Gmail tools are available to help me manage drafts?')" class="text-xs bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt text-amber-400 text-[10px]"></i> List Draft Tools
               </button>
-              <button onclick="resetToken()" class="px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition">
-                Reset ADC
+              <button onclick="sendQuickPrompt('What Drive tools are available to search and share files?')" class="text-xs bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt text-amber-400 text-[10px]"></i> Drive Capabilities
+              </button>
+              <button onclick="sendQuickPrompt('Explain how Google ADK communicates with Workspace Remote MCP servers.')" class="text-xs bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 text-slate-300 px-3 py-1.5 rounded-full transition flex items-center gap-1.5">
+                <i class="fa-solid fa-circle-info text-blue-400 text-[10px]"></i> Architecture Explained
               </button>
             </div>
-            <p class="text-[10px] text-slate-500 leading-tight">
-              Tokens are stored strictly in-memory per session. Zero-leak protocol enforced.
-            </p>
-          </div>
-        </details>
-      </div>
-
-      <!-- Workspace Service Selector -->
-      <div class="space-y-2">
-        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-cubes text-blue-400"></i> Workspace Service
-        </label>
-        <select id="serviceSelect" onchange="loadTools()"
-                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-blue-500 font-medium">
-          <option value="gmail" selected>✉️ Gmail (gmailmcp.googleapis.com)</option>
-          <option value="drive">📁 Google Drive (drivemcp.googleapis.com)</option>
-          <option value="docs">📄 Google Docs (docsmcp.googleapis.com)</option>
-          <option value="calendar">📅 Google Calendar (calendarmcp.googleapis.com)</option>
-          <option value="sheets">📊 Google Sheets (sheetsmcp.googleapis.com)</option>
-        </select>
-      </div>
-
-      <!-- Live Tools Explorer -->
-      <div class="space-y-2">
-        <div class="flex items-center justify-between">
-          <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-            <i class="fa-solid fa-wrench text-blue-400"></i> Discovered Tools
-          </label>
-          <span id="toolCountBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">0 tools</span>
-        </div>
-
-        <div id="toolsList" class="space-y-1.5 max-h-[320px] overflow-y-auto pr-1">
-          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-center text-xs text-slate-500">
-            <i class="fa-solid fa-circle-notch fa-spin mr-1.5 text-blue-400"></i> Connecting to MCP server...
           </div>
         </div>
       </div>
 
-    </div>
-
-    <!-- Sidebar Footer -->
-    <div class="p-3 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
-      <span>Model: <span class="text-slate-300 font-mono">gemini-3.7-flash</span></span>
-      <span class="text-slate-400">HTTP Streamable</span>
-    </div>
-  </aside>
-
-  <!-- RIGHT MAIN CHAT AREA -->
-  <main class="flex-1 flex flex-col h-full bg-slate-950">
-    
-    <!-- Top Bar -->
-    <header class="h-14 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/40">
-      <div class="flex items-center space-x-3">
-        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-        <h2 id="activeServiceTitle" class="font-medium text-sm text-slate-200">Gmail MCP Agent Active</h2>
-        <span class="text-slate-500 text-xs">|</span>
-        <span class="text-xs text-slate-400 font-mono" id="activeEndpoint">https://gmailmcp.googleapis.com/mcp/v1</span>
+      <!-- Chat Input Bar -->
+      <div class="p-4 bg-slate-900/80 border-t border-slate-800 shrink-0">
+        <form id="chatForm" onsubmit="handleChatSubmit(event)" class="max-w-4xl mx-auto flex items-center gap-2">
+          <div class="relative flex-1">
+            <input 
+              type="text" 
+              id="messageInput" 
+              placeholder="Ask anything or command Workspace tools (e.g., 'What tools can send an email?')..." 
+              class="w-full bg-slate-950 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 outline-none transition"
+              autocomplete="off"
+            />
+          </div>
+          <button 
+            type="submit" 
+            id="sendButton"
+            class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-3 rounded-xl text-xs transition flex items-center gap-2 shadow-lg shadow-blue-600/20 disabled:opacity-50"
+          >
+            <span>Send</span>
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+          </button>
+        </form>
       </div>
-      <div class="flex items-center space-x-2">
-        <button onclick="clearChat()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition">
-          <i class="fa-solid fa-trash-can mr-1"></i> Clear
+    </main>
+  </div>
+
+  <!-- Customer Credentials Configuration Modal -->
+  <div id="configModal" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-xl w-full p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-600/20 text-blue-400 flex items-center justify-center">
+            <i class="fa-solid fa-sliders"></i>
+          </div>
+          <h3 class="font-bold text-sm text-white">Customer AuthN & AuthZ Setup</h3>
+        </div>
+        <button onclick="closeConfigModal()" class="text-slate-400 hover:text-white">
+          <i class="fa-solid fa-xmark text-base"></i>
         </button>
       </div>
-    </header>
 
-    <!-- Chat Messages Container -->
-    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4">
-      
-      <!-- Welcome Message -->
-      <div class="flex items-start space-x-3 max-w-2xl">
-        <div class="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
-          <i class="fa-solid fa-robot"></i>
+      <!-- Tabs -->
+      <div class="flex border-b border-slate-800 text-xs">
+        <button onclick="switchModalTab('oauth')" id="tabBtnOauth" class="modal-tab active px-4 py-2 font-medium text-blue-400 border-b-2 border-blue-500">
+          OAuth 2.0 Web Client
+        </button>
+        <button onclick="switchModalTab('iam')" id="tabBtnIam" class="modal-tab px-4 py-2 font-medium text-slate-400 hover:text-slate-200">
+          GCP IAM & Scopes
+        </button>
+        <button onclick="switchModalTab('token')" id="tabBtnToken" class="modal-tab px-4 py-2 font-medium text-slate-400 hover:text-slate-200">
+          Direct Token Bypass
+        </button>
+      </div>
+
+      <!-- Tab Content: OAuth Setup -->
+      <div id="tabOauth" class="space-y-4 text-xs">
+        <div class="bg-blue-950/40 border border-blue-900/50 p-3 rounded-lg space-y-1 text-slate-300">
+          <p class="font-semibold text-blue-300">1. Authorized Redirect URI for your GCP Console:</p>
+          <div class="flex items-center justify-between bg-slate-950 p-2 rounded font-mono text-[11px] text-slate-200 border border-slate-800">
+            <span id="modalRedirectUri">http://localhost:8002/api/auth/callback</span>
+            <button onclick="copyRedirectUri()" class="text-blue-400 hover:text-blue-300 px-2 py-0.5 rounded hover:bg-slate-800">
+              <i class="fa-regular fa-copy"></i> Copy
+            </button>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1">Add this exact URL under <em>Authorized redirect URIs</em> in your GCP OAuth 2.0 Web Client.</p>
         </div>
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-300 space-y-2 leading-relaxed">
-          <p class="font-medium text-white">Welcome to the Google ADK Workspace MCP Assistant!</p>
-          <p>
-            I am an autonomous agent running on <strong>Google ADK 2.1</strong> and powered by <strong>Gemini 3.7 Flash</strong>.
-            I am connected via <code>StreamableHTTPConnectionParams</code> directly to Google's official Workspace Model Context Protocol server.
+
+        <div class="space-y-3">
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">Customer Google Cloud Project ID</label>
+            <input type="text" id="cfgProjectId" placeholder="e.g. customer-production-project" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">OAuth 2.0 Web Client ID</label>
+            <input type="text" id="cfgClientId" placeholder="xxxx.apps.googleusercontent.com" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white outline-none focus:border-blue-500" />
+          </div>
+          <div>
+            <label class="block font-medium text-slate-300 mb-1">OAuth 2.0 Client Secret</label>
+            <input type="password" id="cfgClientSecret" placeholder="GOCSPX-xxxx..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs text-white outline-none focus:border-blue-500" />
+          </div>
+        </div>
+
+        <!-- JSON File Upload -->
+        <div class="pt-2 border-t border-slate-800">
+          <label class="block font-medium text-slate-300 mb-1.5">Or import downloaded <code class="text-blue-300">client_secret_*.json</code>:</label>
+          <input type="file" id="clientSecretFile" accept=".json" onchange="uploadClientSecretFile(event)" class="text-xs text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:bg-slate-800 file:text-slate-200 hover:file:bg-slate-700" />
+        </div>
+      </div>
+
+      <!-- Tab Content: IAM & Scopes -->
+      <div id="tabIam" class="space-y-3 text-xs hidden">
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-2">
+          <p class="font-semibold text-white">Mandatory Google Cloud IAM Requirement:</p>
+          <p class="text-slate-300 text-[11px] leading-relaxed">
+            The Google Workspace Remote MCP Gateway enforces IAM authorization. Every user or service account must have the <code>roles/mcp.toolUser</code> role in the active GCP project.
           </p>
-          <p class="text-slate-400">You can ask me to draft emails, search threads, inspect documents, or ask how this architecture works.</p>
+          <div class="bg-slate-900 p-2.5 rounded font-mono text-[11px] text-blue-300 border border-slate-800 flex justify-between items-center">
+            <span>gcloud projects add-iam-policy-binding PROJECT_ID --member="user:EMAIL" --role="roles/mcp.toolUser" --condition=None</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 space-y-1.5">
+          <p class="font-semibold text-white">Google Workspace Scopes Granted during AuthZ:</p>
+          <ul class="list-disc list-inside text-slate-400 space-y-1 text-[11px]">
+            <li><code>openid, userinfo.email, userinfo.profile</code> (AuthN Identity)</li>
+            <li><code>gmail.modify</code> (Gmail Tools)</li>
+            <li><code>drive.readonly</code> (Google Drive Tools)</li>
+            <li><code>calendar</code> (Google Calendar Tools)</li>
+            <li><code>documents.readonly</code> (Google Docs Tools)</li>
+            <li><code>spreadsheets.readonly</code> (Google Sheets Tools)</li>
+          </ul>
         </div>
       </div>
 
-    </div>
+      <!-- Tab Content: Direct Token -->
+      <div id="tabToken" class="space-y-3 text-xs hidden">
+        <p class="text-slate-400 text-xs">
+          For fast manual testing or scripted demos, paste a pre-generated OAuth Bearer token with Workspace scopes:
+        </p>
+        <textarea id="customTokenInput" rows="3" placeholder="ya29.a0A..." class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2.5 text-xs font-mono text-white outline-none focus:border-blue-500"></textarea>
+        <div class="flex gap-2">
+          <button onclick="saveCustomToken()" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs">Save Token</button>
+          <button onclick="clearCustomToken()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs">Reset to ADC</button>
+        </div>
+      </div>
 
-    <!-- Suggested Prompt Chips -->
-    <div class="px-6 py-2 border-t border-slate-800/60 bg-slate-900/20 flex flex-wrap gap-2">
-      <button onclick="sendSuggested('What tools are available in this Gmail MCP server?')"
-              class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 hover:text-white transition">
-        🛠️ What tools are available?
-      </button>
-      <button onclick="sendSuggested('How does Google ADK authenticate with the Workspace MCP gateway?')"
-              class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 hover:text-white transition">
-        🔒 How does authentication work?
-      </button>
-      <button onclick="sendSuggested('Draft an email to team@example.com summarizing our MCP integration progress.')"
-              class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 hover:text-white transition">
-        ✉️ Draft progress update email
-      </button>
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-800">
+        <button onclick="closeConfigModal()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition">Cancel</button>
+        <button onclick="saveOauthConfig()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition">Save Configuration</button>
+      </div>
     </div>
-
-    <!-- Input Bar -->
-    <div class="p-4 border-t border-slate-800 bg-slate-900/40">
-      <form id="chatForm" onsubmit="handleSend(event)" class="flex items-center gap-2 max-w-4xl mx-auto">
-        <input type="text" id="userInput" placeholder="Ask the Workspace MCP agent..."
-               class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-blue-500 transition">
-        <button type="submit" id="sendBtn"
-                class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium flex items-center gap-1.5 transition">
-          <span>Send</span>
-          <i class="fa-solid fa-arrow-up text-xs"></i>
-        </button>
-      </form>
-    </div>
-
-  </main>
+  </div>
 
   <script>
-    const chatMessages = document.getElementById('chatMessages');
-    const userInput = document.getElementById('userInput');
-    const sendBtn = document.getElementById('sendBtn');
-    const serviceSelect = document.getElementById('serviceSelect');
+    let activeService = 'gmail';
 
-    async function loadAuth() {
+    const serviceEndpoints = {
+      gmail: 'https://gmailmcp.googleapis.com/mcp/v1',
+      drive: 'https://drivemcp.googleapis.com/mcp/v1',
+      calendar: 'https://calendarmcp.googleapis.com/mcp/v1',
+      docs: 'https://docsmcp.googleapis.com/mcp/v1',
+    };
+
+    async function loadAuthStatus() {
       try {
-        const res = await fetch('/api/auth');
+        const res = await fetch('/api/auth/status');
         const data = await res.json();
-        document.getElementById('authProject').innerText = data.project_id || 'Not set';
-        document.getElementById('authFingerprint').innerText = data.token_fingerprint;
-        document.getElementById('authIdentity').innerText = data.identity;
-        
-        const badge = document.getElementById('authBadge');
-        if (data.authenticated) {
-          badge.className = "text-[10px] px-2 py-0.5 rounded-full font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
-          badge.innerText = data.is_custom_token ? "Custom Token" : "ADC Active";
+
+        const authPill = document.getElementById('authPill');
+        const authDot = document.getElementById('authDot');
+        const authContent = document.getElementById('authContent');
+        const btnSignIn = document.getElementById('btnGoogleSignIn');
+        const btnSignOut = document.getElementById('btnSignOut');
+        const navProjectId = document.getElementById('navProjectId');
+
+        navProjectId.textContent = data.project_id || 'vtxdemos';
+        document.getElementById('modalRedirectUri').textContent = data.redirect_uri || '';
+        document.getElementById('cfgProjectId').value = data.project_id || '';
+
+        if (data.auth_type === 'oauth2_user' && data.user_info) {
+          authDot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-400';
+          authContent.innerHTML = `
+            ${data.user_info.picture ? `<img src="${data.user_info.picture}" class="w-5 h-5 rounded-full border border-emerald-400/50" />` : '<i class="fa-solid fa-user text-emerald-400"></i>'}
+            <div class="flex flex-col">
+              <span class="font-medium text-white">${data.user_info.name || 'User'}</span>
+              <span class="text-[10px] text-emerald-400 font-mono">${data.user_info.email}</span>
+            </div>
+          `;
+          btnSignIn.classList.add('hidden');
+          btnSignOut.classList.remove('hidden');
+          btnSignOut.classList.add('flex');
+        } else if (data.auth_type === 'adc') {
+          authDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+          authContent.innerHTML = `
+            <i class="fa-solid fa-terminal text-amber-400"></i>
+            <span class="text-amber-300">ADC Host Mode (${data.project_id})</span>
+          `;
+          btnSignIn.classList.remove('hidden');
+          btnSignIn.classList.add('flex');
+          btnSignOut.classList.add('hidden');
+        } else if (data.auth_type === 'custom_token') {
+          authDot.className = 'w-2.5 h-2.5 rounded-full bg-purple-400';
+          authContent.innerHTML = `
+            <i class="fa-solid fa-key text-purple-400"></i>
+            <span class="text-purple-300">Custom Bearer Token</span>
+          `;
+          btnSignIn.classList.remove('hidden');
+          btnSignIn.classList.add('flex');
+          btnSignOut.classList.add('hidden');
         } else {
-          badge.className = "text-[10px] px-2 py-0.5 rounded-full font-mono bg-red-500/10 text-red-400 border border-red-500/20";
-          badge.innerText = "No Credentials";
+          authDot.className = 'w-2.5 h-2.5 rounded-full bg-rose-500';
+          authContent.innerHTML = `<span class="text-rose-400">Unauthenticated</span>`;
+          btnSignIn.classList.remove('hidden');
+          btnSignIn.classList.add('flex');
+          btnSignOut.classList.add('hidden');
+        }
+
+        if (!data.oauth_configured) {
+          btnSignIn.title = "Configure Client ID in Settings first";
         }
       } catch (err) {
-        console.error("Failed to load auth status", err);
+        console.error("Auth status error:", err);
       }
     }
 
-    async function saveToken() {
-      const val = document.getElementById('customTokenInput').value;
-      await fetch('/api/auth/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: val })
-      });
-      document.getElementById('customTokenInput').value = '';
-      await loadAuth();
-      await loadTools();
-    }
+    async function loadTools(service) {
+      const toolsContainer = document.getElementById('toolsList');
+      const toolCountBadge = document.getElementById('toolCountBadge');
+      const serviceBadge = document.getElementById('serviceBadge');
 
-    async function resetToken() {
-      await fetch('/api/auth/token', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: null })
-      });
-      await loadAuth();
-      await loadTools();
-    }
+      serviceBadge.textContent = serviceEndpoints[service] || service;
+      toolCountBadge.textContent = '...';
 
-    async function loadTools() {
-      const service = serviceSelect.value;
-      const listEl = document.getElementById('toolsList');
-      const badge = document.getElementById('toolCountBadge');
-      const title = document.getElementById('activeServiceTitle');
-      const endpoint = document.getElementById('activeEndpoint');
-
-      title.innerText = `${service.toUpperCase()} MCP Agent Active`;
-      listEl.innerHTML = `<div class="p-3 text-center text-xs text-slate-500"><i class="fa-solid fa-circle-notch fa-spin mr-1 text-blue-400"></i> Fetching tools...</div>`;
+      toolsContainer.innerHTML = `
+        <div class="text-center py-8 text-slate-500 text-xs">
+          <i class="fa-solid fa-spinner fa-spin text-lg mb-2 text-blue-400"></i>
+          <p>Discovering MCP Tools from ${service.toUpperCase()}...</p>
+        </div>
+      `;
 
       try {
         const res = await fetch(`/api/mcp/tools?service=${service}`);
+        if (!res.ok) {
+          const err = await res.json();
+          throw new Error(err.detail || 'Failed to list tools');
+        }
         const data = await res.json();
-        endpoint.innerText = data.endpoint;
-        badge.innerText = `${data.tool_count} tools`;
+        toolCountBadge.textContent = data.tool_count;
 
-        if (!data.tools || data.tools.length === 0) {
-          listEl.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center">No tools discovered.</div>`;
+        if (data.tools.length === 0) {
+          toolsContainer.innerHTML = `<p class="text-xs text-slate-500 p-3">No tools reported by remote server.</p>`;
           return;
         }
 
-        listEl.innerHTML = data.tools.map(t => `
-          <details class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs group">
-            <summary class="cursor-pointer font-medium text-slate-300 flex items-center justify-between select-none">
-              <span class="text-blue-400 font-mono text-[11px]">${t.name}</span>
-              <i class="fa-solid fa-chevron-down text-[9px] text-slate-500 transition group-open:rotate-180"></i>
-            </summary>
-            <p class="mt-1.5 text-[11px] text-slate-400 leading-normal">${t.description || 'No description provided.'}</p>
-          </details>
+        toolsContainer.innerHTML = data.tools.map(t => `
+          <div class="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-lg p-3 transition text-xs">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-mono font-semibold text-blue-400">${t.name}</span>
+              <span class="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">mcp tool</span>
+            </div>
+            <p class="text-slate-300 text-[11px] leading-relaxed line-clamp-2" title="${t.full_description}">${t.description}</p>
+          </div>
         `).join('');
       } catch (err) {
-        listEl.innerHTML = `<div class="p-3 text-xs text-red-400 bg-red-500/10 rounded-lg border border-red-500/20">Error connecting to MCP server. Check permissions.</div>`;
-      }
-    }
-
-    function appendMessage(role, text, toolActivity = []) {
-      const msgDiv = document.createElement('div');
-      msgDiv.className = `flex items-start space-x-3 max-w-2xl ${role === 'user' ? 'ml-auto flex-row-reverse space-x-reverse' : ''}`;
-
-      const icon = role === 'user'
-        ? `<div class="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0"><i class="fa-solid fa-user"></i></div>`
-        : `<div class="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0"><i class="fa-solid fa-robot"></i></div>`;
-
-      let toolsHtml = '';
-      if (toolActivity && toolActivity.length > 0) {
-        toolsHtml = `
-          <div class="mb-2 p-2 rounded-lg bg-slate-950 border border-slate-800 space-y-1 font-mono text-[10px]">
-            <span class="text-emerald-400 flex items-center gap-1 font-semibold"><i class="fa-solid fa-bolt"></i> MCP Tool Invocation</span>
-            ${toolActivity.map(t => `<div>${t.type === 'call' ? '↳ Called:' : '↲ Result:'} <span class="text-blue-300">${t.name}</span></div>`).join('')}
+        toolCountBadge.textContent = '!';
+        toolsContainer.innerHTML = `
+          <div class="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-xs text-rose-300 space-y-1">
+            <p class="font-semibold flex items-center gap-1.5"><i class="fa-solid fa-triangle-exclamation"></i> Discovery Failed</p>
+            <p class="text-[11px]">${err.message}</p>
           </div>
         `;
       }
-
-      msgDiv.innerHTML = `
-        ${icon}
-        <div class="${role === 'user' ? 'bg-blue-600 text-white rounded-2xl rounded-tr-sm' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-2xl rounded-tl-sm'} p-4 text-xs leading-relaxed max-w-xl">
-          ${toolsHtml}
-          <div class="whitespace-pre-wrap">${text}</div>
-        </div>
-      `;
-
-      chatMessages.appendChild(msgDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    async function handleSend(e) {
-      if (e) e.preventDefault();
-      const text = userInput.value.trim();
+    function switchService(service) {
+      activeService = service;
+      document.querySelectorAll('.service-btn').forEach(btn => {
+        if (btn.dataset.service === service) {
+          btn.className = 'service-btn active flex items-center gap-2 p-2 rounded-lg bg-blue-600 text-white text-xs font-medium transition';
+        } else {
+          btn.className = 'service-btn flex items-center gap-2 p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium transition';
+        }
+      });
+      loadTools(service);
+    }
+
+    async function handleChatSubmit(e) {
+      e.preventDefault();
+      const input = document.getElementById('messageInput');
+      const text = input.value.trim();
       if (!text) return;
 
+      input.value = '';
       appendMessage('user', text);
-      userInput.value = '';
+
+      const sendBtn = document.getElementById('sendButton');
       sendBtn.disabled = true;
 
-      // Loading bubble
-      const loadingDiv = document.createElement('div');
-      loadingDiv.id = 'loadingBubble';
-      loadingDiv.className = 'flex items-start space-x-3 max-w-2xl';
-      loadingDiv.innerHTML = `
-        <div class="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0"><i class="fa-solid fa-robot"></i></div>
-        <div class="bg-slate-900 border border-slate-800 text-slate-400 rounded-2xl rounded-tl-sm p-4 text-xs flex items-center gap-2">
-          <i class="fa-solid fa-circle-notch fa-spin text-blue-400"></i> Running ADK Agent with MCP tools...
-        </div>
-      `;
-      chatMessages.appendChild(loadingDiv);
-      chatMessages.scrollTop = chatMessages.scrollHeight;
+      const loadingId = appendLoadingMessage();
 
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, service: serviceSelect.value })
+          body: JSON.stringify({ message: text, service: activeService })
         });
         const data = await res.json();
-        document.getElementById('loadingBubble').remove();
-        appendMessage('assistant', data.reply, data.tool_activity);
+        removeLoadingMessage(loadingId);
+        appendMessage('agent', data.reply, data.tool_activity);
       } catch (err) {
-        document.getElementById('loadingBubble').remove();
-        appendMessage('assistant', `Failed to connect to backend: ${err.message}`);
+        removeLoadingMessage(loadingId);
+        appendMessage('agent', `Failed to send message: ${err.message}`);
       } finally {
         sendBtn.disabled = false;
       }
     }
 
-    function sendSuggested(txt) {
-      userInput.value = txt;
-      handleSend();
+    function sendQuickPrompt(promptText) {
+      document.getElementById('messageInput').value = promptText;
+      document.getElementById('chatForm').dispatchEvent(new Event('submit'));
     }
 
-    function clearChat() {
-      chatMessages.innerHTML = '';
+    function appendMessage(role, text, toolActivity = []) {
+      const container = document.getElementById('messagesContainer');
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `flex gap-4 max-w-3xl ${role === 'user' ? 'ml-auto flex-row-reverse' : ''}`;
+
+      const avatar = role === 'user' 
+        ? `<div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div>`
+        : `<div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 shadow"><i class="fa-solid fa-robot text-white text-xs"></i></div>`;
+
+      const bubbleStyle = role === 'user'
+        ? 'bg-blue-600 text-white rounded-2xl rounded-tr-none'
+        : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-2xl rounded-tl-none';
+
+      let toolHtml = '';
+      if (toolActivity && toolActivity.length > 0) {
+        toolHtml = `
+          <div class="mt-2 pt-2 border-t border-slate-800 space-y-1 font-mono text-[10px]">
+            ${toolActivity.map(act => `
+              <div class="bg-slate-950 p-1.5 rounded text-blue-300">
+                <span class="text-amber-400 font-bold">[${act.type}]</span> ${act.name} (${JSON.stringify(act.args || {})})
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      msgDiv.innerHTML = `
+        ${avatar}
+        <div class="${bubbleStyle} p-4 text-xs leading-relaxed shadow-sm">
+          <div class="whitespace-pre-wrap">${escapeHtml(text)}</div>
+          ${toolHtml}
+        </div>
+      `;
+
+      container.appendChild(msgDiv);
+      container.scrollTop = container.scrollHeight;
     }
 
+    function appendLoadingMessage() {
+      const container = document.getElementById('messagesContainer');
+      const id = 'loading-' + Date.now();
+      const msgDiv = document.createElement('div');
+      msgDiv.id = id;
+      msgDiv.className = 'flex gap-4 max-w-3xl';
+      msgDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 shadow">
+          <i class="fa-solid fa-robot text-white text-xs"></i>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none p-4 text-xs text-slate-400 flex items-center gap-2">
+          <i class="fa-solid fa-circle-notch fa-spin text-blue-400"></i>
+          <span>ADK agent reasoning with Google Workspace MCP...</span>
+        </div>
+      `;
+      container.appendChild(msgDiv);
+      container.scrollTop = container.scrollHeight;
+      return id;
+    }
+
+    function removeLoadingMessage(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Modal & Config
+    function openConfigModal() {
+      document.getElementById('configModal').classList.remove('hidden');
+    }
+    function closeConfigModal() {
+      document.getElementById('configModal').classList.add('hidden');
+    }
+
+    function switchModalTab(tab) {
+      ['oauth', 'iam', 'token'].forEach(t => {
+        const btn = document.getElementById('tabBtn' + capitalize(t));
+        const content = document.getElementById('tab' + capitalize(t));
+        if (t === tab) {
+          btn.className = 'modal-tab active px-4 py-2 font-medium text-blue-400 border-b-2 border-blue-500';
+          content.classList.remove('hidden');
+        } else {
+          btn.className = 'modal-tab px-4 py-2 font-medium text-slate-400 hover:text-slate-200';
+          content.classList.add('hidden');
+        }
+      });
+    }
+
+    function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+    function copyRedirectUri() {
+      const text = document.getElementById('modalRedirectUri').textContent;
+      navigator.clipboard.writeText(text);
+      alert('Callback URL copied to clipboard: ' + text);
+    }
+
+    async function saveOauthConfig() {
+      const clientId = document.getElementById('cfgClientId').value.trim();
+      const clientSecret = document.getElementById('cfgClientSecret').value.trim();
+      const projectId = document.getElementById('cfgProjectId').value.trim();
+
+      const res = await fetch('/api/auth/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ client_id: clientId, client_secret: clientSecret, project_id: projectId })
+      });
+      const data = await res.json();
+      alert(data.message || 'Config saved!');
+      closeConfigModal();
+      loadAuthStatus();
+    }
+
+    async function uploadClientSecretFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await fetch('/api/auth/upload-client-secret', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+        if (res.ok) {
+          alert('Successfully imported client_secret.json!');
+          closeConfigModal();
+          loadAuthStatus();
+        } else {
+          alert('Error: ' + (data.detail || 'Failed to upload credentials'));
+        }
+      } catch (err) {
+        alert('Upload failed: ' + err.message);
+      }
+    }
+
+    async function saveCustomToken() {
+      const token = document.getElementById('customTokenInput').value.trim();
+      await fetch('/api/auth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token })
+      });
+      alert('Custom Bearer Token saved.');
+      closeConfigModal();
+      loadAuthStatus();
+      loadTools(activeService);
+    }
+
+    async function clearCustomToken() {
+      await fetch('/api/auth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: "" })
+      });
+      alert('Reset to ADC credentials.');
+      closeConfigModal();
+      loadAuthStatus();
+      loadTools(activeService);
+    }
+
+    async function logout() {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      loadAuthStatus();
+      loadTools(activeService);
+    }
+
+    // Init on load
     window.addEventListener('DOMContentLoaded', () => {
-      loadAuth();
-      loadTools();
+      loadAuthStatus();
+      loadTools(activeService);
+
+      // Check URL params for auth status
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('auth') === 'success') {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
     });
   </script>
 </body>
