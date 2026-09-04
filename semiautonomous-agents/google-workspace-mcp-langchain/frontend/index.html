@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LangChain + Workspace MCP Assistant</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: '#10b981',
+            surface: '#0f172a',
+            surfaceLight: '#1e293b',
+            accent: '#059669',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0f172a; }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 flex h-screen overflow-hidden font-sans antialiased">
+
+  <!-- LEFT SIDEBAR: AUTH & MCP TOOLS -->
+  <aside class="w-80 sm:w-96 bg-slate-900 border-r border-slate-800 flex flex-col h-full flex-shrink-0">
+    <!-- Header -->
+    <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-9 h-9 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-link text-lg"></i>
+        </div>
+        <div>
+          <h1 class="font-semibold text-sm tracking-tight text-white flex items-center gap-1.5">
+            LangChain
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">v0.3</span>
+          </h1>
+          <p class="text-xs text-slate-400">Workspace MCP Integration</p>
+        </div>
+      </div>
+      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+        Live
+      </span>
+    </div>
+
+    <!-- Scrollable Settings -->
+    <div class="flex-1 overflow-y-auto p-4 space-y-5">
+      
+      <!-- Auth Status Card -->
+      <div class="bg-slate-950 rounded-xl p-3.5 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-shield-halved text-emerald-400"></i> Authentication
+          </span>
+          <span id="authBadge" class="text-[10px] px-2 py-0.5 rounded-full font-mono bg-slate-800 text-slate-300">Checking...</span>
+        </div>
+
+        <div class="space-y-1 text-xs">
+          <div class="flex justify-between text-slate-400">
+            <span>Project:</span>
+            <span id="authProject" class="font-mono text-slate-200">-</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>Bearer Token:</span>
+            <span id="authFingerprint" class="font-mono text-slate-300 text-[11px]">-</span>
+          </div>
+          <div class="flex justify-between text-slate-400">
+            <span>Identity:</span>
+            <span id="authIdentity" class="font-mono text-slate-300 truncate max-w-[170px]">-</span>
+          </div>
+        </div>
+
+        <!-- Custom Token Toggle -->
+        <details class="group pt-2 border-t border-slate-800/80">
+          <summary class="cursor-pointer text-xs text-emerald-400 hover:text-emerald-300 flex items-center justify-between select-none">
+            <span>Configure Custom Token</span>
+            <i class="fa-solid fa-chevron-down text-[10px] transition group-open:rotate-180"></i>
+          </summary>
+          <div class="mt-2.5 space-y-2">
+            <input type="password" id="customTokenInput" placeholder="Paste custom OAuth Bearer token..."
+                   class="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono">
+            <div class="flex gap-1.5">
+              <button onclick="saveToken()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg py-1 text-xs font-medium transition">
+                Set Token
+              </button>
+              <button onclick="resetToken()" class="px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium transition">
+                Reset ADC
+              </button>
+            </div>
+            <p class="text-[10px] text-slate-500 leading-tight">
+              Tokens are stored strictly in-memory per session. Zero-leak protocol enforced.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <!-- Workspace Service Selector -->
+      <div class="space-y-2">
+        <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+          <i class="fa-solid fa-cubes text-emerald-400"></i> Workspace Service
+        </label>
+        <select id="serviceSelect" onchange="loadTools()"
+                class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 font-medium">
+          <option value="gmail" selected>✉️ Gmail (gmailmcp.googleapis.com)</option>
+          <option value="drive">📁 Google Drive (drivemcp.googleapis.com)</option>
+          <option value="docs">📄 Google Docs (docsmcp.googleapis.com)</option>
+          <option value="calendar">📅 Google Calendar (calendarmcp.googleapis.com)</option>
+          <option value="sheets">📊 Google Sheets (sheetsmcp.googleapis.com)</option>
+        </select>
+      </div>
+
+      <!-- Live Tools Explorer -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <label class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <i class="fa-solid fa-wrench text-emerald-400"></i> Discovered Tools
+          </label>
+          <span id="toolCountBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">0 tools</span>
+        </div>
+
+        <div id="toolsList" class="space-y-1.5 max-h-[320px] overflow-y-auto pr-1">
+          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800/80 text-center text-xs text-slate-500">
+            <i class="fa-solid fa-circle-notch fa-spin mr-1.5 text-emerald-400"></i> Connecting to MCP server...
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="p-3 border-t border-slate-800 text-[11px] text-slate-500 flex items-center justify-between">
+      <span>Model: <span class="text-slate-300 font-mono">gemini-3.7-flash</span></span>
+      <span class="text-slate-400">LangChain MCP</span>
+    </div>
+  </aside>
+
+  <!-- RIGHT MAIN CHAT AREA -->
+  <main class="flex-1 flex flex-col h-full bg-slate-950">
+    
+    <!-- Top Bar -->
+    <header class="h-14 border-b border-slate-800 flex items-center justify-between px-6 bg-slate-900/40">
+      <div class="flex items-center space-x-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+        <h2 id="activeServiceTitle" class="font-medium text-sm text-slate-200">Gmail MCP Agent Active</h2>
+        <span class="text-slate-500 text-xs">|</span>
+        <span class="text-xs text-slate-400 font-mono" id="activeEndpoint">https://gmailmcp.googleapis.com/mcp/v1</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <button onclick="clearChat()" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition">
+          <i class="fa-solid fa-trash-can mr-1"></i> Clear
+        </button>
+      </div>
+    </header>
+
+    <!-- Chat Messages Container -->
+    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4">
+      
+      <!-- Welcome Message -->
+      <div class="flex items-start space-x-3 max-w-2xl">
+        <div class="w-8 h-8 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0">
+          <i class="fa-solid fa-link"></i>
+        </div>
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-300 space-y-2 leading-relaxed">
+          <p class="font-medium text-white">Welcome to the LangChain Workspace MCP Assistant!</p>
+          <p>
+            I am an enterprise AI agent built with <strong>LangChain</strong> and powered by <strong>Gemini 3.7 Flash</strong>.
+            I connect to Google Workspace MCP servers via Streamable HTTP JSON-RPC 2.0.
+          </p>
+          <p class="text-slate-400">Ask me to draft emails, inspect mailbox threads, search documents, or compare this integration with Google ADK.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Suggested Prompt Chips -->
+    <div class="px-6 py-2 border-t border-slate-800/60 bg-slate-900/20 flex flex-wrap gap-2">
+      <button onclick="sendSuggested('What tools are discovered on this Workspace MCP server?')"
+              class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 hover:text-white transition">
+        🛠️ What tools are available?
+      </button>
+      <button onclick="sendSuggested('Compare how LangChain and Google ADK handle remote MCP servers.')"
+              class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 hover:text-white transition">
+        ⚖️ Compare LangChain vs Google ADK
+      </button>
+      <button onclick="sendSuggested('Draft an email to leadership explaining the dual-layer security model for Workspace MCP.')"
+              class="px-3 py-1 rounded-full bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 hover:text-white transition">
+        ✉️ Draft security model email
+      </button>
+    </div>
+
+    <!-- Input Bar -->
+    <div class="p-4 border-t border-slate-800 bg-slate-900/40">
+      <form id="chatForm" onsubmit="handleSend(event)" class="flex items-center gap-2 max-w-4xl mx-auto">
+        <input type="text" id="userInput" placeholder="Ask the LangChain Workspace agent..."
+               class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-emerald-500 transition">
+        <button type="submit" id="sendBtn"
+                class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium flex items-center gap-1.5 transition">
+          <span>Send</span>
+          <i class="fa-solid fa-arrow-up text-xs"></i>
+        </button>
+      </form>
+    </div>
+
+  </main>
+
+  <script>
+    const chatMessages = document.getElementById('chatMessages');
+    const userInput = document.getElementById('userInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const serviceSelect = document.getElementById('serviceSelect');
+
+    async function loadAuth() {
+      try {
+        const res = await fetch('/api/auth');
+        const data = await res.json();
+        document.getElementById('authProject').innerText = data.project_id || 'Not set';
+        document.getElementById('authFingerprint').innerText = data.token_fingerprint;
+        document.getElementById('authIdentity').innerText = data.identity;
+        
+        const badge = document.getElementById('authBadge');
+        if (data.authenticated) {
+          badge.className = "text-[10px] px-2 py-0.5 rounded-full font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+          badge.innerText = data.is_custom_token ? "Custom Token" : "ADC Active";
+        } else {
+          badge.className = "text-[10px] px-2 py-0.5 rounded-full font-mono bg-red-500/10 text-red-400 border border-red-500/20";
+          badge.innerText = "No Credentials";
+        }
+      } catch (err) {
+        console.error("Failed to load auth status", err);
+      }
+    }
+
+    async function saveToken() {
+      const val = document.getElementById('customTokenInput').value;
+      await fetch('/api/auth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: val })
+      });
+      document.getElementById('customTokenInput').value = '';
+      await loadAuth();
+      await loadTools();
+    }
+
+    async function resetToken() {
+      await fetch('/api/auth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: null })
+      });
+      await loadAuth();
+      await loadTools();
+    }
+
+    async function loadTools() {
+      const service = serviceSelect.value;
+      const listEl = document.getElementById('toolsList');
+      const badge = document.getElementById('toolCountBadge');
+      const title = document.getElementById('activeServiceTitle');
+      const endpoint = document.getElementById('activeEndpoint');
+
+      title.innerText = `${service.toUpperCase()} MCP Agent Active (LangChain)`;
+      listEl.innerHTML = `<div class="p-3 text-center text-xs text-slate-500"><i class="fa-solid fa-circle-notch fa-spin mr-1 text-emerald-400"></i> Fetching tools...</div>`;
+
+      try {
+        const res = await fetch(`/api/mcp/tools?service=${service}`);
+        const data = await res.json();
+        endpoint.innerText = data.endpoint;
+        badge.innerText = `${data.tool_count} tools`;
+
+        if (!data.tools || data.tools.length === 0) {
+          listEl.innerHTML = `<div class="p-3 text-xs text-slate-500 text-center">No tools discovered.</div>`;
+          return;
+        }
+
+        listEl.innerHTML = data.tools.map(t => `
+          <details class="bg-slate-950 border border-slate-800 rounded-lg p-2.5 text-xs group">
+            <summary class="cursor-pointer font-medium text-slate-300 flex items-center justify-between select-none">
+              <span class="text-emerald-400 font-mono text-[11px]">${t.name}</span>
+              <i class="fa-solid fa-chevron-down text-[9px] text-slate-500 transition group-open:rotate-180"></i>
+            </summary>
+            <p class="mt-1.5 text-[11px] text-slate-400 leading-normal">${t.description || 'No description provided.'}</p>
+          </details>
+        `).join('');
+      } catch (err) {
+        listEl.innerHTML = `<div class="p-3 text-xs text-red-400 bg-red-500/10 rounded-lg border border-red-500/20">Error connecting to MCP server. Check permissions.</div>`;
+      }
+    }
+
+    function appendMessage(role, text, toolActivity = []) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `flex items-start space-x-3 max-w-2xl ${role === 'user' ? 'ml-auto flex-row-reverse space-x-reverse' : ''}`;
+
+      const icon = role === 'user'
+        ? `<div class="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400 flex-shrink-0"><i class="fa-solid fa-user"></i></div>`
+        : `<div class="w-8 h-8 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0"><i class="fa-solid fa-link"></i></div>`;
+
+      let toolsHtml = '';
+      if (toolActivity && toolActivity.length > 0) {
+        toolsHtml = `
+          <div class="mb-2 p-2 rounded-lg bg-slate-950 border border-slate-800 space-y-1 font-mono text-[10px]">
+            <span class="text-emerald-400 flex items-center gap-1 font-semibold"><i class="fa-solid fa-bolt"></i> MCP Tool Invocation</span>
+            ${toolActivity.map(t => `<div>${t.type === 'call' ? '↳ Called:' : '↲ Result:'} <span class="text-emerald-300">${t.name}</span></div>`).join('')}
+          </div>
+        `;
+      }
+
+      msgDiv.innerHTML = `
+        ${icon}
+        <div class="${role === 'user' ? 'bg-emerald-600 text-white rounded-2xl rounded-tr-sm' : 'bg-slate-900 border border-slate-800 text-slate-200 rounded-2xl rounded-tl-sm'} p-4 text-xs leading-relaxed max-w-xl">
+          ${toolsHtml}
+          <div class="whitespace-pre-wrap">${text}</div>
+        </div>
+      `;
+
+      chatMessages.appendChild(msgDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function handleSend(e) {
+      if (e) e.preventDefault();
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      appendMessage('user', text);
+      userInput.value = '';
+      sendBtn.disabled = true;
+
+      const loadingDiv = document.createElement('div');
+      loadingDiv.id = 'loadingBubble';
+      loadingDiv.className = 'flex items-start space-x-3 max-w-2xl';
+      loadingDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 flex-shrink-0"><i class="fa-solid fa-link"></i></div>
+        <div class="bg-slate-900 border border-slate-800 text-slate-400 rounded-2xl rounded-tl-sm p-4 text-xs flex items-center gap-2">
+          <i class="fa-solid fa-circle-notch fa-spin text-emerald-400"></i> Running LangChain Agent with MCP tools...
+        </div>
+      `;
+      chatMessages.appendChild(loadingDiv);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, service: serviceSelect.value })
+        });
+        const data = await res.json();
+        document.getElementById('loadingBubble').remove();
+        appendMessage('assistant', data.reply, data.tool_activity);
+      } catch (err) {
+        document.getElementById('loadingBubble').remove();
+        appendMessage('assistant', `Failed to connect to backend: ${err.message}`);
+      } finally {
+        sendBtn.disabled = false;
+      }
+    }
+
+    function sendSuggested(txt) {
+      userInput.value = txt;
+      handleSend();
+    }
+
+    function clearChat() {
+      chatMessages.innerHTML = '';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAuth();
+      loadTools();
+    });
+  </script>
+</body>
+</html>
