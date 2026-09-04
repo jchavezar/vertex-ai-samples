@@ -58,7 +58,7 @@
       </div>
 
       <!-- Google Sign In Button -->
-      <a id="btnGoogleSignIn" href="/api/auth/login" class="hidden items-center gap-2.5 bg-white hover:bg-slate-100 text-slate-800 font-medium px-3.5 py-1.5 rounded-lg text-xs shadow-md transition-all">
+      <a id="btnGoogleSignIn" href="/api/auth/login" onclick="return handleGoogleSignInClick(event)" class="hidden items-center gap-2.5 bg-white hover:bg-slate-100 text-slate-800 font-medium px-3.5 py-1.5 rounded-lg text-xs shadow-md transition-all">
         <svg class="w-4 h-4" viewBox="0 0 24 24">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
           <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
@@ -316,6 +316,18 @@
 
   <script>
     let activeService = 'gmail';
+    let isOauthConfigured = false;
+
+    function handleGoogleSignInClick(e) {
+      if (!isOauthConfigured) {
+        e.preventDefault();
+        openConfigModal();
+        alert("Please enter or import your Google Cloud OAuth 2.0 Web Client ID & Secret in this modal to enable 'Sign in with Google'.");
+        document.getElementById('cfgClientId').focus();
+        return false;
+      }
+      return true;
+    }
 
     const serviceEndpoints = {
       gmail: 'https://gmailmcp.googleapis.com/mcp/v1',
@@ -328,6 +340,7 @@
       try {
         const res = await fetch('/api/auth/status');
         const data = await res.json();
+        isOauthConfigured = Boolean(data.oauth_configured);
 
         const authPill = document.getElementById('authPill');
         const authDot = document.getElementById('authDot');
