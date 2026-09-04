@@ -24,6 +24,11 @@ import google.auth
 from google.auth.transport.requests import Request as GoogleAuthRequest
 from google import genai
 from google.genai import types
+import dotenv
+
+# Automatically load .env from project root
+dotenv.load_dotenv(Path(__file__).parent.parent / ".env")
+dotenv.load_dotenv()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("langchain_workspace_mcp")
@@ -37,7 +42,10 @@ oauth_config = {
     "client_id": os.environ.get("GOOGLE_OAUTH_CLIENT_ID", ""),
     "client_secret": os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET", ""),
     "project_id": DEFAULT_PROJECT_ID,
+    "redirect_uri": os.environ.get("GOOGLE_OAUTH_REDIRECT_URI", ""),
 }
+
+oauth_pending_states: Dict[str, Dict[str, Any]] = {}
 
 WORKSPACE_SCOPES = [
     "openid",
@@ -164,6 +172,7 @@ class ConfigUpdateRequest(BaseModel):
     client_id: Optional[str] = Field(None, description="Google OAuth 2.0 Web Client ID")
     client_secret: Optional[str] = Field(None, description="Google OAuth 2.0 Web Client Secret")
     project_id: Optional[str] = Field(None, description="Google Cloud Project ID")
+    redirect_uri: Optional[str] = Field(None, description="Custom OAuth redirect URI override")
 
 
 class TokenRequest(BaseModel):
@@ -181,7 +190,7 @@ async def get_auth_status(request: Request, response: Response):
     token, project_id, identity, auth_type, session = await resolve_credentials(session_id)
 
     fingerprint = f"{token[:8]}...{token[-4:]}" if token and len(token) > 12 else "None"
-    callback_url = f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    callback_url = oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
 
     client_id = oauth_config.get("client_id", "")
     client_id_preview = f"{client_id[:12]}...apps.googleusercontent.com" if client_id and len(client_id) > 20 else ("Configured" if client_id else "Not Set")
@@ -215,7 +224,12 @@ async def oauth_login(request: Request, response: Response):
             detail="OAuth Client ID not configured. Please configure it via the Credentials modal.",
         )
 
-    callback_url = f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    callback_url = oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    oauth_pending_states[session_id] = {
+        "redirect_uri": callback_url,
+        "timestamp": time.time(),
+    }
+
     params = {
         "client_id": client_id,
         "redirect_uri": callback_url,
@@ -246,7 +260,8 @@ async def oauth_callback(
         raise HTTPException(status_code=400, detail="Missing authorization code.")
 
     session_id = state or get_or_create_session_id(request, response)
-    callback_url = f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    pending = oauth_pending_states.pop(session_id, None) or {}
+    callback_url = pending.get("redirect_uri") or oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
 
     client_id = oauth_config.get("client_id")
     client_secret = oauth_config.get("client_secret")
@@ -268,6 +283,7 @@ async def oauth_callback(
             )
 
             if token_resp.status_code != 200:
+                logger.error(f"Failed token exchange: {token_resp.text}")
                 return RedirectResponse(url=f"/?auth_error=token_exchange_failed")
 
             token_data = token_resp.json()
@@ -318,11 +334,14 @@ async def update_oauth_config(req: ConfigUpdateRequest):
     if req.project_id is not None and req.project_id.strip():
         oauth_config["project_id"] = req.project_id.strip()
         os.environ["GOOGLE_CLOUD_PROJECT"] = req.project_id.strip()
+    if req.redirect_uri is not None:
+        oauth_config["redirect_uri"] = req.redirect_uri.strip()
 
     return {
         "message": "OAuth configuration updated successfully.",
         "oauth_configured": bool(oauth_config.get("client_id") and oauth_config.get("client_secret")),
         "project_id": oauth_config["project_id"],
+        "redirect_uri": oauth_config.get("redirect_uri") or "default (/api/auth/callback)",
     }
 
 

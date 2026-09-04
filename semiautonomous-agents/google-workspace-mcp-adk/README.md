@@ -130,19 +130,33 @@ sequenceDiagram
    * `https://www.googleapis.com/auth/documents.readonly`
    * `https://www.googleapis.com/auth/spreadsheets.readonly`
    * `openid`, `userinfo.email`, `userinfo.profile`
+5. **Add Test Users (Mandatory if External / Testing status)**:
+   * Under the **Test users** section, click **Add users**.
+   * Add every Google account / Workspace email address that will be testing the application (e.g. `user@yourdomain.com`).
+   * *Note*: If a user is not in the Test Users list, Google displays `Error 403: access_denied` during login.
 
-### Step 3: Create OAuth 2.0 Web Client ID
+### Step 3: Create OAuth 2.0 Web Client ID in GCP Console
 1. Navigate to **APIs & Services > Credentials**.
-2. Click **Create Credentials > OAuth client ID**.
+2. Click **+ Create Credentials > OAuth client ID**.
 3. Select Application type: **Web application**.
-4. Configure:
-   * **Name**: `ADK Workspace Client`
-   * **Authorized JavaScript origins**: `http://localhost:8002`
-   * **Authorized redirect URIs**: `http://localhost:8002/api/auth/callback`
-5. Download `client_secret_*.json` or copy the `Client ID` and `Client Secret`.
+4. Set a name (e.g. `Workspace MCP Web Client`).
+5. **Authorized JavaScript origins**:
+   * `http://localhost:8002`
+   * `http://localhost:8003` (if also running LangChain)
+6. **Authorized redirect URIs**:
+   * `http://localhost:8002/api/auth/callback` *(Standard API callback)*
+   * `http://localhost:8002` *(Root URL fallback)*
+   * `http://localhost:8003/api/auth/callback` *(For LangChain showcase)*
+   * `http://localhost:8003` *(For LangChain showcase root fallback)*
+   > **Why both?** If Google redirects to the root page (`http://localhost:8002/?code=...`), the application's single-page router automatically detects the code and seamlessly forwards it to the backend token exchange. Adding both guarantees 100% resilience across all browser environments.
+7. Click **Create**.
+8. A modal appears displaying:
+   * **Client ID** (e.g. `254356041555-xxxx.apps.googleusercontent.com`)
+   * **Client secret** (e.g. `GOCSPX-xxxx`)
+9. Copy these values to `.env` or click **Download JSON** (`client_secret_*.json`) to import directly via the UI modal.
 
 ### Step 4: Assign IAM Role to End Users
-Every user who interacts with the MCP endpoints must have the `roles/mcp.toolUser` role:
+The Google Workspace Remote MCP Gateway enforces GCP IAM check on all calls. Every user or service account invoking tools must have the `roles/mcp.toolUser` role:
 ```bash
 gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
   --member="user:alice@customer.com" \

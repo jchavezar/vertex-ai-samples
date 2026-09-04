@@ -238,15 +238,23 @@
 
       <!-- Tab Content: OAuth Setup -->
       <div id="tabOauth" class="space-y-4 text-xs">
-        <div class="bg-blue-950/40 border border-blue-900/50 p-3 rounded-lg space-y-1 text-slate-300">
-          <p class="font-semibold text-blue-300">1. Authorized Redirect URI for your GCP Console:</p>
-          <div class="flex items-center justify-between bg-slate-950 p-2 rounded font-mono text-[11px] text-slate-200 border border-slate-800">
-            <span id="modalRedirectUri">http://localhost:8002/api/auth/callback</span>
-            <button onclick="copyRedirectUri()" class="text-blue-400 hover:text-blue-300 px-2 py-0.5 rounded hover:bg-slate-800">
-              <i class="fa-regular fa-copy"></i> Copy
-            </button>
+        <div class="bg-blue-950/40 border border-blue-900/50 p-3 rounded-lg space-y-2 text-slate-300">
+          <p class="font-semibold text-blue-300">1. Authorized Redirect URIs for your GCP Console:</p>
+          <div class="space-y-1.5">
+            <div class="flex items-center justify-between bg-slate-950 p-2 rounded font-mono text-[11px] text-slate-200 border border-slate-800">
+              <span id="modalRedirectUri">http://localhost:8002/api/auth/callback</span>
+              <button onclick="copyText('modalRedirectUri')" class="text-blue-400 hover:text-blue-300 px-2 py-0.5 rounded hover:bg-slate-800">
+                <i class="fa-regular fa-copy"></i> Copy
+              </button>
+            </div>
+            <div class="flex items-center justify-between bg-slate-950 p-2 rounded font-mono text-[11px] text-slate-200 border border-slate-800">
+              <span id="modalRootUri">http://localhost:8002</span>
+              <button onclick="copyText('modalRootUri')" class="text-blue-400 hover:text-blue-300 px-2 py-0.5 rounded hover:bg-slate-800">
+                <i class="fa-regular fa-copy"></i> Copy
+              </button>
+            </div>
           </div>
-          <p class="text-[10px] text-slate-400 mt-1">Add this exact URL under <em>Authorized redirect URIs</em> in your GCP OAuth 2.0 Web Client.</p>
+          <p class="text-[10px] text-slate-400">Add both URLs under <em>Authorized redirect URIs</em> in your GCP OAuth 2.0 Web Client credentials.</p>
         </div>
 
         <div class="space-y-3">
@@ -589,10 +597,10 @@
 
     function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-    function copyRedirectUri() {
-      const text = document.getElementById('modalRedirectUri').textContent;
+    function copyText(id) {
+      const text = document.getElementById(id).textContent;
       navigator.clipboard.writeText(text);
-      alert('Callback URL copied to clipboard: ' + text);
+      alert('URL copied to clipboard: ' + text);
     }
 
     async function saveOauthConfig() {
@@ -669,14 +677,27 @@
 
     // Init on load
     window.addEventListener('DOMContentLoaded', () => {
-      loadAuthStatus();
-      loadTools(activeService);
-
-      // Check URL params for auth status
       const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const err = urlParams.get('error') || urlParams.get('auth_error');
+
+      if (code) {
+        // Forward code to callback for token exchange if redirected to root
+        window.location.replace('/api/auth/callback' + window.location.search);
+        return;
+      }
+
+      if (err) {
+        alert("Google Sign-In Error: " + err);
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+
       if (urlParams.get('auth') === 'success') {
         window.history.replaceState({}, document.title, window.location.pathname);
       }
+
+      loadAuthStatus();
+      loadTools(activeService);
     });
   </script>
 </body>

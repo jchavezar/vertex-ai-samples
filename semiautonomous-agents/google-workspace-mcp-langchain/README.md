@@ -114,12 +114,23 @@ gcloud services enable \
 1. Navigate to **APIs & Services > OAuth consent screen**.
 2. Select **Internal** or **External**.
 3. Add required scopes: `openid`, `userinfo.email`, `userinfo.profile`, `gmail.modify`, `drive.readonly`, `calendar`, `documents.readonly`, `spreadsheets.readonly`.
+4. **Add Test Users (Mandatory if External / Testing status)**:
+   * Under **Test users**, click **Add users**.
+   * Add every account / email address that will test the app (e.g. `user@yourdomain.com`).
 
-### Step 3: Create OAuth 2.0 Web Client ID
+### Step 3: Create OAuth 2.0 Web Client ID in GCP Console
 1. Navigate to **APIs & Services > Credentials > Create Credentials > OAuth client ID**.
-2. Application type: **Web application**.
-3. Set **Authorized redirect URIs**: `http://localhost:8003/api/auth/callback`.
-4. Copy `Client ID` and `Client Secret` or download `client_secret_*.json`.
+2. Select Application type: **Web application**.
+3. Set **Authorized JavaScript origins**:
+   * `http://localhost:8003`
+   * `http://localhost:8002` (if also running ADK)
+4. Set **Authorized redirect URIs**:
+   * `http://localhost:8003/api/auth/callback` *(Standard API callback)*
+   * `http://localhost:8003` *(Root URL fallback)*
+   * `http://localhost:8002/api/auth/callback` *(For ADK showcase)*
+   * `http://localhost:8002` *(For ADK showcase root fallback)*
+   > **Note:** The frontend single-page router automatically detects `?code=` query parameters on root redirects and forwards them to the backend callback. Having both URIs authorized in GCP guarantees seamless authentication.
+5. Click **Create** and copy the generated `Client ID` and `Client Secret` (or download `client_secret_*.json`).
 
 ### Step 4: Grant IAM Role to Users
 ```bash
