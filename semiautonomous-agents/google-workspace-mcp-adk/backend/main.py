@@ -347,7 +347,15 @@ async def oauth_callback(
     """
     if error:
         logger.warning(f"OAuth callback error: {error}")
+        if state and state.startswith("lc_"):
+            return RedirectResponse(url=f"http://localhost:8003/?auth_error={error}")
         return RedirectResponse(url=f"/?auth_error={error}")
+
+    # Forward to LangChain on port 8003 if state originated from LangChain
+    if state and state.startswith("lc_"):
+        logger.info(f"Forwarding OAuth callback for LangChain: state={state}")
+        target_url = f"http://localhost:8003/api/auth/callback?code={code}&state={state}"
+        return RedirectResponse(url=target_url)
 
     if not code:
         raise HTTPException(status_code=400, detail="Missing authorization code.")

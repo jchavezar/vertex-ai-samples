@@ -284,10 +284,12 @@ async def oauth_login(
         )
 
     callback_url = get_effective_redirect_uri(request, override_uri=redirect_uri)
+    state_value = f"lc_{session_id}" if "8002" in callback_url else session_id
     oauth_pending_states[session_id] = {
         "redirect_uri": callback_url,
         "timestamp": time.time(),
     }
+    oauth_pending_states[state_value] = oauth_pending_states[session_id]
 
     params = {
         "client_id": client_id,
@@ -297,7 +299,7 @@ async def oauth_login(
         "access_type": "offline",
         "prompt": "consent",
         "include_granted_scopes": "true",
-        "state": session_id,
+        "state": state_value,
     }
     google_auth_url = f"https://accounts.google.com/o/oauth2/v2/auth?{urlencode(params)}"
     return RedirectResponse(url=google_auth_url)
@@ -319,8 +321,9 @@ async def oauth_callback(
         raise HTTPException(status_code=400, detail="Missing authorization code.")
 
     session_id = state or get_or_create_session_id(request, response)
-    pending = oauth_pending_states.pop(session_id, None) or {}
-    callback_url = pending.get("redirect_uri") or get_effective_redirect_uri(request)
+    clean_session_id = session_id[3:] if session_id.startswith("lc_") else session_id
+    pending = oauth_pending_states.pop(session_id, None) or oauth_pending_states.pop(clean_session_id, None) or {}
+    callback_url = pending.get("redirect_uri") or ("http://localhost:8002" if (state and "lc_" in state) else get_effective_redirect_uri(request))
 
     client_id = oauth_config.get("client_id")
     client_secret = oauth_config.get("client_secret")
@@ -357,7 +360,7 @@ async def oauth_callback(
             )
             user_profile = userinfo_resp.json() if userinfo_resp.status_code == 200 else {}
 
-            user_sessions[session_id] = {
+            user_sessions[clean_session_id] = {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
                 "expires_at": time.time() + expires_in,
@@ -374,10 +377,10 @@ async def oauth_callback(
             res = RedirectResponse(url="/?auth=success")
             res.set_cookie(
                 key="mcp_session_id_langchain",
-                value=session_id,
+                value=clean_session_id,
                 httponly=True,
                 samesite="lax",
-                max_age=30 * 24 * 3600,
+                max_age=30 * 86400,
             )
             return res
     except Exception as e:
