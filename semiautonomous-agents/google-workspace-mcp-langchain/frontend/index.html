@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>LangChain + Workspace Remote MCP Assistant</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -97,6 +100,7 @@
         <div class="flex items-center gap-2">
           <h1 class="font-bold text-base tracking-wide text-white">LangChain</h1>
           <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">Workspace Remote MCP</span>
+          <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>v2.2-stream</span>
         </div>
         <p class="text-xs text-slate-400 flex items-center gap-1.5 mt-0.5">
           <span>Model: <code class="text-emerald-400">gemini-3.7-flash</code></span>
@@ -403,6 +407,16 @@
       docs: 'https://docsmcp.googleapis.com/mcp/v1',
     };
 
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
     function getInitials(nameOrEmail) {
       if (!nameOrEmail) return "U";
       const clean = nameOrEmail.replace(/@.*/, "").trim();
@@ -418,6 +432,8 @@
         const res = await fetch('/api/auth/status');
         const data = await res.json();
         isOauthConfigured = Boolean(data.oauth_configured);
+        currentAuthType = data.auth_type;
+        currentUserInfo = data.user_info || (data.identity ? { name: data.identity.split('@')[0].replace(/[._-]/g, ' '), email: data.identity } : null);
 
         const authPill = document.getElementById('authPill');
         const authDot = document.getElementById('authDot');
@@ -446,9 +462,9 @@
                 </div>
               `}
             </div>
-            <div class="flex flex-col">
-              <span class="font-medium text-white text-xs leading-tight">${data.user_info.name || 'User'}</span>
-              <span class="text-[10px] text-emerald-400 font-mono leading-tight">${data.user_info.email}</span>
+            <div class="flex flex-col text-left">
+              <span class="font-medium text-white text-xs leading-tight">${escapeHtml(data.user_info.name || 'User')}</span>
+              <span class="text-[10px] text-emerald-400 font-mono leading-tight">${escapeHtml(data.user_info.email)}</span>
             </div>
           `;
           btnSignIn.classList.add('hidden');
@@ -456,9 +472,21 @@
           btnSignOut.classList.add('flex');
         } else if (data.auth_type === 'adc') {
           authDot.className = 'w-2.5 h-2.5 rounded-full bg-amber-400';
+          const initials = getInitials(data.identity || 'ADC');
+          const displayName = data.user_info?.name || (data.identity ? data.identity.split('@')[0] : 'ADC Host');
           authContent.innerHTML = `
-            <i class="fa-solid fa-terminal text-amber-400"></i>
-            <span class="text-amber-300">ADC Host Mode (${data.project_id})</span>
+            <div class="relative w-6 h-6 shrink-0 flex items-center justify-center">
+              <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-amber-600 to-yellow-500 text-white font-bold text-[10px] flex items-center justify-center border border-amber-400/60 shadow-sm">
+                ${initials}
+              </div>
+            </div>
+            <div class="flex flex-col text-left">
+              <div class="flex items-center gap-1.5">
+                <span class="font-medium text-white text-xs leading-tight">${escapeHtml(displayName)}</span>
+                <span class="text-[9px] bg-amber-500/20 text-amber-300 px-1 py-0.2 rounded border border-amber-500/30">ADC</span>
+              </div>
+              <span class="text-[10px] text-slate-400 font-mono leading-tight">${escapeHtml(data.identity || data.project_id)}</span>
+            </div>
           `;
           btnSignIn.classList.remove('hidden');
           btnSignIn.classList.add('flex');
@@ -486,6 +514,18 @@
       } catch (err) {
         console.error("Auth status error:", err);
       }
+    }
+
+    async function setService(service) {
+      activeService = service;
+      document.querySelectorAll('.service-pill').forEach(btn => {
+        if (btn.dataset.service === service) {
+          btn.className = 'service-pill flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-emerald-600 text-white shadow-sm border border-emerald-500';
+        } else {
+          btn.className = 'service-pill flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium transition-all bg-slate-900/80 text-slate-400 hover:text-white hover:bg-slate-800 border border-slate-800';
+        }
+      });
+      loadTools(service);
     }
 
     async function loadTools(service) {
@@ -575,8 +615,11 @@
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, service: activeService })
+          headers: { 
+            'Content-Type': 'application/json',
+            'Accept': 'text/event-stream, application/json'
+          },
+          body: JSON.stringify({ message: text, service: activeService, stream: true })
         });
 
         if (!res.ok) {
@@ -586,32 +629,44 @@
           return;
         }
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let buffer = '';
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('text/event-stream')) {
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = '';
 
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
 
-          buffer += decoder.decode(value, { stream: true });
-          const lines = buffer.split('\n');
-          buffer = lines.pop();
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split('\n');
+            buffer = lines.pop();
 
-          for (const line of lines) {
-            const trimmed = line.trim();
-            if (trimmed.startsWith('data: ')) {
-              try {
-                const event = JSON.parse(trimmed.slice(6));
-                card.processEvent(event);
-              } catch (err) {
-                console.warn("SSE parse error", err, trimmed);
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (trimmed.startsWith('data: ')) {
+                try {
+                  const event = JSON.parse(trimmed.slice(6));
+                  card.processEvent(event);
+                } catch (err) {
+                  console.warn("SSE parse error", err, trimmed);
+                }
               }
             }
           }
+        } else {
+          // Standard JSON fallback
+          const data = await res.json();
+          card.processEvent({
+            type: 'done',
+            reply: data.reply || 'Request completed.',
+            tool_activity: data.tool_activity || [],
+            elapsed: data.elapsed || 1.0
+          });
         }
       } catch (err) {
-        card.markError('Network error: ' + err.message);
+        card.markError('Execution error: ' + err.message);
       } finally {
         sendBtn.disabled = false;
       }
@@ -750,8 +805,27 @@
       const msgDiv = document.createElement('div');
       msgDiv.className = `flex gap-4 max-w-3xl ${role === 'user' ? 'ml-auto flex-row-reverse' : ''}`;
 
+      let userAvatarHtml = '';
+      if (currentUserInfo && currentUserInfo.picture) {
+        userAvatarHtml = `
+          <div class="relative w-8 h-8 shrink-0">
+            <img src="${currentUserInfo.picture}" referrerpolicy="no-referrer" crossorigin="anonymous" onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden'); this.nextElementSibling.classList.add('flex');" class="w-8 h-8 rounded-lg object-cover border border-emerald-400/50 shadow-sm" alt="User" />
+            <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-xs items-center justify-center hidden border border-emerald-400/60 shadow-sm">
+              ${getInitials(currentUserInfo.name || currentUserInfo.email)}
+            </div>
+          </div>
+        `;
+      } else {
+        const initials = getInitials(currentUserInfo ? (currentUserInfo.name || currentUserInfo.email) : 'User');
+        userAvatarHtml = `
+          <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-xs flex items-center justify-center shrink-0 border border-emerald-400/50 shadow-sm">
+            ${initials}
+          </div>
+        `;
+      }
+
       const avatar = role === 'user' 
-        ? `<div class="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center shrink-0"><i class="fa-solid fa-user text-white text-xs"></i></div>`
+        ? userAvatarHtml
         : `<div class="w-8 h-8 rounded-lg bg-emerald-600 flex items-center justify-center shrink-0 shadow"><i class="fa-solid fa-link text-white text-xs"></i></div>`;
 
       const bubbleStyle = role === 'user'

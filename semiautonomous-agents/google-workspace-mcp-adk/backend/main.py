@@ -13,6 +13,7 @@ import logging
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 from urllib.parse import urlencode
+import subprocess
 
 import certifi
 os.environ["SSL_CERT_FILE"] = certifi.where()
@@ -188,8 +189,37 @@ async def resolve_credentials(session_id: Optional[str] = None):
         if not creds.valid:
             creds.refresh(GoogleAuthRequest())
         resolved_project = target_project or proj or "vtxdemos"
-        identity = getattr(creds, "service_account_email", None) or getattr(creds, "quota_project_id", None) or "ADC Host Principal"
-        return creds.token, resolved_project, identity, "adc", None
+
+        # Determine user account email for ADC
+        adc_email = None
+        try:
+            acc_proc = subprocess.run(
+                ["gcloud", "config", "get-value", "account"],
+                capture_output=True,
+                text=True,
+                timeout=1.5,
+            )
+            if acc_proc.returncode == 0 and acc_proc.stdout.strip():
+                lines = [l.strip() for l in acc_proc.stdout.strip().splitlines() if "@" in l]
+                if lines:
+                    adc_email = lines[-1]
+        except Exception:
+            pass
+
+        if not adc_email:
+            adc_email = getattr(creds, "service_account_email", None) or "admin@jesusarguelles.altostrat.com"
+
+        name_part = adc_email.split("@")[0].replace(".", " ").title() if adc_email else "ADC Host"
+        user_info = {
+            "name": name_part,
+            "email": adc_email,
+            "picture": None,
+        }
+        adc_session = {
+            "user_info": user_info,
+            "scopes": ["https://www.googleapis.com/auth/cloud-platform"],
+        }
+        return creds.token, resolved_project, adc_email, "adc", adc_session
     except Exception as e:
         logger.warning(f"ADC fallback unavailable: {e}")
         return None, target_project, "Unauthenticated", "none", None
@@ -210,11 +240,21 @@ class TokenRequest(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(..., description="User prompt")
     service: str = Field(default="gmail", description="Target Workspace service")
+    stream: Optional[bool] = Field(default=None, description="Stream response as SSE")
 
 
 # ---------------------------------------------------------------------------
 # AuthN / AuthZ Endpoints
 # ---------------------------------------------------------------------------
+
+def get_effective_redirect_uri(request: Request) -> str:
+    configured = (oauth_config.get("redirect_uri") or "").strip()
+    if configured:
+        if "/api/auth/callback" in configured:
+            return configured
+        return f"{configured.rstrip('/')}/api/auth/callback"
+    return f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+
 
 @app.get("/api/auth/status")
 async def get_auth_status(request: Request, response: Response):
@@ -222,7 +262,7 @@ async def get_auth_status(request: Request, response: Response):
     token, project_id, identity, auth_type, session = await resolve_credentials(session_id)
 
     fingerprint = f"{token[:8]}...{token[-4:]}" if token and len(token) > 12 else "None"
-    callback_url = oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    callback_url = get_effective_redirect_uri(request)
 
     client_id = oauth_config.get("client_id", "")
     client_id_preview = f"{client_id[:12]}...apps.googleusercontent.com" if client_id and len(client_id) > 20 else ("Configured" if client_id else "Not Set")
@@ -259,7 +299,7 @@ async def oauth_login(request: Request, response: Response):
             detail="OAuth Client ID not configured. Please configure it via the UI Settings modal.",
         )
 
-    callback_url = oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    callback_url = get_effective_redirect_uri(request)
     oauth_pending_states[session_id] = {
         "redirect_uri": callback_url,
         "timestamp": time.time(),
@@ -300,7 +340,7 @@ async def oauth_callback(
 
     session_id = state or get_or_create_session_id(request, response)
     pending = oauth_pending_states.pop(session_id, None) or {}
-    callback_url = pending.get("redirect_uri") or oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    callback_url = pending.get("redirect_uri") or get_effective_redirect_uri(request)
 
     client_id = oauth_config.get("client_id")
     client_secret = oauth_config.get("client_secret")
@@ -539,6 +579,14 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
         "x-goog-user-project": project_id,
     }
 
+    accept_header = request.headers.get("accept", "")
+    wants_stream = True
+    if req.stream is False:
+        wants_stream = False
+    elif req.stream is None:
+        if "application/json" in accept_header and "text/event-stream" not in accept_header:
+            wants_stream = False
+
     async def event_generator():
         start_time = time.time()
         yield f"data: {json.dumps({'type': 'start', 'service': service, 'model': 'gemini-3.7-flash', 'auth_type': auth_type, 'project_id': project_id})}\n\n"
@@ -614,7 +662,25 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
 
             full_reply = "".join(response_chunks).strip()
             if not full_reply:
-                full_reply = "I processed your request using the Workspace MCP integration."
+                full_reply = f"I processed your request using the {service.title()} MCP integration."
+
+            # Check if any tool encountered insufficient OAuth scope error with ADC
+            has_scope_error = any(
+                isinstance(t.get("response"), str)
+                and any(k in t["response"] for k in ["insufficient authentication scopes", "403", "connection lost", "TaskGroup"])
+                for t in tool_activity
+            )
+            if has_scope_error and auth_type == "adc":
+                scope_notice = (
+                    f"\n\n> ℹ️ **Google Workspace Scope Notice**: The active ADC token has Google Cloud Platform scope (`cloud-platform`), but lacks the end-user OAuth scope required for {service.title()}.\n"
+                    f"> - **Option A (Web)**: Click **'Sign in with Google'** at the top right to grant Workspace scopes.\n"
+                    f"> - **Option B (Terminal)**: Re-login ADC with Workspace scopes:\n"
+                    f">   ```bash\n"
+                    f">   gcloud auth application-default login --scopes=\"https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly\"\n"
+                    f">   ```"
+                )
+                full_reply += scope_notice
+                yield f"data: {json.dumps({'type': 'chunk', 'text': scope_notice})}\n\n"
 
             elapsed = round(time.time() - start_time, 2)
             yield f"data: {json.dumps({'type': 'done', 'reply': full_reply, 'tool_activity': tool_activity, 'elapsed': elapsed})}\n\n"
@@ -626,7 +692,7 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
             if "403" in err_msg and ("Forbidden" in err_msg or "PERMISSION_DENIED" in err_msg):
                 if auth_type == "adc":
                     help_msg = (
-                        "ADC Host Token lacks Google Workspace OAuth scopes (gmail.modify, drive.readonly, etc.). "
+                        "ADC Host Token lacks Google Workspace OAuth scopes (gmail.modify, drive.readonly, calendar, etc.). "
                         "Please click 'Sign in with Google' at the top right to authorize your Workspace user scopes, "
                         "or re-authenticate ADC with: "
                         'gcloud auth application-default login --scopes="https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly"'
@@ -639,7 +705,69 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
             elapsed = round(time.time() - start_time, 2)
             yield f"data: {json.dumps({'type': 'error', 'reply': f'Execution error: {err_msg}', 'help': help_msg, 'elapsed': elapsed})}\n\n"
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    if wants_stream:
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+    # Non-streaming JSON fallback for cached clients or direct API callers
+    start_time = time.time()
+    try:
+        workspace_toolset = McpToolset(
+            connection_params=StreamableHTTPConnectionParams(
+                url=endpoint_url,
+                headers=headers,
+                timeout=30.0,
+                sse_read_timeout=300.0,
+            ),
+        )
+        agent = Agent(
+            name="workspace_adk_agent",
+            model="gemini-3.7-flash",
+            instruction=(
+                f"You are a Google Workspace AI assistant connected to {service.upper()} via the Model Context Protocol. "
+                f"You are acting on behalf of user '{identity}' in Google Cloud project '{project_id}'. "
+                "You have access to native Workspace tools. Answer accurately and explain any actions clearly."
+            ),
+            tools=[workspace_toolset],
+        )
+        runner = InMemoryRunner(agent=agent)
+        adk_session = await runner.session_service.create_session(
+            app_name=runner.app_name, user_id=identity
+        )
+        response_chunks = []
+        tool_activity = []
+        async for event in runner.run_async(
+            session_id=adk_session.id,
+            user_id=identity,
+            new_message=types.Content(parts=[types.Part.from_text(text=req.message)]),
+        ):
+            if event.content and event.content.parts:
+                for p in event.content.parts:
+                    if hasattr(p, "function_call") and p.function_call:
+                        tool_activity.append({"type": "call", "name": p.function_call.name, "args": dict(p.function_call.args or {})})
+                    if hasattr(p, "function_response") and p.function_response:
+                        tool_activity.append({"type": "response", "name": p.function_response.name, "response": str(p.function_response.response)})
+                    if p.text:
+                        response_chunks.append(p.text)
+        full_reply = "".join(response_chunks).strip() or f"I processed your request using the {service.title()} MCP integration."
+        has_scope_error = any(
+            isinstance(t.get("response"), str)
+            and any(k in t["response"] for k in ["insufficient authentication scopes", "403", "connection lost", "TaskGroup"])
+            for t in tool_activity
+        )
+        if has_scope_error and auth_type == "adc":
+            full_reply += (
+                f"\n\n> ℹ️ **Google Workspace Scope Notice**: The active ADC token has Google Cloud Platform scope (`cloud-platform`), but lacks the end-user OAuth scope required for {service.title()}.\n"
+                f"> - **Option A (Web)**: Click **'Sign in with Google'** at the top right to grant Workspace scopes.\n"
+                f"> - **Option B (Terminal)**: Re-login ADC with Workspace scopes:\n"
+                f">   ```bash\n"
+                f">   gcloud auth application-default login --scopes=\"https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly\"\n"
+                f">   ```"
+            )
+        elapsed = round(time.time() - start_time, 2)
+        return JSONResponse({"reply": full_reply, "tool_activity": tool_activity, "elapsed": elapsed, "stream": False})
+    except Exception as e:
+        elapsed = round(time.time() - start_time, 2)
+        return JSONResponse(status_code=500, content={"reply": f"Execution error: {str(e)}", "error": str(e), "tool_activity": [], "elapsed": elapsed})
 
 
 # Mount Static Files

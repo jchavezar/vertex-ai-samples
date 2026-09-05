@@ -203,7 +203,7 @@ Choose whichever method you prefer:
   GOOGLE_CLOUD_LOCATION=global
   GOOGLE_OAUTH_CLIENT_ID=your-client-id.apps.googleusercontent.com
   GOOGLE_OAUTH_CLIENT_SECRET=GOCSPX-your-secret
-  GOOGLE_OAUTH_REDIRECT_URI=http://localhost:8002
+  GOOGLE_OAUTH_REDIRECT_URI=http://localhost:8002/api/auth/callback
   ```
 
 ---

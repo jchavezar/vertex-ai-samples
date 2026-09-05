@@ -13,6 +13,7 @@ import logging
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 from urllib.parse import urlencode
+import subprocess
 
 import certifi
 os.environ["SSL_CERT_FILE"] = certifi.where()
@@ -166,8 +167,37 @@ async def resolve_credentials(session_id: Optional[str] = None):
         if not creds.valid:
             creds.refresh(GoogleAuthRequest())
         resolved_project = target_project or proj or "vtxdemos"
-        identity = getattr(creds, "service_account_email", None) or getattr(creds, "quota_project_id", None) or "ADC Host Principal"
-        return creds.token, resolved_project, identity, "adc", None
+
+        # Determine user account email for ADC
+        adc_email = None
+        try:
+            acc_proc = subprocess.run(
+                ["gcloud", "config", "get-value", "account"],
+                capture_output=True,
+                text=True,
+                timeout=1.5,
+            )
+            if acc_proc.returncode == 0 and acc_proc.stdout.strip():
+                lines = [l.strip() for l in acc_proc.stdout.strip().splitlines() if "@" in l]
+                if lines:
+                    adc_email = lines[-1]
+        except Exception:
+            pass
+
+        if not adc_email:
+            adc_email = getattr(creds, "service_account_email", None) or "admin@jesusarguelles.altostrat.com"
+
+        name_part = adc_email.split("@")[0].replace(".", " ").title() if adc_email else "ADC Host"
+        user_info = {
+            "name": name_part,
+            "email": adc_email,
+            "picture": None,
+        }
+        adc_session = {
+            "user_info": user_info,
+            "scopes": ["https://www.googleapis.com/auth/cloud-platform"],
+        }
+        return creds.token, resolved_project, adc_email, "adc", adc_session
     except Exception as e:
         logger.warning(f"ADC fallback unavailable: {e}")
         return None, target_project, "Unauthenticated", "none", None
@@ -187,6 +217,16 @@ class TokenRequest(BaseModel):
 class ChatRequest(BaseModel):
     message: str = Field(..., description="User prompt")
     service: str = Field(default="gmail", description="Target Workspace service")
+    stream: Optional[bool] = Field(default=None, description="Stream response as SSE")
+
+
+def get_effective_redirect_uri(request: Request) -> str:
+    configured = (oauth_config.get("redirect_uri") or "").strip()
+    if configured:
+        if "/api/auth/callback" in configured:
+            return configured
+        return f"{configured.rstrip('/')}/api/auth/callback"
+    return f"{str(request.base_url).rstrip('/')}/api/auth/callback"
 
 
 @app.get("/api/auth/status")
@@ -195,7 +235,7 @@ async def get_auth_status(request: Request, response: Response):
     token, project_id, identity, auth_type, session = await resolve_credentials(session_id)
 
     fingerprint = f"{token[:8]}...{token[-4:]}" if token and len(token) > 12 else "None"
-    callback_url = oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    callback_url = get_effective_redirect_uri(request)
 
     client_id = oauth_config.get("client_id", "")
     client_id_preview = f"{client_id[:12]}...apps.googleusercontent.com" if client_id and len(client_id) > 20 else ("Configured" if client_id else "Not Set")
@@ -229,7 +269,7 @@ async def oauth_login(request: Request, response: Response):
             detail="OAuth Client ID not configured. Please configure it via the Credentials modal.",
         )
 
-    callback_url = oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    callback_url = get_effective_redirect_uri(request)
     oauth_pending_states[session_id] = {
         "redirect_uri": callback_url,
         "timestamp": time.time(),
@@ -266,7 +306,7 @@ async def oauth_callback(
 
     session_id = state or get_or_create_session_id(request, response)
     pending = oauth_pending_states.pop(session_id, None) or {}
-    callback_url = pending.get("redirect_uri") or oauth_config.get("redirect_uri") or f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+    callback_url = pending.get("redirect_uri") or get_effective_redirect_uri(request)
 
     client_id = oauth_config.get("client_id")
     client_secret = oauth_config.get("client_secret")
@@ -475,6 +515,14 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
         "x-goog-user-project": project_id,
     }
 
+    accept_header = request.headers.get("accept", "")
+    wants_stream = True
+    if req.stream is False:
+        wants_stream = False
+    elif req.stream is None:
+        if "application/json" in accept_header and "text/event-stream" not in accept_header:
+            wants_stream = False
+
     async def event_generator():
         start_time = time.time()
         yield f"data: {json.dumps({'type': 'start', 'service': service, 'model': 'gemini-3.7-flash', 'auth_type': auth_type, 'project_id': project_id})}\n\n"
@@ -527,6 +575,18 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
             )
 
             full_reply = response_gen.text.strip() if response_gen.text else "Request processed."
+
+            if auth_type == "adc":
+                scope_notice = (
+                    f"\n\n> ℹ️ **Google Workspace Scope Notice**: The active ADC token has Google Cloud Platform scope (`cloud-platform`), but lacks the end-user OAuth scope required for {service.title()}.\n"
+                    f"> - **Option A (Web)**: Click **'Sign in with Google'** at the top right to grant Workspace scopes.\n"
+                    f"> - **Option B (Terminal)**: Re-login ADC with Workspace scopes:\n"
+                    f">   ```bash\n"
+                    f">   gcloud auth application-default login --scopes=\"https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly\"\n"
+                    f">   ```"
+                )
+                full_reply += scope_notice
+
             yield f"data: {json.dumps({'type': 'chunk', 'text': full_reply})}\n\n"
 
             elapsed = round(time.time() - start_time, 2)
@@ -547,7 +607,60 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
             elapsed = round(time.time() - start_time, 2)
             yield f"data: {json.dumps({'type': 'error', 'reply': f'Error executing LangChain agent: {err_msg}', 'help': help_msg, 'elapsed': elapsed})}\n\n"
 
-    return StreamingResponse(event_generator(), media_type="text/event-stream")
+    if wants_stream:
+        return StreamingResponse(event_generator(), media_type="text/event-stream")
+
+    # Non-streaming JSON fallback
+    start_time = time.time()
+    try:
+        async with httpx.AsyncClient(headers=headers, timeout=10.0) as client:
+            await client.post(
+                endpoint_url,
+                json={
+                    "jsonrpc": "2.0",
+                    "id": 1,
+                    "method": "initialize",
+                    "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "langchain-agent", "version": "2.0"}},
+                },
+            )
+            res = await client.post(endpoint_url, json={"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}})
+            mcp_tools = res.json().get("result", {}).get("tools", [])
+
+        genai_client = genai.Client(
+            vertexai=True,
+            project=project_id,
+            location="global",
+        )
+        tools_summary = "\n".join([f"- {t.get('name')}: {t.get('description', '').splitlines()[0]}" for t in mcp_tools[:12]])
+        system_prompt = (
+            f"You are an enterprise AI assistant built with LangChain and integrated with Google Workspace ({service.upper()}) "
+            f"via Model Context Protocol (Streamable HTTP).\n"
+            f"User Identity: {identity} | Google Cloud Project: {project_id}\n"
+            f"Available MCP Tools on {endpoint_url}:\n{tools_summary}\n"
+            f"Provide helpful, accurate answers explaining which Workspace tools execute each task."
+        )
+        response_gen = await asyncio.to_thread(
+            genai_client.models.generate_content,
+            model="gemini-3.7-flash",
+            contents=[
+                types.Content(role="user", parts=[types.Part.from_text(text=f"{system_prompt}\n\nUser Question: {req.message}")])
+            ],
+        )
+        full_reply = response_gen.text.strip() if response_gen.text else "Request processed."
+        if auth_type == "adc":
+            full_reply += (
+                f"\n\n> ℹ️ **Google Workspace Scope Notice**: The active ADC token has Google Cloud Platform scope (`cloud-platform`), but lacks the end-user OAuth scope required for {service.title()}.\n"
+                f"> - **Option A (Web)**: Click **'Sign in with Google'** at the top right to grant Workspace scopes.\n"
+                f"> - **Option B (Terminal)**: Re-login ADC with Workspace scopes:\n"
+                f">   ```bash\n"
+                f">   gcloud auth application-default login --scopes=\"https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly\"\n"
+                f">   ```"
+            )
+        elapsed = round(time.time() - start_time, 2)
+        return JSONResponse({"reply": full_reply, "tool_activity": [], "elapsed": elapsed, "stream": False})
+    except Exception as e:
+        elapsed = round(time.time() - start_time, 2)
+        return JSONResponse(status_code=500, content={"reply": f"Error executing LangChain agent: {str(e)}", "error": str(e), "elapsed": elapsed})
 
 
 frontend_dir = Path(__file__).parent.parent / "frontend"
