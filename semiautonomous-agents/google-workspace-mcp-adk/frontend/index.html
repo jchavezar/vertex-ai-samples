@@ -603,19 +603,93 @@
       }, 200);
     }
 
+    // Before-callback function: Check authentication state before triggering remote Workspace MCP operations
+    function beforeChatCallback(text, service, forceAdc = false) {
+      if (currentAuthType === 'oauth2_user' || forceAdc) {
+        return true;
+      }
+
+      // Intercept unauthenticated / ADC users with interactive pre-flight prompt
+      appendMessage('user', text);
+      showPreFlightAuthNotice(text, service);
+      return false;
+    }
+
+    function showPreFlightAuthNotice(text, service) {
+      const container = document.getElementById('messagesContainer');
+      const cardDiv = document.createElement('div');
+      cardDiv.className = 'flex gap-4 max-w-3xl';
+
+      const escapedPrompt = text.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const identityName = currentUserInfo?.email || 'admin@jesusarguelles.altostrat.com';
+
+      cardDiv.innerHTML = `
+        <div class="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center shrink-0 shadow mt-1">
+          <i class="fa-solid fa-lock text-amber-400 text-xs"></i>
+        </div>
+        <div class="bg-slate-900 border border-amber-500/40 rounded-2xl rounded-tl-none p-4 text-xs text-slate-200 shadow-xl space-y-3 w-full">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] uppercase font-bold tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                <i class="fa-solid fa-shield-halved mr-1"></i> Pre-Flight Auth Guard
+              </span>
+              <span class="text-xs font-semibold text-white">Google Workspace Sign-In Required</span>
+            </div>
+            <span class="text-[10px] font-mono text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">${service.toUpperCase()} MCP</span>
+          </div>
+
+          <p class="text-slate-300 leading-relaxed text-xs">
+            You are currently connected using <strong>Application Default Credentials (ADC)</strong> (<span class="font-mono text-amber-300 text-[11px]">${escapeHtml(identityName)}</span>).
+            While ADC provides access to Google Cloud project <span class="font-mono text-blue-300">${escapeHtml(document.getElementById('navProjectId').textContent || 'vtxdemos')}</span>, 
+            <strong>Google Workspace endpoints (${service.toUpperCase()})</strong> require user-level OAuth consent to access personal emails, drafts, calendars, or files.
+          </p>
+
+          <div class="bg-slate-950/80 p-3 rounded-xl border border-slate-800/80 space-y-2.5">
+            <div class="flex items-center gap-2 flex-wrap">
+              <a href="/api/auth/login" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs transition shadow-md">
+                <i class="fa-brands fa-google text-xs"></i>
+                Sign in with Google (Recommended)
+              </a>
+              <button onclick="executeChatRequest('${escapedPrompt}', '${service}', true, this)" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs transition border border-slate-700">
+                Proceed with ADC anyway
+              </button>
+            </div>
+            <p class="text-[10px] text-slate-400 leading-relaxed">
+              💡 <em>Signing in activates per-customer OAuth 2.0 with automatic token refresh, your real profile avatar, and full read/write Workspace scopes.</em>
+            </p>
+          </div>
+        </div>
+      `;
+
+      container.appendChild(cardDiv);
+      container.scrollTop = container.scrollHeight;
+    }
+
     async function handleChatSubmit(e) {
-      e.preventDefault();
+      if (e) e.preventDefault();
       const input = document.getElementById('messageInput');
       const text = input.value.trim();
       if (!text) return;
-
       input.value = '';
+
+      if (!beforeChatCallback(text, activeService)) {
+        return;
+      }
+
       appendMessage('user', text);
+      await executeChatRequest(text, activeService, false);
+    }
+
+    async function executeChatRequest(text, service, forceAdc = false, triggerBtn = null) {
+      if (triggerBtn) {
+        triggerBtn.disabled = true;
+        triggerBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Running...';
+      }
 
       const sendBtn = document.getElementById('sendButton');
       sendBtn.disabled = true;
 
-      const card = createThinkingCard(activeService);
+      const card = createThinkingCard(service);
 
       try {
         const res = await fetch('/api/chat', {
@@ -624,7 +698,7 @@
             'Content-Type': 'application/json',
             'Accept': 'text/event-stream, application/json'
           },
-          body: JSON.stringify({ message: text, service: activeService, stream: true })
+          body: JSON.stringify({ message: text, service: service, stream: true })
         });
 
         if (!res.ok) {
@@ -709,6 +783,20 @@
           <!-- Dynamic Chunk Thinking & Tool Activity Log -->
           <div id="${cardId}-activity" class="space-y-1.5 font-mono text-[11px] max-h-48 overflow-y-auto custom-scroll pr-1"></div>
 
+          <!-- Live Bottom Chunk Thinking Progress Bar -->
+          <div id="${cardId}-bottom-bar" class="flex items-center justify-between p-2 rounded-lg bg-slate-950 border border-slate-800/80 shadow-inner">
+            <div class="flex items-center gap-2 overflow-hidden">
+              <span id="${cardId}-bottom-pulse" class="w-2 h-2 rounded-full bg-blue-400 animate-ping shrink-0"></span>
+              <span id="${cardId}-bottom-fade" class="text-[11px] font-mono text-blue-300 truncate fade-word">
+                Initializing ADK chunk event stream...
+              </span>
+            </div>
+            <div class="flex items-center gap-1.5 pl-2 text-[10px] font-mono text-slate-400 shrink-0 border-l border-slate-800">
+              <i class="fa-regular fa-hourglass-half text-amber-400 animate-spin" style="animation-duration: 4s;"></i>
+              <span id="${cardId}-bottom-timer" class="font-bold text-slate-200">0.0s</span>
+            </div>
+          </div>
+
           <!-- Final Response Stream Body -->
           <div id="${cardId}-reply" class="whitespace-pre-wrap text-xs text-slate-100 hidden pt-2 border-t border-slate-800/80 leading-relaxed"></div>
         </div>
@@ -723,17 +811,25 @@
       const indicator = document.getElementById(`${cardId}-indicator`);
       const activityEl = document.getElementById(`${cardId}-activity`);
       const replyEl = document.getElementById(`${cardId}-reply`);
+      const bottomFadeEl = document.getElementById(`${cardId}-bottom-fade`);
+      const bottomTimerEl = document.getElementById(`${cardId}-bottom-timer`);
+      const bottomPulseEl = document.getElementById(`${cardId}-bottom-pulse`);
+      const bottomBarEl = document.getElementById(`${cardId}-bottom-bar`);
 
       const startTime = performance.now();
       const timerInterval = setInterval(() => {
         const elapsed = ((performance.now() - startTime) / 1000).toFixed(1);
         timerEl.textContent = `${elapsed}s`;
+        if (bottomTimerEl) {
+          bottomTimerEl.textContent = `${elapsed}s`;
+        }
       }, 100);
 
       function stopTimer(finalElapsed) {
         clearInterval(timerInterval);
         if (finalElapsed !== undefined) {
           timerEl.textContent = `${finalElapsed}s`;
+          if (bottomTimerEl) bottomTimerEl.textContent = `${finalElapsed}s`;
         }
         clockIcon.className = 'fa-solid fa-bolt text-amber-400 text-[10px]';
       }
@@ -741,12 +837,16 @@
       return {
         id: cardId,
         processEvent(event) {
+          const currentElapsed = ((performance.now() - startTime) / 1000).toFixed(1);
           if (event.type === 'start') {
             setFadeWord(fadeWordEl, `Session ready. Querying ${event.service.toUpperCase()} with gemini-3.7-flash...`);
+            setFadeWord(bottomFadeEl, `[${currentElapsed}s] Gateway handshake complete. Waiting for reasoning chunk...`);
           } else if (event.type === 'status') {
             setFadeWord(fadeWordEl, event.text);
+            setFadeWord(bottomFadeEl, `[${currentElapsed}s] ${event.text}`);
           } else if (event.type === 'thought') {
             setFadeWord(fadeWordEl, `🧠 ${event.text.substring(0, 60)}${event.text.length > 60 ? '...' : ''}`);
+            setFadeWord(bottomFadeEl, `[${currentElapsed}s] 🧠 Reasoning chunk: ${event.text.substring(0, 45)}...`);
             const thoughtDiv = document.createElement('div');
             thoughtDiv.className = 'bg-indigo-950/30 border border-indigo-900/50 rounded p-2 text-indigo-200 text-xs italic flex items-start gap-2';
             thoughtDiv.innerHTML = `<i class="fa-solid fa-brain text-indigo-400 mt-0.5 shrink-0"></i><div>${escapeHtml(event.text)}</div>`;
@@ -754,6 +854,7 @@
             activityEl.scrollTop = activityEl.scrollHeight;
           } else if (event.type === 'tool_call') {
             setFadeWord(fadeWordEl, event.text || `Invoking tool: ${event.name}`);
+            setFadeWord(bottomFadeEl, `[${currentElapsed}s] ⚡ Intercepting tool: ${event.name}`);
             const toolDiv = document.createElement('div');
             toolDiv.className = 'bg-slate-950 p-2 rounded-lg border border-slate-800 text-amber-300 font-mono text-[10px] flex items-start gap-2';
             toolDiv.innerHTML = `
@@ -767,12 +868,14 @@
             activityEl.scrollTop = activityEl.scrollHeight;
           } else if (event.type === 'tool_response') {
             setFadeWord(fadeWordEl, event.text || `Result received from ${event.name}`);
+            setFadeWord(bottomFadeEl, `[${currentElapsed}s] 📥 Parsed MCP response from ${event.name}`);
             const respDiv = document.createElement('div');
             respDiv.className = 'bg-emerald-950/20 border border-emerald-900/30 p-1.5 rounded text-emerald-300 font-mono text-[10px] flex items-center gap-2';
             respDiv.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400 shrink-0"></i><span>${escapeHtml(event.text || `Tool ${event.name} returned execution results.`)}</span>`;
             activityEl.appendChild(respDiv);
             activityEl.scrollTop = activityEl.scrollHeight;
           } else if (event.type === 'chunk') {
+            setFadeWord(bottomFadeEl, `[${currentElapsed}s] ✨ Streaming response tokens from gemini-3.7-flash`);
             replyEl.classList.remove('hidden');
             replyEl.textContent += event.text;
             container.scrollTop = container.scrollHeight;
@@ -782,6 +885,9 @@
             indicator.innerHTML = '<i class="fa-solid fa-check"></i>';
             setFadeWord(fadeWordEl, `Completed in ${event.elapsed}s using ${service.toUpperCase()} Remote MCP`);
             fadeWordEl.className = 'text-xs font-semibold text-emerald-400';
+
+            setFadeWord(bottomFadeEl, `[${event.elapsed}s] ✨ Response completed successfully`);
+            if (bottomPulseEl) bottomPulseEl.className = 'w-2 h-2 rounded-full bg-emerald-400 shrink-0';
 
             replyEl.classList.remove('hidden');
             if (event.reply) {
@@ -794,6 +900,9 @@
             indicator.innerHTML = '<i class="fa-solid fa-xmark"></i>';
             setFadeWord(fadeWordEl, 'Execution encountered an error');
             fadeWordEl.className = 'text-xs font-semibold text-rose-400';
+
+            setFadeWord(bottomFadeEl, `[${event.elapsed}s] ⚠️ Execution failed`);
+            if (bottomPulseEl) bottomPulseEl.className = 'w-2 h-2 rounded-full bg-rose-400 shrink-0';
 
             const errBox = document.createElement('div');
             errBox.className = 'p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-300 text-xs space-y-2 mt-2';
@@ -829,7 +938,7 @@
 
     function sendQuickPrompt(promptText) {
       document.getElementById('messageInput').value = promptText;
-      document.getElementById('chatForm').dispatchEvent(new Event('submit'));
+      handleChatSubmit();
     }
 
     function appendMessage(role, text, toolActivity = []) {

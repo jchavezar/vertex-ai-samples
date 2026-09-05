@@ -50,8 +50,24 @@ While the public documentation provides the raw endpoints, deploying a productio
 * In `google-adk`, `McpToolset` silently catches the `ImportError`. All environments must pin `mcp>=1.2.0,<2.0.0` (e.g., `mcp==1.29.1`).
 
 ### E. Dual-Layer Token Architecture (AuthN vs. AuthZ)
-* **GCP Infrastructure Authorization**: Requires valid Google Cloud project attribution and IAM check.
-* **Workspace Data Authorization**: Requires granular OAuth scopes (e.g., `gmail.modify`, `drive.readonly`). Standard Google Cloud Platform scopes (`cloud-platform`) alone are **rejected** with `403 Forbidden` by the Workspace MCP gateway.
+* **GCP Infrastructure Authorization**: Requires valid Google Cloud project attribution (`x-goog-user-project`) and IAM check (`roles/mcp.toolUser`).
+* **Workspace Data Authorization**: Requires granular OAuth user scopes (e.g., `gmail.modify`, `drive.readonly`). Standard Google Cloud Platform Application Default Credentials (ADC) tokens carry only `cloud-platform` scope and are **rejected** with `403 Forbidden` by the Workspace MCP gateway.
+
+### F. Pre-Flight Auth Guard & Backend `before_tool_callback` Defense
+To prevent unhandled exceptions (`TaskGroup` failures or raw `403 Forbidden` errors from Google's ESF gateway) when a user tries to run Workspace commands without signing in:
+1. **Frontend Pre-Flight Guard (`beforeChatCallback`)**:
+   - Checks the user's active session authentication type (`currentAuthType`).
+   - If the user is unauthenticated or running under server-side ADC without user OAuth, the chat UI intercepts the submission **before** sending a network request.
+   - Renders an actionable in-chat card with an immediate **"Sign in with Google (Recommended)"** button and a secondary **"Proceed with ADC anyway"** option for developers testing edge cases.
+2. **Backend ADK Tool Interceptor (`before_tool_callback`)**:
+   - In ADK's `Agent`, we register `before_tool_callback=workspace_before_tool_callback`.
+   - If an unauthenticated or ADC-only request bypasses the frontend, ADK intercepts the tool execution before the remote MCP client issues an HTTP call.
+   - Returns a structured `AUTH_REQUIRED` status so Gemini 3.7 Flash politely explains to the user that Google Workspace authentication is required.
+
+### G. RFC 6749 Redirect URI Exact-Match Rule
+* Google's OAuth 2.0 authorization server strictly enforces RFC 6749 §4.1.3: the `redirect_uri` sent in the token exchange `POST https://oauth2.googleapis.com/token` must **identically match** the `redirect_uri` sent in the initial `GET accounts.google.com/o/oauth2/v2/auth`.
+* In Google Cloud Console, developers often register either root `http://localhost:8002` or the callback path `http://localhost:8002/api/auth/callback`.
+* The server dynamically tracks the effective redirect URI in the pending session state and supports both paths seamlessly, with an automatic SPA root redirect interceptor.
 
 ---
 

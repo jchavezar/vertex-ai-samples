@@ -34,7 +34,14 @@ Google Workspace documents its remote MCP servers under [Google Workspace Guides
      --role="roles/mcp.toolUser" --condition=None
    ```
 3. **Quota Header (`x-goog-user-project`)**: Every request must carry `x-goog-user-project: <PROJECT_ID>` alongside the Bearer token.
-4. **Dual-Layer Token Architecture**: The token must be an OAuth 2.0 token bearing Workspace user scopes (e.g., `gmail.modify`, `drive.readonly`). Standard `cloud-platform` tokens without user scopes return `403 Forbidden`.
+4. **Dual-Layer Token Architecture**: The token must be an OAuth 2.0 token bearing Workspace user scopes (e.g., `gmail.modify`, `drive.readonly`). Standard Google Cloud Platform Application Default Credentials (ADC) tokens carry only `cloud-platform` scope and are **rejected** with `403 Forbidden` by the Workspace MCP gateway.
+5. **Pre-Flight Auth Guard**:
+   - The frontend chat UI inspects the user's active session authentication type (`currentAuthType`) via `beforeChatCallback(text, service, forceAdc)`.
+   - If the user is unauthenticated or running under server-side ADC without user OAuth, submission is intercepted **before** dispatching a network call.
+   - Prompts the user with an actionable in-chat card with an immediate **"Sign in with Google (Recommended)"** button or an explicit **"Proceed with ADC anyway"** override.
+6. **RFC 6749 Redirect URI Exact-Match Rule**:
+   - Google's OAuth 2.0 authorization server strictly enforces that the `redirect_uri` sent in the token exchange `POST /token` identically matches the `redirect_uri` sent during initial consent.
+   - The server dynamically tracks the registered URI (whether `http://localhost:8003` root or `http://localhost:8003/api/auth/callback`) in the session state and includes an SPA root interceptor.
 
 ---
 

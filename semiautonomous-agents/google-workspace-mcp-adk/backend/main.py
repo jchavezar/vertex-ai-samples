@@ -247,13 +247,23 @@ class ChatRequest(BaseModel):
 # AuthN / AuthZ Endpoints
 # ---------------------------------------------------------------------------
 
-def get_effective_redirect_uri(request: Request) -> str:
+def get_effective_redirect_uri(request: Optional[Request] = None, override_uri: Optional[str] = None) -> str:
+    # 1. Explicit override from function parameter
+    if override_uri and override_uri.strip():
+        return override_uri.strip()
+    # 2. Query param from request (e.g., /api/auth/login?redirect_uri=...)
+    if request:
+        req_uri = request.query_params.get("redirect_uri")
+        if req_uri and req_uri.strip():
+            return req_uri.strip()
+    # 3. Environment or UI configured redirect_uri
     configured = (oauth_config.get("redirect_uri") or "").strip()
     if configured:
-        if "/api/auth/callback" in configured:
-            return configured
-        return f"{configured.rstrip('/')}/api/auth/callback"
-    return f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+        return configured
+    # 4. Fallback to host root (e.g. http://localhost:8002) matching GCP Console
+    if request:
+        return str(request.base_url).rstrip("/")
+    return "http://localhost:8002"
 
 
 @app.get("/api/auth/status")
@@ -285,7 +295,11 @@ async def get_auth_status(request: Request, response: Response):
 
 
 @app.get("/api/auth/login")
-async def oauth_login(request: Request, response: Response):
+async def oauth_login(
+    request: Request,
+    response: Response,
+    redirect_uri: Optional[str] = Query(None, description="Optional override redirect URI"),
+):
     """
     Initiates Google OAuth 2.0 flow for Customer AuthN + Workspace AuthZ.
     Redirects user to Google Consent Screen.
@@ -299,7 +313,7 @@ async def oauth_login(request: Request, response: Response):
             detail="OAuth Client ID not configured. Please configure it via the UI Settings modal.",
         )
 
-    callback_url = get_effective_redirect_uri(request)
+    callback_url = get_effective_redirect_uri(request, override_uri=redirect_uri)
     oauth_pending_states[session_id] = {
         "redirect_uri": callback_url,
         "timestamp": time.time(),
@@ -607,6 +621,24 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
 
             yield f"data: {json.dumps({'type': 'status', 'phase': 'handshake', 'text': f'Negotiating MCP protocol & loading {service.upper()} tool declarations...'})}\n\n"
 
+            async def workspace_before_tool_callback(tool, args, tool_context):
+                if auth_type == "adc":
+                    t_name = getattr(tool, "name", "workspace_tool")
+                    logger.info(f"Pre-tool callback intercepted '{t_name}': ADC mode requires Workspace OAuth")
+                    return {
+                        "status": "AUTH_REQUIRED",
+                        "error": "Google Workspace OAuth Required",
+                        "message": (
+                            f"Execution of tool '{t_name}' was intercepted by the pre-tool guard. "
+                            f"The user '{identity}' is currently using Application Default Credentials (ADC), "
+                            "which only grants Google Cloud infrastructure access ('cloud-platform' scope). "
+                            "To read, create, or update personal Gmail, Drive, Calendar, or Docs data, "
+                            "the user MUST sign in via Google OAuth. "
+                            "Please instruct the user to click the 'Sign in with Google' button in the top navigation bar to authenticate."
+                        ),
+                    }
+                return None
+
             agent = Agent(
                 name="workspace_adk_agent",
                 model="gemini-3.7-flash",
@@ -616,6 +648,7 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                     "You have access to native Workspace tools. Answer accurately and explain any actions clearly."
                 ),
                 tools=[workspace_toolset],
+                before_tool_callback=workspace_before_tool_callback,
             )
 
             runner = InMemoryRunner(agent=agent)
@@ -719,6 +752,24 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                 sse_read_timeout=300.0,
             ),
         )
+        async def workspace_before_tool_callback_sync(tool, args, tool_context):
+            if auth_type == "adc":
+                t_name = getattr(tool, "name", "workspace_tool")
+                logger.info(f"Pre-tool callback intercepted '{t_name}': ADC mode requires Workspace OAuth")
+                return {
+                    "status": "AUTH_REQUIRED",
+                    "error": "Google Workspace OAuth Required",
+                    "message": (
+                        f"Execution of tool '{t_name}' was intercepted by the pre-tool guard. "
+                        f"The user '{identity}' is currently using Application Default Credentials (ADC), "
+                        "which only grants Google Cloud infrastructure access ('cloud-platform' scope). "
+                        "To read, create, or update personal Gmail, Drive, Calendar, or Docs data, "
+                        "the user MUST sign in via Google OAuth. "
+                        "Please instruct the user to click the 'Sign in with Google' button in the top navigation bar to authenticate."
+                    ),
+                }
+            return None
+
         agent = Agent(
             name="workspace_adk_agent",
             model="gemini-3.7-flash",
@@ -728,6 +779,7 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                 "You have access to native Workspace tools. Answer accurately and explain any actions clearly."
             ),
             tools=[workspace_toolset],
+            before_tool_callback=workspace_before_tool_callback_sync,
         )
         runner = InMemoryRunner(agent=agent)
         adk_session = await runner.session_service.create_session(
@@ -776,7 +828,16 @@ if frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="static")
 
 @app.get("/")
-async def serve_index():
+async def serve_index(
+    request: Request,
+    response: Response,
+    code: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+):
+    if code or error:
+        return await oauth_callback(request, response, code=code, state=state, error=error)
+
     index_file = frontend_dir / "index.html"
     if index_file.exists():
         return FileResponse(

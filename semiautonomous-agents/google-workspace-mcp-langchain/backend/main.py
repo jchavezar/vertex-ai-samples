@@ -220,13 +220,23 @@ class ChatRequest(BaseModel):
     stream: Optional[bool] = Field(default=None, description="Stream response as SSE")
 
 
-def get_effective_redirect_uri(request: Request) -> str:
+def get_effective_redirect_uri(request: Optional[Request] = None, override_uri: Optional[str] = None) -> str:
+    # 1. Explicit override from function parameter
+    if override_uri and override_uri.strip():
+        return override_uri.strip()
+    # 2. Query param from request (e.g., /api/auth/login?redirect_uri=...)
+    if request:
+        req_uri = request.query_params.get("redirect_uri")
+        if req_uri and req_uri.strip():
+            return req_uri.strip()
+    # 3. Environment or UI configured redirect_uri
     configured = (oauth_config.get("redirect_uri") or "").strip()
     if configured:
-        if "/api/auth/callback" in configured:
-            return configured
-        return f"{configured.rstrip('/')}/api/auth/callback"
-    return f"{str(request.base_url).rstrip('/')}/api/auth/callback"
+        return configured
+    # 4. Fallback to host root (e.g. http://localhost:8003) matching GCP Console
+    if request:
+        return str(request.base_url).rstrip("/")
+    return "http://localhost:8003"
 
 
 @app.get("/api/auth/status")
@@ -259,7 +269,11 @@ async def get_auth_status(request: Request, response: Response):
 
 
 @app.get("/api/auth/login")
-async def oauth_login(request: Request, response: Response):
+async def oauth_login(
+    request: Request,
+    response: Response,
+    redirect_uri: Optional[str] = Query(None, description="Optional override redirect URI"),
+):
     session_id = get_or_create_session_id(request, response)
     client_id = oauth_config.get("client_id")
 
@@ -269,7 +283,7 @@ async def oauth_login(request: Request, response: Response):
             detail="OAuth Client ID not configured. Please configure it via the Credentials modal.",
         )
 
-    callback_url = get_effective_redirect_uri(request)
+    callback_url = get_effective_redirect_uri(request, override_uri=redirect_uri)
     oauth_pending_states[session_id] = {
         "redirect_uri": callback_url,
         "timestamp": time.time(),
@@ -668,7 +682,16 @@ if frontend_dir.exists():
     app.mount("/static", StaticFiles(directory=str(frontend_dir)), name="static")
 
 @app.get("/")
-async def serve_index():
+async def serve_index(
+    request: Request,
+    response: Response,
+    code: Optional[str] = None,
+    state: Optional[str] = None,
+    error: Optional[str] = None,
+):
+    if code or error:
+        return await oauth_callback(request, response, code=code, state=state, error=error)
+
     index_file = frontend_dir / "index.html"
     if index_file.exists():
         return FileResponse(
