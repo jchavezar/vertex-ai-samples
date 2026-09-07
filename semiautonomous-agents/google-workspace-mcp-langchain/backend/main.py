@@ -13,6 +13,7 @@ import logging
 from typing import Optional, Dict, Any, List
 from pathlib import Path
 from urllib.parse import urlencode
+import copy
 import subprocess
 
 import certifi
@@ -509,6 +510,82 @@ async def list_mcp_tools(request: Request, response: Response, service: str = Qu
         raise HTTPException(status_code=500, detail=f"Failed to query MCP tools: {str(e)}")
 
 
+ALLOWED_SCHEMA_FIELDS = {
+    "type", "description", "properties", "required", "items",
+    "enum", "default", "nullable", "title", "example", "pattern"
+}
+
+
+def clean_json_schema(raw_schema):
+    """Sanitizes JSON schema from MCP tools for Gemini FunctionDeclaration:
+    dereferences $ref from $defs, removes non-standard fields, and enforces Gemini spec."""
+    if not isinstance(raw_schema, dict):
+        return raw_schema
+
+    schema = copy.deepcopy(raw_schema)
+    defs = schema.pop("$defs", {})
+    if not defs and "definitions" in schema:
+        defs = schema.pop("definitions", {})
+
+    def resolve(node, depth=0):
+        if depth > 8:
+            return {"type": "string"}
+        if not isinstance(node, dict):
+            return node
+
+        if "$ref" in node:
+            ref_path = node["$ref"]
+            ref_name = ref_path.split("/")[-1]
+            if ref_name in defs:
+                return resolve(copy.deepcopy(defs[ref_name]), depth + 1)
+            else:
+                return {"type": "string"}
+
+        cleaned = {}
+        for k, v in node.items():
+            if k == "properties" and isinstance(v, dict):
+                cleaned["properties"] = {
+                    prop_k: resolve(prop_v, depth + 1)
+                    for prop_k, prop_v in v.items()
+                }
+            elif k in ALLOWED_SCHEMA_FIELDS:
+                if isinstance(v, dict):
+                    cleaned[k] = resolve(v, depth + 1)
+                elif isinstance(v, list):
+                    cleaned[k] = [resolve(i, depth + 1) if isinstance(i, dict) else i for i in v]
+                else:
+                    cleaned[k] = v
+        return cleaned
+
+    return resolve(schema)
+
+
+async def execute_mcp_tool_call(endpoint_url: str, headers: dict, tool_name: str, tool_args: dict) -> dict:
+    """Executes an MCP tool call over Streamable HTTP."""
+    call_id = int(time.time() * 1000) % 100000
+    call_payload = {
+        "jsonrpc": "2.0",
+        "id": call_id,
+        "method": "tools/call",
+        "params": {
+            "name": tool_name,
+            "arguments": tool_args or {},
+        },
+    }
+    try:
+        async with httpx.AsyncClient(headers=headers, timeout=30.0) as client:
+            res = await client.post(endpoint_url, json=call_payload)
+            if res.status_code == 200:
+                body = res.json()
+                if "error" in body:
+                    return {"error": body["error"]}
+                return body.get("result", {})
+            else:
+                return {"error": f"HTTP {res.status_code}: {res.text}"}
+    except Exception as exc:
+        return {"error": str(exc)}
+
+
 @app.post("/api/chat")
 async def chat_with_agent(request: Request, response: Response, req: ChatRequest):
     session_id = get_or_create_session_id(request, response)
@@ -564,7 +641,7 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
 
             yield f"data: {json.dumps({'type': 'status', 'phase': 'handshake', 'text': f'Discovered {len(mcp_tools)} tools from {service.upper()} Remote MCP.'})}\n\n"
 
-            # Step 2: Invoke model with GenAI & Gemini 3.7 Flash
+            # Step 2: Configure Gemini Function Calling with MCP tools
             yield f"data: {json.dumps({'type': 'status', 'phase': 'reasoning', 'text': 'LangChain reasoning with gemini-3.7-flash...'})}\n\n"
 
             genai_client = genai.Client(
@@ -573,27 +650,110 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                 location="global",
             )
 
-            tools_summary = "\n".join([f"- {t.get('name')}: {t.get('description', '').splitlines()[0]}" for t in mcp_tools[:12]])
+            function_declarations = []
+            for t in mcp_tools:
+                t_name = t.get("name")
+                if not t_name:
+                    continue
+                raw_schema = t.get("inputSchema", {}) or {"type": "object", "properties": {}}
+                cleaned = clean_json_schema(raw_schema)
+                function_declarations.append(
+                    types.FunctionDeclaration(
+                        name=t_name,
+                        description=t.get("description", "") or f"Executes {t_name}",
+                        parameters=cleaned,
+                    )
+                )
 
-            system_prompt = (
-                f"You are an enterprise AI assistant built with LangChain and integrated with Google Workspace ({service.upper()}) "
-                f"via Model Context Protocol (Streamable HTTP).\n"
-                f"User Identity: {identity} | Google Cloud Project: {project_id}\n"
-                f"Available MCP Tools on {endpoint_url}:\n{tools_summary}\n"
-                f"Provide helpful, accurate answers explaining which Workspace tools execute each task."
+            tool_config = types.Tool(function_declarations=function_declarations) if function_declarations else None
+            tools_list = [tool_config] if tool_config else []
+
+            system_instruction = (
+                f"You are an enterprise AI assistant integrated with Google Workspace ({service.upper()}) "
+                f"via Model Context Protocol. You are operating on behalf of authenticated user '{identity}' "
+                f"in Google Cloud project '{project_id}'.\n"
+                f"You have direct access to live {service.upper()} tools via MCP.\n"
+                f"CRITICAL INSTRUCTIONS:\n"
+                f"1. When the user asks to read, find, list, search, compose, or manage emails, calendar events, documents, or drive files, "
+                f"YOU MUST INVOKE the corresponding MCP tool(s) to fetch or process real data.\n"
+                f"2. Never just describe what tools to run or output a manual step-by-step plan when you have tools available. "
+                f"Always execute the tool call directly.\n"
+                f"3. After receiving tool results, provide a clear, accurate, and concise answer directly answering the user's question."
             )
 
-            response_gen = await asyncio.to_thread(
-                genai_client.models.generate_content,
-                model="gemini-3.7-flash",
-                contents=[
-                    types.Content(role="user", parts=[types.Part.from_text(text=f"{system_prompt}\n\nUser Question: {req.message}")])
-                ],
+            config = types.GenerateContentConfig(
+                temperature=0.2,
+                system_instruction=system_instruction,
+                tools=tools_list,
             )
 
-            full_reply = response_gen.text.strip() if response_gen.text else "Request processed."
+            contents = [
+                types.Content(role="user", parts=[types.Part.from_text(text=req.message)])
+            ]
 
-            if auth_type == "adc":
+            max_turns = 6
+            tool_activity = []
+            final_reply = ""
+
+            for turn in range(max_turns):
+                response_gen = await asyncio.to_thread(
+                    genai_client.models.generate_content,
+                    model="gemini-3.7-flash",
+                    contents=contents,
+                    config=config,
+                )
+
+                if not response_gen.candidates:
+                    break
+
+                candidate = response_gen.candidates[0]
+                contents.append(candidate.content)
+
+                if candidate.content and candidate.content.parts:
+                    for p in candidate.content.parts:
+                        thought_val = getattr(p, "thought", None)
+                        if thought_val and isinstance(thought_val, str) and thought_val.strip():
+                            yield f"data: {json.dumps({'type': 'thought', 'text': thought_val.strip()})}\n\n"
+
+                function_calls = response_gen.function_calls
+                if function_calls:
+                    tool_responses_parts = []
+                    for fn in function_calls:
+                        c_name = fn.name
+                        c_args = dict(fn.args or {})
+                        args_preview = ", ".join(f"{k}={repr(v)[:20]}" for k, v in list(c_args.items())[:2])
+                        yield f"data: {json.dumps({'type': 'tool_call', 'name': c_name, 'args': c_args, 'text': f'Invoking tool: {c_name}({args_preview})'})}\n\n"
+                        tool_activity.append({"type": "call", "name": c_name, "args": c_args})
+
+                        if auth_type == "adc":
+                            tool_output = {
+                                "status": "AUTH_REQUIRED",
+                                "error": "Google Workspace OAuth Required",
+                                "message": (
+                                    f"Tool '{c_name}' was intercepted: ADC token lacks Google Workspace user scopes. "
+                                    "The user must click 'Sign in with Google' to authenticate."
+                                ),
+                            }
+                        else:
+                            tool_output = await execute_mcp_tool_call(endpoint_url, headers, c_name, c_args)
+
+                        yield f"data: {json.dumps({'type': 'tool_response', 'name': c_name, 'text': f'Result received from {c_name}'})}\n\n"
+                        tool_activity.append({"type": "response", "name": c_name, "response": str(tool_output)[:500]})
+
+                        tool_responses_parts.append(
+                            types.Part.from_function_response(
+                                name=c_name,
+                                response={"result": tool_output},
+                            )
+                        )
+
+                    contents.append(types.Content(role="tool", parts=tool_responses_parts))
+                else:
+                    text_parts = [p.text for p in candidate.content.parts if p.text]
+                    final_reply = "".join(text_parts).strip()
+                    break
+
+            if auth_type == "adc" and not any(t.get("type") == "call" for t in tool_activity):
                 scope_notice = (
                     f"\n\n> ℹ️ **Google Workspace Scope Notice**: The active ADC token has Google Cloud Platform scope (`cloud-platform`), but lacks the end-user OAuth scope required for {service.title()}.\n"
                     f"> - **Option A (Web)**: Click **'Sign in with Google'** at the top right to grant Workspace scopes.\n"
@@ -602,12 +762,15 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                     f">   gcloud auth application-default login --scopes=\"https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly\"\n"
                     f">   ```"
                 )
-                full_reply += scope_notice
+                final_reply += scope_notice
 
-            yield f"data: {json.dumps({'type': 'chunk', 'text': full_reply})}\n\n"
+            if not final_reply:
+                final_reply = f"I processed your request using the {service.title()} MCP integration."
+
+            yield f"data: {json.dumps({'type': 'chunk', 'text': final_reply})}\n\n"
 
             elapsed = round(time.time() - start_time, 2)
-            yield f"data: {json.dumps({'type': 'done', 'reply': full_reply, 'tool_activity': [], 'elapsed': elapsed})}\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'reply': final_reply, 'tool_activity': tool_activity, 'elapsed': elapsed})}\n\n"
 
         except Exception as e:
             err_msg = str(e)
@@ -648,33 +811,103 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
             project=project_id,
             location="global",
         )
-        tools_summary = "\n".join([f"- {t.get('name')}: {t.get('description', '').splitlines()[0]}" for t in mcp_tools[:12]])
-        system_prompt = (
-            f"You are an enterprise AI assistant built with LangChain and integrated with Google Workspace ({service.upper()}) "
-            f"via Model Context Protocol (Streamable HTTP).\n"
-            f"User Identity: {identity} | Google Cloud Project: {project_id}\n"
-            f"Available MCP Tools on {endpoint_url}:\n{tools_summary}\n"
-            f"Provide helpful, accurate answers explaining which Workspace tools execute each task."
-        )
-        response_gen = await asyncio.to_thread(
-            genai_client.models.generate_content,
-            model="gemini-3.7-flash",
-            contents=[
-                types.Content(role="user", parts=[types.Part.from_text(text=f"{system_prompt}\n\nUser Question: {req.message}")])
-            ],
-        )
-        full_reply = response_gen.text.strip() if response_gen.text else "Request processed."
-        if auth_type == "adc":
-            full_reply += (
-                f"\n\n> ℹ️ **Google Workspace Scope Notice**: The active ADC token has Google Cloud Platform scope (`cloud-platform`), but lacks the end-user OAuth scope required for {service.title()}.\n"
-                f"> - **Option A (Web)**: Click **'Sign in with Google'** at the top right to grant Workspace scopes.\n"
-                f"> - **Option B (Terminal)**: Re-login ADC with Workspace scopes:\n"
-                f">   ```bash\n"
-                f">   gcloud auth application-default login --scopes=\"https://www.googleapis.com/auth/cloud-platform,https://www.googleapis.com/auth/gmail.modify,https://www.googleapis.com/auth/drive.readonly,https://www.googleapis.com/auth/calendar,https://www.googleapis.com/auth/documents.readonly,https://www.googleapis.com/auth/spreadsheets.readonly\"\n"
-                f">   ```"
+
+        function_declarations = []
+        for t in mcp_tools:
+            t_name = t.get("name")
+            if not t_name:
+                continue
+            raw_schema = t.get("inputSchema", {}) or {"type": "object", "properties": {}}
+            cleaned = clean_json_schema(raw_schema)
+            function_declarations.append(
+                types.FunctionDeclaration(
+                    name=t_name,
+                    description=t.get("description", "") or f"Executes {t_name}",
+                    parameters=cleaned,
+                )
             )
+
+        tool_config = types.Tool(function_declarations=function_declarations) if function_declarations else None
+        tools_list = [tool_config] if tool_config else []
+
+        system_instruction = (
+            f"You are an enterprise AI assistant integrated with Google Workspace ({service.upper()}) "
+            f"via Model Context Protocol. You are operating on behalf of authenticated user '{identity}' "
+            f"in Google Cloud project '{project_id}'.\n"
+            f"You have direct access to live {service.upper()} tools via MCP.\n"
+            f"CRITICAL INSTRUCTIONS:\n"
+            f"1. When the user asks to read, find, list, search, compose, or manage emails, calendar events, documents, or drive files, "
+            f"YOU MUST INVOKE the corresponding MCP tool(s) to fetch or process real data.\n"
+            f"2. Never just describe what tools to run or output a manual step-by-step plan when you have tools available. "
+            f"Always execute the tool call directly.\n"
+            f"3. After receiving tool results, provide a clear, accurate, and concise answer directly answering the user's question."
+        )
+
+        config = types.GenerateContentConfig(
+            temperature=0.2,
+            system_instruction=system_instruction,
+            tools=tools_list,
+        )
+
+        contents = [
+            types.Content(role="user", parts=[types.Part.from_text(text=req.message)])
+        ]
+
+        max_turns = 6
+        tool_activity = []
+        final_reply = ""
+
+        for turn in range(max_turns):
+            response_gen = await asyncio.to_thread(
+                genai_client.models.generate_content,
+                model="gemini-3.7-flash",
+                contents=contents,
+                config=config,
+            )
+
+            if not response_gen.candidates:
+                break
+
+            candidate = response_gen.candidates[0]
+            contents.append(candidate.content)
+
+            function_calls = response_gen.function_calls
+            if function_calls:
+                tool_responses_parts = []
+                for fn in function_calls:
+                    c_name = fn.name
+                    c_args = dict(fn.args or {})
+                    tool_activity.append({"type": "call", "name": c_name, "args": c_args})
+
+                    if auth_type == "adc":
+                        tool_output = {
+                            "status": "AUTH_REQUIRED",
+                            "error": "Google Workspace OAuth Required",
+                            "message": "ADC token lacks Google Workspace user scopes. Please sign in with Google.",
+                        }
+                    else:
+                        tool_output = await execute_mcp_tool_call(endpoint_url, headers, c_name, c_args)
+
+                    tool_activity.append({"type": "response", "name": c_name, "response": str(tool_output)[:500]})
+
+                    tool_responses_parts.append(
+                        types.Part.from_function_response(
+                            name=c_name,
+                            response={"result": tool_output},
+                        )
+                    )
+
+                contents.append(types.Content(role="tool", parts=tool_responses_parts))
+            else:
+                text_parts = [p.text for p in candidate.content.parts if p.text]
+                final_reply = "".join(text_parts).strip()
+                break
+
+        if not final_reply:
+            final_reply = f"I processed your request using the {service.title()} MCP integration."
+
         elapsed = round(time.time() - start_time, 2)
-        return JSONResponse({"reply": full_reply, "tool_activity": [], "elapsed": elapsed, "stream": False})
+        return JSONResponse({"reply": final_reply, "tool_activity": tool_activity, "elapsed": elapsed, "stream": False})
     except Exception as e:
         elapsed = round(time.time() - start_time, 2)
         return JSONResponse(status_code=500, content={"reply": f"Error executing LangChain agent: {str(e)}", "error": str(e), "elapsed": elapsed})
