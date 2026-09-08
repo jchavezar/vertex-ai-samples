@@ -4,7 +4,62 @@ This repository contains an enterprise-ready showcase demonstrating how **Google
 
 ---
 
-## 1. Original Google Documentation vs. Real-World Requirements
+## 1. The 15-Line Quickstart (Pure ADK + Remote MCP)
+
+The core integration between **Google ADK** and **Google Workspace Remote MCP** is **only ~15 lines of code**. You do not need hundreds of lines to use ADK with MCP:
+
+```python
+import asyncio, os
+from google.adk.agents import Agent
+from google.adk.runners import InMemoryRunner
+from google.adk.tools.mcp_tool import McpToolset
+from google.adk.tools.mcp_tool.mcp_session_manager import StreamableHTTPConnectionParams
+from google.genai import types
+
+async def main():
+    # 1. Connect ADK to Workspace Remote MCP in a single declaration
+    toolset = McpToolset(
+        connection_params=StreamableHTTPConnectionParams(
+            url="https://gmailmcp.googleapis.com/mcp/v1",
+            headers={"Authorization": f"Bearer {os.environ['GOOGLE_WORKSPACE_TOKEN']}", "x-goog-user-project": "vtxdemos"},
+        )
+    )
+    # 2. Declare Agent with Gemini 3.7 Flash
+    agent = Agent(name="gmail_assistant", model="gemini-3.7-flash", tools=[toolset])
+    
+    # 3. Execute query with ADK Runner
+    runner = InMemoryRunner(agent=agent)
+    session = await runner.session_service.create_session(app_name=runner.app_name, user_id="user")
+    async for event in runner.run_async(
+        session_id=session.id,
+        user_id="user",
+        new_message=types.Content(parts=[types.Part.from_text(text="What draft tools do I have?")]),
+    ):
+        if event.content and event.content.parts:
+            for part in event.content.parts:
+                if part.text: print(part.text, end="", flush=True)
+
+asyncio.run(main())
+```
+
+> **Try it yourself**: See [quickstart.py](quickstart.py) for the ready-to-run script.
+
+### Why Does `backend/main.py` Have ~800 Lines?
+
+`backend/main.py` is not just an ADK agent; it is a **production-grade multi-tenant web application**. The line count is distributed as follows:
+
+| Architectural Component | Lines | Purpose |
+| :--- | :--- | :--- |
+| **Pure Google ADK Core** | **~15 lines** | `McpToolset` declaration + `Agent(model="gemini-3.7-flash", tools=[toolset])` + `InMemoryRunner`. |
+| **OAuth 2.0 PKCE Server** | **~250 lines** | Handles Google Accounts sign-in redirects, authorization code exchange, refresh token rotation, encrypted cookies, and multi-session persistence. |
+| **Real-Time UI SSE Streaming Bridge** | **~200 lines** | Converts ADK's internal async event loop into browser Server-Sent Events (live thinking tokens, tool execution badges, latency tracking). |
+| **Dynamic MCP Tool Explorer API** | **~150 lines** | Discovers and exposes schemas across Gmail, Drive, Calendar, Docs to populate the interactive frontend UI sidebar. |
+| **ADK `TaskGroup` Crash Defense** | **~50 lines** | `before_tool_callback` hook that intercepts 403 Forbidden errors before they trigger unhandled `asyncio.TaskGroup` crashes when unauthenticated. |
+| **Static Web Server & Setup APIs** | **~50 lines** | Serves the frontend single-page application and handles in-app credentials configuration. |
+
+---
+
+## 2. Original Google Documentation vs. Real-World Requirements
 
 ### The Official Documentation Contract
 Google Workspace documents its remote MCP servers under [Google Workspace Guides: Configure MCP Servers](https://developers.google.com/workspace/guides/configure-mcp-servers#others):
@@ -24,7 +79,7 @@ Google Workspace documents its remote MCP servers under [Google Workspace Guides
 
 ---
 
-## 2. Discovered Missing Configurations & Undocumented Realities
+## 3. Discovered Missing Configurations & Undocumented Realities
 
 While the public documentation provides the raw endpoints, deploying a production agent requires solving critical undocumented security and infrastructure gates:
 
@@ -71,7 +126,7 @@ To prevent unhandled exceptions (`TaskGroup` failures or raw `403 Forbidden` err
 
 ---
 
-## 3. End-to-End Customer AuthN & AuthZ Architecture
+## 4. End-to-End Customer AuthN & AuthZ Architecture
 
 ```mermaid
 sequenceDiagram
@@ -116,7 +171,7 @@ sequenceDiagram
 
 ---
 
-## 4. Customer Onboarding & Setup Guide
+## 5. Customer Onboarding & Setup Guide
 
 ### Where to Go Quick Reference Map
 Use this table as your master checklist for configuring Google Cloud and Workspace:
@@ -224,7 +279,7 @@ Choose whichever method you prefer:
 
 ---
 
-## 5. Live Verification & End-to-End Execution Proof
+## 6. Live Verification & End-to-End Execution Proof
 
 The following screenshot demonstrates the fully operational showcase in a live browser session with an authenticated Google Workspace customer account:
 
@@ -246,7 +301,7 @@ The following screenshot demonstrates the fully operational showcase in a live b
 
 ---
 
-## 6. Running & Testing the Application
+## 7. Running & Testing the Application
 
 ### 1. Install Dependencies
 ```bash
@@ -277,7 +332,7 @@ python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8002
 
 ---
 
-## 7. Troubleshooting Guide
+## 8. Troubleshooting Guide
 
 | Issue / Error | Where It Appears | Root Cause | Exact Resolution |
 | :--- | :--- | :--- | :--- |
