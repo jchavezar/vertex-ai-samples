@@ -427,6 +427,12 @@
       return clean.substring(0, 2).toUpperCase();
     }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const sidParam = urlParams.get('session_id');
+    if (sidParam) {
+      document.cookie = `mcp_session_id_langchain=${sidParam}; path=/; max-age=2592000`;
+    }
+
     async function loadAuthStatus() {
       try {
         const res = await fetch('/api/auth/status');

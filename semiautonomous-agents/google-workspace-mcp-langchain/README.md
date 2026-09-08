@@ -208,7 +208,29 @@ Choose whichever method you prefer:
 
 ---
 
-## 6. Running & Testing the Application
+## 6. Live Verification & End-to-End Execution Proof
+
+The following screenshot demonstrates the fully operational showcase in a live browser session with an authenticated Google Workspace customer account:
+
+![Live Execution: Authenticated Workspace MCP Tool Execution](docs/screenshots/live_execution_authenticated_gmail.png)
+
+### What is Verified in this Execution Trace:
+1. **Authenticated Customer Session**:
+   - The user `Jesus Chavez` (`admin@jesusarguelles.altostrat.com`) is authenticated via Google OAuth 2.0 with granted Workspace scopes.
+   - Profile avatar, email, and GCP project attribution (`vtxdemos`) are actively bound to the MCP session.
+2. **Dynamic Tool Discovery**:
+   - The agent connected to `https://gmailmcp.googleapis.com/mcp/v1` via Streamable HTTP POST and discovered 23 native Gmail tools (`search_threads`, `get_message`, `create_draft`, etc.).
+3. **Autonomous Multi-Step Tool Invocation**:
+   - **User Query**: `"what was my last email?"`
+   - **Autonomous Planning**: `gemini-3.7-flash` inspected the available tool registry and selected `search_threads({"pageSize": 5})`.
+   - **Data Fetch**: Upon inspecting the thread list, the agent invoked `get_message({"messageId": "1a068400a0bc5ba5", "messageFormat": "PLAIN_TEXT"})` to extract full message headers and body.
+   - **Information Synthesis**: The agent synthesized and presented real-world email data (an automated weekly digest from Jira with assigned bug tickets and links).
+4. **Interactive UX & Chunk Thinking**:
+   - Displays real-time chunk thinking telemetry (`Completed in 11.2s using GMAIL Remote MCP`), live tool call parameters, and parsed output receipts.
+
+---
+
+## 7. Running & Testing the Application
 
 ### 1. Install Dependencies
 ```bash
@@ -239,7 +261,7 @@ python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8003
 
 ---
 
-## 7. Troubleshooting Guide
+## 8. Troubleshooting Guide
 
 | Issue / Error | Where It Appears | Root Cause | Exact Resolution |
 | :--- | :--- | :--- | :--- |
