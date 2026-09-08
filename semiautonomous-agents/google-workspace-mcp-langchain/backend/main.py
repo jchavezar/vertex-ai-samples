@@ -10,7 +10,8 @@ import uuid
 import json
 import asyncio
 import logging
-from typing import Optional, Dict, Any, List
+import operator
+from typing import Optional, Dict, Any, List, Sequence, Annotated, TypedDict
 from pathlib import Path
 from urllib.parse import urlencode
 import copy
@@ -31,6 +32,10 @@ from google.auth.transport.requests import Request as GoogleAuthRequest
 from google import genai
 from google.genai import types
 import dotenv
+
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
+from langchain_core.tools import StructuredTool
+from langgraph.graph import StateGraph, START, END
 
 # Automatically load .env from project root with override=True
 dotenv.load_dotenv(Path(__file__).parent.parent / ".env", override=True)
@@ -78,6 +83,29 @@ WORKSPACE_ENDPOINTS = {
 
 user_sessions: Dict[str, Dict[str, Any]] = {}
 custom_test_token: Optional[str] = None
+SESSION_CACHE_FILE = Path(__file__).parent / ".session_tokens.json"
+
+
+def load_cached_sessions():
+    if SESSION_CACHE_FILE.exists():
+        try:
+            with open(SESSION_CACHE_FILE, "r") as f:
+                data = json.load(f)
+                user_sessions.update(data)
+                logger.info(f"Loaded {len(data)} cached session(s) from {SESSION_CACHE_FILE}")
+        except Exception as e:
+            logger.warning(f"Failed to load session cache: {e}")
+
+
+def save_cached_sessions():
+    try:
+        with open(SESSION_CACHE_FILE, "w") as f:
+            json.dump(user_sessions, f)
+    except Exception as e:
+        logger.warning(f"Failed to save session cache: {e}")
+
+
+load_cached_sessions()
 
 app = FastAPI(
     title="LangChain Workspace MCP Assistant - Multi-Tenant Auth",
@@ -95,16 +123,45 @@ app.add_middleware(
 
 
 def get_or_create_session_id(request: Request, response: Response) -> str:
-    session_id = request.cookies.get("mcp_session_id_langchain")
-    if not session_id or session_id not in user_sessions:
-        session_id = str(uuid.uuid4())
+    # 1. Query parameter override
+    query_session = request.query_params.get("session_id")
+    if query_session and query_session in user_sessions:
         response.set_cookie(
             key="mcp_session_id_langchain",
-            value=session_id,
-            httponly=True,
+            value=query_session,
+            httponly=False,
             samesite="lax",
             max_age=30 * 24 * 3600,
         )
+        return query_session
+
+    # 2. Existing cookie matching active session
+    session_id = request.cookies.get("mcp_session_id_langchain")
+    if session_id and session_id in user_sessions:
+        return session_id
+
+    # 3. Default to active authenticated session if available
+    auth_sessions = [sid for sid, s in user_sessions.items() if s.get("user_info")]
+    if auth_sessions:
+        latest = auth_sessions[-1]
+        response.set_cookie(
+            key="mcp_session_id_langchain",
+            value=latest,
+            httponly=False,
+            samesite="lax",
+            max_age=30 * 24 * 3600,
+        )
+        return latest
+
+    # 4. Generate new anonymous session
+    session_id = str(uuid.uuid4())
+    response.set_cookie(
+        key="mcp_session_id_langchain",
+        value=session_id,
+        httponly=False,
+        samesite="lax",
+        max_age=30 * 24 * 3600,
+    )
     return session_id
 
 
@@ -586,6 +643,159 @@ async def execute_mcp_tool_call(endpoint_url: str, headers: dict, tool_name: str
         return {"error": str(exc)}
 
 
+class WorkspaceAgentState(TypedDict):
+    """LangGraph agent state containing message history and thought telemetry."""
+    messages: Annotated[Sequence[BaseMessage], operator.add]
+    thought_chunks: Annotated[List[str], operator.add]
+
+
+def create_workspace_langchain_tool(
+    tool_def: Dict[str, Any],
+    endpoint_url: str,
+    headers: dict,
+    auth_type: str,
+) -> StructuredTool:
+    """Wraps a Google Workspace Remote MCP tool as an authentic LangChain StructuredTool."""
+    tool_name = tool_def["name"]
+    desc = tool_def.get("description", "") or f"Executes {tool_name} via Google Workspace Remote MCP"
+
+    async def _async_exec(**kwargs):
+        if auth_type == "adc":
+            return {
+                "status": "AUTH_REQUIRED",
+                "error": "Google Workspace OAuth Required",
+                "message": (
+                    f"Tool '{tool_name}' was intercepted: ADC token lacks Google Workspace user scopes. "
+                    "The user must click 'Sign in with Google' to authenticate."
+                ),
+            }
+        return await execute_mcp_tool_call(endpoint_url, headers, tool_name, kwargs)
+
+    return StructuredTool.from_function(
+        coroutine=_async_exec,
+        func=lambda **kw: asyncio.run(_async_exec(**kw)),
+        name=tool_name,
+        description=desc,
+    )
+
+
+def build_workspace_agent_graph(
+    tools_by_name: Dict[str, StructuredTool],
+    function_declarations: List[types.FunctionDeclaration],
+    genai_client: genai.Client,
+    system_instruction: str,
+):
+    """Compiles a LangGraph StateGraph ReAct agent that coordinates reasoning with Gemini 3.7 Flash
+    and tool execution via LangChain StructuredTools calling Google Workspace Remote MCP."""
+    tool_config = types.Tool(function_declarations=function_declarations) if function_declarations else None
+    tools_list = [tool_config] if tool_config else []
+    config = types.GenerateContentConfig(
+        temperature=0.2,
+        system_instruction=system_instruction,
+        tools=tools_list,
+    )
+
+    async def agent_node(state: WorkspaceAgentState) -> Dict[str, Any]:
+        contents: List[types.Content] = []
+        for msg in state["messages"]:
+            if isinstance(msg, HumanMessage):
+                contents.append(types.Content(role="user", parts=[types.Part.from_text(text=msg.content)]))
+            elif isinstance(msg, AIMessage):
+                parts: List[types.Part] = []
+                if msg.content:
+                    parts.append(types.Part.from_text(text=msg.content))
+                if getattr(msg, "tool_calls", None):
+                    for tc in msg.tool_calls:
+                        parts.append(types.Part.from_function_call(name=tc["name"], args=tc["args"]))
+                contents.append(types.Content(role="model", parts=parts))
+            elif isinstance(msg, ToolMessage):
+                try:
+                    tool_res_val = json.loads(msg.content)
+                except Exception:
+                    tool_res_val = msg.content
+                contents.append(
+                    types.Content(
+                        role="tool",
+                        parts=[
+                            types.Part.from_function_response(
+                                name=msg.name,
+                                response={"result": tool_res_val},
+                            )
+                        ],
+                    )
+                )
+
+        response_gen = await asyncio.to_thread(
+            genai_client.models.generate_content,
+            model="gemini-3.7-flash",
+            contents=contents,
+            config=config,
+        )
+
+        thoughts = []
+        candidate = response_gen.candidates[0] if response_gen.candidates else None
+        if candidate and candidate.content and candidate.content.parts:
+            for p in candidate.content.parts:
+                th = getattr(p, "thought", None)
+                if th and isinstance(th, str) and th.strip():
+                    thoughts.append(th.strip())
+
+        text_content = ""
+        if candidate and candidate.content and candidate.content.parts:
+            text_parts = [p.text for p in candidate.content.parts if p.text]
+            text_content = "".join(text_parts).strip()
+
+        tool_calls = []
+        if response_gen.function_calls:
+            for idx, fc in enumerate(response_gen.function_calls):
+                tool_calls.append({
+                    "name": fc.name,
+                    "args": dict(fc.args or {}),
+                    "id": f"call_{fc.name}_{idx}_{int(time.time()*1000)}"
+                })
+
+        return {
+            "messages": [AIMessage(content=text_content, tool_calls=tool_calls)],
+            "thought_chunks": thoughts,
+        }
+
+    async def tool_node(state: WorkspaceAgentState) -> Dict[str, Any]:
+        last_msg = state["messages"][-1]
+        tool_messages: List[ToolMessage] = []
+        if isinstance(last_msg, AIMessage) and getattr(last_msg, "tool_calls", None):
+            for tc in last_msg.tool_calls:
+                t_name = tc["name"]
+                t_args = tc["args"]
+                tool_instance = tools_by_name.get(t_name)
+                if tool_instance:
+                    res = await tool_instance.ainvoke(t_args)
+                else:
+                    res = {"error": f"Tool '{t_name}' not found"}
+                tool_messages.append(
+                    ToolMessage(
+                        content=json.dumps(res) if isinstance(res, (dict, list)) else str(res),
+                        name=t_name,
+                        tool_call_id=tc["id"],
+                    )
+                )
+        return {"messages": tool_messages, "thought_chunks": []}
+
+    def should_continue(state: WorkspaceAgentState) -> str:
+        last_msg = state["messages"][-1]
+        if isinstance(last_msg, AIMessage) and getattr(last_msg, "tool_calls", None):
+            return "tools"
+        return END
+
+    workflow = StateGraph(WorkspaceAgentState)
+    workflow.add_node("agent", agent_node)
+    workflow.add_node("tools", tool_node)
+    workflow.add_edge(START, "agent")
+    workflow.add_conditional_edges("agent", should_continue, {"tools": "tools", END: END})
+    workflow.add_edge("tools", "agent")
+
+    return workflow.compile()
+
+
 @app.post("/api/chat")
 async def chat_with_agent(request: Request, response: Response, req: ChatRequest):
     session_id = get_or_create_session_id(request, response)
@@ -681,77 +891,53 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                 f"3. After receiving tool results, provide a clear, accurate, and concise answer directly answering the user's question."
             )
 
-            config = types.GenerateContentConfig(
-                temperature=0.2,
+            # Step 2: Convert discovered MCP tools into LangChain StructuredTool instances
+            langchain_tools = [
+                create_workspace_langchain_tool(t, endpoint_url, headers, auth_type)
+                for t in mcp_tools
+            ]
+            tools_by_name = {t.name: t for t in langchain_tools}
+
+            # Step 3: Build and compile the LangGraph ReAct agent workflow
+            agent_graph = build_workspace_agent_graph(
+                tools_by_name=tools_by_name,
+                function_declarations=function_declarations,
+                genai_client=genai_client,
                 system_instruction=system_instruction,
-                tools=tools_list,
             )
 
-            contents = [
-                types.Content(role="user", parts=[types.Part.from_text(text=req.message)])
-            ]
+            yield f"data: {json.dumps({'type': 'status', 'phase': 'reasoning', 'text': 'LangGraph agent coordinating reasoning with gemini-3.7-flash...'})}\n\n"
 
-            max_turns = 6
-            tool_activity = []
+            initial_state: WorkspaceAgentState = {
+                "messages": [HumanMessage(content=req.message)],
+                "thought_chunks": [],
+            }
+
             final_reply = ""
+            tool_activity = []
 
-            for turn in range(max_turns):
-                response_gen = await asyncio.to_thread(
-                    genai_client.models.generate_content,
-                    model="gemini-3.7-flash",
-                    contents=contents,
-                    config=config,
-                )
+            async for event in agent_graph.astream(initial_state, stream_mode="updates"):
+                for node_name, updates in event.items():
+                    if node_name == "agent":
+                        for th in updates.get("thought_chunks", []):
+                            yield f"data: {json.dumps({'type': 'thought', 'text': th})}\n\n"
 
-                if not response_gen.candidates:
-                    break
-
-                candidate = response_gen.candidates[0]
-                contents.append(candidate.content)
-
-                if candidate.content and candidate.content.parts:
-                    for p in candidate.content.parts:
-                        thought_val = getattr(p, "thought", None)
-                        if thought_val and isinstance(thought_val, str) and thought_val.strip():
-                            yield f"data: {json.dumps({'type': 'thought', 'text': thought_val.strip()})}\n\n"
-
-                function_calls = response_gen.function_calls
-                if function_calls:
-                    tool_responses_parts = []
-                    for fn in function_calls:
-                        c_name = fn.name
-                        c_args = dict(fn.args or {})
-                        args_preview = ", ".join(f"{k}={repr(v)[:20]}" for k, v in list(c_args.items())[:2])
-                        yield f"data: {json.dumps({'type': 'tool_call', 'name': c_name, 'args': c_args, 'text': f'Invoking tool: {c_name}({args_preview})'})}\n\n"
-                        tool_activity.append({"type": "call", "name": c_name, "args": c_args})
-
-                        if auth_type == "adc":
-                            tool_output = {
-                                "status": "AUTH_REQUIRED",
-                                "error": "Google Workspace OAuth Required",
-                                "message": (
-                                    f"Tool '{c_name}' was intercepted: ADC token lacks Google Workspace user scopes. "
-                                    "The user must click 'Sign in with Google' to authenticate."
-                                ),
-                            }
-                        else:
-                            tool_output = await execute_mcp_tool_call(endpoint_url, headers, c_name, c_args)
-
-                        yield f"data: {json.dumps({'type': 'tool_response', 'name': c_name, 'text': f'Result received from {c_name}'})}\n\n"
-                        tool_activity.append({"type": "response", "name": c_name, "response": str(tool_output)[:500]})
-
-                        tool_responses_parts.append(
-                            types.Part.from_function_response(
-                                name=c_name,
-                                response={"result": tool_output},
-                            )
-                        )
-
-                    contents.append(types.Content(role="tool", parts=tool_responses_parts))
-                else:
-                    text_parts = [p.text for p in candidate.content.parts if p.text]
-                    final_reply = "".join(text_parts).strip()
-                    break
+                        for msg in updates.get("messages", []):
+                            if isinstance(msg, AIMessage):
+                                if msg.tool_calls:
+                                    for tc in msg.tool_calls:
+                                        c_name = tc["name"]
+                                        c_args = tc["args"]
+                                        args_preview = ", ".join(f"{k}={repr(v)[:20]}" for k, v in list(c_args.items())[:2])
+                                        yield f"data: {json.dumps({'type': 'tool_call', 'name': c_name, 'args': c_args, 'text': f'LangGraph invoking tool: {c_name}({args_preview})'})}\n\n"
+                                        tool_activity.append({"type": "call", "name": c_name, "args": c_args})
+                                if msg.content:
+                                    final_reply = msg.content
+                    elif node_name == "tools":
+                        for msg in updates.get("messages", []):
+                            if isinstance(msg, ToolMessage):
+                                yield f"data: {json.dumps({'type': 'tool_response', 'name': msg.name, 'text': f'LangGraph received result from {msg.name}'})}\n\n"
+                                tool_activity.append({"type": "response", "name": msg.name, "response": msg.content[:500]})
 
             if auth_type == "adc" and not any(t.get("type") == "call" for t in tool_activity):
                 scope_notice = (
@@ -765,7 +951,7 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                 final_reply += scope_notice
 
             if not final_reply:
-                final_reply = f"I processed your request using the {service.title()} MCP integration."
+                final_reply = f"I processed your request using the LangGraph {service.title()} MCP integration."
 
             yield f"data: {json.dumps({'type': 'chunk', 'text': final_reply})}\n\n"
 
@@ -785,12 +971,12 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                 else:
                     help_msg = f"Ensure user has 'roles/mcp.toolUser' in project '{project_id}'."
             elapsed = round(time.time() - start_time, 2)
-            yield f"data: {json.dumps({'type': 'error', 'reply': f'Error executing LangChain agent: {err_msg}', 'help': help_msg, 'elapsed': elapsed})}\n\n"
+            yield f"data: {json.dumps({'type': 'error', 'reply': f'Error executing LangGraph agent: {err_msg}', 'help': help_msg, 'elapsed': elapsed})}\n\n"
 
     if wants_stream:
         return StreamingResponse(event_generator(), media_type="text/event-stream")
 
-    # Non-streaming JSON fallback
+    # Non-streaming JSON fallback via LangGraph
     start_time = time.time()
     try:
         async with httpx.AsyncClient(headers=headers, timeout=10.0) as client:
@@ -827,9 +1013,6 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
                 )
             )
 
-        tool_config = types.Tool(function_declarations=function_declarations) if function_declarations else None
-        tools_list = [tool_config] if tool_config else []
-
         system_instruction = (
             f"You are an enterprise AI assistant integrated with Google Workspace ({service.upper()}) "
             f"via Model Context Protocol. You are operating on behalf of authenticated user '{identity}' "
@@ -843,74 +1026,51 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
             f"3. After receiving tool results, provide a clear, accurate, and concise answer directly answering the user's question."
         )
 
-        config = types.GenerateContentConfig(
-            temperature=0.2,
+        # Convert discovered MCP tools into LangChain StructuredTool instances
+        langchain_tools = [
+            create_workspace_langchain_tool(t, endpoint_url, headers, auth_type)
+            for t in mcp_tools
+        ]
+        tools_by_name = {t.name: t for t in langchain_tools}
+
+        agent_graph = build_workspace_agent_graph(
+            tools_by_name=tools_by_name,
+            function_declarations=function_declarations,
+            genai_client=genai_client,
             system_instruction=system_instruction,
-            tools=tools_list,
         )
 
-        contents = [
-            types.Content(role="user", parts=[types.Part.from_text(text=req.message)])
-        ]
+        initial_state: WorkspaceAgentState = {
+            "messages": [HumanMessage(content=req.message)],
+            "thought_chunks": [],
+        }
 
-        max_turns = 6
         tool_activity = []
         final_reply = ""
 
-        for turn in range(max_turns):
-            response_gen = await asyncio.to_thread(
-                genai_client.models.generate_content,
-                model="gemini-3.7-flash",
-                contents=contents,
-                config=config,
-            )
-
-            if not response_gen.candidates:
-                break
-
-            candidate = response_gen.candidates[0]
-            contents.append(candidate.content)
-
-            function_calls = response_gen.function_calls
-            if function_calls:
-                tool_responses_parts = []
-                for fn in function_calls:
-                    c_name = fn.name
-                    c_args = dict(fn.args or {})
-                    tool_activity.append({"type": "call", "name": c_name, "args": c_args})
-
-                    if auth_type == "adc":
-                        tool_output = {
-                            "status": "AUTH_REQUIRED",
-                            "error": "Google Workspace OAuth Required",
-                            "message": "ADC token lacks Google Workspace user scopes. Please sign in with Google.",
-                        }
-                    else:
-                        tool_output = await execute_mcp_tool_call(endpoint_url, headers, c_name, c_args)
-
-                    tool_activity.append({"type": "response", "name": c_name, "response": str(tool_output)[:500]})
-
-                    tool_responses_parts.append(
-                        types.Part.from_function_response(
-                            name=c_name,
-                            response={"result": tool_output},
-                        )
-                    )
-
-                contents.append(types.Content(role="tool", parts=tool_responses_parts))
-            else:
-                text_parts = [p.text for p in candidate.content.parts if p.text]
-                final_reply = "".join(text_parts).strip()
-                break
+        async for event in agent_graph.astream(initial_state, stream_mode="updates"):
+            for node_name, updates in event.items():
+                if node_name == "agent":
+                    for msg in updates.get("messages", []):
+                        if isinstance(msg, AIMessage):
+                            if msg.tool_calls:
+                                for tc in msg.tool_calls:
+                                    tool_activity.append({"type": "call", "name": tc["name"], "args": tc["args"]})
+                            if msg.content:
+                                final_reply = msg.content
+                elif node_name == "tools":
+                    for msg in updates.get("messages", []):
+                        if isinstance(msg, ToolMessage):
+                            tool_activity.append({"type": "response", "name": msg.name, "response": msg.content[:500]})
 
         if not final_reply:
-            final_reply = f"I processed your request using the {service.title()} MCP integration."
+            final_reply = f"I processed your request using the LangGraph {service.title()} MCP integration."
 
         elapsed = round(time.time() - start_time, 2)
         return JSONResponse({"reply": final_reply, "tool_activity": tool_activity, "elapsed": elapsed, "stream": False})
     except Exception as e:
         elapsed = round(time.time() - start_time, 2)
-        return JSONResponse(status_code=500, content={"reply": f"Error executing LangChain agent: {str(e)}", "error": str(e), "elapsed": elapsed})
+        return JSONResponse(status_code=500, content={"reply": f"Error executing LangGraph agent: {str(e)}", "error": str(e), "elapsed": elapsed})
 
 
 frontend_dir = Path(__file__).parent.parent / "frontend"

@@ -45,15 +45,45 @@ Google Workspace documents its remote MCP servers under [Google Workspace Guides
 
 ---
 
-## 3. Comparison: Google ADK vs. LangChain for MCP
+## 3. LangGraph & LangChain Architecture: Dynamic MCP Integration
 
-| Architectural Dimension | Google ADK (Agent Development Kit) | LangChain |
+This showcase implements a production-grade **LangGraph ReAct agent workflow** combined with **LangChain `StructuredTool`** adapters:
+
+```mermaid
+flowchart TD
+    START([START]) --> AgentNode["agent_node (Gemini 3.7 Flash Reasoning)"]
+    AgentNode --> Decision{"should_continue?"}
+    Decision -- "Tool Calls Present" --> ToolsNode["tools_node (LangChain StructuredTools)"]
+    ToolsNode -- "Streamable HTTP JSON-RPC 2.0" --> RemoteMCP["Google Workspace Remote MCP<br/>(*mcp.googleapis.com)"]
+    RemoteMCP --> ToolsNode
+    ToolsNode -- "ToolMessages appended" --> AgentNode
+    Decision -- "Final Reply" --> ENDNode([END])
+```
+
+### Core LangGraph & LangChain Components:
+1. **Dynamic `StructuredTool` Factory (`create_workspace_langchain_tool`)**:
+   - Each tool discovered from Google's Remote MCP endpoint (`initialize` + `tools/list`) is dynamically converted into a typed LangChain `StructuredTool` instance.
+   - Preserves arguments schema, descriptions, and binds async execution (`ainvoke`) to the JSON-RPC Streamable HTTP gateway.
+2. **LangGraph State Definition (`WorkspaceAgentState`)**:
+   - Manages messages history via `Annotated[Sequence[BaseMessage], operator.add]` with `HumanMessage`, `AIMessage`, and `ToolMessage`.
+   - Captures real-time chunk thinking telemetry in `thought_chunks`.
+3. **Compiled ReAct `StateGraph` Workflow**:
+   - **`agent` node**: Translates LangChain message history to Gemini 3.7 Flash format and generates thoughts + tool call intents.
+   - **`should_continue` conditional edge**: Detects whether Gemini requested tool execution or produced the final response.
+   - **`tools` node**: Dispatches tool calls across registered LangChain `StructuredTool` instances in parallel, formatting outputs as `ToolMessage` payloads.
+4. **Streaming Execution (`astream`)**:
+   - Directly streams LangGraph node transitions to the web frontend using Server-Sent Events (SSE).
+
+### Comparison: Google ADK vs. LangChain + LangGraph for MCP
+
+| Architectural Dimension | Google ADK (Agent Development Kit) | LangChain + LangGraph |
 | :--- | :--- | :--- |
-| **Native MCP Support** | 1st-party `McpToolset` class built into `google-adk` | Custom HTTP JSON-RPC 2.0 integration or community adapter |
-| **Transport Implementation** | Built-in `StreamableHTTPConnectionParams` | Requires custom async HTTP client session management |
-| **Session Lifecycle** | Native `InMemoryRunner` with structured session state | Custom session state mapping or LangGraph checkpointing |
-| **Token Refresh Lifecycle** | `header_provider` callback per tool execution | Middleware session token refresh |
-| **Ecosystem Fit** | Purpose-built for Google Cloud, Vertex AI, & Gemini | General multi-model abstraction framework |
+| **MCP Integration** | 1st-party `McpToolset` class built into `google-adk` | Dynamic `StructuredTool` factory wrapping Remote MCP JSON-RPC |
+| **Agent Workflow** | Declarative `Agent(model=..., tools=[...])` | Compiled `StateGraph(WorkspaceAgentState)` with ReAct loop |
+| **Transport** | Built-in `StreamableHTTPConnectionParams` | Async HTTP client communicating with `*mcp.googleapis.com` |
+| **Session Lifecycle** | Native `InMemoryRunner` with structured session state | LangGraph state streaming with session cookie persistence |
+| **Token Refresh Lifecycle** | `header_provider` callback per tool execution | Middleware session token refresh with auto-save |
+| **Ecosystem Fit** | Purpose-built for Google Cloud, Vertex AI, & Gemini | General multi-agent graph framework with modular nodes |
 
 ---
 
