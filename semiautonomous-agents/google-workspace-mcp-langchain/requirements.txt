@@ -1,5 +1,7 @@
 langchain>=0.3.0
 langchain-core>=0.3.0
+langchain-google-genai>=4.4.0
+langchain-mcp-adapters>=0.3.0
 langgraph>=0.2.0
 fastapi>=0.110.0
 uvicorn>=0.28.0
@@ -8,3 +10,4 @@ mcp>=1.2.0,<2.0.0
 pydantic>=2.7.0
 google-auth>=2.30.0
 google-genai>=1.0.0
+certifi>=2024.0.0

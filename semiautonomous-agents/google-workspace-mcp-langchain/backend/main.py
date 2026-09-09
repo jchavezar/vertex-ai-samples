@@ -33,8 +33,9 @@ from google import genai
 from google.genai import types
 import dotenv
 
-from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
+from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage, SystemMessage
 from langchain_core.tools import StructuredTool
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.graph import StateGraph, START, END
 
 # Automatically load .env from project root with override=True
@@ -658,6 +659,8 @@ def create_workspace_langchain_tool(
     """Wraps a Google Workspace Remote MCP tool as an authentic LangChain StructuredTool."""
     tool_name = tool_def["name"]
     desc = tool_def.get("description", "") or f"Executes {tool_name} via Google Workspace Remote MCP"
+    raw_schema = tool_def.get("inputSchema", {}) or {"type": "object", "properties": {}}
+    cleaned = clean_json_schema(raw_schema)
 
     async def _async_exec(**kwargs):
         if auth_type == "adc":
@@ -671,91 +674,66 @@ def create_workspace_langchain_tool(
             }
         return await execute_mcp_tool_call(endpoint_url, headers, tool_name, kwargs)
 
-    return StructuredTool.from_function(
-        coroutine=_async_exec,
-        func=lambda **kw: asyncio.run(_async_exec(**kw)),
+    return StructuredTool(
         name=tool_name,
         description=desc,
+        args_schema=cleaned,
+        coroutine=_async_exec,
+        func=lambda **kw: asyncio.run(_async_exec(**kw)),
     )
 
 
 def build_workspace_agent_graph(
     tools_by_name: Dict[str, StructuredTool],
-    function_declarations: List[types.FunctionDeclaration],
-    genai_client: genai.Client,
+    project_id: str,
     system_instruction: str,
 ):
     """Compiles a LangGraph StateGraph ReAct agent that coordinates reasoning with Gemini 3.7 Flash
-    and tool execution via LangChain StructuredTools calling Google Workspace Remote MCP."""
-    tool_config = types.Tool(function_declarations=function_declarations) if function_declarations else None
-    tools_list = [tool_config] if tool_config else []
-    config = types.GenerateContentConfig(
+    via LangChain's ChatGoogleGenerativeAI and tool execution via LangChain StructuredTools."""
+    llm = ChatGoogleGenerativeAI(
+        model="gemini-3.7-flash",
+        project=project_id,
+        location="global",
         temperature=0.2,
-        system_instruction=system_instruction,
-        tools=tools_list,
     )
 
-    async def agent_node(state: WorkspaceAgentState) -> Dict[str, Any]:
-        contents: List[types.Content] = []
-        for msg in state["messages"]:
-            if isinstance(msg, HumanMessage):
-                contents.append(types.Content(role="user", parts=[types.Part.from_text(text=msg.content)]))
-            elif isinstance(msg, AIMessage):
-                parts: List[types.Part] = []
-                if msg.content:
-                    parts.append(types.Part.from_text(text=msg.content))
-                if getattr(msg, "tool_calls", None):
-                    for tc in msg.tool_calls:
-                        parts.append(types.Part.from_function_call(name=tc["name"], args=tc["args"]))
-                contents.append(types.Content(role="model", parts=parts))
-            elif isinstance(msg, ToolMessage):
-                try:
-                    tool_res_val = json.loads(msg.content)
-                except Exception:
-                    tool_res_val = msg.content
-                contents.append(
-                    types.Content(
-                        role="tool",
-                        parts=[
-                            types.Part.from_function_response(
-                                name=msg.name,
-                                response={"result": tool_res_val},
-                            )
-                        ],
-                    )
-                )
+    tools_list = list(tools_by_name.values())
+    if tools_list:
+        llm_with_tools = llm.bind_tools(tools_list)
+    else:
+        llm_with_tools = llm
 
-        response_gen = await asyncio.to_thread(
-            genai_client.models.generate_content,
-            model="gemini-3.7-flash",
-            contents=contents,
-            config=config,
-        )
+    async def agent_node(state: WorkspaceAgentState) -> Dict[str, Any]:
+        messages = list(state["messages"])
+        if system_instruction and not any(isinstance(m, SystemMessage) for m in messages):
+            messages = [SystemMessage(content=system_instruction)] + messages
+
+        response = await llm_with_tools.ainvoke(messages)
 
         thoughts = []
-        candidate = response_gen.candidates[0] if response_gen.candidates else None
-        if candidate and candidate.content and candidate.content.parts:
-            for p in candidate.content.parts:
-                th = getattr(p, "thought", None)
-                if th and isinstance(th, str) and th.strip():
-                    thoughts.append(th.strip())
-
         text_content = ""
-        if candidate and candidate.content and candidate.content.parts:
-            text_parts = [p.text for p in candidate.content.parts if p.text]
-            text_content = "".join(text_parts).strip()
+        if isinstance(response.content, str):
+            text_content = response.content
+        elif isinstance(response.content, list):
+            for block in response.content:
+                if isinstance(block, dict):
+                    if block.get("type") == "thought":
+                        thoughts.append(block.get("text", ""))
+                    elif "text" in block:
+                        text_content += block["text"]
+                elif hasattr(block, "text"):
+                    text_content += block.text
 
-        tool_calls = []
-        if response_gen.function_calls:
-            for idx, fc in enumerate(response_gen.function_calls):
-                tool_calls.append({
-                    "name": fc.name,
-                    "args": dict(fc.args or {}),
-                    "id": f"call_{fc.name}_{idx}_{int(time.time()*1000)}"
-                })
+        tool_calls = getattr(response, "tool_calls", []) or []
+
+        cleaned_ai_message = AIMessage(
+            content=text_content,
+            tool_calls=tool_calls,
+            id=getattr(response, "id", None),
+        )
 
         return {
-            "messages": [AIMessage(content=text_content, tool_calls=tool_calls)],
+            "messages": [cleaned_ai_message],
             "thought_chunks": thoughts,
         }
 
@@ -765,17 +743,20 @@ def build_workspace_agent_graph(
         if isinstance(last_msg, AIMessage) and getattr(last_msg, "tool_calls", None):
             for tc in last_msg.tool_calls:
                 t_name = tc["name"]
-                t_args = tc["args"]
+                t_args = tc.get("args", {}) or {}
                 tool_instance = tools_by_name.get(t_name)
                 if tool_instance:
-                    res = await tool_instance.ainvoke(t_args)
+                    try:
+                        res = await tool_instance.ainvoke(t_args)
+                    except Exception as exc:
+                        res = {"error": str(exc)}
                 else:
                     res = {"error": f"Tool '{t_name}' not found"}
                 tool_messages.append(
                     ToolMessage(
                         content=json.dumps(res) if isinstance(res, (dict, list)) else str(res),
                         name=t_name,
-                        tool_call_id=tc["id"],
+                        tool_call_id=tc.get("id", f"call_{t_name}"),
                     )
                 )
         return {"messages": tool_messages, "thought_chunks": []}
@@ -851,33 +832,6 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
 
             yield f"data: {json.dumps({'type': 'status', 'phase': 'handshake', 'text': f'Discovered {len(mcp_tools)} tools from {service.upper()} Remote MCP.'})}\n\n"
 
-            # Step 2: Configure Gemini Function Calling with MCP tools
-            yield f"data: {json.dumps({'type': 'status', 'phase': 'reasoning', 'text': 'LangChain reasoning with gemini-3.7-flash...'})}\n\n"
-
-            genai_client = genai.Client(
-                vertexai=True,
-                project=project_id,
-                location="global",
-            )
-
-            function_declarations = []
-            for t in mcp_tools:
-                t_name = t.get("name")
-                if not t_name:
-                    continue
-                raw_schema = t.get("inputSchema", {}) or {"type": "object", "properties": {}}
-                cleaned = clean_json_schema(raw_schema)
-                function_declarations.append(
-                    types.FunctionDeclaration(
-                        name=t_name,
-                        description=t.get("description", "") or f"Executes {t_name}",
-                        parameters=cleaned,
-                    )
-                )
-
-            tool_config = types.Tool(function_declarations=function_declarations) if function_declarations else None
-            tools_list = [tool_config] if tool_config else []
-
             system_instruction = (
                 f"You are an enterprise AI assistant integrated with Google Workspace ({service.upper()}) "
                 f"via Model Context Protocol. You are operating on behalf of authenticated user '{identity}' "
@@ -898,11 +852,10 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
             ]
             tools_by_name = {t.name: t for t in langchain_tools}
 
-            # Step 3: Build and compile the LangGraph ReAct agent workflow
+            # Step 3: Build and compile the LangGraph ReAct agent workflow with ChatGoogleGenerativeAI
             agent_graph = build_workspace_agent_graph(
                 tools_by_name=tools_by_name,
-                function_declarations=function_declarations,
-                genai_client=genai_client,
+                project_id=project_id,
                 system_instruction=system_instruction,
             )
 
@@ -992,27 +945,6 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
             res = await client.post(endpoint_url, json={"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}})
             mcp_tools = res.json().get("result", {}).get("tools", [])
 
-        genai_client = genai.Client(
-            vertexai=True,
-            project=project_id,
-            location="global",
-        )
-
-        function_declarations = []
-        for t in mcp_tools:
-            t_name = t.get("name")
-            if not t_name:
-                continue
-            raw_schema = t.get("inputSchema", {}) or {"type": "object", "properties": {}}
-            cleaned = clean_json_schema(raw_schema)
-            function_declarations.append(
-                types.FunctionDeclaration(
-                    name=t_name,
-                    description=t.get("description", "") or f"Executes {t_name}",
-                    parameters=cleaned,
-                )
-            )
-
         system_instruction = (
             f"You are an enterprise AI assistant integrated with Google Workspace ({service.upper()}) "
             f"via Model Context Protocol. You are operating on behalf of authenticated user '{identity}' "
@@ -1035,8 +967,7 @@ async def chat_with_agent(request: Request, response: Response, req: ChatRequest
 
         agent_graph = build_workspace_agent_graph(
             tools_by_name=tools_by_name,
-            function_declarations=function_declarations,
-            genai_client=genai_client,
+            project_id=project_id,
             system_instruction=system_instruction,
         )
 

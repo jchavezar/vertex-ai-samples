@@ -4,7 +4,66 @@ This repository contains an enterprise-ready showcase demonstrating how **LangCh
 
 ---
 
-## 1. Original Google Documentation vs. Real-World Requirements
+## 1. The 25-Line Quickstart (Pure LangChain + LangGraph)
+
+The core integration between **LangChain (`langchain-google-genai`)**, **LangGraph (`create_react_agent`)**, and **Google Workspace Remote MCP** is **only ~25 lines of Python code**:
+
+```python
+import asyncio, os, httpx, certifi
+from langchain_core.messages import HumanMessage
+from langchain_core.tools import StructuredTool
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langgraph.prebuilt import create_react_agent
+
+os.environ["SSL_CERT_FILE"] = certifi.where()
+os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "true")
+
+async def main():
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos")
+    endpoint = "https://gmailmcp.googleapis.com/mcp/v1"
+    headers = {
+        "Authorization": f"Bearer {os.environ['GOOGLE_WORKSPACE_TOKEN']}",
+        "x-goog-user-project": project_id,
+    }
+
+    # 1. Discover tools from Remote MCP
+    async with httpx.AsyncClient(headers=headers) as c:
+        await c.post(endpoint, json={"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {"protocolVersion": "2024-11-05", "capabilities": {}, "clientInfo": {"name": "langchain", "version": "1.0"}}})
+        res = await c.post(endpoint, json={"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}})
+        tools = res.json()["result"]["tools"]
+
+    # 2. Wrap as LangChain StructuredTools
+    async def exec_tool(name, args):
+        async with httpx.AsyncClient(headers=headers) as c:
+            r = await c.post(endpoint, json={"jsonrpc": "2.0", "id": 3, "method": "tools/call", "params": {"name": name, "arguments": args}})
+            return r.json().get("result", {})
+
+    lc_tools = [
+        StructuredTool(
+            name=t["name"],
+            description=t.get("description", ""),
+            args_schema=t.get("inputSchema", {}),
+            coroutine=lambda _n=t["name"], **kw: exec_tool(_n, kw)
+        )
+        for t in tools
+    ]
+
+    # 3. Model & LangGraph ReAct Agent
+    llm = ChatGoogleGenerativeAI(model="gemini-3.7-flash", project=project_id, location="global")
+    agent = create_react_agent(llm, lc_tools)
+
+    # 4. Invoke Agent
+    result = await agent.ainvoke({"messages": [HumanMessage(content="What draft tools do I have?")]})
+    print(result["messages"][-1].content)
+
+asyncio.run(main())
+```
+
+> **Try it yourself**: See [quickstart.py](quickstart.py) for the ready-to-run script.
+
+---
+
+## 2. Original Google Documentation vs. Real-World Requirements
 
 ### The Official Documentation Contract
 Google Workspace documents its remote MCP servers under [Google Workspace Guides: Configure MCP Servers](https://developers.google.com/workspace/guides/configure-mcp-servers#others):
@@ -24,7 +83,7 @@ Google Workspace documents its remote MCP servers under [Google Workspace Guides
 
 ---
 
-## 2. Discovered Missing Configurations & Undocumented Realities
+## 3. Discovered Missing Configurations & Undocumented Realities
 
 1. **Transport Protocol**: The documentation states `Transport: HTTP`. Under the MCP protocol, this is strictly **Streamable HTTP POST** using JSON-RPC 2.0. HTTP `GET` requests fail with `405 Method Not Allowed`.
 2. **Mandatory GCP IAM Role (`roles/mcp.toolUser`)**: The Google Cloud ESF gateway requires callers to hold the `roles/mcp.toolUser` role (`mcp.tools.call` permission) in the target GCP project:
@@ -45,7 +104,7 @@ Google Workspace documents its remote MCP servers under [Google Workspace Guides
 
 ---
 
-## 3. LangGraph & LangChain Architecture: Dynamic MCP Integration
+## 4. LangGraph & LangChain Architecture: Dynamic MCP Integration
 
 This showcase implements a production-grade **LangGraph ReAct agent workflow** combined with **LangChain `StructuredTool`** adapters:
 
@@ -87,50 +146,50 @@ flowchart TD
 
 ---
 
-## 4. End-to-End Customer AuthN & AuthZ Architecture
+## 5. End-to-End Customer AuthN & AuthZ Architecture
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor CustomerUser as Customer User
     participant Browser as Web Browser (Port 8003)
-    participant Backend as FastAPI + LangChain Backend
+    participant Backend as FastAPI + LangChain/LangGraph Backend
     participant GoogleAuth as Google Accounts (OAuth 2.0)
     participant GoogleToken as Google OAuth Token Endpoint
     participant Gateway as Google Cloud ESF Gateway
-    participant WorkspaceMCP as Remote MCP (drivemcp.googleapis.com)
+    participant WorkspaceMCP as Remote MCP (gmailmcp.googleapis.com)
 
-    Note over CustomerUser,Browser: Step 1: Customer AuthN (User Identity)
+    Note over CustomerUser,Browser: Step 1: AuthN (Identity Sign-In)
     CustomerUser->>Browser: Clicks "Sign in with Google"
     Browser->>Backend: GET /api/auth/login
-    Backend-->>Browser: 302 Redirect to accounts.google.com/o/oauth2/v2/auth<br/>(client_id, scopes, offline access, redirect_uri)
-    Browser->>GoogleAuth: User selects account & consents to Workspace scopes
+    Backend-->>Browser: 302 Redirect to accounts.google.com/o/oauth2/v2/auth
+    Browser->>GoogleAuth: User selects account & reviews consent screen
+    CustomerUser->>GoogleAuth: Approves Workspace scopes (AuthZ)
     GoogleAuth-->>Browser: 302 Redirect /api/auth/callback?code=AUTH_CODE
 
-    Note over Browser,GoogleToken: Step 2: Code Exchange & Token Refresh
+    Note over Browser,GoogleToken: Step 2: Code Exchange & Token Lifecycle
     Browser->>Backend: GET /api/auth/callback?code=AUTH_CODE
     Backend->>GoogleToken: POST /token (code, client_id, client_secret)
     GoogleToken-->>Backend: 200 OK (access_token, refresh_token, scopes)
     Backend->>GoogleAuth: GET /oauth2/v3/userinfo (Bearer access_token)
-    GoogleAuth-->>Backend: 200 OK (email, name, picture)
+    GoogleAuth-->>Backend: 200 OK (email, name, picture, hd)
     Backend-->>Browser: Sets HttpOnly session cookie & redirects to /?auth=success
 
-    Note over CustomerUser,WorkspaceMCP: Step 3: Agent Execution via LangChain & Gemini 3.7 Flash
-    CustomerUser->>Browser: Asks "What Drive tools are available?"
-    Browser->>Backend: POST /api/chat { message, service: "drive" }
-    Backend->>Backend: Auto-refreshes token if expired
-    Backend->>Gateway: POST https://drivemcp.googleapis.com/mcp/v1<br/>(Bearer customer_token, x-goog-user-project)
-    Gateway->>Gateway: Validates roles/mcp.toolUser & Workspace scopes
-    Gateway->>WorkspaceMCP: Discovers 8 Tools & executes operations
-    WorkspaceMCP-->>Gateway: Tools definitions / outputs
-    Gateway-->>Backend: Streamable JSON-RPC 2.0 Response
-    Backend->>Backend: Gemini 3.7 Flash reasons with LangChain context
+    Note over CustomerUser,WorkspaceMCP: Step 3: LangGraph ReAct Workflow Execution
+    CustomerUser->>Browser: Asks "What draft tools are available?"
+    Browser->>Backend: POST /api/chat { message, service: "gmail" }
+    Backend->>Backend: Verifies session & auto-refreshes token if expired
+    Backend->>Gateway: POST https://gmailmcp.googleapis.com/mcp/v1 (tools/list)
+    Gateway-->>Backend: 23 Tools discovered
+    Backend->>Backend: Wraps tools as LangChain StructuredTools
+    Backend->>Backend: Compiles LangGraph StateGraph (agent_node -> tools_node -> agent_node)
+    Backend->>Backend: ChatGoogleGenerativeAI (gemini-3.7-flash) reasons and selects tools
     Backend-->>Browser: 200 OK { reply, tool_activity }
 ```
 
 ---
 
-## 5. Customer Onboarding & Setup Guide
+## 6. Customer Onboarding & Setup Guide
 
 ### Where to Go Quick Reference Map
 Use this table as your master checklist for configuring Google Cloud and Workspace:
@@ -138,13 +197,11 @@ Use this table as your master checklist for configuring Google Cloud and Workspa
 | Step | Setup Stage | Exact Location in Google Cloud Console | Direct URL | What to Do |
 | :--- | :--- | :--- | :--- | :--- |
 | **1** | **Enable MCP APIs** | **APIs & Services > Library** | [console.cloud.google.com/apis/library](https://console.cloud.google.com/apis/library) | Enable `gmailmcp`, `drivemcp`, `docsmcp`, `calendarmcp`, `sheetsmcp`, `slidesmcp`, `chatmcp`, and `aiplatform`. |
-| **2** | **OAuth Consent Screen** | **APIs & Services > OAuth consent screen** | [console.cloud.google.com/apis/credentials/consent](https://console.cloud.google.com/apis/credentials/consent) | Choose **Internal** (Workspace org) or **External** (Testing). Add Workspace scopes and add testing emails to **Test users**. |
-| **3** | **Create Web Client ID** | **APIs & Services > Credentials** | [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) | Click **+ Create Credentials > OAuth client ID > Web application**. Configure JavaScript origins and Authorized redirect URIs. |
+| **2** | **OAuth Consent Screen** | **APIs & Services > OAuth consent screen** | [console.cloud.google.com/apis/credentials/consent](https://console.cloud.google.com/apis/credentials/consent) | Choose **Internal** (Workspace org) or **External** (Testing). Add Workspace scopes and add your testing emails to **Test users**. |
+| **3** | **Create Web Client ID** | **APIs & Services > Credentials** | [console.cloud.google.com/apis/credentials](https://console.cloud.google.com/apis/credentials) | Click **+ Create Credentials > OAuth client ID > Web application**. Configure JavaScript origins (`http://localhost:8003`) and Authorized redirect URIs (`http://localhost:8003/api/auth/callback` and `http://localhost:8003`). |
 | **4** | **Grant IAM Permissions** | **IAM & Admin > IAM** | [console.cloud.google.com/iam-admin/iam](https://console.cloud.google.com/iam-admin/iam) | Grant `roles/mcp.toolUser` to every user email testing the application. |
 | **5** | **Workspace API Access** *(Optional)* | **Google Admin Console > Security** | [admin.google.com/ac/owl](https://admin.google.com/ac/owl) | Under **API controls**, mark the OAuth Client ID as **Trusted** for your organization. |
 | **6** | **Run & Configure App** | **Local Web Browser** | `http://localhost:8003` | Open UI, click **Credentials** to enter Client ID/Secret or add them to `.env`. Click **Sign in with Google**. |
-
----
 
 ### Step-by-Step Instructions
 
@@ -238,7 +295,7 @@ Choose whichever method you prefer:
 
 ---
 
-## 6. Live Verification & End-to-End Execution Proof
+## 7. Live Verification & End-to-End Execution Proof
 
 The following screenshot demonstrates the fully operational showcase in a live browser session with an authenticated Google Workspace customer account:
 
@@ -260,7 +317,7 @@ The following screenshot demonstrates the fully operational showcase in a live b
 
 ---
 
-## 7. Running & Testing the Application
+## 8. Running & Testing the Application
 
 ### 1. Install Dependencies
 ```bash
@@ -291,7 +348,7 @@ python3 -m uvicorn backend.main:app --host 0.0.0.0 --port 8003
 
 ---
 
-## 8. Troubleshooting Guide
+## 9. Troubleshooting Guide
 
 | Issue / Error | Where It Appears | Root Cause | Exact Resolution |
 | :--- | :--- | :--- | :--- |
