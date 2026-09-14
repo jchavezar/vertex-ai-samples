@@ -2,26 +2,45 @@
 
 > **Production Root-Cause Analysis, Raw Event Trace Proof (`Event 09 Premature turn_complete=True`), Vertex AI Agent Engine Deployment (`AgentServerMode.EXPERIMENTAL`), and Vercel Monochrome Web Audio Voice UI**
 
-![ADK Live Voice Architecture — Bidi Streaming & Agent Handoff (#5238)](./assets/voice_ui_handoff_demo.png)
+- 🌐 **Live Public Cloud Run Demo (Voice UI)**: **[https://adk-live-handoff-5238-254356041555.us-central1.run.app](https://adk-live-handoff-5238-254356041555.us-central1.run.app)**
+- 📦 **GitHub Repository URL**: **[https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-live-handoff-5238](https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-live-handoff-5238)**
 
 ---
 
-## 1. Executive Summary & Problem Statement
+## 1. Visual Side-by-Side Proof: Buggy Silent Stall vs. Fixed 24kHz Voice Output
+
+### 🔴 Runtime 1 · Unpatched / Buggy (`google-adk==2.7.1` Standard Behavior)
+When asking *"How's the weather in New York?"*, `root_agent` transfers to `helper_agent` (`transfer_to_agent`) and executes `get_weather({'city': 'New York'})`. However, **ADK throws no exception and returns `0 audio chunks` (`Decoded Audio Queue: 0 chunks`)**—leaving the session stalled in complete silence:
+
+![Runtime 1 — Unpatched Buggy Silent Stall (0 Audio Chunks)](./assets/voice_ui_buggy_stall.png)
+
+---
+
+### 🟢 Runtime 2 · Fixed Production (`HybridLiveTextGemini` + Stream Continuity + Base64 Fix)
+Asking the exact same question on the Fixed Runtime executes `transfer_to_agent` $\rightarrow$ `get_weather({'city': 'New York'})` and **streams `44+ chunks` of 24kHz PCM voice audio (`Decoded Audio Queue: 44 chunks`)** spoken out loud in real time:
+
+![Runtime 2 — Fixed Production (44 Audio Chunks & Voice Output)](./assets/voice_ui_handoff_demo.png)
+
+---
+
+## 2. Executive Summary & Why ADK Fails Silently (Without Throwing an Error)
 
 When building multi-agent voice applications with **Google Agent Development Kit (`google-adk`)** using the native audio model **`gemini-live-2.5-flash-native-audio`** and sub-agent handoffs (`transfer_to_agent`), developers encounter a critical issue ([GitHub Issue #5238](https://github.com/google/adk-python/issues/5238)):
 
-- **Symptom:** The root agent successfully executes `transfer_to_agent(agent_name="helper_agent")`, and the sub-agent executes its tool (`get_weather`), **but the Live session immediately stops or goes silent with `0 audio chunks`** instead of speaking the final response back to the user.
+- **Symptom:** The root agent successfully executes `transfer_to_agent(agent_name="helper_agent")`, and the sub-agent executes its tool (`get_weather`), **but the Live session goes completely silent (`0 audio chunks`) without throwing any Python or HTTP exception**.
 - **Affected Versions:** `google-adk` **1.28.0 through 2.9.0+** (including **2.7.1**).
 - **Affected Models:** `gemini-live-2.5-flash-native-audio` (and `gemini-2.0-flash-live-*`).
 
+### Why There Is No Exception or Error Code
+In Issue #5238, ADK does not crash or return an error code because:
+1. **Server-Side (`send_history` without realtime wakeup)**: When `root_agent` transfers to `helper_agent`, ADK opens a new Gemini Live connection and replays history via `send_client_content(..., turn_complete=True)`. Unlike `gemini-3.x` Live models, `gemini-live-2.5-flash-native-audio` does not automatically begin speaking after `send_client_content` unless triggered by a realtime input frame (`send_realtime_input`).
+2. **Event 09 Premature `turn_complete=True`**: Immediately after the sub-agent executes `get_weather`, ADK emits **Event 09 with `{"turnComplete": true}` and `0 audio bytes`** *before* synthesizing voice audio in `Events 10–45`. Standard client loops (`if event.turn_complete: break`) see `turn_complete=True` at Event 09 and terminate cleanly—dropping all 35 subsequent audio chunks without ever raising an exception!
+
 ---
 
-## 2. The Indisputable Root Cause: The `Event 09` Premature `turn_complete=True` Trap
+## 3. Actual Raw 45-Event Production Trace (`google-adk==2.7.1` on Vertex AI Agent Engine)
 
-To see **why** standard customer client loops go silent after `transfer_to_agent`, inspect the **actual raw 45-event sequence** emitted by `AdkApp.bidi_stream_query` on Vertex AI Agent Engine (`google-adk==2.7.1`) when the user asks:
-> *"What is the weather in Miami?"*
-
-### Actual Production Event Trace (`google-adk==2.7.1` on Vertex AI Agent Engine)
+Below is the exact event sequence captured from `AdkApp.bidi_stream_query` on Vertex AI Agent Engine when asking *"What is the weather in Miami?"*:
 
 ```text
 Event #  | Author       | turn_complete | Tool Calls / Responses        | Audio Bytes | Output Transcription
@@ -48,32 +67,18 @@ Event 43 | helper_agent | None          | []                            | 7,680 
 Event 45 | helper_agent | True  ✅      | []                            | 0           | ''  <-- REAL FINAL TURN_COMPLETE
 ```
 
-### Why Customer Clients Break at `Event 09`
-
-1. **Premature `turn_complete=True` Before Voice Synthesis**:
-   - In `Event 03–04`, `root_agent` transfers control to `helper_agent`.
-   - In `Event 07–08`, `helper_agent` calls `get_weather({'city': 'Miami'})` and receives the tool response.
-   - **In `Event 09`, ADK emits `{"turnComplete": true}` with ZERO audio bytes and ZERO transcription**—*before* `helper_agent` begins streaming its spoken 24kHz audio response in `Events 10–45`!
-2. **Standard Client Loop Failure**:
-   - Almost all standard ADK Live client examples tell developers to read events until `turn_complete` is `True`:
-     ```python
-     # ❌ BUGGY CLIENT LOOP (Terminates at Event 09 with 0 audio chunks!)
-     async for event in live_stream:
-         if event.get("turn_complete") or event.get("turnComplete"):
-             break  # Drops Events 10..45! User hears complete silence!
-     ```
-   - Because the loop breaks at **Event 09**, the client disconnects or stops reading immediately after the tool call, dropping **all 35 subsequent audio and transcription events (`Events 10–45`)**!
-
 ---
 
-## 3. Three-Part Production Fix Implemented in This Repository
+## 4. Three-Part Production Fix Implemented in This Repository
 
-### Fix 1: Stream Continuity Across Intermediate `turn_complete=True` (`voice_ui.py` & `test_both_runtimes.py`)
+### Fix 1: Server-Side Post-Transfer Wakeup Trigger (`HybridLiveTextGemini` in `agent.py`)
+`HybridLiveTextGemini` overrides `connect()` to wrap `send_history()` and inject a realtime wakeup trigger (`await connection._gemini_session.send_realtime_input(text='.')`) after replaying user/tool history, ensuring `gemini-live-2.5-flash-native-audio` immediately synthesizes audio after any sub-agent transfer.
+
+### Fix 2: Stream Continuity Across Intermediate `turn_complete=True` (`voice_ui.py` & `test_both_runtimes.py`)
 Never terminate a bidirectional Live stream reader on the first `turn_complete=True` event after a `transfer_to_agent` or tool call:
-- **In WebSocket / Browser UI (`voice_ui.py`)**: Maintain a continuous reader loop (`while True: await ae_session.receive()`) that streams all events continuously to the browser without breaking on intermediate `turn_complete=True` flags.
-- **In Automated CLI / SDK Scripts (`test_both_runtimes.py`)**: When draining a turn, ignore `turn_complete=True` if a tool call (`function_call` / `transfer_to_agent`) occurred in that turn until spoken audio (`inline_data`) or `output_transcription` has been delivered (or use a short post-tool idle drain window).
+- In `voice_ui.py` (`Runtime 2 · Fixed`), the WebSocket bridge ignores intermediate `turn_complete=True` events after tool calls and continues streaming all `inline_data` audio chunks through Event 45.
 
-### Fix 2: URL-Safe Base64 PCM 24kHz Audio Decoding in Browser Web Audio API (`voice_ui.py`)
+### Fix 3: URL-Safe Base64 PCM 24kHz Audio Decoding in Browser Web Audio API (`voice_ui.py`)
 When ADK serializes `Event` objects over JSON (`dump_event_for_json`), `google.genai.types.Blob` encodes raw 24kHz PCM binary audio (`inline_data.data`) using **URL-safe Base64** (`-` and `_` instead of `+` and `/`, and without `=` padding).
 - Standard browser JavaScript `window.atob(base64Data)` strictly requires standard Base64 and throws `DOMException: InvalidCharacterError` on any `-` or `_` byte.
 - **Solution (`playPcm24k` in `voice_ui.py`)**: Normalize URL-safe Base64 before decoding PCM audio samples in Web Audio API:
@@ -83,14 +88,21 @@ When ADK serializes `Event` objects over JSON (`dump_event_for_json`), `google.g
   const binary = atob(normB64);
   ```
 
-### Fix 3: Server-Side Post-Transfer Wakeup Trigger (`HybridLiveTextGemini` in `agent.py`)
-For multi-turn transfers where `send_history()` replays a conversation history ending without a user-role trigger (or across ADK `2.7.1`–`2.9.0`), `HybridLiveTextGemini` overrides `connect()` to wrap `send_history()` and inject a realtime wakeup trigger (`await connection._gemini_session.send_realtime_input(text='.')`), ensuring the sub-agent always begins speaking immediately.
+---
+
+## 5. Deployed Vertex AI Agent Engine Runtimes & Cloud Run Demo
+
+| Component | Resource ID / URL | Description |
+| :--- | :--- | :--- |
+| **Live Public Cloud Run UI** | **[`https://adk-live-handoff-5238-254356041555.us-central1.run.app`](https://adk-live-handoff-5238-254356041555.us-central1.run.app)** | Vercel Monochrome Architecture Web Audio UI (Light default + Dynamic Dark/Light toggle + Claude Ink loader) connected live to both Agent Engine runtimes. |
+| **Runtime 1 (`Buggy`)** | `projects/254356041555/locations/us-central1/reasoningEngines/434137218425028608` | Deployed on Vertex AI Agent Engine (`us-central1`) with `google-adk==2.7.1`. Demonstrates silent stall (`0 chunks`) after handoff. |
+| **Runtime 2 (`Fixed`)** | `projects/254356041555/locations/us-central1/reasoningEngines/6983496976528572416` | Deployed on Vertex AI Agent Engine (`us-central1`) with `HybridLiveTextGemini` wakeup patch. Streams full 24kHz spoken voice responses across handoffs. |
 
 ---
 
-## 4. Live Interactive Comparison in `voice_ui.py` (`http://localhost:8080`)
+## 6. Local Quickstart & Cloud Run Deployment
 
-Start the local Vercel Monochrome Web Audio UI server:
+### Run Locally (`http://localhost:8080`)
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
@@ -98,30 +110,26 @@ pip install -r requirements.txt
 python voice_ui.py
 ```
 
-Open **`http://localhost:8080`** in your browser. The top toolbar dropdown lets you test both behaviors side-by-side against the deployed Vertex AI Agent Engine runtimes:
-
-### 🔴 Mode 1 · Buggy Client Loop (Stops on Event 09 intermediate `turn_complete`)
-1. Select **Mode 1 · Buggy Client Loop** in the dropdown and click **Connect**.
-2. Speak into the mic or type: *"How's the weather in Miami?"*
-3. **Result**:
-   - `root_agent` calls `transfer_to_agent({'agent_name': 'helper_agent'})`.
-   - `helper_agent` calls `get_weather({'city': 'Miami'})`.
-   - When ADK emits **Event 09 (`turn_complete=True`)**, Mode 1 honors `if event.turn_complete: break` and terminates the turn read early.
-   - **`Decoded Audio Queue` stays at `0 chunks`**, no voice audio plays, and the UI displays the exact **`🚨 ISSUE #5238 REPRODUCED (PREMATURE TURN_COMPLETE AT EVENT 09)`** diagnostic banner.
-
-### 🟢 Mode 2 · Fixed Stream Handler (Ignores Event 09 intermediate `turn_complete` + 24kHz Audio)
-1. Select **Mode 2 · Fixed Stream Handler** in the dropdown and click **Connect**.
-2. Speak into the mic or type: *"How's the weather in New York?"*
-3. **Result**:
-   - The stream handler ignores the premature `turn_complete=True` at Event 09 and continues streaming `Events 10–45`.
-   - **`Decoded Audio Queue` increments to `44+ chunks`** in real time.
-   - You hear `helper_agent` speak the 24kHz PCM voice response out loud through your speakers!
+### Deploy to Google Cloud Run
+```bash
+gcloud run deploy adk-live-handoff-5238 \
+  --source . \
+  --region us-central1 \
+  --project vtxdemos \
+  --allow-unauthenticated
+```
 
 ---
 
-## 5. Deployed Vertex AI Agent Engine Runtimes (`vtxdemos` / `us-central1`)
+## 7. Repository Structure
 
-| Runtime Name | Resource ID | Description |
-| :--- | :--- | :--- |
-| **`Runtime 1 (ADK 2.7.1 Standard)`** | `projects/254356041555/locations/us-central1/reasoningEngines/434137218425028608` | Deployed with `AdkApp` + `AgentServerMode.EXPERIMENTAL` on `google-adk==2.7.1`. |
-| **`Runtime 2 (ADK 2.7.1 + Wakeup Patch)`** | `projects/254356041555/locations/us-central1/reasoningEngines/6983496976528572416` | Deployed with `HybridLiveTextGemini` post-history wakeup patch + `cloudpickle`-safe `__getstate__`. |
+| File | Description |
+| :--- | :--- |
+| [`agent.py`](./agent.py) | Complete implementation of `HybridLiveTextGemini` with `_send_history_with_wakeup`, hybrid text/live routing, and `cloudpickle`-safe `__getstate__`. |
+| [`deploy_both.py`](./deploy_both.py) | Script that deploys both `adk-live-buggy-2-7-1` and `adk-live-fixed-2-7-1` to Vertex AI Agent Engine (`AgentServerMode.EXPERIMENTAL`). |
+| [`test_both_runtimes.py`](./test_both_runtimes.py) | Automated CLI test suite verifying both runtimes in `stream_query` (Text) and `bidi_stream_query` (Live Bidi Audio). |
+| [`voice_ui.py`](./voice_ui.py) | Vercel Monochrome Architecture FastAPI + Web Audio UI with Light/Dark dynamic theme toggle, Claude-Code Shrinking & Shining Ink loader, and URL-safe Base64 24kHz PCM audio player. |
+| [`Dockerfile`](./Dockerfile) | Container specification for Google Cloud Run deployment. |
+| [`assets/voice_ui_buggy_stall.png`](./assets/voice_ui_buggy_stall.png) | Screenshot showing `Runtime 1 (Buggy)` silent stall (`0 audio chunks`) after `transfer_to_agent` and `get_weather`. |
+| [`assets/voice_ui_handoff_demo.png`](./assets/voice_ui_handoff_demo.png) | Screenshot showing `Runtime 2 (Fixed)` streaming `44 audio chunks` of 24kHz voice output after `transfer_to_agent`. |
+| [`requirements.txt`](./requirements.txt) | Locked dependency specification (`google-adk==2.7.1`). |

@@ -937,5 +937,6 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
 
 
 if __name__ == "__main__":
-    print("🚀 Starting Voice UI Server at http://127.0.0.1:8080")
-    uvicorn.run(app, host="127.0.0.1", port=8080)
+    port = int(os.environ.get("PORT", 8080))
+    print(f"🚀 Starting Voice UI Server at http://0.0.0.0:{port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)
