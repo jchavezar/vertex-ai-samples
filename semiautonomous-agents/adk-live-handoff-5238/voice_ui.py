@@ -234,11 +234,12 @@ HTML_PAGE = """<!DOCTYPE html>
     /* Control Toolbar */
     .toolbar {
       display: grid;
-      grid-template-columns: 1fr auto auto;
+      grid-template-columns: minmax(0, 1fr) auto auto;
       gap: 10px;
       padding: 16px 24px;
       border-bottom: 1px solid var(--border-subtle);
       background: var(--bg-surface);
+      align-items: center;
     }
 
     select, input {
@@ -250,6 +251,11 @@ HTML_PAGE = """<!DOCTYPE html>
       background: var(--bg-surface);
       color: var(--text-primary);
       outline: none;
+      min-width: 0;
+      width: 100%;
+      text-overflow: ellipsis;
+      overflow: hidden;
+      white-space: nowrap;
       transition: border-color 0.15s ease, background-color 0.15s ease;
     }
 
@@ -536,8 +542,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <div class="toolbar">
       <select id="runtimeSelect">
-        <option value="fixed">Mode 2 · Fixed Stream Handler (Ignores Event 09 intermediate turn_complete + 24kHz Audio)</option>
-        <option value="buggy">Mode 1 · Buggy Client Loop (Stops on Event 09 intermediate turn_complete — Reproduces #5238 Silence)</option>
+        <option value="fixed">Mode 2 · Fixed Stream Handler (24kHz Voice + Handoff)</option>
+        <option value="buggy">Mode 1 · Buggy Client Loop (Reproduces #5238 Event 09 Stop)</option>
       </select>
       <button id="connectBtn" class="btn-primary" onclick="toggleConnection()">Connect</button>
       <button id="micBtn" class="btn-secondary" onclick="toggleMic()" disabled>Start Mic (16kHz)</button>
