@@ -2,8 +2,7 @@
 
 > **Production Root-Cause Analysis, Raw Event Trace Proof (`Event 09 Premature turn_complete=True`), Vertex AI Agent Engine Deployment (`AgentServerMode.EXPERIMENTAL`), and Vercel Monochrome Web Audio Voice UI**
 
-- 🌐 **Live Public Cloud Run Demo (Voice UI)**: **[https://adk-live-handoff-5238-254356041555.us-central1.run.app](https://adk-live-handoff-5238-254356041555.us-central1.run.app)**
-- 📦 **GitHub Repository URL**: **[https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-live-handoff-5238](https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-live-handoff-5238)**
+- 📦 **Public GitHub Repository URL**: **[https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-live-handoff-5238](https://github.com/jchavezar/vertex-ai-samples/tree/main/semiautonomous-agents/adk-live-handoff-5238)**
 
 ---
 
@@ -90,33 +89,22 @@ When ADK serializes `Event` objects over JSON (`dump_event_for_json`), `google.g
 
 ---
 
-## 5. Deployed Vertex AI Agent Engine Runtimes & Cloud Run Demo
+## 5. Deployed Vertex AI Agent Engine Runtimes
 
 | Component | Resource ID / URL | Description |
 | :--- | :--- | :--- |
-| **Live Public Cloud Run UI** | **[`https://adk-live-handoff-5238-254356041555.us-central1.run.app`](https://adk-live-handoff-5238-254356041555.us-central1.run.app)** | Vercel Monochrome Architecture Web Audio UI (Light default + Dynamic Dark/Light toggle + Claude Ink loader) connected live to both Agent Engine runtimes. |
 | **Runtime 1 (`Buggy`)** | `projects/254356041555/locations/us-central1/reasoningEngines/434137218425028608` | Deployed on Vertex AI Agent Engine (`us-central1`) with `google-adk==2.7.1`. Demonstrates silent stall (`0 chunks`) after handoff. |
 | **Runtime 2 (`Fixed`)** | `projects/254356041555/locations/us-central1/reasoningEngines/6983496976528572416` | Deployed on Vertex AI Agent Engine (`us-central1`) with `HybridLiveTextGemini` wakeup patch. Streams full 24kHz spoken voice responses across handoffs. |
 
 ---
 
-## 6. Local Quickstart & Cloud Run Deployment
+## 6. Local Quickstart (`http://localhost:8080`)
 
-### Run Locally (`http://localhost:8080`)
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 python voice_ui.py
-```
-
-### Deploy to Google Cloud Run
-```bash
-gcloud run deploy adk-live-handoff-5238 \
-  --source . \
-  --region us-central1 \
-  --project vtxdemos \
-  --allow-unauthenticated
 ```
 
 ---
@@ -129,7 +117,6 @@ gcloud run deploy adk-live-handoff-5238 \
 | [`deploy_both.py`](./deploy_both.py) | Script that deploys both `adk-live-buggy-2-7-1` and `adk-live-fixed-2-7-1` to Vertex AI Agent Engine (`AgentServerMode.EXPERIMENTAL`). |
 | [`test_both_runtimes.py`](./test_both_runtimes.py) | Automated CLI test suite verifying both runtimes in `stream_query` (Text) and `bidi_stream_query` (Live Bidi Audio). |
 | [`voice_ui.py`](./voice_ui.py) | Vercel Monochrome Architecture FastAPI + Web Audio UI with Light/Dark dynamic theme toggle, Claude-Code Shrinking & Shining Ink loader, and URL-safe Base64 24kHz PCM audio player. |
-| [`Dockerfile`](./Dockerfile) | Container specification for Google Cloud Run deployment. |
 | [`assets/voice_ui_buggy_stall.png`](./assets/voice_ui_buggy_stall.png) | Screenshot showing `Runtime 1 (Buggy)` silent stall (`0 audio chunks`) after `transfer_to_agent` and `get_weather`. |
 | [`assets/voice_ui_handoff_demo.png`](./assets/voice_ui_handoff_demo.png) | Screenshot showing `Runtime 2 (Fixed)` streaming `44 audio chunks` of 24kHz voice output after `transfer_to_agent`. |
 | [`requirements.txt`](./requirements.txt) | Locked dependency specification (`google-adk==2.7.1`). |
