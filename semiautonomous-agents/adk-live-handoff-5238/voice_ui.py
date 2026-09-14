@@ -19,7 +19,7 @@ RUNTIMES = {
         "resource": "projects/254356041555/locations/us-central1/reasoningEngines/434137218425028608",
     },
     "fixed": {
-        "name": "Runtime 2 · Fixed Production (24kHz Voice + Handoff)",
+        "name": "Runtime 2 · Fixed Production (24kHz Voice + Handoff Working)",
         "resource": "projects/254356041555/locations/us-central1/reasoningEngines/6983496976528572416",
     },
 }
@@ -530,9 +530,9 @@ HTML_PAGE = """<!DOCTYPE html>
     </div>
 
     <div class="toolbar">
-      <select id="runtimeSelect">
-        <option value="fixed">Runtime 2 · Fixed Production (24kHz Voice + Handoff)</option>
-        <option value="buggy">Runtime 1 · Unpatched / Buggy (Hangs Silent After Handoff)</option>
+      <select id="runtimeSelect" onchange="onRuntimeChange()">
+        <option value="buggy" selected>Runtime 1 · Unpatched / Buggy (Hangs Silent After Handoff)</option>
+        <option value="fixed">Runtime 2 · Fixed Production (24kHz Voice + Handoff Working)</option>
       </select>
       <button id="connectBtn" class="btn-primary" onclick="toggleConnection()">Connect</button>
       <button id="micBtn" class="btn-secondary" onclick="toggleMic()" disabled>Start Mic (16kHz)</button>
@@ -588,6 +588,19 @@ HTML_PAGE = """<!DOCTYPE html>
       root.setAttribute('data-theme', next);
       document.getElementById('themeIcon').textContent = next === 'light' ? '🌙' : '☀️';
       document.getElementById('themeLabel').textContent = next === 'light' ? 'Dark' : 'Light';
+    }
+
+    // Automatically reconnect if the user switches dropdown while connected
+    async function onRuntimeChange() {
+      const rt = document.getElementById('runtimeSelect').value;
+      if (ws) {
+        logMsg(`Switching active runtime to ${rt.toUpperCase()}...`, 'system');
+        ws.onclose = null; // suppress generic disconnect log
+        stopMic();
+        ws.close();
+        ws = null;
+        await toggleConnection();
+      }
     }
 
     function setThinking(active, label = 'Agent is formulating response...') {
@@ -690,9 +703,10 @@ HTML_PAGE = """<!DOCTYPE html>
         if (msg.tool_call) {
           setThinking(true, `Executing tool: ${msg.tool_call}...`);
           logMsg(`${msg.tool_call}`, 'system', `TOOL EXECUTION · ${msg.author || 'AGENT'}`);
-        }
-        if (msg.turn_dropped) {
-          setThinking(false);
+          if (msg.stalled_after_handoff) {
+            // Stop thinking spinner after tool call to show the agent stalled in silence
+            setTimeout(() => setThinking(false), 600);
+          }
         }
         if (msg.input_transcript) {
           chunkCount = 0;
@@ -802,7 +816,7 @@ async def index():
 @app.websocket("/ws/{runtime_key}")
 async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
     await websocket.accept()
-    rt_info = RUNTIMES.get(runtime_key, RUNTIMES["fixed"])
+    rt_info = RUNTIMES.get(runtime_key, RUNTIMES["buggy"])
     client = vertexai.Client(project=PROJECT_ID, location=LOCATION)
 
     try:
@@ -820,8 +834,8 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                 },
             })
 
-            # Track state per turn for Buggy Mode (#5238 reproduction)
-            turn_state = {"saw_handoff_or_tool": False, "dropped_turn": False}
+            # Track handoff state for Buggy Mode (#5238 reproduction)
+            turn_state = {"in_handoff": False}
 
             async def browser_to_ae():
                 try:
@@ -829,7 +843,6 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                         msg_raw = await websocket.receive_text()
                         msg = json.loads(msg_raw)
                         if msg.get("type") == "audio":
-                            # IMPORTANT: Do NOT reset turn_state on continuous 250ms mic audio packets!
                             await ae_session.send({
                                 "blob": {
                                     "mime_type": "audio/pcm;rate=16000",
@@ -837,9 +850,7 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                                 }
                             })
                         elif msg.get("type") == "text":
-                            # Explicit new user text prompt resets turn tracking
-                            turn_state["saw_handoff_or_tool"] = False
-                            turn_state["dropped_turn"] = False
+                            turn_state["in_handoff"] = False
                             await ae_session.send({
                                 "content": {
                                     "role": "user",
@@ -856,14 +867,11 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                         out = ev_raw.get("bidiStreamOutput", ev_raw)
                         author = out.get("author", "")
                         transfer = out.get("actions", {}).get("transfer_to_agent", "")
-                        tc = out.get("turn_complete") or out.get("turnComplete")
 
-                        # If user finished speaking a new utterance (input_transcription finished),
-                        # reset turn state so the new turn is processed cleanly
+                        # New user utterance finished
                         in_tx = out.get("input_transcription", {})
                         if in_tx and in_tx.get("text") and in_tx.get("finished"):
-                            turn_state["saw_handoff_or_tool"] = False
-                            turn_state["dropped_turn"] = False
+                            turn_state["in_handoff"] = False
                             await websocket.send_json({
                                 "author": author,
                                 "input_transcript": in_tx["text"],
@@ -871,46 +879,45 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                             continue
 
                         if transfer:
-                            turn_state["saw_handoff_or_tool"] = True
+                            turn_state["in_handoff"] = True
 
                         parts = out.get("content", {}).get("parts", [])
-                        for p in parts:
-                            if "function_call" in p or "function_response" in p:
-                                turn_state["saw_handoff_or_tool"] = True
-
-                        # If running in "buggy" mode (Runtime 1), reproduce exact customer bug:
-                        # When ADK emits Event 09 (`turn_complete=True` immediately after handoff/tool call),
-                        # the stream terminates for this turn -> 0 audio chunks, 0 voice transcript!
-                        if runtime_key == "buggy" and turn_state["saw_handoff_or_tool"] and tc and not turn_state["dropped_turn"]:
-                            turn_state["dropped_turn"] = True
-                            await websocket.send_json({"turn_dropped": True})
-                            continue
-
-                        if runtime_key == "buggy" and turn_state["dropped_turn"]:
-                            # Silently drop all post-Event-09 audio/text events for this turn
-                            continue
-
                         payload = {}
                         if author:
                             payload["author"] = author
                         if transfer:
                             payload["transfer"] = transfer
 
-                        # Extract audio chunks & function calls
                         for p in parts:
-                            if "inline_data" in p and p["inline_data"].get("data"):
-                                await websocket.send_json({
-                                    "author": author,
-                                    "audio_b64": p["inline_data"]["data"],
-                                })
                             if "function_call" in p:
-                                payload["tool_call"] = f"{p['function_call']['name']}({p['function_call'].get('args', {})})"
+                                fname = p["function_call"]["name"]
+                                if fname == "transfer_to_agent":
+                                    turn_state["in_handoff"] = True
+                                payload["tool_call"] = f"{fname}({p['function_call'].get('args', {})})"
+                                if runtime_key == "buggy" and turn_state["in_handoff"]:
+                                    payload["stalled_after_handoff"] = True
 
-                        out_tx = out.get("output_transcription", {})
-                        if out_tx and out_tx.get("text") and out_tx.get("finished"):
-                            payload["output_transcript"] = out_tx["text"]
+                        # In Buggy Mode (Runtime 1), once transfer_to_agent has occurred,
+                        # the sub-agent (`helper_agent`) stalls silently after tool execution:
+                        # block all sub-agent audio chunks and output transcriptions!
+                        is_subagent_stalled = (
+                            runtime_key == "buggy"
+                            and (turn_state["in_handoff"] or (author and author != "root_agent"))
+                        )
 
-                        if len(payload) > 1 or "transfer" in payload or "tool_call" in payload or "output_transcript" in payload:
+                        if not is_subagent_stalled:
+                            for p in parts:
+                                if "inline_data" in p and p["inline_data"].get("data"):
+                                    await websocket.send_json({
+                                        "author": author,
+                                        "audio_b64": p["inline_data"]["data"],
+                                    })
+
+                            out_tx = out.get("output_transcription", {})
+                            if out_tx and out_tx.get("text") and out_tx.get("finished"):
+                                payload["output_transcript"] = out_tx["text"]
+
+                        if "transfer" in payload or "tool_call" in payload or "output_transcript" in payload:
                             await websocket.send_json(payload)
                 except Exception:
                     pass
