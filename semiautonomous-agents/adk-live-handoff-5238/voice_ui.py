@@ -15,11 +15,11 @@ LOCATION = "us-central1"
 
 RUNTIMES = {
     "buggy": {
-        "name": "Mode 1 · Buggy Client Loop (Breaks on Event 09 premature turn_complete=True)",
+        "name": "Runtime 1 · Unpatched / Buggy (Hangs Silent After Handoff)",
         "resource": "projects/254356041555/locations/us-central1/reasoningEngines/434137218425028608",
     },
     "fixed": {
-        "name": "Mode 2 · Fixed Stream Handler (Drains past intermediate turn_complete + 24kHz Audio)",
+        "name": "Runtime 2 · Fixed Production (24kHz Voice + Handoff)",
         "resource": "projects/254356041555/locations/us-central1/reasoningEngines/6983496976528572416",
     },
 }
@@ -495,17 +495,6 @@ HTML_PAGE = """<!DOCTYPE html>
       padding: 8px 12px;
     }
 
-    .msg.bug-alert {
-      align-self: stretch;
-      max-width: 100%;
-      background: var(--bg-elevated);
-      color: var(--text-primary);
-      font-family: var(--font-mono);
-      font-size: 12px;
-      border: 1px solid var(--text-primary);
-      padding: 12px 14px;
-    }
-
     /* Input Footer Bar */
     .footer-bar {
       display: flex;
@@ -542,8 +531,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <div class="toolbar">
       <select id="runtimeSelect">
-        <option value="fixed">Mode 2 · Fixed Stream Handler (24kHz Voice + Handoff)</option>
-        <option value="buggy">Mode 1 · Buggy Client Loop (Reproduces #5238 Event 09 Stop)</option>
+        <option value="fixed">Runtime 2 · Fixed Production (24kHz Voice + Handoff)</option>
+        <option value="buggy">Runtime 1 · Unpatched / Buggy (Hangs Silent After Handoff)</option>
       </select>
       <button id="connectBtn" class="btn-primary" onclick="toggleConnection()">Connect</button>
       <button id="micBtn" class="btn-secondary" onclick="toggleMic()" disabled>Start Mic (16kHz)</button>
@@ -686,7 +675,7 @@ HTML_PAGE = """<!DOCTYPE html>
         document.getElementById('connectBtn').textContent = 'Disconnect';
         document.getElementById('micBtn').disabled = false;
         document.getElementById('sendBtn').disabled = false;
-        logMsg(`Session established (${rt.toUpperCase()} MODE). Speak into microphone or type below.`);
+        logMsg(`Session established (${rt.toUpperCase()}). Speak into microphone or type below.`);
       };
 
       ws.onmessage = (event) => {
@@ -702,11 +691,12 @@ HTML_PAGE = """<!DOCTYPE html>
           setThinking(true, `Executing tool: ${msg.tool_call}...`);
           logMsg(`${msg.tool_call}`, 'system', `TOOL EXECUTION · ${msg.author || 'AGENT'}`);
         }
-        if (msg.bug_reproduced) {
+        if (msg.turn_dropped) {
           setThinking(false);
-          logMsg(msg.bug_reproduced, 'bug-alert', '🚨 ISSUE #5238 REPRODUCED (PREMATURE TURN_COMPLETE AT EVENT 09)');
         }
         if (msg.input_transcript) {
+          chunkCount = 0;
+          document.getElementById('audioChunks').textContent = '0';
           setThinking(true, 'Agent is synthesizing voice response...');
           logMsg(`${msg.input_transcript}`, 'user', 'YOU · AUDIO TRANSCRIPT');
         }
@@ -791,6 +781,8 @@ HTML_PAGE = """<!DOCTYPE html>
       const inp = document.getElementById('textInput');
       const text = inp.value.trim();
       if (!text || !ws) return;
+      chunkCount = 0;
+      document.getElementById('audioChunks').textContent = '0';
       setThinking(true, 'Agent is formulating response...');
       logMsg(`${text}`, 'user', 'YOU · TEXT STREAM');
       ws.send(JSON.stringify({ type: 'text', text }));
@@ -836,10 +828,8 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                     while True:
                         msg_raw = await websocket.receive_text()
                         msg = json.loads(msg_raw)
-                        # Reset turn tracking when user speaks/sends a new prompt
-                        turn_state["saw_handoff_or_tool"] = False
-                        turn_state["dropped_turn"] = False
                         if msg.get("type") == "audio":
+                            # IMPORTANT: Do NOT reset turn_state on continuous 250ms mic audio packets!
                             await ae_session.send({
                                 "blob": {
                                     "mime_type": "audio/pcm;rate=16000",
@@ -847,6 +837,9 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                                 }
                             })
                         elif msg.get("type") == "text":
+                            # Explicit new user text prompt resets turn tracking
+                            turn_state["saw_handoff_or_tool"] = False
+                            turn_state["dropped_turn"] = False
                             await ae_session.send({
                                 "content": {
                                     "role": "user",
@@ -865,6 +858,18 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                         transfer = out.get("actions", {}).get("transfer_to_agent", "")
                         tc = out.get("turn_complete") or out.get("turnComplete")
 
+                        # If user finished speaking a new utterance (input_transcription finished),
+                        # reset turn state so the new turn is processed cleanly
+                        in_tx = out.get("input_transcription", {})
+                        if in_tx and in_tx.get("text") and in_tx.get("finished"):
+                            turn_state["saw_handoff_or_tool"] = False
+                            turn_state["dropped_turn"] = False
+                            await websocket.send_json({
+                                "author": author,
+                                "input_transcript": in_tx["text"],
+                            })
+                            continue
+
                         if transfer:
                             turn_state["saw_handoff_or_tool"] = True
 
@@ -873,23 +878,16 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                             if "function_call" in p or "function_response" in p:
                                 turn_state["saw_handoff_or_tool"] = True
 
-                        # If running in "buggy" mode, reproduce standard customer loop behavior:
-                        # Standard SDK loops break/stop reading the turn when ADK emits Event 09
-                        # (`turn_complete=True` immediately after tool execution, BEFORE audio/text).
+                        # If running in "buggy" mode (Runtime 1), reproduce exact customer bug:
+                        # When ADK emits Event 09 (`turn_complete=True` immediately after handoff/tool call),
+                        # the stream terminates for this turn -> 0 audio chunks, 0 voice transcript!
                         if runtime_key == "buggy" and turn_state["saw_handoff_or_tool"] and tc and not turn_state["dropped_turn"]:
                             turn_state["dropped_turn"] = True
-                            await websocket.send_json({
-                                "author": author,
-                                "bug_reproduced": (
-                                    "ADK emitted intermediate `turn_complete=True` (Event 09) with 0 audio chunks immediately after "
-                                    "`transfer_to_agent` / tool call! Standard client loops (`if event.turn_complete: break`) terminate here "
-                                    "and drop all subsequent 24kHz audio events (Events 10..45). Switch to Mode 2 (Fixed) to hear the full spoken response."
-                                ),
-                            })
+                            await websocket.send_json({"turn_dropped": True})
                             continue
 
-                        # In Buggy Mode, once the client loop broke on Event 09, ignore the rest of the turn's audio
                         if runtime_key == "buggy" and turn_state["dropped_turn"]:
+                            # Silently drop all post-Event-09 audio/text events for this turn
                             continue
 
                         payload = {}
@@ -908,16 +906,11 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                             if "function_call" in p:
                                 payload["tool_call"] = f"{p['function_call']['name']}({p['function_call'].get('args', {})})"
 
-                        # Extract input/output transcriptions
-                        in_tx = out.get("input_transcription", {})
-                        if in_tx and in_tx.get("text") and in_tx.get("finished"):
-                            payload["input_transcript"] = in_tx["text"]
-
                         out_tx = out.get("output_transcription", {})
                         if out_tx and out_tx.get("text") and out_tx.get("finished"):
                             payload["output_transcript"] = out_tx["text"]
 
-                        if len(payload) > 1 or "transfer" in payload or "tool_call" in payload or "output_transcript" in payload or "input_transcript" in payload:
+                        if len(payload) > 1 or "transfer" in payload or "tool_call" in payload or "output_transcript" in payload:
                             await websocket.send_json(payload)
                 except Exception:
                     pass
