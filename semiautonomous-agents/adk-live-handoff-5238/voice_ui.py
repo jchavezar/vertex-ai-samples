@@ -15,11 +15,11 @@ LOCATION = "us-central1"
 
 RUNTIMES = {
     "buggy": {
-        "name": "Runtime 1: ADK 2.7.1 (Unpatched / Buggy)",
+        "name": "Mode 1 · Buggy Client Loop (Breaks on Event 09 premature turn_complete=True)",
         "resource": "projects/254356041555/locations/us-central1/reasoningEngines/434137218425028608",
     },
     "fixed": {
-        "name": "Runtime 2: ADK 2.7.1 (Fixed + Wakeup Trigger)",
+        "name": "Mode 2 · Fixed Stream Handler (Drains past intermediate turn_complete + 24kHz Audio)",
         "resource": "projects/254356041555/locations/us-central1/reasoningEngines/6983496976528572416",
     },
 }
@@ -489,6 +489,17 @@ HTML_PAGE = """<!DOCTYPE html>
       padding: 8px 12px;
     }
 
+    .msg.bug-alert {
+      align-self: stretch;
+      max-width: 100%;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      border: 1px solid var(--text-primary);
+      padding: 12px 14px;
+    }
+
     /* Input Footer Bar */
     .footer-bar {
       display: flex;
@@ -525,8 +536,8 @@ HTML_PAGE = """<!DOCTYPE html>
 
     <div class="toolbar">
       <select id="runtimeSelect">
-        <option value="fixed">Runtime 2 · ADK 2.7.1 (Fixed + Wakeup Trigger)</option>
-        <option value="buggy">Runtime 1 · ADK 2.7.1 (Unpatched / Buggy)</option>
+        <option value="fixed">Mode 2 · Fixed Stream Handler (Ignores Event 09 intermediate turn_complete + 24kHz Audio)</option>
+        <option value="buggy">Mode 1 · Buggy Client Loop (Stops on Event 09 intermediate turn_complete — Reproduces #5238 Silence)</option>
       </select>
       <button id="connectBtn" class="btn-primary" onclick="toggleConnection()">Connect</button>
       <button id="micBtn" class="btn-secondary" onclick="toggleMic()" disabled>Start Mic (16kHz)</button>
@@ -661,13 +672,15 @@ HTML_PAGE = """<!DOCTYPE html>
 
       ws.onopen = () => {
         setThinking(false);
+        chunkCount = 0;
+        document.getElementById('audioChunks').textContent = '0';
         const pill = document.getElementById('connStatus');
         pill.classList.add('connected');
         document.getElementById('connText').textContent = 'Connected · ' + rt.toUpperCase();
         document.getElementById('connectBtn').textContent = 'Disconnect';
         document.getElementById('micBtn').disabled = false;
         document.getElementById('sendBtn').disabled = false;
-        logMsg(`Session established with Agent Engine (${rt}). Speak into microphone or type below.`);
+        logMsg(`Session established (${rt.toUpperCase()} MODE). Speak into microphone or type below.`);
       };
 
       ws.onmessage = (event) => {
@@ -682,6 +695,10 @@ HTML_PAGE = """<!DOCTYPE html>
         if (msg.tool_call) {
           setThinking(true, `Executing tool: ${msg.tool_call}...`);
           logMsg(`${msg.tool_call}`, 'system', `TOOL EXECUTION · ${msg.author || 'AGENT'}`);
+        }
+        if (msg.bug_reproduced) {
+          setThinking(false);
+          logMsg(msg.bug_reproduced, 'bug-alert', '🚨 ISSUE #5238 REPRODUCED (PREMATURE TURN_COMPLETE AT EVENT 09)');
         }
         if (msg.input_transcript) {
           setThinking(true, 'Agent is synthesizing voice response...');
@@ -805,11 +822,17 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                 },
             })
 
+            # Track state per turn for Buggy Mode (#5238 reproduction)
+            turn_state = {"saw_handoff_or_tool": False, "dropped_turn": False}
+
             async def browser_to_ae():
                 try:
                     while True:
                         msg_raw = await websocket.receive_text()
                         msg = json.loads(msg_raw)
+                        # Reset turn tracking when user speaks/sends a new prompt
+                        turn_state["saw_handoff_or_tool"] = False
+                        turn_state["dropped_turn"] = False
                         if msg.get("type") == "audio":
                             await ae_session.send({
                                 "blob": {
@@ -834,6 +857,34 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                         out = ev_raw.get("bidiStreamOutput", ev_raw)
                         author = out.get("author", "")
                         transfer = out.get("actions", {}).get("transfer_to_agent", "")
+                        tc = out.get("turn_complete") or out.get("turnComplete")
+
+                        if transfer:
+                            turn_state["saw_handoff_or_tool"] = True
+
+                        parts = out.get("content", {}).get("parts", [])
+                        for p in parts:
+                            if "function_call" in p or "function_response" in p:
+                                turn_state["saw_handoff_or_tool"] = True
+
+                        # If running in "buggy" mode, reproduce standard customer loop behavior:
+                        # Standard SDK loops break/stop reading the turn when ADK emits Event 09
+                        # (`turn_complete=True` immediately after tool execution, BEFORE audio/text).
+                        if runtime_key == "buggy" and turn_state["saw_handoff_or_tool"] and tc and not turn_state["dropped_turn"]:
+                            turn_state["dropped_turn"] = True
+                            await websocket.send_json({
+                                "author": author,
+                                "bug_reproduced": (
+                                    "ADK emitted intermediate `turn_complete=True` (Event 09) with 0 audio chunks immediately after "
+                                    "`transfer_to_agent` / tool call! Standard client loops (`if event.turn_complete: break`) terminate here "
+                                    "and drop all subsequent 24kHz audio events (Events 10..45). Switch to Mode 2 (Fixed) to hear the full spoken response."
+                                ),
+                            })
+                            continue
+
+                        # In Buggy Mode, once the client loop broke on Event 09, ignore the rest of the turn's audio
+                        if runtime_key == "buggy" and turn_state["dropped_turn"]:
+                            continue
 
                         payload = {}
                         if author:
@@ -842,7 +893,7 @@ async def websocket_endpoint(websocket: WebSocket, runtime_key: str):
                             payload["transfer"] = transfer
 
                         # Extract audio chunks & function calls
-                        for p in out.get("content", {}).get("parts", []):
+                        for p in parts:
                             if "inline_data" in p and p["inline_data"].get("data"):
                                 await websocket.send_json({
                                     "author": author,
