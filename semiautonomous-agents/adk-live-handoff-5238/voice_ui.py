@@ -704,8 +704,14 @@ HTML_PAGE = """<!DOCTYPE html>
           setThinking(true, `Executing tool: ${msg.tool_call}...`);
           logMsg(`${msg.tool_call}`, 'system', `TOOL EXECUTION · ${msg.author || 'AGENT'}`);
           if (msg.stalled_after_handoff) {
-            // Stop thinking spinner after tool call to show the agent stalled in silence
-            setTimeout(() => setThinking(false), 600);
+            setTimeout(() => {
+              setThinking(false);
+              logMsg(
+                'Sub-agent executed tool after transfer_to_agent but returned 0 audio chunks. ADK throws no exception — the Live session silently stalls here without speaking (#5238).',
+                'system',
+                '❌ ADK ISSUE #5238 SILENT STALL (0 AUDIO CHUNKS)'
+              );
+            }, 650);
           }
         }
         if (msg.input_transcript) {
