@@ -91,4 +91,4 @@ When you start a new project, **add a row here first** — even before the READM
 
 ### Observability & Agentic Remediation
 - [`cloud-assist-error-remediation-hub/`](./cloud-assist-error-remediation-hub/) — Agentic Cloud Error Detection & Proactive Remediation Platform integrating Cloud Logging, Gemini Cloud Assist REST API (`v1alpha`), 4-container diagnostic UI, and Google ADK Agent with built-in Google Search. **Tags:** `gemini-cloud-assist` `cloud-logging` `adk` `google-search` `react19` `fastapi` `proactive-remediation` `uv` `claude-ink-spinner`
-
+- [`ge-monochrome-chronicle-studio/`](./ge-monochrome-chronicle-studio/) — Gemini Enterprise (`v1alpha`) Session, Multi-Turn Reasoning & Canvas Artifact (`immersiveArtifact`) Studio + Salesforce Hosted MCP (`BYOMCP`) Architecture Workbench. Built with Vercel Monochrome Architecture UI (Light Mode Default + Dynamic OLED Dark Toggle) & Claude-Code Shrinking & Shining Ink Loader. **Tags:** `gemini-enterprise` `discovery-engine` `v1alpha` `session-service` `immersive-artifacts` `salesforce-mcp` `byomcp` `vercel-monochrome-ui` `claude-ink-loader`

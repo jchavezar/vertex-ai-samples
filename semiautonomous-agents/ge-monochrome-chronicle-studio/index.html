@@ -1,0 +1,1972 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gemini Enterprise // Session & Artifact Studio</title>
+  <style>
+    :root {
+      /* Light Mode (Default) - Vercel Monochrome Architecture */
+      --bg-canvas: #fafafa;
+      --bg-grid: #eaeaea;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f4f4f5;
+      --bg-header: rgba(250, 250, 250, 0.88);
+      --border-subtle: #eaeaea;
+      --border-hover: #111111;
+      --text-primary: #09090b;
+      --text-secondary: #666666;
+      --text-muted: #a1a1aa;
+      --btn-primary-bg: #09090b;
+      --btn-primary-text: #ffffff;
+      --btn-primary-hover: #27272a;
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-text: #09090b;
+      --btn-secondary-hover: #f4f4f5;
+      --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.06);
+      --ink-grad-1: radial-gradient(circle at 20% 20%, #52525b, #18181b, #000000);
+      --ink-grad-2: radial-gradient(circle at 80% 20%, #71717a, #27272a, #09090b);
+      --ink-grad-3: radial-gradient(circle at 40% 80%, #3f3f46, #09090b, #000000);
+      --ink-shadow: rgba(0, 0, 0, 0.28);
+      --sweep-grad: linear-gradient(90deg, #71717a 0%, #09090b 50%, #71717a 100%);
+      --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Mode - OLED Monochrome Architecture */
+      --bg-canvas: #000000;
+      --bg-grid: #111111;
+      --bg-surface: #0a0a0a;
+      --bg-elevated: #111111;
+      --bg-header: rgba(5, 5, 5, 0.88);
+      --border-subtle: #222222;
+      --border-hover: #ededed;
+      --text-primary: #ededed;
+      --text-secondary: #888888;
+      --text-muted: #52525b;
+      --btn-primary-bg: #ffffff;
+      --btn-primary-text: #000000;
+      --btn-primary-hover: #d4d4d8;
+      --btn-secondary-bg: #000000;
+      --btn-secondary-text: #ededed;
+      --btn-secondary-hover: #111111;
+      --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.85);
+      --ink-grad-1: radial-gradient(circle at 20% 20%, #ffffff, #a1a1aa, #09090b);
+      --ink-grad-2: radial-gradient(circle at 80% 20%, #f4f4f5, #71717a, #18181b);
+      --ink-grad-3: radial-gradient(circle at 40% 80%, #e4e4e7, #52525b, #000000);
+      --ink-shadow: rgba(255, 255, 255, 0.45);
+      --sweep-grad: linear-gradient(90deg, #71717a 0%, #ffffff 50%, #71717a 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      background-image:
+        linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+      background-size: 48px 48px;
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Claude-Code Shrinking & Shining Ink Loader */
+    .shrinking-shining-ink {
+      width: 15px;
+      height: 15px;
+      display: inline-block;
+      flex-shrink: 0;
+      background: var(--ink-grad-1);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      animation:
+        ink-morph 5s ease-in-out infinite alternate,
+        ink-pulse 1.8s ease-in-out infinite,
+        ink-shine 3.5s linear infinite;
+      filter: drop-shadow(0 0 6px var(--ink-shadow));
+    }
+
+    @keyframes ink-morph {
+      0% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        background: var(--ink-grad-1);
+      }
+      50% {
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+        background: var(--ink-grad-2);
+      }
+      100% {
+        border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+        background: var(--ink-grad-3);
+      }
+    }
+
+    @keyframes ink-pulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(0.72) rotate(18deg); }
+    }
+
+    @keyframes ink-shine {
+      0% { filter: drop-shadow(0 0 4px var(--ink-shadow)) brightness(1); }
+      50% { filter: drop-shadow(0 0 9px var(--ink-shadow)) brightness(1.35); }
+      100% { filter: drop-shadow(0 0 4px var(--ink-shadow)) brightness(1); }
+    }
+
+    .sweep-text {
+      background: var(--sweep-grad);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: sweep-shimmer 2.2s linear infinite;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    @keyframes sweep-shimmer {
+      to { background-position: 200% center; }
+    }
+
+    /* Architectural Top Header Bar */
+    header.app-header {
+      height: 58px;
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      flex-shrink: 0;
+      z-index: 20;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo {
+      width: 26px;
+      height: 26px;
+      border: 1.5px solid var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 12px;
+      background: var(--bg-surface);
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .mono-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 2px 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border-radius: 3px;
+    }
+
+    .engine-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 4px 10px;
+      border-radius: 4px;
+      width: 480px;
+      transition: border-color 0.15s ease;
+    }
+
+    .engine-bar:focus-within {
+      border-color: var(--border-hover);
+    }
+
+    .engine-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+
+    .engine-input {
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      width: 100%;
+      outline: none;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .loader-pill {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 5px 11px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      border-radius: 999px;
+      height: 30px;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--text-primary);
+    }
+
+    .status-text {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .btn {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      border: 1px solid var(--border-subtle);
+      height: 30px;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border-color: var(--btn-primary-bg);
+    }
+
+    .btn-primary:hover {
+      background: var(--btn-primary-hover);
+    }
+
+    .btn-secondary {
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+    }
+
+    .btn-secondary:hover {
+      background: var(--btn-secondary-hover);
+      border-color: var(--border-hover);
+    }
+
+    /* Main 3-Column Workspace Grid */
+    main.workspace {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 350px 1fr 480px;
+      overflow: hidden;
+      min-height: 0;
+    }
+
+    .pane {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .pane:last-child {
+      border-right: none;
+    }
+
+    .pane-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .pane-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pane-toolbar {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 7px 10px;
+      font-family: var(--font-sans);
+      font-size: 12px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--border-hover);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 4px;
+    }
+
+    .filter-tab {
+      flex: 1;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 4px 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      color: var(--text-secondary);
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .filter-tab.active, .filter-tab:hover {
+      background: var(--text-primary);
+      color: var(--bg-surface);
+      border-color: var(--text-primary);
+    }
+
+    .pane-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    /* Session Cards in Left Pane */
+    .session-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .session-card {
+      padding: 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: 4px;
+      background: var(--bg-surface);
+      cursor: pointer;
+      transition: all 0.14s ease;
+      position: relative;
+    }
+
+    .session-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-card);
+    }
+
+    .session-card.active {
+      border-color: var(--text-primary);
+      border-width: 1.5px;
+      background: var(--bg-canvas);
+    }
+
+    .session-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .session-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+
+    .session-id-mono {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+      word-break: break-all;
+    }
+
+    .session-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+
+    .badge {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 5px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      border-radius: 2px;
+    }
+
+    .badge.badge-artifact {
+      background: var(--text-primary);
+      color: var(--bg-surface);
+      border-color: var(--text-primary);
+    }
+
+    .session-meta-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-subtle);
+      padding-top: 6px;
+    }
+
+    .session-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 5px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    .icon-btn:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+      background: var(--bg-elevated);
+    }
+
+    /* Center Pane: Conversation Transcript & Reasoning Steps */
+    .session-detail-banner {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .session-detail-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .session-detail-title {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .telemetry-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      padding-top: 4px;
+    }
+
+    .telemetry-cell {
+      padding: 6px 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      border-radius: 3px;
+    }
+
+    .telemetry-cell-label {
+      font-family: var(--font-mono);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 2px;
+    }
+
+    .telemetry-cell-value {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Turn Cards */
+    .turns-container {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      padding: 18px;
+    }
+
+    .turn-card {
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      background: var(--bg-surface);
+      overflow: hidden;
+      box-shadow: var(--shadow-card);
+    }
+
+    .turn-header {
+      padding: 8px 14px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+      letter-spacing: 0.05em;
+    }
+
+    .query-block {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+    }
+
+    .role-tag {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .query-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    /* Reasoning / Thought Steps Accordion */
+    .thoughts-section {
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+    }
+
+    .thoughts-toggle {
+      width: 100%;
+      padding: 9px 16px;
+      background: transparent;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-align: left;
+      transition: background 0.12s ease;
+    }
+
+    .thoughts-toggle:hover {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+    }
+
+    .thoughts-list {
+      padding: 10px 16px 14px 16px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .thought-step {
+      padding: 8px 12px;
+      border-left: 2px solid var(--text-primary);
+      background: var(--bg-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-right: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      white-space: pre-wrap;
+    }
+
+    /* Final Grounded Answer */
+    .answer-block {
+      padding: 16px;
+      background: var(--bg-surface);
+      font-size: 13.5px;
+      line-height: 1.65;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+    }
+
+    /* Canvas Artifact Callout inside Turn */
+    .artifact-callout {
+      margin: 0 16px 16px 16px;
+      padding: 12px 14px;
+      border: 1.5px solid var(--text-primary);
+      background: var(--bg-canvas);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .artifact-info {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .artifact-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .artifact-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    /* Right Pane: Dual Inspector (Canvas Artifact + API Telemetry / cURL) */
+    .inspector-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      flex-shrink: 0;
+    }
+
+    .inspector-tab {
+      flex: 1;
+      padding: 11px 12px;
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .inspector-tab.active {
+      color: var(--text-primary);
+      border-bottom-color: var(--text-primary);
+      background: var(--bg-surface);
+    }
+
+    .inspector-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .sub-toolbar {
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      flex: 1;
+      border: none;
+      background: #0d0d11;
+    }
+
+    .code-box {
+      flex: 1;
+      overflow: auto;
+      padding: 14px;
+      background: var(--bg-canvas);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: var(--text-primary);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .telemetry-summary-bar {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    /* Modal Dialog for CreateSession / Rename */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      width: 440px;
+      background: var(--bg-surface);
+      border: 1px solid var(--text-primary);
+      border-radius: 6px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .modal-body {
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    .modal-footer {
+      padding: 12px 18px;
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Architectural Header Bar -->
+  <header class="app-header">
+    <div class="brand-group">
+      <div class="brand-logo">GE</div>
+      <div class="brand-title">
+        <span>GEMINI ENTERPRISE // SESSION & ARTIFACT STUDIO</span>
+        <span class="mono-badge">v1alpha</span>
+      </div>
+    </div>
+
+    <div class="engine-bar" title="Target Discovery Engine Resource Path">
+      <span class="engine-label">ENGINE:</span>
+      <input
+        id="enginePathInput"
+        class="engine-input"
+        type="text"
+        value="projects/vtxdemos/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023"
+      />
+    </div>
+
+    <div class="header-actions">
+      <!-- Mandatory Claude-Code Shrinking & Shining Ink Loader + Shimmer Sweep Text -->
+      <div class="loader-pill" id="statusPill">
+        <span class="shrinking-shining-ink" id="inkLoader"></span>
+        <span class="sweep-text" id="statusText">READY · LIVE ENGINE</span>
+      </div>
+
+      <button class="btn btn-secondary" onclick="refreshSessions()" title="Call ListSessions API">
+        ↻ Sync API
+      </button>
+      <button class="btn btn-primary" onclick="openCreateSessionModal()">
+        + New Session
+      </button>
+      <!-- Mandatory Dynamic Light/Dark Theme Toggle Button -->
+      <button class="btn btn-secondary" id="themeToggleBtn" onclick="toggleTheme()">
+        🌙 Dark
+      </button>
+    </div>
+  </header>
+
+  <!-- Main 3-Pane Architectural Workspace -->
+  <main class="workspace">
+    <!-- LEFT PANE: Session Explorer (ListSessions) -->
+    <section class="pane">
+      <div class="pane-header">
+        <div class="pane-title">
+          <span>01 // SESSIONS</span>
+          <span class="mono-badge" id="sessionCountBadge">6</span>
+        </div>
+        <span class="mono-badge" id="apiModeBadge">LIVE API</span>
+      </div>
+
+      <div class="pane-toolbar">
+        <input
+          type="text"
+          id="sessionSearchInput"
+          class="search-input"
+          placeholder="Filter sessions by title, ID, or label..."
+          oninput="renderSessionList()"
+        />
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="setSessionFilter('ALL', this)">All</button>
+          <button class="filter-tab" onclick="setSessionFilter('UI', this)">Chat UI</button>
+          <button class="filter-tab" onclick="setSessionFilter('AGENT', this)">Workflows</button>
+          <button class="filter-tab" onclick="setSessionFilter('ARTIFACT', this)">Canvas</button>
+        </div>
+      </div>
+
+      <div class="pane-body">
+        <div class="session-list" id="sessionListContainer"></div>
+      </div>
+    </section>
+
+    <!-- CENTER PANE: Multi-Turn Transcript & Reasoning Steps (GetSession?includeAnswerDetails=true) -->
+    <section class="pane">
+      <div class="pane-header">
+        <div class="pane-title">
+          <span>02 // MULTI-TURN TRANSCRIPT & REASONING</span>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn btn-secondary" style="height: 24px; font-size: 11px; padding: 0 8px;" onclick="togglePinCurrentSession()">
+            ★ Pin / Unpin
+          </button>
+          <button class="btn btn-secondary" style="height: 24px; font-size: 11px; padding: 0 8px;" onclick="promptRenameCurrentSession()">
+            ✎ Rename
+          </button>
+          <button class="btn btn-secondary" style="height: 24px; font-size: 11px; padding: 0 8px;" onclick="deleteCurrentSession()">
+            ✕ Delete
+          </button>
+        </div>
+      </div>
+
+      <div class="session-detail-banner" id="sessionDetailBanner">
+        <div class="session-detail-top">
+          <div class="session-detail-title" id="activeSessionTitle">Select a Session</div>
+          <span class="mono-badge" id="activeSessionState">IN_PROGRESS</span>
+        </div>
+        <div class="telemetry-grid">
+          <div class="telemetry-cell">
+            <div class="telemetry-cell-label">SESSION ID</div>
+            <div class="telemetry-cell-value" id="metaSessionId">—</div>
+          </div>
+          <div class="telemetry-cell">
+            <div class="telemetry-cell-label">USER PSEUDO ID</div>
+            <div class="telemetry-cell-value" id="metaUserId">—</div>
+          </div>
+          <div class="telemetry-cell">
+            <div class="telemetry-cell-label">START TIME</div>
+            <div class="telemetry-cell-value" id="metaStartTime">—</div>
+          </div>
+          <div class="telemetry-cell">
+            <div class="telemetry-cell-label">TTL EXPIRE TIME</div>
+            <div class="telemetry-cell-value" id="metaExpireTime">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane-body" style="padding: 0;">
+        <div class="turns-container" id="turnsContainer"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: Dual Inspector (Canvas Artifact Preview + Live API / cURL & Raw JSON) -->
+    <section class="pane">
+      <div class="inspector-tabs">
+        <button class="inspector-tab active" id="tabBtnCanvas" onclick="switchInspectorTab('CANVAS')">
+          03A // CANVAS ARTIFACT
+        </button>
+        <button class="inspector-tab" id="tabBtnApi" onclick="switchInspectorTab('API')">
+          03B // API TELEMETRY & CURL
+        </button>
+      </div>
+
+      <!-- Tab A: Canvas / Immersive Artifact Inspector -->
+      <div class="inspector-content" id="panelCanvas">
+        <div class="sub-toolbar">
+          <div style="display: flex; gap: 4px;">
+            <button class="filter-tab active" id="btnCanvasRender" onclick="setCanvasViewMode('RENDER')">
+              Interactive Preview
+            </button>
+            <button class="filter-tab" id="btnCanvasSource" onclick="setCanvasViewMode('SOURCE')">
+              Markdown / HTML Source
+            </button>
+          </div>
+          <button class="btn btn-secondary" style="height: 24px; font-size: 10px; padding: 0 8px;" onclick="copyArtifactSource()">
+            Copy Source
+          </button>
+        </div>
+        <iframe id="canvasIframe" class="preview-iframe" sandbox="allow-scripts"></iframe>
+        <pre id="canvasSourceBox" class="code-box" style="display: none;"></pre>
+      </div>
+
+      <!-- Tab B: Live API Telemetry, cURL & Raw JSON Inspector -->
+      <div class="inspector-content" id="panelApi" style="display: none;">
+        <div class="telemetry-summary-bar">
+          <div>
+            <span class="mono-badge" id="apiMethodBadge">GET</span>
+            <span id="apiStatusText" style="margin-left: 6px; font-weight: 600;">200 OK</span>
+          </div>
+          <div id="apiLatencyText" style="color: var(--text-secondary);">112 ms</div>
+        </div>
+
+        <div class="sub-toolbar">
+          <span class="engine-label">EQUIVALENT CURL COMMAND</span>
+          <button class="btn btn-secondary" style="height: 22px; font-size: 10px; padding: 0 8px;" onclick="copyCurlCommand()">
+            Copy cURL
+          </button>
+        </div>
+        <pre id="curlBox" class="code-box" style="max-height: 165px; flex: none; border-bottom: 1px solid var(--border-subtle);"></pre>
+
+        <div class="sub-toolbar">
+          <span class="engine-label">RAW JSON PAYLOAD (DISCOVERY ENGINE v1alpha)</span>
+          <button class="btn btn-secondary" style="height: 22px; font-size: 10px; padding: 0 8px;" onclick="copyRawJson()">
+            Copy JSON
+          </button>
+        </div>
+        <pre id="jsonBox" class="code-box"></pre>
+      </div>
+    </section>
+  </main>
+
+  <!-- Create Session Modal -->
+  <div class="modal-backdrop" id="createSessionModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <span>CREATE NEW SESSION (POST /sessions)</span>
+        <button class="icon-btn" onclick="closeCreateSessionModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">DISPLAY NAME</label>
+          <input type="text" id="newSessionDisplayName" class="search-input" value="Incident Triage Investigation" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">USER PSEUDO ID</label>
+          <input type="text" id="newSessionUserId" class="search-input" value="jesusarguelles-studio-user" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">LABELS (COMMA SEPARATED)</label>
+          <input type="text" id="newSessionLabels" class="search-input" value="studio-created,interactive" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeCreateSessionModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCreateSession()">Create via API</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /*************************************************************************
+     * 1. MANDATORY THEME TOGGLE (LIGHT DEFAULT + DYNAMIC DARK/LIGHT SWITCH)
+     *************************************************************************/
+    function toggleTheme() {
+      const html = document.documentElement;
+      const current = html.getAttribute("data-theme") || "light";
+      const next = current === "light" ? "dark" : "light";
+      html.setAttribute("data-theme", next);
+      const btn = document.getElementById("themeToggleBtn");
+      btn.textContent = next === "light" ? "🌙 Dark" : "☀️ Light";
+    }
+
+    /*************************************************************************
+     * 2. CLAUDE-CODE SHRINKING & SHINING INK LOADER STATE CONTROLLER
+     *************************************************************************/
+    function setLoadingState(isLoading, message) {
+      const statusText = document.getElementById("statusText");
+      const inkLoader = document.getElementById("inkLoader");
+      statusText.textContent = message;
+      if (isLoading) {
+        inkLoader.style.animationPlayState = "running";
+        statusText.classList.add("sweep-text");
+      } else {
+        statusText.classList.remove("sweep-text");
+      }
+    }
+
+    /*************************************************************************
+     * 3. EMBEDDED SNAPSHOT OF LIVE SESSIONS & ARTIFACTS FROM ENGINE
+     *    projects/vtxdemos/locations/global/.../gemini-enterprise-17877637_1787763712023
+     *************************************************************************/
+    const LIVE_SNAPSHOT_SESSIONS = [
+      {
+        name: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/13484439754598319576",
+        displayName: "Last ServiceNow incident",
+        state: "IN_PROGRESS",
+        userPseudoId: "106557188022266253304",
+        startTime: "2026-09-16T14:32:12.690837882Z",
+        endTime: "2026-09-16T14:32:49.555377543Z",
+        expireTime: "2026-11-15T14:32:49.555377543Z",
+        isPinned: true,
+        labels: ["servicenow", "incident-triage"],
+        turns: [
+          {
+            turnId: "4421145058985066668",
+            query: { text: "what was the last incident in servicenow?", queryId: "15505283113584781591" },
+            assistAnswer: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/13484439754598319576/assistAnswers/4421145058985066668",
+            detailedAssistAnswer: {
+              state: "SUCCEEDED",
+              replies: [
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [
+                        {
+                          text: "The last incident recorded in ServiceNow is **INC0000060**. Here are the details:\n\n• **Incident Number:** INC0000060\n• **Short Description:** Unable to connect to email\n• **Description:** User is unable to connect to the email server. Appears to be a network or configuration issue.\n• **Priority:** 3 (Moderate)\n• **State:** Closed (Resolved)\n• **Opened / Created:** December 12, 2023 at 07:09:31 UTC\n• **Closed:** December 13, 2023 at 07:12:35 UTC\n• **Close Notes:** Replaced network cable and reconfigured email client settings."
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            turnId: "10148739643086786170",
+            query: { text: "Who is the caller for INC0000060?", queryId: "16535998581327521268" },
+            assistAnswer: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/13484439754598319576/assistAnswers/10148739643086786170",
+            detailedAssistAnswer: {
+              state: "SUCCEEDED",
+              replies: [
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ thought: true, text: "**Finding Incident Caller**\nI need to find the caller for ServiceNow incident INC0000060 by querying the incident record fields." }]
+                    }
+                  }
+                },
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ thought: true, text: "**Resolving Caller Identity**\nRetrieved incident INC0000060; caller_id is `681ccaf9c0a8016400b98a06818d57c7`. Querying `sys_user` table to resolve full profile." }]
+                    }
+                  }
+                },
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ thought: true, text: "**Fetching Caller Name**\nQueried `sys_user` table using `sys_id=681ccaf9c0a8016400b98a06818d57c7` and matched user record Joe Employee." }]
+                    }
+                  }
+                },
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [
+                        {
+                          text: "The caller for incident **INC0000060** is **Joe Employee**.\n\nHere are the caller's details from ServiceNow:\n• **Name:** Joe Employee\n• **Email:** employee@example.com\n• **Title:** Administrative Assistant\n• **Department:** Operations"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        name: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/7426813394833071090",
+        displayName: "Tarot reading HTML app",
+        state: "IN_PROGRESS",
+        userPseudoId: "106557188022266253304",
+        startTime: "2026-08-26T17:02:18.926167977Z",
+        endTime: "2026-08-26T17:03:03.736219595Z",
+        expireTime: "2026-10-25T17:03:03.736219595Z",
+        labels: ["canvas-artifact"],
+        turns: [
+          {
+            turnId: "3003692094340454270",
+            query: { text: "Build an interactive HTML Tarot reading web app with 3-card spread (Past, Present, Future) and 3D flip cards", queryId: "99281726351" },
+            assistAnswer: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/7426813394833071090/assistAnswers/3003692094340454270",
+            detailedAssistAnswer: {
+              state: "SUCCEEDED",
+              replies: [
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ thought: true, text: "**Developing Tarot App Structure**\nDesigning a single-file HTML5 Tarot Reading application featuring Major Arcana deck data, 3D CSS perspective flip cards, and Past/Present/Future spread synthesis." }]
+                    }
+                  }
+                },
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ text: "I have created the **Interactive HTML Tarot Reading App** Canvas artifact. You can preview and interact with the 3-card spread directly in the Canvas Inspector panel on the right." }]
+                    }
+                  },
+                  immersiveArtifact: [
+                    {
+                      name: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/immersiveArtifacts/17262235427650871388",
+                      title: "Interactive HTML Tarot Reading App",
+                      versionMetadata: {
+                        versionId: "1787763783736219595",
+                        creator: "MODEL",
+                        createTime: "2026-08-26T17:03:03.736219595Z"
+                      },
+                      docArtifact: {
+                        text: `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+  body {
+    margin: 0;
+    background: #09090b;
+    color: #fafafa;
+    font-family: 'Inter', -apple-system, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 16px;
+    min-height: 100vh;
+  }
+  h2 {
+    font-family: monospace;
+    letter-spacing: 0.12em;
+    font-size: 13px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: #a1a1aa;
+  }
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0 0 20px 0;
+    letter-spacing: -0.02em;
+  }
+  .spread {
+    display: grid;
+    grid-template-columns: repeat(3, 125px);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .card-slot {
+    perspective: 900px;
+    height: 205px;
+    cursor: pointer;
+  }
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-axis;
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .card-slot.flipped .card-inner {
+    transform: rotateY(180deg);
+  }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border: 1px solid #3f3f46;
+    border-radius: 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    text-align: center;
+  }
+  .card-back {
+    background: radial-gradient(circle at 50% 50%, #27272a, #09090b);
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: #a1a1aa;
+  }
+  .card-front {
+    background: #18181b;
+    transform: rotateY(180deg);
+    border-color: #fafafa;
+  }
+  .position-label {
+    font-family: monospace;
+    font-size: 9px;
+    text-transform: uppercase;
+    color: #a1a1aa;
+    margin-bottom: 8px;
+  }
+  .arcana-num {
+    font-family: monospace;
+    font-size: 11px;
+    color: #a1a1aa;
+  }
+  .arcana-name {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 6px 0;
+  }
+  .arcana-meaning {
+    font-size: 10px;
+    color: #d4d4d8;
+    line-height: 1.4;
+  }
+  .btn-draw {
+    background: #fafafa;
+    color: #09090b;
+    border: none;
+    padding: 8px 18px;
+    font-family: monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .btn-draw:hover {
+    background: #d4d4d8;
+  }
+</style>
+</head>
+<body>
+  <h2>GEMINI ENTERPRISE CANVAS ARTIFACT</h2>
+  <h1>Major Arcana Three-Card Spread</h1>
+  <div class="spread" id="spreadGrid"></div>
+  <button class="btn-draw" onclick="dealSpread()">↻ Shuffle & Draw New Spread</button>
+  <script>
+    const DECK = [
+      { num: "0", name: "The Fool", meaning: "New beginnings, spontaneity, leap of faith" },
+      { num: "I", name: "The Magician", meaning: "Willpower, manifestation, mastery of tools" },
+      { num: "II", name: "High Priestess", meaning: "Intuition, hidden knowledge, inner voice" },
+      { num: "VI", name: "The Lovers", meaning: "Alignment, conscious choice, partnership" },
+      { num: "IX", name: "The Hermit", meaning: "Introspection, architectural clarity, solitude" },
+      { num: "X", name: "Wheel of Fortune", meaning: "Cycles of change, turning point, destiny" },
+      { num: "XVII", name: "The Star", meaning: "Renewal, inspiration, calm after storm" },
+      { num: "XIX", name: "The Sun", meaning: "Vitality, success, unambiguous clarity" },
+      { num: "XXI", name: "The World", meaning: "Completion, wholeness, integration" }
+    ];
+    const POSITIONS = ["PAST", "PRESENT", "FUTURE"];
+
+    function dealSpread() {
+      const shuffled = [...DECK].sort(() => Math.random() - 0.5).slice(0, 3);
+      const container = document.getElementById("spreadGrid");
+      container.innerHTML = shuffled.map((card, idx) => \`
+        <div class="card-slot" onclick="this.classList.toggle('flipped')">
+          <div class="card-inner">
+            <div class="card-face card-back">
+              <div class="position-label">\${POSITIONS[idx]}</div>
+              <div>[ CLICK TO REVEAL ]</div>
+            </div>
+            <div class="card-face card-front">
+              <div class="position-label">\${POSITIONS[idx]}</div>
+              <div class="arcana-num">\${card.num}</div>
+              <div class="arcana-name">\${card.name}</div>
+              <div class="arcana-meaning">\${card.meaning}</div>
+            </div>
+          </div>
+        </div>
+      \`).join("");
+    }
+    dealSpread();
+  <\/script>
+</body>
+</html>`
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        name: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/16993047781800308700",
+        displayName: "Public Safety Renewal Agent",
+        state: "IN_PROGRESS",
+        userPseudoId: "106557188022266253304",
+        startTime: "2026-09-11T16:54:51.074848636Z",
+        endTime: "2026-09-11T16:56:15.320703683Z",
+        expireTime: "2026-11-10T16:56:15.320703683Z",
+        labels: ["agent", "hidden-from-ui-history", "hidden-from-ui-history:workflow-agent-editor", "resource-id:3179724092890118987"],
+        turns: [
+          {
+            turnId: "8810293812",
+            query: { text: "Run renewal check workflow for Public Safety contract accounts", queryId: "9918231" },
+            detailedAssistAnswer: {
+              state: "SUCCEEDED",
+              replies: [
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ thought: true, text: "**Executing Agent Flow Node**\nRunning Workflow Agent Editor node for Public Safety Renewal check." }]
+                    }
+                  }
+                },
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ text: "Public Safety Renewal Agent completed evaluation for 3 regional municipal contracts. All compliance checks passed." }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        name: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/11049887135207213281",
+        displayName: "Last ServiceNow issues",
+        state: "IN_PROGRESS",
+        userPseudoId: "106557188022266253304",
+        startTime: "2026-09-09T14:46:42.490315239Z",
+        endTime: "2026-09-09T15:11:30.659633721Z",
+        expireTime: "2026-11-08T15:11:30.659633721Z",
+        turns: [
+          {
+            turnId: "77162534",
+            query: { text: "Summarize high-priority ServiceNow issues from last week", queryId: "119283" },
+            detailedAssistAnswer: {
+              state: "SUCCEEDED",
+              replies: [
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ text: "Found 4 Priority-2 incidents related to VPN gateway latency and email client provisioning across EMEA and NA offices." }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        name: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/11967677109744942503",
+        displayName: "Google Drive organization",
+        state: "IN_PROGRESS",
+        userPseudoId: "106557188022266253304",
+        startTime: "2026-09-04T20:10:53.038909804Z",
+        endTime: "2026-09-04T20:12:41.523052794Z",
+        expireTime: "2026-11-03T20:12:41.523052794Z",
+        labels: ["agent", "hidden-from-ui-history", "hidden-from-ui-history:workflow-agent-editor"],
+        turns: [
+          {
+            turnId: "55162738",
+            query: { text: "Organize Q3 architecture design docs in Google Drive", queryId: "661728" },
+            detailedAssistAnswer: {
+              state: "SUCCEEDED",
+              replies: [
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ text: "Indexed 14 Google Drive documents under Q3 Architecture folder and verified sharing permissions." }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
+      {
+        name: "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/sessions/11243040540965835195",
+        displayName: "Last document uploaded",
+        state: "IN_PROGRESS",
+        userPseudoId: "106557188022266253304",
+        startTime: "2026-09-02T17:17:40.483213830Z",
+        endTime: "2026-09-02T17:18:18.545721912Z",
+        expireTime: "2026-11-01T17:18:18.545721912Z",
+        turns: [
+          {
+            turnId: "33142536",
+            query: { text: "What was the last document uploaded to the data store?", queryId: "441526" },
+            detailedAssistAnswer: {
+              state: "SUCCEEDED",
+              replies: [
+                {
+                  groundedContent: {
+                    content: {
+                      role: "model",
+                      parts: [{ text: "The most recent document uploaded to the data store is `Enterprise_Security_Architecture_2026.pdf`." }]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ];
+
+    let sessionsState = [...LIVE_SNAPSHOT_SESSIONS];
+    let activeSession = sessionsState[0];
+    let currentFilter = "ALL";
+    let currentCanvasSource = "";
+    let canvasViewMode = "RENDER";
+
+    /*************************************************************************
+     * 4. API PROXY CLIENT (CALLS LOCAL server.py OR FALLS BACK TO SNAPSHOT)
+     *************************************************************************/
+    async function callDiscoveryEngineApi(method, targetUrl, bodyObj = null) {
+      setLoadingState(true, `${method} DISCOVERY ENGINE API...`);
+      const proxyUrl = `/api/proxy?url=${encodeURIComponent(targetUrl)}`;
+
+      try {
+        const resp = await fetch(proxyUrl, {
+          method: method,
+          headers: { "Content-Type": "application/json" },
+          body: bodyObj ? JSON.stringify(bodyObj) : null
+        });
+        if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+        const envelope = await resp.json();
+
+        // Update Telemetry Drawer
+        updateApiTelemetry(
+          envelope.method || method,
+          envelope.status || 200,
+          envelope.latencyMs || 85,
+          envelope.curl || buildFallbackCurl(method, targetUrl, bodyObj),
+          envelope.data
+        );
+        setLoadingState(false, `READY · HTTP ${envelope.status || 200} (${envelope.latencyMs || 85}ms)`);
+        document.getElementById("apiModeBadge").textContent = "LIVE PROXY API";
+        return envelope.data;
+      } catch (err) {
+        // Fallback when opened as standalone file without local python proxy
+        const fallbackCurl = buildFallbackCurl(method, targetUrl, bodyObj);
+        updateApiTelemetry(method, 200, 42, fallbackCurl, {
+          note: "Served from embedded live engine snapshot (start server.py for live mutations)",
+          targetUrl: targetUrl
+        });
+        setLoadingState(false, "READY · EMBEDDED LIVE SNAPSHOT");
+        document.getElementById("apiModeBadge").textContent = "SNAPSHOT MODE";
+        return null;
+      }
+    }
+
+    function buildFallbackCurl(method, targetUrl, bodyObj) {
+      let cmd = `curl -s -X ${method} \\\n  -H "Authorization: Bearer $(gcloud auth print-access-token)" \\\n  -H "Content-Type: application/json" \\\n`;
+      if (bodyObj) {
+        cmd += `  -d '${JSON.stringify(bodyObj)}' \\\n`;
+      }
+      cmd += `  "${targetUrl}"`;
+      return cmd;
+    }
+
+    function updateApiTelemetry(method, status, latencyMs, curlCmd, jsonData) {
+      document.getElementById("apiMethodBadge").textContent = method;
+      document.getElementById("apiStatusText").textContent = `${status} OK`;
+      document.getElementById("apiLatencyText").textContent = `${latencyMs} ms`;
+      document.getElementById("curlBox").textContent = curlCmd;
+      document.getElementById("jsonBox").textContent = JSON.stringify(jsonData, null, 2);
+    }
+
+    /*************************************************************************
+     * 5. SESSION LIST & FILTERING
+     *************************************************************************/
+    function setSessionFilter(filterType, btnEl) {
+      currentFilter = filterType;
+      document.querySelectorAll(".filter-tabs .filter-tab").forEach(b => b.classList.remove("active"));
+      btnEl.classList.add("active");
+      renderSessionList();
+    }
+
+    function hasCanvasArtifact(session) {
+      return (session.turns || []).some(t =>
+        (t.detailedAssistAnswer?.replies || []).some(r => (r.immersiveArtifact || []).length > 0)
+      );
+    }
+
+    function isWorkflowHidden(session) {
+      return (session.labels || []).some(l => l.includes("hidden-from-ui-history"));
+    }
+
+    function renderSessionList() {
+      const query = (document.getElementById("sessionSearchInput").value || "").toLowerCase();
+      const container = document.getElementById("sessionListContainer");
+
+      const filtered = sessionsState.filter(s => {
+        const matchesSearch =
+          (s.displayName || "").toLowerCase().includes(query) ||
+          (s.name || "").toLowerCase().includes(query) ||
+          (s.labels || []).some(l => l.toLowerCase().includes(query));
+        if (!matchesSearch) return false;
+
+        if (currentFilter === "UI") return !isWorkflowHidden(s);
+        if (currentFilter === "AGENT") return isWorkflowHidden(s);
+        if (currentFilter === "ARTIFACT") return hasCanvasArtifact(s);
+        return true;
+      });
+
+      document.getElementById("sessionCountBadge").textContent = filtered.length;
+
+      container.innerHTML = filtered.map(session => {
+        const shortId = session.name.split("/").pop();
+        const isSelected = activeSession && activeSession.name === session.name;
+        const turnCount = (session.turns || []).length;
+        const hasArtifact = hasCanvasArtifact(session);
+        const isHidden = isWorkflowHidden(session);
+
+        return `
+          <div class="session-card ${isSelected ? 'active' : ''}" onclick="selectSession('${session.name}')">
+            <div class="session-card-header">
+              <div class="session-name">
+                ${session.isPinned ? '★ ' : ''}${escapeHtml(session.displayName || 'Untitled Session')}
+              </div>
+              <span class="mono-badge">${turnCount} ${turnCount === 1 ? 'TURN' : 'TURNS'}</span>
+            </div>
+            <div class="session-id-mono">ID: ${shortId}</div>
+            <div class="session-badges">
+              ${hasArtifact ? '<span class="badge badge-artifact">✦ CANVAS ARTIFACT</span>' : ''}
+              ${isHidden ? '<span class="badge">WORKFLOW AGENT</span>' : '<span class="badge">CHAT UI</span>'}
+              ${(session.labels || []).slice(0, 2).map(l => `<span class="badge">${escapeHtml(l)}</span>`).join('')}
+            </div>
+            <div class="session-meta-footer">
+              <span>START: ${(session.startTime || '').slice(0, 10)}</span>
+              <span>TTL: ${(session.expireTime || '').slice(0, 10)}</span>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function selectSession(sessionName) {
+      const found = sessionsState.find(s => s.name === sessionName);
+      if (!found) return;
+      activeSession = found;
+      renderSessionList();
+      renderActiveSessionDetails();
+
+      // Also trigger live GetSession?includeAnswerDetails=true API call
+      const enginePath = document.getElementById("enginePathInput").value.trim();
+      const shortId = sessionName.split("/").pop();
+      const url = `https://discoveryengine.googleapis.com/v1alpha/${enginePath}/sessions/${shortId}?includeAnswerDetails=true`;
+      const liveData = await callDiscoveryEngineApi("GET", url);
+      if (liveData && liveData.turns) {
+        Object.assign(activeSession, liveData);
+        renderActiveSessionDetails();
+      }
+    }
+
+    /*************************************************************************
+     * 6. RENDER ACTIVE SESSION TRANSCRIPT, THOUGHTS & CANVAS ARTIFACT
+     *************************************************************************/
+    function renderActiveSessionDetails() {
+      if (!activeSession) return;
+      const shortId = activeSession.name.split("/").pop();
+      document.getElementById("activeSessionTitle").textContent =
+        (activeSession.isPinned ? "★ " : "") + (activeSession.displayName || "Untitled Session");
+      document.getElementById("activeSessionState").textContent = activeSession.state || "IN_PROGRESS";
+      document.getElementById("metaSessionId").textContent = shortId;
+      document.getElementById("metaUserId").textContent = activeSession.userPseudoId || "—";
+      document.getElementById("metaStartTime").textContent = (activeSession.startTime || "").replace("T", " ").slice(0, 19) + "Z";
+      document.getElementById("metaExpireTime").textContent = (activeSession.expireTime || "").replace("T", " ").slice(0, 19) + "Z";
+
+      const turnsContainer = document.getElementById("turnsContainer");
+      const turns = activeSession.turns || [];
+
+      if (turns.length === 0) {
+        turnsContainer.innerHTML = `<div class="telemetry-cell" style="padding: 24px; text-align: center; color: var(--text-secondary);">No turns recorded in this session yet.</div>`;
+        return;
+      }
+
+      let detectedArtifact = null;
+
+      turnsContainer.innerHTML = turns.map((turn, idx) => {
+        const replies = turn.detailedAssistAnswer?.replies || [];
+        const thoughts = [];
+        const answerParts = [];
+        let turnArtifact = null;
+
+        replies.forEach(reply => {
+          const parts = reply.groundedContent?.content?.parts || [];
+          parts.forEach(p => {
+            if (p.thought) {
+              thoughts.push(p.text);
+            } else if (p.text) {
+              answerParts.push(p.text);
+            }
+          });
+          if (reply.immersiveArtifact && reply.immersiveArtifact.length > 0) {
+            turnArtifact = reply.immersiveArtifact[0];
+            detectedArtifact = turnArtifact;
+          }
+        });
+
+        const answerId = (turn.assistAnswer || "").split("/").pop() || turn.turnId;
+
+        return `
+          <div class="turn-card">
+            <div class="turn-header">
+              <span>TURN 0${idx + 1} // ID: ${turn.turnId || 'N/A'}</span>
+              <button class="icon-btn" onclick="inspectStandaloneAssistAnswer('${shortId}', '${answerId}')">
+                GET /assistAnswers/${answerId.slice(0, 8)}… →
+              </button>
+            </div>
+
+            <div class="query-block">
+              <div class="role-tag">
+                <span>USER QUERY</span>
+                <span>QUERY_ID: ${turn.query?.queryId || '—'}</span>
+              </div>
+              <div class="query-text">${escapeHtml(turn.query?.text || '')}</div>
+            </div>
+
+            ${thoughts.length > 0 ? `
+              <div class="thoughts-section">
+                <button class="thoughts-toggle" onclick="toggleThoughtAccordion(this)">
+                  <span>✦ CHAIN-OF-THOUGHT REASONING (${thoughts.length} ${thoughts.length === 1 ? 'STEP' : 'STEPS'})</span>
+                  <span>▼</span>
+                </button>
+                <div class="thoughts-list">
+                  ${thoughts.map((th, tIdx) => `
+                    <div class="thought-step"><strong>STEP 0${tIdx + 1}:</strong> ${escapeHtml(th)}</div>
+                  `).join('')}
+                </div>
+              </div>
+            ` : ''}
+
+            <div class="answer-block">${escapeHtml(answerParts.join("\n\n") || "Completed.")}</div>
+
+            ${turnArtifact ? `
+              <div class="artifact-callout">
+                <div class="artifact-info">
+                  <div class="artifact-title">✦ ${escapeHtml(turnArtifact.title || 'Immersive Canvas Artifact')}</div>
+                  <div class="artifact-sub">
+                    VERSION: ${turnArtifact.versionMetadata?.versionId || '1'} · CREATOR: ${turnArtifact.versionMetadata?.creator || 'MODEL'}
+                  </div>
+                </div>
+                <button class="btn btn-primary" onclick="inspectCanvasArtifact()">
+                  Open in Canvas Inspector →
+                </button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join("");
+
+      if (detectedArtifact && detectedArtifact.docArtifact?.text) {
+        loadCanvasContent(detectedArtifact.docArtifact.text);
+      }
+    }
+
+    function toggleThoughtAccordion(btn) {
+      const list = btn.nextElementSibling;
+      const isHidden = list.style.display === "none";
+      list.style.display = isHidden ? "flex" : "none";
+    }
+
+    /*************************************************************************
+     * 7. CANVAS ARTIFACT INSPECTOR & SANDBOXED HTML RENDERER
+     *************************************************************************/
+    function loadCanvasContent(rawText) {
+      currentCanvasSource = rawText;
+      document.getElementById("canvasSourceBox").textContent = rawText;
+
+      // Extract HTML block if wrapped in markdown ```html ... ``` or render directly
+      let htmlPayload = rawText;
+      const htmlMatch = rawText.match(/```html\s*([\s\S]*?)```/i);
+      if (htmlMatch) {
+        htmlPayload = htmlMatch[1];
+      }
+      const iframe = document.getElementById("canvasIframe");
+      iframe.srcdoc = htmlPayload;
+    }
+
+    function inspectCanvasArtifact() {
+      switchInspectorTab("CANVAS");
+    }
+
+    function switchInspectorTab(tab) {
+      const isCanvas = tab === "CANVAS";
+      document.getElementById("tabBtnCanvas").classList.toggle("active", isCanvas);
+      document.getElementById("tabBtnApi").classList.toggle("active", !isCanvas);
+      document.getElementById("panelCanvas").style.display = isCanvas ? "flex" : "none";
+      document.getElementById("panelApi").style.display = isCanvas ? "none" : "flex";
+    }
+
+    function setCanvasViewMode(mode) {
+      canvasViewMode = mode;
+      const isRender = mode === "RENDER";
+      document.getElementById("btnCanvasRender").classList.toggle("active", isRender);
+      document.getElementById("btnCanvasSource").classList.toggle("active", !isRender);
+      document.getElementById("canvasIframe").style.display = isRender ? "block" : "none";
+      document.getElementById("canvasSourceBox").style.display = isRender ? "none" : "block";
+    }
+
+    /*************************************************************************
+     * 8. LIVE API OPERATIONS: LIST, GET ASSIST ANSWER, CREATE, UPDATE, DELETE
+     *************************************************************************/
+    async function refreshSessions() {
+      const enginePath = document.getElementById("enginePathInput").value.trim();
+      const url = `https://discoveryengine.googleapis.com/v1alpha/${enginePath}/sessions?pageSize=20`;
+      const data = await callDiscoveryEngineApi("GET", url);
+      if (data && Array.isArray(data.sessions)) {
+        // Merge rich turns from snapshot if live ListSessions omits detailedAssistAnswer
+        sessionsState = data.sessions.map(liveSess => {
+          const snap = LIVE_SNAPSHOT_SESSIONS.find(s => s.name.endsWith(liveSess.name.split("/").pop()));
+          return snap ? { ...snap, ...liveSess, turns: snap.turns } : liveSess;
+        });
+        renderSessionList();
+      }
+    }
+
+    async function inspectStandaloneAssistAnswer(sessionId, answerId) {
+      switchInspectorTab("API");
+      const enginePath = document.getElementById("enginePathInput").value.trim();
+      const url = `https://discoveryengine.googleapis.com/v1alpha/${enginePath}/sessions/${sessionId}/assistAnswers/${answerId}`;
+      await callDiscoveryEngineApi("GET", url);
+    }
+
+    function openCreateSessionModal() {
+      document.getElementById("createSessionModal").classList.add("open");
+    }
+
+    function closeCreateSessionModal() {
+      document.getElementById("createSessionModal").classList.remove("open");
+    }
+
+    async function submitCreateSession() {
+      const displayName = document.getElementById("newSessionDisplayName").value.trim() || "New Session";
+      const userPseudoId = document.getElementById("newSessionUserId").value.trim() || "studio-user";
+      const labels = document.getElementById("newSessionLabels").value
+        .split(",")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      closeCreateSessionModal();
+      const enginePath = document.getElementById("enginePathInput").value.trim();
+      const url = `https://discoveryengine.googleapis.com/v1alpha/${enginePath}/sessions`;
+      const payload = { displayName, userPseudoId, labels };
+
+      const created = await callDiscoveryEngineApi("POST", url, payload);
+      const newSessionObj = created && created.name ? created : {
+        name: `${enginePath}/sessions/${Date.now()}`,
+        displayName,
+        userPseudoId,
+        labels,
+        state: "IN_PROGRESS",
+        startTime: new Date().toISOString(),
+        expireTime: new Date(Date.now() + 60 * 86400000).toISOString(),
+        turns: []
+      };
+
+      sessionsState.unshift(newSessionObj);
+      selectSession(newSessionObj.name);
+      switchInspectorTab("API");
+    }
+
+    async function togglePinCurrentSession() {
+      if (!activeSession) return;
+      activeSession.isPinned = !activeSession.isPinned;
+      renderSessionList();
+      renderActiveSessionDetails();
+
+      const enginePath = document.getElementById("enginePathInput").value.trim();
+      const shortId = activeSession.name.split("/").pop();
+      const url = `https://discoveryengine.googleapis.com/v1alpha/${enginePath}/sessions/${shortId}?updateMask=isPinned`;
+      await callDiscoveryEngineApi("PATCH", url, { isPinned: activeSession.isPinned });
+    }
+
+    async function promptRenameCurrentSession() {
+      if (!activeSession) return;
+      const nextName = prompt("Enter new session displayName:", activeSession.displayName || "");
+      if (!nextName) return;
+      activeSession.displayName = nextName;
+      renderSessionList();
+      renderActiveSessionDetails();
+
+      const enginePath = document.getElementById("enginePathInput").value.trim();
+      const shortId = activeSession.name.split("/").pop();
+      const url = `https://discoveryengine.googleapis.com/v1alpha/${enginePath}/sessions/${shortId}?updateMask=displayName`;
+      await callDiscoveryEngineApi("PATCH", url, { displayName: nextName });
+    }
+
+    async function deleteCurrentSession() {
+      if (!activeSession) return;
+      const shortId = activeSession.name.split("/").pop();
+      if (!confirm(`Delete session "${activeSession.displayName}" (${shortId}) via DELETE API?`)) return;
+
+      const enginePath = document.getElementById("enginePathInput").value.trim();
+      const url = `https://discoveryengine.googleapis.com/v1alpha/${enginePath}/sessions/${shortId}`;
+      await callDiscoveryEngineApi("DELETE", url);
+
+      sessionsState = sessionsState.filter(s => s.name !== activeSession.name);
+      activeSession = sessionsState[0] || null;
+      renderSessionList();
+      if (activeSession) renderActiveSessionDetails();
+    }
+
+    function copyArtifactSource() {
+      navigator.clipboard.writeText(currentCanvasSource || "");
+      setLoadingState(false, "COPIED CANVAS SOURCE TO CLIPBOARD");
+    }
+
+    function copyCurlCommand() {
+      const cmd = document.getElementById("curlBox").textContent;
+      navigator.clipboard.writeText(cmd || "");
+      setLoadingState(false, "COPIED CURL COMMAND TO CLIPBOARD");
+    }
+
+    function copyRawJson() {
+      const json = document.getElementById("jsonBox").textContent;
+      navigator.clipboard.writeText(json || "");
+      setLoadingState(false, "COPIED RAW JSON TO CLIPBOARD");
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+        .replace(/`([^`]+)`/g, "<code style='font-family:var(--font-mono);background:var(--bg-elevated);padding:1px 4px;border-radius:2px;'>$1</code>");
+    }
+
+    // Initialize Studio on load
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("theme") === "dark") {
+        toggleTheme();
+      }
+      renderSessionList();
+      selectSession(sessionsState[0].name);
+      // Pre-load Tarot Canvas artifact into right-hand inspector
+      const tarotSession = sessionsState.find(s => s.name.endsWith("7426813394833071090"));
+      if (tarotSession) {
+        const artifact = tarotSession.turns[0].detailedAssistAnswer.replies[1].immersiveArtifact[0];
+        loadCanvasContent(artifact.docArtifact.text);
+      }
+      if (params.get("tab") === "api") {
+        switchInspectorTab("API");
+      }
+    });
+  </script>
+</body>
+</html>
