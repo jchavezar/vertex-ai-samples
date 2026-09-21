@@ -69,4 +69,6 @@ semiautonomous-agents/gemini_api_latency/
 # Temp folders
 tmp/
 /tmp/
+.demo_logs/
+
 
