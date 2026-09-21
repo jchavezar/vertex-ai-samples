@@ -1,0 +1,8 @@
+[project]
+name = "apex-legal-modernization"
+version = "0.1.0"
+description = "Apex Global Law LLP Portal Modernization Showcase Recipe"
+requires-python = ">=3.11"
+dependencies = [
+    "google-genai>=1.0.0",
+]
