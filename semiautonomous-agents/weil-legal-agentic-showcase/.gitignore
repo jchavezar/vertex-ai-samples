@@ -22,3 +22,4 @@ __pycache__/
 # ADK Local Storage
 .adk/
 *.db
+*.log

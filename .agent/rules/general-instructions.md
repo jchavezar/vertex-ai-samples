@@ -17,8 +17,8 @@ trigger: always_on
 
 
 ## Avoid
-Under any circumstances use old models in your code develop and deploy like gemini-2.0* gemini-1.5* text-bison* or any other old model. NEVER.
-- Allowed models to use: gemini-2.5-flash, gemini-2.5-pro, gemini-3-flash-preview and gemini-3-pro-preview in ANY of your develops or troubleshooting.
+Under any circumstances use old or obsolete models in your code develop and deploy like gemini-2.5*, gemini-2.0*, gemini-1.5*, text-bison* or any other old model. NEVER.
+- Allowed models to use: gemini-3.7-flash, gemini-3.8-flash, gemini-3-flash-preview and gemini-3-pro-preview in ANY of your develops or troubleshooting.
 
 ## Think first before testing/publish
 Because you are in a ssh session (jetski is running locally on my macbook and the resource is connecto through ssh to jchavezar.c.googlers.com) if you are gonna test "browsing" using or depending a specific port, you ALWAYS have to ask the user first to forward those ports, otherwise you wont be able to use them.
@@ -43,4 +43,24 @@ After you do testings, creating new files, scripts etc and I ask for github push
 - **Dynamic Growth on Newlines**: Support seamless expansion when entering newlines (`\n` or `Shift+Enter`) up to `maxHeight` (e.g. 180px-200px), enabling scrolling only after exceeding the maximum height.
 - **Reset on Submit**: After a message is submitted, the textarea height MUST immediately reset to its initial single-line `minHeight` (`style.height = 'auto'`).
 - **Typography & No Resize**: Always set `resize: none` (`resize-none`), `line-height: 1.5` (`leading-relaxed`), and balanced padding to prevent glyph clipping.
+
+## Autonomous Terminal Diagram & Visual Rendering (iTerm2 / CLI Protocol)
+- **Zero Raw Mermaid Code Dumps**: NEVER output raw, unrendered ````mermaid` codeblocks in the terminal response text. In iTerm2 and terminal CLIs, raw Mermaid syntax prints as unreadable code lines.
+- **Autonomous Visual Execution**: Whenever an architecture, flowchart, or diagram is needed, the agent MUST autonomously run `show-diagram` via `run_command` during the turn. This compiles the dark-themed visual graphic and executes macOS `open` so it pops onto the user's screen automatically.
+- **Native In-Terminal Unicode Box Art**: Inside the terminal chat response itself, ALWAYS represent the topology using clean, high-contrast Unicode / ASCII box-drawing characters (`┌─┐`, `│ │`, `└─┘`, `──►`). This ensures the user gets instant, crystal-clear readability directly inside iTerm2 without context switching.
+- **Autonomous Image/Artifact Display**: When generating or referencing images or HTML dashboards, autonomously trigger their display using macOS `open` so they are immediately visible.
+
+## Zero "Copilot" Protocol (Institutional Branding)
+- Under any circumstance NEVER use the word "copilot" (Microsoft trademark) in any code, UI, comments, scripts, or presentation materials for Weil or Google Cloud partner demos.
+- Permitted branding: "Weil Deal & Regulatory AI Advisor", "Weil Deal Advisor 24/7", "Autonomous Legal Agent", or "Deal Advisor".
+
+## UI/UX Container Spacing & Zero-Overlap Mandate
+- In any web application or dashboard, strictly prevent overlapping containers, touching cards, or colliding boxes.
+- Always use explicit flex/grid gaps (`gap-4 lg:gap-6`), `shrink-0` header elements, and clean divider borders (`border-slate-200/80 pl-4 ml-4`).
+- Provide an "Inspect Code" overlay modal for live code review during presentations and a "100\" Display" toggle for auditorium/boardroom scaling.
+
+## Presenter Representation for Weil
+- The sole Google Cloud AI lead and speaker is Jesus Chavez (CE, AI). Ensure zero references to prior co-speaker names in slide decks, scripts, and documentation.
+
+
 

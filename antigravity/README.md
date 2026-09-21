@@ -20,6 +20,17 @@
 ## 🌐 ANTIGRAVITY SYSTEMS INDEX
 
 <table width="100%" border="0" cellspacing="0" cellpadding="20">
+  <!-- ROW 00: WEIL LEGAL-TECH AGENTIC SHOWCASE & 3D CONSTELLATION -->
+  <tr>
+    <td colspan="2" valign="top" style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.45); border-radius: 12px; padding: 20px;">
+      <span style="background: #2563EB; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; font-family: monospace;">LEGAL-TECH // AGENTIC SHOWCASE & 3D CONSTELLATION</span>
+      <br/><br/>
+      <strong style="font-size: 16px;">PROJECT: WEIL, GOTSHAL & MANGES LLP — AGENTIC LEGAL PLATFORM & 5-ACT MODERNIZATION</strong><br/>
+      Executive legal-tech platform featuring: (1) Interactive WebGL / Three.js <strong>3D Enterprise Agentic Constellation</strong>, (2) Google ADK multi-agent orchestration lanes streamed over SSE, (3) Antigravity Python sandbox with Monte Carlo M&A dispute simulation, (4) Autonomous Privacy Pro Legos contract harmonizer with Gemini 3.7 Flash &amp; Opposing Counsel Radar (Skadden/Latham), and (5) 5-Act corporate portal modernization with &lt;10ms Search-As-You-Type &amp; Multimodal Term Sheet clearance.<br/>
+      <br/>
+      <a href="../semiautonomous-agents/weil-legal-agentic-showcase/">ACCESS_SHOWCASE &rarr;</a> &nbsp;|&nbsp; <a href="../semiautonomous-agents/weil-modernization/">5-ACT_PORTAL &rarr;</a> &nbsp;|&nbsp; <a href="../agy-recipes/weil-modernization/">RECIPE &rarr;</a>
+    </td>
+  </tr>
   <!-- ROW 0: EBC SHOWCASE // LEGACY TO AI MODERNIZATION -->
   <tr>
     <td colspan="2" valign="top" style="background: rgba(6, 182, 212, 0.06); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 12px; padding: 20px;">
@@ -29,6 +40,17 @@
       High-impact Executive Briefing Center (EBC) 3-Act demonstration. Transforms 2015-era monolithic 20-column ERP tables into 2026 reactive Agent-Native Generative UI in 10 seconds. Live What-If shock sliders (&lt;50ms), SVG Value-at-Risk curves, and 1-click Boardroom Decision Memos powered by Gemini 2.5/3.<br/>
       <br/>
       <a href="../semiautonomous-agents/legacy-to-ai-modernization-hub/">ACCESS_SHOWCASE &rarr;</a> &nbsp;|&nbsp; <a href="../agy-recipes/legacy-to-ai-modernization/">RECIPE &rarr;</a>
+    </td>
+  </tr>
+  <!-- ROW 0.2: LIBERTAD FINANCIERA 3-ACT MODERNIZATION -->
+  <tr>
+    <td colspan="2" valign="top" style="background: rgba(0, 51, 160, 0.05); border: 1px solid rgba(0, 51, 160, 0.35); border-radius: 12px; padding: 20px;">
+      <span style="background: #0033a0; color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; font-family: monospace;">FINTECH // APP MODERNIZATION</span>
+      <br/><br/>
+      <strong style="font-size: 16px;">PROJECT: LIBERTAD FINANCIERA 3-ACT MODERNIZATION SHOWCASE</strong><br/>
+      End-to-end modernization in 3 acts: (1) 100% pixel-perfect clone of production portal, (2) UI/UX transformation from cluttered 2015 AEM header to a glassmorphism Mega-Menu, and (3) AI Navigator with Search-As-You-Type powered by Vertex AI Search (<code>libertad-search-navigator</code>) and Gemini 3.5 Flash Lite with dynamic auto-expanding canvas (460px &rarr; 740px).<br/>
+      <br/>
+      <a href="../semiautonomous-agents/app-modernization/">ACCESS_PORTAL &rarr;</a> &nbsp;|&nbsp; <a href="../agy-recipes/libertad-financiera-modernization/">RECIPE &rarr;</a>
     </td>
   </tr>
   <!-- ROW 0.5: MANAGED AGENTS & AUTONOMOUS CLOUD SANDBOX -->
