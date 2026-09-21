@@ -1,0 +1,23 @@
+[project]
+name = "weil-walkthrough-scripts"
+version = "0.1.0"
+description = "Weil EBC Walkthrough Scripts - Standalone Google ADK & MCP Curriculum"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "google-adk>=0.3.0",
+    "google-genai>=0.3.0",
+    "google-cloud-aiplatform>=1.70.0",
+    "mcp>=1.2.0,<2.0.0",
+    "pydantic>=2.6.0",
+    "cloudpickle>=3.0.0",
+    "google-cloud-bigquery>=3.25.0",
+    "opentelemetry-exporter-otlp-proto-http>=1.42.1",
+    "opentelemetry-exporter-gcp-trace>=1.15.0",
+    "google-cloud-trace>=1.20.0",
+    "google-cloud-logging>=3.16.3",
+    "opentelemetry-instrumentation-google-genai>=0.7b1",
+]
+
+[tool.uv]
+package = false

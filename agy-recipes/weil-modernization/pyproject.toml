@@ -1,0 +1,9 @@
+[project]
+name = "weil-modernization"
+version = "0.1.0"
+description = "Weil, Gotshal & Manges LLP Modernization Showcase Recipe"
+requires-python = ">=3.12"
+dependencies = [
+    "beautifulsoup4>=4.12.0",
+    "google-genai>=1.0.0",
+]
