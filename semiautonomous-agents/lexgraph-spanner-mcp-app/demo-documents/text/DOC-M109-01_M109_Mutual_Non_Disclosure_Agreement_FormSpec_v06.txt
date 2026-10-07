@@ -1,0 +1,4 @@
+# MUTUAL NON-DISCLOSURE AGREEMENT — LexGraph FormSpec v0.0.6 Baseline
+Document ID: DOC-M109-01 | Matter: M-109 | Date: 2026-09-29 | Category: NDA FormSpec Baseline (iManage v6.0)
+
+MUTUAL NON-DISCLOSURE AGREEMENT (NDA) DOCUMENT ID: DOC-M109-01 | MATTER: M-109 | LEXGRAPH FORMSPEC v0.0.6 BASELINE EFFECTIVE DATE: SEPTEMBER 29, 2026 | GOVERNING LAW: NEW YORK SECTION 4 & 7: STANDARD OF CARE, RESIDUALS & 24-MONTH STANDSTILL [CHUNK: CL-M109-NDA] Section 4 & Section 7. Confidentiality obligations survive for 36 months from the Effective Date, coupled with a 24-month Fall-Away Standstill provision and a Narrow Residuals Clause limited to unaided memory of non-source-code business concepts. Liability is uncapped (100% Direct Losses) with $0.00 deductible basket.

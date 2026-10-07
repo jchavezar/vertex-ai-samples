@@ -1,0 +1,4 @@
+# SECTION 1060 & 338(h)(10) TAX ALLOCATION RIDER — Matter M-331
+Document ID: DOC-M331-04 | Matter: M-331 | Date: 2026-09-22 | Category: Tax Allocation Rider & Teammate Grant Channel
+
+CONFIDENTIAL TAX ALLOCATION RIDER & TEAMMATE CORRESPONDENCE DOCUMENT ID: DOC-M331-04 / EM-9901 | MATTER: M-331 (PROJECT HELIOS) Owner: Marcus Thorne (Tax Partner, L-003) | Grantee: Sarah Jenkins (M&A Partner, L-001) [GOVERNED BY CLOUD SPANNER TEAMMATEGRANTS GRAPH EDGE — 30-DAY TEMPORAL ACCESS] Section 6.09(d) & Rider Schedule A: Buyer and Seller shall jointly make a timely and irrevocable election under Section 338(h)(10) of the Internal Revenue Code. Seller shall bear 100% of state and local transfer taxes arising from the Pennsylvania semiconductor packaging subsidiary carve-out, while Buyer's incremental tax gross-up obligation is capped at $14,200,000 based on Class V equipment appraisal.

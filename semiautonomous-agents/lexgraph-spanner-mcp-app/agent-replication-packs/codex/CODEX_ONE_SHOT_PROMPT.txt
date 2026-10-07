@@ -1,0 +1,14 @@
+Build, deploy, and verify the complete "LexGraph Interactive Legal Document Grid & Citation Highlighter MCP App (SEP-1865)" backed by Cloud Spanner Hybrid GraphRAG on Google Cloud:
+
+1. In `demo-documents/`, run `python3 generate_demo_pdfs.py` to generate all 8 legal PDF agreements (`DOC-M331-01` through `DOC-M109-01`) and 9 plain-text files including unfiled tax email `EM-9901`.
+2. In `spanner-graphrag/`, provision Cloud Spanner instance `lexgraph-legal-spanner` and database `lexgraph-legal-context` with `provision_spanner_graph.py`, and seed all lawyers, matters, documents, clauses, Intapp ethical wall edges (`EthicalWallBlocks`), and 3,072-dim `gemini-embedding-2` vectors using `seed_spanner_graph.py`.
+3. In `mcp-app-grid-server/`, verify `app.py` and `ui_template.py` implement:
+   - Streamable HTTP JSON-RPC 2.0 at `POST /mcp` (`initialize`, `tools/list`, `tools/call`, `resources/list`, `resources/read`) returning `_meta.ui.resourceUri = "ui://lexgraph/legal-grid-workspace.html"` and `defaultDisplayMode = "pip"`.
+   - Instant (<100ms) `resources/read` via `LATEST_WORKSPACE_STATE` in-memory caching.
+   - Fast (<1.5s) Gemini dynamic column extraction (`thinking_budget=0`) with deterministic question-aware fallback.
+   - Vercel Monochrome UI (Light Mode default + Dark Mode toggle + Claude-Code shrinking & shining ink loader).
+   - Strict iframe viewport lock (`html, body { position: fixed; inset: 0; overflow: hidden; }`) and container-only scrolling inside `#doc-paper-scroll` (zero `scrollIntoView()` calls).
+   - Header view-mode switcher (`[◫ Split | 📊 Grid | 📑 Citation Doc]`) for both Gemini Enterprise Right-Side PiP (~680px) and Fullscreen (>1000px).
+4. Deploy `mcp-app-grid-server/` to Google Cloud Run (`lexgraph-legal-grid-mcp-agent`, region `us-central1`, `--allow-unauthenticated --no-cpu-throttling`).
+5. Register the Cloud Run `/mcp` endpoint as a `CUSTOM_MCP` DataConnector (`lexgraph-legal-grid-mcp-app`) linked to Gemini Enterprise's Default Assistant using `register_custom_mcp_connector.py`.
+6. Run an end-to-end JSON-RPC verification against `POST /mcp` (`tools/call` + `resources/read`) and print the latency and verification report.

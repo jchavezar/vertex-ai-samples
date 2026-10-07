@@ -1,0 +1,9 @@
+EMAIL ID: EM-9901
+MATTER: M-331 (Project Helios — Brightwater Corp. $2.4B Merger)
+FROM: Marcus Thorne <m-thorne@lexgraph.com> (Tax Partner, L-003)
+TO: Sarah Jenkins <s-jenkins@lexgraph.com> (M&A Partner, L-001)
+SUBJECT: URGENT — Unfiled Section 338(h)(10) Election Gross-Up Cap ($14.2M vs Skadden $9.5M Walk-Right)
+ACCESS POLICY: Governed by Cloud Spanner TeammateGrants Graph Edge (30-Day Temporal Grant)
+
+Sarah,
+Per our working call on the Brightwater semiconductor packaging subsidiary carve-out, do NOT accept Skadden's v4 markup capping the Section 338(h)(10) incremental tax gross-up at $9.5M. Our Class V equipment depreciation model shows $14.2M in step-up exposure. Keep the $14.2M gross-up cap tied to the $18.0M (0.75% EV) Indemnity Cap in Section 8.02(b).

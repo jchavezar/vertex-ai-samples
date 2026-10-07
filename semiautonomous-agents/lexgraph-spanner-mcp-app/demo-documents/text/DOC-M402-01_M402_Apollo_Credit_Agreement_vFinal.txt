@@ -1,0 +1,4 @@
+# SENIOR SECURED CREDIT AGREEMENT — Apollo $250M Revolving Facility (J.Crew Blocker)
+Document ID: DOC-M402-01 | Matter: M-402 | Date: 2026-08-14 | Category: Executed Credit Agreement (iManage v12.1)
+
+SENIOR SECURED CREDIT AGREEMENT DOCUMENT ID: DOC-M402-01 | MATTER: M-402 | COUNSEL: DAVIS POLK & WARDWELL LLP DATED AUGUST 14, 2026 | $250,000,000 REVOLVING CREDIT FACILITY ARTICLE VII: NEGATIVE COVENANTS & J.CREW BLOCKER [CHUNK: CL-M402-JCREW] Section 7.08(c) Covenant Against Asset Drops (J.Crew / Envision Blocker): No Material Intellectual Property owned by the Borrower or any Restricted Subsidiary may be transferred, assigned, or exclusively licensed to an Unrestricted Subsidiary. Any Basket investment in Unrestricted Subsidiaries is strictly capped at 0.40% of Consolidated Total Assets ($10,000,000.00) with a 0.20% threshold and 36-month covenant survival.
