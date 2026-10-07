@@ -449,6 +449,7 @@ export default function App() {
     if (workflowRunning) return;
     setWorkflowRunning(true);
     if (!isConfirm) {
+      setWorkflowSession(null);
       setWorkflowHitlAction(null);
       setWorkflowSummaryResult(null);
       setWorkflowMetrics(null);
@@ -466,7 +467,7 @@ export default function App() {
       // Build payload
       const payload: any = {
         agent_id: workflowAgentId,
-        session_token: workflowSession,
+        session_token: isConfirm ? workflowSession : undefined,
         action_confirmed: isConfirm,
       };
 

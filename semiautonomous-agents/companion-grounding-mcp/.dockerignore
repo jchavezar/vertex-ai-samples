@@ -1,0 +1,10 @@
+.env
+.env.*
+*.pem
+*.key
+*_token.json
+*oauth*
+.git
+__pycache__
+.venv
+venv

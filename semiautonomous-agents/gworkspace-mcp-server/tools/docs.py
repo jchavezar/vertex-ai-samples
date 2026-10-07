@@ -121,53 +121,52 @@ def register_docs_tools(mcp, auth_manager):
     @mcp.tool()
     def docs_create(
         title: str,
-        content: str = ""
+        content: str = "",
+        parent_id: str = "",
+        is_html: bool = False
     ) -> str:
         """
-        Create a new Google Doc.
+        Create a new Google Doc (supports direct Drive folder placement and HTML/text conversion).
 
         Args:
             title: Document title
-            content: Initial content (optional)
+            content: Initial content (text or HTML)
+            parent_id: Optional Google Drive folder ID to place the document in
+            is_html: Set True if content is HTML for rich formatting (headings, tables, bold)
         """
         try:
-            # Create empty document
+            import json
+            metadata = {
+                "name": title,
+                "mimeType": "application/vnd.google-apps.document"
+            }
+            if parent_id:
+                metadata["parents"] = [parent_id]
+
+            content_type = "text/html" if is_html else "text/plain"
+            boundary = "===gdoc_create_boundary==="
+            body = (
+                f"--{boundary}\r\n"
+                f"Content-Type: application/json; charset=UTF-8\r\n\r\n"
+                f"{json.dumps(metadata)}\r\n"
+                f"--{boundary}\r\n"
+                f"Content-Type: {content_type}; charset=UTF-8\r\n\r\n"
+                f"{content}\r\n"
+                f"--{boundary}--"
+            )
+
             response = requests.post(
-                f"{DOCS_API}/documents",
-                headers={**get_headers(), "Content-Type": "application/json"},
-                json={"title": title}
+                "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,name,webViewLink",
+                headers={
+                    **get_headers(),
+                    "Content-Type": f"multipart/related; boundary={boundary}"
+                },
+                data=body.encode("utf-8")
             )
             response.raise_for_status()
             doc = response.json()
-            doc_id = doc.get("documentId")
-
-            # Add content if provided
-            if content:
-                requests_body = {
-                    "requests": [
-                        {
-                            "insertText": {
-                                "location": {"index": 1},
-                                "text": content
-                            }
-                        }
-                    ]
-                }
-
-                update_response = requests.post(
-                    f"{DOCS_API}/documents/{doc_id}:batchUpdate",
-                    headers={**get_headers(), "Content-Type": "application/json"},
-                    json=requests_body
-                )
-                update_response.raise_for_status()
-
-            # Get document link
-            drive_response = requests.get(
-                f"{DRIVE_API}/files/{doc_id}",
-                headers=get_headers(),
-                params={"fields": "webViewLink"}
-            )
-            web_link = drive_response.json().get("webViewLink", "N/A") if drive_response.ok else "N/A"
+            doc_id = doc.get("id")
+            web_link = doc.get("webViewLink", f"https://docs.google.com/document/d/{doc_id}/edit")
 
             return f"""Document created successfully!
 
@@ -195,38 +194,34 @@ def register_docs_tools(mcp, auth_manager):
             text: Text to append
         """
         try:
-            # First get document to find end index
-            doc_response = requests.get(
-                f"{DOCS_API}/documents/{document_id}",
-                headers=get_headers()
+            # Export existing text via Drive API
+            exp_response = requests.get(
+                f"{DRIVE_API}/files/{document_id}/export",
+                headers=get_headers(),
+                params={"mimeType": "text/plain"}
             )
-            doc_response.raise_for_status()
-            doc = doc_response.json()
+            exp_response.raise_for_status()
+            existing_text = exp_response.text
+            updated_text = existing_text.rstrip() + "\n\n" + text
 
-            # Find the end index
-            end_index = 1
-            for element in doc.get("body", {}).get("content", []):
-                if "endIndex" in element:
-                    end_index = element["endIndex"]
+            boundary = "===gdoc_append_boundary==="
+            body = (
+                f"--{boundary}\r\n"
+                f"Content-Type: application/json; charset=UTF-8\r\n\r\n"
+                f"{{}}\r\n"
+                f"--{boundary}\r\n"
+                f"Content-Type: text/plain; charset=UTF-8\r\n\r\n"
+                f"{updated_text}\r\n"
+                f"--{boundary}--"
+            )
 
-            # Insert at end (before the final newline)
-            insert_index = max(1, end_index - 1)
-
-            requests_body = {
-                "requests": [
-                    {
-                        "insertText": {
-                            "location": {"index": insert_index},
-                            "text": "\n" + text
-                        }
-                    }
-                ]
-            }
-
-            response = requests.post(
-                f"{DOCS_API}/documents/{document_id}:batchUpdate",
-                headers={**get_headers(), "Content-Type": "application/json"},
-                json=requests_body
+            response = requests.patch(
+                f"https://www.googleapis.com/upload/drive/v3/files/{document_id}?uploadType=multipart",
+                headers={
+                    **get_headers(),
+                    "Content-Type": f"multipart/related; boundary={boundary}"
+                },
+                data=body.encode("utf-8")
             )
             response.raise_for_status()
 
@@ -237,6 +232,56 @@ def register_docs_tools(mcp, auth_manager):
         except Exception as e:
             logger.error(f"Docs append error: {e}")
             return f"Error appending to document: {str(e)}"
+
+    @mcp.tool()
+    def docs_replace_text(
+        document_id: str,
+        find_text: str,
+        replace_text: str
+    ) -> str:
+        """
+        Replace occurrences of text in a Google Doc.
+
+        Args:
+            document_id: The document ID
+            find_text: Exact text to find
+            replace_text: Replacement text
+        """
+        try:
+            exp_response = requests.get(
+                f"{DRIVE_API}/files/{document_id}/export",
+                headers=get_headers(),
+                params={"mimeType": "text/plain"}
+            )
+            exp_response.raise_for_status()
+            existing_text = exp_response.text
+            if find_text not in existing_text:
+                return f"Text '{find_text}' not found in document {document_id}."
+
+            updated_text = existing_text.replace(find_text, replace_text)
+            boundary = "===gdoc_replace_boundary==="
+            body = (
+                f"--{boundary}\r\n"
+                f"Content-Type: application/json; charset=UTF-8\r\n\r\n"
+                f"{{}}\r\n"
+                f"--{boundary}\r\n"
+                f"Content-Type: text/plain; charset=UTF-8\r\n\r\n"
+                f"{updated_text}\r\n"
+                f"--{boundary}--"
+            )
+            response = requests.patch(
+                f"https://www.googleapis.com/upload/drive/v3/files/{document_id}?uploadType=multipart",
+                headers={
+                    **get_headers(),
+                    "Content-Type": f"multipart/related; boundary={boundary}"
+                },
+                data=body.encode("utf-8")
+            )
+            response.raise_for_status()
+            return f"Successfully replaced '{find_text}' with '{replace_text}' in document {document_id}"
+        except Exception as e:
+            logger.error(f"Docs replace error: {e}")
+            return f"Error replacing text: {str(e)}"
 
     @mcp.tool()
     def docs_search(query: str) -> str:

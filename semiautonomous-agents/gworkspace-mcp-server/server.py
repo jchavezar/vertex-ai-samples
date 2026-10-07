@@ -21,6 +21,8 @@ from tools.drive import register_drive_tools
 from tools.calendar import register_calendar_tools
 from tools.docs import register_docs_tools
 from tools.sheets import register_sheets_tools
+from tools.salesforce import register_salesforce_tools
+from tools.servicenow import register_servicenow_tools
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -125,6 +127,8 @@ register_drive_tools(mcp, auth_manager)
 register_calendar_tools(mcp, auth_manager)
 register_docs_tools(mcp, auth_manager)
 register_sheets_tools(mcp, auth_manager)
+register_salesforce_tools(mcp)
+register_servicenow_tools(mcp)
 
 
 if __name__ == "__main__":

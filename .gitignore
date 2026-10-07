@@ -28,6 +28,12 @@ credentials.json
 *_token.json
 token.json
 **/last_setup_resources.json
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+semiautonomous-agents/companion-grounding-mcp/data/
 
 
 # Explicitly ignore the private sample we were working on

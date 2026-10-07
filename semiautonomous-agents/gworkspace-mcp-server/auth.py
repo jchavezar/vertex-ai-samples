@@ -67,17 +67,21 @@ class GoogleAuthManager:
     USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
     REDIRECT_URI = "http://localhost:8765/"
 
-    def __init__(self, client_id: str, client_secret: str = ""):
-        self.client_id = client_id
-        self.client_secret = client_secret
+    def __init__(self, client_id: str = "", client_secret: str = ""):
+        self.client_id = client_id or os.getenv("GOOGLE_CLIENT_ID", "")
+        self.client_secret = client_secret or os.getenv("GOOGLE_CLIENT_SECRET", "")
         self.state = AuthState()
         self._auth_code: Optional[str] = None
         self._lock = threading.Lock()
 
-        self._secret_id = os.getenv("GWORKSPACE_SECRET_ID", "")
-        self._secret_project = os.getenv("GOOGLE_CLOUD_PROJECT", "")
+        self._token_file = os.path.expanduser(os.getenv("GWORKSPACE_TOKEN_FILE", "~/.gemini/gworkspace_altostrat_token.json"))
+        self._secret_id = os.getenv("GWORKSPACE_SECRET_ID", "gworkspace-mcp-tokens-altostrat")
+        self._secret_project = os.getenv("GOOGLE_CLOUD_PROJECT", "vtxdemos")
         self._sm_client = None
-        if self._secret_id and self._secret_project and _SM_AVAILABLE:
+
+        if os.path.exists(self._token_file):
+            self._load_from_file()
+        elif self._secret_id and self._secret_project and _SM_AVAILABLE:
             try:
                 self._sm_client = secretmanager.SecretManagerServiceClient()
                 self._load_from_secret()
@@ -95,6 +99,28 @@ class GoogleAuthManager:
                 self._fetch_user_info()
             except Exception as e:
                 logger.warning(f"Failed to fetch user info in init: {e}")
+
+    def _load_from_file(self) -> None:
+        try:
+            with open(self._token_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            self.state.access_token = data.get("access_token")
+            self.state.refresh_token = data.get("refresh_token")
+            self.state.expires_at = data.get("expires_at")
+            self.state.user_info = data.get("user_info")
+            logger.info(f"Loaded tokens from local file {self._token_file}")
+        except Exception as e:
+            logger.error(f"Failed to load tokens from file: {e}")
+
+    def _save_to_file(self) -> None:
+        try:
+            os.makedirs(os.path.dirname(self._token_file), exist_ok=True)
+            with open(self._token_file, "w", encoding="utf-8") as f:
+                json.dump(asdict(self.state), f, indent=2)
+            os.chmod(self._token_file, 0o600)
+            logger.info(f"Saved tokens to local file {self._token_file}")
+        except Exception as e:
+            logger.error(f"Failed to save tokens to file: {e}")
 
     def _secret_name(self) -> str:
         return f"projects/{self._secret_project}/secrets/{self._secret_id}"
@@ -114,6 +140,7 @@ class GoogleAuthManager:
             logger.info(f"No existing tokens in Secret Manager: {e}")
 
     def _save_to_secret(self) -> None:
+        self._save_to_file()
         if not self._sm_client:
             return
         try:

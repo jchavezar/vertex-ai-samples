@@ -1,0 +1,42 @@
+{
+  "15060359153146727121": {
+    "name": "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/assistants/default_assistant/agents/15060359153146727121",
+    "displayName": "Cognizant Test 2 - WITH GcsArtifactService + Plugin (+60MB GCS Tool)",
+    "description": "ADK Custom Agent WITH GcsArtifactService + SaveFilesAsArtifactsPlugin enabled. Offloads <=20MB paperclip files to GCS and analyzes 60MB+ files via direct gs:// URI.",
+    "createTime": "2026-09-16T15:59:15.368549Z",
+    "updateTime": "2026-09-16T15:59:15.368549Z",
+    "adkAgentDefinition": {
+      "toolSettings": {
+        "toolDescription": "ADK Custom Agent WITH GcsArtifactService + SaveFilesAsArtifactsPlugin enabled. Offloads <=20MB paperclip files to GCS and analyzes 60MB+ files via direct gs:// URI."
+      },
+      "provisionedReasoningEngine": {
+        "reasoningEngine": "projects/254356041555/locations/us-central1/reasoningEngines/4076528970177183744"
+      }
+    },
+    "state": "ENABLED",
+    "sharingConfig": {
+      "scope": "ALL_USERS"
+    },
+    "agentIdentityInfo": {}
+  },
+  "7438591057133018180": {
+    "name": "projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023/assistants/default_assistant/agents/7438591057133018180",
+    "displayName": "Cognizant Test 1 - NO Artifact Plugin (Inline Bloat)",
+    "description": "ADK Custom Agent WITHOUT GcsArtifactService/SaveFilesAsArtifactsPlugin. Fails/bloats on >=4MB files due to 10MiB SessionService.AppendEvent limit.",
+    "createTime": "2026-09-16T15:59:14.365009Z",
+    "updateTime": "2026-09-16T15:59:14.365009Z",
+    "adkAgentDefinition": {
+      "toolSettings": {
+        "toolDescription": "ADK Custom Agent WITHOUT GcsArtifactService/SaveFilesAsArtifactsPlugin. Fails/bloats on >=4MB files due to 10MiB SessionService.AppendEvent limit."
+      },
+      "provisionedReasoningEngine": {
+        "reasoningEngine": "projects/254356041555/locations/us-central1/reasoningEngines/4409795342602600448"
+      }
+    },
+    "state": "ENABLED",
+    "sharingConfig": {
+      "scope": "ALL_USERS"
+    },
+    "agentIdentityInfo": {}
+  }
+}

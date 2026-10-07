@@ -179,7 +179,8 @@ def register_sheets_tools(mcp, auth_manager):
     @mcp.tool()
     def sheets_create(
         title: str,
-        sheet_names: str = "Sheet1"
+        sheet_names: str = "Sheet1",
+        parent_id: str = ""
     ) -> str:
         """
         Create a new Google Sheet.
@@ -187,6 +188,7 @@ def register_sheets_tools(mcp, auth_manager):
         Args:
             title: Spreadsheet title
             sheet_names: Comma-separated sheet names (default "Sheet1")
+            parent_id: Optional Google Drive folder ID to place the spreadsheet in
         """
         try:
             sheets = [
@@ -204,11 +206,25 @@ def register_sheets_tools(mcp, auth_manager):
             )
             response.raise_for_status()
             data = response.json()
+            sheet_id = data.get("spreadsheetId")
+
+            if parent_id and sheet_id:
+                meta = requests.get(
+                    f"{DRIVE_API}/files/{sheet_id}",
+                    headers=get_headers(),
+                    params={"fields": "parents"}
+                ).json()
+                prev_parents = ",".join(meta.get("parents", []))
+                requests.patch(
+                    f"{DRIVE_API}/files/{sheet_id}",
+                    headers=get_headers(),
+                    params={"addParents": parent_id, "removeParents": prev_parents}
+                )
 
             return f"""Spreadsheet created successfully!
 
 **Title:** {data.get('properties', {}).get('title')}
-**ID:** `{data.get('spreadsheetId')}`
+**ID:** `{sheet_id}`
 **URL:** {data.get('spreadsheetUrl')}
 """
 
