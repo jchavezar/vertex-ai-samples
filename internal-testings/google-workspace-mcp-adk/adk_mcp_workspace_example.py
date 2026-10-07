@@ -1,3 +1,4 @@
+#%%
 """
 Google ADK (Agent Development Kit) & Google Workspace Remote MCP Example
 
@@ -196,22 +197,7 @@ async def main():
     print("================================================================")
 
 
-def safe_run(coro):
-    """Runs an async coroutine safely in both standard CLI and Jupyter / Interactive loops."""
-    import concurrent.futures
-    try:
-        loop = asyncio.get_running_loop()
-    except RuntimeError:
-        loop = None
-
-    if loop and loop.is_running():
-        # Running inside VS Code Interactive Window or Jupyter Kernel
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            return pool.submit(asyncio.run, coro).result()
-    else:
-        return asyncio.run(coro)
-
-
 if __name__ == "__main__":
-    safe_run(main())
+    asyncio.run(main())
 
+# %%

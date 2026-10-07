@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Universal Context Mesh — Google ADK & A2A Multi-Agent Runtime</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <!-- TOP ARCHITECTURAL HEADER BAR -->
+  <header class="top-header">
+    <div class="brand-cluster">
+      <div class="brand-mark">UCM</div>
+      <div>
+        <div class="brand-title">UNIVERSAL CONTEXT MESH</div>
+        <div class="brand-subtitle">Google ADK 2.9 + A2A Protocol JSON-RPC 2.0 + Memory Bank</div>
+      </div>
+    </div>
+
+    <!-- LIVE AGENT RUNTIME STATUS PILLS (CLICK TO INSPECT A2A AGENT CARDS) -->
+    <div class="runtime-pills">
+      <div class="runtime-pill" onclick="inspectRuntimeCard('orchestrator_agent')" title="Click to inspect Orchestrator Runtime">
+        <span class="status-dot online" id="dot-orchestrator"></span>
+        <span>ORCHESTRATOR :8010</span>
+      </div>
+      <div class="runtime-pill" onclick="inspectRuntimeCard('wealth_agent')" title="Click to inspect A2A Agent Card (/.well-known/agent-card.json)">
+        <span class="status-dot online" id="dot-wealth_agent"></span>
+        <span id="pillLabel1">ORDERING A2A :8011</span>
+      </div>
+      <div class="runtime-pill" onclick="inspectRuntimeCard('legal_tax_agent')" title="Click to inspect A2A Agent Card (/.well-known/agent-card.json)">
+        <span class="status-dot online" id="dot-legal_tax_agent"></span>
+        <span id="pillLabel2">DELIVERY A2A :8012</span>
+      </div>
+      <div class="runtime-pill" onclick="inspectRuntimeCard('mobility_agent')" title="Click to inspect A2A Agent Card (/.well-known/agent-card.json)">
+        <span class="status-dot online" id="dot-mobility_agent"></span>
+        <span id="pillLabel3">SUPPORT A2A :8013</span>
+      </div>
+    </div>
+
+    <!-- USER SWITCHER & MANDATORY DYNAMIC LIGHT/DARK THEME TOGGLE -->
+    <div class="header-controls">
+      <div class="user-select-wrapper">
+        <span class="user-select-label">USER CONTEXT:</span>
+        <select id="userSelector" class="user-select" onchange="onUserChanged(this.value)">
+          <option value="carlos@restaurant.io">🍕 Carlos (Restaurant: Ordering ↔ Delivery Use Case)</option>
+          <option value="alex.rivera@enterprise.io">💼 Alex Rivera (Enterprise: Wealth ↔ Legal ↔ Mobility)</option>
+          <option value="sofia.chen@globalfund.ch">🧬 Dr. Sofia Chen (Biotech Exec)</option>
+        </select>
+      </div>
+      <button class="btn btn-secondary btn-mono" onclick="promptNewUser()" title="Create new isolated user context">+ USER</button>
+      <button class="btn btn-secondary btn-mono" onclick="clearUserSlate()" title="Wipe all preloaded orders, memories, and chat sessions for an empty slate">🗑️ CLEAR SLATE</button>
+      <button class="btn btn-secondary btn-mono" onclick="resetDemoData()" title="Reset demo presets">↺ RESET PRESETS</button>
+      <button id="themeToggleBtn" class="btn btn-secondary btn-mono" onclick="toggleTheme()">
+        🌙 Dark
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN 3-COLUMN WORKBENCH -->
+  <main class="workbench-grid">
+
+    <!-- LEFT COLUMN: AUTONOMOUS ROUNDTABLE & AGENT/SESSION SWITCHER -->
+    <section class="panel-col">
+      <div class="panel-header">
+        <span class="panel-title">1. Agent Runtimes & Sessions</span>
+        <span class="context-card-badge" id="wsStatusBadge">WS: LIVE</span>
+      </div>
+      <div class="panel-body">
+
+        <!-- 1-CLICK E2E MULTI-AGENT REAL-TIME SESSION SHARE DEMO -->
+        <div class="roundtable-card">
+          <div class="roundtable-tag">
+            <span>REAL-TIME MULTI-AGENT SYNC</span>
+            <span>A2A + ADK</span>
+          </div>
+          <div class="roundtable-title" id="roundtableTitle">Autonomous Session-Share Roundtable</div>
+          <div class="roundtable-desc" id="roundtableDesc">
+            Watch Ordering Agent (Session #1), Delivery Agent (Session #2), and VIP Support (Session #3) collaborate in real time—automatically sharing order items & gate codes across separate sessions!
+          </div>
+          <button id="roundtableBtn" class="btn btn-primary" style="width: 100%;" onclick="runLiveRoundtable()">
+            ⚡ Launch Live Multi-Agent Roundtable
+          </button>
+        </div>
+
+        <!-- SELECT TARGET AGENT FOR INTERACTIVE SESSION -->
+        <div class="section-label">Select Target Agent Runtime (New or Active Session)</div>
+        <div class="agent-selector-list" id="agentSelectorList">
+          <button class="agent-card-btn active" data-agent="orchestrator_agent" onclick="selectTargetAgent('orchestrator_agent')">
+            <div class="agent-card-top">
+              <span class="agent-card-name" id="cardName0">Universal Orchestrator</span>
+              <span class="agent-card-meta">PORT 8010 · HUB</span>
+            </div>
+            <div class="agent-card-sub" id="cardSub0">Coordinates Ordering, Delivery & Support agents via A2A JSON-RPC 2.0</div>
+          </button>
+
+          <button class="agent-card-btn" data-agent="wealth_agent" onclick="selectTargetAgent('wealth_agent')">
+            <div class="agent-card-top">
+              <span class="agent-card-name" id="cardName1">🍕 Ordering & Menu Agent</span>
+              <span class="agent-card-meta">PORT 8011 · A2A</span>
+            </div>
+            <div class="agent-card-sub" id="cardSub1">Session #1: Takes food orders & allergies -> Updates `user:active_order`</div>
+          </button>
+
+          <button class="agent-card-btn" data-agent="legal_tax_agent" onclick="selectTargetAgent('legal_tax_agent')">
+            <div class="agent-card-top">
+              <span class="agent-card-name" id="cardName2">🛵 Delivery & Driver Agent</span>
+              <span class="agent-card-meta">PORT 8012 · A2A</span>
+            </div>
+            <div class="agent-card-sub" id="cardSub2">Session #2 (Separate!): Knows order + Google Maps Live Route & ETA!</div>
+          </button>
+
+          <button class="agent-card-btn" data-agent="mobility_agent" onclick="selectTargetAgent('mobility_agent')">
+            <div class="agent-card-top">
+              <span class="agent-card-name" id="cardName3">🛎️ Kitchen & VIP Support</span>
+              <span class="agent-card-meta">PORT 8013 · A2A</span>
+            </div>
+            <div class="agent-card-sub" id="cardSub3">Session #3 (Separate!): Verifies allergy prep (Sess #1) & gate code (Sess #2)</div>
+          </button>
+        </div>
+
+        <!-- QUICK CROSS-SESSION CONTEXT TEST SCENARIOS -->
+        <div class="section-label">1-Click Cross-Session Share Tests (Separate Sessions!)</div>
+        <div class="scenario-chips" id="scenarioChipsContainer">
+          <button class="scenario-chip" onclick="runQuickScenario('wealth_agent', 'Hi! I am Carlos. Please place a brand new order #ORD-5500: 3x Birria Tacos ($18) and 1x Horchata ($5) for delivery to 1600 Amphitheatre Pkwy, Mountain View. Note: severe peanut allergy!')">
+            <span class="scenario-chip-badge">STEP 1 → ORDERING AGENT (SESSION #1)</span>
+            "Place brand-new Order #ORD-5500: 3x Birria Tacos & Horchata to 1600 Amphitheatre Pkwy..."
+          </button>
+          <button class="scenario-chip" onclick="runQuickScenario('legal_tax_agent', 'Hey Delivery Agent! In this separate session, without me repeating my order, what items do you see in my active order right now, and can you check Google Maps for the live delivery route, traffic conditions, and exact ETA to my address?')">
+            <span class="scenario-chip-badge">STEP 2 → DELIVERY AGENT + GOOGLE MAPS ETA (SESSION #2)</span>
+            "Check Google Maps for live route, traffic & exact ETA for my order!"
+          </button>
+          <button class="scenario-chip" onclick="runQuickScenario('mobility_agent', 'Hi Support! Can you confirm that the kitchen saw my peanut allergy from Ordering Session #1 and check the latest Google Maps ETA from Delivery Session #2?')">
+            <span class="scenario-chip-badge">STEP 3 → VIP SUPPORT (SESSION #3 - DIFFERENT SESSION!)</span>
+            "Confirm kitchen saw my peanut allergy (Sess #1) & check Google Maps ETA (Sess #2)."
+          </button>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CENTER COLUMN: LIVE CONVERSATION STREAM & REAL-TIME TOPOLOGY VISUALIZER -->
+    <section class="panel-col">
+      <div class="tab-bar">
+        <button class="tab-btn active" id="tabBtnChat" onclick="switchCenterTab('chat')">
+          💬 Interactive Session & Context Share Stream
+        </button>
+        <button class="tab-btn" id="tabBtnTopology" onclick="switchCenterTab('topology')">
+          🕸️ Live A2A Network Topology & WebSocket Feed (<span id="telemetryCountBadge">0</span>)
+        </button>
+      </div>
+
+      <!-- TAB 1: CHAT & CONTEXT INJECTION STREAM -->
+      <div class="chat-container" id="centerChatPane">
+        <div class="chat-messages" id="chatMessagesList"></div>
+
+        <!-- MANDATORY CLAUDE-CODE SHRINKING & SHINING INK LOADER BANNER -->
+        <div class="loader-banner" id="inkLoaderBanner">
+          <div class="shrinking-shining-ink"></div>
+          <div>
+            <div class="sweep-text" id="loaderStatusText">
+              Synchronizing Universal User Context & executing Google ADK + A2A turn...
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary);" id="loaderSubText">
+              Injecting cross-agent Memory Bank & `user:*` namespaces into active session
+            </div>
+          </div>
+        </div>
+
+        <!-- CHAT INPUT BAR -->
+        <form class="chat-input-bar" onsubmit="handleChatSubmit(event)">
+          <input
+            type="text"
+            id="chatInputBox"
+            class="chat-input"
+            placeholder="Ask active agent anything... (automatically inherits Universal Context from all other agents)"
+            autocomplete="off"
+          />
+          <button type="submit" id="sendChatBtn" class="btn btn-primary">
+            Send Turn →
+          </button>
+        </form>
+      </div>
+
+      <!-- TAB 2: LIVE A2A NETWORK TOPOLOGY & TELEMETRY STREAM -->
+      <div class="topology-container" id="centerTopologyPane">
+        <div class="topology-diagram">
+          <div class="mesh-hub-box" id="hubNodeBox">
+            <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary);">
+              CENTRAL UNIVERSAL USER CONTEXT HUB (PORT 8010)
+            </div>
+            <div style="font-size: 14px; font-weight: 700; margin: 4px 0;">
+              Universal State (`user:*`) + Cross-Agent Memory Bank + Artifact Vault
+            </div>
+            <div style="font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary);">
+              Real-time WebSocket Pub/Sub (`/ws/telemetry`) across all sessions
+            </div>
+          </div>
+
+          <div class="mesh-nodes-row">
+            <div class="mesh-node-card" id="meshNode-orchestrator_agent">
+              <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary);">PORT 8010</div>
+              <div style="font-weight: 700; font-size: 12px; margin: 4px 0;">Orchestrator</div>
+              <div style="font-family: var(--font-mono); font-size: 10px;">ADK + A2A Client</div>
+            </div>
+            <div class="mesh-node-card" id="meshNode-wealth_agent">
+              <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary);">PORT 8011</div>
+              <div style="font-weight: 700; font-size: 12px; margin: 4px 0;">Wealth Agent</div>
+              <div style="font-family: var(--font-mono); font-size: 10px;">`user:financial_profile`</div>
+            </div>
+            <div class="mesh-node-card" id="meshNode-legal_tax_agent">
+              <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary);">PORT 8012</div>
+              <div style="font-weight: 700; font-size: 12px; margin: 4px 0;">Legal & Tax</div>
+              <div style="font-family: var(--font-mono); font-size: 10px;">`user:legal_tax_status`</div>
+            </div>
+            <div class="mesh-node-card" id="meshNode-mobility_agent">
+              <div style="font-family: var(--font-mono); font-size: 10px; color: var(--text-secondary);">PORT 8013</div>
+              <div style="font-weight: 700; font-size: 12px; margin: 4px 0;">Mobility Agent</div>
+              <div style="font-family: var(--font-mono); font-size: 10px;">`user:mobility_plan`</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span class="panel-title">Live WebSocket Telemetry Feed (`/ws/telemetry`)</span>
+          <button class="btn btn-secondary btn-mono" onclick="clearTelemetryView()">Clear Feed</button>
+        </div>
+
+        <div class="telemetry-stream-list" id="telemetryStreamList"></div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN: UNIVERSAL CONTEXT INSPECTOR (MEMORY BANK, STATE DIFF, ARTIFACTS) -->
+    <section class="panel-col">
+      <div class="tab-bar">
+        <button class="tab-btn active" id="rightTabMemories" onclick="switchRightTab('memories')">
+          🧠 Memory Bank (<span id="memCountBadge">0</span>)
+        </button>
+        <button class="tab-btn" id="rightTabState" onclick="switchRightTab('state')">
+          ⚡ `user:*` State
+        </button>
+        <button class="tab-btn" id="rightTabArtifacts" onclick="switchRightTab('artifacts')">
+          📄 Artifacts (<span id="artCountBadge">0</span>)
+        </button>
+      </div>
+
+      <!-- RIGHT TAB 1: UNIVERSAL MEMORY BANK -->
+      <div class="panel-body" id="rightPaneMemories">
+        <div style="display: flex; gap: 6px; margin-bottom: 12px;">
+          <input
+            type="text"
+            id="newMemoryInput"
+            class="chat-input"
+            style="padding: 6px 10px; font-size: 11px;"
+            placeholder="Add manual semantic fact to Memory Bank..."
+          />
+          <button class="btn btn-secondary btn-mono" onclick="addManualMemory()">+ ADD</button>
+        </div>
+        <div id="memoriesListContainer"></div>
+      </div>
+
+      <!-- RIGHT TAB 2: UNIVERSAL STATE (`user:*` NAMESPACES & DIFF HISTORY) -->
+      <div class="panel-body" id="rightPaneState" style="display: none;">
+        <div class="section-label" style="margin-top: 0;">Live Universal User State (`user:*` Namespaces)</div>
+        <div id="universalStateContainer"></div>
+
+        <div class="section-label">Recent Cross-Agent State Mutations</div>
+        <div id="mutationHistoryContainer"></div>
+      </div>
+
+      <!-- RIGHT TAB 3: SHARED ARTIFACT VAULT -->
+      <div class="panel-body" id="rightPaneArtifacts" style="display: none;">
+        <div class="section-label" style="margin-top: 0;">Shared Universal Artifact Vault (`user:universal`)</div>
+        <div id="artifactsListContainer"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL DIALOG FOR INSPECTING A2A AGENT CARDS, JSON-RPC TRACES, & ARTIFACTS -->
+  <div class="modal-backdrop" id="inspectorModal" onclick="if(event.target===this) closeInspectorModal()">
+    <div class="modal-window">
+      <div class="modal-header">
+        <span class="modal-title" id="modalTitle">INSPECTOR</span>
+        <button class="btn btn-secondary btn-mono" onclick="closeInspectorModal()">✕ CLOSE</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

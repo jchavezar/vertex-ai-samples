@@ -1,0 +1,1546 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Japan 2026 — Complete Trip Expense & Multi-Source FX Intelligence Cockpit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      /* Light Mode (Default — Vercel Monochrome Architecture) */
+      --bg-canvas: #fafafa;
+      --bg-grid: #eaeaea;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f4f4f5;
+      --bg-header: rgba(250, 250, 250, 0.92);
+      --border-subtle: #eaeaea;
+      --border-hover: #111111;
+      --text-primary: #09090b;
+      --text-secondary: #666666;
+      --text-muted: #a1a1aa;
+      --btn-primary-bg: #09090b;
+      --btn-primary-text: #ffffff;
+      --btn-primary-hover: #27272a;
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-text: #09090b;
+      --btn-secondary-hover: #f4f4f5;
+      --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.05);
+      --ink-grad-1: radial-gradient(circle at 20% 20%, #52525b, #18181b, #000000);
+      --ink-grad-2: radial-gradient(circle at 80% 20%, #71717a, #27272a, #09090b);
+      --ink-grad-3: radial-gradient(circle at 40% 80%, #3f3f46, #09090b, #000000);
+      --ink-shadow: rgba(0, 0, 0, 0.28);
+      --sweep-grad: linear-gradient(90deg, #71717a 0%, #09090b 50%, #71717a 100%);
+      --badge-expense-bg: #09090b;
+      --badge-expense-text: #ffffff;
+      --badge-digital-bg: #27272a;
+      --badge-digital-text: #ffffff;
+      --badge-slip-bg: #f4f4f5;
+      --badge-slip-text: #52525b;
+      --badge-non-bg: #fafafa;
+      --badge-non-text: #71717a;
+      --positive: #15803d;
+      --negative: #b91c1c;
+      --warning: #b45309;
+      --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Mode */
+      --bg-canvas: #000000;
+      --bg-grid: #111111;
+      --bg-surface: #0a0a0a;
+      --bg-elevated: #111111;
+      --bg-header: rgba(5, 5, 5, 0.92);
+      --border-subtle: #222222;
+      --border-hover: #ededed;
+      --text-primary: #ededed;
+      --text-secondary: #888888;
+      --text-muted: #52525b;
+      --btn-primary-bg: #ffffff;
+      --btn-primary-text: #000000;
+      --btn-primary-hover: #d4d4d8;
+      --btn-secondary-bg: #0a0a0a;
+      --btn-secondary-text: #ededed;
+      --btn-secondary-hover: #18181b;
+      --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.85);
+      --ink-grad-1: radial-gradient(circle at 20% 20%, #ffffff, #a1a1aa, #09090b);
+      --ink-grad-2: radial-gradient(circle at 80% 20%, #f4f4f5, #71717a, #18181b);
+      --ink-grad-3: radial-gradient(circle at 40% 80%, #e4e4e7, #52525b, #000000);
+      --ink-shadow: rgba(255, 255, 255, 0.45);
+      --sweep-grad: linear-gradient(90deg, #71717a 0%, #ffffff 50%, #71717a 100%);
+      --badge-expense-bg: #ededed;
+      --badge-expense-text: #09090b;
+      --badge-digital-bg: #d4d4d8;
+      --badge-digital-text: #09090b;
+      --badge-slip-bg: #18181b;
+      --badge-slip-text: #a1a1aa;
+      --badge-non-bg: #111111;
+      --badge-non-text: #71717a;
+      --positive: #4ade80;
+      --negative: #f87171;
+      --warning: #fbbf24;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-canvas);
+      background-image:
+        linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+      background-size: 48px 48px;
+      color: var(--text-primary);
+      line-height: 1.5;
+      letter-spacing: -0.015em;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .brand-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -0.025em;
+    }
+
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      font-weight: 500;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      border-color: var(--border-hover);
+      background: var(--btn-secondary-hover);
+    }
+
+    .btn-primary {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border-color: var(--btn-primary-bg);
+    }
+
+    .btn-primary:hover {
+      background: var(--btn-primary-hover);
+      border-color: var(--btn-primary-hover);
+    }
+
+    /* Claude-Code Shrinking & Shining Ink Loader */
+    .shrinking-shining-ink {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--ink-grad-1);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      animation:
+        ink-morph 3.8s ease-in-out infinite alternate,
+        ink-pulse 1.4s ease-in-out infinite,
+        ink-shine 2.8s linear infinite;
+      filter: drop-shadow(0 0 8px var(--ink-shadow));
+    }
+
+    .shrinking-shining-ink::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ffffff;
+      opacity: 0.85;
+      animation: ink-core-blink 0.65s ease-in-out infinite alternate;
+    }
+
+    [data-theme="dark"] .shrinking-shining-ink::after {
+      background: #09090b;
+    }
+
+    @keyframes ink-morph {
+      0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+      50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; }
+      100% { border-radius: 50% 50% 40% 60% / 40% 50% 60% 50%; }
+    }
+
+    @keyframes ink-pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(0.76); }
+    }
+
+    @keyframes ink-shine {
+      0% { background: var(--ink-grad-1); }
+      50% { background: var(--ink-grad-2); }
+      100% { background: var(--ink-grad-3); }
+    }
+
+    @keyframes ink-core-blink {
+      0% { transform: scale(0.35); opacity: 0.25; }
+      100% { transform: scale(1.25); opacity: 0.95; }
+    }
+
+    .sweep-text {
+      background: var(--sweep-grad);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: sweep 2.2s linear infinite;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    @keyframes sweep {
+      to { background-position: 200% center; }
+    }
+
+    .claude-reasoning-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--text-primary);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .claude-reasoning-box.active {
+      display: flex;
+    }
+
+    .container {
+      max-width: 1580px;
+      margin: 0 auto;
+      padding: 24px 28px 64px;
+    }
+
+    /* FX Rate Strip */
+    .fx-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 10px 16px;
+      margin-bottom: 20px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+    }
+
+    .fx-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+    }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow-card);
+      transition: border-color 0.15s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: var(--border-hover);
+    }
+
+    .kpi-label {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .kpi-value {
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+
+    .kpi-sub {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    /* Charts Grid */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    @media (max-width: 1100px) {
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .chart-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .chart-tag {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+
+    .chart-box {
+      position: relative;
+      height: 260px;
+    }
+
+    /* Card FX Comparison Banner */
+    .fx-explainer {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 16px;
+    }
+
+    .fx-col {
+      border-left: 2px solid var(--text-primary);
+      padding-left: 14px;
+    }
+
+    .fx-col h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .fx-col p {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    /* Table Controls */
+    .table-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 6px 11px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border-color: var(--btn-primary-bg);
+    }
+
+    .search-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .input-ctrl {
+      font-family: var(--font-sans);
+      font-size: 12.5px;
+      padding: 7px 11px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    .input-ctrl:focus {
+      border-color: var(--border-hover);
+    }
+
+    /* Table */
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    th {
+      text-align: left;
+      padding: 11px 12px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+    }
+
+    tr:hover td {
+      background: var(--bg-canvas);
+    }
+
+    tr.row-paired td {
+      opacity: 0.78;
+    }
+
+    tr.row-non-expense td {
+      opacity: 0.68;
+    }
+
+    .badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .badge-expense {
+      background: var(--badge-expense-bg);
+      color: var(--badge-expense-text);
+    }
+
+    .badge-digital {
+      background: var(--badge-digital-bg);
+      color: var(--badge-digital-text);
+    }
+
+    .badge-slip {
+      background: var(--badge-slip-bg);
+      color: var(--badge-slip-text);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .badge-non {
+      background: var(--badge-non-bg);
+      color: var(--badge-non-text);
+      border: 1px dashed var(--border-subtle);
+    }
+
+    .kanji-cell {
+      font-size: 13px;
+      font-weight: 600;
+      min-width: 190px;
+      max-width: 260px;
+      line-height: 1.45;
+    }
+
+    .desc-cell {
+      min-width: 260px;
+      max-width: 390px;
+    }
+
+    .desc-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+      color: var(--text-primary);
+    }
+
+    .desc-sub {
+      font-size: 11.5px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .mono-num {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .charged-input {
+      width: 96px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 5px 7px;
+      border-radius: 5px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+    }
+
+    .charged-input:focus {
+      border-color: var(--border-hover);
+      outline: none;
+    }
+
+    .diff-pos {
+      color: var(--negative);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .diff-neg {
+      color: var(--positive);
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .diff-zero {
+      color: var(--text-secondary);
+      font-family: var(--font-mono);
+    }
+
+    /* Modal Lightbox for Scanned Receipt / Digital e-Receipt */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      backdrop-filter: blur(4px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      max-width: 1060px;
+      width: 100%;
+      max-height: 90vh;
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      box-shadow: var(--shadow-card);
+    }
+
+    @media (max-width: 860px) {
+      .modal-content {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+      }
+    }
+
+    .modal-img-pane {
+      background: var(--bg-elevated);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      max-height: 88vh;
+      overflow: auto;
+      border-right: 1px solid var(--border-subtle);
+    }
+
+    .modal-img-pane img {
+      max-width: 100%;
+      max-height: 82vh;
+      object-fit: contain;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .digital-receipt-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 24px;
+      width: 100%;
+      max-width: 460px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      box-shadow: var(--shadow-card);
+    }
+
+    .modal-info-pane {
+      padding: 24px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .kv-row {
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 10px;
+    }
+
+    .kv-label {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+    }
+
+    .kv-val {
+      font-size: 13.5px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-group">
+      <div class="brand-mark">JP</div>
+      <div>
+        <div class="brand-title">Japan 2026 — Complete Trip Expense &amp; Multi-Source FX Intelligence Cockpit</div>
+        <div class="brand-sub">jchavezar@gmail.com • 44 Audited Records (18 Digital/Statement Trip Records + All 26 Scanned PDF Pages) • Amex *4002 &amp; BofA Visa *8577 Synced</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);">FX BENCHMARK:</span>
+        <select class="input-ctrl" id="fxSourceSelect" onchange="changeFxBenchmark(this.value)" style="font-family:var(--font-mono);font-size:11.5px;">
+          <option value="ecb">Source 1: ECB / Frankfurter (16:00 CET)</option>
+          <option value="yahoo">Source 2: Yahoo Finance Spot (NY 17:00 Close)</option>
+          <option value="capi">Source 3: Interbank Currency-API (Daily Close)</option>
+        </select>
+      </div>
+      <button class="btn" onclick="syncFromChrome()">
+        <span>⚡ Sync Google Wallet / Chrome</span>
+      </button>
+      <a class="btn" href="/static/Scanned_20260928-2316.pdf" target="_blank">
+        <span>📄 Open Original 26-Page PDF</span>
+      </a>
+      <button class="btn btn-primary" id="themeToggleBtn" onclick="toggleTheme()">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Dark Mode</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Claude-Code Shrinking & Shining Ink Loader Drawer -->
+    <div class="claude-reasoning-box" id="loaderBox">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="shrinking-shining-ink"></div>
+        <div>
+          <div class="sweep-text" id="loaderTitle">SYNCHRONIZING WITH GOOGLE CHROME (@GOOGLE WALLET / PLAID) &amp; RECOMPUTING FX SPREADS...</div>
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--text-secondary);" id="loaderTrace">
+            [0.1s] Inspecting active Chrome tabs (gemini.google.com / Bank of America *8577 / Amex *4002)...
+          </div>
+        </div>
+      </div>
+      <button class="btn" onclick="document.getElementById('loaderBox').classList.remove('active')">Dismiss</button>
+    </div>
+
+    <!-- Historical Market FX Strip -->
+    <div class="fx-strip">
+      <div style="font-weight:600;">3-SOURCE DAILY USD/JPY BENCHMARKS (ECB 16:00 CET / YAHOO NY 17:00 CLOSE / INTERBANK CAPI):</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <span class="fx-pill"><strong>Sep 18–19 (Hotel):</strong> ECB ¥157.89 | NY ¥157.01 | Amex ¥156.72</span>
+        <span class="fx-pill"><strong>Sep 24 (Posted):</strong> ECB ¥158.85 | Amex ¥156.98</span>
+        <span class="fx-pill"><strong>Sep 25–26 (Posted):</strong> ECB ¥157.59 | Amex ¥156.94</span>
+        <span class="fx-pill"><strong>Sep 26–28 (Pending):</strong> Amex ¥158.30 | BofA Visa ¥157.76</span>
+      </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-label">Complete Trip Grand Total (All 35 Expenses)</div>
+        <div class="kpi-value" id="kpiTotalUsd">$7,042.29</div>
+        <div class="kpi-sub" id="kpiTotalJpy">
+          <strong>$3,873.12</strong> Core Trip + <strong>$3,169.17</strong> Bvlgari (BofA *8577)<br/>
+          <strong>$7,392.29</strong> incl. $350 Delta eCredit
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">26-Page Scanned PDF (17 Unique Expenses)</div>
+        <div class="kpi-value">$866.49</div>
+        <div class="kpi-sub">
+          <strong>16 of 17 Synced w/ Live Cards:</strong> 6 Posted ($209.97) + 10 Pending ($271.34)<br/>
+          Only <strong>Page 17 (NAVY ¥60,700)</strong> awaiting JCB acquirer batch
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Cash Mystery Solved (Page 24 — Happy One)</div>
+        <div class="kpi-value">$0.00 <span style="font-size:13px;font-weight:500;color:var(--text-secondary);">Cash in PDF!</span></div>
+        <div class="kpi-sub">
+          <strong>Page 24 (¥7,000)</strong> printed <code>現金</code> on register, but <strong>@Google Wallet</strong> proved it charged <strong>$44.61 to BofA Visa *8577</strong>! (100% Card)
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Amex *4002 vs. BofA Visa *8577 FX Winner</div>
+        <div class="kpi-value">+0.05% <span style="font-size:13px;font-weight:500;color:var(--text-secondary);">vs +0.14%</span></div>
+        <div class="kpi-sub">
+          <strong>Tokyo Receipts:</strong> Amex *4002 (+$0.19 / +0.05% on ¥60,929) vs. BofA Visa *8577 (+$0.13 / +0.14% on ¥14,420) — <strong>Both 0% FTF!</strong>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Total Verified FX Spread (18 JPY→USD Pairs)</div>
+        <div class="kpi-value" id="kpiFxSpread">+$9.45 <span style="font-size:13px;font-weight:500;color:var(--text-secondary);">vs ECB</span></div>
+        <div class="kpi-sub" id="kpiFxSub">
+          <strong>+$2.02 (+0.13%) vs Yahoo NY Close</strong> • <strong>+$1.10 (+0.07%) vs CAPI</strong><br/>
+          Across ¥245,159 net receipt-backed JPY ($1,562.18 charged)
+        </div>
+      </div>
+    </div>
+
+    <!-- Card FX Spread & Trip Architecture Explainer -->
+    <div class="fx-explainer">
+      <div class="fx-col">
+        <h4>1. Zero Cash Receipts in PDF — @Google Wallet Solved Page 24 (`happyOne $44.61`)!</h4>
+        <p>Your intuition was <strong>100% right</strong>: although the clerk at <strong>Happy One Souvenir Shop (`Page 24`, ¥7,000)</strong> pressed the <code>現金</code> (Cash) button on their standalone cash register, <strong>@Google Wallet</strong> revealed <code>happyOne — $44.61 USD</code> on your <strong>BofA Visa *8577</strong>! And <strong>`Page 14` Gyukatsu Motomura ($47.44)</strong> &amp; <strong>`Page 23` Katsuhan/Maruya ($19.04)</strong> matched on <strong>Amex *4002</strong>.</p>
+      </div>
+      <div class="fx-col">
+        <h4>2. Head-to-Head FX Audit: Amex `*4002` vs. BofA Visa `*8577` (Both 0% FTF Cards!)</h4>
+        <p>Across <strong>13 Tokyo PDF receipts on Amex `*4002` (¥60,929)</strong>, Amex charged <strong>$386.67 vs. $386.48 ECB (+$0.19 / +0.05%)</strong> — because 8 pending Sep 26–28 charges cleared at <strong>¥158.30/$</strong> (beating ECB by -$0.83)! Across <strong>3 Tokyo PDF receipts on BofA Visa `*8577` (¥14,420)</strong>, BofA charged <strong>$91.64 vs. $91.51 ECB (+$0.13 / +0.14%)</strong>.</p>
+      </div>
+      <div class="fx-col">
+        <h4>3. Why Direct-USD Rows Show `Direct USD (No FX)` &amp; Only `Page 17` Is Unsynced</h4>
+        <p><strong>11 US/Direct-USD charges ($1,652.91)</strong> (Delta, Lyft LGA, Michi Sitter, Ubigi eSIM, DTW Airport, Uber) were billed natively in USD (0% FX conversion). Out of 17 PDF receipts, <strong>16 are now synced with live card USD</strong>; only <strong>`Page 17` (Shibuya NAVY / adLOVE ¥60,700)</strong> is still awaiting its JCB acquirer batch.</p>
+      </div>
+    </div>
+
+    <!-- 4 Interactive Charts -->
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Complete Trip Spend by Category (Effective USD $)</div>
+          <span class="chart-tag">All 10 Categories ($7,042.29)</span>
+        </div>
+        <div class="chart-box">
+          <canvas id="categoryChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Chronological Trip Spend Timeline (Sept 14 – Sept 28, 2026)</div>
+          <span class="chart-tag">Pre-Trip + Daily Tokyo Spend</span>
+        </div>
+        <div class="chart-box">
+          <canvas id="timelineChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Spend by Payment Card Network</div>
+          <span class="chart-tag">Amex *4002 vs BofA Visa *8577 / *6977</span>
+        </div>
+        <div class="chart-box">
+          <canvas id="cardChart"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div class="chart-title">Multi-Source FX Benchmark Comparison (ECB vs Yahoo NY vs Charged USD)</div>
+          <span class="chart-tag">3-Source FX Audit</span>
+        </div>
+        <div class="chart-box">
+          <canvas id="fxChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <!-- Complete 44-Record Table -->
+    <div class="table-section">
+      <div class="table-toolbar">
+        <div class="filter-tabs">
+          <button class="tab-btn active" onclick="setFilter('ALL', this)">All Audited Records (44)</button>
+          <button class="tab-btn" onclick="setFilter('EXPENSE', this)">All Net Expenses (35)</button>
+          <button class="tab-btn" onclick="setFilter('SCANNED_PDF', this)">26-Page Scanned PDF Only (26)</button>
+          <button class="tab-btn" onclick="setFilter('DIGITAL_EMAIL', this)">Digital &amp; Card Statement Trip Spend (18)</button>
+          <button class="tab-btn" onclick="setFilter('POSTED_ONLY', this)">Posted Only (19)</button>
+          <button class="tab-btn" onclick="setFilter('PENDING_HOLD', this)">Pending Card Holds (15)</button>
+          <button class="tab-btn" onclick="setFilter('PAIRED_SLIP', this)">Paired CC Slips (6)</button>
+          <button class="tab-btn" onclick="setFilter('NON_EXPENSE', this)">Non-Expense Coupons/Info (3)</button>
+        </div>
+        <div class="search-group">
+          <select class="input-ctrl" id="categoryFilter" onchange="renderTable()">
+            <option value="ALL">All Categories (10)</option>
+            <option value="Apparel & Footwear">Apparel &amp; Footwear ($3,327.72)</option>
+            <option value="Hotel & Lodging">Hotel &amp; Lodging ($1,083.87)</option>
+            <option value="Flights & Airfare">Flights &amp; Airfare ($1,067.93)</option>
+            <option value="Airport & Ground Transport">Airport &amp; Ground Transport ($455.93)</option>
+            <option value="Nightlife & Entertainment">Nightlife &amp; Entertainment ($438.98)</option>
+            <option value="Dining, Food & Convenience">Dining, Food &amp; Convenience ($380.40)</option>
+            <option value="Drugstore & Personal Care">Drugstore &amp; Personal Care ($119.42)</option>
+            <option value="Souvenirs, Anime & Stationery">Souvenirs, Anime &amp; Stationery ($76.36)</option>
+            <option value="Trip Logistics & Pet Care">Trip Logistics &amp; Pet Care ($70.00)</option>
+            <option value="Connectivity & eSIM">Connectivity &amp; eSIM ($22.60)</option>
+            <option value="Paired Credit Card Slip">Paired Credit Card Slip (6)</option>
+            <option value="Non-Expense Coupon / Info">Non-Expense Coupon / Info (3)</option>
+          </select>
+          <select class="input-ctrl" id="cardFilter" onchange="renderTable()">
+            <option value="ALL">All Payment Cards</option>
+            <option value="Amex">American Express (*4002 / *1240 / *002)</option>
+            <option value="Visa">Bank of America Visa (*8577 &amp; *6977)</option>
+          </select>
+          <select class="input-ctrl" id="sortSelect" onchange="handleSortDropdown(this.value)">
+            <option value="page:asc">Sort: Default Order (Trip + Pages 01→26)</option>
+            <option value="cost:desc">Sort: Cost (High → Low)</option>
+            <option value="cost:asc">Sort: Cost (Low → High)</option>
+            <option value="date:asc">Sort: Chronological (Sep 14 → Sep 28)</option>
+            <option value="date:desc">Sort: Date &amp; Time (Newest → Oldest)</option>
+            <option value="merchant:asc">Sort: Merchant Name (A → Z)</option>
+            <option value="merchant:desc">Sort: Merchant Name (Z → A)</option>
+            <option value="item_en:asc">Sort: Item Name EN (A → Z)</option>
+            <option value="item_en:desc">Sort: Item Name EN (Z → A)</option>
+            <option value="item_kanji:asc">Sort: Item Kanji (あ → ん)</option>
+          </select>
+          <input type="text" class="input-ctrl" id="searchInput" placeholder="Search Cash, Delta, Booking, Kanji, JAN..." oninput="renderTable()" />
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('page')">Ref / Page <span id="sort_page">▲</span></th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('date')">Date &amp; Time <span id="sort_date">↕</span></th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('merchant')">Merchant <span id="sort_merchant">↕</span></th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('item_kanji')">Item in Japanese (Kanji / Kana) <span id="sort_item_kanji">↕</span></th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('item_en')">English Item &amp; Augmented Description <span id="sort_item_en">↕</span></th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('category')">Category <span id="sort_category">↕</span></th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('cost')">Price (JPY ¥) <span id="sort_cost">↕</span></th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('cost')">Market USD (3 Sources) <span id="sort_usd">↕</span></th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('charged')">Card Charged ($ USD) <span id="sort_charged">↕</span></th>
+              <th>FX Diff &amp; Audit Status</th>
+              <th style="cursor:pointer;user-select:none;" onclick="toggleHeaderSort('payment')">Card / Payment Method <span id="sort_payment">↕</span></th>
+            </tr>
+          </thead>
+          <tbody id="receiptTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scanned Receipt / Digital e-Receipt Lightbox Modal -->
+  <div class="modal-backdrop" id="receiptModal" onclick="if(event.target===this)closeModal()">
+    <div class="modal-content">
+      <div class="modal-img-pane" id="modalLeftPane">
+        <img id="modalImg" src="" alt="Scanned Receipt Page" />
+      </div>
+      <div class="modal-info-pane">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span class="badge badge-expense" id="modalBadge">RECORD</span>
+          <button class="btn" onclick="closeModal()">✕ Close</button>
+        </div>
+        <h3 id="modalMerchant" style="font-size:17px;font-weight:700;"></h3>
+        <div class="kv-row">
+          <div class="kv-label">Date &amp; Time / Reference</div>
+          <div class="kv-val" id="modalDate"></div>
+        </div>
+        <div class="kv-row">
+          <div class="kv-label">Item in Japanese (Kanji / Kana)</div>
+          <div class="kv-val" id="modalKanji" style="font-weight:600;"></div>
+        </div>
+        <div class="kv-row">
+          <div class="kv-label">English Translation &amp; Augmented Product Details</div>
+          <div class="kv-val" id="modalDesc"></div>
+        </div>
+        <div class="kv-row">
+          <div class="kv-label">Multi-Source Financial Breakdown</div>
+          <div class="kv-val" id="modalFinancials" style="font-family:var(--font-mono);font-size:12px;line-height:1.6;"></div>
+        </div>
+        <div class="kv-row">
+          <div class="kv-label">Payment Method &amp; Card Mask</div>
+          <div class="kv-val" id="modalPayment"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let APP_DATA = null;
+    let CURRENT_FILTER = "ALL";
+    let SORT_FIELD = "page";
+    let SORT_DIR = "asc";
+    let FX_BENCHMARK = "ecb"; // 'ecb' | 'yahoo' | 'capi'
+    let charts = {};
+
+    function changeFxBenchmark(val) {
+      FX_BENCHMARK = val;
+      updateKPIs();
+      renderCharts();
+      renderTable();
+    }
+
+    function getBenchmarkUsd(p) {
+      if (FX_BENCHMARK === "yahoo") return p.usd_market_yahoo ?? p.usd_market;
+      if (FX_BENCHMARK === "capi") return p.usd_market_capi ?? p.usd_market;
+      return p.usd_market;
+    }
+
+    function getBenchmarkRate(p) {
+      if (FX_BENCHMARK === "yahoo") return p.fx_rate_yahoo_ny ?? p.fx_rate_market;
+      if (FX_BENCHMARK === "capi") return p.fx_rate_currency_api ?? p.fx_rate_market;
+      return p.fx_rate_market;
+    }
+
+    function handleSortDropdown(val) {
+      const [field, dir] = val.split(":");
+      SORT_FIELD = field;
+      SORT_DIR = dir;
+      updateSortIcons();
+      renderTable();
+    }
+
+    function toggleHeaderSort(field) {
+      if (SORT_FIELD === field) {
+        SORT_DIR = SORT_DIR === "asc" ? "desc" : "asc";
+      } else {
+        SORT_FIELD = field;
+        SORT_DIR = (field === "cost" || field === "charged" || field === "date") ? "desc" : "asc";
+      }
+      const sel = document.getElementById("sortSelect");
+      const candidate = `${SORT_FIELD}:${SORT_DIR}`;
+      if (Array.from(sel.options).some(o => o.value === candidate)) {
+        sel.value = candidate;
+      }
+      updateSortIcons();
+      renderTable();
+    }
+
+    function updateSortIcons() {
+      const fields = ["page", "date", "merchant", "item_kanji", "item_en", "category", "cost", "usd", "charged", "payment"];
+      fields.forEach(f => {
+        const el = document.getElementById(`sort_${f}`);
+        if (!el) return;
+        const active = (f === SORT_FIELD) || (f === "usd" && SORT_FIELD === "cost");
+        if (active) {
+          el.textContent = SORT_DIR === "asc" ? "▲" : "▼";
+        } else {
+          el.textContent = "↕";
+        }
+      });
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      html.setAttribute("data-theme", next);
+      document.getElementById("themeIcon").textContent = next === "dark" ? "☀️" : "🌙";
+      document.getElementById("themeLabel").textContent = next === "dark" ? "Light Mode" : "Dark Mode";
+      if (APP_DATA) renderCharts();
+    }
+
+    async function loadData() {
+      const res = await fetch("/api/data");
+      APP_DATA = await res.json();
+      updateKPIs();
+      renderCharts();
+      renderTable();
+    }
+
+    function setFilter(filterType, btn) {
+      CURRENT_FILTER = filterType;
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTable();
+    }
+
+    function updateKPIs() {
+      const expenses = APP_DATA.pages.filter(p => p.page_type === "EXPENSE");
+      const foreignPosted = expenses.filter(p => p.fx_mode === "FOREIGN_JPY" && p.usd_charged !== null);
+      let totalDiff = 0;
+      let totalMarketSynced = 0;
+      foreignPosted.forEach(p => {
+        const mkt = getBenchmarkUsd(p);
+        totalDiff += (p.usd_charged - mkt);
+        if (mkt > 0) totalMarketSynced += mkt;
+      });
+      const pct = totalMarketSynced > 0 ? ((totalDiff / totalMarketSynced) * 100).toFixed(2) : "0.00";
+      const sign = totalDiff > 0 ? "+" : "";
+      const srcName = FX_BENCHMARK === "yahoo" ? "Yahoo NY" : (FX_BENCHMARK === "capi" ? "Currency-API" : "ECB");
+      document.getElementById("kpiFxSpread").innerHTML =
+        `${sign}$${totalDiff.toFixed(2)} <span style="font-size:13px;font-weight:500;color:var(--text-secondary);">(${sign}${pct}% vs ${srcName})</span>`;
+    }
+
+    function formatJPY(val) {
+      if (val < 0) return `-¥${Math.abs(val).toLocaleString()}`;
+      return `¥${val.toLocaleString()}`;
+    }
+
+    function formatUSD(val) {
+      if (val < 0) return `-$${Math.abs(val).toFixed(2)}`;
+      return `$${val.toFixed(2)}`;
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("receiptTableBody");
+      const catFilter = document.getElementById("categoryFilter").value;
+      const cardFilter = document.getElementById("cardFilter").value;
+      const q = document.getElementById("searchInput").value.trim().toLowerCase();
+
+      const rows = APP_DATA.pages.filter(p => {
+        if (CURRENT_FILTER === "EXPENSE" && p.page_type !== "EXPENSE") return false;
+        if (CURRENT_FILTER === "PAIRED_SLIP" && p.page_type !== "PAIRED_SLIP") return false;
+        if (CURRENT_FILTER === "NON_EXPENSE" && p.page_type !== "NON_EXPENSE") return false;
+        if (CURRENT_FILTER === "DIGITAL_EMAIL" && p.source_type !== "DIGITAL_EMAIL") return false;
+        if (CURRENT_FILTER === "SCANNED_PDF" && p.source_type !== "SCANNED_PDF") return false;
+        if (CURRENT_FILTER === "POSTED_ONLY" && p.card_status !== "POSTED") return false;
+        if (CURRENT_FILTER === "PENDING_HOLD" && p.card_status !== "PENDING_CARD_HOLD") return false;
+        if (catFilter !== "ALL" && p.category !== catFilter) return false;
+        if (cardFilter !== "ALL" && p.card_network !== cardFilter) return false;
+        if (q) {
+          const hay = `${p.display_id || p.page} ${p.date} ${p.merchant_jp} ${p.merchant_en} ${p.item_kanji} ${p.item_en} ${p.description_en} ${p.payment_method} ${p.receipt_ref}`.toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        return true;
+      });
+
+      const dir = SORT_DIR === "asc" ? 1 : -1;
+      rows.sort((a, b) => {
+        if (SORT_FIELD === "page") {
+          const oa = a.page >= 100 ? a.page - 200 : a.page;
+          const ob = b.page >= 100 ? b.page - 200 : b.page;
+          return (oa - ob) * dir;
+        }
+        if (SORT_FIELD === "cost" || SORT_FIELD === "usd") {
+          const ea = a.usd_charged !== null ? a.usd_charged : (getBenchmarkUsd(a) || 0);
+          const eb = b.usd_charged !== null ? b.usd_charged : (getBenchmarkUsd(b) || 0);
+          const diff = ea - eb;
+          return (diff !== 0 ? diff : (a.jpy_amount - b.jpy_amount)) * dir;
+        }
+        if (SORT_FIELD === "charged") {
+          const va = a.usd_charged !== null ? a.usd_charged : -999999;
+          const vb = b.usd_charged !== null ? b.usd_charged : -999999;
+          return (va - vb) * dir;
+        }
+        if (SORT_FIELD === "merchant") return a.merchant_en.localeCompare(b.merchant_en) * dir;
+        if (SORT_FIELD === "item_en") return a.item_en.localeCompare(b.item_en) * dir;
+        if (SORT_FIELD === "item_kanji") return a.item_kanji.localeCompare(b.item_kanji, "ja") * dir;
+        if (SORT_FIELD === "category") return a.category.localeCompare(b.category) * dir;
+        if (SORT_FIELD === "payment") return a.payment_method.localeCompare(b.payment_method) * dir;
+        if (SORT_FIELD === "date") {
+          const da = `${a.date} ${a.time}`;
+          const db = `${b.date} ${b.time}`;
+          return da.localeCompare(db) * dir;
+        }
+        return (a.page - b.page) * dir;
+      });
+
+      tbody.innerHTML = rows.map(p => {
+        const isDigital = p.source_type === "DIGITAL_EMAIL";
+        const isCredit = p.jpy_amount < 0 || (p.usd_charged !== null && p.usd_charged < 0);
+        const rowClass = p.page_type === "PAIRED_SLIP" ? "row-paired" : (p.page_type === "NON_EXPENSE" ? "row-non-expense" : "");
+        const badgeClass = p.page_type === "EXPENSE"
+          ? (isDigital ? "badge-digital" : "badge-expense")
+          : (p.page_type === "PAIRED_SLIP" ? "badge-slip" : "badge-non");
+
+        let badgeLabel = "EXPENSE";
+        if (p.page_type === "PAIRED_SLIP") {
+          badgeLabel = `CC SLIP → P.${String(p.paired_page).padStart(2,'0')}`;
+        } else if (p.page_type === "NON_EXPENSE") {
+          badgeLabel = "NON-EXPENSE";
+        } else if (isCredit) {
+          badgeLabel = "REFUND CREDIT";
+        } else if (isDigital) {
+          badgeLabel = p.fx_mode === "STATEMENT_ONLY_USD" ? "CARD STATEMENT" : "DIGITAL RECEIPT";
+        }
+
+        const labelBtn = p.display_id || `Page ${String(p.page).padStart(2, '0')}`;
+        const iconBtn = isDigital ? "✉️" : "🔍";
+
+        let jpyStr = "¥0";
+        if (p.page_type === "PAIRED_SLIP") {
+          jpyStr = `<span title="Included on Page ${p.paired_page}">[${formatJPY(p.jpy_amount)}]</span>`;
+        } else if (p.jpy_amount !== 0) {
+          jpyStr = `<span class="${p.jpy_amount < 0 ? 'diff-neg' : ''}">${formatJPY(p.jpy_amount)}</span>`;
+        } else if (p.fx_mode === "STATEMENT_ONLY_USD") {
+          jpyStr = `<span style="color:var(--text-secondary)">${formatUSD(p.usd_direct)} (Card Stmt)</span>`;
+        } else if (p.usd_direct !== null) {
+          jpyStr = `<span style="color:var(--text-secondary)">${formatUSD(p.usd_direct)} (Native USD)</span>`;
+        }
+
+        const mktVal = getBenchmarkUsd(p);
+        const mktRate = getBenchmarkRate(p);
+        let mktStr = "$0.00";
+        if (p.page_type === "PAIRED_SLIP") {
+          mktStr = `<span style="color:var(--text-secondary)">[${formatUSD(mktVal)}]</span>`;
+        } else if (mktVal !== 0) {
+          if (p.jpy_amount !== 0) {
+            mktStr = `
+              <span class="${mktVal < 0 ? 'diff-neg' : ''}">${formatUSD(mktVal)}</span>
+              <div style="font-size:10px;color:var(--text-secondary)">@ ¥${Number(mktRate).toFixed(2)}</div>
+              <div style="font-size:9.5px;color:var(--text-muted)">ECB:${formatUSD(p.usd_market)} | NY:${formatUSD(p.usd_market_yahoo)}</div>
+            `;
+          } else if (p.fx_mode === "STATEMENT_ONLY_USD") {
+            mktStr = `<span>${formatUSD(mktVal)}</span><div style="font-size:10px;color:var(--text-secondary)">Card Statement USD</div>`;
+          } else {
+            mktStr = `<span>${formatUSD(mktVal)}</span><div style="font-size:10px;color:var(--text-secondary)">Direct USD ($)</div>`;
+          }
+        }
+
+        let statusPill = "";
+        if (p.card_status === "POSTED") {
+          statusPill = `<div style="font-size:9.5px;color:var(--positive);font-family:var(--font-mono);margin-top:2px;">✓ POSTED</div>`;
+        } else if (p.card_status === "PENDING_CARD_HOLD") {
+          statusPill = `<div style="font-size:9.5px;color:var(--text-secondary);font-family:var(--font-mono);margin-top:2px;">⏳ PENDING HOLD</div>`;
+        } else if (p.card_status === "AWAITING_MERCHANT_BATCH") {
+          statusPill = `<div style="font-size:9.5px;color:var(--warning);font-family:var(--font-mono);margin-top:2px;">⏳ JCB BATCH</div>`;
+        }
+
+        let chargedCell = "";
+        if (p.page_type === "NON_EXPENSE") {
+          chargedCell = `<span class="diff-zero">N/A (¥0)</span>`;
+        } else if (p.page_type === "PAIRED_SLIP") {
+          chargedCell = `<span class="diff-zero">See Page ${String(p.paired_page).padStart(2,'0')} (${formatUSD(p.usd_charged || 0)})</span>`;
+        } else {
+          const val = p.usd_charged !== null ? p.usd_charged.toFixed(2) : "";
+          chargedCell = `
+            <div style="display:flex;align-items:center;gap:4px;">
+              <span style="font-family:var(--font-mono);">$</span>
+              <input type="number" step="0.01" class="charged-input" placeholder="Pending" value="${val}"
+                onchange="updateCharge(${p.page}, this.value)" />
+            </div>
+            ${statusPill}
+          `;
+        }
+
+        let diffCell = `<span class="diff-zero">—</span>`;
+        if (p.page_type === "EXPENSE") {
+          if (p.fx_mode === "STATEMENT_ONLY_USD") {
+            diffCell = `<span class="badge badge-slip">Card Stmt Only (No JPY Slip)</span>`;
+          } else if (p.fx_mode === "DIRECT_USD") {
+            diffCell = `<span class="badge badge-slip">Direct USD (No FX Conv)</span>`;
+          } else if (p.usd_charged !== null && mktVal !== 0) {
+            const diff = p.usd_charged - mktVal;
+            const pct = ((diff / Math.abs(mktVal)) * 100).toFixed(2);
+            const sign = diff > 0 ? "+" : "";
+            const cls = diff > 0.005 ? "diff-pos" : (diff < -0.005 ? "diff-neg" : "diff-zero");
+            const diffEcb = p.usd_charged - p.usd_market;
+            const diffNy = p.usd_charged - p.usd_market_yahoo;
+            const effRate = p.jpy_amount && p.usd_charged ? (p.jpy_amount / p.usd_charged).toFixed(2) : "";
+            diffCell = `
+              <div class="${cls}">${sign}${formatUSD(diff)} (${sign}${pct}%)</div>
+              <div style="font-size:9.5px;color:var(--text-secondary);font-family:var(--font-mono);">
+                Card @ ¥${effRate} | ECB:${diffEcb>=0?'+':''}${formatUSD(diffEcb)} | NY:${diffNy>=0?'+':''}${formatUSD(diffNy)}
+              </div>
+            `;
+          } else {
+            diffCell = `
+              <span class="badge badge-non">Awaiting JCB Acquirer Batch</span>
+              <div style="font-size:9.5px;color:var(--text-secondary);font-family:var(--font-mono);margin-top:2px;">
+                Est. 0% FTF: ~${formatUSD(p.usd_market_yahoo)}
+              </div>
+            `;
+          }
+        }
+
+        return `
+          <tr class="${rowClass}">
+            <td>
+              <div style="display:flex;flex-direction:column;gap:5px;align-items:flex-start;">
+                <button class="btn" style="padding:4px 8px;font-family:var(--font-mono);font-size:11px;" onclick="openModal(${p.page})">
+                  ${iconBtn} ${labelBtn}
+                </button>
+                <span class="badge ${badgeClass}">${badgeLabel}</span>
+              </div>
+            </td>
+            <td class="mono-num">
+              <div>${p.date}</div>
+              <div style="font-size:11px;color:var(--text-secondary);font-weight:400;">${p.time}</div>
+            </td>
+            <td>
+              <div style="font-weight:600;">${p.merchant_en}</div>
+              <div style="font-size:11.5px;color:var(--text-secondary);">${p.merchant_jp}</div>
+            </td>
+            <td class="kanji-cell">${p.item_kanji}</td>
+            <td class="desc-cell">
+              <div class="desc-title">${p.item_en}</div>
+              <div class="desc-sub">${p.description_en}</div>
+            </td>
+            <td><span class="badge badge-slip">${p.category}</span></td>
+            <td class="mono-num">${jpyStr}</td>
+            <td class="mono-num">${mktStr}</td>
+            <td>${chargedCell}</td>
+            <td>${diffCell}</td>
+            <td>
+              <div style="font-weight:600;font-size:12px;">${p.payment_method}</div>
+              <div style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-secondary);">${p.receipt_ref}</div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    async function updateCharge(page, value) {
+      const res = await fetch("/api/update-charge", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ page, usd_charged: value })
+      });
+      const out = await res.json();
+      if (out.status === "ok") {
+        APP_DATA = out.data;
+        updateKPIs();
+        renderCharts();
+        renderTable();
+      }
+    }
+
+    async function syncFromChrome() {
+      const box = document.getElementById("loaderBox");
+      const trace = document.getElementById("loaderTrace");
+      box.classList.add("active");
+      trace.textContent = "[0.1s] Executing AppleScript bridge to active Google Chrome tab (gemini.google.com @Google Wallet & Amex *4002)...";
+
+      const res = await fetch("/api/sync-chrome", { method: "POST" });
+      const out = await res.json();
+      if (out.status === "error") {
+        trace.textContent = `⚠️ Chrome AppleScript Permission Needed: ${out.instructions}`;
+      } else {
+        trace.textContent = "✅ Synced with Google Chrome (@Google Wallet BofA *8577 + Amex *4002)! 16 of 17 PDF receipts matched.";
+      }
+    }
+
+    function openModal(pageNum) {
+      const p = APP_DATA.pages.find(x => x.page === pageNum);
+      if (!p) return;
+      const leftPane = document.getElementById("modalLeftPane");
+      if (p.image_url) {
+        leftPane.innerHTML = `<img id="modalImg" src="${p.image_url}" alt="Scanned Receipt Page" />`;
+      } else {
+        leftPane.innerHTML = `
+          <div class="digital-receipt-card">
+            <div style="display:flex;justify-content:space-between;border-bottom:1px solid var(--border-subtle);padding-bottom:10px;margin-bottom:12px;">
+              <strong>VERIFIED GMAIL / AMEX / GOOGLE WALLET RECORD</strong>
+              <span>${p.display_id}</span>
+            </div>
+            <div style="margin-bottom:8px;"><strong>MERCHANT:</strong> ${p.merchant_en}</div>
+            <div style="margin-bottom:8px;"><strong>TIMESTAMP:</strong> ${p.date} ${p.time}</div>
+            <div style="margin-bottom:8px;"><strong>REFERENCE:</strong> ${p.receipt_ref}</div>
+            <div style="margin-bottom:8px;"><strong>CARD / METHOD:</strong> ${p.payment_method} (${p.card_mask})</div>
+            <div style="border-top:1px dashed var(--border-subtle);border-bottom:1px dashed var(--border-subtle);padding:10px 0;margin:12px 0;">
+              <div><strong>ITEM:</strong> ${p.item_en}</div>
+              <div style="margin-top:6px;color:var(--text-secondary);font-size:11px;">${p.description_en}</div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;">
+              <span>VERIFIED AMOUNT:</span>
+              <span>${p.usd_charged !== null ? formatUSD(p.usd_charged) + ' USD (' + p.card_status + ')' : formatJPY(p.jpy_amount)}</span>
+            </div>
+          </div>
+        `;
+      }
+      document.getElementById("modalBadge").textContent = `${p.display_id || ('PAGE ' + String(p.page).padStart(2, '0'))} • ${p.page_type} • ${p.card_status || ''}`;
+      document.getElementById("modalMerchant").textContent = `${p.merchant_en} (${p.merchant_jp})`;
+      document.getElementById("modalDate").textContent = `${p.date} ${p.time} • ${p.receipt_ref}`;
+      document.getElementById("modalKanji").textContent = p.item_kanji;
+      document.getElementById("modalDesc").textContent = `${p.item_en} — ${p.description_en}`;
+      document.getElementById("modalFinancials").innerHTML = `
+        <div><strong>JPY Amount:</strong> ${formatJPY(p.jpy_amount)} (${p.fx_mode})</div>
+        <div><strong>Source 1 (ECB 16:00 CET @ ¥${p.fx_rate_market}):</strong> ${formatUSD(p.usd_market)}</div>
+        <div><strong>Source 2 (Yahoo NY 17:00 @ ¥${p.fx_rate_yahoo_ny}):</strong> ${formatUSD(p.usd_market_yahoo)}</div>
+        <div><strong>Source 3 (Currency-API @ ¥${p.fx_rate_currency_api}):</strong> ${formatUSD(p.usd_market_capi)}</div>
+        <div><strong>Card Charged USD:</strong> ${p.usd_charged !== null ? formatUSD(p.usd_charged) + ' (' + p.card_status + ')' : 'Awaiting JCB Acquirer Batch'}</div>
+      `;
+      document.getElementById("modalPayment").textContent = `${p.payment_method} (${p.card_mask || 'N/A'})`;
+      document.getElementById("receiptModal").classList.add("open");
+    }
+
+    function closeModal() {
+      document.getElementById("receiptModal").classList.remove("open");
+    }
+
+    function renderCharts() {
+      const isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      const textColor = isDark ? "#ededed" : "#09090b";
+      const gridColor = isDark ? "#222222" : "#eaeaea";
+      const monoPalette = isDark
+        ? ["#ffffff", "#e4e4e7", "#d4d4d8", "#a1a1aa", "#71717a", "#52525b", "#3f3f46", "#27272a", "#18181b", "#09090b"]
+        : ["#09090b", "#18181b", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8", "#e4e4e7", "#f4f4f5"];
+
+      Object.values(charts).forEach(c => c.destroy());
+
+      // 1. Category Chart
+      const cats = Object.entries(APP_DATA.category_breakdown).sort((a, b) => (b[1].usd_effective || b[1].usd_market) - (a[1].usd_effective || a[1].usd_market));
+      charts.category = new Chart(document.getElementById("categoryChart"), {
+        type: "bar",
+        data: {
+          labels: cats.map(c => c[0]),
+          datasets: [{
+            label: "Effective Spend ($ USD)",
+            data: cats.map(c => Number((c[1].usd_effective || c[1].usd_market).toFixed(2))),
+            backgroundColor: monoPalette,
+            borderRadius: 5
+          }]
+        },
+        options: {
+          indexAxis: "y",
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: textColor }, grid: { color: gridColor } },
+            y: { ticks: { color: textColor, font: { size: 11 } }, grid: { display: false } }
+          }
+        }
+      });
+
+      // 2. Chronological Timeline Chart (Sept 14 -> Sept 28)
+      const timelineBuckets = [
+        { date: "2026-09-14", label: "Sep 14 (Flights)" },
+        { date: "2026-09-19", label: "Sep 19 (Hotel)" },
+        { date: "2026-09-20", label: "Sep 20 (Michi Sitter)" },
+        { date: "2026-09-22", label: "Sep 22 (Refund/Lyft/eSIM)" },
+        { date: "2026-09-23", label: "Sep 23 (Lyft LGA/DTW)" },
+        { date: "2026-09-24", label: "Sep 24 (Tokyo Day 1)" },
+        { date: "2026-09-25", label: "Sep 25 (Tokyo Day 2)" },
+        { date: "2026-09-26", label: "Sep 26 (Tokyo Day 3)" },
+        { date: "2026-09-27", label: "Sep 27 (Tokyo Day 4)" },
+        { date: "2026-09-28", label: "Sep 28 (Tokyo Day 5)" }
+      ];
+      const dailyUsd = timelineBuckets.map(b => {
+        return APP_DATA.pages
+          .filter(p => p.page_type === "EXPENSE" && p.date === b.date)
+          .reduce((acc, p) => acc + (p.usd_charged !== null ? p.usd_charged : getBenchmarkUsd(p)), 0);
+      });
+      charts.timeline = new Chart(document.getElementById("timelineChart"), {
+        type: "bar",
+        data: {
+          labels: timelineBuckets.map(b => b.label),
+          datasets: [{
+            label: "Net Daily Spend ($ USD)",
+            data: dailyUsd.map(v => Number(v.toFixed(2))),
+            backgroundColor: dailyUsd.map(v => v < 0 ? (isDark ? "#4ade80" : "#15803d") : (isDark ? "#ededed" : "#09090b")),
+            borderRadius: 5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: textColor, font: { size: 10 } }, grid: { display: false } },
+            y: { ticks: { color: textColor }, grid: { color: gridColor } }
+          }
+        }
+      });
+
+      // 3. Payment Method Chart
+      const cards = Object.entries(APP_DATA.payment_network_breakdown).sort((a, b) => (b[1].usd_effective || b[1].usd_market) - (a[1].usd_effective || a[1].usd_market));
+      charts.card = new Chart(document.getElementById("cardChart"), {
+        type: "doughnut",
+        data: {
+          labels: cards.map(c => `${c[0]} ($${(c[1].usd_effective || c[1].usd_market).toFixed(2)})`),
+          datasets: [{
+            data: cards.map(c => Number((c[1].usd_effective || c[1].usd_market).toFixed(2))),
+            backgroundColor: monoPalette,
+            borderColor: isDark ? "#0a0a0a" : "#ffffff",
+            borderWidth: 2
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: "right", labels: { color: textColor, font: { family: "JetBrains Mono", size: 11 } } }
+          }
+        }
+      });
+
+      // 4. Multi-Source FX Comparison Chart (Receipt-Backed Foreign JPY by Card)
+      const amexJpyRows = APP_DATA.pages.filter(p => p.page_type === "EXPENSE" && p.fx_mode === "FOREIGN_JPY" && p.card_network === "Amex" && p.usd_charged !== null && p.source_type === "SCANNED_PDF");
+      const bofaJpyRows = APP_DATA.pages.filter(p => p.page_type === "EXPENSE" && p.fx_mode === "FOREIGN_JPY" && p.card_network === "Visa" && p.usd_charged !== null);
+      const hotelRows = APP_DATA.pages.filter(p => p.page_type === "EXPENSE" && p.fx_mode === "FOREIGN_JPY" && p.source_type === "DIGITAL_EMAIL");
+      const groups = [
+        { label: "Amex *4002 Tokyo PDF (13)", rows: amexJpyRows },
+        { label: "BofA Visa *8577 Tokyo PDF (3)", rows: bofaJpyRows },
+        { label: "Amex *4002 Shibuya Hotel Net", rows: hotelRows }
+      ];
+      charts.fx = new Chart(document.getElementById("fxChart"), {
+        type: "bar",
+        data: {
+          labels: groups.map(g => g.label),
+          datasets: [
+            {
+              label: "ECB 16:00 CET ($)",
+              data: groups.map(g => Number(g.rows.reduce((a, p) => a + p.usd_market, 0).toFixed(2))),
+              backgroundColor: isDark ? "#3f3f46" : "#d4d4d8",
+              borderRadius: 4
+            },
+            {
+              label: "Yahoo NY 17:00 Close ($)",
+              data: groups.map(g => Number(g.rows.reduce((a, p) => a + (p.usd_market_yahoo || p.usd_market), 0).toFixed(2))),
+              backgroundColor: isDark ? "#a1a1aa" : "#71717a",
+              borderRadius: 4
+            },
+            {
+              label: "Actual Card Charged ($)",
+              data: groups.map(g => Number(g.rows.reduce((a, p) => a + p.usd_charged, 0).toFixed(2))),
+              backgroundColor: isDark ? "#ffffff" : "#09090b",
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: textColor, font: { family: "JetBrains Mono", size: 10.5 } } }
+          },
+          scales: {
+            x: { ticks: { color: textColor, font: { size: 10.5 } }, grid: { display: false } },
+            y: { ticks: { color: textColor }, grid: { color: gridColor } }
+          }
+        }
+      });
+    }
+
+    loadData();
+  </script>
+</body>
+</html>

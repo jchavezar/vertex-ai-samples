@@ -242,6 +242,63 @@ def register_drive_tools(mcp, auth_manager):
             return f"Error creating folder: {str(e)}"
 
     @mcp.tool()
+    def drive_find_folder(folder_name: str) -> str:
+        """
+        Find a folder by name in Google Drive.
+
+        Args:
+            folder_name: Exact or partial name of the folder
+        """
+        try:
+            q = f"mimeType='application/vnd.google-apps.folder' and name contains '{folder_name}' and trashed=false"
+            response = requests.get(
+                f"{DRIVE_API}/files",
+                headers=get_headers(),
+                params={"q": q, "fields": "files(id,name,webViewLink)"}
+            )
+            response.raise_for_status()
+            files = response.json().get("files", [])
+            if not files:
+                return f"No folder found matching '{folder_name}'."
+            results = [f"**{f['name']}** — ID: `{f['id']}`" for f in files]
+            return "## Found Folders\n\n" + "\n".join(results)
+        except Exception as e:
+            logger.error(f"Drive find folder error: {e}")
+            return f"Error finding folder: {str(e)}"
+
+    @mcp.tool()
+    def drive_move_file(file_id: str, folder_id: str) -> str:
+        """
+        Move a file or document into a target Google Drive folder.
+
+        Args:
+            file_id: ID of the file to move
+            folder_id: Destination folder ID
+        """
+        try:
+            meta = requests.get(
+                f"{DRIVE_API}/files/{file_id}",
+                headers=get_headers(),
+                params={"fields": "parents,name"}
+            ).json()
+            prev_parents = ",".join(meta.get("parents", []))
+            response = requests.patch(
+                f"{DRIVE_API}/files/{file_id}",
+                headers=get_headers(),
+                params={
+                    "addParents": folder_id,
+                    "removeParents": prev_parents,
+                    "fields": "id,name,parents,webViewLink"
+                }
+            )
+            response.raise_for_status()
+            data = response.json()
+            return f"Moved **{data.get('name')}** (`{data.get('id')}`) to folder `{folder_id}`."
+        except Exception as e:
+            logger.error(f"Drive move file error: {e}")
+            return f"Error moving file: {str(e)}"
+
+    @mcp.tool()
     def drive_upload_file(
         name: str,
         content: str,

@@ -1,0 +1,7 @@
+.cmp-carousel__content{position:relative}
+.cmp-carousel__item{display:none}
+.cmp-carousel__item--active{display:block}
+.cmp-carousel__action{-webkit-appearance:none;-moz-appearance:none;appearance:none}
+.cmp-carousel__indicators{display:flex;flex-wrap:wrap;justify-content:center;margin:0;padding:0;list-style:none}
+.cmp-carousel__indicator{position:relative;flex:0 1 auto;width:10px;height:10px;margin:0 7px;border-radius:50%;font-size:0;text-indent:-3000px;background-color:rgba(0,0,0,0.5)}
+.cmp-carousel__indicator--active{background-color:rgba(0,0,0,0.8)}

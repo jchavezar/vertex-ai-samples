@@ -211,10 +211,12 @@ def register_calendar_tools(mcp, auth_manager):
             attendees: Comma-separated email addresses (optional)
         """
         try:
+            st = start_time if (start_time.endswith("Z") or "+" in start_time[10:] or "-" in start_time[10:]) else start_time + "Z"
+            et = end_time if (end_time.endswith("Z") or "+" in end_time[10:] or "-" in end_time[10:]) else end_time + "Z"
             event = {
                 "summary": summary,
-                "start": {"dateTime": start_time, "timeZone": "UTC"},
-                "end": {"dateTime": end_time, "timeZone": "UTC"},
+                "start": {"dateTime": st, "timeZone": "UTC"},
+                "end": {"dateTime": et, "timeZone": "UTC"},
             }
 
             if description:

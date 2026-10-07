@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADK + GE streamAssist — 1:1 Session & Memory Bank Chain Inspector</title>
+  <style>
+    :root {
+      /* Light Mode (Default - Vercel Monochrome Architecture) */
+      --bg-canvas: #fafafa;
+      --bg-grid: #eaeaea;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f4f4f5;
+      --bg-header: #fafafa;
+      --border-subtle: #eaeaea;
+      --border-hover: #111111;
+      --text-primary: #09090b;
+      --text-secondary: #666666;
+      --text-muted: #a1a1aa;
+      --btn-primary-bg: #09090b;
+      --btn-primary-text: #ffffff;
+      --btn-primary-hover: #27272a;
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-text: #09090b;
+      --btn-secondary-hover: #f4f4f5;
+      --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.06);
+      --ink-grad-1: radial-gradient(circle at 20% 20%, #52525b, #18181b, #000000);
+      --ink-grad-2: radial-gradient(circle at 80% 20%, #71717a, #27272a, #09090b);
+      --ink-grad-3: radial-gradient(circle at 40% 80%, #3f3f46, #09090b, #000000);
+      --ink-shadow: rgba(0, 0, 0, 0.28);
+      --sweep-grad: linear-gradient(90deg, #71717a 0%, #09090b 50%, #71717a 100%);
+      --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      /* Dark Mode (OLED Monochrome) */
+      --bg-canvas: #000000;
+      --bg-grid: #111111;
+      --bg-surface: #0a0a0a;
+      --bg-elevated: #111111;
+      --bg-header: #050505;
+      --border-subtle: #222222;
+      --border-hover: #ededed;
+      --text-primary: #ededed;
+      --text-secondary: #888888;
+      --text-muted: #52525b;
+      --btn-primary-bg: #ffffff;
+      --btn-primary-text: #000000;
+      --btn-primary-hover: #d4d4d8;
+      --btn-secondary-bg: #000000;
+      --btn-secondary-text: #ededed;
+      --btn-secondary-hover: #111111;
+      --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.85);
+      --ink-grad-1: radial-gradient(circle at 20% 20%, #ffffff, #a1a1aa, #09090b);
+      --ink-grad-2: radial-gradient(circle at 80% 20%, #f4f4f5, #71717a, #18181b);
+      --ink-grad-3: radial-gradient(circle at 40% 80%, #e4e4e7, #52525b, #000000);
+      --ink-shadow: rgba(255, 255, 255, 0.45);
+      --sweep-grad: linear-gradient(90deg, #71717a 0%, #ffffff 50%, #71717a 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-canvas);
+      background-image:
+        linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+      background-size: 48px 48px;
+      color: var(--text-primary);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-shrink: 0;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 4px 8px;
+      border: 1px solid var(--border-hover);
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .brand-title {
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    select, button, input {
+      font-family: var(--font-sans);
+      font-size: 12px;
+    }
+
+    .select-ctrl {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-subtle);
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .btn:hover {
+      background: var(--btn-secondary-hover);
+      border-color: var(--border-hover);
+    }
+
+    .btn-primary {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border-color: var(--btn-primary-bg);
+    }
+
+    .btn-primary:hover {
+      background: var(--btn-primary-hover);
+    }
+
+    /* Main 3-Column Grid */
+    main {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 360px 1fr 390px;
+      gap: 14px;
+      padding: 14px;
+      overflow: hidden;
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-header);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-primary);
+    }
+
+    .panel-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .panel-body {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Preset Pills */
+    .presets-box {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .preset-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+    }
+
+    .preset-btn {
+      text-align: left;
+      font-size: 11px;
+      padding: 6px 8px;
+      border-radius: 5px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-primary);
+      cursor: pointer;
+      line-height: 1.35;
+    }
+
+    .preset-btn:hover {
+      border-color: var(--border-hover);
+    }
+
+    /* Chat Bubbles */
+    .msg-card {
+      padding: 10px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      font-size: 12.5px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .msg-user {
+      background: var(--bg-elevated);
+      border-left: 3px solid var(--text-primary);
+    }
+
+    .msg-model {
+      background: var(--bg-surface);
+    }
+
+    .msg-role {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      font-weight: 700;
+    }
+
+    .chat-input-bar {
+      padding: 10px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      gap: 8px;
+      background: var(--bg-header);
+    }
+
+    .chat-input {
+      flex: 1;
+      padding: 8px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    /* Center Chain Cards */
+    .turn-chain-card {
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      background: var(--bg-surface);
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .turn-chain-header {
+      padding: 8px 12px;
+      background: var(--bg-elevated);
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .chain-step {
+      padding: 10px 12px;
+      border-bottom: 1px dashed var(--border-subtle);
+      font-size: 12px;
+    }
+
+    .chain-step:last-child {
+      border-bottom: none;
+    }
+
+    .step-tag {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      margin-bottom: 5px;
+    }
+
+    .step-tag-highlight {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border-color: var(--btn-primary-bg);
+    }
+
+    .mono-box {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      border-radius: 5px;
+      padding: 8px;
+      margin-top: 4px;
+      word-break: break-all;
+      white-space: pre-wrap;
+      line-height: 1.45;
+    }
+
+    .arrow-down {
+      text-align: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding: 3px 0;
+      background: var(--bg-canvas);
+      border-bottom: 1px dashed var(--border-subtle);
+    }
+
+    /* Claude-Code Shrinking & Shining Ink Loader */
+    .shrinking-shining-ink {
+      position: relative;
+      width: 18px;
+      height: 18px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: var(--ink-grad-1);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      animation:
+        ink-morph 3.8s ease-in-out infinite alternate,
+        ink-pulse 1.4s ease-in-out infinite,
+        ink-shine 2.8s linear infinite;
+      filter: drop-shadow(0 0 8px var(--ink-shadow));
+    }
+
+    .shrinking-shining-ink::after {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #ffffff;
+      opacity: 0.85;
+      animation: ink-core-blink 0.65s ease-in-out infinite alternate;
+    }
+
+    [data-theme="dark"] .shrinking-shining-ink::after {
+      background: #09090b;
+    }
+
+    @keyframes ink-core-blink {
+      0% { transform: scale(0.35); opacity: 0.25; }
+      100% { transform: scale(1.25); opacity: 0.95; }
+    }
+
+    @keyframes ink-morph {
+      0% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; }
+      50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; background: var(--ink-grad-2); }
+      100% { border-radius: 50% 50% 40% 60% / 40% 50% 60% 50%; background: var(--ink-grad-3); }
+    }
+
+    @keyframes ink-pulse {
+      0%, 100% { transform: scale(0.86); }
+      50% { transform: scale(1.08); }
+    }
+
+    @keyframes ink-shine {
+      0% { rotate: 0deg; }
+      100% { rotate: 360deg; }
+    }
+
+    .claude-reasoning-box {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      border-left: 3px solid var(--text-primary);
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .claude-reasoning-box.active {
+      display: flex;
+    }
+
+    .sweep-text {
+      background: var(--sweep-grad);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: text-sweep 2.2s linear infinite;
+      font-weight: 600;
+    }
+
+    @keyframes text-sweep {
+      to { background-position: 200% center; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="brand-group">
+      <span class="brand-badge">ADK + STREAMASSIST</span>
+      <div>
+        <div class="brand-title">1:1 Session Bridge &amp; Memory Bank Chain Inspector</div>
+        <div class="brand-sub" id="engineSubtitle">VertexAiSessionService + VertexAiMemoryBankService + GE streamAssist</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <label class="brand-sub" for="sessionSelect">ADK Session:</label>
+      <select id="sessionSelect" class="select-ctrl"></select>
+      <button class="btn" id="newSessionBtn">+ New ADK Session</button>
+      <label class="brand-sub" for="targetSelect">GE Datastore:</label>
+      <select id="targetSelect" class="select-ctrl"></select>
+      <button class="btn" id="themeToggleBtn">🌙 Dark</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT PANEL: Multi-Turn Conversation -->
+    <section class="panel">
+      <div class="panel-header">
+        <span class="panel-title">1. Multi-Turn Chat (UI Tracks 1 ADK ID)</span>
+        <span class="panel-meta" id="activeSessionBadge">—</span>
+      </div>
+
+      <div class="presets-box">
+        <div class="preset-label">Click in order to test the 1:1 chain:</div>
+        <button class="preset-btn" data-prompt="What primary company 10-K report is in our internal database and what was its total net sales in 2022?">
+          <strong>Turn 1 (Initial GE RAG):</strong> What primary company 10-K report is in our internal database and what was its total net sales in 2022?
+        </button>
+        <button class="preset-btn" data-prompt="What about its AWS segment sales and operating income in that same year?">
+          <strong>Turn 2 (Ambiguous Follow-Up):</strong> "What about its AWS segment sales and operating income in that same year?"
+        </button>
+        <button class="preset-btn" data-prompt="Create a ServiceNow audit ticket summarizing the 2022 total net sales and AWS operating income we just retrieved.">
+          <strong>Turn 3 (Action Tool — Bypasses GE):</strong> "Create a ServiceNow audit ticket summarizing the 2022 total net sales and AWS operating income we just retrieved."
+        </button>
+        <button class="preset-btn" data-prompt="What ServiceNow audit ticket or 2022 sales figures did I request in my previous session?">
+          <strong>Turn 4 (In a +New Session — Memory Bank Recall):</strong> "What ServiceNow audit ticket or 2022 sales figures did I request in my previous session?"
+        </button>
+      </div>
+
+      <div class="panel-body" id="chatContainer"></div>
+
+      <div style="padding: 0 10px;">
+        <div class="claude-reasoning-box" id="loaderBox">
+          <div class="shrinking-shining-ink"></div>
+          <span class="sweep-text" id="loaderText">ADK Orchestrator resolving coreference &amp; syncing VertexAiSessionService...</span>
+        </div>
+      </div>
+
+      <div class="chat-input-bar">
+        <input type="text" id="promptInput" class="chat-input" placeholder="Ask a follow-up question or action..." />
+        <button class="btn btn-primary" id="sendBtn">Send</button>
+      </div>
+    </section>
+
+    <!-- CENTER PANEL: Visual Chain & Session Continuity -->
+    <section class="panel">
+      <div class="panel-header">
+        <span class="panel-title">2. End-to-End Chain &amp; 1:1 Session Reuse</span>
+        <span class="panel-meta" id="chainSummaryBadge">0 Turns</span>
+      </div>
+      <div class="panel-body" id="chainContainer"></div>
+    </section>
+
+    <!-- RIGHT PANEL: VertexAiSessionService State & Memory Bank -->
+    <section class="panel">
+      <div class="panel-header">
+        <span class="panel-title">3. Vertex AI Session State &amp; Memory Bank</span>
+        <button class="btn" id="syncMemoryBtn" style="padding: 3px 8px; font-size: 10px;">Sync to Memory Bank</button>
+      </div>
+      <div class="panel-body">
+        <div>
+          <div class="preset-label">A. Bound Session IDs (1 ADK Session = 1 GE Session)</div>
+          <div class="mono-box" id="sessionBindingBox">Loading...</div>
+        </div>
+        <div>
+          <div class="preset-label">B. Live `session.state` in VertexAiSessionService</div>
+          <div class="mono-box" id="sessionStateBox">{}</div>
+        </div>
+        <div>
+          <div class="preset-label">C. Long-Term `VertexAiMemoryBankService` (Cross-Session)</div>
+          <div class="mono-box" id="memoryBankBox">[]</div>
+        </div>
+        <div>
+          <div class="preset-label">D. Persisted ADK `session.events` Log</div>
+          <div class="mono-box" id="eventsLogBox">[]</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let currentSessionId = null;
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const btn = document.getElementById("themeToggleBtn");
+      if (html.getAttribute("data-theme") === "dark") {
+        html.setAttribute("data-theme", "light");
+        btn.textContent = "🌙 Dark";
+      } else {
+        html.setAttribute("data-theme", "dark");
+        btn.textContent = "☀️ Light";
+      }
+    }
+
+    document.getElementById("themeToggleBtn").addEventListener("click", toggleTheme);
+
+    function clearChildren(el) {
+      while (el.firstChild) {
+        el.removeChild(el.firstChild);
+      }
+    }
+
+    async function loadOverview(preferredSessionId) {
+      const res = await fetch("/api/overview");
+      const data = await res.json();
+
+      document.getElementById("engineSubtitle").textContent =
+        "ReasoningEngine: " + data.reasoning_engine.split("/").slice(-1)[0] +
+        " | Model: " + data.model;
+
+      // Populate targets
+      const targetSelect = document.getElementById("targetSelect");
+      if (targetSelect.options.length === 0) {
+        Object.entries(data.targets || {}).forEach(([k, v]) => {
+          const opt = document.createElement("option");
+          opt.value = k;
+          opt.textContent = v.label;
+          targetSelect.appendChild(opt);
+        });
+      }
+
+      // Populate sessions
+      const sessionSelect = document.getElementById("sessionSelect");
+      clearChildren(sessionSelect);
+      const sessions = data.sessions || [];
+      sessions.sort((a, b) => {
+        const aHasGe = a.state && a.state.ge_session_id ? 1 : 0;
+        const bHasGe = b.state && b.state.ge_session_id ? 1 : 0;
+        return bHasGe - aHasGe;
+      });
+
+      sessions.forEach((s) => {
+        const opt = document.createElement("option");
+        opt.value = s.session_id;
+        const calls = s.state && s.state.ge_call_count ? s.state.ge_call_count : 0;
+        opt.textContent = s.session_id + " (GE calls: " + calls + ")";
+        sessionSelect.appendChild(opt);
+      });
+
+      // Render Memory Bank entries
+      const memBox = document.getElementById("memoryBankBox");
+      if (data.memories && data.memories.length > 0) {
+        memBox.textContent = JSON.stringify(data.memories, null, 2);
+      } else {
+        memBox.textContent = "No extracted cross-session memories yet.";
+      }
+
+      const targetId =
+        preferredSessionId ||
+        (sessions.find((s) => s.session_id === "1425132855335321600")
+          ? "1425132855335321600"
+          : sessions[0] && sessions[0].session_id);
+
+      if (targetId) {
+        sessionSelect.value = targetId;
+        await loadSessionDetail(targetId);
+      }
+    }
+
+    async function loadSessionDetail(sessionId) {
+      currentSessionId = sessionId;
+      document.getElementById("activeSessionBadge").textContent = "ID: " + sessionId;
+
+      const res = await fetch("/api/session/" + encodeURIComponent(sessionId));
+      const session = await res.json();
+      renderSession(session);
+    }
+
+    function renderSession(session) {
+      // 1. Render Chat Messages
+      const chatContainer = document.getElementById("chatContainer");
+      clearChildren(chatContainer);
+
+      const turns = session.chain_turns || [];
+      turns.forEach((t) => {
+        const uCard = document.createElement("div");
+        uCard.className = "msg-card msg-user";
+        const uRole = document.createElement("div");
+        uRole.className = "msg-role";
+        uRole.textContent = "TURN " + t.turn_number + " • USER";
+        const uTxt = document.createElement("div");
+        uTxt.textContent = t.user_prompt;
+        uCard.appendChild(uRole);
+        uCard.appendChild(uTxt);
+        chatContainer.appendChild(uCard);
+
+        if (t.agent_response) {
+          const mCard = document.createElement("div");
+          mCard.className = "msg-card msg-model";
+          const mRole = document.createElement("div");
+          mRole.className = "msg-role";
+          mRole.textContent = "TURN " + t.turn_number + " • ADK ORCHESTRATOR (gemini-3-flash-preview)";
+          const mTxt = document.createElement("div");
+          mTxt.textContent = t.agent_response;
+          mCard.appendChild(mRole);
+          mCard.appendChild(mTxt);
+          chatContainer.appendChild(mCard);
+        }
+      });
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      // 2. Render Center Chain Visualizer
+      const chainContainer = document.getElementById("chainContainer");
+      clearChildren(chainContainer);
+      document.getElementById("chainSummaryBadge").textContent =
+        turns.length + " Turn(s) • " + session.event_count + " ADK Events";
+
+      turns.forEach((t) => {
+        const card = document.createElement("div");
+        card.className = "turn-chain-card";
+
+        const hdr = document.createElement("div");
+        hdr.className = "turn-chain-header";
+        const hdrLeft = document.createElement("span");
+        hdrLeft.textContent = "TURN #" + t.turn_number + " CHAIN";
+        const hdrRight = document.createElement("span");
+        hdrRight.textContent = "ADK Session: " + session.session_id;
+        hdr.appendChild(hdrLeft);
+        hdr.appendChild(hdrRight);
+        card.appendChild(hdr);
+
+        // Step 1: User Input
+        const s1 = document.createElement("div");
+        s1.className = "chain-step";
+        const tag1 = document.createElement("div");
+        tag1.className = "step-tag";
+        tag1.textContent = "1. UI User Prompt";
+        const txt1 = document.createElement("div");
+        txt1.textContent = t.user_prompt;
+        s1.appendChild(tag1);
+        s1.appendChild(txt1);
+        card.appendChild(s1);
+
+        // Step 2: Tool Calls (stream_assist_rag or create_servicenow_ticket)
+        if (t.tool_calls && t.tool_calls.length > 0) {
+          t.tool_calls.forEach((tc) => {
+            const arr = document.createElement("div");
+            arr.className = "arrow-down";
+            arr.textContent = "▼ ADK Runner (VertexAiSessionService Context)";
+            card.appendChild(arr);
+
+            const s2 = document.createElement("div");
+            s2.className = "chain-step";
+
+            if (tc.name === "stream_assist_rag") {
+              const resp = tc.response || {};
+              const status = resp.session_status || (t.turn_number === 1 ? "CREATED_INITIAL_GE_SESSION" : "REUSED_EXISTING_GE_SESSION");
+              const geSess = resp.ge_session_id || (session.state && session.state.ge_session_id) || "N/A";
+
+              const tag2 = document.createElement("div");
+              tag2.className = "step-tag step-tag-highlight";
+              tag2.textContent = "2. ADK Coreference Rewrite ──► GE :streamAssist (" + status + ")";
+              s2.appendChild(tag2);
+
+              const box2 = document.createElement("div");
+              box2.className = "mono-box";
+              box2.textContent =
+                "Rewritten Standalone Query:\n  \"" + (tc.args.rewritten_query || "") + "\"\n\n" +
+                "GE Session Passed/Returned:\n  " + geSess + "\n\n" +
+                "Scaling Proof:\n  " +
+                (status === "REUSED_EXISTING_GE_SESSION"
+                  ? "✅ REUSED EXISTING GE SESSION (0 New GE Sessions Created!)"
+                  : "🔵 INITIAL GE SESSION CREATED & BOUND IN session.state['ge_session_id']");
+              s2.appendChild(box2);
+            } else {
+              const tag2 = document.createElement("div");
+              tag2.className = "step-tag step-tag-highlight";
+              tag2.textContent = "2. ADK Action Tool: " + tc.name + " (BYPASSED GE streamAssist)";
+              s2.appendChild(tag2);
+
+              const box2 = document.createElement("div");
+              box2.className = "mono-box";
+              box2.textContent =
+                "Tool Args (Pulled Directly from ADK Session History):\n" +
+                JSON.stringify(tc.args, null, 2) +
+                "\n\nTool Output:\n" +
+                JSON.stringify(tc.response || {}, null, 2);
+              s2.appendChild(box2);
+            }
+            card.appendChild(s2);
+          });
+        } else {
+          const arr = document.createElement("div");
+          arr.className = "arrow-down";
+          arr.textContent = "▼ Answered Directly from Preloaded VertexAiMemoryBankService / Session";
+          card.appendChild(arr);
+        }
+
+        chainContainer.appendChild(card);
+      });
+
+      // 3. Render Right Panel State & Binding
+      const geId = (session.state && session.state.ge_session_id) || "(None yet — created on 1st RAG call)";
+      const geShort = geId.includes("/sessions/") ? ".../sessions/" + geId.split("/sessions/")[1] : geId;
+      document.getElementById("sessionBindingBox").textContent =
+        "UI / ADK Session ID:\n  " + session.session_id + "\n\n" +
+        "Bound GE streamAssist Session ID:\n  " + geShort + "\n\n" +
+        "Total GE streamAssist Calls in Session: " + ((session.state && session.state.ge_call_count) || 0);
+
+      document.getElementById("sessionStateBox").textContent = JSON.stringify(session.state || {}, null, 2);
+
+      const compactEvents = (session.events || []).map((e) => ({
+        idx: e.index,
+        type: e.type,
+        detail: e.name || (e.text ? e.text.slice(0, 90) + "..." : ""),
+      }));
+      document.getElementById("eventsLogBox").textContent = JSON.stringify(compactEvents, null, 2);
+    }
+
+    async function sendPrompt(promptText) {
+      const text = (promptText || document.getElementById("promptInput").value || "").trim();
+      if (!text || !currentSessionId) return;
+
+      document.getElementById("promptInput").value = "";
+      const loader = document.getElementById("loaderBox");
+      loader.classList.add("active");
+
+      try {
+        const targetKey = document.getElementById("targetSelect").value || "wif_gcs_10k";
+        const res = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            session_id: currentSessionId,
+            prompt: text,
+            ge_target_key: targetKey,
+            sync_memory: true,
+          }),
+        });
+        const data = await res.json();
+        if (data.session) {
+          renderSession(data.session);
+        }
+        await loadOverview(currentSessionId);
+      } finally {
+        loader.classList.remove("active");
+      }
+    }
+
+    document.getElementById("sendBtn").addEventListener("click", () => sendPrompt());
+    document.getElementById("promptInput").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") sendPrompt();
+    });
+
+    document.querySelectorAll(".preset-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        sendPrompt(btn.getAttribute("data-prompt"));
+      });
+    });
+
+    document.getElementById("sessionSelect").addEventListener("change", (e) => {
+      loadSessionDetail(e.target.value);
+    });
+
+    document.getElementById("newSessionBtn").addEventListener("click", async () => {
+      const loader = document.getElementById("loaderBox");
+      loader.classList.add("active");
+      try {
+        const targetKey = document.getElementById("targetSelect").value || "wif_gcs_10k";
+        const res = await fetch("/api/session/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ge_target_key: targetKey }),
+        });
+        const newSess = await res.json();
+        await loadOverview(newSess.session_id);
+      } finally {
+        loader.classList.remove("active");
+      }
+    });
+
+    document.getElementById("syncMemoryBtn").addEventListener("click", async () => {
+      if (!currentSessionId) return;
+      const btn = document.getElementById("syncMemoryBtn");
+      btn.textContent = "Syncing...";
+      await fetch("/api/session/" + encodeURIComponent(currentSessionId) + "/sync-memory", {
+        method: "POST",
+      });
+      await loadOverview(currentSessionId);
+      btn.textContent = "Sync to Memory Bank";
+    });
+
+    loadOverview("1425132855335321600");
+  </script>
+</body>
+</html>

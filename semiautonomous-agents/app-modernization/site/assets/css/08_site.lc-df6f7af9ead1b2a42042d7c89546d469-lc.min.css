@@ -1,0 +1,2 @@
+.cmp-form-text .cmp-form-text__validation-message{visibility:hidden}
+.cmp-form-text :invalid + .cmp-form-text__validation-message{visibility:visible}

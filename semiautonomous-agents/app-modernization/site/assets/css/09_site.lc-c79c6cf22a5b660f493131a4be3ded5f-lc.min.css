@@ -1,0 +1,3 @@
+.cmp-pdfviewer__content{height:500px}
+.pdfviewer:not(.cq-Editable-dom) .cmp-pdfviewer__full-window-borderless{height:100vh;position:fixed;width:100vw;top:0;left:0;z-index:9999}
+.pdfviewer.cq-Editable-dom .cmp-pdfviewer__full-window-borderless{height:500px}

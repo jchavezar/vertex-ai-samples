@@ -1,0 +1,1 @@
+(function(a){var b=a.clientCode;window.targetGlobalSettings={clientCode:b,serverHost:b+".tt.omtrdc.net",currentPagePath:a.currentPagePath}})(CQ_Analytics.TestTarget);
