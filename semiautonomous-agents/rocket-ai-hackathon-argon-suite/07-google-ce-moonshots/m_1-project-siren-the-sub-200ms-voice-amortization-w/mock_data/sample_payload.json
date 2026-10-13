@@ -33,7 +33,7 @@
       "total_interest_crushed": "$290,135.24 Lifetime Interest Saved!",
       "voice_recalculation_latency": "142ms WebSocket Barge-In Execution"
     },
-    "execution_ms": 0.05
+    "execution_ms": 0.06
   },
   "bespoke_visual_artifact": {
     "archetype": "project_siren_live_voice_amortization",

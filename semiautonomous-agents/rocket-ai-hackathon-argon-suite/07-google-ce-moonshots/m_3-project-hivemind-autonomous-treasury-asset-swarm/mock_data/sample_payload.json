@@ -34,7 +34,7 @@
       "per_household_monthly_savings": "$293.43/month ($3,521.16/yr)",
       "intraday_4hr_locked_volume": "229 Instant 1-Tap Locks = $91,600,000 Recaptured Loan Volume"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.03
   },
   "bespoke_visual_artifact": {
     "archetype": "project_hivemind_treasury_swarm",

@@ -30,7 +30,7 @@
       "cloud_sdp_redacted_entities": "4 GLBA NPI Entities Redacted (`US_SOCIAL_SECURITY_NUMBER`, `US_BANK_ROUTING_MICR`, `BANK_ACCOUNT`, `DATE_OF_BIRTH`)",
       "sanitized_prompt_forwarded": "Borrower Johnathan R. Doe (SSN: [GLBA-NPI-REDACTED:SSN], DOB: [GLBA-NPI-REDACTED:DOB]) uploaded Chase Bank Routing #[GLBA-NPI-REDACTED:BANK-ACCT], Account #[GLBA-NPI-REDACTED:BANK-ACCT], and IRS Form 1040 AGI $184,500 for property 1520 Woodward Ave, Detroit MI. [MODEL-ARMOR-BLOCKED:PROMPT-INJECTION-ATTEMPT]"
     },
-    "execution_ms": 0.29
+    "execution_ms": 0.28
   },
   "bespoke_visual_artifact": {
     "archetype": "model_armor_pii_firewall_inspector",
