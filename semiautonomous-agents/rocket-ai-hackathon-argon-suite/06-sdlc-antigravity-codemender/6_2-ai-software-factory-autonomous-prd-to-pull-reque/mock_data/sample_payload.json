@@ -33,7 +33,7 @@
       "lifetime_interest_saved": "$139,369.68 Saved in Total Interest",
       "antigravity_swarm_pr_status": "PR #4092 Ready to Merge \u2022 4 Subagents Completed \u2022 6/6 Sandbox Unit Tests Passed"
     },
-    "execution_ms": 0.05
+    "execution_ms": 0.07
   },
   "bespoke_visual_artifact": {
     "archetype": "antigravity_swarm_software_factory",

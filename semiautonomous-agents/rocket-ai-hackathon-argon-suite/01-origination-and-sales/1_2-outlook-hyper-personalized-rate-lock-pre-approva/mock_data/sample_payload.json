@@ -33,7 +33,7 @@
       "option_b_breakeven": "46.7 Months (3.9 Years)",
       "option_c_2_1_buydown": "Yr 1: $2,423.25/mo (4.125%) | Yr 2: $2,722.43/mo (5.125%) | Seller Subsidy: $11,165.04"
     },
-    "execution_ms": 0.04
+    "execution_ms": 0.03
   },
   "bespoke_visual_artifact": {
     "archetype": "outlook_addin_composer",

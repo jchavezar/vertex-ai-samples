@@ -45,7 +45,8 @@ from shared.domain_uis import DOMAIN_THEME_STYLES
 from shared.portal_ui import render_docs_page_html, render_portal_html
 from shared.standalone_uis import render_standalone_square_ui
 
-SERVICE_MODE = os.environ.get("SERVICE_MODE", "portal").strip().lower()
+_raw_mode = (os.environ.get("SERVICE_MODE") or os.environ.get("DEMO_DOMAIN") or os.environ.get("APP_MODE") or "portal").strip().lower()
+SERVICE_MODE = "ops" if _raw_mode == "uw" else ("portal" if _raw_mode == "demo" else _raw_mode)
 
 app = FastAPI(title=f"Rocket AI Hackathon ({SERVICE_MODE.upper()}) — Gemini 4 Argon & Gemini 3.8 Flash")
 
@@ -266,7 +267,7 @@ async def api_run_demo(request: Request):
 async def api_live_tts(request: Request):
     """Synthesizes natural 24kHz HD voice audio via Vertex AI Gemini 3.8 Live (`gemini-3.8-live`)
     for diarized call segments (e.g. Square 1.1 Marcus/Elena/Banker), Astra 2.0, Spanish audio, and voiceovers."""
-    if not is_authenticated(request):
+    if not _is_authenticated(request):
         return JSONResponse({"ok": False, "error": "Unauthorized: Private Rocket Access Required"}, status_code=401)
 
     body = await request.json()

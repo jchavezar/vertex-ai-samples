@@ -42,7 +42,7 @@
       "fannie_mae_24mo_qualifying_income": "$15,233.96 / month ($365,615.00 / 24 months)",
       "schema_validation": "100% VALIDATED \u2014 Pydantic Form1084Output JSON Schema Ready for Encompass/Rocket Logic"
     },
-    "execution_ms": 0.01
+    "execution_ms": 0.02
   },
   "bespoke_visual_artifact": {
     "archetype": "form_1084_tax_worksheet",
