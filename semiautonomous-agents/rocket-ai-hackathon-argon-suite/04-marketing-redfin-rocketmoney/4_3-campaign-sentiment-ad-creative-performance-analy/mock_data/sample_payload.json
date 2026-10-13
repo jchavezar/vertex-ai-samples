@@ -50,7 +50,7 @@
       "top_performing_funnel": "Rocket Money Down Payment Vault (29.2x ROAS | $278 Cost Per Funded Loan)",
       "recommended_reallocation": "Shift $250,000 from Generic Paid Search (1.7x ROAS) to Redfin + Rocket Money Funnels -> Projected +412 Additional Funded Loans"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.03
   },
   "bespoke_visual_artifact": {
     "archetype": "roas_attribution_funnel_board",

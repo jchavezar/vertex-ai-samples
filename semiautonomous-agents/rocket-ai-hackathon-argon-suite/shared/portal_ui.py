@@ -305,98 +305,133 @@ def render_portal_html(auth_token: str) -> str:
           </div>
         </div>
 
-        <!-- Right 5 Cols: Interactive Astra 2.0 Gemini 3.8 Live & Extended Thinking Voice Agent -->
+        <!-- Right 5 Cols: Interactive Astra 2.0 Gemini 3.8 Live Video Avatar + Extended Thinking + Omniscient Overlay -->
         <div class="lg:col-span-5">
-          <div class="bg-slate-900/95 border border-rose-500/35 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
+          <div class="bg-slate-900/95 border border-rose-500/40 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
             <div class="flex items-start gap-4">
+              <!-- 9:16 Live Video Avatar Stage (704x1280 H.264 + 24kHz AAC via MSE) -->
               <div class="relative shrink-0">
-                <div id="avatar-ring" class="absolute -inset-2 rounded-full bg-rose-500/20 animate-pulse-ring"></div>
-                <div id="avatar-orb" onclick="window.toggleAstraLiveSession()" title="Click to Start/Stop Gemini 3.8 Live Voice Session" class="cursor-pointer relative w-24 h-24 rounded-full bg-gradient-to-b from-slate-800 to-slate-950 border border-slate-700 flex items-center justify-center overflow-hidden shadow-lg transition-all duration-300">
-                  <svg class="w-full h-full p-1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="50" cy="50" r="46" fill="#0F172A" />
+                <div id="avatar-ring" class="absolute -inset-1.5 rounded-2xl bg-gradient-to-tr from-rose-500/35 via-indigo-500/30 to-cyan-500/35 animate-pulse-ring"></div>
+                <div id="avatar-orb" onclick="window.toggleAstraLiveSession()" title="Click to Start/Stop Gemini 3.8 Live Video Avatar Session" class="cursor-pointer relative w-28 h-40 rounded-2xl bg-gradient-to-b from-slate-800 to-slate-950 border border-rose-500/40 flex items-center justify-center overflow-hidden shadow-xl transition-all duration-300">
+                  <!-- Real 24 FPS Gemini 3.8 Live Video Avatar Stream -->
+                  <video id="astra-live-video" playsinline autoplay class="w-full h-full object-cover hidden"></video>
+                  <!-- Live User Camera / Screen PIP Preview -->
+                  <video id="astra-vision-pip" playsinline autoplay muted class="absolute bottom-1.5 right-1.5 w-11 h-14 object-cover rounded-lg border border-cyan-400 shadow-lg hidden z-20"></video>
+                  <!-- SVG Fallback / Idle Avatar -->
+                  <svg id="astra-svg-avatar" class="w-full h-full p-1.5" viewBox="0 0 100 125" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="125" rx="14" fill="#0F172A" />
                     <g id="avatar-shoulders">
-                      <path d="M 15,95 Q 15,80 30,73 L 70,73 Q 85,80 85,95 Z" fill="#E11D48" />
-                      <path d="M 38,73 L 50,81 L 62,73" stroke="#fbcfe8" stroke-width="2" fill="#fbcfe8" />
-                      <text x="50" y="89" font-size="6.5" font-family="monospace" font-weight="900" text-anchor="middle" fill="#ffffff">3.8 LIVE</text>
+                      <path d="M 10,122 Q 12,92 30,83 L 70,83 Q 88,92 90,122 Z" fill="#E11D48" />
+                      <path d="M 38,83 L 50,93 L 62,83" stroke="#fbcfe8" stroke-width="2" fill="#fbcfe8" />
+                      <text x="50" y="106" font-size="6.8" font-family="monospace" font-weight="900" text-anchor="middle" fill="#ffffff">LIVE AVATAR</text>
+                      <text x="50" y="116" font-size="5.5" font-family="monospace" font-weight="700" text-anchor="middle" fill="#fecdd3">24 FPS • 24kHz</text>
                     </g>
                     <g id="avatar-head-group">
-                      <path d="M 22,60 C 15,25 32,3 50,3 C 68,3 85,25 78,60" fill="#1e1b4b" />
-                      <circle cx="23" cy="50" r="5" fill="#fbcfe8" />
-                      <circle cx="77" cy="50" r="5" fill="#fbcfe8" />
-                      <path d="M 26,45 C 26,24 74,25 74,45 C 74,68 50,83 50,83 C 50,83 26,68 26,45 Z" fill="#fed7aa" />
-                      <path d="M 23,38 Q 28,12 50,15 Q 72,12 77,38 Q 72,25 50,26 Q 28,25 23,38 Z" fill="#312e81" />
+                      <path d="M 22,64 C 15,27 32,5 50,5 C 68,5 85,27 78,64" fill="#1e1b4b" />
+                      <circle cx="23" cy="52" r="5" fill="#fbcfe8" />
+                      <circle cx="77" cy="52" r="5" fill="#fbcfe8" />
+                      <path d="M 26,47 C 26,26 74,27 74,47 C 74,70 50,85 50,85 C 50,85 26,70 26,47 Z" fill="#fed7aa" />
+                      <path d="M 23,40 Q 28,14 50,17 Q 72,14 77,40 Q 72,27 50,28 Q 28,27 23,40 Z" fill="#312e81" />
                       <g id="avatar-eyes">
-                        <ellipse cx="39" cy="46" rx="3.5" ry="2.2" fill="#ffffff" />
-                        <circle cx="39" cy="46" r="2.2" fill="#1e1b4b" />
-                        <ellipse cx="61" cy="46" rx="3.5" ry="2.2" fill="#ffffff" />
-                        <circle cx="61" cy="46" r="2.2" fill="#1e1b4b" />
+                        <ellipse cx="39" cy="48" rx="3.5" ry="2.2" fill="#ffffff" />
+                        <circle cx="39" cy="48" r="2.2" fill="#1e1b4b" />
+                        <ellipse cx="61" cy="48" rx="3.5" ry="2.2" fill="#ffffff" />
+                        <circle cx="61" cy="48" r="2.2" fill="#1e1b4b" />
                       </g>
-                      <path d="M 34,41 Q 39,39 43,41.5" stroke="#1e1b4b" stroke-width="1.5" stroke-linecap="round" fill="none" />
-                      <path d="M 66,41 Q 61,39 57,41.5" stroke="#1e1b4b" stroke-width="1.5" stroke-linecap="round" fill="none" />
-                      <path d="M 48,51 Q 50,55 52,51" stroke="#f43f5e" stroke-width="1.2" stroke-linecap="round" fill="none" />
-                      <path id="avatar-mouth-lip" d="M 43,65 Q 50,66 57,65" stroke="#be185d" stroke-width="2.5" stroke-linecap="round" fill="none" />
+                      <path d="M 34,43 Q 39,41 43,43.5" stroke="#1e1b4b" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                      <path d="M 66,43 Q 61,41 57,43.5" stroke="#1e1b4b" stroke-width="1.5" stroke-linecap="round" fill="none" />
+                      <path d="M 48,53 Q 50,57 52,53" stroke="#f43f5e" stroke-width="1.2" stroke-linecap="round" fill="none" />
+                      <path id="avatar-mouth-lip" d="M 43,67 Q 50,68 57,67" stroke="#be185d" stroke-width="2.5" stroke-linecap="round" fill="none" />
                     </g>
                   </svg>
                 </div>
               </div>
+
               <div class="flex-grow min-w-0">
-                <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
-                  <h3 class="text-base font-extrabold text-white">Astra 2.0</h3>
-                  <span class="text-[10px] mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Gemini 3.8 Live + Extended Thinking</span>
-                  <span id="avatar-badge" class="text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">24kHz HD Ready</span>
+                <div class="flex flex-wrap items-center justify-between gap-1.5 mb-1.5">
+                  <div class="flex flex-wrap items-center gap-1.5">
+                    <h3 class="text-base font-extrabold text-white">Astra 2.0</h3>
+                    <span class="text-[10px] mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">3.8 Live Avatar + Omniscient</span>
+                    <span id="avatar-badge" class="text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">24 FPS + 24kHz Ready</span>
+                  </div>
+                  <button onclick="window.openAstraCommandOverlay()" class="px-2.5 py-1 rounded-lg bg-gradient-to-r from-rose-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white text-[11px] font-extrabold mono shadow flex items-center gap-1">
+                    <span>💬 Open Command Chat</span>
+                    <span class="px-1 rounded bg-black/30 text-[9px]">⌘K</span>
+                  </button>
                 </div>
-                <div class="flex flex-wrap items-center gap-1.5 mb-2">
+
+                <!-- Avatar Persona + Live Mode + Voice Selectors -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 mb-2">
+                  <select id="astra-avatar-select" onchange="window.reconnectAstraIfLive()" class="bg-slate-950 border border-rose-500/40 rounded-lg px-2 py-1 text-[11px] text-amber-300 font-bold">
+                    <option value="Kira" selected>🎥 Avatar: Kira (Exec Advisor)</option>
+                    <option value="Ingrid">🎥 Avatar: Ingrid (Architect)</option>
+                    <option value="Vera">🎥 Avatar: Vera (Risk/UW Lead)</option>
+                    <option value="Sam">🎥 Avatar: Sam (FDE Director)</option>
+                    <option value="Jay">🎥 Avatar: Jay (Staff SDLC)</option>
+                    <option value="Paul">🎥 Avatar: Paul (Treasury Macro)</option>
+                    <option value="Kai">🎥 Avatar: Kai (3D Concierge)</option>
+                    <option value="Ben">🎥 Avatar: Ben (Dev Advocate)</option>
+                    <option value="Carmen">🎥 Avatar: Carmen (Bilingual)</option>
+                    <option value="Leo">🎥 Avatar: Leo (FinOps)</option>
+                    <option value="Piper">🎥 Avatar: Piper (Product UI)</option>
+                    <option value="off">🎙️ Audio Only (24kHz Native)</option>
+                  </select>
                   <select id="astra-live-mode" onchange="window.reconnectAstraIfLive()" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-rose-300 font-semibold">
-                    <option value="gemini-3.8-live" selected>Gemini 3.8 Live (24kHz Native Audio)</option>
-                    <option value="gemini-3.8-live-extended-thinking">Gemini 3.8 Live Extended Thinking</option>
+                    <option value="gemini-3.8-live" selected>Gemini 3.8 Live (24 FPS + 24kHz)</option>
+                    <option value="gemini-3.8-live-extended-thinking">3.8 Live Extended Thinking</option>
                   </select>
                   <select id="astra-voice-select" onchange="window.reconnectAstraIfLive()" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-cyan-300 font-semibold">
                     <option value="Aoede" selected>Voice: Aoede (Warm HD)</option>
-                    <option value="Puck">Voice: Puck (Dynamic HD)</option>
                     <option value="Kore">Voice: Kore (Executive HD)</option>
+                    <option value="Puck">Voice: Puck (Dynamic HD)</option>
                     <option value="Fenrir">Voice: Fenrir (Deep HD)</option>
                   </select>
                 </div>
+
                 <div id="astra-live-transcript" class="text-xs text-slate-200 leading-relaxed bg-slate-950/90 border border-slate-800 rounded-xl p-2.5 max-h-24 overflow-y-auto">
-                  "Welcome Rocket builders! I'm running on <strong>Gemini 3.8 Live 24kHz Native Audio</strong>. Click <strong>Start Live Voice</strong> to talk with me in real time—you can interrupt me mid-sentence with your microphone or click any barge-in prompt below!"
+                  "Welcome Rocket builders! I now run on <strong>Gemini 3.8 Live with 24 FPS Live Video Avatars</strong> and have complete knowledge of all <strong>33 demos</strong>, our <strong>Oct 16 Showcase</strong> & <strong>Oct 28–29 Detroit/Chennai Hackathon</strong> dates. Click <strong>Start Live Avatar</strong> or open my <strong>Command Chat (⌘K)</strong>!"
                 </div>
+                <div id="astra-hero-matched-cards" class="mt-1.5 flex flex-wrap gap-1.5"></div>
               </div>
             </div>
 
-            <!-- Live Voice & Instant Barge-In Controls -->
-            <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap items-center gap-2">
-              <button onclick="window.toggleAstraLiveSession()" id="btn-voice-tour" class="px-3 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition shadow flex items-center gap-1.5">
-                <span id="voice-icon">🎙️</span>
-                <span id="voice-label">Start Gemini 3.8 Live Voice</span>
+            <!-- Live Video Avatar, Mic, Camera, Screen & Barge-In Controls -->
+            <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap items-center gap-1.5">
+              <button onclick="window.toggleAstraLiveSession()" id="btn-voice-tour" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition shadow flex items-center gap-1.5">
+                <span id="voice-icon">🎥</span>
+                <span id="voice-label">Start Live Video Avatar</span>
               </button>
-              <button onclick="window.toggleAstraMic()" id="btn-astra-mic" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition flex items-center gap-1">
+              <button onclick="window.toggleAstraMic()" id="btn-astra-mic" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition flex items-center gap-1">
                 <span>🎤</span>
-                <span id="astra-mic-label">16kHz Mic & Barge-In</span>
+                <span id="astra-mic-label">16kHz Mic</span>
               </button>
-              <button onclick="window.interruptAstraNow()" id="btn-astra-interrupt" class="px-2.5 py-2 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition">
+              <button onclick="window.toggleAstraCamera()" id="btn-astra-cam" title="Share Webcam so Astra's Live Avatar sees you or documents" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 transition">
+                📷 Cam
+              </button>
+              <button onclick="window.toggleAstraScreen()" id="btn-astra-screen" title="Share Screen so Astra's Live Avatar sees your app or code" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 transition">
+                🖥️ Screen
+              </button>
+              <button onclick="window.interruptAstraNow()" id="btn-astra-interrupt" class="px-2.5 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition">
                 ✋ Interrupt
               </button>
-              <button onclick="window.toggleAstraMute()" id="btn-astra-mute" class="px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
-                🔊 Mute
-              </button>
-              <button onclick="switchMainTab('keynote')" class="ml-auto px-3 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition">
-                🎤 2-Hr Deck
+              <button onclick="window.toggleAstraMute()" id="btn-astra-mute" class="px-2 py-1.5 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                🔊
               </button>
             </div>
 
             <!-- Instant Barge-In Chips & Text/Voice Input -->
             <div class="mt-2.5 flex flex-wrap gap-1.5">
-              <button onclick="window.sendAstraBargeIn('Hold on—give me the 20-second executive pitch for why Rocket beats Sierra AI and AWS Bedrock with Gemini 3.8 Live and Gemini 4 Argon!')" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-rose-950/60 text-slate-300 hover:text-rose-200 border border-slate-700 transition">
-                ⚡ Interrupt: "Why do we beat Sierra AI & AWS?"
+              <button onclick="window.sendAstraBargeIn('What is our schedule for the Oct 16 Product Showcase and Oct 28–29 Detroit & Chennai Hackathon, and which demos should we highlight?')" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-rose-950/60 text-slate-300 hover:text-rose-200 border border-slate-700 transition">
+                📅 Oct 16 & Oct 28–29 Dates + Top Demos
               </button>
-              <button onclick="window.sendAstraBargeIn('Wait—explain how Square 1.1 ABCDQ and Square 3.4 Refi Recapture work with real audio!')" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-rose-950/60 text-slate-300 hover:text-rose-200 border border-slate-700 transition">
-                ⚡ Interrupt: "How do 1.1 & 3.4 work?"
+              <button onclick="window.sendAstraBargeIn('Hold on—give me the 20-second executive pitch for why Rocket beats Sierra AI and AWS Bedrock with Gemini 3.8 Live Avatar and Gemini 4 Argon!')" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-rose-950/60 text-slate-300 hover:text-rose-200 border border-slate-700 transition">
+                ⚡ Why We Beat Sierra AI & AWS
               </button>
             </div>
             <div class="mt-2 flex gap-1.5">
-              <input id="astra-barge-input" type="text" placeholder="Ask or interrupt Astra 2.0 live while she's speaking..." onkeydown="if(event.key==='Enter')window.sendAstraBargeIn()" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:border-rose-500 focus:outline-none">
+              <input id="astra-barge-input" type="text" placeholder="Ask or interrupt Astra 2.0 Live Avatar about any of the 33 use cases..." onkeydown="if(event.key==='Enter')window.sendAstraBargeIn()" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:border-rose-500 focus:outline-none">
               <button onclick="window.sendAstraBargeIn()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold">
-                Send / Interrupt →
+                Speak →
               </button>
             </div>
           </div>
@@ -461,6 +496,135 @@ def render_portal_html(auth_token: str) -> str:
       <div class="flex flex-wrap justify-between items-center gap-3 pt-3 border-t border-slate-800">
         <a id="qr-docs-btn" href="#" target="_blank" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold mono text-cyan-300">📘 Open Full Reproduction Blueprint ↗</a>
         <a id="qr-demo-btn" href="#" target="_blank" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 text-xs font-bold mono text-white shadow-lg">🚀 Open Dedicated Domain Cloud Run App ↗</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FLOATING DOCK LAUNCHER FOR ASTRA 2.0 OMNISCIENT OVERLAY (⌘K) -->
+  <div id="astra-floating-dock" class="fixed bottom-5 right-5 z-40 flex items-center gap-2">
+    <button onclick="window.openAstraCommandOverlay()" class="group px-4 py-3 rounded-2xl bg-gradient-to-r from-rose-600 via-indigo-600 to-cyan-600 hover:from-rose-500 hover:to-indigo-500 text-white font-extrabold text-xs shadow-2xl border border-white/20 flex items-center gap-2.5 transition-all hover:scale-105">
+      <span class="relative flex h-3 w-3">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-300 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-400"></span>
+      </span>
+      <span>🎥 Ask Astra 2.0 • All 33 Demos, Dates & Live Avatar</span>
+      <span class="px-1.5 py-0.5 rounded bg-black/40 mono text-[10px] text-amber-300">⌘K</span>
+    </button>
+  </div>
+
+  <!-- ASTRA 2.0 OMNISCIENT COMMAND & LIVE AVATAR OVERLAY WINDOW -->
+  <div id="astra-command-overlay" class="fixed inset-0 bg-slate-950/85 backdrop-blur-xl z-50 hidden flex items-center justify-center p-3 md:p-6">
+    <div class="bg-slate-900 border border-rose-500/40 rounded-3xl max-w-6xl w-full h-[88vh] shadow-2xl flex flex-col overflow-hidden">
+      <!-- Top Header Bar -->
+      <div class="px-5 py-3.5 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2.5">
+          <span class="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-300 border border-rose-500/40 text-xs font-extrabold mono">
+            🎥 ASTRA 2.0 OMNISCIENT ARCHITECT
+          </span>
+          <span class="text-xs text-slate-300 font-semibold hidden sm:inline">
+            Full Access: All 33 Live Demos • Oct 16 Showcase & Oct 28–29 Detroit/Chennai Hackathon • Gemini 3.8 Live 24 FPS Avatar
+          </span>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="astra-chat-model" class="bg-slate-900 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs text-amber-300 font-bold mono">
+            <option value="gemini-4-argon" selected>🧠 Model: Gemini 4 Argon (Frontier Reasoning)</option>
+            <option value="gemini-3.8-flash">⚡ Model: Gemini 3.8 Flash (Sub-Second Speed)</option>
+          </select>
+          <label class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-cyan-300 font-semibold cursor-pointer">
+            <input type="checkbox" id="astra-auto-speak" class="accent-rose-500">
+            <span>🔊 Auto-Speak Replies</span>
+          </label>
+          <button onclick="window.closeAstraCommandOverlay()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-600 text-slate-200 hover:text-white text-xs font-bold mono transition">
+            ✕ ESC
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Split Body: Left 4 Cols (Live Video Avatar + Instant 33-Demo Finder) | Right 8 Cols (Multi-Turn Omniscient Chat) -->
+      <div class="grid lg:grid-cols-12 flex-1 min-h-0 overflow-hidden">
+        <!-- Left 4 Cols: Live 24 FPS Avatar Stage + Vision + Instant Filter -->
+        <div class="lg:col-span-4 bg-slate-950/90 border-r border-slate-800 p-4 flex flex-col gap-3 overflow-y-auto">
+          <div class="rounded-2xl bg-slate-900 border border-rose-500/30 p-3 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-extrabold uppercase mono text-rose-300">🎥 Gemini 3.8 Live Avatar Stage</span>
+              <span id="overlay-avatar-status" class="text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Ready</span>
+            </div>
+            <!-- Video Container inside Overlay -->
+            <div class="relative w-full h-52 rounded-xl bg-slate-950 border border-slate-800 overflow-hidden flex items-center justify-center">
+              <video id="astra-overlay-video" playsinline autoplay muted class="w-full h-full object-cover hidden"></video>
+              <div id="astra-overlay-placeholder" class="text-center p-4 space-y-1.5">
+                <div class="text-2xl">🎥</div>
+                <div class="text-xs font-bold text-white">Gemini 3.8 Live Video Avatar (24 FPS)</div>
+                <p class="text-[11px] text-slate-400">Select an Avatar Persona in the header or click <strong>Start Live Avatar</strong> below for face-to-face lip-synced conversation.</p>
+              </div>
+            </div>
+            <div class="flex flex-wrap gap-1.5">
+              <button onclick="window.toggleAstraLiveSession()" class="flex-1 px-2.5 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold">
+                🎥 Start / Stop Avatar
+              </button>
+              <button onclick="window.toggleAstraMic()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 text-xs font-bold">
+                🎤 Mic
+              </button>
+              <button onclick="window.toggleAstraCamera()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-emerald-300 border border-emerald-500/30 text-xs font-bold">
+                📷 Cam
+              </button>
+              <button onclick="window.toggleAstraScreen()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-indigo-300 border border-indigo-500/30 text-xs font-bold">
+                🖥️ Screen
+              </button>
+            </div>
+          </div>
+
+          <!-- Instant 0ms 33-Demo Keyword Finder -->
+          <div class="rounded-2xl bg-slate-900 border border-slate-800 p-3 space-y-2">
+            <div class="text-[11px] font-extrabold uppercase mono text-cyan-300">🔍 Instant 33-Demo Finder (0ms)</div>
+            <input id="astra-instant-filter" type="text" oninput="window.filterAstraCatalogInstant(this.value)" placeholder="Filter by 'Schedule C', 'TRID', 'Refi', 'COBOL', 'Redfin'..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white focus:border-cyan-400 focus:outline-none">
+            <div id="astra-instant-results" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+          </div>
+
+          <!-- Quick Curated Prompts for Dates, Use Cases & Executive Pitch -->
+          <div class="space-y-1.5">
+            <div class="text-[10px] font-extrabold uppercase mono text-slate-400">⚡ Curated Executive & Date Queries</div>
+            <button onclick="window.sendAstraOverlayChat('Give me the complete schedule for our Oct 16 Product Showcase and Oct 28–29 Detroit & Chennai 24-Hour Halloween AI Hackathon, including key Rocket & Google stakeholders and which demos to show in Hour 1 vs Hour 2.')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 transition">
+              📅 <strong>Oct 16 & Oct 28–29 Dates:</strong> Full Schedule, Stakeholders & Hour 1 vs Hour 2 Demo Plan
+            </button>
+            <button onclick="window.sendAstraOverlayChat('Which specific demos should I show for Self-Employed Underwriting, TRID Closing Disclosures, and Appraisal Anomalies?')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 transition">
+              📑 <strong>Underwriting & TRID:</strong> Compare Squares [2.1], [2.2], [2.4], and [2.5]
+            </button>
+            <button onclick="window.sendAstraOverlayChat('Show me the best demos combining Redfin ($1.75B), Mr. Cooper ($9.4B / $2.1T servicing), and Rocket Money.')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 transition">
+              🏠 <strong>Redfin + Mr. Cooper + Rocket Money:</strong> Cross-Brand Synergy Demos
+            </button>
+            <button onclick="window.sendAstraOverlayChat('Which demos highlight Google Antigravity 2.0, DeepMind CodeMender, and the 5 Moonshots?')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-200 transition">
+              🛠️ <strong>Antigravity, CodeMender & Moonshots:</strong> Compare [6.1]–[6.5] & [M.1]–[M.5]
+            </button>
+          </div>
+        </div>
+
+        <!-- Right 8 Cols: Multi-Turn Omniscient Chat & Interactive Use-Case Action Cards -->
+        <div class="lg:col-span-8 flex flex-col min-h-0 bg-slate-900/60">
+          <div id="astra-overlay-chat-log" class="flex-1 p-5 overflow-y-auto space-y-4 text-xs md:text-sm">
+            <!-- Initial Welcome Message with Interactive Cards -->
+            <div class="p-4 rounded-2xl bg-slate-950/90 border border-rose-500/30 space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="font-extrabold text-rose-400 mono text-xs">ASTRA 2.0 • OMNISCIENT ROCKET ARCHITECT</span>
+                <span class="text-[11px] mono text-slate-400">33 Demos • Oct 16 & Oct 28–29 Ready</span>
+              </div>
+              <p class="text-slate-200 leading-relaxed">
+                Hello! I have complete, real-time access to all <strong>33 Rocket Companies demos (`1.1` through `M.5`)</strong>, their <strong>authentic real-world UI archetypes</strong>, our <strong>Oct 16 Product Showcase</strong> and <strong>Oct 28–29 Detroit & Chennai 24-Hour Halloween Hackathon</strong> agenda, and the full <strong>Redfin ($1.75B) + Mr. Cooper ($9.4B / $2.1T UPB)</strong> account dossier.
+              </p>
+              <p class="text-slate-300 text-xs">
+                Ask me for any specific use case, persona, or technical requirement below—I will recommend the exact squares and give you <strong>1-click Launch, Live Model Arena Race, and 24kHz Audio Pitch cards</strong> right inside our chat!
+              </p>
+            </div>
+          </div>
+
+          <!-- Chat Input Bar -->
+          <div class="p-4 bg-slate-950 border-t border-slate-800 flex items-center gap-2">
+            <input id="astra-overlay-input" type="text" placeholder="Ask Astra 2.0 anything (e.g., 'Which demos are best for self-employed borrowers or Spanish speakers?', 'What is our Oct 28 agenda?')..." onkeydown="if(event.key==='Enter')window.sendAstraOverlayChat()" class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-xs md:text-sm text-white focus:border-rose-500 focus:outline-none">
+            <button onclick="window.sendAstraOverlayChat()" id="btn-astra-chat-send" class="px-5 py-3 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white font-extrabold text-xs md:text-sm shadow-lg transition">
+              Ask Astra 2.0 →
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1147,8 +1311,8 @@ def render_portal_html(auth_token: str) -> str:
     }}
 
     // =========================================================================
-    // ASTRA 2.0 REAL GEMINI 3.8 LIVE & EXTENDED THINKING VOICE AGENT
-    // Zero robotic window.speechSynthesis! Full 24kHz WebAudio + 0ms Barge-In!
+    // ASTRA 2.0 REAL GEMINI 3.8 LIVE VIDEO AVATAR (24 FPS MSE) + 24KHZ AUDIO
+    // + CAMERA/SCREEN MULTIMODAL VISION + OMNISCIENT COMMAND OVERLAY (⌘K)
     // =========================================================================
     let astraWs = null;
     let astraAudioCtx = null;
@@ -1157,7 +1321,96 @@ def render_portal_html(auth_token: str) -> str:
     let astraMuted = false;
     let astraMicStream = null;
     let astraMicProcessor = null;
+    let astraVisionStream = null;
+    let astraVisionInterval = null;
     let astraTranscriptBuffer = "";
+    let astraChatHistory = [];
+
+    // MediaSource Extensions (MSE) for 704x1280 24 FPS H.264 + 24kHz AAC Live Video Avatar
+    let astraMediaSource = null;
+    let astraSourceBuffer = null;
+    let astraMseQueue = [];
+    let astraMseReady = false;
+
+    function initAstraMSE() {{
+      if (astraMediaSource) return;
+      const heroVid = document.getElementById("astra-live-video");
+      const overlayVid = document.getElementById("astra-overlay-video");
+      const svgFallback = document.getElementById("astra-svg-avatar");
+      const overlayPlaceholder = document.getElementById("astra-overlay-placeholder");
+      if (!heroVid) return;
+
+      astraMediaSource = new MediaSource();
+      heroVid.playsInline = true;
+      heroVid.autoplay = true;
+      heroVid.muted = astraMuted;
+      heroVid.classList.remove("hidden");
+      if (svgFallback) svgFallback.classList.add("hidden");
+      heroVid.src = URL.createObjectURL(astraMediaSource);
+
+      astraMediaSource.addEventListener("sourceopen", () => {{
+        const candidates = [
+          'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+          'video/mp4; codecs="avc1.42c01f, mp4a.40.2"',
+          'video/mp4; codecs="avc1.4D401E, mp4a.40.2"',
+          'video/mp4; codecs="avc1.64001E, mp4a.40.2"',
+          'video/mp4; codecs="avc1.42E01E"',
+          'video/mp4'
+        ];
+        const mime = candidates.find(t => MediaSource.isTypeSupported(t));
+        if (!mime) return;
+        try {{
+          astraSourceBuffer = astraMediaSource.addSourceBuffer(mime);
+          astraSourceBuffer.mode = "sequence";
+          astraSourceBuffer.addEventListener("updateend", () => {{
+            pumpAstraMseQueue();
+            if (heroVid.paused) {{
+              heroVid.play().then(() => {{
+                if (overlayVid && heroVid.captureStream) {{
+                  try {{
+                    overlayVid.srcObject = heroVid.captureStream();
+                    overlayVid.classList.remove("hidden");
+                    if (overlayPlaceholder) overlayPlaceholder.classList.add("hidden");
+                  }} catch (e) {{}}
+                }}
+              }}).catch(() => {{}});
+            }}
+          }});
+          astraMseReady = true;
+          pumpAstraMseQueue();
+        }} catch (e) {{}}
+      }});
+    }}
+
+    function pumpAstraMseQueue() {{
+      if (!astraMseReady || !astraSourceBuffer || astraSourceBuffer.updating) return;
+      if (astraMseQueue.length === 0) return;
+      try {{
+        astraSourceBuffer.appendBuffer(astraMseQueue.shift());
+      }} catch (e) {{}}
+    }}
+
+    function appendAstraVideoChunk(arrayBuffer) {{
+      if (!astraMediaSource) initAstraMSE();
+      astraMseQueue.push(arrayBuffer);
+      pumpAstraMseQueue();
+    }}
+
+    function resetAstraMSE() {{
+      astraMseQueue = [];
+      astraMseReady = false;
+      astraSourceBuffer = null;
+      astraMediaSource = null;
+      const heroVid = document.getElementById("astra-live-video");
+      if (heroVid && heroVid.src) {{
+        try {{
+          heroVid.pause();
+          URL.revokeObjectURL(heroVid.src);
+          heroVid.removeAttribute("src");
+          heroVid.load();
+        }} catch (e) {{}}
+      }}
+    }}
 
     function ensureAstraAudioCtx() {{
       if (!astraAudioCtx) {{
@@ -1173,12 +1426,12 @@ def render_portal_html(auth_token: str) -> str:
     function animateAstraMouth(openAmount) {{
       const lip = document.getElementById("avatar-mouth-lip");
       if (!lip) return;
-      const curveY = 66 + Math.min(12, Math.round(openAmount * 28));
-      lip.setAttribute("d", `M 43,65 Q 50,${{curveY}} 57,65`);
+      const curveY = 68 + Math.min(12, Math.round(openAmount * 28));
+      lip.setAttribute("d", `M 43,67 Q 50,${{curveY}} 57,67`);
     }}
 
     window.interruptAstraNow = function() {{
-      // Immediately stop every scheduled 24kHz AudioBufferSourceNode in 0ms
+      // Stop scheduled 24kHz PCM sources in 0ms
       astraActiveSources.forEach(src => {{
         try {{ src.stop(0); src.disconnect(); }} catch (e) {{}}
       }});
@@ -1186,6 +1439,8 @@ def render_portal_html(auth_token: str) -> str:
       if (astraAudioCtx) {{
         astraNextPlayTime = astraAudioCtx.currentTime;
       }}
+      // Also flush any queued MSE video segments on barge-in
+      astraMseQueue = [];
       animateAstraMouth(0);
       const badge = document.getElementById("avatar-badge");
       if (badge) {{
@@ -1238,11 +1493,13 @@ def render_portal_html(auth_token: str) -> str:
     window.toggleAstraMute = function() {{
       astraMuted = !astraMuted;
       const btn = document.getElementById("btn-astra-mute");
+      const heroVid = document.getElementById("astra-live-video");
+      if (heroVid) heroVid.muted = astraMuted;
       if (astraMuted) {{
         window.interruptAstraNow();
-        if (btn) btn.innerText = "🔇 Muted";
+        if (btn) btn.innerText = "🔇";
       }} else {{
-        if (btn) btn.innerText = "🔊 Mute";
+        if (btn) btn.innerText = "🔊";
       }}
     }};
 
@@ -1257,47 +1514,69 @@ def render_portal_html(auth_token: str) -> str:
       ensureAstraAudioCtx();
       const labelEl = document.getElementById("voice-label");
       const badgeEl = document.getElementById("avatar-badge");
+      const ovStatus = document.getElementById("overlay-avatar-status");
       const txEl = document.getElementById("astra-live-transcript");
+      const heroVid = document.getElementById("astra-live-video");
+      const overlayVid = document.getElementById("astra-overlay-video");
+      const svgFallback = document.getElementById("astra-svg-avatar");
+      const overlayPlaceholder = document.getElementById("astra-overlay-placeholder");
 
       if (astraWs && astraWs.readyState === WebSocket.OPEN) {{
         window.interruptAstraNow();
+        resetAstraMSE();
         if (astraMicStream) {{
           astraMicStream.getTracks().forEach(t => t.stop());
           astraMicStream = null;
         }}
+        window.stopAstraVision();
         astraWs.close();
         astraWs = null;
-        if (labelEl) labelEl.innerText = "Start Gemini 3.8 Live Voice";
+        if (heroVid) heroVid.classList.add("hidden");
+        if (overlayVid) overlayVid.classList.add("hidden");
+        if (svgFallback) svgFallback.classList.remove("hidden");
+        if (overlayPlaceholder) overlayPlaceholder.classList.remove("hidden");
+        if (labelEl) labelEl.innerText = "Start Live Video Avatar";
         if (badgeEl) {{
-          badgeEl.innerText = "24kHz HD Ready";
+          badgeEl.innerText = "24 FPS + 24kHz Ready";
           badgeEl.className = "text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300";
         }}
+        if (ovStatus) ovStatus.innerText = "Idle";
         return;
       }}
 
       const voice = (document.getElementById("astra-voice-select") || {{value: "Aoede"}}).value;
       const liveMode = (document.getElementById("astra-live-mode") || {{value: "gemini-3.8-live"}}).value;
+      const avatarChoice = (document.getElementById("astra-avatar-select") || {{value: "Kira"}}).value;
       const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-      const wsUrl = `${{proto}}//${{window.location.host}}/ws/live-voice/portal?voice=${{encodeURIComponent(voice)}}&live_mode=${{encodeURIComponent(liveMode)}}`;
+      const wsUrl = `${{proto}}//${{window.location.host}}/ws/live-voice/portal?voice=${{encodeURIComponent(voice)}}&live_mode=${{encodeURIComponent(liveMode)}}&avatar=${{encodeURIComponent(avatarChoice)}}`;
 
-      if (labelEl) labelEl.innerText = "Connecting Gemini 3.8 Live...";
+      if (labelEl) labelEl.innerText = "Connecting Live Avatar...";
+      resetAstraMSE();
       astraWs = new WebSocket(wsUrl);
+      astraWs.binaryType = "arraybuffer";
 
       astraWs.onopen = () => {{
-        if (labelEl) labelEl.innerText = "⏹ Stop Live Session";
+        if (labelEl) labelEl.innerText = "⏹ Stop Live Avatar";
+        const modeTag = avatarChoice !== "off" ? `🎥 Avatar ${{avatarChoice}} (24fps)` : `🎙️ ${{voice}} 24kHz`;
         if (badgeEl) {{
-          badgeEl.innerText = "LIVE • " + voice + " 24kHz";
+          badgeEl.innerText = modeTag;
           badgeEl.className = "text-[10px] mono px-2 py-0.5 rounded-full bg-rose-500 text-white animate-pulse";
         }}
+        if (ovStatus) ovStatus.innerText = modeTag;
         astraTranscriptBuffer = "";
-        if (txEl) txEl.innerHTML = `<span class="text-emerald-400 font-bold">[Connected to ${{liveMode}} • Voice: ${{voice}}]</span> Streaming 24kHz native audio...`;
+        if (txEl) txEl.innerHTML = `<span class="text-emerald-400 font-bold">[Connected to ${{liveMode}} • ${{modeTag}}]</span> Streaming real-time video & 24kHz audio...`;
         astraWs.send(JSON.stringify({{
           type: "text",
-          text: "Welcome the Rocket Companies builders across Detroit and Chennai warmly in 2 concise sentences! Mention that all 33 demos now feature unique industry UIs, Gemini 4 Argon + Gemini 3.8 Live native audio, and tell them they can interrupt you at any moment."
+          text: "Welcome the Rocket Companies team warmly in 2 concise sentences! Mention that we are ready for the October 16 Showcase and October 28–29 Detroit and Chennai Hackathon with all 33 demos, and invite them to ask about any specific use case or interrupt you anytime."
         }}));
       }};
 
       astraWs.onmessage = (evt) => {{
+        if (typeof evt.data !== "string") {{
+          // Binary fMP4 chunk from Gemini 3.8 Live Video Avatar (via zero-copy ffmpeg remux)
+          appendAstraVideoChunk(evt.data);
+          return;
+        }}
         try {{
           const msg = JSON.parse(evt.data);
           if (msg.interrupted) {{
@@ -1310,8 +1589,11 @@ def render_portal_html(auth_token: str) -> str:
           }}
           if (msg.output_transcript && txEl) {{
             astraTranscriptBuffer += msg.output_transcript;
-            txEl.innerHTML = `<div class="text-rose-200"><strong>Astra 2.0 (${{voice}}):</strong> ${{astraTranscriptBuffer}}</div>`;
+            txEl.innerHTML = `<div class="text-rose-200"><strong>Astra 2.0 (${{avatarChoice !== 'off' ? avatarChoice : voice}}):</strong> ${{astraTranscriptBuffer}}</div>`;
             txEl.scrollTop = txEl.scrollHeight;
+          }}
+          if (msg.matched_squares && msg.matched_squares.length > 0) {{
+            renderHeroMatchedBadges(msg.matched_squares);
           }}
           if (msg.turn_complete) {{
             astraTranscriptBuffer = "";
@@ -1324,9 +1606,72 @@ def render_portal_html(auth_token: str) -> str:
 
       astraWs.onclose = () => {{
         window.interruptAstraNow();
-        if (labelEl) labelEl.innerText = "Start Gemini 3.8 Live Voice";
+        if (labelEl) labelEl.innerText = "Start Live Video Avatar";
       }};
     }};
+
+    window.stopAstraVision = function() {{
+      if (astraVisionInterval) {{
+        clearInterval(astraVisionInterval);
+        astraVisionInterval = null;
+      }}
+      if (astraVisionStream) {{
+        astraVisionStream.getTracks().forEach(t => t.stop());
+        astraVisionStream = null;
+      }}
+      const pip = document.getElementById("astra-vision-pip");
+      if (pip) {{
+        pip.srcObject = null;
+        pip.classList.add("hidden");
+      }}
+      const camBtn = document.getElementById("btn-astra-cam");
+      const scrBtn = document.getElementById("btn-astra-screen");
+      if (camBtn) camBtn.innerText = "📷 Cam";
+      if (scrBtn) scrBtn.innerText = "🖥️ Screen";
+    }};
+
+    async function startAstraVisionStream(mode) {{
+      if (astraVisionStream) {{
+        window.stopAstraVision();
+        return;
+      }}
+      if (!astraWs || astraWs.readyState !== WebSocket.OPEN) {{
+        window.toggleAstraLiveSession();
+      }}
+      try {{
+        astraVisionStream = mode === "camera"
+          ? await navigator.mediaDevices.getUserMedia({{ video: {{ width: 640, height: 480 }} }})
+          : await navigator.mediaDevices.getDisplayMedia({{ video: true }});
+        const pip = document.getElementById("astra-vision-pip");
+        if (pip) {{
+          pip.srcObject = astraVisionStream;
+          pip.classList.remove("hidden");
+        }}
+        const btn = document.getElementById(mode === "camera" ? "btn-astra-cam" : "btn-astra-screen");
+        if (btn) btn.innerText = mode === "camera" ? "🔴 Stop Cam" : "🔴 Stop Screen";
+
+        const canvas = document.createElement("canvas");
+        canvas.width = 640;
+        canvas.height = 480;
+        const ctx = canvas.getContext("2d");
+
+        astraVisionInterval = setInterval(() => {{
+          if (!astraWs || astraWs.readyState !== WebSocket.OPEN || !pip) return;
+          try {{
+            ctx.drawImage(pip, 0, 0, 640, 480);
+            const b64 = canvas.toDataURL("image/jpeg", 0.72).split(",")[1];
+            astraWs.send(JSON.stringify({{ type: "image", mime_type: "image/jpeg", data: b64 }}));
+          }} catch (e) {{}}
+        }}, 1000);
+
+        astraVisionStream.getVideoTracks()[0].onended = () => window.stopAstraVision();
+      }} catch (err) {{
+        alert("Could not start " + mode + ": " + err.message);
+      }}
+    }}
+
+    window.toggleAstraCamera = () => startAstraVisionStream("camera");
+    window.toggleAstraScreen = () => startAstraVisionStream("screen");
 
     window.sendAstraBargeIn = function(customPrompt) {{
       const inp = document.getElementById("astra-barge-input");
@@ -1334,13 +1679,12 @@ def render_portal_html(auth_token: str) -> str:
       if (!text) return;
       if (!customPrompt && inp) inp.value = "";
 
-      // Halt current playback immediately in 0ms and apply voice UI navigation
       window.interruptAstraNow();
       applyAstraVoiceNavigation(text);
       astraTranscriptBuffer = "";
       const txEl = document.getElementById("astra-live-transcript");
       if (txEl) {{
-        txEl.innerHTML = `<div class="text-amber-300 font-bold">⚡ Barge-In: "${{text}}"</div><div class="text-slate-400 text-[11px]">Astra 2.0 thinking & responding in 24kHz HD...</div>`;
+        txEl.innerHTML = `<div class="text-amber-300 font-bold">⚡ Barge-In: "${{text}}"</div><div class="text-slate-400 text-[11px]">Astra 2.0 Live Avatar responding...</div>`;
       }}
 
       if (!astraWs || astraWs.readyState !== WebSocket.OPEN) {{
@@ -1365,7 +1709,7 @@ def render_portal_html(auth_token: str) -> str:
           try {{ astraMicProcessor.disconnect(); }} catch (e) {{}}
           astraMicProcessor = null;
         }}
-        if (micBtn) micBtn.innerText = "16kHz Mic & Barge-In";
+        if (micBtn) micBtn.innerText = "16kHz Mic";
         return;
       }}
 
@@ -1377,7 +1721,7 @@ def render_portal_html(auth_token: str) -> str:
         astraMicStream = await navigator.mediaDevices.getUserMedia({{
           audio: {{ sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }}
         }});
-        if (micBtn) micBtn.innerText = "🔴 Mic Live (Speak to Interrupt)";
+        if (micBtn) micBtn.innerText = "🔴 Mic Live";
         const micCtx = new (window.AudioContext || window.webkitAudioContext)({{ sampleRate: 16000 }});
         const source = micCtx.createMediaStreamSource(astraMicStream);
         const proc = micCtx.createScriptProcessor(2048, 1, 1);
@@ -1394,7 +1738,6 @@ def render_portal_html(auth_token: str) -> str:
             pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
           }}
           rms = Math.sqrt(rms / input.length);
-          // Client-side VAD barge-in: if user speaks into mic while Astra is speaking, flush audio queue immediately!
           if (rms > 0.045 && astraActiveSources.length > 0) {{
             window.interruptAstraNow();
           }}
@@ -1410,6 +1753,198 @@ def render_portal_html(auth_token: str) -> str:
         proc.connect(micCtx.destination);
       }} catch (err) {{
         alert("Microphone access needed for live voice barge-in: " + err.message);
+      }}
+    }};
+
+    // =========================================================================
+    // ASTRA 2.0 OMNISCIENT COMMAND OVERLAY (⌘K) & USE-CASE ACTION CARDS
+    // =========================================================================
+    window.openAstraCommandOverlay = function() {{
+      const el = document.getElementById("astra-command-overlay");
+      if (el) {{
+        el.classList.remove("hidden");
+        window.filterAstraCatalogInstant("");
+        const inp = document.getElementById("astra-overlay-input");
+        if (inp) setTimeout(() => inp.focus(), 80);
+      }}
+    }};
+
+    window.closeAstraCommandOverlay = function() {{
+      const el = document.getElementById("astra-command-overlay");
+      if (el) el.classList.add("hidden");
+    }};
+
+    document.addEventListener("keydown", (e) => {{
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {{
+        e.preventDefault();
+        const el = document.getElementById("astra-command-overlay");
+        if (el && el.classList.contains("hidden")) window.openAstraCommandOverlay();
+        else window.closeAstraCommandOverlay();
+      }} else if (e.key === "Escape") {{
+        window.closeAstraCommandOverlay();
+      }}
+    }});
+
+    function renderHeroMatchedBadges(cards) {{
+      const box = document.getElementById("astra-hero-matched-cards");
+      if (!box || !cards || !cards.length) return;
+      box.innerHTML = cards.map(c => `
+        <a href="${{c.demo_url}}&auth_token=${{AUTH_TOKEN}}" target="_blank" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/35 border border-rose-500/40 text-[11px] font-bold mono text-rose-200 transition">
+          🚀 Open [${{c.code}}] ${{c.title}} ↗
+        </a>
+      `).join("");
+    }}
+
+    window.filterAstraCatalogInstant = function(query) {{
+      const box = document.getElementById("astra-instant-results");
+      if (!box) return;
+      const q = (query || "").trim().toLowerCase();
+      const matches = [];
+      DOMAINS.forEach(d => {{
+        d.projects.forEach(p => {{
+          const arch = UI_ARCHETYPES[p.code] || {{ style: "Custom UI", engine: "Vertex AI" }};
+          const hay = `${{p.code}} ${{p.project}} ${{p.focus || ''}} ${{p.desc || ''}} ${{p.competeEdge || ''}} ${{d.shortTitle}} ${{arch.style}} ${{arch.engine}}`.toLowerCase();
+          if (!q || hay.includes(q)) {{
+            matches.push({{ d, p, arch }});
+          }}
+        }});
+      }});
+      box.innerHTML = matches.slice(0, 8).map(({{ d, p, arch }}) => `
+        <div class="p-2 rounded-xl bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition flex items-center justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-[11px] font-bold text-white truncate"><span class="text-rose-400 mono">[${{p.code}}]</span> ${{p.project}}</div>
+            <div class="text-[10px] text-slate-400 truncate">🎨 ${{arch.style}}</div>
+          </div>
+          <div class="flex items-center gap-1 shrink-0">
+            <a href="${{d.demo_url}}/?case=${{p.code}}&auth_token=${{AUTH_TOKEN}}" target="_blank" class="px-2 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold mono">Launch ↗</a>
+            <button onclick="window.closeAstraCommandOverlay();window.openArenaForCase('${{p.code}}')" class="px-1.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 text-[10px] font-bold mono">⚔️</button>
+          </div>
+        </div>
+      `).join("");
+    }};
+
+    function formatAstraMarkdown(md) {{
+      if (!md) return "";
+      let safe = md
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+      safe = safe.replace(/^### (.*$)/gm, '<h4 class="text-sm font-extrabold text-rose-300 mt-3 mb-1">$1</h4>');
+      safe = safe.replace(/^## (.*$)/gm, '<h3 class="text-base font-extrabold text-white mt-3 mb-1.5">$1</h3>');
+      safe = safe.replace(/\\*\\*(.*?)\\*\\*/g, '<strong class="text-white font-bold">$1</strong>');
+      safe = safe.replace(/`([^`]+)`/g, '<code class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-cyan-300 mono text-[11px]">$1</code>');
+      safe = safe.replace(/\\[([1-6]\\.[1-5]|M\\.[1-5])\\]/g, '<span class="px-1.5 py-0.5 rounded bg-rose-500/25 border border-rose-500/40 text-rose-300 font-extrabold mono text-xs">[$1]</span>');
+      safe = safe.replace(/^- (.*$)/gm, '<li class="ml-4 list-disc text-slate-200 my-0.5">$1</li>');
+      safe = safe.replace(/\\n\\n/g, '<div class="h-2"></div>');
+      return safe;
+    }}
+
+    function renderOverlaySquareCards(cards) {{
+      if (!cards || !cards.length) return "";
+      return `
+        <div class="mt-3 pt-3 border-t border-slate-800/90">
+          <div class="text-[10px] font-extrabold uppercase mono text-cyan-300 mb-2">⚡ Matched Interactive Demos (Click to Launch, Race or Hear 24kHz Pitch):</div>
+          <div class="grid sm:grid-cols-2 gap-2.5">
+            ${{cards.map(c => `
+              <div class="p-3 rounded-xl bg-slate-900/95 border border-slate-700/80 hover:border-rose-500/50 transition flex flex-col justify-between gap-2">
+                <div>
+                  <div class="flex items-center justify-between gap-1.5">
+                    <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-300 font-extrabold mono text-[11px]">[${{c.code}}]</span>
+                    <span class="text-[10px] mono text-emerald-300 truncate">${{c.runtime}}</span>
+                  </div>
+                  <div class="text-xs font-extrabold text-white mt-1">${{c.title}}</div>
+                  <div class="text-[11px] text-cyan-300 font-semibold mt-0.5">🎨 ${{c.ui_site}}</div>
+                  <div class="text-[11px] text-slate-300 mt-1 line-clamp-2">${{c.impact}}</div>
+                </div>
+                <div class="flex flex-wrap gap-1.5 pt-1.5 border-t border-slate-800">
+                  <a href="${{c.demo_url}}&auth_token=${{AUTH_TOKEN}}" target="_blank" class="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-[10px] font-bold mono">
+                    🚀 Launch App ↗
+                  </a>
+                  <button onclick="window.closeAstraCommandOverlay();window.openArenaForCase('${{c.code}}')" class="px-2 py-1 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[10px] font-bold mono">
+                    ⚔️ Race Argon vs Flash
+                  </button>
+                  <button onclick="window.playCardAudioPitch('${{c.code}}', this)" class="px-2 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-300 border border-cyan-500/30 text-[10px] font-bold mono">
+                    🔊 15s Pitch
+                  </button>
+                  <a href="${{c.docs_url}}?auth_token=${{AUTH_TOKEN}}" target="_blank" class="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[10px] font-bold mono">
+                    📘 Docs
+                  </a>
+                </div>
+              </div>
+            `).join("")}}
+          </div>
+        </div>
+      `;
+    }}
+
+    window.sendAstraOverlayChat = async function(customText) {{
+      const inp = document.getElementById("astra-overlay-input");
+      const log = document.getElementById("astra-overlay-chat-log");
+      const modelSel = document.getElementById("astra-chat-model");
+      const autoSpeak = document.getElementById("astra-auto-speak");
+
+      const msg = (customText || (inp ? inp.value : "")).trim();
+      if (!msg || !log) return;
+      if (!customText && inp) inp.value = "";
+
+      // Optimistic user bubble at 0ms
+      const userDiv = document.createElement("div");
+      userDiv.className = "ml-auto max-w-2xl p-3.5 rounded-2xl bg-gradient-to-r from-rose-600/90 to-indigo-600/90 text-white text-xs md:text-sm font-medium shadow";
+      userDiv.textContent = msg;
+      log.appendChild(userDiv);
+
+      // Thinking indicator bubble
+      const loadingDiv = document.createElement("div");
+      loadingDiv.className = "p-4 rounded-2xl bg-slate-950 border border-slate-800 flex items-center gap-3 text-xs mono text-rose-300";
+      loadingDiv.innerHTML = `<span class="shrinking-shining-ink"></span><span>Astra 2.0 querying all 33 demos, event dates & Rocket dossier...</span>`;
+      log.appendChild(loadingDiv);
+      log.scrollTop = log.scrollHeight;
+
+      astraChatHistory.push({{ role: "user", text: msg }});
+
+      try {{
+        const res = await fetch("/api/astra-chat", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify({{
+            message: msg,
+            history: astraChatHistory.slice(-8),
+            model: modelSel ? modelSel.value : "gemini-4-argon"
+          }})
+        }});
+        const data = await res.json();
+        loadingDiv.remove();
+
+        const replyMd = data.reply_markdown || "Here are the matching Rocket Hackathon use cases:";
+        astraChatHistory.push({{ role: "assistant", text: replyMd }});
+
+        const botDiv = document.createElement("div");
+        botDiv.className = "p-4 rounded-2xl bg-slate-950/95 border border-slate-800 space-y-2 shadow-xl";
+        botDiv.innerHTML = `
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2">
+            <div class="flex items-center gap-2">
+              <span class="font-extrabold text-rose-400 mono text-xs">ASTRA 2.0</span>
+              <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold mono text-[10px]">${{data.model_used || 'gemini-4-argon'}} • ${{data.latency_ms || 0}}ms</span>
+            </div>
+            <button onclick="window.playCardAudioPitch_raw(this.dataset.speech, this)" data-speech="${{replyMd.replace(/"/g, '&quot;').slice(0, 420)}}" class="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-[10px] font-bold mono">
+              🔊 Speak Reply (3.8 Live)
+            </button>
+          </div>
+          <div class="text-slate-200 leading-relaxed text-xs md:text-sm">${{formatAstraMarkdown(replyMd)}}</div>
+          ${{renderOverlaySquareCards(data.matched_squares || [])}}
+        `;
+        log.appendChild(botDiv);
+        log.scrollTop = log.scrollHeight;
+
+        if (data.matched_squares && data.matched_squares.length > 0) {{
+          renderHeroMatchedBadges(data.matched_squares);
+        }}
+
+        if (autoSpeak && autoSpeak.checked) {{
+          window.playCardAudioPitch_raw(replyMd.slice(0, 380), null);
+        }}
+      }} catch (err) {{
+        loadingDiv.innerHTML = `<span class="text-rose-400">Error contacting Astra 2.0: ${{err.message}}</span>`;
       }}
     }};
 

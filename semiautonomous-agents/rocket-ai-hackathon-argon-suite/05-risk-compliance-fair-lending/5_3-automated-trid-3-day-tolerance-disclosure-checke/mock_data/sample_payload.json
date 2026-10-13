@@ -62,7 +62,7 @@
       "mandatory_section_j_lender_cure": "$330.00 Lender Tolerance Credit Required on CD Page 2 Section J Prior to Closing",
       "three_day_redisclosure_trigger": "NO NEW 3-DAY WAIT REQUIRED \u2014 Lender Cure lowers APR; does not trigger 12 CFR \u00a7 1026.19(f)(2)(ii) reset."
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.03
   },
   "bespoke_visual_artifact": {
     "archetype": "trid_le_cd_tolerance_grid",
