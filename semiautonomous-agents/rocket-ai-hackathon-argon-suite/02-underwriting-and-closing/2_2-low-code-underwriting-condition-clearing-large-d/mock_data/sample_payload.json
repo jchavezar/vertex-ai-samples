@@ -1,0 +1,96 @@
+{
+  "square_code": "2.2",
+  "project_title": "Low-Code Underwriting Condition Clearing & Large-Deposit Agent",
+  "bespoke_app_title": "GEAP Visual Agent Studio + ADK // Bank Statement Large-Deposit Clearing Gate",
+  "ui_archetype": "adk_hitl_condition_clearing_DAG",
+  "domain_id": "ops",
+  "domain_service": "rocket-demo-underwriting",
+  "level": "L200",
+  "tool_label": "Gemini Enterprise Agent Platform (GEAP): Agent Studio",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
+  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "gcp_stack": [
+    "GEAP Agent Studio",
+    "Gemini 4 Argon",
+    "Cloud Run Condition Engine"
+  ],
+  "sample_input": "Loan Application #RKT-992041 (Conventional Purchase \u2014 Qualifying Monthly Income: $11,400/mo -> 50% Large Deposit Threshold = $5,700.00):\nChase Checking Account #...4491 (Statement Period: Aug 15 \u2013 Oct 14, 2026):\n- 09/01/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00\n- 09/08/2026: Wire Transfer In - \"COINBASE INC WITHDRAWAL\": +$18,500.00\n- 09/15/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00\n- 09/22/2026: Counter Deposit - Check #1042 (No memo): +$7,200.00\n- 10/01/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00\n- 10/04/2026: Zelle Transfer From \"M. Thompson\": +$1,200.00\nFunds required for closing + reserves: $44,000. Current Ending Balance: $51,200.",
+  "sandbox_action": "audit_large_deposits",
+  "sandbox_params": {
+    "qualifying_monthly_income": 11400,
+    "ending_balance": 51200,
+    "funds_needed": 44000,
+    "deposits": [
+      {
+        "date": "2026-09-01",
+        "desc": "ACH Payroll - General Motors",
+        "amount": 3850,
+        "type": "PAYROLL"
+      },
+      {
+        "date": "2026-09-08",
+        "desc": "Wire In - COINBASE INC WITHDRAWAL",
+        "amount": 18500,
+        "type": "CRYPTO_WIRE"
+      },
+      {
+        "date": "2026-09-22",
+        "desc": "Counter Deposit - Check #1042",
+        "amount": 7200,
+        "type": "UNVERIFIED_CHECK"
+      },
+      {
+        "date": "2026-10-04",
+        "desc": "Zelle Transfer - M. Thompson",
+        "amount": 1200,
+        "type": "ZELLE"
+      }
+    ]
+  },
+  "verified_sandbox_output": {
+    "action": "audit_large_deposits",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "fannie_b3_4_2_02_threshold": "$5,700.00 (50% of $11,400.00 Qualifying Monthly Income)",
+      "flagged_deposits_count": "2 Deposits Flagged ($18,500 Coinbase Crypto Wire + $7,200 Check #1042 = $25,700.00)",
+      "asset_back_out_test": "Ending Balance $51,200.00 - Unverified $25,700.00 = $25,500.00 Verified (< $44,000.00 Required!)",
+      "auto_staged_condition": "PTDF Condition #402: Provide 60-day Coinbase liquidation statement & canceled image of Check #1042 + signed LOE."
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "adk_hitl_condition_clearing_DAG",
+    "threshold": "$5,700.00 (50% of $11,400.00 Qualifying Monthly Income)",
+    "backout_test": "Ending Balance $51,200.00 - Unverified $25,700.00 = $25,500.00 Verified (< $44,000.00 Required!)",
+    "condition_staged": "PTDF Condition #402: Provide 60-day Coinbase liquidation statement & canceled image of Check #1042 + signed LOE.",
+    "ledger": [
+      {
+        "date": "09/04/2026",
+        "desc": "FORD MOTOR CO DIRECT DEP PAYROLL",
+        "amt": "$4,820.00",
+        "status": "EXEMPT \u2014 Direct Payroll"
+      },
+      {
+        "date": "09/14/2026",
+        "desc": "COINBASE INC WIRE TRANSFER IN",
+        "amt": "$18,500.00",
+        "status": "\ud83d\udea9 FLAGGED (> $5,700 Threshold \u2014 Crypto Liquidation Trail Required)"
+      },
+      {
+        "date": "09/22/2026",
+        "desc": "MOBILE CHECK DEPOSIT #1042",
+        "amt": "$7,200.00",
+        "status": "\ud83d\udea9 FLAGGED (> $5,700 Threshold \u2014 Front/Back Check Image + LOE Required)"
+      },
+      {
+        "date": "09/28/2026",
+        "desc": "US TREASURY TAX REFUND",
+        "amt": "$3,110.00",
+        "status": "CLEARED \u2014 Government Tax Refund"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: fannie_50pct_threshold, deposits_ledger (list of {date, description, amount, exceeds_threshold, disposition}), asset_backout_math ({ending_balance, unverified_deducted, verified_remaining, required_to_close, pass_fail}), and cel_blocking_gate_payload ({stage, policy_rule, condition_text}).",
+  "system_prompt": "You are the GEAP Underwriting Condition Clearing Agent powered by Gemini 4 Argon. Audit the borrower's 60-day bank ledger against Fannie Mae B3-4.2-02 (Large Deposits > 50% of qualifying monthly income = $5,700). Output: (1) Transaction-by-Transaction Audit Table flagging the $18,500 Coinbase Crypto Wire and $7,200 Check #1042, (2) Back-Out Sufficiency Calculation showing whether the borrower still has $44,000 if unverified deposits are backed out ($51,200 - $25,700 = $25,500 -> SHORTFALL of $18,500, meaning sourcing is MANDATORY), and (3) Auto-staged Underwriting Condition PTDF (Prior-to-Docs) + Borrower Letter of Explanation (LOE) template."
+}

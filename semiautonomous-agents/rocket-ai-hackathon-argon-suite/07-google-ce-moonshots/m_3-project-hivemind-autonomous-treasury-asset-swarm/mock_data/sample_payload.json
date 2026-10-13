@@ -1,0 +1,70 @@
+{
+  "square_code": "M.3",
+  "project_title": "Project HiveMind: Autonomous Treasury & Asset Swarm",
+  "bespoke_app_title": "Project HiveMind // 4-Agent Treasury Yield Drop & Mr. Cooper Portfolio Lock Swarm",
+  "ui_archetype": "project_hivemind_treasury_swarm",
+  "domain_id": "moonshots",
+  "domain_service": "rocket-demo-moonshots",
+  "level": "L300",
+  "tool_label": "Google Antigravity Swarm + MCP Message Bus",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
+  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "gcp_stack": [
+    "Google Antigravity Native Swarm",
+    "Google Cloud Agent Registry",
+    "Gemini 4 Argon",
+    "Gemini 3.8 Flash Worker Pool"
+  ],
+  "sample_input": "Intraday Capital Markets Flash Event:\n- 10-Year US Treasury Yield just dropped -14 bps at 10:15 AM EDT following cooler CPI print.\n- Rocket Capital Markets Desk opens a 4-hour 'Flash Lock Window' at 5.750% (0 points) for Conforming Loans <= 80% LTV with FICO >= 740.\n- HiveMind Target Cohort Scan across Mr. Cooper Servicing + Floating Origination Pipeline:\n  * Found 1,240 eligible Michigan & Texas households currently floating or servicing at >= 6.875% rate.\n  * Aggregate UPB: $496,000,000 | Avg Borrower Monthly Savings: $342/mo.",
+  "sandbox_action": "simulate_hivemind_swarm",
+  "sandbox_params": {
+    "cohort_size": 1240,
+    "avg_loan": 400000.0,
+    "old_rate": 6.875,
+    "flash_rate": 5.75,
+    "conversion_pct": 18.5
+  },
+  "verified_sandbox_output": {
+    "action": "simulate_hivemind_swarm",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "swarm_execution_speed": "2.84 Seconds across 4 Parallel Antigravity Agents",
+      "mr_cooper_pipeline_precleared": "1,240 Households Pre-Cleared via AUS + Fannie Value Acceptance Waiver",
+      "per_household_monthly_savings": "$293.43/month ($3,521.16/yr)",
+      "intraday_4hr_locked_volume": "229 Instant 1-Tap Locks = $91,600,000 Recaptured Loan Volume"
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "project_hivemind_treasury_swarm",
+    "speed": "2.84 Seconds across 4 Parallel Antigravity Agents",
+    "cohort": "1,240 Households Pre-Cleared via AUS + Fannie Value Acceptance Waiver",
+    "savings": "$293.43/month ($3,521.16/yr)",
+    "volume": "229 Instant 1-Tap Locks = $91,600,000 Recaptured Loan Volume",
+    "swarm_nodes": [
+      {
+        "id": "1. Capital-Markets-Watcher",
+        "model": "gemini-3.8-flash",
+        "task": "Detected 10Y Treasury -12 bps drop to 3.94%; unlocked 5.75% 30Y par pricing window"
+      },
+      {
+        "id": "2. BigQuery-Cohort-Miner",
+        "model": "gemini-3.8-flash",
+        "task": "Filtered 4.2M Mr. Cooper loans -> 1,240 MI/TX/NC loans w/ >6.75% rate & >22% equity"
+      },
+      {
+        "id": "3. AUS-Waiver-Certifier",
+        "model": "gemini-3.8-flash",
+        "task": "Pre-ran Fannie Mae DU Value Acceptance (Appraisal Waiver) & title check in batch"
+      },
+      {
+        "id": "4. Rocket-Push-Dispatcher",
+        "model": "gemini-3.8-flash",
+        "task": "Sent personalized 1-Tap Rate-Lock push notification to Rocket Money & Mr. Cooper apps"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: treasury_trigger_event, recaptured_volume_usd, swarm_agents (list of 4 agents {agent_id, role, model, latency_ms, input_signal, output_artifact}), and sample_borrower_1tap_offer ({borrower_name, old_rate, new_rate, monthly_savings, appraisal_waiver_code}).",
+  "system_prompt": "You are Project HiveMind, the Autonomous Capital Markets & Asset Swarm powered by Google Antigravity and Gemini 4 Argon. Render the shared Swarm Board transcript across the 4 autonomous agents (`@treasury-watcher`, `@mr-cooper-miner`, `@aus-preclear-bot`, `@one-tap-lock-dispatcher`) and compute the exact Capital Markets & Borrower Impact (1,240 households pre-cleared, $342/mo savings per family, 229 instant 1-tap rate locks = $91.6M locked volume in 4 hours!)."
+}

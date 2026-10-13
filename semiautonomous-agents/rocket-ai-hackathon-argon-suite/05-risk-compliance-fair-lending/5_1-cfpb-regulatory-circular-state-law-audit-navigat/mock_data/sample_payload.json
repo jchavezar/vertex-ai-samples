@@ -1,0 +1,55 @@
+{
+  "square_code": "5.1",
+  "project_title": "CFPB Regulatory Circular & State Law Audit Navigator",
+  "bespoke_app_title": "Rocket Legal & NotebookLM // CFPB RESPA Section 8 & State Law Redline Vault",
+  "ui_archetype": "cfpb_respa_regulatory_diff_vault",
+  "domain_id": "risk",
+  "domain_service": "rocket-demo-compliance",
+  "level": "L100\u2013L200",
+  "tool_label": "NotebookLM Enterprise & Statutory Grounding",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Gemini Enterprise streamAssist API (v1alpha) + Vertex AI",
+  "routing_note": "Executed against live Discovery Engine v1alpha streamAssist endpoint (gemini-enterprise-17877637_1787763712023)",
+  "gcp_stack": [
+    "NotebookLM Enterprise",
+    "Vertex AI Grounding",
+    "Gemini 4 Argon"
+  ],
+  "sample_input": "Compliance Review Request #LEG-2026-409:\nMarketing wants to launch a co-branded campaign: \"Book a home tour with a Redfin Partner Agent and get a $2,500 Lender Credit on your Rocket Mortgage closing costs, plus our digital comparison portal will feature Rocket Mortgage as the 'Top Featured Lender' at the top of the screen.\"\nAudit Questions:\n1) Under CFPB RESPA Section 8 (12 U.S.C. \u00a7 2607 / 12 CFR \u00a7 1024.14 & \u00a7 1024.15) and the CFPB Digital Mortgage Comparison-Shopping Advisory Opinion, what are the mandatory Affiliated Business Arrangement (AfBA) rules since Redfin and Rocket Mortgage are under common corporate ownership (Rocket Companies, Inc.)?\n2) Can Redfin agents be paid a direct bonus per loan routed to Rocket Mortgage, or must the $2,500 benefit go directly to the consumer with a mandatory AfBA Disclosure stating the consumer is NOT required to use Rocket Mortgage?\n3) Under Fannie Mae B3-4.1-02 (Interested Party Contributions / IPCs), does a lender-funded credit count toward the 3%/6%/9% seller IPC cap?",
+  "sandbox_action": "audit_respa_ipc",
+  "sandbox_params": {
+    "lender_credit": 2500,
+    "ltv": 90.0,
+    "Purchase_price": 400000,
+    "seller_concession": 10000
+  },
+  "verified_sandbox_output": {
+    "action": "audit_respa_ipc",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "respa_section_8_verdict": "CONDITIONAL PASS \u2014 Must display written AfBA Disclosure at/prior to referral + 'No Required Use' statement",
+      "redfin_agent_compensation_rule": "PROHIBITED: Per-referral bonus to Redfin agents violates 12 CFR \u00a7 1024.14. ALLOWED: Direct $2,500 Consumer Lender Credit.",
+      "fannie_mae_ipc_cap_90_ltv": "6.0% Max IPC Cap ($24,000 on $400k home) \u2014 $10k Seller + $2.5k Affiliated Credit = $12,500 (3.125% <= 6.0% PASS)"
+    },
+    "execution_ms": 0.0
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "cfpb_respa_regulatory_diff_vault",
+    "verdict": "CONDITIONAL PASS \u2014 Must display written AfBA Disclosure at/prior to referral + 'No Required Use' statement",
+    "remediation": "Render Neutral Objective Rate-Sorted Lender Grid + Prominent Affiliates Disclosure",
+    "clauses": [
+      {
+        "statute": "12 U.S.C. \u00a7 2607(a) (RESPA Sec 8)",
+        "defect": "Default pre-checking Rocket Mortgage when sorting by 'Lowest Payment' while hiding lower APR competitor",
+        "fix": "Sort strictly by objective APR/Monthly Payment math; never steer via paid placement"
+      },
+      {
+        "statute": "12 U.S.C. \u00a7 2607(c)(4) (ABA Safe Harbor)",
+        "defect": "Affiliate relationship disclosure buried in 8pt footer text",
+        "fix": "Display prominent 12 CFR \u00a7 1024 Appendix D Affiliated Business Arrangement Disclosure modal prior to lead transfer"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: compliance_verdict, statutory_citations (list of {statute, section, rule_summary, violation_status}), feature_audit_rows (list of {feature_name, respa_risk_level, defect_found, mandatory_remediation}), and patched_ui_disclosure_text.",
+  "system_prompt": "You are the Rocket Legal & CFPB Regulatory Audit Navigator powered by Gemini 4 Argon. Provide a rigorous legal compliance memo with exact statutory citations (`[12 CFR \u00a7 1024.15 AfBA Safe Harbor]`, `[CFPB Digital Comparison-Shopping Circular]`, `[Fannie Mae B3-4.1-02 IPC Limits]`): (1) RESPA Section 8 & AfBA 3-Prong Safe Harbor Checklist (Written AfBA Disclosure at/prior to referral, No Required Use, and No Thing of Value beyond ownership return\u2014meaning Redfin agents CANNOT receive per-referral kickbacks, whereas consumer-facing lender credits are permissible!), (2) Digital Comparison Portal Neutrality rules, and (3) Fannie Mae IPC Calculation proving why an unaffiliated/lender credit vs. affiliated credit impacts the 6% IPC cap at 90% LTV."
+}

@@ -1,0 +1,85 @@
+{
+  "square_code": "4.3",
+  "project_title": "Campaign Sentiment & Ad Creative Performance Analyzer",
+  "bespoke_app_title": "Rocket Growth // Multi-Touch ROAS Attribution & Creative Sentiment Optimizer",
+  "ui_archetype": "roas_attribution_funnel_board",
+  "domain_id": "marketing",
+  "domain_service": "rocket-demo-marketing",
+  "level": "L200\u2013L300",
+  "tool_label": "Gemini Code Assist & Sheets/Excel Analytics",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
+  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "gcp_stack": [
+    "Gemini 4 Argon",
+    "Gemini Code Assist",
+    "BigQuery Connected Sheets / Excel"
+  ],
+  "sample_input": "Q3/Q4 2026 Rocket Growth Campaign Telemetry:\n1) Campaign A [Redfin Tour-to-PreApproval In-App Banner]: Spend $145,000 | Clicks 84,200 | Pre-Approvals 1,420 | Funded Loans 312 | Avg Revenue/Loan $8,400.\n2) Campaign B [Rocket Money 'Down Payment Vault' Push]: Spend $68,000 | Clicks 52,000 | Pre-Approvals 980 | Funded Loans 245 | Avg Revenue/Loan $8,100.\n3) Campaign C [Generic Paid Search 'Best Mortgage Rates']: Spend $410,000 | Clicks 95,000 | Pre-Approvals 610 | Funded Loans 88 | Avg Revenue/Loan $7,900.\nBorrower Review Snippets:\n- \"Loved how my Redfin tour automatically unlocked a $2,500 Rocket closing credit!\"\n- \"Rocket Money showed me I could afford a home 6 months earlier than I thought.\"\n- \"Generic rate ad was confusing until my banker explained the 2-1 buydown.\" ",
+  "sandbox_action": "analyze_campaign_roas",
+  "sandbox_params": {
+    "campaigns": [
+      {
+        "name": "Redfin Tour In-App",
+        "spend": 145000,
+        "preapprovals": 1420,
+        "funded": 312,
+        "rev_per_loan": 8400
+      },
+      {
+        "name": "Rocket Money Vault",
+        "spend": 68000,
+        "preapprovals": 980,
+        "funded": 245,
+        "rev_per_loan": 8100
+      },
+      {
+        "name": "Generic Paid Search",
+        "spend": 410000,
+        "preapprovals": 610,
+        "funded": 88,
+        "rev_per_loan": 7900
+      }
+    ]
+  },
+  "verified_sandbox_output": {
+    "action": "analyze_campaign_roas",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "channel_performance_summary": "Redfin Tour In-App: CPFL $465 | ROAS 18.07x ($2,620,800 rev) \u2022 Rocket Money Vault: CPFL $278 | ROAS 29.18x ($1,984,500 rev) \u2022 Generic Paid Search: CPFL $4,659 | ROAS 1.7x ($695,200 rev)",
+      "top_performing_funnel": "Rocket Money Down Payment Vault (29.2x ROAS | $278 Cost Per Funded Loan)",
+      "recommended_reallocation": "Shift $250,000 from Generic Paid Search (1.7x ROAS) to Redfin + Rocket Money Funnels -> Projected +412 Additional Funded Loans"
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "roas_attribution_funnel_board",
+    "winner": "Redfin Embedded Calculator Banner (6.4x Funded Loan ROAS)",
+    "reallocation": "Shift $85,000/wk from Generic Brand Video to Redfin Tour + Payment Shock Reels (+28% Funded Volume)",
+    "channels": [
+      {
+        "name": "Redfin Tour-to-PreApproval Native Card",
+        "cpl": "$42",
+        "funded_roas": "6.4x",
+        "sentiment": "+88% High Intent",
+        "action": "SCALE +$55k/wk"
+      },
+      {
+        "name": "YouTube Shorts 'Escrow Shock Explainer'",
+        "cpl": "$68",
+        "funded_roas": "4.9x",
+        "sentiment": "+74% Trust Score",
+        "action": "SCALE +$30k/wk"
+      },
+      {
+        "name": "Generic 'Lower Rates Soon' Display Ads",
+        "cpl": "$195",
+        "funded_roas": "1.2x",
+        "sentiment": "-32% Ad Fatigue",
+        "action": "PAUSE -$85k/wk"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: budget_reallocation_headline, channel_performance (list of {channel, creative_theme, cpl, funded_roas, sentiment_driver, budget_action}), and new_ab_test_hypotheses (list of {variant_name, hook_script, target_segment}).",
+  "system_prompt": "You are the Rocket Marketing Performance & Sentiment Analyzer powered by Gemini 4 Argon & Code Assist. Using the sandbox ROAS/CPFL calculations, produce: (1) Executive Attribution Table comparing Cost Per Pre-Approval, Cost Per Funded Loan (CPFL), and Net ROAS across all 3 channels (highlighting why Rocket Money Vault at 29.2x ROAS and Redfin In-App at 18.1x ROAS crush Generic Search at 1.7x ROAS), (2) Budget Reallocation Recommendation shifting $250k from Generic Search into Ecosystem funnels, and (3) Copy-pasteable Excel VBA Macro & Google Sheets `=GEMINI()` formula."
+}

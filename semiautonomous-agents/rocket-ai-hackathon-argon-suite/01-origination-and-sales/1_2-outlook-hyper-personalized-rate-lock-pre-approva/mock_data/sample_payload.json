@@ -1,0 +1,72 @@
+{
+  "square_code": "1.2",
+  "project_title": "Outlook Hyper-Personalized Rate-Lock & Pre-Approval Agent",
+  "bespoke_app_title": "Microsoft Outlook 365 // Rocket Verified Approval & Rate-Lock Add-In",
+  "ui_archetype": "outlook_addin_composer",
+  "domain_id": "sales",
+  "domain_service": "rocket-demo-origination",
+  "level": "L100\u2013L200",
+  "tool_label": "Gemini Code Assist & O365 Add-In",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Gemini 4 Argon",
+    "Gemini Code Assist",
+    "Microsoft Graph / Outlook MCP"
+  ],
+  "sample_input": "Property: 892 Puritan Ave, Birmingham, MI 48009 (Listing Agent: Sarah Jenkins, @properties).\nOffer Price: $625,000 | Down Payment: 20% ($125,000) | Loan Amount: $500,000 | 30-Yr Fixed Conventional.\nBorrowers: Dr. Priya Nair &ohan Nair | Middle FICO: 785.\nOptions to Compare:\n- Option A: Par Rate 6.125% (0.00 pts)\n- Option B: Rate-Lock w/ 0.75 pt Buydown -> 5.875% ($3,750 cost)\n- Option C: Rocket 2-1 Temporary Buydown (Year 1: 4.125%, Year 2: 5.125%, Year 3-30: 6.125%, Seller Concession funded)\nClosing Date Target: November 24, 2026 (21-day Rocket Fast Track Close).",
+  "sandbox_action": "calc_rate_lock_options",
+  "sandbox_params": {
+    "loan_amount": 500000,
+    "price": 625000,
+    "base_rate": 6.125,
+    "buydown_rate": 5.875,
+    "buydown_pts": 0.75
+  },
+  "verified_sandbox_output": {
+    "action": "calc_rate_lock_options",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "option_a_par_pi": "$3,038.05/mo @ 6.125% ($0 Points)",
+      "option_b_buydown_pi": "$2,957.69/mo @ 5.875% (Cost: $3,750.00 | Saves $80.36/mo)",
+      "option_b_breakeven": "46.7 Months (3.9 Years)",
+      "option_c_2_1_buydown": "Yr 1: $2,423.25/mo (4.125%) | Yr 2: $2,722.43/mo (5.125%) | Seller Subsidy: $11,165.04"
+    },
+    "execution_ms": 0.03
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "outlook_addin_composer",
+    "email_to": "Marcus & Elena Vance <mvance@ford.com>; Sarah Jenkins (Redfin Premier Agent) <sjenkins@redfin.com>",
+    "email_subject": "\u2705 Rocket Mortgage Verified Approval ($460,000) + 3 Custom Rate-Lock Options \u2014 1420 Vinsetta Blvd",
+    "certificate_id": "RKT-VA-994021-MI",
+    "rate_matrix": [
+      {
+        "tier": "Option A \u00b7 30Y Par Lock",
+        "rate": "6.125%",
+        "pi": "$3,038.05/mo @ 6.125% ($0 Points)",
+        "upfront": "$0 Points",
+        "breakeven": "Immediate (0 Mos)",
+        "badge": "Zero Points"
+      },
+      {
+        "tier": "Option B \u00b7 Permanent Buydown",
+        "rate": "5.875%",
+        "pi": "$2,957.69/mo @ 5.875% (Cost: $3,750.00 | Saves $80.36/mo)",
+        "upfront": "$3,750 (0.75 Pts)",
+        "breakeven": "46.7 Months (3.9 Years)",
+        "badge": "Best Long-Term"
+      },
+      {
+        "tier": "Option C \u00b7 Seller-Paid 2-1 Buydown",
+        "rate": "4.125% Yr1 / 5.125% Yr2",
+        "pi": "Yr 1: $2,423.25/mo (4.125%) | Yr 2: $2,722.43/mo (5.125%) | Seller Subsidy: $11,165.04",
+        "upfront": "$11,245 Seller Credit",
+        "breakeven": "$0 Buyer Cost",
+        "badge": "\u2b50 Recommended Offer Strategy"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: email_headers ({to, cc, subject}), rate_options_table (list of 3 options with {option_name, rate, monthly_pi, upfront_cost, breakeven_months, badge}), verified_approval_certificate ({cert_id, max_price, property_address, expiration}), and email_body_paragraphs (list of strings).",
+  "system_prompt": "You are the Rocket Mortgage O365 Outlook Rate-Lock & Verified Approval Drafter powered by Gemini 4 Argon. Generate: (1) A formal, seller-winning 'Rocket Verified Approval Letter' addressed to the listing agent highlighting Rocket's 21-day closing guarantee, and (2) A borrower-facing Outlook email with a clean Markdown/Excel table comparing Options A (Par), B (Permanent Buydown with breakeven month calculation), and C (2-1 Seller-Paid Buydown)."
+}

@@ -1,0 +1,74 @@
+{
+  "square_code": "3.1",
+  "project_title": "Annual Escrow Shortage Resolution Journey",
+  "bespoke_app_title": "Mr. Cooper x GECX // Interactive Annual Escrow Shortage Waterfall & Payment Slider",
+  "ui_archetype": "escrow_waterfall_interactive",
+  "domain_id": "servicing",
+  "domain_service": "rocket-demo-servicing",
+  "level": "L100\u2013L200",
+  "tool_label": "Gemini Enterprise for CX (GECX)",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Gemini Enterprise streamAssist API (v1alpha) + Vertex AI",
+  "routing_note": "Executed against live Discovery Engine v1alpha streamAssist endpoint (gemini-enterprise-17877637_1787763712023)",
+  "gcp_stack": [
+    "Gemini Enterprise for CX (GECX)",
+    "Gemini 4 Argon",
+    "Mr. Cooper / MSP Servicing Ledger API"
+  ],
+  "sample_input": "Servicing Loan #MRC-4409182 (Mr. Cooper / Rocket Servicing Portfolio \u2014 Property: 2410 Dorchester Rd, Troy, MI 48084):\nBorrower asks: \"Why did my monthly mortgage payment suddenly jump from $2,480 to $2,765 starting November 1st?! Did my fixed interest rate change?\"\nEscrow Analysis Ledger Data:\n- Loan Type: 30-Yr Fixed at 5.25% (Principal & Interest is UNCHANGED at $1,840.00/mo).\n- 2025 Troy / Oakland County Property Tax Disbursed: $4,920/yr ($410/mo).\n- 2026 Troy / Oakland County Property Tax Assessed (Uncapped after purchase): $6,000/yr ($500/mo -> +$90/mo tax increase).\n- Homeowners Hazard Insurance (State Farm): Increased from $1,680/yr ($140/mo) to $2,280/yr ($190/mo -> +$50/mo insurance increase).\n- Required New Base Escrow Deposit: $690/mo (up from $550/mo = +$140/mo ongoing increase).\n- Retroactive Escrow Shortage (plus RESPA 2-month cushion): $1,740.00 total shortage ($145.00/mo if spread over 12 months).",
+  "sandbox_action": "calc_escrow_shortage",
+  "sandbox_params": {
+    "pi_monthly": 1840.0,
+    "old_tax_yr": 4920.0,
+    "new_tax_yr": 6000.0,
+    "old_ins_yr": 1680.0,
+    "new_ins_yr": 2280.0,
+    "shortage_total": 1740.0
+  },
+  "verified_sandbox_output": {
+    "action": "calc_escrow_shortage",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "locked_principal_and_interest": "$1,840.00/mo @ 5.250% Fixed (UNCHANGED)",
+      "base_escrow_increase": "+$140.00/mo (Troy Property Tax +$90/mo + Hazard Ins +$50/mo -> New Base Escrow $690.00/mo)",
+      "option_a_lump_sum_payment": "Pay $1,740.00 One-Time Shortage -> New Monthly Payment = $2,530.00/mo",
+      "option_b_12mo_interest_free_spread": "$0 Upfront -> New Monthly Payment = $2,675.00/mo (Includes $145.00/mo for 12 mos)"
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "escrow_waterfall_interactive",
+    "pi_locked": "$1,840.00/mo @ 5.250% Fixed (UNCHANGED)",
+    "escrow_delta": "+$140.00/mo (Troy Property Tax +$90/mo + Hazard Ins +$50/mo -> New Base Escrow $690.00/mo)",
+    "option_a": "Pay $1,740.00 One-Time Shortage -> New Monthly Payment = $2,530.00/mo",
+    "option_b": "$0 Upfront -> New Monthly Payment = $2,675.00/mo (Includes $145.00/mo for 12 mos)",
+    "bars": [
+      {
+        "label": "Principal & Interest (5.25% Fixed)",
+        "old": 1840,
+        "new": 1840,
+        "color": "#10B981"
+      },
+      {
+        "label": "Troy MI County Property Taxes",
+        "old": 410,
+        "new": 500,
+        "color": "#F59E0B"
+      },
+      {
+        "label": "Homeowners Hazard Insurance",
+        "old": 140,
+        "new": 190,
+        "color": "#38BDF8"
+      },
+      {
+        "label": "12-Month Interest-Free Shortage Spread",
+        "old": 0,
+        "new": 145,
+        "color": "#EC4899"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: empathetic_headline, payment_comparison ({old_total, new_lump_sum_total, new_12mo_spread_total}), waterfall_bars (list of {component, old_mo, new_mo, delta_mo, explanation}), and repayment_options (list of {option_title, upfront_due, monthly_payment, pros}).",
+  "system_prompt": "You are the Rocket & Mr. Cooper GECX Annual Escrow Shortage Concierge powered by Gemini 4 Argon. Reassure the borrower immediately that their 5.25% Fixed Interest Rate and $1,840/mo Principal & Interest NEVER changed. Then present: (1) Plain-Language Breakdown of why their Oakland County uncapped property tax (+$90/mo) and State Farm insurance (+$50/mo) caused both an ongoing $140/mo base escrow increase and a one-time $1,740 retroactive shortage, and (2) Three Interactive Resolution Options (Option A: Pay $1,740 Lump Sum -> New Payment $2,620/mo; Option B: 12-Month Shortage Spread -> New Payment $2,765/mo; Option C: Request Oakland County Principal Residence Exemption (PRE) Audit + Insurance Shop)."
+}

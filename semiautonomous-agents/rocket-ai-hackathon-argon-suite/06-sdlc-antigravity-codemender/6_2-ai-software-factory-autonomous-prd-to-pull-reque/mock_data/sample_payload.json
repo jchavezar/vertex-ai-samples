@@ -1,0 +1,72 @@
+{
+  "square_code": "6.2",
+  "project_title": "AI Software Factory: Autonomous PRD-to-Pull-Request Architect",
+  "bespoke_app_title": "Google Antigravity 2.0 Swarm // Autonomous PRD-to-Pull-Request Software Factory",
+  "ui_archetype": "antigravity_swarm_software_factory",
+  "domain_id": "sdlc",
+  "domain_service": "rocket-demo-sdlc",
+  "level": "L300",
+  "tool_label": "Antigravity Multi-Agent Swarm & GEAP",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Google Antigravity 2.0 Swarm",
+    "Gemini Enterprise Spark (Goal Mode)",
+    "Gemini 4 Argon",
+    "Cloud Build / Cloud Run Sandbox"
+  ],
+  "sample_input": "Product Requirements Document (PRD #RKT-2026-Q4):\nFeature: \"Rocket Instant Bi-Weekly Principal Accelerator API & Widget\"\nRequirements:\n1) Build a REST endpoint `POST /api/v1/servicing/biweekly-simulator` accepting `loan_amount`, `annual_rate`, `remaining_months`, and `extra_biweekly_dollars`.\n2) Compute standard monthly amortization vs. accelerated bi-weekly amortization (26 half-payments/yr = 13 full monthly equivalents/yr).\n3) Return exact `months_shaved`, `years_shaved`, `total_interest_saved`, and `payoff_date`.\n4) Include 100% passing unit tests for edge cases (0% interest, extra principal payment, payoff in <12 months).",
+  "sandbox_action": "run_software_factory_biweekly",
+  "sandbox_params": {
+    "loan_amount": 380000.0,
+    "annual_rate": 6.25,
+    "remaining_months": 360,
+    "extra_biweekly": 50.0
+  },
+  "verified_sandbox_output": {
+    "action": "run_software_factory_biweekly",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "standard_30yr_schedule": "360 Months (30.0 Yrs) | $2,339.73/mo | Total Interest: $462,302.80",
+      "accelerated_biweekly_schedule": "266 Months (22.2 Yrs) -> SHAVES 7.8 YEARS off mortgage!",
+      "lifetime_interest_saved": "$139,369.68 Saved in Total Interest",
+      "antigravity_swarm_pr_status": "PR #4092 Ready to Merge \u2022 4 Subagents Completed \u2022 6/6 Sandbox Unit Tests Passed"
+    },
+    "execution_ms": 0.05
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "antigravity_swarm_software_factory",
+    "pr_status": "PR #4092 Ready to Merge \u2022 4 Subagents Completed \u2022 6/6 Sandbox Unit Tests Passed",
+    "interest_saved": "$139,369.68 Saved in Total Interest",
+    "years_shaved": "266 Months (22.2 Yrs) -> SHAVES 7.8 YEARS off mortgage!",
+    "lanes": [
+      {
+        "agent": "architect-agent",
+        "branch": "jj:biweekly-spec",
+        "artifact": "specs/biweekly_openapi.yaml",
+        "status": "\u2705 MERGED"
+      },
+      {
+        "agent": "backend-quant-agent",
+        "branch": "jj:biweekly-engine",
+        "artifact": "services/amortization_biweekly.py",
+        "status": "\u2705 6/6 PYTEST PASS"
+      },
+      {
+        "agent": "ui-component-agent",
+        "branch": "jj:biweekly-slider",
+        "artifact": "components/BiweeklySavingsCard.tsx",
+        "status": "\u2705 LIGHTHOUSE 100"
+      },
+      {
+        "agent": "qa-security-agent",
+        "branch": "jj:biweekly-audit",
+        "artifact": "tests/test_truth_in_lending_apr.py",
+        "status": "\u2705 REG Z VERIFIED"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: pr_number_and_title, biweekly_math_verification ({standard_months, accelerated_months, years_shaved, lifetime_interest_saved}), subagent_lanes (list of 4 lanes {agent_role, workspace_branch, files_authored, test_status}), and generated_fastapi_endpoint_code.",
+  "system_prompt": "You are the Google Antigravity AI Software Factory Swarm Orchestrator powered by Gemini 4 Argon. Display the 4-Agent Swarm Execution Log (`[Agent 1: Spec Architect] -> [Agent 2: FastAPI Backend Engineer] -> [Agent 3: Pytest Sandbox Verifier] -> [Agent 4: PR Reviewer]`) along with the live sandbox execution results for a $380,000 loan at 6.25%, production-ready Python FastAPI code, and the passing unit test suite."
+}

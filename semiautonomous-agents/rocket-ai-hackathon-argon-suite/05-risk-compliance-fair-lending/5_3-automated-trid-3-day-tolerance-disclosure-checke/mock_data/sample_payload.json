@@ -1,0 +1,107 @@
+{
+  "square_code": "5.3",
+  "project_title": "Automated TRID 3-Day Tolerance & Disclosure Checker (LE vs. CD)",
+  "bespoke_app_title": "CFPB TRID 12 CFR \u00a7 1026.19(e)(3) // Loan Estimate vs. Closing Disclosure Cure Auditor",
+  "ui_archetype": "trid_le_cd_tolerance_grid",
+  "domain_id": "risk",
+  "domain_service": "rocket-demo-compliance",
+  "level": "L200\u2013L300",
+  "tool_label": "Google Cloud Document AI + Gemini 4 Argon",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Document AI Loan Estimate & Closing Disclosure Parsers",
+    "Gemini 4 Argon",
+    "Deterministic TRID Tolerance Sandbox"
+  ],
+  "sample_input": "TRID Pre-Closing Audit File #TRID-2026-8831 (No Valid Changed Circumstance Logged):\n1) Zero-Tolerance Bucket (0% Permitted Increase \u2014 Section A Origination & Unshoppable Fees):\n   - Rocket Origination Fee: LE = $1,250.00 | CD = $1,250.00\n   - Appraisal Fee: LE = $650.00 | CD = $825.00 (+$175.00 increase without valid Changed Circumstance!)\n   - Credit Report Fee: LE = $85.00 | CD = $110.00 (+$25.00 increase!)\n2) 10% Cumulative Tolerance Bucket (Section C Shoppable Required Services where borrower used Rocket settlement list + Section E Recording Fees):\n   - Title \u2014 Lender's Title Policy (Rocket Close): LE = $1,100.00 | CD = $1,180.00\n   - Title \u2014 Settlement/Closing Fee (Rocket Close): LE = $450.00 | CD = $620.00\n   - County Government Recording Fees: LE = $250.00 | CD = $310.00",
+  "sandbox_action": "audit_trid_tolerances",
+  "sandbox_params": {
+    "zero_bucket": [
+      {
+        "fee": "Rocket Origination Fee",
+        "le": 1250.0,
+        "cd": 1250.0
+      },
+      {
+        "fee": "Appraisal Fee (No Valid COC)",
+        "le": 650.0,
+        "cd": 825.0
+      },
+      {
+        "fee": "Credit Report Fee",
+        "le": 85.0,
+        "cd": 110.0
+      }
+    ],
+    "ten_pct_bucket": [
+      {
+        "fee": "Lender's Title Policy (Rocket Close)",
+        "le": 1100.0,
+        "cd": 1180.0
+      },
+      {
+        "fee": "Settlement/Closing Fee (Rocket Close)",
+        "le": 450.0,
+        "cd": 620.0
+      },
+      {
+        "fee": "County Recording Fees",
+        "le": 250.0,
+        "cd": 310.0
+      }
+    ]
+  },
+  "verified_sandbox_output": {
+    "action": "audit_trid_tolerances",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "zero_tolerance_bucket_audit": "BREACH DETECTED \u2014 Appraisal (+$175) + Credit Report (+$25) = $200.00 Zero-Tolerance Cure Required",
+      "ten_pct_cumulative_bucket_audit": "BREACH DETECTED \u2014 LE Sum $1,800.00 (110% Cap $1,980.00) vs CD Sum $2,110.00 = $130.00 Cure Required",
+      "mandatory_section_j_lender_cure": "$330.00 Lender Tolerance Credit Required on CD Page 2 Section J Prior to Closing",
+      "three_day_redisclosure_trigger": "NO NEW 3-DAY WAIT REQUIRED \u2014 Lender Cure lowers APR; does not trigger 12 CFR \u00a7 1026.19(f)(2)(ii) reset."
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "trid_le_cd_tolerance_grid",
+    "total_cure": "$330.00 Lender Tolerance Credit Required on CD Page 2 Section J Prior to Closing",
+    "rows": [
+      {
+        "fee": "Origination / Underwriting Fee",
+        "bucket": "0% Zero Tolerance",
+        "le": "$1,295.00",
+        "cd": "$1,295.00",
+        "diff": "$0.00",
+        "cure": "$0.00 (PASS)"
+      },
+      {
+        "fee": "Appraisal Rush Fee (Unapproved)",
+        "bucket": "0% Zero Tolerance",
+        "le": "$550.00",
+        "cd": "$800.00",
+        "diff": "+$250.00",
+        "cure": "\ud83d\udea9 $250.00 CURE (No Valid COC)"
+      },
+      {
+        "fee": "County Recording + Transfer Fees",
+        "bucket": "10% Cumulative Bucket",
+        "le": "$650.00",
+        "cd": "$950.00",
+        "diff": "+$300.00 (+46.1%)",
+        "cure": "\ud83d\udea9 $235.00 CURE (Exceeds $65 Cap)"
+      },
+      {
+        "fee": "Borrower-Shopped Pest Inspection",
+        "bucket": "Unlimited (Borrower Shopped)",
+        "le": "$125.00",
+        "cd": "$160.00",
+        "diff": "+$35.00",
+        "cure": "$0.00 (Exempt Bucket)"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: total_lender_cure_credit, closing_timer_status, fee_comparison_rows (list of {fee_name, trid_bucket, le_disclosed, cd_actual, variance, cure_required, citation}), and section_j_journal_entry.",
+  "system_prompt": "You are the Rocket Close & Compliance Automated TRID 3-Day Tolerance & Disclosure Auditor powered by Document AI and Gemini 4 Argon. Using the verified TRID sandbox calculations, produce: (1) Line-by-Line LE vs. CD Comparison Matrix across the 0% Zero-Tolerance Bucket ($200.00 breach!) and the 10% Cumulative Bucket (LE Baseline = $1,800.00, 110% Cap = $1,980.00, CD Actual = $2,110.00 -> $130.00 breach!), (2) Total Mandatory Lender Tolerance Cure Credit ($200.00 + $130.00 = $330.00 required on CD Page 2 Section J prior to closing), and (3) 3-Business-Day Waiting Period Trigger Check under 12 CFR \u00a7 1026.19(f)(2)(ii) (APR change >1/8%, loan product change, or prepayment penalty added)."
+}

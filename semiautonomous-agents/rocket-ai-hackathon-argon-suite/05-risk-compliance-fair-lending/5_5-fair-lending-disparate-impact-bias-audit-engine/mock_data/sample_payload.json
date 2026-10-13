@@ -1,0 +1,65 @@
+{
+  "square_code": "5.5",
+  "project_title": "Fair Lending Disparate Impact & Bias Audit Engine (ECOA / Reg B)",
+  "bespoke_app_title": "ECOA Regulation B // 500-Counterfactual Twin Fair Lending & Adverse Action Certifier",
+  "ui_archetype": "ecoa_fair_lending_twin_certifier",
+  "domain_id": "risk",
+  "domain_service": "rocket-demo-compliance",
+  "level": "L300",
+  "tool_label": "Vertex AI Responsible AI & Evaluation",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Vertex AI Rapid Evaluation API",
+    "Gemini 4 Argon Judge",
+    "Python ECOA Statistical Certifier"
+  ],
+  "sample_input": "Fair Lending Counterfactual Twin Audit Run #ECOA-2026-1013 (500 Matched Borrower Twin Pairs):\nFixed Financial Profile across ALL Twins:\n- FICO: 715 | LTV: 90% ($360k loan on $400k purchase) | Back-End DTI: 39.0% | Liquid Reserves: 4 Months PITI.\nCohort Comparison:\n- Control Cohort A (ZIP 48009 Birmingham / Majority-Non-Protected Proxy Names):\n  * Recommended Conventional 90% w/ Lender Credit: 96.4% of runs\n  * Avg Quoted Rate: 6.125% | Avg Fee Waiver Suggested: $1,240\n- Protected Cohort B (ZIP 48221 Detroit / HMDA Protected-Class Proxy Names):\n  * Recommended Conventional 90% w/ Lender Credit: 96.0% of runs\n  * Avg Quoted Rate: 6.125% | Avg Fee Waiver Suggested: $1,245",
+  "sandbox_action": "calc_fair_lending_air",
+  "sandbox_params": {
+    "control_approval_rate": 0.964,
+    "protected_approval_rate": 0.96,
+    "control_avg_rate": 6.125,
+    "protected_avg_rate": 6.125,
+    "n_pairs": 500
+  },
+  "verified_sandbox_output": {
+    "action": "calc_fair_lending_air",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "sample_size_audited": "500 Matched Counterfactual Borrower Twin Pairs (Identical 715 FICO, 90% LTV, 39% DTI)",
+      "adverse_impact_ratio_air": "0.9959 (99.58% Parity \u2014 Exceeds CFPB/ECOA 0.8000 Four-Fifths Threshold)",
+      "rate_spread_disparity_bps": "0.00 bps (6.125% Control vs 6.125% Protected \u2014 Zero Pricing Steering)",
+      "ecoa_reg_b_certification": "CERTIFIED COMPLIANT \u2014 Ready for Production Deployment"
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "ecoa_fair_lending_twin_certifier",
+    "parity": "0.994 Parity Ratio (Threshold >= 0.800 EEOC Four-Fifths Rule)",
+    "status": "CERTIFIED COMPLIANT \u2014 Ready for Production Deployment",
+    "cohorts": [
+      {
+        "pair": "Wayne County (Detroit) vs. Oakland County (740 FICO, 34% DTI, 85% LTV)",
+        "rate_a": "99.6% Approved",
+        "rate_b": "99.8% Approved",
+        "ratio": "0.998 Parity"
+      },
+      {
+        "pair": "Minority Surname Twin vs. Control Surname Twin (Identical 1003)",
+        "rate_a": "6.125% Par Rate",
+        "rate_b": "6.125% Par Rate",
+        "ratio": "1.000 (0.0 bps Variance)"
+      },
+      {
+        "pair": "Female Head-of-Household vs. Male Control (680 FICO, FHA 96.5%)",
+        "rate_a": "$450 Fee Waiver",
+        "rate_b": "$450 Fee Waiver",
+        "ratio": "0.992 Parity"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: certification_badge, disparate_impact_metrics ({approval_parity_ratio, eeoc_four_fifths_threshold, fee_waiver_variance_bps, prohibited_factors_detected}), counterfactual_cohort_table (list of {cohort_pair, identical_financials, approval_rate_a, approval_rate_b, parity_ratio}), and reg_b_compliance_attestation.",
+  "system_prompt": "You are the Rocket Fair Lending Disparate Impact & ECOA Regulation B Audit Engine powered by Vertex AI Responsible AI and Gemini 4 Argon. Present: (1) Statistical Certification Summary showing the Adverse Impact Ratio (`AIR = 0.960 / 0.964 = 0.9958`, well above the CFPB/EEOC `0.8000` four-fifths threshold!) and Rate Variance (`0.000 bps` difference), (2) Counterfactual Twin Verification Proof (confirming that ZIP code and borrower name proxies are stripped/blinded prior to pricing tool invocation), and (3) Signed Fair Lending Model Risk Management (SR 11-7) Certificate."
+}

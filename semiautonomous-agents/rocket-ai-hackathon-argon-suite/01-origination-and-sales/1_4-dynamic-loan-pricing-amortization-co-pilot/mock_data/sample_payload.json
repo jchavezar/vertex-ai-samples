@@ -1,0 +1,93 @@
+{
+  "square_code": "1.4",
+  "project_title": "Dynamic Loan Pricing & Amortization Co-Pilot",
+  "bespoke_app_title": "Monark\u2122 x Rocket Money // Down-Payment Vault & LTV Pricing Simulator",
+  "ui_archetype": "monark_wealth_vault_simulator",
+  "domain_id": "sales",
+  "domain_service": "rocket-demo-origination",
+  "level": "L200\u2013L300",
+  "tool_label": "Gemini 4 Argon: Native Function Calling",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Gemini 4 Argon",
+    "Gemini 3.8 Flash",
+    "Vertex AI Function Calling",
+    "Cloud Run Pricing Microservice"
+  ],
+  "sample_input": "Quote a client purchasing a $540,000 single-family home in Oakland County, MI (ZIP 48009) with 10% down ($486,000 loan amount, 90% LTV) and a 742 middle FICO score.\nAlso compare what happens if they use $27,000 more from their Rocket Money savings to reach 85% LTV ($459,000 loan amount) \u2014 show the exact LLPA adjustment, PMI drop, monthly PITI difference, and 5-year cumulative interest saved.",
+  "sandbox_action": "calc_dynamic_pricing",
+  "sandbox_params": {
+    "price": 540000,
+    "zip": "48009",
+    "fico": 742,
+    "ltv_1": 90.0,
+    "ltv_2": 85.0
+  },
+  "verified_sandbox_output": {
+    "action": "calc_dynamic_pricing",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "scenario_90_ltv": "Loan $486,000 @ 6.125% | P&I $2,952.99 + PMI $166.05 + Tax/Ins $830.00 = $3,949.04/mo",
+      "scenario_85_ltv": "Loan $459,000 @ 5.990% | P&I $2,748.99 + PMI $91.80 + Tax/Ins $830.00 = $3,670.79/mo",
+      "monthly_piti_savings": "$278.25/month saved by shifting $27k from Rocket Money Vault",
+      "five_year_interest_pmi_saved": "$16,695.00 saved over first 60 months"
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "monark_wealth_vault_simulator",
+    "net_worth_total": "$218,450.00",
+    "unencumbered_cash": "$37,500.00 Post-Close Reserve",
+    "accounts": [
+      {
+        "name": "Rocket Money Down-Payment Vault",
+        "acct": "RM-VAULT-8841",
+        "bal": "$84,000.00",
+        "action": "Allocate $81,000 (15% Down -> 85% LTV Tier)"
+      },
+      {
+        "name": "Chase Premier Checking",
+        "acct": "CHK-4402",
+        "bal": "$19,450.00",
+        "action": "Retain for Closing Costs + 4 Mos PITI Reserve"
+      },
+      {
+        "name": "Fidelity 401(k) Retirement",
+        "acct": "FID-9910",
+        "bal": "$115,000.00",
+        "action": "Untouched \u2014 Counts as 60% Vested Reserve Cushion"
+      }
+    ],
+    "ltv_tiers": [
+      {
+        "tier": "90% LTV (10% Down = $54,000)",
+        "loan": "$486,000",
+        "rate": "6.125%",
+        "pmi": "$166.05/mo (0.41%)",
+        "total": "Loan $486,000 @ 6.125% | P&I $2,952.99 + PMI $166.05 + Tax/Ins $830.00 = $3,949.04/mo",
+        "tag": "Baseline"
+      },
+      {
+        "tier": "85% LTV (15% Down = $81,000)",
+        "loan": "$459,000",
+        "rate": "5.990%",
+        "pmi": "$91.80/mo (0.24%)",
+        "total": "Loan $459,000 @ 5.990% | P&I $2,748.99 + PMI $91.80 + Tax/Ins $830.00 = $3,670.79/mo",
+        "tag": "\u26a1 Monark Optimal (-$281.76/mo)"
+      },
+      {
+        "tier": "80% LTV (20% Down = $108,000)",
+        "loan": "$432,000",
+        "rate": "5.990%",
+        "pmi": "$0.00/mo (No PMI)",
+        "total": "$3,414.10/mo",
+        "tag": "Requires +$24k Extra Cash"
+      }
+    ],
+    "five_yr_savings": "$16,695.00 saved over first 60 months"
+  },
+  "output_schema_hint": "Return JSON with keys: net_worth_impact, rocket_money_accounts (list of {account_name,institution,balance,allocation_action}), ltv_comparison (list of {tier, loan_amount, rate, monthly_pi, monthly_pmi, total_piti}), and five_year_wealth_projection ({interest_saved, pmi_saved, net_equity_yr5}).",
+  "system_prompt": "You are the Rocket Dynamic Loan Pricing & Amortization Co-Pilot powered by Gemini 4 Argon Function Calling. Use the live pricing & amortization tool results to present: (1) Live Rate Sheet & Fannie Mae LLPA breakdown for 90% LTV vs. 85% LTV at 742 FICO in Oakland County (48009), (2) Complete Monthly PITI + PMI breakdown table, and (3) 60-Month (5-Year) Equity & Interest Savings recommendation."
+}

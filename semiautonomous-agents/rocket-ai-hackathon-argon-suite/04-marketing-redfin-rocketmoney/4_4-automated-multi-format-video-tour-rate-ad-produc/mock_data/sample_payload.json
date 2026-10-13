@@ -1,0 +1,68 @@
+{
+  "square_code": "4.4",
+  "project_title": "Automated Multi-Format Video Tour & Rate Ad Producer",
+  "bespoke_app_title": "Veo 3.1 & Lyria // 9:16 Vertical Social Reel Storyboard & Audio Beat Studio",
+  "ui_archetype": "veo_vertical_reel_storyboard",
+  "domain_id": "marketing",
+  "domain_service": "rocket-demo-marketing",
+  "level": "L300",
+  "tool_label": "Gemini Omni & Veo 3.1 Video Generation",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Gemini Omni Flash",
+    "Veo 3.1",
+    "Gemini 4 Argon Script & Caption Sync",
+    "SynthID"
+  ],
+  "sample_input": "Redfin Listing #MI-772190: 4-Bed Mid-Century Modern in Huntington Woods, MI ($525,000).\n4 Key Photos: (1) Curb appeal with autumn maples, (2) Vaulted chef's kitchen with quartz island, (3) Sunlit primary suite, (4) Backyard cedar deck with firepit.\nConversational Video Prompt: \"Create a 15-second 9:16 vertical Reel for first-time move-up buyers. Start with a fast dolly zoom into the autumn exterior, beat-sync transitions every 3.5 seconds, overlay animated captions showing '$2,695/mo P&I with Rocket 1% Down / Rate Drop Protector', and end on a 'Book Redfin Tour + Instant Rocket Pre-Approval' CTA.\" ",
+  "sandbox_action": "build_video_timeline",
+  "sandbox_params": {
+    "duration_sec": 15,
+    "scenes": 4,
+    "list_price": 525000,
+    "monthly_pi": 2695
+  },
+  "verified_sandbox_output": {
+    "action": "build_video_timeline",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "video_render_pipeline": "Gemini Omni Flash + Veo 3.1 (9:16 Vertical Reels 1080x1920 @ 60fps + 16:9 YouTube Horizontal)",
+      "scene_breakdown": "0.0-3.5s Autumn Exterior Dolly | 3.5-7.0s Chef Kitchen + '$2,695/mo' Caption | 7.0-11.0s Primary Suite | 11.0-15.0s Redfin+Rocket CTA",
+      "watermark_and_compliance": "Google DeepMind SynthID Imperceptible Watermark + NMLS #3030 Equal Housing Overlay Verified"
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "veo_vertical_reel_storyboard",
+    "frames": [
+      {
+        "time": "00:00 \u2013 00:03",
+        "scene": "FPV Drone Swoop through Corktown Brick Loft Windows",
+        "overlay": "STOP PAYING $2,650 DETROIT RENT \ud83d\uded1",
+        "img": "/static/images/rocket_loft_before.jpg"
+      },
+      {
+        "time": "00:03 \u2013 00:08",
+        "scene": "Instant Gempix-2 / Veo Morph into Warm Cognac Leather Staged Loft",
+        "overlay": "OWN FOR $2,190/MO P&I \u26a1",
+        "img": "/static/images/rocket_loft_after_industrial.jpg"
+      },
+      {
+        "time": "00:08 \u2013 00:12",
+        "scene": "Split-Screen Chef Kitchen + Rocket Money $10k Grant Badge",
+        "overlay": "+$10,000 ROCKET HOMEBUYER GRANT \ud83d\udcb0",
+        "img": "/static/images/rocket_kitchen_homestyle.jpg"
+      },
+      {
+        "time": "00:12 \u2013 00:15",
+        "scene": "1-Tap Redfin Tour + Rocket Verified Approval End-Card",
+        "overlay": "6.125% Rate (6.314% APR) \u2022 NMLS #3030",
+        "img": "/static/images/rocket_loft_after_midcentury.jpg"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: reel_title, audio_track_spec, storyboard_frames (list of 4 frames {timecode, camera_motion, visual_scene, on_screen_typography, voiceover_line}), and reg_z_end_card.",
+  "system_prompt": "You are the Gemini Omni & Veo 3.1 Multi-Format Video Ad Director powered by Gemini 4 Argon. Generate: (1) Complete Second-by-Second 9:16 Vertical Reel & 16:9 Landscape Production Timeline (0.0s\u201315.0s) with camera motion vectors, audio beat cues, and animated caption overlays, (2) Ready-to-execute Vertex AI Veo / Gemini Omni API payload, and (3) SynthID watermark & TILA compliance metadata."
+}

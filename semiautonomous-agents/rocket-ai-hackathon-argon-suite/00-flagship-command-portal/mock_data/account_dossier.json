@@ -1,0 +1,233 @@
+{
+  "account_research_dossier": {
+    "company": "Rocket Companies, Inc. (NYSE: RKT) \u2014 Detroit, MI & Chennai, India",
+    "hackathonName": "Rocket's Bay 24-Hour Halloween AI Hackathon (Oct 28\u201329, 2026) + Oct 16 Product Showcase",
+    "executiveSponsors": [
+      {
+        "name": "Andrew Colunga",
+        "role": "VP of AI \u2014 Product (Hackathon Co-Host)"
+      },
+      {
+        "name": "Michael Evans",
+        "role": "VP of AI \u2014 Engineering (Hackathon Co-Host)"
+      },
+      {
+        "name": "Jenny Smolek",
+        "role": "EVP of Engineering (Loan Servicing & Engineering Sponsor)"
+      },
+      {
+        "name": "Viraj Sanghvi",
+        "role": "Rocket AI & Engineering Stakeholder (VirajSanghvi@rocket.com)"
+      }
+    ],
+    "googleAccountTeam": [
+      {
+        "name": "Angela Kavanaugh",
+        "role": "Google Cloud Account Lead (akavanaugh@google.com)"
+      },
+      {
+        "name": "Sundar Chellappa",
+        "role": "Customer Engineering Lead (sundarc@google.com)"
+      },
+      {
+        "name": "Luis Lopez",
+        "role": "AI Customer Engineer \u2014 GEAP & Live API (luisls@google.com)"
+      },
+      {
+        "name": "Jesus Chavez",
+        "role": "AI Customer Engineer / FDE \u2014 Google Antigravity & Gemini Enterprise (jesusarguelles@google.com)"
+      },
+      {
+        "name": "Ricky Merrefield & Joris Wynendaele",
+        "role": "GECX & Specialist Engineering"
+      }
+    ],
+    "ecosystemFlywheel": [
+      {
+        "brand": "1. Rocket Money",
+        "role": "Top-of-Funnel Personal Finance & Down-Payment Vaults",
+        "stats": "Millions of active budgeting & subscription-cancellation members building down-payment readiness."
+      },
+      {
+        "brand": "2. Redfin (Acquired)",
+        "role": "Digital Real Estate Search, MLS Telemetry & Home Tours",
+        "stats": "50M+ monthly visitors searching homes, booking tours with Redfin Agents, and triggering mortgage intent."
+      },
+      {
+        "brand": "3. Rocket Mortgage & Pro TPO",
+        "role": "Retail & Wholesale Mortgage Origination & Underwriting",
+        "stats": "Powered by Rocket Logic AI: 1.5M+ docs/month processed across FHA, VA, Conventional, and Jumbo."
+      },
+      {
+        "brand": "4. Rocket Close (formerly Amrock)",
+        "role": "Title Insurance, Property Valuation, Appraisal & Settlement",
+        "stats": "End-to-end digital closing, municipal lien clearance, and automated TRID disclosure auditing."
+      },
+      {
+        "brand": "5. Mr. Cooper Group (Acquired)",
+        "role": "Nation's Largest Mortgage Servicing & Recapture Engine",
+        "stats": "Multi-million-loan servicing portfolio (`MrC.AI.Agents.Agentspace`): escrow, payoffs, Form 1098s, loss mitigation, and refi recapture."
+      }
+    ],
+    "competitorWinBackMatrix": [
+      {
+        "incumbent": "AWS Bedrock + Anthropic Claude (Sonnet / Opus)",
+        "currentRocketUse": "Powers parts of Rocket Logic, Synopsis call summarization, and general LLM API calls via ByFrost AI Gateway.",
+        "whyGoogleWins": "Gemini 4 Argon (`gemini-4-argon`) + Gemini 3.8 Flash delivers 2M-token native context with Context Caching (up to 75% lower TCO), 2.4x faster parallel tool-calling, native Document AI mortgage parsers, and Model Choice inside Gemini Enterprise (including Claude Opus/Sonnet 5.5 + Gemini 4 Argon under one GCP contract!)."
+      },
+      {
+        "incumbent": "Anthropic Claude Code CLI",
+        "currentRocketUse": "Used by Rocket engineers for local terminal coding assistance.",
+        "whyGoogleWins": "Google Antigravity 2.0 (Desktop IDE + AGY CLI + Managed Agents API) + DeepMind CodeMender provides cloud-persistent multi-agent swarms (`workspace='share'`), isolated gVisor sandboxes, native MCP Registry governance, and unlimited OneQuota Gemini 4 Argon capacity without per-developer Claude token throttling."
+      },
+      {
+        "incumbent": "Sierra AI (Conversational CX & Voice)",
+        "currentRocketUse": "Used for top-of-funnel digital homebuyer chat/voice assistants.",
+        "whyGoogleWins": "Gemini Enterprise for CX (GECX) + Gemini Multimodal Live API delivers native sub-200ms audio-to-audio WebSockets (no STT->LLM->TTS lag), deterministic Dialogflow CX compliance gates for SSN/payoffs, and real-time CCAI Agent Assist for Mr. Cooper servicing specialists at a fraction of Sierra's per-resolution cost."
+      },
+      {
+        "incumbent": "Microsoft 365 Copilot / Azure OpenAI",
+        "currentRocketUse": "O365 Outlook, Teams, SharePoint, and legacy C#/.NET developer plugins.",
+        "whyGoogleWins": "Gemini Enterprise (Sobi Spark) connects natively to O365 SharePoint, OneDrive, Outlook, and Teams via 3LO OAuth connectors (`McpServer` + `AuthProvider` + `AuthBinding`), executing sandboxed Python calculations and querying BigQuery/Redfin data in-place."
+      }
+    ]
+  },
+  "keynote_presentation": {
+    "hour1_gemini_enterprise": {
+      "title": "Hour 1: Gemini Enterprise (Sobi / Spark, Agent Platform, Registry & GECX)",
+      "duration": "60 Minutes \u2022 Live Architecture & Executive Walkthrough",
+      "presenters": "Luis Lopez, Sundar Chellappa, Ricky Merrefield & Jesus Chavez",
+      "slides": [
+        {
+          "time": "00:00 \u2013 00:12",
+          "title": "1. The Sea Change: From Passive Chat to Software-Generating Teammates",
+          "subtitle": "Gemini Enterprise (`global-gemini-enterprise`) & Spark (`sobi-<USER_ID>`)",
+          "bullets": [
+            "One Unified Prompt Box across Web (`gemini.google.com/work`), Desktop, Mobile, and Microsoft Teams/Outlook.",
+            "Spark is a persistent digital teammate that writes and runs Python/Bash inside isolated gVisor sandboxes to build dashboards, audit TRID disclosures, and analyze Redfin MLS spreadsheets.",
+            "Model Choice Built-In: Run workloads on Gemini 4 Argon (`gemini-4-argon`), Gemini 3.8 Flash, or Claude Opus/Sonnet 5.5 under a single Google Cloud enterprise contract and security perimeter."
+          ],
+          "demoRef": "1.3"
+        },
+        {
+          "time": "00:12 \u2013 00:25",
+          "title": "2. Query-in-Place Enterprise Grounding & 3-Object Agent Registry",
+          "subtitle": "Connecting O365 SharePoint, OneDrive, Encompass LOS, and BigQuery without Data Replication",
+          "bullets": [
+            "Zero 'Storage Double Taxation': Query Rocket's SharePoint Online, Fannie/Freddie Selling Guides, and BigQuery Redfin/Mr. Cooper tables in-place.",
+            "RFC 530 3-Object Connector Architecture: `McpServer` (`agentregistry-<UUID>`), `AuthProvider` (`ge-auth-<FP64>`), and `AuthBinding` (`ge-bind-<FP64>`) preserve end-user 3LO Entra ID / O365 ACLs.",
+            "Centralized Governance: App Hub & Agent Registry (`ge-ai-app-*`) give Rocket Security a single pane of glass over every agent, tool, and MCP server."
+          ],
+          "demoRef": "2.1"
+        },
+        {
+          "time": "00:25 \u2013 00:40",
+          "title": "3. Gemini Enterprise Agent Platform (GEAP) & Visual Agent Studio",
+          "subtitle": "Low-Code Underwriting Workflows + Code-First ADK Multi-Agent Orchestration",
+          "bullets": [
+            "Visual Agent Studio (L200) lets Rocket Operations build condition-clearing agents with `RUNTIME_STAGE_BLOCKING` CEL Human-in-the-Loop approval gates.",
+            "Agent Development Kit (ADK L300) orchestrates stateful multi-agent teams across Rocket Money, Redfin, and Mr. Cooper Servicing.",
+            "Model Armor + Cloud Sensitive Data Protection (SDP) enforces GLBA ethical walls, masking SSNs and bank account numbers inline."
+          ],
+          "demoRef": "2.2"
+        },
+        {
+          "time": "00:40 \u2013 01:00",
+          "title": "4. Gemini Enterprise for CX (GECX) & Multimodal Live API (The Sierra AI Killer)",
+          "subtitle": "Transforming Mr. Cooper Servicing, Escrow Shortages, Synopsis & Portfolio Recapture",
+          "bullets": [
+            "Omnichannel GECX + Dialogflow CX handles high-volume Mr. Cooper escrow shortage journeys, official per-diem payoff quotes, and Form 1098 delivery.",
+            "CCAI Agent Assist upgrades Rocket Logic Synopsis from post-call batch summaries into real-time CFPB Regulation X loss-mitigation coaching.",
+            "Gemini Multimodal Live API delivers <200ms interruptible bidirectional voice for Refi Recapture\u2014eliminating Sierra AI per-resolution fees."
+          ],
+          "demoRef": "3.4"
+        }
+      ]
+    },
+    "hour2_antigravity": {
+      "title": "Hour 2: Google Antigravity 2.0, Sandboxed Code Execution, MCP & Gemini 4 Argon",
+      "duration": "60 Minutes \u2022 Hands-On Builder & SDLC Deep Dive",
+      "presenters": "Jesus Chavez, Joris Wynendaele & Google CE Mentors",
+      "slides": [
+        {
+          "time": "01:00 \u2013 01:15",
+          "title": "1. Meet Google Antigravity 2.0: The Agent-First Development Platform",
+          "subtitle": "Why Antigravity + Gemini 4 Argon Leaves Single-Threaded Claude Code Behind",
+          "bullets": [
+            "Antigravity 2.0 Desktop IDE + `agy` CLI + Managed Agents API inside Gemini Enterprise.",
+            "Persistent Cloud Execution: Delegate an objective (Goal Mode), close your laptop, and let Antigravity subagents code, run browser tests, and verify builds in isolated gVisor sandboxes.",
+            "Powered by Gemini 4 Argon (`gemini-4-argon`) & Gemini 3.8 Flash: 2M context window, Context Caching, and OneQuota enterprise scale."
+          ],
+          "demoRef": "1.5"
+        },
+        {
+          "time": "01:15 \u2013 01:30",
+          "title": "2. Model Context Protocol (MCP) & Cross-Funnel Subagent Orchestration",
+          "subtitle": "Unifying Rocket Money -> Redfin -> Rocket Mortgage -> Rocket Close via MCP",
+          "bullets": [
+            "Standardized MCP Servers expose Redfin Tour Webhooks, Rocket Money Goal Vaults, O365 Banker Calendars, and Rocket Pricing Engines safely.",
+            "Dynamic Python Workflows (`run_workflow` with `parallel()` and `pipeline()`) fan out across multiple subagents with strict JSON schema contracts.",
+            "Live Walkthrough: Building the Redfin-to-Rocket Cross-Funnel Campaign Bot (`4.5`) in 15 lines of Antigravity workflow code."
+          ],
+          "demoRef": "4.5"
+        },
+        {
+          "time": "01:30 \u2013 01:45",
+          "title": "3. DeepMind CodeMender & The Autonomous AI Software Factory",
+          "subtitle": "Zero-Touch Vulnerability Patching (`cm verify` / `cm fix`) & Legacy .NET Modernization",
+          "bullets": [
+            "CodeMender traces OWASP CWE-89 SQLi and CWE-639 IDOR vulnerabilities across Rocket LOS APIs, reproduces exploits in a gVisor sandbox, and commits verified patches.",
+            "AI Software Factory Swarm (`workspace='share'`) converts a Product Requirements Document (PRD) into a tested FastAPI/.NET 9 Pull Request automatically.",
+            "Legacy C#/.NET Framework 4.8 WCF SOAP services refactored into containerized Cloud Run microservices in seconds."
+          ],
+          "demoRef": "6.1"
+        },
+        {
+          "time": "01:45 \u2013 02:00",
+          "title": "4. Google CE Moonshots & Hackathon Kickoff Blueprint",
+          "subtitle": "Project Siren, Spatial Close (3D Maps + Imagen 3), HiveMind Swarm & Air-Tight",
+          "bullets": [
+            "How to clone any of the 33 live Cloud Run reference architectures using the Reproduction Blueprints on this portal.",
+            "Accessing your GCP Sandbox Project, Vertex AI `gemini-4-argon` & `gemini-3.8-flash` endpoints, and Antigravity MCP starter kits.",
+            "Judging Rubric for Track 1 (CX), Track 2 (Ops/Underwriting), Track 3 (Mr. Cooper Servicing), and Track 4 (Wildcard Moonshots)."
+          ],
+          "demoRef": "M.3"
+        }
+      ]
+    }
+  },
+  "cloud_run_urls": {
+    "portal": "https://rocket-hackathon-portal-254356041555.us-central1.run.app",
+    "sales": "https://rocket-demo-origination-254356041555.us-central1.run.app",
+    "ops": "https://rocket-demo-underwriting-254356041555.us-central1.run.app",
+    "servicing": "https://rocket-demo-servicing-254356041555.us-central1.run.app",
+    "marketing": "https://rocket-demo-marketing-254356041555.us-central1.run.app",
+    "risk": "https://rocket-demo-compliance-254356041555.us-central1.run.app",
+    "sdlc": "https://rocket-demo-sdlc-254356041555.us-central1.run.app",
+    "moonshots": "https://rocket-demo-moonshots-254356041555.us-central1.run.app"
+  },
+  "gemini_enterprise_engines": {
+    "default": {
+      "engine_id": "gemini-enterprise-17877637_1787763712023",
+      "display_name": "Gemini Enterprise Production Engine (vtxdemos)",
+      "console_url": "https://console.cloud.google.com/gen-app-builder/engines?project=vtxdemos",
+      "web_ui_url": "https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023",
+      "sobi_work_url": "https://gemini.google.com/work"
+    },
+    "sharepoint": {
+      "engine_id": "sp-mcp-comparison",
+      "display_name": "SharePoint Online MCP Grounding Engine",
+      "console_url": "https://console.cloud.google.com/gen-app-builder/engines?project=vtxdemos",
+      "web_ui_url": "https://vertexaisearch.cloud.google.com/home/cid/sp-mcp-comparison",
+      "sobi_work_url": "https://gemini.google.com/work"
+    },
+    "legal": {
+      "engine_id": "weil-legal-spanner-ge",
+      "display_name": "Legal & Regulatory Context Engine (Spanner Graph + A2UI)",
+      "console_url": "https://console.cloud.google.com/gen-app-builder/engines?project=vtxdemos",
+      "web_ui_url": "https://vertexaisearch.cloud.google.com/home/cid/weil-legal-spanner-ge",
+      "sobi_work_url": "https://gemini.google.com/work"
+    }
+  },
+  "total_squares": 33
+}

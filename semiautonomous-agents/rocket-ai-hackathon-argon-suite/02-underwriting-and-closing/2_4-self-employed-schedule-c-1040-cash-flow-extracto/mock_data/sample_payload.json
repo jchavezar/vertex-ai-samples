@@ -1,0 +1,97 @@
+{
+  "square_code": "2.4",
+  "project_title": "Self-Employed Schedule C / 1040 Cash-Flow Extractor (Form 1084)",
+  "bespoke_app_title": "Fannie Mae Form 1084 // Self-Employed Schedule C & K-1 Cash-Flow Worksheet",
+  "ui_archetype": "form_1084_tax_worksheet",
+  "domain_id": "ops",
+  "domain_service": "rocket-demo-underwriting",
+  "level": "L300",
+  "tool_label": "Gemini 4 Argon: Strict JSON Schema (Pydantic)",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Gemini 4 Argon (response_schema)",
+    "Pydantic v2",
+    "Fannie Mae Form 1084 Engine"
+  ],
+  "sample_input": "Borrower: Motor City Precision Tooling LLC (Sole Proprietorship \u2014 IRS Form 1040 Schedule C, NAICS 332710).\n2024 Schedule C:\n- Line 1 Gross Receipts: $485,000 | Line 4 COGS: $162,000 | Line 7 Gross Income: $323,000\n- Line 13 Depreciation (Form 4562 non-cash): $28,400\n- Line 24b Deductible Meals: $6,200\n- Line 30 Business Use of Home (Form 8829): $4,800\n- Line 31 Net Profit: $142,000\n- Form 4562 Business Miles: 14,000 miles (@ $0.30/mi IRS depreciation factor = $4,200 add-back)\n2025 Schedule C:\n- Line 1 Gross Receipts: $530,000 | Line 4 COGS: $175,000 | Line 7 Gross Income: $355,000\n- Line 13 Depreciation (Form 4562 non-cash): $31,600\n- Line 24b Deductible Meals: $7,400\n- Line 30 Business Use of Home (Form 8829): $5,100\n- Line 31 Net Profit: $158,000\n- Form 4562 Business Miles: 15,500 miles (@ $0.33/mi IRS depreciation factor = $5,115 add-back)",
+  "sandbox_action": "calc_form_1084",
+  "sandbox_params": {
+    "yr2024": {
+      "net_profit": 142000,
+      "depreciation": 28400,
+      "meals_deduction": 6200,
+      "home_office": 4800,
+      "mileage_addback": 4200
+    },
+    "yr2025": {
+      "net_profit": 158000,
+      "depreciation": 31600,
+      "meals_deduction": 7400,
+      "home_office": 5100,
+      "mileage_addback": 5115
+    }
+  },
+  "verified_sandbox_output": {
+    "action": "calc_form_1084",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "2024_form_1084_adjusted_cashflow": "$173,200.00/yr (Net $142,000 + Depr/Home/Miles Add-Backs - Meals)",
+      "2025_form_1084_adjusted_cashflow": "$192,415.00/yr (+11.1% YoY Positive Growth Trend)",
+      "fannie_mae_24mo_qualifying_income": "$15,233.96 / month ($365,615.00 / 24 months)",
+      "schema_validation": "100% VALIDATED \u2014 Pydantic Form1084Output JSON Schema Ready for Encompass/Rocket Logic"
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "form_1084_tax_worksheet",
+    "qualifying_mo": "$15,233.96 / month ($365,615.00 / 24 months)",
+    "rows": [
+      {
+        "line": "Schedule C Line 31",
+        "item": "Net Profit / Loss",
+        "y24": "$142,000",
+        "y25": "$158,000",
+        "op": "+ Baseline"
+      },
+      {
+        "line": "Schedule C Line 13",
+        "item": "MACRS Depreciation Add-Back",
+        "y24": "+$28,400",
+        "y25": "+$31,600",
+        "op": "+ Non-Cash Add-Back"
+      },
+      {
+        "line": "Schedule C Line 30",
+        "item": "Business Use of Home (Form 8829)",
+        "y24": "+$4,800",
+        "y25": "+$5,100",
+        "op": "+ Non-Cash Add-Back"
+      },
+      {
+        "line": "Form 4562 / Part IV",
+        "item": "Business Miles Depreciation ($0.33/mi)",
+        "y24": "+$4,200",
+        "y25": "+$5,115",
+        "op": "+ IRS Standard Rate"
+      },
+      {
+        "line": "Schedule C Line 24b",
+        "item": "Meals & Entertainment Exclusion",
+        "y24": "-$6,200",
+        "y25": "-$7,400",
+        "op": "- Mandatory Deduction"
+      },
+      {
+        "line": "Fannie Mae Form 1084 Total",
+        "item": "Adjusted Annual Cash Flow",
+        "y24": "$173,200",
+        "y25": "$192,415 (+11.1%)",
+        "op": "= $14,954.79 / mo"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: qualifying_monthly_income, yoy_trend_pct, worksheet_lines (list of {irs_line, description, yr_2024, yr_2025, addback_or_deduct, rule_explanation}), and underwriter_signoff_note.",
+  "system_prompt": "You are the Rocket Logic Self-Employed Form 1084 Cash Flow Extractor powered by Gemini 4 Argon Structured JSON Outputs. Using the verified Form 1084 sandbox calculation, return: (1) Complete Fannie Mae Form 1084 Line-by-Line Worksheet (2024 Adjusted Cash Flow vs. 2025 Adjusted Cash Flow, showing why increasing YoY trend allows 24-month averaging), (2) The exact strict Pydantic JSON payload ready for direct LOS database ingestion, and (3) Underwriter sign-off notes."
+}

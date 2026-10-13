@@ -1,0 +1,54 @@
+{
+  "square_code": "6.3",
+  "project_title": "Legacy .NET Framework / WCF to Cloud Run Microservice Modernizer",
+  "bespoke_app_title": "Antigravity Legacy Modernizer // C# .NET 4.8 WCF SOAP -> .NET 9 Cloud Run Transpiler",
+  "ui_archetype": "legacy_dotnet_wcf_transpiler",
+  "domain_id": "sdlc",
+  "domain_service": "rocket-demo-sdlc",
+  "level": "L200\u2013L300",
+  "tool_label": "Gemini Code Assist + Gemini 4 Argon",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Gemini Code Assist Enterprise",
+    "Gemini 4 Argon (2M Context)",
+    "Google Cloud Run"
+  ],
+  "sample_input": "// Legacy Rocket On-Prem WCF Service (.NET Framework 4.8 - 2016)\n[ServiceContract(Namespace = \"http://rockethomes.internal/los/pricing/2016\")]\npublic class LegacyEscrowCalculatorService : IEscrowCalculatorService {\n    [OperationContract]\n    public DataTable CalculateMichiganTaxEscrow(string parcelId, decimal taxableValue, bool isHomestead) {\n        SqlConnection conn = new SqlConnection(ConfigurationManager.AppSettings[\"OnPremSqlConn\"]);\n        conn.Open(); // Synchronous blocking I/O + raw string SQL + legacy DataTable!\n        SqlCommand cmd = new SqlCommand(\"SELECT MillageRate FROM CountyMillage WHERE ParcelPrefix = '\" + parcelId.Substring(0,3) + \"'\", conn);\n        decimal mills = (decimal)cmd.ExecuteScalar();\n        if (!isHomestead) mills += 18.0m; // Non-PRE 18-mill school operating tax\n        decimal annualTax = (taxableValue / 1000m) * mills;\n        // ... returns legacy untyped DataTable\n    }\n}",
+  "sandbox_action": "modernize_dotnet_service",
+  "sandbox_params": {
+    "taxable_value": 210000.0,
+    "base_mills": 34.5,
+    "is_homestead": true
+  },
+  "verified_sandbox_output": {
+    "action": "modernize_dotnet_service",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "legacy_anti_patterns_eliminated": "4 Remediated: Synchronous `SqlConnection.Open()`, CWE-89 String Concatenation SQL, Untyped `DataTable`, WCF SOAP Overhead",
+      "michigan_pre_homestead_tax": "$7,245.00/yr ($603.75/mo Escrow at 34.5 Mills)",
+      "michigan_non_pre_second_home_tax": "$11,025.00/yr ($918.75/mo Escrow at 52.5 Mills w/ 18-Mill School Tax)",
+      "target_cloud_run_runtime": ".NET 9 Native AOT Minimal API / Python FastAPI (Cold Start < 140ms)"
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "legacy_dotnet_wcf_transpiler",
+    "homestead": "$7,245.00/yr ($603.75/mo Escrow at 34.5 Mills)",
+    "non_homestead": "$11,025.00/yr ($918.75/mo Escrow at 52.5 Mills w/ 18-Mill School Tax)",
+    "runtime": ".NET 9 Native AOT Minimal API / Python FastAPI (Cold Start < 140ms)",
+    "diff_pairs": [
+      {
+        "legacy": "SqlCommand(\"SELECT MillageRate FROM Counties WHERE Name='\" + county + \"'\")",
+        "modern": "await db.QuerySingleAsync<decimal>(\"SELECT millage_rate FROM counties WHERE name = @County\", new { County = county })"
+      },
+      {
+        "legacy": "[ServiceContract] public class EscrowWcfSoapService : IEscrowSoap",
+        "modern": "app.MapPost(\"/v2/escrow/michigan-millage\", async (MillageRequest req) => ...)"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: modernization_metrics ({cold_start_ms, memory_reduction_pct, sql_injection_fixed}), legacy_issues_removed (list of {anti_pattern, legacy_snippet, modern_fix}), modern_csharp_code (str), and michigan_millage_parity_table (list of {scenario, taxable_value, mills, annual_tax, monthly_escrow}).",
+  "system_prompt": "You are the Rocket Legacy .NET Modernization Architect powered by Gemini Code Assist and Gemini 4 Argon. Refactor the legacy `.NET 4.8` WCF SOAP class and output: (1) Modernization Audit (identifying blocking synchronous SQL I/O, CWE-89 SQL injection, untyped `DataTable` serialization, and hardcoded `ConfigurationManager`), (2) Modernized `.NET 9` Cloud Run Minimal API (`Program.cs` with `async/await`, Dapper/EF Core parameterized queries, typed `record` DTOs, and Secret Manager), (3) Equivalent Python FastAPI Cloud Run microservice + `Dockerfile`, and (4) Verified Michigan PRE vs Non-PRE Millage Tax calculation."
+}
