@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[M.5] Project Air-Tight: Self-Healing Autonomous Compliance Swarm | Google ADK</title>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --clinical-bg: #0A0F18;
+      --clinical-card: #111827;
+      --clinical-panel: #192338;
+      --emerald: #10B981;
+      --emerald-dim: rgba(16, 185, 129, 0.15);
+      --fault-rose: #F43F5E;
+      --rose-dim: rgba(244, 63, 94, 0.16);
+      --laser-blue: #3B82F6;
+      --blue-dim: rgba(59, 130, 246, 0.16);
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border: #263552;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--clinical-bg);
+      color: var(--text-main);
+      font-family: 'Chakra Petch', sans-serif;
+      min-height: 100vh;
+      background-image:
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+      background-size: 36px 36px;
+      padding-bottom: 96px;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Top Clinical Surgery Header */
+    .airtight-header {
+      background: rgba(17, 24, 39, 0.94);
+      border-bottom: 1px solid var(--laser-blue);
+      box-shadow: 0 0 28px rgba(59, 130, 246, 0.16);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .laser-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue-dim);
+      border: 1px solid var(--laser-blue);
+      color: #93C5FD;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 6px;
+    }
+    .clinical-model-select {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--clinical-bg);
+      border: 1px solid var(--emerald);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .clinical-model-select select {
+      background: transparent;
+      color: var(--emerald);
+      border: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+    .clinical-model-select select option { background: #0A0F18; color: #FFFFFF; }
+
+    /* Main Surgery Workspace */
+    .surgery-container {
+      max-width: 1560px;
+      margin: 24px auto;
+      padding: 0 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    /* 4-Stage Self-Healing Pipeline Stepper */
+    .pipeline-stepper {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 1050px) {
+      .pipeline-stepper { grid-template-columns: 1fr 1fr; }
+    }
+    .stage-node {
+      background: var(--clinical-card);
+      border: 1px solid var(--border);
+      border-top: 3px solid var(--laser-blue);
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .stage-node:hover { transform: translateY(-2px); border-color: var(--laser-blue); }
+    .stage-node.fault { border-top-color: var(--fault-rose); }
+    .stage-node.healed {
+      border-top-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.08);
+      border-color: rgba(16, 185, 129, 0.45);
+    }
+    .stage-step-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+
+    /* Side-by-Side Defective vs. Self-Healed Closing Disclosure PDF Diff */
+    .pdf-surgery-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    @media (max-width: 1200px) {
+      .pdf-surgery-grid { grid-template-columns: 1fr; }
+    }
+
+    .pdf-pane {
+      background: var(--clinical-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .pdf-pane.defective { border-top: 4px solid var(--fault-rose); }
+    .pdf-pane.certified { border-top: 4px solid var(--emerald); }
+
+    .pdf-paper-mock {
+      background: #06090F;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.65;
+      flex: 1;
+    }
+    .defect-row {
+      background: var(--rose-dim);
+      border-left: 3px solid var(--fault-rose);
+      padding: 8px 10px;
+      margin: 8px 0;
+      border-radius: 0 4px 4px 0;
+    }
+    .healed-row {
+      background: var(--emerald-dim);
+      border-left: 3px solid var(--emerald);
+      padding: 8px 10px;
+      margin: 8px 0;
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Center Surgical Control Spine */
+    .surgical-controls {
+      background: var(--clinical-card);
+      border: 1px solid var(--laser-blue);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      box-shadow: 0 0 32px rgba(59, 130, 246, 0.12);
+    }
+    .btn-heal {
+      width: 100%;
+      padding: 13px 16px;
+      background: linear-gradient(135deg, var(--emerald), #059669);
+      color: #04130C;
+      border: none;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: 0.15s;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+    }
+    .btn-heal:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="airtight-header">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <span class="laser-badge">🩺 PROJECT AIR-TIGHT // SELF-HEALING LOS SWARM • SQUARE [M.5]</span>
+      <div>
+        <h1 style="font-size:20px;font-weight:700;">Autonomous Pre-Close Diagnostic Pipeline & Self-Healing PDF Surgery Console</h1>
+        <p class="mono" style="font-size:11px;color:#93C5FD;">Google ADK Runtime + Document AI + Headless Playwright LOS Patcher (72 Hours Prior to Closing)</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div class="clinical-model-select">
+        <span>SWARM MODEL:</span>
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
+          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
+          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Fast / ADK Runtime)</option>
+        </select>
+      </div>
+      <button class="btn-heal" style="width:auto;padding:9px 16px;" onclick="window.runLiveVertexAI()">
+        ⚡ Execute Full ADK Self-Heal (/api/run-demo)
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN SURGERY WORKSPACE -->
+  <main class="surgery-container">
+
+    <!-- 4-STAGE INTERACTIVE SELF-HEALING PIPELINE -->
+    <section class="pipeline-stepper">
+      <div class="stage-node" id="pipe-stage-1" onclick="activatePipelineStage(1)">
+        <span class="stage-step-num" style="background:var(--blue-dim);color:#93C5FD;">STAGE 01 // INGEST</span>
+        <h3 style="font-size:15px;font-weight:700;">1. Ingest Loan Packet (T-72h)</h3>
+        <p class="mono" style="font-size:11px;color:var(--text-muted);margin-top:6px;">
+          Document AI parses 148-page Closing Packet: Form 1003, Initial LE, Draft CD v1, Amrock Title Commitment & MI Driver's Licenses.
+        </p>
+      </div>
+
+      <div class="stage-node fault" id="pipe-stage-2" onclick="activatePipelineStage(2)">
+        <span class="stage-step-num" style="background:var(--rose-dim);color:#FDA4AF;">STAGE 02 // DETECT FAULTS</span>
+        <h3 style="font-size:15px;font-weight:700;">2. Detect Missing Co-Borrower Sign & TRID Overcharge</h3>
+        <p class="mono" style="font-size:11px;color:#FDA4AF;margin-top:6px;" id="stage2-desc">
+          3 Blocking Defects Caught: Missing Co-Borrower ('Elena R. Vance') Addendum Sign, Middle Initial Vesting Mismatch, & $485 TRID Overcharge.
+        </p>
+      </div>
+
+      <div class="stage-node" id="pipe-stage-3" onclick="activatePipelineStage(3)">
+        <span class="stage-step-num" style="background:var(--blue-dim);color:#93C5FD;">STAGE 03 // AUTO-CURE</span>
+        <h3 style="font-size:15px;font-weight:700;">3. Auto-Compute Lender Cure & Patch LOS</h3>
+        <p class="mono" style="font-size:11px;color:var(--text-muted);margin-top:6px;" id="stage3-desc">
+          ADK Remediation Agent computes $485.00 Section J Lender Cure, patches vesting to 'Marcus A. Vance', & dispatches e-Sign link.
+        </p>
+      </div>
+
+      <div class="stage-node healed" id="pipe-stage-4" onclick="activatePipelineStage(4)">
+        <span class="stage-step-num" style="background:var(--emerald-dim);color:var(--emerald);">STAGE 04 // RE-RENDER PDF</span>
+        <h3 style="font-size:15px;font-weight:700;">4. Re-Render Certified CD v2 PDF</h3>
+        <p class="mono" style="font-size:11px;color:var(--emerald);margin-top:6px;" id="stage4-desc">
+          0 Violations Remaining — Certified Clear-to-Close Closing Disclosure v2 PDF generated 71 hours prior to signing.
+        </p>
+      </div>
+    </section>
+
+    <!-- SIDE-BY-SIDE DIFF: DEFECTIVE CD v1 VS. SELF-HEALED CERTIFIED CD v2 -->
+    <section class="pdf-surgery-grid">
+
+      <!-- LEFT: DEFECTIVE CLOSING DISCLOSURE v1 -->
+      <div class="pdf-pane defective">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div class="mono" style="font-size:10px;color:var(--fault-rose);font-weight:700;">PRE-SURGERY ARTIFACT // CLOSING_DISCLOSURE_V1_DRAFT.PDF</div>
+            <h2 style="font-size:16px;font-weight:700;margin-top:2px;">Defective Closing Packet (3 Blocking Faults)</h2>
+          </div>
+          <span class="mono" style="background:var(--rose-dim);border:1px solid var(--fault-rose);color:#FDA4AF;padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:700;">
+            REJECTED BY AUDIT
+          </span>
+        </div>
+
+        <div class="pdf-paper-mock">
+          <div style="color:var(--text-muted);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:10px;">
+            FILE: #RKT-2026-884920 • PROPERTY: 1420 VINSETTA BLVD, ROYAL OAK MI
+          </div>
+
+          <div class="defect-row">
+            <div style="color:#FDA4AF;font-weight:700;">[FAULT #01 — VESTING & CO-BORROWER SIGNATURE DEFECT]</div>
+            <div>CD Page 1 Vesting: <code>"Marcus Vance"</code> (Omits middle initial <code>"A."</code> on MI Driver's License & Warranty Deed)</div>
+            <div>Co-Borrower Signature Line (Page 5): <code>[MISSING_SIGNATURE_TOKEN: ELENA R. VANCE]</code></div>
+          </div>
+
+          <div class="defect-row">
+            <div style="color:#FDA4AF;font-weight:700;">[FAULT #02 — 0% ZERO-TOLERANCE BUCKET OVERCHARGE]</div>
+            <div>Section B Appraisal Fee: Initial LE <code>$550.00</code> → Draft CD <code id="def-zero-val">$800.00 (+$250.00 Unapproved Rush Fee)</code></div>
+            <div>Violation: 12 CFR § 1026.19(e)(3)(i) Zero-Tolerance Breach (No Valid COC).</div>
+          </div>
+
+          <div class="defect-row">
+            <div style="color:#FDA4AF;font-weight:700;">[FAULT #03 — 10% CUMULATIVE BUCKET OVERAGE]</div>
+            <div>Section C & E Recording/Title: 110% Cap <code>$715.00</code> → Draft CD <code id="def-ten-val">$950.00 (+$235.00 Overage)</code></div>
+            <div>Section J Lender Tolerance Credit: <code>$0.00 (MISSING MANDATORY CURE!)</code></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CENTER: SURGICAL SELF-HEALING PARAMETERS -->
+      <div class="surgical-controls">
+        <div>
+          <div class="mono" style="font-size:11px;color:var(--laser-blue);font-weight:700;text-transform:uppercase;margin-bottom:8px;">
+            🔧 Autonomous Surgery Controls
+          </div>
+          <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;margin-bottom:14px;">
+            Adjust the detected TRID tolerance breaches below and trigger the 4-stage self-healing pipeline (`run_airtight_self_heal` / `run_airtight_healing`).
+          </p>
+
+          <div style="margin-bottom:12px;">
+            <label class="mono" style="font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:4px;">0% Bucket Appraisal Overcharge ($):</label>
+            <input type="number" id="inp-zero-breach" value="250" oninput="runAirTightSandbox()"
+              style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);background:#06090F;color:#FDA4AF;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;">
+          </div>
+
+          <div style="margin-bottom:12px;">
+            <label class="mono" style="font-size:10.5px;color:var(--text-muted);display:block;margin-bottom:4px;">10% Bucket Recording Overage ($):</label>
+            <input type="number" id="inp-ten-breach" value="235" oninput="runAirTightSandbox()"
+              style="width:100%;padding:9px 12px;border-radius:6px;border:1px solid var(--border);background:#06090F;color:#FDA4AF;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;">
+          </div>
+
+          <div style="background:#06090F;border:1px solid var(--emerald);border-radius:8px;padding:12px;text-align:center;margin-top:14px;">
+            <div class="mono" style="font-size:10px;color:var(--text-muted);">AUTO-COMPUTED SECTION J CURE</div>
+            <div class="mono" id="center-cure-total" style="font-size:26px;font-weight:800;color:var(--emerald);margin-top:4px;">$485.00</div>
+            <div class="mono" style="font-size:10px;color:var(--emerald);margin-top:2px;">Patched via Playwright LOS Agent</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="mono" id="airtight-latency-lbl" style="font-size:10.5px;color:var(--text-muted);text-align:center;margin-bottom:8px;">
+            gVisor Sandbox Ready
+          </div>
+          <button class="btn-heal" onclick="runAirTightSandbox()">
+            🩺 Run Self-Healing PDF Surgery (/api/sandbox)
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: SELF-HEALED CERTIFIED CLOSING DISCLOSURE v2 -->
+      <div class="pdf-pane certified">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div class="mono" style="font-size:10px;color:var(--emerald);font-weight:700;">POST-SURGERY ARTIFACT // CLOSING_DISCLOSURE_V2_CERTIFIED.PDF</div>
+            <h2 style="font-size:16px;font-weight:700;margin-top:2px;">Self-Healed Closing Disclosure (Clear to Close)</h2>
+          </div>
+          <span class="mono" style="background:var(--emerald-dim);border:1px solid var(--emerald);color:var(--emerald);padding:3px 9px;border-radius:4px;font-size:10.5px;font-weight:700;">
+            ✅ 0 DEFECTS • CTC
+          </span>
+        </div>
+
+        <div class="pdf-paper-mock">
+          <div style="color:var(--text-muted);border-bottom:1px solid var(--border);padding-bottom:6px;margin-bottom:10px;">
+            FILE: #RKT-2026-884920-V2 • SHA-256: 9f84e2a1...c40b • CLEAR TO CLOSE
+          </div>
+
+          <div class="healed-row">
+            <div style="color:var(--emerald);font-weight:700;">[HEALED #01 — VESTING RECONCILED & CO-BORROWER E-SIGN COMPLETED]</div>
+            <div>CD Page 1 Vesting Patched: <code>"Marcus A. Vance and Elena R. Vance, Husband and Wife"</code> (Matches MI Driver's License OCR & Amrock Deed)</div>
+            <div>Co-Borrower Signature Line (Page 5): <code>[DOCUSIGN_VERIFIED: ELENA R. VANCE • IP 73.142.88.19]</code></div>
+          </div>
+
+          <div class="healed-row">
+            <div style="color:var(--emerald);font-weight:700;">[HEALED #02 — 12 CFR § 1026.19(f)(2)(v) LENDER TOLERANCE CURE APPLIED]</div>
+            <div>CD Page 2, Section J (Lender Credits): <code id="heal-cure-line">-$485.00 (Includes $250.00 Zero-Bucket + $235.00 10%-Bucket Cure)</code></div>
+            <div>Net Cash to Close Reduced by <strong id="heal-cash-delta">$485.00</strong> — No 3-Day Waiting Period Reset Required!</div>
+          </div>
+
+          <div class="healed-row">
+            <div style="color:var(--emerald);font-weight:700;">[HEALED #03 — AUTOMATED SECONDARY MARKET & FANNIE MAE UCD CHECK]</div>
+            <div>Uniform Closing Dataset (UCD) XML Validated: <code>0 Fatal Edits • 100% GSE Deliverable</code></div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- BOTTOM ADK EXECUTION LOG -->
+    <section style="background:var(--clinical-card);border:1px solid var(--border);border-left:4px solid var(--emerald);border-radius:10px;padding:16px 20px;">
+      <div class="mono" style="font-size:11px;color:var(--emerald);font-weight:700;margin-bottom:6px;">
+        🤖 GOOGLE ADK AUTONOMOUS SELF-HEALING EXECUTION LOG (`run_airtight_self_heal`)
+      </div>
+      <div id="airtight-ai-log" class="mono" style="font-size:12px;line-height:1.65;color:var(--text-main);">
+        [STAGE 1 -> 4 COMPLETE]: Document AI caught 3 pre-closing defects at T-72h. Google ADK Remediation Agent computed the mandatory $485.00 Section J Lender Tolerance Cure, reconciled borrower middle initial vesting against Michigan Driver's License OCR, and re-rendered Closing Disclosure v2 PDF.
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    function activatePipelineStage(stageNum) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById('pipe-stage-' + i);
+        if (el) el.style.boxShadow = (i === stageNum) ? '0 0 24px rgba(59, 130, 246, 0.45)' : 'none';
+      }
+      runAirTightSandbox();
+    }
+
+    async function runAirTightSandbox() {
+      const zBreach = parseFloat(document.getElementById('inp-zero-breach').value || 250);
+      const tBreach = parseFloat(document.getElementById('inp-ten-breach').value || 235);
+      const totalCure = zBreach + tBreach;
+
+      document.getElementById('center-cure-total').innerText = '$' + totalCure.toFixed(2);
+      document.getElementById('def-zero-val').innerText = `$${ (550 + zBreach).toFixed(2) } (+$${zBreach.toFixed(2)} Unapproved Rush Fee)`;
+      document.getElementById('def-ten-val').innerText = `$${ (715 + tBreach).toFixed(2) } (+$${tBreach.toFixed(2)} Overage)`;
+      document.getElementById('heal-cure-line').innerText = `-$${totalCure.toFixed(2)} (Includes $${zBreach.toFixed(2)} Zero-Bucket + $${tBreach.toFixed(2)} 10%-Bucket Cure)`;
+      document.getElementById('heal-cash-delta').innerText = '$' + totalCure.toFixed(2);
+
+      try {
+        const res = await fetch('/api/sandbox', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: 'M.5',
+            action: 'run_airtight_healing',
+            params: {
+              secondary_action: 'run_airtight_self_heal',
+              zero_bucket_breach: zBreach,
+              ten_pct_breach: tBreach
+            }
+          })
+        });
+        const data = await res.json();
+        const m = data.metrics || {};
+        document.getElementById('airtight-latency-lbl').innerText = `Sandbox Verified (${data.execution_ms || 1.1}ms)`;
+        document.getElementById('stage2-desc').innerText = m.stage_1_docai_anomalies || '';
+        document.getElementById('stage3-desc').innerText = m.stage_2_argon_remediation || '';
+        document.getElementById('stage4-desc').innerText = m.stage_4_post_patch_verification || '';
+      } catch (e) {}
+    }
+
+    window.runLiveVertexAI = async function() {
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-3.8-flash';
+      const zBreach = parseFloat(document.getElementById('inp-zero-breach').value || 250);
+      const tBreach = parseFloat(document.getElementById('inp-ten-breach').value || 235);
+      const logEl = document.getElementById('airtight-ai-log');
+      logEl.innerText = `Executing 4-Stage Self-Healing Compliance Swarm with ${model}...`;
+
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: 'M.5',
+            model: model,
+            user_input: `Execute the 4-stage self-healing pipeline for Loan #RKT-2026-884920: cure the $${zBreach} 0% bucket overcharge and $${tBreach} 10% bucket overage, patch middle initial vesting, and certify Closing Disclosure v2.`,
+            params: { zero_bucket_breach: zBreach, ten_pct_breach: tBreach }
+          })
+        });
+        const data = await res.json();
+        logEl.innerHTML = `<span style="color:var(--emerald);font-weight:700;">[${data.model_used || model} // SELF-HEALING SWARM]:</span> ${data.output || 'Closing Disclosure v2 certified.'}`;
+      } catch (e) {
+        logEl.innerText = "Swarm Error: " + e.message;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      runAirTightSandbox();
+    });
+  </script>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5" selected style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon"  style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash" selected style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [M.5] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Project Air-Tight: Self-Healing Autonomous Compliance Swarm</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/M.5?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-3.8-flash</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Autonomous Pre-Closing Gate Trigger #AIRTIGHT-904:
+- Loan #RKT-2026-99418 scheduled for closing in 72 hours (Wayne County, MI — $410,000 Purchase).
+- Document AI scan of Draft Closing Disclosure v1 detected:
+  1) Appraisal Rush Fee ($250.00) added to Section A/B (0% Tolerance Bucket) without a timely Changed Circumstance (COC) within 3 business days of the event.
+  2) Recording Fee + Transfer Tax in Section E increased by $235.00 over the 10% cumulative cap.
+  3) Borrower's middle initial on CD Page 1 ('Marcus J. Vance') does not match Warranty Deed ('Marcus A. Vance').</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "M.5";
+  window.ACTIVE_PROJECT = {"code": "M.5", "level": "L300", "tags": ["L300"], "tool": "Document AI + Antigravity Self-Healing Browser Swarm", "project": "Project Air-Tight: Self-Healing Autonomous Compliance Swarm", "focus": "Detect TRID/RESPA disclosure breaches via Document AI, compute the cure credit, draft the Legal Settlement Addendum, and auto-patch the LOS via a headless browser agent.", "desc": "The ultimate zero-touch closing guardian: scans every Closing Disclosure 96 hours before signing, detects fee tolerance or APR breaches, calculates the exact cure, drafts the addendum, and uses an Antigravity headless browser agent to apply the credit in the LOS and re-verify.", "url": "https://antigravity.google", "serviceText": "Google Antigravity Browser Agent & Document AI", "serviceUrl": "https://antigravity.google", "gcpStack": ["Document AI", "Gemini 4 Argon", "Google Antigravity Headless Browser Subagent", "Cloud Run"], "competeEdge": "Closes the loop from 'AI detected a compliance issue' to 'Autonomous browser agent applied the $485 Section J cure credit in the legacy LOS UI and re-verified 0 violations'.", "sampleInput": "Autonomous Pre-Closing Gate Trigger #AIRTIGHT-904:\n- Loan #RKT-2026-99418 scheduled for closing in 72 hours (Wayne County, MI \u2014 $410,000 Purchase).\n- Document AI scan of Draft Closing Disclosure v1 detected:\n  1) Appraisal Rush Fee ($250.00) added to Section A/B (0% Tolerance Bucket) without a timely Changed Circumstance (COC) within 3 business days of the event.\n  2) Recording Fee + Transfer Tax in Section E increased by $235.00 over the 10% cumulative cap.\n  3) Borrower's middle initial on CD Page 1 ('Marcus J. Vance') does not match Warranty Deed ('Marcus A. Vance').", "sandboxAction": "run_airtight_healing", "sandboxParams": {"zero_bucket_breach": 250.0, "ten_pct_breach": 235.0, "name_mismatch": true}, "systemPrompt": "You are Project Air-Tight, the Self-Healing Autonomous Compliance Swarm powered by Document AI, Gemini 4 Argon, and Google Antigravity Browser Agents. Output: (1) Multi-Stage Self-Healing Execution Trace (`[Stage 1: Document AI Anomaly Detection] -> [Stage 2: Argon Cure & Deed Reconciliation] -> [Stage 3: Antigravity Headless Browser LOS Patch] -> [Stage 4: Post-Patch CD v2 Re-Verification = PASS]`), (2) Exact Cure Calculation ($250 + $235 = $485.00 Lender Tolerance Cure applied to Section J + Vesting Name corrected to 'Marcus A. Vance' per birth/driver license OCR), and (3) Final Certified Clear-to-Close Seal.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502      M.5 PROJECT AIR-TIGHT: SELF-HEALING COMPLIANCE SWARM (L300)       \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Draft Closing Disclosure v1: $485 Tolerance Breach + Vesting Typo]   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Antigravity Self-Healing Loop (Gemini 4 Argon + Browser Agent)]      \u2502\n\u2502  \u251c\u2500\u25ba 1. Computes $485.00 Section J Lender Cure Credit                  \u2502\n\u2502  \u251c\u2500\u25ba 2. Reconciles 'Marcus A. Vance' against Driver's License OCR      \u2502\n\u2502  \u251c\u2500\u25ba 3. Browser Subagent updates LOS UI & regenerates CD v2 PDF        \u2502\n\u2502  \u2514\u2500\u25ba 4. Re-runs Document AI verification -> 0 Violations (CERTIFIED)   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Certified Closing Package Dispatched to Rocket Close Signing Table]  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Trigger the Air-Tight Cloud Run pipeline when a draft Closing Disclosure PDF lands in the pre-closing GCS bucket.", "Run Document AI + `gemini-4-argon` to compute the exact Section J tolerance cure and cross-check borrower vesting names against government ID OCR.", "Invoke the Antigravity Browser Subagent (Playwright in gVisor sandbox) to apply the cure credit in the LOS UI and re-verify the regenerated CD PDF."], "codeSnippet": "# Self-Healing Verification Loop\ncure_amount = 250.00 + 235.00  # $485.00 Section J Lender Tolerance Cure\nawait browser_agent(f\"Navigate to LOS Loan #RKT-2026-99418 -> Section J -> Enter Lender Credit ${cure_amount} -> Regenerate CD\")\nverified = await docai_verifier(\"gs://rocket-closings/RKT-2026-99418/CD_v2.pdf\")\nassert verified.violation_count == 0", "dept_id": "moonshots", "dept_short": "7. Google CE Moonshots", "dept_full": "7. Google Customer Engineering Moonshots (Disruptive Gemini 4 Argon Prototypes)", "demo_service_url": "https://rocket-demo-moonshots-254356041555.us-central1.run.app/?case=M.5", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/M.5"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Autonomous Pre-Closing Gate Trigger #AIRTIGHT-904:\\n- Loan #RKT-2026-99418 scheduled for closing in 72 hours (Wayne County, MI \u2014 $410,000 Purchase).\\n- Document AI scan of Draft Closing Disclosure v1 detected:\\n  1) Appr...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are Project Air-Tight, the Self-Healing Autonomous Compliance Swarm powered by Document AI, Gemini 4 Argon, and Google Antigravity Browser Agents. Output: (1) Multi-Stage Self-...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Autonomous Pre-Closing Gate Trigger #AIRTIGHT-904:\\n- Loan #RKT-2026-99418 scheduled for closing in 72 hours (Wayne County, MI \u2014 $410,000 Purchase).\\n- Document AI scan of Draft Closing Disclosure v1 detected:\\n  1) Appr...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are Project Air-Tight, the Self-Healing Autonomous Compliance Swarm powered by Document AI, Gemini 4 Argon, and Google Antigravity Browser Agents. Output: (1) Multi-Stage Self-...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-3.8-flash";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-3.8-flash");
+  });
+</script>
+
+</body>
+</html>

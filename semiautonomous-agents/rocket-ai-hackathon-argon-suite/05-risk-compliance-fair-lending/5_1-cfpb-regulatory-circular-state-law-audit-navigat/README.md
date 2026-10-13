@@ -1,7 +1,7 @@
 # `[5.1]` CFPB Regulatory Circular & State Law Audit Navigator
 
 > **Bespoke App:** **Rocket Legal & NotebookLM // CFPB RESPA Section 8 & State Law Redline Vault** (`cfpb_respa_regulatory_diff_vault`)  
-> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + Vertex AI`  
+> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash`  
 > **Shared Login:** Username `rocket` | Password `Argon2026!`
 
 - **🚀 Launch Live Bespoke Demo (Cloud Run):** [https://rocket-demo-compliance-254356041555.us-central1.run.app/?case=5.1](https://rocket-demo-compliance-254356041555.us-central1.run.app/?case=5.1)

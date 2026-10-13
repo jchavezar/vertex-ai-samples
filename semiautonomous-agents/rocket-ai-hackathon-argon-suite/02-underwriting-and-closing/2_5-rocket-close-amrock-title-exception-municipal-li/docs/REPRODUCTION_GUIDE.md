@@ -6,7 +6,7 @@
 | **Bespoke Application Title** | **Rocket Close (Amrock) // Schedule B-II Title Exception & ALTA Endorsement Clearer** (`amrock_title_curative_map`) |
 | **Business Domain** | 2. Operations, Underwriting & Closing (Rocket Logic Fulfillment & Rocket Close Title) (`rocket-demo-underwriting`) |
 | **Complexity Level** | `L300` |
-| **Active Model & Runtime** | **`gemini-3.8-flash`** — Gemini Enterprise streamAssist API (v1alpha) + Vertex AI |
+| **Active Model & Runtime** | **`gemini-3.8-flash`** — Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash |
 | **Live Interactive Demo** | [https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.5](https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.5) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.5](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.5) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |

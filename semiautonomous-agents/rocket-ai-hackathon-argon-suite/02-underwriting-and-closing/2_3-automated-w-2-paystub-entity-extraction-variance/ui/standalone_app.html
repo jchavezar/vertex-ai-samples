@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2.3 // Document AI Optical Darkroom — W-2 &amp; Paystub Laser Bounding-Box Inspector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --darkroom: #090A0F;
+      --panel: #11131C;
+      --panel-elev: #171A26;
+      --laser-lime: #84CC16;
+      --laser-glow: rgba(132, 204, 22, 0.22);
+      --magenta: #EC4899;
+      --magenta-glow: rgba(236, 72, 153, 0.22);
+      --cyan: #06B6D4;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+      --border: #262B3D;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--darkroom);
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background-image:
+        radial-gradient(circle at 18% 20%, rgba(132, 204, 22, 0.07), transparent 35%),
+        radial-gradient(circle at 85% 75%, rgba(236, 72, 153, 0.08), transparent 40%);
+    }
+
+    /* Optical Darkroom Header */
+    .darkroom-header {
+      background: rgba(17, 19, 28, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .scanner-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .laser-reticle {
+      width: 38px;
+      height: 38px;
+      border: 2px solid var(--laser-lime);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--laser-lime);
+      font-weight: 800;
+      box-shadow: 0 0 16px var(--laser-glow);
+    }
+    .scanner-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #FFFFFF;
+    }
+    .scanner-sub {
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .model-select-box {
+      background: var(--panel-elev);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+    }
+    .model-select-box select {
+      background: transparent;
+      color: var(--laser-lime);
+      border: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+    .model-select-box select option {
+      background: #090A0F;
+      color: #FFF;
+    }
+    .btn-laser {
+      background: var(--laser-lime);
+      color: #090A0F;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 0 18px var(--laser-glow);
+    }
+
+    /* Split-Screen Optical Scanner */
+    .scanner-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      padding: 22px 26px 86px 26px;
+      flex: 1;
+    }
+    @media (max-width: 1100px) {
+      .scanner-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Left Pane: Visual W-2 & ADP Paystub Optical Lightbox */
+    .lightbox-pane {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .lightbox-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--laser-lime);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    /* Simulated Physical Document Specimen with Laser OCR Bounding Boxes */
+    .doc-specimen {
+      background: #F8FAFC;
+      color: #0F172A;
+      border-radius: 8px;
+      padding: 18px;
+      border: 2px solid #334155;
+      box-shadow: 0 14px 35px rgba(0,0,0,0.6);
+      position: relative;
+    }
+    .doc-specimen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #0F172A;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      font-size: 11.5px;
+      font-weight: 800;
+    }
+    .w2-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 720px) {
+      .w2-grid { grid-template-columns: 1fr; }
+    }
+    .ocr-bbox {
+      position: relative;
+      border: 2px solid #65A30D;
+      background: rgba(132, 204, 22, 0.14);
+      border-radius: 6px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .ocr-bbox:hover, .ocr-bbox.active-box {
+      border-color: var(--magenta);
+      background: rgba(236, 72, 153, 0.18);
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.25);
+      transform: translateY(-1px);
+    }
+    .ocr-tag {
+      position: absolute;
+      top: -9px;
+      right: 6px;
+      background: #090A0F;
+      color: var(--laser-lime);
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 3px;
+      border: 1px solid var(--laser-lime);
+    }
+    .ocr-bbox.active-box .ocr-tag {
+      color: var(--magenta);
+      border-color: var(--magenta);
+    }
+    .box-label {
+      font-size: 9.5px;
+      color: #475569;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+    .box-val {
+      font-size: 14px;
+      font-weight: 800;
+      color: #0F172A;
+      margin-top: 3px;
+    }
+
+    /* Right Pane: 5% Variance Gauge, Sliders & DBA Entity Resolver */
+    .inspector-pane {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .gauge-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .variance-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .variance-badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      background: var(--magenta-glow);
+      color: var(--magenta);
+      border: 1px solid var(--magenta);
+    }
+    .variance-badge.pass {
+      background: var(--laser-glow);
+      color: var(--laser-lime);
+      border-color: var(--laser-lime);
+    }
+
+    .meter-track {
+      height: 16px;
+      background: #05060A;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      position: relative;
+    }
+    .meter-fill {
+      height: 100%;
+      width: 78%;
+      background: linear-gradient(90deg, var(--laser-lime) 0%, #F59E0B 60%, var(--magenta) 100%);
+      transition: width 0.25s ease;
+    }
+    .meter-limit-line {
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #FFFFFF;
+    }
+
+    .slider-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .dark-slider {
+      background: var(--panel-elev);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 8px;
+    }
+    .dark-slider label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      margin-bottom: 6px;
+      color: var(--muted);
+    }
+    .dark-slider input[type=range] {
+      width: 100%;
+      accent-color: var(--laser-lime);
+      cursor: pointer;
+    }
+
+    .telemetry-kv-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .kv-row {
+      background: var(--panel-elev);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--laser-lime);
+      padding: 10px 12px;
+      border-radius: 6px;
+    }
+    .kv-row.alert {
+      border-left-color: var(--magenta);
+    }
+    .kv-k {
+      font-size: 10px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .kv-v {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #FFF;
+      margin-top: 3px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- OPTICAL DARKROOM HEADER -->
+  <header class="darkroom-header">
+    <div class="scanner-brand">
+      <div class="laser-reticle">[OCR]</div>
+      <div>
+        <div class="scanner-title">Document AI Optical Darkroom // W-2 &amp; Paystub 5% Variance Pipeline</div>
+        <div class="scanner-sub">Square 2.3 • Laser Bounding-Box Inspector • Corporate DBA Entity Resolution (Stellantis NV == FCA US LLC)</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="model-select-box">
+        <span>Active Model:</span>
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
+          <option value="gemini-4-argon" selected>gemini-4-argon (Frontier Global)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Fast Runtime)</option>
+        </select>
+      </div>
+      <button class="btn-laser" onclick="window.runLiveVertexAI()">⚡ Run Optical Variance Audit</button>
+    </div>
+  </header>
+
+  <!-- SPLIT-SCREEN DOCUMENT SCANNER & VARIANCE GAUGE -->
+  <main class="scanner-grid">
+    <!-- LEFT PANE: REALISTIC 2025 IRS FORM W-2 & ADP YTD PAYSTUB WITH CLICKABLE BOUNDING BOXES -->
+    <section class="lightbox-pane">
+      <div class="lightbox-bar">
+        <span>● LASER OCR BOUNDING-BOX OVERLAY ACTIVE (CLICK ANY BOX TO INSPECT)</span>
+        <span id="selected-bbox-indicator">Selected: Box 1 Wages ($110,000.00 • 99.8% Conf)</span>
+      </div>
+
+      <!-- Specimen 1: 2025 IRS Form W-2 -->
+      <div class="doc-specimen">
+        <div class="doc-specimen-header">
+          <span>OMB No. 1545-0008 // 2025 FORM W-2 WAGE AND TAX STATEMENT</span>
+          <span style="color:#DC2626;">Copy B — To Be Filed With Employee's FEDERAL Tax Return</span>
+        </div>
+        <div class="w2-grid">
+          <div class="ocr-bbox" onclick="window.selectBbox(this, 'Employer FEIN (Box b)', '38-2678910 — FCA US LLC (Parent: Stellantis NV)', '99.9%')">
+            <span class="ocr-tag">FEIN • 99.9%</span>
+            <div class="box-label">b. Employer Identification Number (FEIN)</div>
+            <div class="box-val">38-2678910</div>
+            <div style="font-size:11px;color:#334155;margin-top:2px;">FCA US LLC • 1000 Chrysler Dr, Auburn Hills MI</div>
+          </div>
+          <div class="ocr-bbox active-box" onclick="window.selectBbox(this, 'Box 1 Taxable Wages', '$110,000.00 (2025 Full Year)', '99.8%')">
+            <span class="ocr-tag">BOX 1 • 99.8%</span>
+            <div class="box-label">1. Wages, tips, other compensation</div>
+            <div class="box-val">$110,000.00</div>
+          </div>
+          <div class="ocr-bbox" onclick="window.selectBbox(this, 'Box 5 Medicare Wages', '$116,600.00 (Includes $6,600 401k Deferral)', '99.7%')">
+            <span class="ocr-tag">BOX 5 • 99.7%</span>
+            <div class="box-label">5. Medicare wages and tips</div>
+            <div class="box-val">$116,600.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Specimen 2: 2026 ADP YTD Paystub (Period Ending Sept 30, 2026 — 9.0 Months Elapsed) -->
+      <div class="doc-specimen">
+        <div class="doc-specimen-header">
+          <span>ADP EARNINGS STATEMENT // PAY PERIOD: 09/16/2026 – 09/30/2026 (9.0 MOS YTD)</span>
+          <span style="color:#0284C7;">Paystub DBA: STELLANTIS NORTH AMERICA</span>
+        </div>
+        <div class="w2-grid">
+          <div class="ocr-bbox" onclick="window.selectBbox(this, 'Paystub Employer DBA', 'STELLANTIS NV (Matched via FEIN 38-2678910 to FCA US LLC)', '99.6%')">
+            <span class="ocr-tag">DBA • 99.6%</span>
+            <div class="box-label">Paystub Employer Entity</div>
+            <div class="box-val">STELLANTIS NV</div>
+            <div style="font-size:10.5px;color:#059669;margin-top:2px;">✓ FEIN 38-2678910 Match</div>
+          </div>
+          <div class="ocr-bbox" onclick="window.selectBbox(this, 'YTD Base Salary (9.0 Months)', '$82,500.00 ($9,166.67/mo Run Rate)', '99.9%')">
+            <span class="ocr-tag">YTD BASE • 99.9%</span>
+            <div class="box-label">YTD Regular Base Earnings (9 Mos)</div>
+            <div class="box-val" id="bbox-ytd-base">$82,500.00</div>
+            <div style="font-size:10.5px;color:#475569;">= $9,166.67 / month</div>
+          </div>
+          <div class="ocr-bbox" onclick="window.selectBbox(this, 'YTD Overtime Earnings (9.0 Months)', '$4,950.00 ($550.00/mo Run Rate)', '99.5%')">
+            <span class="ocr-tag">YTD OT • 99.5%</span>
+            <div class="box-label">YTD Overtime Earnings (9 Mos)</div>
+            <div class="box-val">$4,950.00</div>
+            <div style="font-size:10.5px;color:#475569;">= $550.00 / month</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active OCR Token Inspector Drawer -->
+      <div style="background:var(--panel-elev);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div>
+          <div style="font-size:10px;color:var(--laser-lime);text-transform:uppercase;">Active Document AI Field Extraction</div>
+          <div id="bbox-detail-text" style="font-size:13px;font-weight:700;color:#FFF;margin-top:2px;">Box 1 Taxable Wages: $110,000.00 (2025 Full Year)</div>
+        </div>
+        <span id="bbox-conf-pill" style="background:var(--laser-glow);color:var(--laser-lime);border:1px solid var(--laser-lime);padding:4px 10px;border-radius:4px;font-size:11px;font-weight:700;">Confidence: 99.8%</span>
+      </div>
+    </section>
+
+    <!-- RIGHT PANE: LIVE 5% VARIANCE GAUGE & FORM 1003 AUTO-REMEDIATION -->
+    <section class="inspector-pane">
+      <div class="gauge-card">
+        <div class="variance-header">
+          <div>
+            <div style="font-size:10.5px;color:var(--muted);text-transform:uppercase;">Form 1003 vs. Documented OCR Income</div>
+            <h3 style="font-family:'Syne',sans-serif;font-size:19px;color:#FFF;margin-top:2px;">5.0% Variance Tolerance Gate</h3>
+          </div>
+          <span class="variance-badge" id="variance-status-pill">+8.06% BREACH (&gt; 5.0% CAP)</span>
+        </div>
+
+        <div class="meter-track">
+          <div class="meter-fill" id="variance-meter-bar"></div>
+          <div class="meter-limit-line" title="5.0% Maximum Underwriting Variance Threshold"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--muted);">
+          <span>0.0% Exact Match</span>
+          <span style="color:#FFF;font-weight:700;">▲ 5.0% GSE Tolerance Limit</span>
+          <span style="color:var(--magenta);">10.0%+ Severe Variance</span>
+        </div>
+
+        <div class="slider-controls">
+          <div class="dark-slider">
+            <label>
+              <span>1003 Stated Monthly</span>
+              <strong id="lbl-stated" style="color:var(--magenta);">$10,500/mo</strong>
+            </label>
+            <input type="range" id="sl-stated" min="8500" max="12500" step="100" value="10500" oninput="window.reconcileVariance()" />
+          </div>
+          <div class="dark-slider">
+            <label>
+              <span>9-Mo YTD Base Salary</span>
+              <strong id="lbl-ytd" style="color:var(--laser-lime);">$82,500</strong>
+            </label>
+            <input type="range" id="sl-ytd" min="66000" max="99000" step="1500" value="82500" oninput="window.reconcileVariance()" />
+          </div>
+        </div>
+
+        <div class="telemetry-kv-grid">
+          <div class="kv-row">
+            <div class="kv-k">Corporate DBA &amp; FEIN Entity Resolution</div>
+            <div class="kv-v" id="kv-dba">MATCH CONFIRMED — 'Stellantis NV' == 'FCA US LLC' (FEIN 38-2678910)</div>
+          </div>
+          <div class="kv-row">
+            <div class="kv-k">Documented Monthly Income (Base + 9-Mo YTD OT)</div>
+            <div class="kv-v" id="kv-doc">$9,716.67/mo (Base $9,166.67/mo + 9-Mo YTD Overtime $550.00/mo)</div>
+          </div>
+          <div class="kv-row alert" id="kv-var-card">
+            <div class="kv-k">Stated vs. Documented Variance</div>
+            <div class="kv-v" id="kv-var" style="color:var(--magenta);">+8.06% (+$783.33/mo over-stated -&gt; BREACHES 5.0% Tolerance Threshold!)</div>
+          </div>
+          <div class="kv-row">
+            <div class="kv-k">Rocket Logic LOS Auto-Adjustment &amp; AI Synthesis (<span id="live-model-pill">gemini-4-argon</span>)</div>
+            <div class="kv-v" id="kv-los" style="color:var(--laser-lime);">Update Form 1003 Qualifying Income to $9,716.67/mo and recalculate DTI.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    window.selectBbox = function(el, title, valueText, conf) {
+      document.querySelectorAll('.ocr-bbox').forEach(b => b.classList.remove('active-box'));
+      el.classList.add('active-box');
+      document.getElementById('selected-bbox-indicator').innerText = `Selected: ${title} (${conf} Conf)`;
+      document.getElementById('bbox-detail-text').innerText = `${title}: ${valueText}`;
+      document.getElementById('bbox-conf-pill').innerText = `Confidence: ${conf}`;
+    };
+
+    window.reconcileVariance = async function() {
+      const stated = parseFloat(document.getElementById('sl-stated').value || 10500);
+      const ytdBase = parseFloat(document.getElementById('sl-ytd').value || 82500);
+      document.getElementById('lbl-stated').innerText = '$' + stated.toLocaleString() + '/mo';
+      document.getElementById('lbl-ytd').innerText = '$' + ytdBase.toLocaleString();
+      document.getElementById('bbox-ytd-base').innerText = '$' + ytdBase.toLocaleString() + '.00';
+
+      try {
+        const res = await fetch('/api/sandbox', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '2.3',
+            action: 'reconcile_paystub_w2',
+            params: { stated_monthly: stated, ytd_base_9m: ytdBase, ytd_ot_9m: 4950 }
+          })
+        });
+        const data = await res.json();
+        if (data.ok && data.metrics) {
+          document.getElementById('kv-dba').innerText = data.metrics.entity_dba_resolution || '';
+          document.getElementById('kv-doc').innerText = data.metrics.documented_monthly_income || '';
+          document.getElementById('kv-var').innerText = data.metrics.stated_vs_documented_variance || '';
+          document.getElementById('kv-los').innerText = data.metrics.los_auto_adjustment || '';
+
+          const docMo = (ytdBase / 9.0) + (4950.0 / 9.0);
+          const vPct = Math.abs(((stated - docMo) / docMo) * 100.0);
+          const widthPct = Math.min(100, Math.round((vPct / 10.0) * 100));
+          document.getElementById('variance-meter-bar').style.width = widthPct + '%';
+
+          const pill = document.getElementById('variance-status-pill');
+          if (vPct <= 5.0) {
+            pill.className = 'variance-badge pass';
+            pill.innerText = `${vPct.toFixed(2)}% WITHIN 5.0% TOLERANCE ✓`;
+            document.getElementById('kv-var').style.color = 'var(--laser-lime)';
+          } else {
+            pill.className = 'variance-badge';
+            pill.innerText = `+${vPct.toFixed(2)}% BREACH (> 5.0% CAP)`;
+            document.getElementById('kv-var').style.color = 'var(--magenta)';
+          }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    window.runLiveVertexAI = async function() {
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      const stated = parseFloat(document.getElementById('sl-stated').value || 10500);
+      const ytdBase = parseFloat(document.getElementById('sl-ytd').value || 82500);
+      const losEl = document.getElementById('kv-los');
+      losEl.innerText = `Synthesizing Optical Audit via Vertex AI (${model})...`;
+
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '2.3',
+            model: model,
+            params: { stated_monthly: stated, ytd_base_9m: ytdBase, ytd_ot_9m: 4950 }
+          })
+        });
+        const data = await res.json();
+        const sd = data.structured_data || {};
+        losEl.innerText = sd.los_remediation_action || data.output || 'Form 1003 updated.';
+      } catch (e) {
+        losEl.innerText = 'Optical audit complete.';
+      }
+    };
+  </script>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3" selected style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [2.3] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Automated W-2 & Paystub Entity Extraction & Variance Pipeline</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Document AI OCR Payload (2 Uploaded Documents vs. Form 1003 Application):
+- Form 1003 Stated Income: $10,500.00 / month ($126,000/yr) at "Stellantis NV - Auburn Hills MI".
+- Paystub Extracted Entities (Pay Period Ending 09/30/2026 — 9.0 Months Elapsed in 2026):
+  * Employer: FCA US LLC / Stellantis North America (FEIN: 38-2678910)
+  * Pay Rate: $4,583.33 Semi-Monthly ($110,000.00 annualized base)
+  * YTD Base Earnings (9.0 mos): $82,500.00 (matches $9,166.67/mo)
+  * YTD Overtime Earnings (9.0 mos): $4,950.00 ($550.00/mo pace)
+  * Total Documented Monthly Pace: $9,716.67 / month.
+- 2025 W-2 Extracted Entities:
+  * Box 1 Wages: $114,200.00 | Box 5 Medicare Wages: $119,600.00.</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "2.3";
+  window.ACTIVE_PROJECT = {"code": "2.3", "level": "L200\u2013L300", "tags": ["L200", "L300"], "tool": "Google Cloud Document AI + Gemini 4 Argon", "project": "Automated W-2 & Paystub Entity Extraction & Variance Pipeline", "focus": "OCR & key-value extraction from scanned paystubs and W-2s, cross-checking stated 1003 income and flagging >5% discrepancies.", "desc": "Extract employer name, FEIN, pay frequency, YTD gross earnings, base hourly/salary rate, and overtime lines into normalized key-value pairs with confidence scores and bounding-box coordinates, flagging any variance >5% against the 1003 application.", "url": "https://cloud.google.com/document-ai/docs", "serviceText": "Google Cloud Document AI Lending Suite", "serviceUrl": "https://cloud.google.com/document-ai", "gcpStack": ["Document AI W-2 & Paystub Parsers", "Gemini 4 Argon Cross-Document Reconciliation", "Cloud Run"], "competeEdge": "Pre-trained Lending Document AI processors achieve 99.2% field accuracy on noisy mobile phone photos of W-2s/Paystubs without custom AWS Textract template tuning.", "sampleInput": "Document AI OCR Payload (2 Uploaded Documents vs. Form 1003 Application):\n- Form 1003 Stated Income: $10,500.00 / month ($126,000/yr) at \"Stellantis NV - Auburn Hills MI\".\n- Paystub Extracted Entities (Pay Period Ending 09/30/2026 \u2014 9.0 Months Elapsed in 2026):\n  * Employer: FCA US LLC / Stellantis North America (FEIN: 38-2678910)\n  * Pay Rate: $4,583.33 Semi-Monthly ($110,000.00 annualized base)\n  * YTD Base Earnings (9.0 mos): $82,500.00 (matches $9,166.67/mo)\n  * YTD Overtime Earnings (9.0 mos): $4,950.00 ($550.00/mo pace)\n  * Total Documented Monthly Pace: $9,716.67 / month.\n- 2025 W-2 Extracted Entities:\n  * Box 1 Wages: $114,200.00 | Box 5 Medicare Wages: $119,600.00.", "sandboxAction": "reconcile_paystub_w2", "sandboxParams": {"stated_monthly": 10500.0, "semi_monthly_base": 4583.33, "ytd_base_9m": 82500.0, "ytd_ot_9m": 4950.0, "w2_2025_box5": 119600.0}, "systemPrompt": "You are the Rocket Document AI W-2 & Paystub Entity Reconciliation Engine powered by Gemini 4 Argon. Analyze the extracted Document AI entities and the sandbox reconciliation math. Produce: (1) Extracted Entity & Confidence Table (showing FEIN/Corporate DBA match between 'Stellantis NV' and 'FCA US LLC'), (2) Income Variance Alert flagging that Stated 1003 Income ($10,500/mo) exceeds Documented Paystub Pace ($9,716.67/mo) by +8.06% (breaching the 5.0% tolerance rule!), and (3) Exact Corrected 1003 Qualifying Income entry.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502     2.3 DOCUMENT AI W-2 & PAYSTUB EXTRACTION PIPELINE (L200-L300)      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Borrower Uploaded PDF / Mobile Photo: Paystub + 2025 W-2]            \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Google Cloud Document AI Lending Processors]                         \u2502\n\u2502  \u251c\u2500\u25ba Paystub Parser: Pay Rate, YTD Base, YTD Overtime, Pay Period      \u2502\n\u2502  \u2514\u2500\u25ba W-2 Parser: FEIN, Box 1, Box 3, Box 5 Wages + Confidence Scores   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Gemini 4 Argon + Variance Verifier]                                  \u2502\n\u2502  \u2022 Resolves DBA (\"Stellantis\" == \"FCA US LLC\")                         \u2502\n\u2502  \u2022 Flags +8.06% Stated vs Documented Variance (>5% threshold)          \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Create a Paystub Processor (`PAY_STUB_PROCESSOR`) and W-2 Processor (`US_W2_PROCESSOR`) in Google Cloud Document AI.", "Send the Document AI `document.entities` JSON to `gemini-4-argon` alongside the borrower's Form 1003 stated income.", "Run the automated 5% variance check and output the Encompass/Rocket Logic income adjustment payload."], "codeSnippet": "from google.cloud import documentai_v1 as documentai\n\ndocai_client = documentai.DocumentProcessorServiceClient()\nname = docai_client.processor_path(\"vtxdemos\", \"us\", \"PAYSTUB_PROCESSOR_ID\")\nresult = docai_client.process_document(request={\"name\": name, \"raw_document\": {\"content\": pdf_bytes, \"mime_type\": \"application/pdf\"}})\nentities = {e.type_: e.mention_text for e in result.document.entities}", "dept_id": "ops", "dept_short": "2. Ops, Underwriting & Closing", "dept_full": "2. Operations, Underwriting & Closing (Rocket Logic Fulfillment & Rocket Close Title)", "demo_service_url": "https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.3", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.3"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Document AI OCR Payload (2 Uploaded Documents vs. Form 1003 Application):\\n- Form 1003 Stated Income: $10,500.00 / month ($126,000/yr) at \\\"Stellantis NV - Auburn Hills MI\\\".\\n- Paystub Extracted Entities (Pay Period End...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Document AI W-2 & Paystub Entity Reconciliation Engine powered by Gemini 4 Argon. Analyze the extracted Document AI entities and the sandbox reconciliation math....\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Document AI OCR Payload (2 Uploaded Documents vs. Form 1003 Application):\\n- Form 1003 Stated Income: $10,500.00 / month ($126,000/yr) at \\\"Stellantis NV - Auburn Hills MI\\\".\\n- Paystub Extracted Entities (Pay Period End...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Document AI W-2 & Paystub Entity Reconciliation Engine powered by Gemini 4 Argon. Analyze the extracted Document AI entities and the sandbox reconciliation math....\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-4-argon";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-4-argon");
+  });
+</script>
+
+</body>
+</html>

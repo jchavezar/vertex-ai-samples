@@ -32,7 +32,7 @@
       "scene_breakdown": "0.0-3.5s Autumn Exterior Dolly | 3.5-7.0s Chef Kitchen + '$2,695/mo' Caption | 7.0-11.0s Primary Suite | 11.0-15.0s Redfin+Rocket CTA",
       "watermark_and_compliance": "Google DeepMind SynthID Imperceptible Watermark + NMLS #3030 Equal Housing Overlay Verified"
     },
-    "execution_ms": 0.01
+    "execution_ms": 0.0
   },
   "bespoke_visual_artifact": {
     "archetype": "veo_vertical_reel_storyboard",

@@ -6,7 +6,7 @@
 | **Bespoke Application Title** | **Rocket Legal & NotebookLM // CFPB RESPA Section 8 & State Law Redline Vault** (`cfpb_respa_regulatory_diff_vault`) |
 | **Business Domain** | 5. Risk, Compliance & Legal (CFPB, TRID, Model Armor PII Firewall & Fair Lending) (`rocket-demo-compliance`) |
 | **Complexity Level** | `L100–L200` |
-| **Active Model & Runtime** | **`gemini-3.8-flash`** — Gemini Enterprise streamAssist API (v1alpha) + Vertex AI |
+| **Active Model & Runtime** | **`gemini-3.8-flash`** — Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash |
 | **Live Interactive Demo** | [https://rocket-demo-compliance-254356041555.us-central1.run.app/?case=5.1](https://rocket-demo-compliance-254356041555.us-central1.run.app/?case=5.1) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.1](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.1) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |

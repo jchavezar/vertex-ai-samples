@@ -6,7 +6,7 @@
 | **Bespoke Application Title** | **Project Mirror ('Astra Pro') // Interactive Live Voice & Dynamic Closing-Table Whiteboard** (`project_mirror_live_whiteboard_advisor`) |
 | **Business Domain** | 7. Google Customer Engineering Moonshots (Disruptive Gemini 4 Argon Prototypes) (`rocket-demo-moonshots`) |
 | **Complexity Level** | `L300` |
-| **Active Model & Runtime** | **`gemini-3.8-flash`** — Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash |
+| **Active Model & Runtime** | **`gemini-3.8-flash`** — Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash |
 | **Live Interactive Demo** | [https://rocket-demo-moonshots-254356041555.us-central1.run.app/?case=M.4](https://rocket-demo-moonshots-254356041555.us-central1.run.app/?case=M.4) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/M.4](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/M.4) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |

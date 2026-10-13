@@ -14,8 +14,8 @@ description: Blueprint skill to build and reproduce Rocket AI Hackathon Square [
 
 ## 2. Model & Runtime Routing Policy
 - **Assigned Model:** `gemini-3.8-flash`
-- **Runtime Badge:** `Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash`
-- **Routing Rationale:** Real-time 16kHz->24kHz PCM Bidi Audio via gemini-live-2.5-flash-native-audio (us-central1)
+- **Runtime Badge:** `Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash`
+- **Routing Rationale:** Real-time Bidi Audio via gemini-live-2.5-flash-native-audio + Reasoning via gemini-3.8-flash
 - **Real Gemini Enterprise Engine (for Grounding / streamAssist):** `projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023` ([Open Real Web UI](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023))
 
 ## 3. Structured Output Schema Contract

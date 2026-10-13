@@ -2,7 +2,7 @@
 """
 Rocket Companies AI Hackathon (Oct 2026) — Square [5.1]: CFPB Regulatory Circular & State Law Audit Navigator
 Bespoke App Archetype: cfpb_respa_regulatory_diff_vault (Rocket Legal & NotebookLM // CFPB RESPA Section 8 & State Law Redline Vault)
-Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + Vertex AI)
+Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash)
 """
 import json
 import os

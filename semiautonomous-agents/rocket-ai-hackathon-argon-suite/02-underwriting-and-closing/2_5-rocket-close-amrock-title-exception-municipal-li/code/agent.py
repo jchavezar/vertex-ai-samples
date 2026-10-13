@@ -2,7 +2,7 @@
 """
 Rocket Companies AI Hackathon (Oct 2026) — Square [2.5]: Rocket Close (Amrock) Title Exception & Municipal Lien Matcher
 Bespoke App Archetype: amrock_title_curative_map (Rocket Close (Amrock) // Schedule B-II Title Exception & ALTA Endorsement Clearer)
-Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + Vertex AI)
+Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash)
 """
 import json
 import os

@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Legacy .NET 4.8 WCF -> Cloud Run .NET 9 Transpiler Studio</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #070E1A;
+      color: #F8FAFC;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .transpiler-bar {
+      background: linear-gradient(90deg, #2E1065 0%, #0F172A 50%, #0369A1 100%);
+      border-bottom: 1px solid #334155;
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .transpile-btn {
+      background: linear-gradient(135deg, #38BDF8, #10B981);
+      color: #020617;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 800;
+      font-size: 13px;
+      cursor: pointer;
+    }
+
+    .dual-studio {
+      display: grid;
+      grid-template-columns: 1fr 280px 1fr;
+      flex: 1;
+      min-height: calc(100vh - 64px);
+    }
+    @media (max-width: 1100px) {
+      .dual-studio { grid-template-columns: 1fr; }
+    }
+
+    /* Left Pane: Legacy Visual Studio WCF */
+    .legacy-pane {
+      background: #171124;
+      border-right: 1px solid #3B2854;
+      padding: 24px;
+    }
+    /* Center Bridge: AST Transpiler Telemetry */
+    .bridge-pane {
+      background: #0B1220;
+      border-right: 1px solid #1E293B;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    /* Right Pane: Cloud Run .NET 9 */
+    .modern-pane {
+      background: #081526;
+      padding: 24px 24px 80px 24px;
+    }
+    .method-pill {
+      width: 100%;
+      padding: 10px 12px;
+      background: #131D31;
+      border: 1px solid #263859;
+      color: #E2E8F0;
+      border-radius: 8px;
+      text-align: left;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      margin-bottom: 6px;
+    }
+    .method-pill.active {
+      border-color: #38BDF8;
+      background: rgba(56, 189, 248, 0.14);
+      color: #38BDF8;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="transpiler-bar">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="mono" style="background:#581C87;color:#E9D5FF;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;">LEGACY WCF .NET 4.8</span>
+      <span style="font-size:18px;">⚡➔</span>
+      <span class="mono" style="background:#0284C7;color:#E0F2FE;padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;">CLOUD RUN .NET 9 AOT</span>
+      <h1 style="font-size:18px;font-weight:700;margin-left:6px;">Antigravity AST Transpiler & Windows License Eliminator</h1>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="mono" style="background:rgba(0,0,0,0.4);padding:5px 10px;border-radius:6px;border:1px solid #475569;font-size:11px;">
+        Model:
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" class="mono" style="background:transparent;color:#38BDF8;font-weight:700;border:none;outline:none;font-size:11px;cursor:pointer;">
+          <option value="gemini-4-argon" style="background:#0F172A;">gemini-4-argon</option>
+          <option value="gemini-3.8-flash" style="background:#0F172A;">gemini-3.8-flash</option>
+        </select>
+      </div>
+      <button class="transpile-btn" onclick="window.runLiveVertexAI()" id="transpile-btn">🚀 Transpile WCF Service to .NET 9</button>
+    </div>
+  </header>
+
+  <div class="dual-studio">
+    <!-- LEFT: LEGACY WCF MONOLITH -->
+    <section class="legacy-pane">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="mono" style="font-size:12px;font-weight:700;color:#C084FC;">🏛️ Legacy Windows Server 2016 IIS / WCF `.svc`</span>
+        <span class="mono" style="font-size:10px;background:#4C1D95;color:#DDD6FE;padding:3px 8px;border-radius:4px;">Cold Start: 14.2s</span>
+      </div>
+      <pre id="wcf-source" class="mono" style="background:#0F0A19;border:1px solid #3B2854;border-radius:10px;padding:16px;font-size:11.5px;line-height:1.65;color:#E9D5FF;overflow-x:auto;">using System.ServiceModel;
+using System.Runtime.Serialization;
+
+namespace Rocket.Legacy.Servicing.Wcf
+{
+    [ServiceContract(Namespace = "http://rocket.com/wcf/2011")]
+    public interface IEscrowPayoffService
+    {
+        [OperationContract]
+        [FaultContract(typeof(SoapEscrowFault))]
+        PayoffXmlResult ComputePerDiemPayoff(string loanNumber, int days);
+    }
+
+    // Requires Windows IIS + Web.config basicHttpBinding SOAP Envelope
+}</pre>
+    </section>
+
+    <!-- CENTER: AST BRIDGE & ROI SLIDERS -->
+    <aside class="bridge-pane">
+      <div>
+        <div class="mono" style="font-size:11px;color:#38BDF8;text-transform:uppercase;margin-bottom:8px;">Select WCF Contract Method:</div>
+        <button class="method-pill active" onclick="selectWcfMethod(0, this)">ComputePerDiemPayoff()</button>
+        <button class="method-pill" onclick="selectWcfMethod(1, this)">ValidateMersLienRelease()</button>
+        <button class="method-pill" onclick="selectWcfMethod(2, this)">RecalculateEscrowShortage()</button>
+      </div>
+
+      <div style="background:#111C2D;border:1px solid #1E293B;border-radius:10px;padding:14px;">
+        <div class="mono" style="font-size:10.5px;color:#10B981;margin-bottom:8px;">🎛️ Fleet Migration Scale</div>
+        <div class="mono" style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;">
+          <span>WCF Endpoints:</span>
+          <strong id="lbl-eps" style="color:#38BDF8;">24</strong>
+        </div>
+        <input type="range" id="sl-eps" min="5" max="100" step="1" value="24" style="width:100%;accent-color:#38BDF8;" oninput="recalcWcf()">
+        <div class="mono" style="font-size:11px;color:#94A3B8;margin-top:10px;line-height:1.55;" id="wcf-metrics-box">
+          • Cold Start: 14.2s ➔ 0.38s<br>
+          • Windows License Saved: $148,800/yr<br>
+          • Parity Tests: 100% Match
+        </div>
+      </div>
+
+      <div style="background:#111C2D;border:1px solid #1E293B;border-radius:10px;padding:14px;font-size:12px;line-height:1.55;color:#CBD5E1;" id="wcf-ai-notes">
+        <strong>AST Modernization Verdict:</strong> Stripped `System.ServiceModel` SOAP envelopes and compiled into Linux `mcr.microsoft.com/dotnet/aspnet:9.0-alpine` containers on Google Cloud Run.
+      </div>
+    </aside>
+
+    <!-- RIGHT: CLOUD RUN .NET 9 MINIMAL API -->
+    <section class="modern-pane">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <span class="mono" style="font-size:12px;font-weight:700;color:#38BDF8;">☁️ Google Cloud Run `.NET 9 Minimal API` + OpenTelemetry</span>
+        <span class="mono" id="modern-model-badge" style="font-size:10px;background:#0369A1;color:#E0F2FE;padding:3px 8px;border-radius:4px;">Cold Start: 0.38s • gemini-4-argon</span>
+      </div>
+      <pre id="dotnet9-source" class="mono" style="background:#040B14;border:1px solid #1E3A5F;border-radius:10px;padding:16px;font-size:11.5px;line-height:1.65;color:#7DD3FC;overflow-x:auto;">using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.HttpResults;
+
+var builder = WebApplication.CreateSlimBuilder(args);
+builder.Services.AddOpenTelemetry().WithTracing();
+var app = builder.Build();
+
+app.MapPost("/v1/payoff/per-diem", Results&lt;Ok&lt;PayoffDto&gt;, BadRequest&gt; (PayoffRequest req) =>
+{
+    decimal dailyInterest = Math.Round((req.Principal * (req.NoteRate / 100m)) / 365m, 2);
+    decimal totalPayoff = req.Principal + (dailyInterest * req.Days) + req.RecordingFee;
+    return TypedResults.Ok(new PayoffDto(req.LoanNumber, dailyInterest, totalPayoff));
+});
+
+app.Run(); // Runs rootless on Google Cloud Run Gen2 Linux</pre>
+    </section>
+  </div>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3" selected style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [6.3] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Legacy .NET Framework / WCF to Cloud Run Microservice Modernizer</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">// Legacy Rocket On-Prem WCF Service (.NET Framework 4.8 - 2016)
+[ServiceContract(Namespace = "http://rockethomes.internal/los/pricing/2016")]
+public class LegacyEscrowCalculatorService : IEscrowCalculatorService {
+    [OperationContract]
+    public DataTable CalculateMichiganTaxEscrow(string parcelId, decimal taxableValue, bool isHomestead) {
+        SqlConnection conn = new SqlConnection(ConfigurationManager.AppSettings["OnPremSqlConn"]);
+        conn.Open(); // Synchronous blocking I/O + raw string SQL + legacy DataTable!
+        SqlCommand cmd = new SqlCommand("SELECT MillageRate FROM CountyMillage WHERE ParcelPrefix = '" + parcelId.Substring(0,3) + "'", conn);
+        decimal mills = (decimal)cmd.ExecuteScalar();
+        if (!isHomestead) mills += 18.0m; // Non-PRE 18-mill school operating tax
+        decimal annualTax = (taxableValue / 1000m) * mills;
+        // ... returns legacy untyped DataTable
+    }
+}</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "6.3";
+  window.ACTIVE_PROJECT = {"code": "6.3", "level": "L200\u2013L300", "tags": ["L200", "L300"], "tool": "Gemini Code Assist + Gemini 4 Argon", "project": "Legacy .NET Framework / WCF to Cloud Run Microservice Modernizer", "focus": "Refactor legacy on-prem C# / .NET Framework 4.8 SOAP/WCF loan calculators into cloud-native .NET 9 Minimal APIs & Python FastAPI services on Cloud Run.", "desc": "Accelerate Rocket's legacy modernization: paste monolithic C# `.NET 4.8` WCF `ServiceContract` classes with synchronous SQL calls and let Gemini 4 Argon refactor them into async, containerized Cloud Run microservices with OpenTelemetry, Dockerfile, and unit tests.", "url": "https://cloud.google.com/products/gemini/code-assist", "serviceText": "Gemini Code Assist Enterprise & Gemini 4 Argon", "serviceUrl": "https://cloud.google.com/products/gemini/code-assist", "gcpStack": ["Gemini Code Assist Enterprise", "Gemini 4 Argon (2M Context)", "Google Cloud Run"], "competeEdge": "Gemini Code Assist indexes Rocket's private C#/.NET repositories to preserve internal domain conventions while migrating WCF SOAP services to Cloud Run 3x faster than manual rewrites.", "sampleInput": "// Legacy Rocket On-Prem WCF Service (.NET Framework 4.8 - 2016)\n[ServiceContract(Namespace = \"http://rockethomes.internal/los/pricing/2016\")]\npublic class LegacyEscrowCalculatorService : IEscrowCalculatorService {\n    [OperationContract]\n    public DataTable CalculateMichiganTaxEscrow(string parcelId, decimal taxableValue, bool isHomestead) {\n        SqlConnection conn = new SqlConnection(ConfigurationManager.AppSettings[\"OnPremSqlConn\"]);\n        conn.Open(); // Synchronous blocking I/O + raw string SQL + legacy DataTable!\n        SqlCommand cmd = new SqlCommand(\"SELECT MillageRate FROM CountyMillage WHERE ParcelPrefix = '\" + parcelId.Substring(0,3) + \"'\", conn);\n        decimal mills = (decimal)cmd.ExecuteScalar();\n        if (!isHomestead) mills += 18.0m; // Non-PRE 18-mill school operating tax\n        decimal annualTax = (taxableValue / 1000m) * mills;\n        // ... returns legacy untyped DataTable\n    }\n}", "sandboxAction": "modernize_dotnet_service", "sandboxParams": {"taxable_value": 210000.0, "base_mills": 34.5, "is_homestead": true}, "systemPrompt": "You are the Rocket Legacy .NET Modernization Architect powered by Gemini Code Assist and Gemini 4 Argon. Refactor the legacy `.NET 4.8` WCF SOAP class and output: (1) Modernization Audit (identifying blocking synchronous SQL I/O, CWE-89 SQL injection, untyped `DataTable` serialization, and hardcoded `ConfigurationManager`), (2) Modernized `.NET 9` Cloud Run Minimal API (`Program.cs` with `async/await`, Dapper/EF Core parameterized queries, typed `record` DTOs, and Secret Manager), (3) Equivalent Python FastAPI Cloud Run microservice + `Dockerfile`, and (4) Verified Michigan PRE vs Non-PRE Millage Tax calculation.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502      6.3 LEGACY .NET 4.8 WCF TO CLOUD RUN MODERNIZER (L200-300)        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Legacy C# .NET 4.8 WCF SOAP Class (Blocking SQL + Untyped DataTable)]\u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Gemini 4 Argon + Gemini Code Assist Code Transformation Engine]      \u2502\n\u2502  \u251c\u2500\u25ba Eliminates WCF SOAP & `DataTable` -> Typed JSON `record` DTOs     \u2502\n\u2502  \u251c\u2500\u25ba Converts Sync `SqlCommand` -> Async Parameterized Dapper/Postgres \u2502\n\u2502  \u2514\u2500\u25ba Generates Multi-Stage Cloud Run `Dockerfile` + xUnit Test Suite   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Cloud-Native .NET 9 / FastAPI Service Deployed on Cloud Run]         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Open the legacy C# solution in VS Code or Visual Studio with Gemini Code Assist Enterprise connected to your private code repository index.", "Run the `/modernize` prompt powered by `gemini-4-argon` to generate the `.NET 9` Minimal API, `Dockerfile`, and xUnit tests.", "Deploy directly to Cloud Run: `gcloud run deploy rocket-escrow-svc --source . --region us-central1`."], "codeSnippet": "// Modernized .NET 9 Cloud Run Minimal API (Generated by Gemini 4 Argon)\napp.MapPost(\"/api/v1/escrow/michigan-tax\", async (TaxRequest req, IDbConnection db) => {\n    const string sql = \"SELECT millage_rate FROM county_millage WHERE parcel_prefix = @Prefix\";\n    var mills = await db.QuerySingleOrDefaultAsync<decimal>(sql, new { Prefix = req.ParcelId[..3] });\n    if (!req.IsHomestead) mills += 18.0m; // Michigan Non-PRE 18-mill school tax\n    var annualTax = Math.Round((req.TaxableValue / 1000m) * mills, 2);\n    return Results.Ok(new TaxResponse(req.ParcelId, mills, annualTax, Math.Round(annualTax / 12m, 2)));\n});", "dept_id": "sdlc", "dept_short": "6. SDLC, CodeMender & Antigravity", "dept_full": "6. SDLC & AI Software Factory (CodeMender Security, Antigravity Swarm & .NET Modernization)", "demo_service_url": "https://rocket-demo-sdlc-254356041555.us-central1.run.app/?case=6.3", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.3"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"// Legacy Rocket On-Prem WCF Service (.NET Framework 4.8 - 2016)\\n[ServiceContract(Namespace = \\\"http://rockethomes.internal/los/pricing/2016\\\")]\\npublic class LegacyEscrowCalculatorService : IEscrowCalculatorService {\\n...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Legacy .NET Modernization Architect powered by Gemini Code Assist and Gemini 4 Argon. Refactor the legacy `.NET 4.8` WCF SOAP class and output: (1) Modernization...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"// Legacy Rocket On-Prem WCF Service (.NET Framework 4.8 - 2016)\\n[ServiceContract(Namespace = \\\"http://rockethomes.internal/los/pricing/2016\\\")]\\npublic class LegacyEscrowCalculatorService : IEscrowCalculatorService {\\n...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Legacy .NET Modernization Architect powered by Gemini Code Assist and Gemini 4 Argon. Refactor the legacy `.NET 4.8` WCF SOAP class and output: (1) Modernization...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-4-argon";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-4-argon");
+  });
+</script>
+
+
+  <script>
+    function selectWcfMethod(idx, btn) {
+      document.querySelectorAll('.method-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    }
+
+    async function recalcWcf() {
+      const eps = parseInt(document.getElementById('sl-eps').value);
+      document.getElementById('lbl-eps').innerText = eps;
+      const res = await fetch('/api/sandbox', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: '6.3', action: 'transpile_wcf_to_dotnet8', params: {wcf_endpoints: eps}})
+      });
+      const data = await res.json();
+      if (data.ok && data.metrics) {
+        document.getElementById('wcf-metrics-box').innerHTML =
+          Object.values(data.metrics).map(v => '• ' + v).join('<br>');
+      }
+    }
+
+    window.runLiveVertexAI = async function() {
+      const btn = document.getElementById('transpile-btn');
+      const model = window.getSelectedModel();
+      btn.innerText = '⏳ Transpiling on ' + model + '...';
+      const eps = parseInt(document.getElementById('sl-eps').value);
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({code: '6.3', model: model, params: {wcf_endpoints: eps}})
+        });
+        const data = await res.json();
+        document.getElementById('modern-model-badge').innerText = 'Cold Start: 0.38s • ' + (data.model_used || model);
+        if (data.structured_data && (data.structured_data.migration_summary || data.structured_data.executive_summary)) {
+          document.getElementById('wcf-ai-notes').innerHTML = data.structured_data.migration_summary || data.structured_data.executive_summary;
+        } else if (data.output) {
+          document.getElementById('wcf-ai-notes').innerText = data.output;
+        }
+      } catch (e) {}
+      finally {
+        btn.innerText = '🚀 Transpile WCF Service to .NET 9';
+      }
+    };
+  </script>
+</body>
+</html>

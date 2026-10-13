@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Antigravity MCP Dispatch Radar | Redfin -> Rocket Banker Switchboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=Fira+Code:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Chakra Petch', sans-serif;
+      background: radial-gradient(circle at 50% 0%, #091E3A 0%, #040D1A 70%);
+      color: #E2F1FF;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    .mono { font-family: 'Fira Code', monospace; }
+
+    .radar-header {
+      background: rgba(4, 13, 26, 0.9);
+      border-bottom: 1px solid rgba(0, 245, 212, 0.3);
+      padding: 16px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tactical-btn {
+      background: linear-gradient(135deg, #00F5D4, #00BBF9);
+      color: #040D1A;
+      border: none;
+      padding: 10px 20px;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+      font-family: 'Chakra Petch', sans-serif;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .switchboard-grid {
+      max-width: 1340px;
+      margin: 24px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 380px 1fr 390px;
+      gap: 20px;
+    }
+    @media (max-width: 1120px) {
+      .switchboard-grid { grid-template-columns: 1fr; }
+    }
+    .radar-panel {
+      background: rgba(8, 22, 42, 0.85);
+      border: 1px solid rgba(0, 245, 212, 0.25);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 0 30px rgba(0, 245, 212, 0.06);
+    }
+    .webhook-item {
+      background: #061326;
+      border: 1px solid #153258;
+      border-left: 4px solid #00F5D4;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .webhook-item:hover, .webhook-item.active {
+      background: #0C2342;
+      border-color: #00F5D4;
+    }
+    .slot-btn {
+      background: #071930;
+      border: 1px solid #1B3B68;
+      color: #E2F1FF;
+      padding: 10px;
+      border-radius: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 11.5px;
+      cursor: pointer;
+      text-align: left;
+    }
+    .slot-btn.booked {
+      background: rgba(0, 245, 212, 0.15);
+      border-color: #00F5D4;
+      color: #00F5D4;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="radar-header">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div style="width:14px;height:14px;border-radius:50%;background:#00F5D4;box-shadow:0 0 14px #00F5D4;"></div>
+      <div>
+        <div style="font-size:19px;font-weight:700;letter-spacing:0.04em;color:#00F5D4;">ANTIGRAVITY MCP // AUTONOMOUS LEAD TRIAGE & NMLS SWITCHBOARD</div>
+        <div class="mono" style="font-size:11px;color:#7FA6C9;">REDFIN TOUR WEBHOOK -> ROCKET MONEY PLAID ASSETS -> STATE NMLS ROUTING -> MS GRAPH CALENDAR</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="mono" style="background:#06152B;padding:6px 12px;border:1px solid rgba(0,245,212,0.35);border-radius:6px;font-size:11px;">
+        MODEL:
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#00F5D4;font-weight:700;border:none;outline:none;font-family:'Fira Code',monospace;font-size:11px;cursor:pointer;">
+          <option value="gemini-3.8-flash" style="background:#040D1A;">gemini-3.8-flash</option>
+          <option value="gemini-4-argon" style="background:#040D1A;">gemini-4-argon</option>
+        </select>
+      </div>
+      <button class="tactical-btn" onclick="window.runLiveVertexAI()" id="dispatch-btn">⚡ Execute MCP Triage & Book Slot</button>
+    </div>
+  </header>
+
+  <div class="switchboard-grid">
+    <!-- COLUMN 1: LIVE REDFIN INBOUND WEBHOOK STREAM -->
+    <section class="radar-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-weight:700;font-size:14px;color:#00F5D4;text-transform:uppercase;">📡 1. Live Redfin Tour Webhooks</span>
+        <span class="mono" style="font-size:10px;background:rgba(251,191,36,0.2);color:#FBBF24;padding:3px 8px;border-radius:4px;">SLA &lt; 800ms</span>
+      </div>
+
+      <div class="webhook-item active" onclick="loadWebhook(585000, 215000, 94500, 'MI', this)">
+        <div class="mono" style="display:flex;justify-content:space-between;font-size:11px;color:#FBBF24;font-weight:700;">
+          <span>🔥 URGENCY: 98/100</span>
+          <span>T-MINUS 44 HRS</span>
+        </div>
+        <div style="font-weight:700;font-size:14px;margin:4px 0;">Chloe & Liam Sterling • Birmingham, MI</div>
+        <div class="mono" style="font-size:11px;color:#94B8D7;">Redfin Tour Booked: $585,000 • No Pre-Approval on File!</div>
+      </div>
+
+      <div class="webhook-item" onclick="loadWebhook(740000, 265000, 148000, 'TX', this)">
+        <div class="mono" style="display:flex;justify-content:space-between;font-size:11px;color:#00F5D4;font-weight:700;">
+          <span>⚡ URGENCY: 94/100</span>
+          <span>T-MINUS 28 HRS</span>
+        </div>
+        <div style="font-weight:700;font-size:14px;margin:4px 0;">Mateo Rivera • Austin, TX (78704)</div>
+        <div class="mono" style="font-size:11px;color:#94B8D7;">Redfin Tour Booked: $740,000 • Rocket Money Vault: $148k</div>
+      </div>
+
+      <div class="webhook-item" onclick="loadWebhook(495000, 178000, 62000, 'FL', this)">
+        <div class="mono" style="display:flex;justify-content:space-between;font-size:11px;color:#38BDF8;font-weight:700;">
+          <span>📡 URGENCY: 91/100</span>
+          <span>T-MINUS 60 HRS</span>
+        </div>
+        <div style="font-weight:700;font-size:14px;margin:4px 0;">Hannah Chen • Tampa, FL</div>
+        <div class="mono" style="font-size:11px;color:#94B8D7;">Redfin Offer Intent: $495,000 • 764 FICO Soft-Pull</div>
+      </div>
+
+      <!-- Sliders -->
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(0,245,212,0.2);">
+        <div class="mono" style="font-size:11px;color:#00F5D4;margin-bottom:8px;">🎛️ Webhook Payload Simulator</div>
+        <div style="margin-bottom:10px;">
+          <div class="mono" style="display:flex;justify-content:space-between;font-size:11px;">
+            <span>Redfin Listing Price:</span>
+            <strong id="lbl-price" style="color:#00F5D4;">$585,000</strong>
+          </div>
+          <input type="range" id="sl-price" min="300000" max="950000" step="5000" value="585000" style="width:100%;accent-color:#00F5D4;" oninput="recalcTriage()">
+        </div>
+        <div>
+          <div class="mono" style="display:flex;justify-content:space-between;font-size:11px;">
+            <span>Rocket Money Verified Liquid Assets:</span>
+            <strong id="lbl-assets" style="color:#FBBF24;">$94,500</strong>
+          </div>
+          <input type="range" id="sl-assets" min="25000" max="220000" step="2500" value="94500" style="width:100%;accent-color:#FBBF24;" oninput="recalcTriage()">
+        </div>
+      </div>
+    </section>
+
+    <!-- COLUMN 2: MCP STATE NMLS MATCHER & SANDBOX 1003 PRE-FILL -->
+    <section class="radar-panel" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-weight:700;font-size:14px;color:#00F5D4;text-transform:uppercase;">🧭 2. Antigravity MCP NMLS Router & Buying Power</span>
+        <span class="mono" id="mcp-profile-id" style="font-size:11px;color:#00F5D4;">RKT-1003-SBX-20261013-8841</span>
+      </div>
+
+      <div style="background:#051122;border:1px solid #16365F;border-radius:10px;padding:16px;">
+        <div class="mono" style="font-size:10px;color:#7FA6C9;text-transform:uppercase;">Instant Pre-Computed Buying Power</div>
+        <div class="mono" style="font-size:20px;font-weight:700;color:#00F5D4;margin-top:4px;" id="val-buying-power">
+          Pre-Approved up to $680,000 | Target: $585,000 (86.3% LTV)
+        </div>
+      </div>
+
+      <div style="background:#051122;border:1px solid #16365F;border-radius:10px;padding:16px;">
+        <div class="mono" style="font-size:10px;color:#FBBF24;text-transform:uppercase;">Matched State-Licensed Senior Rocket Banker</div>
+        <div style="font-size:17px;font-weight:700;color:#FFF;margin-top:4px;" id="val-banker">
+          Brandon Kowalski (Sr. Premier Banker • NMLS #1498212)
+        </div>
+        <div class="mono" style="font-size:11px;color:#94B8D7;margin-top:4px;">
+          Active State License Verified • 94.2% Redfin Tour Conversion • Sub-5m Response
+        </div>
+      </div>
+
+      <div style="background:#051122;border:1px solid #16365F;border-radius:10px;padding:16px;flex:1;">
+        <div class="mono" style="font-size:10px;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">📲 Instant Borrower SMS & Banker Whisper Brief</div>
+        <div id="sms-preview-box" style="font-size:13px;line-height:1.6;color:#E2F1FF;">
+          "Hi Chloe & Liam! Saw your Redfin tour for Saturday in Birmingham ($585k). Because your Rocket Money Vault shows $94.5k liquid, you're already eligible for Verified Pre-Approval up to $680k. I locked a 15-min video slot with Sr. MI Banker Brandon Kowalski today at 4:30 PM EDT so you walk into Saturday's tour with a cash-backed offer letter!"
+        </div>
+      </div>
+    </section>
+
+    <!-- COLUMN 3: MICROSOFT GRAPH CALENDAR DISPATCH BOARD -->
+    <section class="radar-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <span style="font-weight:700;font-size:14px;color:#00F5D4;text-transform:uppercase;">📅 3. Banker Live Calendar Slots</span>
+        <span class="mono" style="font-size:10px;color:#10B981;">MS GRAPH API CONNECTED</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr;gap:10px;">
+        <button class="slot-btn" onclick="bookCalendarSlot(this, 'Today • 3:00 PM EDT')">
+          <div>🕒 Today • 3:00 PM EDT (Available)</div>
+          <div style="font-size:10px;color:#7FA6C9;">15-Min Redfin Fast-Track Video Pre-Approval</div>
+        </button>
+        <button class="slot-btn booked" id="default-slot" onclick="bookCalendarSlot(this, 'Today • 4:30 PM EDT')">
+          <div>✅ Today • 4:30 PM EDT (AUTO-BOOKED BY MCP)</div>
+          <div style="font-size:10px;color:#E2F1FF;">Chloe & Liam Sterling + Redfin Agent Co-Invite</div>
+        </button>
+        <button class="slot-btn" onclick="bookCalendarSlot(this, 'Today • 5:15 PM EDT')">
+          <div>🕒 Today • 5:15 PM EDT (Available)</div>
+          <div style="font-size:10px;color:#7FA6C9;">15-Min Redfin Fast-Track Video Pre-Approval</div>
+        </button>
+        <button class="slot-btn" onclick="bookCalendarSlot(this, 'Tomorrow • 9:00 AM EDT')">
+          <div>🕒 Tomorrow • 9:00 AM EDT (Available)</div>
+          <div style="font-size:10px;color:#7FA6C9;">Pre-Tour Same-Day Verified Approval Desk</div>
+        </button>
+      </div>
+
+      <div style="margin-top:16px;padding:12px;border-radius:8px;background:rgba(0,245,212,0.08);border:1px solid rgba(0,245,212,0.3);font-size:12px;" id="slot-confirm-banner">
+        <strong>✓ Calendar Invite Dispatched:</strong> Today at 4:30 PM EDT with Teams Link + Pre-Filled 1003 Sandbox Packet.
+      </div>
+    </section>
+  </div>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5" selected style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [1.5] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Autonomous Banker Inbound Triage & Calendar Booking Suite</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.5?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">{
+  "event_type": "REDFIN_TOUR_BOOKED_HIGH_INTENT",
+  "timestamp": "2026-10-13T17:35:00Z",
+  "borrower": {
+    "name": "Devon & Chloe Brooks",
+    "email": "dbrooks@gmail.com",
+    "state": "MI",
+    "fico_soft_pull": 774,
+    "rocket_money_linked_liquid_assets": 94500,
+    "verified_annual_income": 215000
+  },
+  "redfin_property": {
+    "mls_id": "MI-202609841",
+    "address": "315 S Main St #402, Ann Arbor, MI 48104",
+    "list_price": 585000,
+    "scheduled_tour_utc": "2026-10-15T21:00:00Z",
+    "pre_approval_status": "NONE_YET"
+  }
+}</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "1.5";
+  window.ACTIVE_PROJECT = {"code": "1.5", "level": "L300", "tags": ["L300"], "tool": "Google Antigravity IDE + Sandbox + MCP", "project": "Autonomous Banker Inbound Triage & Calendar Booking Suite", "focus": "Multi-agent Antigravity workflow that ingests Redfin/RocketMortgage.com webhooks, queries O365 Calendar MCP, scores lead urgency, and provisions a 1003 sandbox draft.", "desc": "Ingest live webhook events when a homebuyer books a Redfin tour or completes a Rocket Money readiness check, verify NMLS state licensing & banker availability via Outlook Calendar MCP, and auto-provision the complete borrower profile.", "url": "https://antigravity.google", "serviceText": "Google Antigravity 2.0 & MCP Server Registry", "serviceUrl": "https://antigravity.google", "gcpStack": ["Google Antigravity 2.0", "Antigravity gVisor Sandbox", "MCP Server (O365 Calendar + Redfin Lead Webhook)", "Gemini 4 Argon"], "competeEdge": "Directly replaces Anthropic Claude Code + custom glue scripts with Antigravity's enterprise-governed Managed Agents API, native MCP harness, and VPC-SC sandboxed execution.", "sampleInput": "{\n  \"event_type\": \"REDFIN_TOUR_BOOKED_HIGH_INTENT\",\n  \"timestamp\": \"2026-10-13T17:35:00Z\",\n  \"borrower\": {\n    \"name\": \"Devon & Chloe Brooks\",\n    \"email\": \"dbrooks@gmail.com\",\n    \"state\": \"MI\",\n    \"fico_soft_pull\": 774,\n    \"rocket_money_linked_liquid_assets\": 94500,\n    \"verified_annual_income\": 215000\n  },\n  \"redfin_property\": {\n    \"mls_id\": \"MI-202609841\",\n    \"address\": \"315 S Main St #402, Ann Arbor, MI 48104\",\n    \"list_price\": 585000,\n    \"scheduled_tour_utc\": \"2026-10-15T21:00:00Z\",\n    \"pre_approval_status\": \"NONE_YET\"\n  }\n}", "sandboxAction": "triage_inbound_webhook", "sandboxParams": {"fico": 774, "assets": 94500, "income": 215000, "list_price": 585000, "state": "MI"}, "systemPrompt": "You are the Google Antigravity Autonomous Inbound Triage & Banker Routing Orchestrator powered by Gemini 4 Argon. Process the incoming Redfin/Rocket Money webhook payload and output: (1) Lead Conversion Urgency Score (0-100) & Pre-Approval Readiness Audit (must book banker BEFORE their Oct 15 Redfin tour!), (2) MCP Tool Execution Log matching the highest-converting Michigan NMLS-licensed Senior Banker with an open O365 Calendar slot, and (3) The provisioned 1003 Sandbox Profile JSON + SMS/Calendar Invite dispatched to the borrower.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502     1.5 ANTIGRAVITY INBOUND TRIAGE & CALENDAR BOOKING SUITE (L300)     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Inbound Webhook: Redfin Tour Booked + Rocket Money Asset Link]       \u2502\n\u2502  \u2022 Buyer touring $585k Ann Arbor home in 48 hrs with NO pre-approval   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Google Antigravity Multi-Agent Harness (Gemini 4 Argon)]             \u2502\n\u2502  \u251c\u2500\u25ba Subagent 1: Lead Scorer & Sandbox DTI/Asset Pre-Check             \u2502\n\u2502  \u251c\u2500\u25ba Subagent 2: MCP Call -> nmls_roster_lookup(state=\"MI\")            \u2502\n\u2502  \u2514\u2500\u25ba Subagent 3: MCP Call -> o365_calendar_book_slot(banker_id)        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Provisioned 1003 Draft + Booked O365 Meeting + SMS Pre-Tour Alert]   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Register the O365 Calendar & NMLS Roster MCP server in `~/.gemini/antigravity/mcp_config.json` (or Gemini Enterprise Agent Registry).", "Use the Antigravity CLI (`agy`) or ADK orchestrator with `gemini-4-argon` to wire the 3-step pipeline: Webhook Validator -> NMLS/Calendar MCP Lookup -> 1003 Sandbox Provisioner.", "Deploy the webhook triage service to Cloud Run."], "codeSnippet": "// ~/.gemini/antigravity/mcp_config.json\n{\n  \"mcpServers\": {\n    \"rocket-o365-calendar\": {\n      \"command\": \"python3\",\n      \"args\": [\"/app/mcp_servers/o365_calendar_mcp.py\"],\n      \"env\": {\"ROCKET_TENANT_ID\": \"rocket-ms365-prod\"}\n    }\n  }\n}", "dept_id": "sales", "dept_short": "1. Loan Origination & Sales", "dept_full": "1. Loan Origination & Mortgage Banking (Rocket Mortgage Production & Pro TPO)", "demo_service_url": "https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.5", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.5"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"{\\n  \\\"event_type\\\": \\\"REDFIN_TOUR_BOOKED_HIGH_INTENT\\\",\\n  \\\"timestamp\\\": \\\"2026-10-13T17:35:00Z\\\",\\n  \\\"borrower\\\": {\\n    \\\"name\\\": \\\"Devon & Chloe Brooks\\\",\\n    \\\"email\\\": \\\"dbrooks@gmail.com\\\",\\n    \\\"state\\\": \\\"MI...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Google Antigravity Autonomous Inbound Triage & Banker Routing Orchestrator powered by Gemini 4 Argon. Process the incoming Redfin/Rocket Money webhook payload and outpu...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"{\\n  \\\"event_type\\\": \\\"REDFIN_TOUR_BOOKED_HIGH_INTENT\\\",\\n  \\\"timestamp\\\": \\\"2026-10-13T17:35:00Z\\\",\\n  \\\"borrower\\\": {\\n    \\\"name\\\": \\\"Devon & Chloe Brooks\\\",\\n    \\\"email\\\": \\\"dbrooks@gmail.com\\\",\\n    \\\"state\\\": \\\"MI...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Google Antigravity Autonomous Inbound Triage & Banker Routing Orchestrator powered by Gemini 4 Argon. Process the incoming Redfin/Rocket Money webhook payload and outpu...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-4-argon";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-4-argon");
+  });
+</script>
+
+
+  <script>
+    function loadWebhook(price, inc, assets, state, el) {
+      document.querySelectorAll('.webhook-item').forEach(i => i.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('sl-price').value = price;
+      document.getElementById('sl-assets').value = assets;
+      recalcTriage();
+    }
+
+    function bookCalendarSlot(btn, label) {
+      document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('booked'));
+      btn.classList.add('booked');
+      document.getElementById('slot-confirm-banner').innerHTML =
+        `<strong>✓ Calendar Invite Dispatched:</strong> ${label} with Microsoft Teams Link + Pre-Filled 1003 Sandbox Packet.`;
+    }
+
+    async function recalcTriage() {
+      const price = parseFloat(document.getElementById('sl-price').value);
+      const assets = parseFloat(document.getElementById('sl-assets').value);
+      document.getElementById('lbl-price').innerText = '$' + price.toLocaleString();
+      document.getElementById('lbl-assets').innerText = '$' + assets.toLocaleString();
+
+      const res = await fetch('/api/sandbox', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: '1.5', action: 'triage_inbound_webhook', params: {list_price: price, income: 215000, assets: assets}})
+      });
+      const data = await res.json();
+      if (data.ok && data.metrics) {
+        const m = data.metrics;
+        document.getElementById('val-buying-power').innerText = m.computed_buying_power || '';
+        document.getElementById('val-banker').innerText = m.mcp_routed_banker || '';
+        document.getElementById('mcp-profile-id').innerText = m.sandbox_1003_profile_id || '';
+      }
+    }
+
+    window.runLiveVertexAI = async function() {
+      const btn = document.getElementById('dispatch-btn');
+      const model = window.getSelectedModel();
+      btn.innerText = '⏳ Dispatching on ' + model + '...';
+      const price = parseFloat(document.getElementById('sl-price').value);
+      const assets = parseFloat(document.getElementById('sl-assets').value);
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({code: '1.5', model: model, params: {list_price: price, income: 215000, assets: assets}})
+        });
+        const data = await res.json();
+        if (data.structured_data && (data.structured_data.instant_borrower_sms || data.structured_data.executive_summary)) {
+          document.getElementById('sms-preview-box').innerHTML = data.structured_data.instant_borrower_sms || data.structured_data.executive_summary;
+        } else if (data.output) {
+          document.getElementById('sms-preview-box').innerText = data.output;
+        }
+      } catch (e) {}
+      finally {
+        btn.innerText = '⚡ Execute MCP Triage & Book Slot';
+      }
+    };
+  </script>
+</body>
+</html>

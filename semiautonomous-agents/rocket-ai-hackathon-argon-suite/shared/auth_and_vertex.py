@@ -744,30 +744,36 @@ STREAM_ASSIST_SQUARES = {"1.3", "2.1", "2.5", "3.1", "5.1"}
 
 
 def get_recommended_model_for_square(code: str, requested_model: Optional[str] = None) -> Dict[str, str]:
-    """Returns the accurate runtime engine and model for each of the 33 squares."""
+    """Returns the active runtime engine and model for each of the 33 squares.
+    Honors the user's explicit dropdown selection between `gemini-4-argon` and `gemini-3.8-flash`."""
+    default_model = "gemini-3.8-flash" if (code in ADK_RUNTIME_SQUARES or code in LIVE_VOICE_SQUARES or code in STREAM_ASSIST_SQUARES) else "gemini-4-argon"
+    chosen = requested_model if requested_model in ("gemini-4-argon", "gemini-3.8-flash") else default_model
+
     if code in ADK_RUNTIME_SQUARES:
-        # Gemini 4 Argon is not yet an endpoint on managed Agent Engine Runtime / ADK -> use gemini-3.8-flash!
         return {
-            "model": "gemini-3.8-flash",
-            "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
-            "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+            "model": chosen,
+            "default_model": "gemini-3.8-flash",
+            "runtime_badge": f"Google ADK + Vertex AI Agent Engine Runtime ({chosen})",
+            "routing_note": f"Active Model: {chosen} on Global Endpoint (ADK default: gemini-3.8-flash)",
         }
     if code in LIVE_VOICE_SQUARES:
         return {
-            "model": "gemini-3.8-flash",
+            "model": chosen,
+            "default_model": "gemini-3.8-flash",
             "live_model": "gemini-live-2.5-flash-native-audio",
-            "runtime_badge": "Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash",
-            "routing_note": "Real-time 16kHz->24kHz PCM Bidi Audio via gemini-live-2.5-flash-native-audio (us-central1)",
+            "runtime_badge": f"Vertex AI Live API (gemini-live-2.5-flash-native-audio) + {chosen}",
+            "routing_note": f"Real-time Bidi Audio via gemini-live-2.5-flash-native-audio + Reasoning via {chosen}",
         }
     if code in STREAM_ASSIST_SQUARES:
         return {
-            "model": requested_model if requested_model in ("gemini-4-argon", "gemini-3.8-flash") else "gemini-3.8-flash",
-            "runtime_badge": "Gemini Enterprise streamAssist API (v1alpha) + Vertex AI",
-            "routing_note": "Executed against live Discovery Engine v1alpha streamAssist endpoint (gemini-enterprise-17877637_1787763712023)",
+            "model": chosen,
+            "default_model": "gemini-3.8-flash",
+            "runtime_badge": f"Gemini Enterprise streamAssist API (v1alpha) + {chosen}",
+            "routing_note": f"Discovery Engine streamAssist (gemini-enterprise-17877637_1787763712023) + {chosen}",
         }
-    chosen = requested_model if requested_model in ("gemini-4-argon", "gemini-3.8-flash") else "gemini-4-argon"
     return {
         "model": chosen,
+        "default_model": "gemini-4-argon",
         "runtime_badge": f"Vertex AI Global Endpoint ({chosen}) + Antigravity gVisor Sandbox",
         "routing_note": f"Direct Vertex AI Global Endpoint invocation ({chosen})",
     }

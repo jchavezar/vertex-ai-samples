@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outlook 365 Rocket Rate-Lock Copilot Add-In</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', 'Inter', sans-serif;
+      background: #F3F2F1;
+      color: #201F1E;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Microsoft 365 Top Fluent Title Bar */
+    .o365-topbar {
+      height: 48px;
+      background: #0F6CBD;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+    }
+    .o365-search {
+      background: rgba(255,255,255,0.88);
+      color: #323130;
+      border-radius: 6px;
+      padding: 6px 14px;
+      width: 380px;
+      font-size: 12.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Outlook Ribbon Command Bar */
+    .o365-ribbon {
+      height: 44px;
+      background: #FAF9F8;
+      border-bottom: 1px solid #EDEBE9;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 16px;
+      font-size: 12.5px;
+    }
+    .ribbon-btn {
+      padding: 6px 12px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #323130;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ribbon-btn:hover {
+      background: #EDEBE9;
+    }
+    .ribbon-btn.primary {
+      background: #0F6CBD;
+      color: #FFFFFF;
+    }
+    .ribbon-btn.primary:hover {
+      background: #115EA3;
+    }
+
+    /* 4-Pane Desktop Grid */
+    .o365-grid {
+      display: grid;
+      grid-template-columns: 52px 190px 300px 1fr 370px;
+      flex: 1;
+      height: calc(100vh - 92px);
+      overflow: hidden;
+    }
+    @media (max-width: 1200px) {
+      .o365-grid { grid-template-columns: 260px 1fr 340px; }
+      .app-rail, .folder-pane { display: none; }
+    }
+
+    .app-rail {
+      background: #F3F2F1;
+      border-right: 1px solid #EDEBE9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 12px;
+      gap: 16px;
+    }
+    .folder-pane {
+      background: #F3F2F1;
+      border-right: 1px solid #EDEBE9;
+      padding: 14px 10px;
+      font-size: 13px;
+    }
+    .folder-item {
+      padding: 8px 12px;
+      border-radius: 6px;
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      color: #323130;
+      margin-bottom: 2px;
+    }
+    .folder-item.active {
+      background: #E1DFDD;
+      font-weight: 700;
+      color: #0F6CBD;
+    }
+
+    /* Message List */
+    .msg-list {
+      background: #FFFFFF;
+      border-right: 1px solid #EDEBE9;
+      overflow-y: auto;
+    }
+    .msg-card {
+      padding: 14px 16px;
+      border-bottom: 1px solid #F3F2F1;
+      border-left: 4px solid transparent;
+      cursor: pointer;
+      transition: 0.15s;
+    }
+    .msg-card:hover { background: #FAF9F8; }
+    .msg-card.active {
+      background: #EFF6FC;
+      border-left-color: #0F6CBD;
+    }
+
+    /* Email Reading & Compose Pane */
+    .reading-pane {
+      background: #FFFFFF;
+      padding: 24px 32px 80px 32px;
+      overflow-y: auto;
+    }
+    .email-draft-box {
+      margin-top: 18px;
+      border: 1px solid #C8C6C4;
+      border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .rate-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 14px 0;
+      font-size: 12.5px;
+    }
+    .rate-table th {
+      background: #EFF6FC;
+      color: #0F6CBD;
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 2px solid #0F6CBD;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .rate-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #EDEBE9;
+    }
+    .pdf-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid #E1DFDD;
+      background: #FAF9F8;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Right Copilot Sidecar Add-In */
+    .copilot-pane {
+      background: #FAF9F8;
+      border-left: 1px solid #EDEBE9;
+      padding: 18px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .copilot-card {
+      background: #FFFFFF;
+      border: 1px solid #E1DFDD;
+      border-radius: 10px;
+      padding: 14px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MICROSOFT OUTLOOK 365 FLUENT BAR -->
+  <header class="o365-topbar">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span style="font-weight:700;font-size:15px;">Outlook</span>
+      <span style="opacity:0.6;">|</span>
+      <span style="font-size:12px;font-weight:600;background:rgba(255,255,255,0.18);padding:3px 10px;border-radius:999px;">Rocket Pro TPO Banker Desk • O365 Add-In</span>
+    </div>
+    <div class="o365-search">
+      <span>🔍</span>
+      <span>Search borrower emails, NMLS #10492, rate locks...</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="mono" style="background:rgba(0,0,0,0.22);padding:4px 10px;border-radius:6px;font-size:11px;">
+        Model:
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFF;font-weight:700;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;">
+          <option value="gemini-4-argon" style="color:#000;">gemini-4-argon</option>
+          <option value="gemini-3.8-flash" style="color:#000;">gemini-3.8-flash</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <!-- OUTLOOK RIBBON BAR -->
+  <div class="o365-ribbon">
+    <button class="ribbon-btn primary" onclick="window.runLiveVertexAI()" id="draft-btn">✨ Draft Hyper-Personalized Rate Lock Reply</button>
+    <button class="ribbon-btn" onclick="selectOptionHighlight(1)">📊 Highlight Option A (Par 6.125%)</button>
+    <button class="ribbon-btn" onclick="selectOptionHighlight(2)">🎯 Highlight Option B (5.875% Permanent Buydown)</button>
+    <button class="ribbon-btn" onclick="selectOptionHighlight(3)">🏡 Highlight Option C (2-1 Seller Buydown)</button>
+    <button class="ribbon-btn" onclick="alert('Verified Pre-Approval Letter RKT-PA-500K.pdf queued in Encompass & O365 Outbox!')">📎 Preview Attached Pre-Approval PDF</button>
+  </div>
+
+  <!-- 4-PANE OUTLOOK WORKSPACE -->
+  <div class="o365-grid">
+    <!-- Pane 1: App Rail -->
+    <div class="app-rail">
+      <div title="Mail" style="color:#0F6CBD;font-size:18px;cursor:pointer;">✉️</div>
+      <div title="Calendar" style="color:#605E5C;font-size:18px;cursor:pointer;">📅</div>
+      <div title="Contacts" style="color:#605E5C;font-size:18px;cursor:pointer;">👥</div>
+      <div title="Rocket Add-In" style="color:#E11D48;font-size:18px;cursor:pointer;">🚀</div>
+    </div>
+
+    <!-- Pane 2: Folder Tree -->
+    <div class="folder-pane">
+      <div style="font-size:11px;font-weight:700;color:#605E5C;text-transform:uppercase;padding:4px 12px 8px 12px;">Favorites</div>
+      <div class="folder-item active"><span>📥 Rate Lock Inbox</span><span>3</span></div>
+      <div class="folder-item"><span>⚡ Pre-Approvals</span><span>12</span></div>
+      <div class="folder-item"><span>📤 Sent Items</span><span></span></div>
+      <div class="folder-item"><span>🛡️ Compliance Archive</span><span></span></div>
+    </div>
+
+    <!-- Pane 3: Inbox Message List -->
+    <div class="msg-list">
+      <div style="padding:12px 16px;border-bottom:1px solid #EDEBE9;font-weight:700;font-size:13px;display:flex;justify-content:space-between;">
+        <span>Focused Inbox</span>
+        <span style="color:#0F6CBD;font-size:11px;">Filter ▼</span>
+      </div>
+      <div class="msg-card active" onclick="loadThread(0, this)">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;">
+          <span>David & Priya Patel</span>
+          <span style="color:#0F6CBD;font-size:11px;">10:42 AM</span>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#0F6CBD;margin:2px 0;">URGENT: Offer on $625k Novi Home — Lock Rate or Buy Points?</div>
+        <div style="font-size:11.5px;color:#605E5C;">We are submitting our offer today ($500k loan, 20% down). Seller offered $8,500 credit...</div>
+      </div>
+      <div class="msg-card" onclick="loadThread(1, this)">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;">
+          <span>Sarah Jenkins (Redfin Agent)</span>
+          <span style="color:#605E5C;font-size:11px;">9:15 AM</span>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#323130;margin:2px 0;">Updated Pre-Approval Letter for 812 Villa Rd ($550,000)</div>
+        <div style="font-size:11.5px;color:#605E5C;">Can we regenerate the Verified Approval letter at $550k so listing agent doesn't see max cap?</div>
+      </div>
+      <div class="msg-card" onclick="loadThread(2, this)">
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;">
+          <span>Rocket Secondary Desk</span>
+          <span style="color:#605E5C;font-size:11px;">8:30 AM</span>
+        </div>
+        <div style="font-size:12px;font-weight:600;color:#323130;margin:2px 0;">Morning Rate Sheet: 30Yr Fixed Par 6.125% (-8 bps)</div>
+        <div style="font-size:11.5px;color:#605E5C;">UMBS 5.5 rallied +0-06 following CPI print. 2-1 Temporary Buydown pricing improved...</div>
+      </div>
+    </div>
+
+    <!-- Pane 4: Email Reading & Live Reply Composer -->
+    <main class="reading-pane">
+      <h2 id="mail-subject" style="font-size:19px;font-weight:700;color:#201F1E;margin-bottom:12px;">
+        URGENT: Offer on $625k Novi Home — Lock Rate or Buy Points?
+      </h2>
+      <div style="display:flex;align-items:center;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid #EDEBE9;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:38px;height:38px;border-radius:50%;background:#0F6CBD;color:#FFF;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;">DP</div>
+          <div>
+            <div style="font-size:13.5px;font-weight:700;" id="mail-sender">David & Priya Patel &lt;dpatel.novi@gmail.com&gt;</div>
+            <div style="font-size:11.5px;color:#605E5C;">To: You (Senior Loan Officer • NMLS #1049281); Cc: Sarah Jenkins (Redfin Partner)</div>
+          </div>
+        </div>
+        <span class="mono" style="font-size:11px;background:#EFF6FC;color:#0F6CBD;padding:4px 10px;border-radius:4px;font-weight:700;">Loan #RKT-994120 • 772 FICO</span>
+      </div>
+
+      <div id="inbound-body" style="padding:14px 0;font-size:13.5px;line-height:1.6;color:#323130;">
+        Hi Jordan — We are writing our offer on 44910 Twining Dr in Novi for <strong>$625,000</strong> with 20% down (<strong>$500,000 loan amount</strong>). The seller is willing to give us an <strong>$8,500 closing cost concession</strong>. Should we take the Par rate at 6.125%, pay 0.75 points to permanently buy down to 5.875%, or use the seller credit for a 2-1 temporary buydown? Also please attach our Verified Pre-Approval letter!
+      </div>
+
+      <!-- AI Compose Box Inside Outlook -->
+      <div class="email-draft-box">
+        <div style="background:#EFF6FC;padding:10px 16px;border-bottom:1px solid #C8C6C4;display:flex;justify-content:space-between;align-items:center;">
+          <div style="font-size:12px;font-weight:700;color:#0F6CBD;display:flex;align-items:center;gap:6px;">
+            <span>🚀 Rocket AI Rate-Lock Draft</span>
+            <span class="mono" id="draft-model-badge" style="background:#0F6CBD;color:#FFF;padding:2px 7px;border-radius:4px;font-size:10px;">gemini-4-argon</span>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="sendOutlookReply()" style="background:#0F6CBD;color:#FFF;border:none;padding:5px 14px;border-radius:4px;font-size:12px;font-weight:700;cursor:pointer;">Send Email + Pre-Approval PDF</button>
+          </div>
+        </div>
+
+        <div style="padding:18px;">
+          <div id="ai-email-intro" style="font-size:13.5px;line-height:1.6;color:#201F1E;margin-bottom:12px;">
+            Hi David & Priya — Congratulations on submitting your offer in Novi! I ran all three structures through our deterministic pricing engine for your <strong>$500,000 loan</strong> (80% LTV, $0 PMI). Because your seller is contributing <strong>$8,500</strong>, here is your exact side-by-side comparison:
+          </div>
+
+          <!-- Side-by-Side 3-Option Rate Table inside the Email Draft -->
+          <table class="rate-table">
+            <thead>
+              <tr>
+                <th>Structure</th>
+                <th>Interest Rate / APR</th>
+                <th>Monthly P&I Payment</th>
+                <th>Upfront Points / Subsidy</th>
+                <th>Break-Even / Strategy</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr id="row-opt-1">
+                <td><strong>Option A: 30-Yr Par Lock</strong></td>
+                <td class="mono" id="tb-par-rate">6.125% (6.184% APR)</td>
+                <td class="mono" style="font-weight:700;" id="tb-par-pi">$3,038.05 / mo</td>
+                <td class="mono">$0.00 (0.000 pts)</td>
+                <td>Apply $8,500 seller credit to escrow/title fees</td>
+              </tr>
+              <tr id="row-opt-2" style="background:#F0FDF4;">
+                <td><strong>Option B: Permanent Buydown ⭐</strong></td>
+                <td class="mono" id="tb-buy-rate">5.875% (5.962% APR)</td>
+                <td class="mono" style="font-weight:700;color:#059669;" id="tb-buy-pi">$2,957.69 / mo</td>
+                <td class="mono" id="tb-buy-cost">$3,750.00 (0.750 pts)</td>
+                <td class="mono" id="tb-buy-be">46.7 Mos (Saves $80.36/mo for 30 yrs)</td>
+              </tr>
+              <tr id="row-opt-3">
+                <td><strong>Option C: 2-1 Seller Buydown</strong></td>
+                <td class="mono">Yr1: 4.125% | Yr2: 5.125%</td>
+                <td class="mono" style="font-weight:700;color:#0F6CBD;" id="tb-21-pi">Yr1: $2,423.25 / Yr2: $2,722.43</td>
+                <td class="mono" id="tb-21-sub">$11,168.16 Seller Escrow</td>
+                <td>Saves $614.80/mo in Year 1; refi when rates dip</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Attached Pre-Approval PDF Card -->
+          <div style="margin-top:14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+            <div class="pdf-chip">
+              <span style="color:#D83B01;font-size:18px;">📄</span>
+              <div>
+                <div id="pdf-filename">Rocket_Verified_PreApproval_Patel_$625000.pdf</div>
+                <div style="font-size:10.5px;color:#605E5C;">TILA Reg Z § 1026.24 Compliant • NMLS #3030 • Verified Assets & DU Approve/Eligible</div>
+              </div>
+            </div>
+            <span id="send-toast" style="font-size:12px;font-weight:700;color:#059669;display:none;">✓ Sent via Microsoft Graph API + Logged to CRM!</span>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Pane 5: Rocket Rate-Lock Copilot Add-In Sidecar -->
+    <aside class="copilot-pane">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-weight:800;font-size:13.5px;color:#0F6CBD;">🚀 Rocket Rate-Lock Add-In</div>
+        <span class="mono" style="font-size:10px;background:#E1DFDD;padding:2px 6px;border-radius:4px;">LIVE SANDBOX</span>
+      </div>
+
+      <div class="copilot-card">
+        <div style="font-size:11px;font-weight:700;color:#605E5C;text-transform:uppercase;margin-bottom:10px;">🎛️ Interactive Pricing Calibration</div>
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;">
+            <span>Loan Amount:</span>
+            <strong class="mono" id="lbl-loan" style="color:#0F6CBD;">$500,000</strong>
+          </div>
+          <input type="range" id="sl-loan" min="250000" max="900000" step="10000" value="500000" style="width:100%;accent-color:#0F6CBD;" oninput="recalcRateLock()">
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;">
+            <span>30-Yr Par Rate (%):</span>
+            <strong class="mono" id="lbl-par" style="color:#0F6CBD;">6.125%</strong>
+          </div>
+          <input type="range" id="sl-par" min="5.250" max="7.250" step="0.125" value="6.125" style="width:100%;accent-color:#0F6CBD;" oninput="recalcRateLock()">
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;">
+            <span>Permanent Buydown Rate (%):</span>
+            <strong class="mono" id="lbl-buy" style="color:#059669;">5.875%</strong>
+          </div>
+          <input type="range" id="sl-buy" min="4.875" max="6.875" step="0.125" value="5.875" style="width:100%;accent-color:#059669;" oninput="recalcRateLock()">
+        </div>
+      </div>
+
+      <div class="copilot-card">
+        <div style="font-size:11px;font-weight:700;color:#605E5C;text-transform:uppercase;margin-bottom:6px;">🛡️ TILA Reg Z § 1026.24 Guardrail</div>
+        <div style="font-size:12px;color:#323130;line-height:1.5;">
+          Every quoted note rate automatically pairs with its <strong>Annual Percentage Rate (APR)</strong> and NMLS #3030 disclosure footer before Outlook enables Send.
+        </div>
+      </div>
+
+      <button onclick="window.runLiveVertexAI()" style="width:100%;padding:11px;border-radius:8px;background:#0F6CBD;color:#FFF;border:none;font-weight:700;font-size:12.5px;cursor:pointer;">
+        ⚡ Re-Generate Draft with Selected Model
+      </button>
+    </aside>
+  </div>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2" selected style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [1.2] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Outlook Hyper-Personalized Rate-Lock & Pre-Approval Agent</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.2?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Property: 892 Puritan Ave, Birmingham, MI 48009 (Listing Agent: Sarah Jenkins, @properties).
+Offer Price: $625,000 | Down Payment: 20% ($125,000) | Loan Amount: $500,000 | 30-Yr Fixed Conventional.
+Borrowers: Dr. Priya Nair &ohan Nair | Middle FICO: 785.
+Options to Compare:
+- Option A: Par Rate 6.125% (0.00 pts)
+- Option B: Rate-Lock w/ 0.75 pt Buydown -> 5.875% ($3,750 cost)
+- Option C: Rocket 2-1 Temporary Buydown (Year 1: 4.125%, Year 2: 5.125%, Year 3-30: 6.125%, Seller Concession funded)
+Closing Date Target: November 24, 2026 (21-day Rocket Fast Track Close).</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "1.2";
+  window.ACTIVE_PROJECT = {"code": "1.2", "level": "L100\u2013L200", "tags": ["L100", "L200"], "tool": "Gemini Code Assist & O365 Add-In", "project": "Outlook Hyper-Personalized Rate-Lock & Pre-Approval Agent", "focus": "Compile personalized Rocket Verified Approval letters & Excel closing-cost tables directly inside an O365 Outlook compose workflow.", "desc": "Generate a tailored Rocket Mortgage Verified Approval Letter and 3-option Rate-Lock comparison table inside an Outlook-style compose window referencing the exact Redfin property address, seller agent, and local Oakland County millage taxes.", "url": "https://cloud.google.com/products/gemini/code-assist", "serviceText": "Gemini Code Assist & Vertex AI Argon", "serviceUrl": "https://cloud.google.com/products/gemini/code-assist", "gcpStack": ["Gemini 4 Argon", "Gemini Code Assist", "Microsoft Graph / Outlook MCP"], "competeEdge": "Outperforms Microsoft 365 Copilot in Outlook by pulling live Rocket pricing engine tiers and computing exact county transfer taxes without hallucinating fee buckets.", "sampleInput": "Property: 892 Puritan Ave, Birmingham, MI 48009 (Listing Agent: Sarah Jenkins, @properties).\nOffer Price: $625,000 | Down Payment: 20% ($125,000) | Loan Amount: $500,000 | 30-Yr Fixed Conventional.\nBorrowers: Dr. Priya Nair &ohan Nair | Middle FICO: 785.\nOptions to Compare:\n- Option A: Par Rate 6.125% (0.00 pts)\n- Option B: Rate-Lock w/ 0.75 pt Buydown -> 5.875% ($3,750 cost)\n- Option C: Rocket 2-1 Temporary Buydown (Year 1: 4.125%, Year 2: 5.125%, Year 3-30: 6.125%, Seller Concession funded)\nClosing Date Target: November 24, 2026 (21-day Rocket Fast Track Close).", "sandboxAction": "calc_rate_lock_options", "sandboxParams": {"loan_amount": 500000, "price": 625000, "base_rate": 6.125, "buydown_rate": 5.875, "buydown_pts": 0.75}, "systemPrompt": "You are the Rocket Mortgage O365 Outlook Rate-Lock & Verified Approval Drafter powered by Gemini 4 Argon. Generate: (1) A formal, seller-winning 'Rocket Verified Approval Letter' addressed to the listing agent highlighting Rocket's 21-day closing guarantee, and (2) A borrower-facing Outlook email with a clean Markdown/Excel table comparing Options A (Par), B (Permanent Buydown with breakeven month calculation), and C (2-1 Seller-Paid Buydown).", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502      1.2 OUTLOOK RATE-LOCK & PRE-APPROVAL AGENT (L100-L200)            \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [O365 Outlook Add-In / Compose Pane]                                  \u2502\n\u2502  \u2022 Property Address, Listing Agent, Loan Amount, 3 Rate Options        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Sandboxed Breakeven & PITI Engine + Gemini 4 Argon]                  \u2502\n\u2502  \u2022 Computes exact P&I, Buydown Cost, Monthly Savings, Breakeven Month  \u2502\n\u2502  \u2022 Generates Seller-Facing Verified Approval + Buyer Comparison Grid   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Outlook Rich HTML Email + Copy-Paste Excel Table]                    \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Use Gemini Code Assist in VS Code or Antigravity IDE to scaffold the O365 Outlook Web Add-in manifest (`manifest.xml`) and FastAPI backend.", "Connect the backend to `gemini-4-argon` on Vertex AI to synthesize both the Listing Agent Verified Approval certificate and the Borrower 3-Scenario Comparison Table.", "Run the sandboxed amortization calculator so breakeven months (Upfront Points Cost / Monthly P&I Savings) are exact."], "codeSnippet": "# Breakeven + Outlook Pre-Approval Generator with Gemini 4 Argon\ndef calc_payment(principal, annual_rate):\n    r = (annual_rate / 100) / 12\n    return principal * (r * (1 + r)**360) / ((1 + r)**360 - 1)\n\np_par = calc_payment(500000, 6.125)\np_buy = calc_payment(500000, 5.875)\nbreakeven_months = round(3750 / (p_par - p_buy), 1)", "dept_id": "sales", "dept_short": "1. Loan Origination & Sales", "dept_full": "1. Loan Origination & Mortgage Banking (Rocket Mortgage Production & Pro TPO)", "demo_service_url": "https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.2", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.2"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Property: 892 Puritan Ave, Birmingham, MI 48009 (Listing Agent: Sarah Jenkins, @properties).\\nOffer Price: $625,000 | Down Payment: 20% ($125,000) | Loan Amount: $500,000 | 30-Yr Fixed Conventional.\\nBorrowers: Dr. Priya...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Mortgage O365 Outlook Rate-Lock & Verified Approval Drafter powered by Gemini 4 Argon. Generate: (1) A formal, seller-winning 'Rocket Verified Approval Letter' a...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Property: 892 Puritan Ave, Birmingham, MI 48009 (Listing Agent: Sarah Jenkins, @properties).\\nOffer Price: $625,000 | Down Payment: 20% ($125,000) | Loan Amount: $500,000 | 30-Yr Fixed Conventional.\\nBorrowers: Dr. Priya...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Mortgage O365 Outlook Rate-Lock & Verified Approval Drafter powered by Gemini 4 Argon. Generate: (1) A formal, seller-winning 'Rocket Verified Approval Letter' a...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-4-argon";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-4-argon");
+  });
+</script>
+
+
+  <script>
+    function selectOptionHighlight(opt) {
+      [1,2,3].forEach(i => {
+        document.getElementById('row-opt-' + i).style.background = (i === opt) ? '#EFF6FC' : '#FFFFFF';
+      });
+    }
+
+    function sendOutlookReply() {
+      const t = document.getElementById('send-toast');
+      t.style.display = 'inline';
+      setTimeout(() => { t.style.display = 'none'; }, 4000);
+    }
+
+    function loadThread(idx, el) {
+      document.querySelectorAll('.msg-card').forEach(c => c.classList.remove('active'));
+      el.classList.add('active');
+      if (idx === 0) {
+        document.getElementById('sl-loan').value = 500000;
+        document.getElementById('mail-subject').innerText = 'URGENT: Offer on $625k Novi Home — Lock Rate or Buy Points?';
+        document.getElementById('pdf-filename').innerText = 'Rocket_Verified_PreApproval_Patel_$625000.pdf';
+      } else if (idx === 1) {
+        document.getElementById('sl-loan').value = 440000;
+        document.getElementById('mail-subject').innerText = 'Updated Pre-Approval Letter for 812 Villa Rd ($550,000)';
+        document.getElementById('pdf-filename').innerText = 'Rocket_Verified_PreApproval_VillaRd_$550000.pdf';
+      } else {
+        document.getElementById('sl-loan').value = 600000;
+        document.getElementById('mail-subject').innerText = 'Morning Rate Sheet Lock Advisory ($600,000 Jumbo/Conforming)';
+        document.getElementById('pdf-filename').innerText = 'Rocket_RateSheet_Lock_Advisory_$600000.pdf';
+      }
+      recalcRateLock();
+    }
+
+    async function recalcRateLock() {
+      const loan = parseFloat(document.getElementById('sl-loan').value);
+      const par = parseFloat(document.getElementById('sl-par').value);
+      const buy = parseFloat(document.getElementById('sl-buy').value);
+      document.getElementById('lbl-loan').innerText = '$' + loan.toLocaleString();
+      document.getElementById('lbl-par').innerText = par.toFixed(3) + '%';
+      document.getElementById('lbl-buy').innerText = buy.toFixed(3) + '%';
+
+      const res = await fetch('/api/sandbox', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          code: '1.2',
+          action: 'calc_rate_lock_options',
+          params: {loan_amount: loan, base_rate: par, buydown_rate: buy, buydown_pts: 0.75}
+        })
+      });
+      const data = await res.json();
+      if (data.ok && data.metrics) {
+        const m = data.metrics;
+        document.getElementById('tb-par-rate').innerText = par.toFixed(3) + '% (' + (par + 0.059).toFixed(3) + '% APR)';
+        document.getElementById('tb-par-pi').innerText = (m.option_a_par_pi || '').split('@')[0].trim();
+        document.getElementById('tb-buy-rate').innerText = buy.toFixed(3) + '% (' + (buy + 0.087).toFixed(3) + '% APR)';
+        document.getElementById('tb-buy-pi').innerText = (m.option_b_buydown_pi || '').split('@')[0].trim();
+        document.getElementById('tb-buy-cost').innerText = '$' + Math.round(loan * 0.0075).toLocaleString() + ' (0.750 pts)';
+        document.getElementById('tb-buy-be').innerText = m.option_b_breakeven || '';
+        document.getElementById('tb-21-pi').innerText = (m.option_c_2_1_buydown || '').split('|').slice(0,2).join(' | ');
+        document.getElementById('tb-21-sub').innerText = ((m.option_c_2_1_buydown || '').split('Subsidy:')[1] || '').trim() + ' Seller Escrow';
+      }
+    }
+
+    window.runLiveVertexAI = async function() {
+      const btn = document.getElementById('draft-btn');
+      const model = window.getSelectedModel();
+      btn.innerText = '⏳ Drafting on ' + model + '...';
+      document.getElementById('draft-model-badge').innerText = model;
+
+      const loan = parseFloat(document.getElementById('sl-loan').value);
+      const par = parseFloat(document.getElementById('sl-par').value);
+      const buy = parseFloat(document.getElementById('sl-buy').value);
+
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            code: '1.2',
+            model: model,
+            params: {loan_amount: loan, base_rate: par, buydown_rate: buy, buydown_pts: 0.75}
+          })
+        });
+        const data = await res.json();
+        document.getElementById('draft-model-badge').innerText = data.model_used || model;
+        if (data.structured_data && (data.structured_data.email_body || data.structured_data.executive_summary)) {
+          document.getElementById('ai-email-intro').innerHTML = data.structured_data.email_body || data.structured_data.executive_summary;
+        } else if (data.output) {
+          document.getElementById('ai-email-intro').innerText = data.output;
+        }
+      } catch (e) {}
+      finally {
+        btn.innerText = '✨ Draft Hyper-Personalized Rate Lock Reply';
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pull Request #1408 • Antigravity 2.0 4-Agent Swarm | GitHub Enterprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif;
+      background: #0D1117;
+      color: #C9D1D9;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    .gh-header {
+      background: #161B22;
+      border-bottom: 1px solid #30363D;
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .gh-btn-merge {
+      background: #238636;
+      color: #FFFFFF;
+      border: 1px solid rgba(240,246,252,0.1);
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .gh-btn-merge:hover { background: #2EA043; }
+
+    .gh-container {
+      max-width: 1240px;
+      margin: 24px auto;
+      padding: 0 24px;
+    }
+    .pr-badge {
+      background: #238636;
+      color: #FFFFFF;
+      padding: 5px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pr-badge.merged { background: #8957E5; }
+
+    /* 4-Agent Swarm Kanban Strip */
+    .swarm-lanes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 22px 0;
+    }
+    @media (max-width: 980px) {
+      .swarm-lanes { grid-template-columns: repeat(2, 1fr); }
+    }
+    .agent-lane {
+      background: #161B22;
+      border: 1px solid #30363D;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .agent-lane:hover, .agent-lane.active {
+      border-color: #58A6FF;
+      box-shadow: 0 0 0 2px rgba(88,166,255,0.2);
+    }
+
+    .gh-box {
+      background: #161B22;
+      border: 1px solid #30363D;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .gh-box-header {
+      background: #21262D;
+      padding: 10px 16px;
+      border-bottom: 1px solid #30363D;
+      font-size: 12.5px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+
+  <header class="gh-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <svg height="28" viewBox="0 0 16 16" width="28" fill="#F0F6FC"><path d="M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z"></path></svg>
+      <div>
+        <div style="font-size:14px;font-weight:600;color:#58A6FF;">rocket-companies / <strong style="color:#F0F6FC;">closing-microservice-hub</strong></div>
+        <div class="mono" style="font-size:11px;color:#8B949E;">Antigravity 2.0 Multi-Agent Swarm (`workspace="share"` Jujutsu VCS)</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="mono" style="background:#0D1117;border:1px solid #30363D;padding:5px 10px;border-radius:6px;font-size:11px;">
+        Model:
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" class="mono" style="background:transparent;color:#58A6FF;font-weight:700;border:none;outline:none;font-size:11px;cursor:pointer;">
+          <option value="gemini-4-argon" style="background:#0D1117;">gemini-4-argon</option>
+          <option value="gemini-3.8-flash" style="background:#0D1117;">gemini-3.8-flash</option>
+        </select>
+      </div>
+      <button class="gh-btn-merge" onclick="window.runLiveVertexAI()" id="swarm-btn">⚡ Re-Run 4-Agent Swarm Synthesis</button>
+    </div>
+  </header>
+
+  <main class="gh-container">
+    <!-- PR Title & Status -->
+    <div style="border-bottom:1px solid #30363D;padding-bottom:16px;">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <h1 style="font-size:24px;font-weight:600;color:#F0F6FC;">feat(escrow): Autonomous FHA/VA Escrow Cushion Calculator API & OpenAPI 3.1 Spec <span style="color:#8B949E;font-weight:400;">#1408</span></h1>
+      </div>
+      <div style="margin-top:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+        <span class="pr-badge" id="pr-state-badge">🟣 Open • Ready to Merge</span>
+        <span class="mono" style="font-size:12px;color:#8B949E;">
+          <strong style="color:#F0F6FC;">antigravity-swarm[bot]</strong> wants to merge 4 commits into <code style="background:#161B22;padding:2px 6px;border-radius:4px;">main</code> from <code style="background:#161B22;padding:2px 6px;border-radius:4px;">feat/jira-rkt-4910-escrow-api</code>
+        </span>
+      </div>
+    </div>
+
+    <!-- 4-AGENT SWARM KANBAN LANES -->
+    <section class="swarm-lanes">
+      <div class="agent-lane active" onclick="inspectAgent(1, this)">
+        <div class="mono" style="font-size:11px;color:#58A6FF;font-weight:700;">AGENT 1 • ARCHITECT</div>
+        <div style="font-weight:700;font-size:14px;color:#F0F6FC;margin:4px 0;">OpenAPI 3.1 & RESPA Schema</div>
+        <div class="mono" style="font-size:11px;color:#3FB950;">✓ Completed in 4.2s</div>
+      </div>
+      <div class="agent-lane" onclick="inspectAgent(2, this)">
+        <div class="mono" style="font-size:11px;color:#D2A8FF;font-weight:700;">AGENT 2 • CODER</div>
+        <div style="font-weight:700;font-size:14px;color:#F0F6FC;margin:4px 0;">FastAPI + Pydantic v2 Service</div>
+        <div class="mono" style="font-size:11px;color:#3FB950;">✓ Completed in 6.8s</div>
+      </div>
+      <div class="agent-lane" onclick="inspectAgent(3, this)">
+        <div class="mono" style="font-size:11px;color:#F2CC60;font-weight:700;">AGENT 3 • QA ENGINEER</div>
+        <div style="font-weight:700;font-size:14px;color:#F0F6FC;margin:4px 0;" id="qa-lane-title">96.4% Pytest Coverage</div>
+        <div class="mono" style="font-size:11px;color:#3FB950;">✓ 28 Edge-Case Tests Pass</div>
+      </div>
+      <div class="agent-lane" onclick="inspectAgent(4, this)">
+        <div class="mono" style="font-size:11px;color:#FF7B72;font-weight:700;">AGENT 4 • SECOPS</div>
+        <div style="font-weight:700;font-size:14px;color:#F0F6FC;margin:4px 0;">OWASP & SBOM Gate</div>
+        <div class="mono" style="font-size:11px;color:#3FB950;">✓ 0 High/Critical CVEs</div>
+      </div>
+    </section>
+
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:20px;">
+      <!-- Left: PR Diff & Conversation -->
+      <div>
+        <div class="gh-box">
+          <div class="gh-box-header">
+            <span id="diff-file-title" class="mono">📄 services/escrow_cushion/router.py (+184 -0)</span>
+            <span class="mono" style="color:#3FB950;" id="pr-model-tag">Synthesized via gemini-4-argon</span>
+          </div>
+          <pre id="pr-code-body" class="mono" style="padding:16px;font-size:12px;line-height:1.6;color:#E6EDF3;overflow-x:auto;background:#0D1117;">+ from fastapi import APIRouter, Depends
++ from pydantic import BaseModel, Field
++ 
++ router = APIRouter(prefix="/v1/escrow-cushion", tags=["RESPA § 1024.17"])
++ 
++ class EscrowCushionRequest(BaseModel):
++     annual_tax: float = Field(..., gt=0)
++     annual_hazard_ins: float = Field(..., gt=0)
++     state_code: str = Field(..., min_length=2, max_length=2)
++ 
++ @router.post("/calculate")
++ def calculate_respa_cushion(req: EscrowCushionRequest):
++     # Enforces 12 CFR § 1024.17 1/6th (2-month) statutory cushion cap
++     monthly_base = round((req.annual_tax + req.annual_hazard_ins) / 12.0, 2)
++     max_ statutory_cushion = round(monthly_base * 2.0, 2)
++     return {"monthly_escrow": monthly_base, "max_respa_cushion": max_statutory_cushion}</pre>
+        </div>
+
+        <!-- Merge Box -->
+        <div class="gh-box" style="padding:16px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-weight:700;color:#3FB950;font-size:14px;">✓ All 4 Antigravity Swarm Checks Have Passed</div>
+            <div style="font-size:12px;color:#8B949E;margin-top:2px;" id="swarm-summary-text">100% OpenAPI schema compliance • 96.4% pytest coverage • 0 SAST findings</div>
+          </div>
+          <button class="gh-btn-merge" onclick="mergePullRequest()">🔀 Squash and Merge PR #1408</button>
+        </div>
+      </div>
+
+      <!-- Right: Swarm Telemetry & Sliders -->
+      <aside class="gh-box" style="padding:18px;height:fit-content;">
+        <div style="font-weight:700;font-size:13px;color:#F0F6FC;margin-bottom:12px;">🎛️ Swarm Complexity & QA Calibration</div>
+        <div style="margin-bottom:14px;">
+          <div class="mono" style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;">
+            <span>Story Points (Jira PRD):</span>
+            <strong id="lbl-pts" style="color:#58A6FF;">8 pts</strong>
+          </div>
+          <input type="range" id="sl-pts" min="3" max="21" step="1" value="8" style="width:100%;accent-color:#58A6FF;" oninput="recalcSwarm()">
+        </div>
+        <div style="margin-bottom:14px;">
+          <div class="mono" style="display:flex;justify-content:space-between;font-size:11.5px;margin-bottom:4px;">
+            <span>Target Pytest Coverage (%):</span>
+            <strong id="lbl-cov" style="color:#3FB950;">96.4%</strong>
+          </div>
+          <input type="range" id="sl-cov" min="80" max="100" step="0.5" value="96.4" style="width:100%;accent-color:#238636;" oninput="recalcSwarm()">
+        </div>
+        <div class="mono" style="font-size:11px;color:#8B949E;line-height:1.6;padding-top:10px;border-top:1px solid #30363D;" id="sbx-metrics-box">
+          • Cycle Time: 4.5 Days -> 6m 12s<br>
+          • Parallel Agents: 4 Jujutsu Worktrees
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2" selected style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [6.2] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">AI Software Factory: Autonomous PRD-to-Pull-Request Architect</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.2?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Product Requirements Document (PRD #RKT-2026-Q4):
+Feature: "Rocket Instant Bi-Weekly Principal Accelerator API & Widget"
+Requirements:
+1) Build a REST endpoint `POST /api/v1/servicing/biweekly-simulator` accepting `loan_amount`, `annual_rate`, `remaining_months`, and `extra_biweekly_dollars`.
+2) Compute standard monthly amortization vs. accelerated bi-weekly amortization (26 half-payments/yr = 13 full monthly equivalents/yr).
+3) Return exact `months_shaved`, `years_shaved`, `total_interest_saved`, and `payoff_date`.
+4) Include 100% passing unit tests for edge cases (0% interest, extra principal payment, payoff in <12 months).</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "6.2";
+  window.ACTIVE_PROJECT = {"code": "6.2", "level": "L300", "tags": ["L300"], "tool": "Antigravity Multi-Agent Swarm & GEAP", "project": "AI Software Factory: Autonomous PRD-to-Pull-Request Architect", "focus": "Ingest a Rocket Product Requirements Document (PRD), spawn parallel Antigravity coding & testing subagents, execute tests in sandbox containers, and open a verified PR.", "desc": "Show Michael Evans (VP AI Eng) and Jenny Smolek (EVP Eng) the future of software engineering: drop a product spec into Antigravity Goal Mode, watch 4 specialized subagents (Architect, Backend Coder, Frontend Builder, QA Tester) build and verify the feature in parallel.", "url": "https://antigravity.google", "serviceText": "Google Antigravity 2.0 & Gemini Enterprise Spark", "serviceUrl": "https://antigravity.google", "gcpStack": ["Google Antigravity 2.0 Swarm", "Gemini Enterprise Spark (Goal Mode)", "Gemini 4 Argon", "Cloud Build / Cloud Run Sandbox"], "competeEdge": "Unlike single-threaded local CLI tools (Claude Code), Antigravity Swarm runs persistent, cloud-hosted parallel subagents in isolated workspaces (`workspace='share'`) that keep working even when the developer closes their laptop.", "sampleInput": "Product Requirements Document (PRD #RKT-2026-Q4):\nFeature: \"Rocket Instant Bi-Weekly Principal Accelerator API & Widget\"\nRequirements:\n1) Build a REST endpoint `POST /api/v1/servicing/biweekly-simulator` accepting `loan_amount`, `annual_rate`, `remaining_months`, and `extra_biweekly_dollars`.\n2) Compute standard monthly amortization vs. accelerated bi-weekly amortization (26 half-payments/yr = 13 full monthly equivalents/yr).\n3) Return exact `months_shaved`, `years_shaved`, `total_interest_saved`, and `payoff_date`.\n4) Include 100% passing unit tests for edge cases (0% interest, extra principal payment, payoff in <12 months).", "sandboxAction": "run_software_factory_biweekly", "sandboxParams": {"loan_amount": 380000.0, "annual_rate": 6.25, "remaining_months": 360, "extra_biweekly": 50.0}, "systemPrompt": "You are the Google Antigravity AI Software Factory Swarm Orchestrator powered by Gemini 4 Argon. Display the 4-Agent Swarm Execution Log (`[Agent 1: Spec Architect] -> [Agent 2: FastAPI Backend Engineer] -> [Agent 3: Pytest Sandbox Verifier] -> [Agent 4: PR Reviewer]`) along with the live sandbox execution results for a $380,000 loan at 6.25%, production-ready Python FastAPI code, and the passing unit test suite.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502       6.2 AI SOFTWARE FACTORY: AUTONOMOUS PR ARCHITECT (L300)          \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Input PRD: \"Rocket Instant Bi-Weekly Principal Accelerator API\"]     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Google Antigravity Swarm / Goal Mode (Gemini 4 Argon)]               \u2502\n\u2502  \u251c\u2500\u25ba Agent 1 (Architect): Designs OpenAPI Spec & Math Invariants       \u2502\n\u2502  \u251c\u2500\u25ba Agent 2 (Coder):     Writes FastAPI Endpoint & Amortization Loop  \u2502\n\u2502  \u251c\u2500\u25ba Agent 3 (QA Sandbox): Runs 6 Pytest edge-case tests in gVisor     \u2502\n\u2502  \u2514\u2500\u25ba Agent 4 (Reviewer):   Verifies 0 lint/security issues & opens PR  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Verified Pull Request (#PR-4092): Shaves 6.4 Yrs & Saves $112,480]   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Launch Antigravity Swarm or `run_workflow` with `pipeline([architect_agent, coder_agent, qa_sandbox_agent, pr_reviewer_agent])`.", "Each coding agent works in an isolated `workspace='share'` branch and executes `pytest` inside the gVisor sandbox.", "Once all tests pass, the orchestrator submits the merged Pull Request."], "codeSnippet": "# Antigravity Dynamic Workflow Script (run_workflow)\nspec = await agent(\"Draft OpenAPI spec for Bi-Weekly Simulator\", model=\"gemini-4-argon\", schema=SpecSchema)\ncode, tests = await parallel([\n    agent(f\"Write FastAPI endpoint for {spec}\", model=\"gemini-4-argon\", schema=CodeSchema),\n    agent(f\"Write pytest suite for {spec}\", model=\"gemini-3.8-flash\", schema=TestSchema)\n], lambda task: task)", "dept_id": "sdlc", "dept_short": "6. SDLC, CodeMender & Antigravity", "dept_full": "6. SDLC & AI Software Factory (CodeMender Security, Antigravity Swarm & .NET Modernization)", "demo_service_url": "https://rocket-demo-sdlc-254356041555.us-central1.run.app/?case=6.2", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.2"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Product Requirements Document (PRD #RKT-2026-Q4):\\nFeature: \\\"Rocket Instant Bi-Weekly Principal Accelerator API & Widget\\\"\\nRequirements:\\n1) Build a REST endpoint `POST /api/v1/servicing/biweekly-simulator` accepting `...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Google Antigravity AI Software Factory Swarm Orchestrator powered by Gemini 4 Argon. Display the 4-Agent Swarm Execution Log (`[Agent 1: Spec Architect] -> [Agent 2: Fa...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Product Requirements Document (PRD #RKT-2026-Q4):\\nFeature: \\\"Rocket Instant Bi-Weekly Principal Accelerator API & Widget\\\"\\nRequirements:\\n1) Build a REST endpoint `POST /api/v1/servicing/biweekly-simulator` accepting `...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Google Antigravity AI Software Factory Swarm Orchestrator powered by Gemini 4 Argon. Display the 4-Agent Swarm Execution Log (`[Agent 1: Spec Architect] -> [Agent 2: Fa...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-4-argon";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-4-argon");
+  });
+</script>
+
+
+  <script>
+    function mergePullRequest() {
+      const b = document.getElementById('pr-state-badge');
+      b.className = 'pr-badge merged';
+      b.innerText = '🟣 Merged into main (commit 9f4a21c)';
+    }
+
+    function inspectAgent(id, el) {
+      document.querySelectorAll('.agent-lane').forEach(l => l.classList.remove('active'));
+      el.classList.add('active');
+      const title = document.getElementById('diff-file-title');
+      const body = document.getElementById('pr-code-body');
+      if (id === 1) {
+        title.innerText = '📄 openapi/escrow_cushion_v1.yaml (+92 -0)';
+        body.textContent = `openapi: 3.1.0
+info:
+  title: Rocket RESPA Escrow Cushion API
+  version: 1.0.0
+paths:
+  /v1/escrow-cushion/calculate:
+    post:
+      summary: Compute 12 CFR 1024.17 2-Month Cushion Cap`;
+      } else if (id === 2) {
+        title.innerText = '📄 services/escrow_cushion/router.py (+184 -0)';
+      } else if (id === 3) {
+        title.innerText = '🧪 tests/test_escrow_respa_limits.py (+140 -0)';
+        body.textContent = `def test_respa_two_month_cushion_cap():
+    res = calculate_respa_cushion(EscrowCushionRequest(annual_tax=4800, annual_hazard_ins=1200, state_code="MI"))
+    assert res["monthly_escrow"] == 500.00
+    assert res["max_respa_cushion"] == 1000.00  # Strictly <= 1/6th annual disbursements`;
+      } else {
+        title.innerText = '🛡️ secops/sbom_attestation.json (+48 -0)';
+        body.textContent = `{"scanner": "Google Cloud Artifact Analysis + Model Armor", "critical_vulnerabilities": 0, "high_vulnerabilities": 0, "slsa_level": "SLSA Build L3 Verified"}`;
+      }
+    }
+
+    async function recalcSwarm() {
+      const pts = parseInt(document.getElementById('sl-pts').value);
+      const cov = parseFloat(document.getElementById('sl-cov').value);
+      document.getElementById('lbl-pts').innerText = pts + ' pts';
+      document.getElementById('lbl-cov').innerText = cov.toFixed(1) + '%';
+      document.getElementById('qa-lane-title').innerText = cov.toFixed(1) + '% Pytest Coverage';
+
+      const res = await fetch('/api/sandbox', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: '6.2', action: 'simulate_software_factory', params: {story_points: pts, coverage_pct: cov}})
+      });
+      const data = await res.json();
+      if (data.ok && data.metrics) {
+        document.getElementById('sbx-metrics-box').innerHTML =
+          Object.values(data.metrics).map(v => '• ' + v).join('<br>');
+      }
+    }
+
+    window.runLiveVertexAI = async function() {
+      const btn = document.getElementById('swarm-btn');
+      const model = window.getSelectedModel();
+      btn.innerText = '⏳ Running Swarm on ' + model + '...';
+      const pts = parseInt(document.getElementById('sl-pts').value);
+      const cov = parseFloat(document.getElementById('sl-cov').value);
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({code: '6.2', model: model, params: {story_points: pts, coverage_pct: cov}})
+        });
+        const data = await res.json();
+        document.getElementById('pr-model-tag').innerText = 'Synthesized via ' + (data.model_used || model);
+        if (data.structured_data && (data.structured_data.pr_summary || data.structured_data.executive_summary)) {
+          document.getElementById('swarm-summary-text').innerHTML = data.structured_data.pr_summary || data.structured_data.executive_summary;
+        } else if (data.output) {
+          document.getElementById('swarm-summary-text').innerText = data.output;
+        }
+      } catch (e) {}
+      finally {
+        btn.innerText = '⚡ Re-Run 4-Agent Swarm Synthesis';
+      }
+    };
+  </script>
+</body>
+</html>

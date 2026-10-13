@@ -2,7 +2,7 @@
 """
 Rocket Companies AI Hackathon (Oct 2026) — Square [M.4]: Project Mirror: Interactive Virtual Mortgage Advisor ('Astra Pro')
 Bespoke App Archetype: project_mirror_live_whiteboard_advisor (Project Mirror ('Astra Pro') // Interactive Live Voice & Dynamic Closing-Table Whiteboard)
-Routed Model: gemini-3.8-flash (Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash)
+Routed Model: gemini-3.8-flash (Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash)
 """
 import json
 import os

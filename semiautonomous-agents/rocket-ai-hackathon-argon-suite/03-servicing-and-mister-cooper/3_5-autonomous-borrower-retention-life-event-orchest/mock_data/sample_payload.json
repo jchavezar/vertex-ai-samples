@@ -9,7 +9,7 @@
   "tool_label": "GEAP Multi-Agent Orchestration & Agent Registry",
   "routed_model": "gemini-3.8-flash",
   "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
-  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "routing_note": "Active Model: gemini-3.8-flash on Global Endpoint (ADK default: gemini-3.8-flash)",
   "gcp_stack": [
     "GEAP Multi-Agent Orchestrator",
     "Google Cloud Agent Registry (A2A)",
@@ -33,7 +33,7 @@
       "scenario_a_sell_with_redfin_1pct": "Net $260,250 Equity (Saves $9,900 w/ Redfin 1% Listing Fee) -> $489,750 New Loan ($2,975.77/mo P&I)",
       "scenario_b_keep_3_25_as_rental": "Keep Royal Oak Home @ 3.25% ($1,420 PITI vs $2,650 Market Rent = +$1,230/mo Net Rental Cash Flow) + Rocket Closed-End Second for Down Payment"
     },
-    "execution_ms": 0.03
+    "execution_ms": 0.02
   },
   "bespoke_visual_artifact": {
     "archetype": "life_event_equity_moveup_planner",

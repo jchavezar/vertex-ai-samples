@@ -2,7 +2,7 @@
 """
 Rocket Companies AI Hackathon (Oct 2026) — Square [2.1]: Fannie Mae / Freddie Mac Selling Guide Citation Assistant
 Bespoke App Archetype: notebooklm_gse_citation_desk (NotebookLM Enterprise & StreamAssist // Fannie B3-3.1 & Freddie 5303 Citation Desk)
-Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + Vertex AI)
+Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash)
 """
 import json
 import os
