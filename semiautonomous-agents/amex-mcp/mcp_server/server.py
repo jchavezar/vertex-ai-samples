@@ -12,7 +12,7 @@ try:
 except ImportError:
     raise ImportError("Install fastmcp: pip install fastmcp")
 
-from tools import statements, ingestion, categories, subscriptions, insights, search
+from tools import statements, ingestion, categories, subscriptions, insights, search, simplefin_tools
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("amex-mcp-server")
@@ -20,10 +20,10 @@ logger = logging.getLogger("amex-mcp-server")
 mcp = FastMCP(
     "amex-statements",
     instructions=(
-        "Query and analyze American Express credit card statements. "
+        "Query and analyze personal finance statements, balances, and transactions across "
+        "American Express (Amex), Bank of America (BofA), and SoFi via SimpleFIN Bridge and Firestore. "
         "Data is enriched with AI-powered categorization, subscription detection, "
-        "Gmail receipt matching for ambiguous charges, and spending insights. "
-        "Statements are synced automatically on the 1st of each month."
+        "Gmail receipt matching for ambiguous charges, and spending insights."
     ),
 )
 
@@ -34,13 +34,13 @@ categories.register(mcp)
 subscriptions.register(mcp)
 insights.register(mcp)
 search.register(mcp)
+simplefin_tools.register(mcp)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8080))
-    transport = os.environ.get("MCP_TRANSPORT", "streamable-http")
+    transport = os.environ.get("MCP_TRANSPORT", "stdio")
 
-    logger.info(f"Starting Amex MCP Server on port {port}")
-    logger.info(f"Transport: {transport}")
+    logger.info(f"Starting Personal Finance MCP Server (transport={transport})")
 
     if transport == "streamable-http":
         mcp.run(transport="streamable-http", host="0.0.0.0", port=port)

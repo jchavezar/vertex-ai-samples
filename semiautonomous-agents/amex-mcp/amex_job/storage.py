@@ -149,6 +149,8 @@ def update_transactions(period: str, transactions: list[dict]) -> None:
             "purchase_channel": txn.get("purchase_channel", "unknown"),
             "purpose": txn.get("purpose", "unknown"),
             "categorization_confidence": txn.get("categorization_confidence", 0),
+            "institution": txn.get("institution", "amex"),
+            "account_name": txn.get("account_name", ""),
         }
         if txn.get("embedding"):
             doc_data["embedding"] = Vector(txn["embedding"])
@@ -187,7 +189,7 @@ def semantic_search(
     Args:
         query_vector: Embedded query (768d from gemini-embedding-001)
         filters: Optional dict with keys like date_after, date_before,
-                 category, card_member, merchant_type, purchase_channel, purpose
+                 category, card_member, merchant_type, purchase_channel, purpose, institution
         limit: Max results (default 1000 for full recall at small scale)
         distance_threshold: Max cosine distance (lower = more relevant)
     """
@@ -203,6 +205,8 @@ def semantic_search(
             query = query.where("enriched_category", "==", filters["category"])
         if filters.get("card_member"):
             query = query.where("card_member", "==", filters["card_member"])
+        if filters.get("institution"):
+            query = query.where("institution", "==", filters["institution"].lower())
         if filters.get("merchant_type"):
             query = query.where("merchant_type", "==", filters["merchant_type"])
         if filters.get("purchase_channel"):
@@ -240,6 +244,8 @@ def structured_query(filters: dict | None = None) -> list[dict]:
             query = query.where("enriched_category", "==", filters["category"])
         if filters.get("card_member"):
             query = query.where("card_member", "==", filters["card_member"])
+        if filters.get("institution"):
+            query = query.where("institution", "==", filters["institution"].lower())
         if filters.get("merchant_type"):
             query = query.where("merchant_type", "==", filters["merchant_type"])
         if filters.get("purchase_channel"):

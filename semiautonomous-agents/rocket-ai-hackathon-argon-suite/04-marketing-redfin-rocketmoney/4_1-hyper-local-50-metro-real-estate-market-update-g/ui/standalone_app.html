@@ -3,1192 +3,1458 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>4.1 Hyper-Local 50-Metro Market Pulse | Redfin x Rocket Journalism</title>
+  <title>418 Elmhurst Ave, Royal Oak, MI 48067 | Redfin Listing-to-Video Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;0,6..72,800;1,6..72,400;1,6..72,600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {
-      --paper: #FCFBF9;
-      --paper-warm: #F4F1EA;
-      --paper-card: #FFFFFF;
-      --ink: #111111;
-      --ink-muted: #52504C;
-      --ink-subtle: #85817A;
-      --crimson: #D92228;
-      --crimson-dark: #A6151A;
-      --crimson-soft: rgba(217, 34, 40, 0.08);
-      --rule-heavy: 2px solid #111111;
-      --rule-thin: 1px solid #D6D1C7;
-      --emerald: #0F766E;
-      --amber: #B45309;
+      --bg-white: #FFFFFF;
+      --stone-card: #F7F7F7;
+      --stone-hover: #EFEFEF;
+      --border-light: #E2E8F0;
+      --border-stone: #E5E5E5;
+      --redfin-red: #C82021;
+      --redfin-red-dark: #A31617;
+      --redfin-red-tint: #FDF2F2;
+      --text-dark: #1E293B;
+      --text-main: #222222;
+      --text-muted: #595959;
+      --text-subtle: #767676;
+      --green-badge: #15803D;
+      --green-bg: #DCFCE7;
+      --blue-accent: #1D4ED8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: var(--paper);
-      color: var(--ink);
-      font-family: 'Newsreader', Georgia, serif;
+      background-color: var(--bg-white);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
-      padding-bottom: 90px;
-      background-image: radial-gradient(rgba(17,17,17,0.03) 1px, transparent 0);
-      background-size: 24px 24px;
+      padding-bottom: 96px;
+      line-height: 1.5;
     }
-    .mono { font-family: 'Space Mono', monospace; }
 
-    /* Top Editorial Utility Ribbon */
-    .utility-bar {
-      background: var(--ink);
-      color: var(--paper);
-      padding: 8px 28px;
+    /* Top Redfin Navigation Header */
+    .redfin-header {
+      background: var(--bg-white);
+      border-bottom: 1px solid var(--border-stone);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .redfin-header-inner {
+      max-width: 1380px;
+      margin: 0 auto;
+      padding: 12px 24px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.04em;
-      border-bottom: 3px solid var(--crimson);
-    }
-    .utility-left {
-      display: flex;
-      align-items: center;
       gap: 16px;
+      flex-wrap: wrap;
     }
-    .live-dot {
-      width: 8px;
-      height: 8px;
-      background: var(--crimson);
-      border-radius: 50%;
-      display: inline-block;
-      box-shadow: 0 0 10px var(--crimson);
-      animation: pulseRed 1.8s infinite;
-    }
-    @keyframes pulseRed {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.3); opacity: 0.65; }
-    }
-    .utility-right {
+    .brand-cluster {
       display: flex;
       align-items: center;
       gap: 14px;
     }
-    .model-pill-wrap {
+    .redfin-logo {
+      background: var(--redfin-red);
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 18px;
+      letter-spacing: -0.03em;
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .co-brand-tag {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(255,255,255,0.1);
-      padding: 4px 10px;
-      border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.22);
     }
-    #app-model-select {
-      background: transparent;
-      color: #FFFFFF;
-      font-family: 'Space Mono', monospace;
+    .co-brand-pill {
+      background: var(--redfin-red-tint);
+      color: var(--redfin-red);
+      border: 1px solid #F5C2C2;
       font-size: 11px;
       font-weight: 700;
+      padding: 3px 9px;
+      border-radius: 999px;
+    }
+    .search-bar-mock {
+      flex: 1;
+      max-width: 420px;
+      display: flex;
+      align-items: center;
+      background: var(--stone-card);
+      border: 1px solid #D4D4D4;
+      border-radius: 8px;
+      padding: 6px 12px;
+      gap: 8px;
+    }
+    .search-bar-mock select {
+      width: 100%;
       border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
       outline: none;
       cursor: pointer;
     }
-    #app-model-select option {
-      background: #111111;
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .model-select-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--stone-card);
+      border: 1px solid var(--border-stone);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    #app-model-select {
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--redfin-red);
+      outline: none;
+      cursor: pointer;
+    }
+    .btn-redfin {
+      background: var(--redfin-red);
       color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .btn-redfin:hover {
+      background: var(--redfin-red-dark);
+    }
+    .btn-outline {
+      background: #FFFFFF;
+      color: var(--text-main);
+      border: 1px solid #CCCCCC;
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn-outline:hover {
+      border-color: var(--text-main);
+      background: var(--stone-card);
     }
 
-    /* Newspaper Masthead */
-    .masthead {
-      max-width: 1440px;
+    /* Main Listing Container */
+    .page-container {
+      max-width: 1380px;
       margin: 0 auto;
-      padding: 24px 28px 16px;
-      text-align: center;
-      border-bottom: var(--rule-heavy);
+      padding: 20px 24px;
     }
-    .masthead-kicker {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--crimson);
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-    .masthead-title {
-      font-family: 'Newsreader', Georgia, serif;
-      font-size: clamp(32px, 4.4vw, 60px);
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.02;
-      color: var(--ink);
-      text-transform: uppercase;
-    }
-    .masthead-subband {
-      margin-top: 14px;
-      padding: 8px 0;
-      border-top: 1px solid var(--ink);
-      border-bottom: 1px solid var(--ink);
+
+    /* Listing Breadcrumb & Top Summary Ribbon */
+    .breadcrumb-row {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      font-family: 'Space Mono', monospace;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--green-bg);
+      color: var(--green-badge);
+      font-weight: 700;
       font-size: 11px;
-      color: var(--ink-muted);
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green-badge);
+    }
+
+    .listing-hero-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-stone);
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .address-block h1 {
+      font-size: clamp(22px, 2.6vw, 30px);
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .address-sub {
+      font-size: 14px;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-top: 3px;
+    }
+    .key-stats-row {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .stat-val {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.02em;
+    }
+    .stat-val.red {
+      color: var(--redfin-red);
+    }
+    .stat-lbl {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Architectural Photo Gallery Grid */
+    .gallery-section-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 26px;
+    }
+    @media (max-width: 980px) {
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .gallery-card {
+      background: var(--stone-card);
+      border: 2px solid var(--border-stone);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      position: relative;
+    }
+    .gallery-card:hover {
+      transform: translateY(-2px);
+      border-color: #B0B0B0;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    }
+    .gallery-card.active {
+      border-color: var(--redfin-red);
+      box-shadow: 0 8px 22px rgba(200, 32, 33, 0.15);
+    }
+    .gallery-svg-wrap {
+      width: 100%;
+      height: 152px;
+      background: #EAECEF;
+      display: block;
+      position: relative;
+    }
+    .gallery-time-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--text-main);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-stone);
+    }
+    .gallery-room-tag {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: var(--redfin-red);
+      color: #FFFFFF;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+    }
+    .gallery-meta {
+      padding: 11px 13px;
+      background: #FFFFFF;
+    }
+    .gallery-meta-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .gallery-meta-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    /* Workspace Split: Left = Interactive Pricing & 4-Scene Storyboard, Right = Live 9:16 Social Reel Player */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1080px) {
+      .studio-grid { grid-template-columns: 1fr; }
+    }
+
+    .stone-panel {
+      background: var(--stone-card);
+      border: 1px solid var(--border-stone);
+      border-radius: 14px;
+      padding: 20px 22px;
+      margin-bottom: 20px;
+    }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
       flex-wrap: wrap;
       gap: 10px;
     }
-
-    /* Container */
-    .editorial-container {
-      max-width: 1440px;
-      margin: 0 auto;
-      padding: 22px 28px;
-    }
-
-    /* 5 US Metro Selector Strip */
-    .metro-strip-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 12px;
-    }
-    .section-tag {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--crimson);
+    .panel-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 8px;
     }
-    .metro-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 1100px) {
-      .metro-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-    .metro-card {
-      background: var(--paper-card);
-      border: 1px solid #C8C2B8;
-      padding: 14px 16px;
-      cursor: pointer;
-      transition: all 0.18s ease;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-shadow: 3px 3px 0px rgba(17,17,17,0.06);
-    }
-    .metro-card:hover {
-      border-color: var(--ink);
-      transform: translateY(-2px);
-      box-shadow: 4px 4px 0px var(--ink);
-    }
-    .metro-card.active {
-      background: #FFFDF9;
-      border: 2px solid var(--crimson);
-      box-shadow: 5px 5px 0px var(--crimson);
-    }
-    .metro-card.active::before {
-      content: "ACTIVE DISPATCH";
-      position: absolute;
-      top: -9px;
-      right: 10px;
-      background: var(--crimson);
-      color: #FFF;
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      font-weight: 700;
-      padding: 2px 6px;
-      letter-spacing: 0.08em;
-    }
-    .metro-name {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 2px;
-    }
-    .metro-region {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      color: var(--ink-subtle);
-      margin-bottom: 10px;
-    }
-    .metro-metrics-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      border-top: 1px dashed #D6D1C7;
-      padding-top: 8px;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-    }
-    .badge-up { color: var(--emerald); font-weight: 700; }
-    .badge-down { color: var(--crimson); font-weight: 700; }
-
-    /* Main 3-Column Broadsheet Layout */
-    .broadsheet-grid {
-      display: grid;
-      grid-template-columns: 340px 1fr 370px;
-      gap: 26px;
-      align-items: start;
-    }
-    @media (max-width: 1240px) {
-      .broadsheet-grid { grid-template-columns: 1fr; }
+    .panel-subtitle {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-top: 2px;
     }
 
-    /* Left Column: Interactive Telemetry & Sliders + 50-Metro Heatmap */
-    .editorial-box {
-      background: var(--paper-card);
-      border: 1px solid var(--ink);
-      padding: 18px;
-      box-shadow: 4px 4px 0px rgba(17,17,17,0.1);
-      margin-bottom: 20px;
+    /* Interactive Listing Price & Rate Sliders */
+    .sliders-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-stone);
+      border-radius: 10px;
+      padding: 16px;
     }
-    .box-header {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      padding-bottom: 10px;
-      margin-bottom: 14px;
-      border-bottom: 2px solid var(--ink);
+    @media (max-width: 760px) {
+      .sliders-grid { grid-template-columns: 1fr; }
+    }
+    .slider-box label {
       display: flex;
       justify-content: space-between;
-      align-items: center;
-    }
-    .slider-group {
-      margin-bottom: 16px;
-    }
-    .slider-label-row {
-      display: flex;
-      justify-content: space-between;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      margin-bottom: 6px;
-    }
-    .slider-val {
+      font-size: 12px;
       font-weight: 700;
-      color: var(--crimson);
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .slider-val-highlight {
+      color: var(--redfin-red);
+      font-weight: 800;
+      font-size: 13.5px;
     }
     input[type="range"] {
       width: 100%;
-      accent-color: var(--crimson);
+      accent-color: var(--redfin-red);
       cursor: pointer;
     }
-    .btn-editorial-primary {
-      width: 100%;
-      background: var(--crimson);
-      color: #FFFFFF;
-      border: 2px solid var(--ink);
+    .payment-breakdown-strip {
+      margin-top: 14px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-stone);
+      border-left: 4px solid var(--redfin-red);
+      border-radius: 8px;
       padding: 12px 16px;
-      font-family: 'Space Mono', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      box-shadow: 4px 4px 0px var(--ink);
-      transition: all 0.15s ease;
-    }
-    .btn-editorial-primary:hover {
-      background: var(--crimson-dark);
-      transform: translate(-1px, -1px);
-      box-shadow: 5px 5px 0px var(--ink);
-    }
-    .btn-editorial-primary:active {
-      transform: translate(2px, 2px);
-      box-shadow: 1px 1px 0px var(--ink);
-    }
-
-    /* 50-Metro Mini Heatmap Grid */
-    .heatmap-grid {
-      display: grid;
-      grid-template-columns: repeat(10, 1fr);
-      gap: 4px;
-      margin-top: 10px;
-    }
-    .heat-cell {
-      aspect-ratio: 1;
-      border-radius: 2px;
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-family: 'Space Mono', monospace;
-      font-size: 8px;
-      font-weight: 700;
-      color: #FFF;
-      cursor: pointer;
-      transition: transform 0.12s;
-    }
-    .heat-cell:hover {
-      transform: scale(1.25);
-      z-index: 5;
-      outline: 1.5px solid var(--ink);
-    }
-
-    /* Center Column: Multi-Column Newspaper Article & Neighborhood Chart */
-    .newspaper-sheet {
-      background: var(--paper-card);
-      border: 1px solid var(--ink);
-      padding: 28px 32px;
-      box-shadow: 6px 6px 0px rgba(17,17,17,0.08);
-    }
-    .article-dateline {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--crimson);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-    .article-headline {
-      font-size: clamp(26px, 2.6vw, 38px);
-      font-weight: 800;
-      line-height: 1.12;
-      color: var(--ink);
-      margin-bottom: 12px;
-      letter-spacing: -0.02em;
-    }
-    .article-deck {
-      font-size: 18px;
-      font-style: italic;
-      color: var(--ink-muted);
-      line-height: 1.45;
-      padding-bottom: 16px;
-      border-bottom: var(--rule-thin);
-      margin-bottom: 16px;
-    }
-    .byline-row {
-      display: flex;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .payment-pill-group {
+      display: flex;
       align-items: center;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      color: var(--ink-subtle);
-      margin-bottom: 20px;
+      gap: 18px;
+      flex-wrap: wrap;
+      font-size: 12.5px;
+      color: var(--text-muted);
     }
-    .article-columns {
-      column-count: 2;
-      column-gap: 28px;
-      column-rule: 1px solid #E2DDD5;
-      font-size: 16.5px;
-      line-height: 1.65;
-      color: #1F1E1C;
-      text-align: justify;
-    }
-    @media (max-width: 768px) {
-      .article-columns { column-count: 1; }
-    }
-    .article-columns p {
-      margin-bottom: 14px;
-    }
-    .dropcap::first-letter {
-      float: left;
-      font-size: 54px;
-      line-height: 0.84;
-      padding-top: 4px;
-      padding-right: 10px;
-      padding-bottom: 2px;
+    .payment-pill-group strong {
+      color: var(--text-main);
       font-weight: 800;
-      color: var(--crimson);
-      font-family: 'Newsreader', serif;
-    }
-    .pull-quote {
-      break-inside: avoid;
-      margin: 18px 0;
-      padding: 14px 16px;
-      border-top: 2px solid var(--crimson);
-      border-bottom: 2px solid var(--crimson);
-      background: var(--paper-warm);
-      font-size: 18px;
-      font-weight: 700;
-      font-style: italic;
-      line-height: 1.35;
-      color: var(--ink);
     }
 
-    /* Neighborhood Bar Chart inside Newspaper */
-    .chart-section {
-      margin-top: 26px;
-      padding-top: 20px;
-      border-top: var(--rule-heavy);
-    }
-    .bar-row {
+    /* 4-Scene Social Reel Storyboard Cards */
+    .storyboard-list {
       display: grid;
-      grid-template-columns: 155px 1fr 110px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    @media (max-width: 720px) {
+      .storyboard-list { grid-template-columns: 1fr; }
+    }
+    .scene-card {
+      background: #FFFFFF;
+      border: 2px solid var(--border-stone);
+      border-radius: 12px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .scene-card:hover {
+      border-color: #B5B5B5;
+    }
+    .scene-card.active {
+      border-color: var(--redfin-red);
+      background: #FFFDFD;
+      box-shadow: 0 6px 18px rgba(200, 32, 33, 0.08);
+    }
+    .scene-top {
+      display: flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .scene-time-pill {
+      background: var(--redfin-red);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 6px;
+    }
+    .scene-camera-tag {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--stone-card);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-stone);
+    }
+    .scene-heading {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+    .scene-caption-input {
+      width: 100%;
+      border: 1px solid #DCDCDC;
+      border-radius: 7px;
+      padding: 7px 10px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--stone-card);
+    }
+    .scene-caption-input:focus {
+      outline: none;
+      border-color: var(--redfin-red);
+      background: #FFFFFF;
+    }
+    .scene-narration {
+      font-size: 12px;
+      color: var(--text-muted);
+      background: #F9FAFB;
+      padding: 8px 10px;
+      border-radius: 7px;
+      border-left: 3px solid #CBD5E1;
+    }
+
+    /* Voiceover Script & Gemini 3.8 Live Audio Bar */
+    .voiceover-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border-stone);
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-top: 16px;
+    }
+    .voiceover-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 12px;
       margin-bottom: 10px;
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
+      flex-wrap: wrap;
     }
-    .bar-track {
-      height: 18px;
-      background: var(--paper-warm);
-      border: 1px solid #D6D1C7;
+    .voiceover-script-box {
+      width: 100%;
+      border: 1px solid var(--border-stone);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-family: inherit;
+      font-size: 13.5px;
+      line-height: 1.55;
+      color: var(--text-main);
+      background: var(--stone-card);
+      resize: vertical;
+    }
+
+    /* Right Column: 9:16 Social Reel Preview Studio */
+    .reel-preview-panel {
+      background: var(--stone-card);
+      border: 1px solid var(--border-stone);
+      border-radius: 14px;
+      padding: 20px;
+      position: sticky;
+      top: 76px;
+    }
+    .phone-frame {
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto;
+      background: #FFFFFF;
+      border: 8px solid #262626;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: 0 16px 36px rgba(0,0,0,0.12);
       position: relative;
+      aspect-ratio: 9 / 15.5;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .reel-canvas-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: #F3F4F6;
+      display: flex;
+      flex-direction: column;
+    }
+    .reel-top-overlay {
+      position: relative;
+      z-index: 3;
+      padding: 14px 14px 8px;
+      background: linear-gradient(180deg, rgba(0,0,0,0.55) 0%, transparent 100%);
+      color: #FFFFFF;
+    }
+    .reel-progress-segments {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .reel-seg {
+      height: 3.5px;
+      border-radius: 99px;
+      background: rgba(255,255,255,0.35);
       overflow: hidden;
     }
-    .bar-fill {
+    .reel-seg-fill {
       height: 100%;
-      background: var(--crimson);
-      transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+      width: 0%;
+      background: #FFFFFF;
+      transition: width 0.25s ease;
+    }
+    .reel-seg.active .reel-seg-fill {
+      width: 100%;
+      background: var(--redfin-red);
+    }
+    .reel-brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11.5px;
+      font-weight: 700;
+    }
+    .reel-bottom-overlay {
+      position: relative;
+      z-index: 3;
+      padding: 16px 14px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.35) 75%, transparent 100%);
+      color: #FFFFFF;
+    }
+    .reel-scene-badge {
+      display: inline-block;
+      background: var(--redfin-red);
+      color: #FFFFFF;
+      font-size: 10.5px;
+      font-weight: 800;
+      padding: 3px 9px;
+      border-radius: 5px;
+      margin-bottom: 7px;
+    }
+    .reel-caption-box {
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.3;
+      margin-bottom: 8px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .reel-mortgage-card {
+      background: rgba(255, 255, 255, 0.96);
+      color: var(--text-main);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    }
+    .reel-mortgage-price {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--redfin-red);
+    }
+    .reel-controls-bar {
+      margin-top: 14px;
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
     }
 
-    /* Right Column: Ready-to-Post Instagram & LinkedIn Social Cards */
-    .social-card {
-      background: var(--paper-card);
-      border: 1px solid var(--ink);
-      padding: 16px;
-      margin-bottom: 18px;
-      box-shadow: 4px 4px 0px rgba(17,17,17,0.08);
-    }
-    .social-platform-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding-bottom: 10px;
-      margin-bottom: 12px;
-      border-bottom: 1px solid #E2DDD5;
-    }
-    .ig-visual-mock {
-      background: linear-gradient(145deg, #111111 0%, #241215 100%);
-      color: #FFFFFF;
-      padding: 20px 18px;
-      border: 1px solid var(--ink);
-      margin-bottom: 12px;
-      position: relative;
-    }
-    .ig-tag {
-      display: inline-block;
-      background: var(--crimson);
-      color: #FFF;
-      font-family: 'Space Mono', monospace;
-      font-size: 9px;
-      font-weight: 700;
-      padding: 3px 7px;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
-    .ig-headline {
-      font-family: 'Newsreader', serif;
-      font-size: 21px;
-      font-weight: 700;
-      line-height: 1.2;
-      margin-bottom: 10px;
-    }
-    .ig-stat-strip {
-      display: flex;
-      gap: 12px;
-      border-top: 1px solid rgba(255,255,255,0.2);
-      padding-top: 10px;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      color: #FDE68A;
-    }
-    .social-copy {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px;
-      line-height: 1.5;
-      color: var(--ink-muted);
-      background: var(--paper-warm);
-      padding: 10px;
-      border-left: 3px solid var(--crimson);
+    /* AI Synthesis Output Card */
+    .ai-output-card {
+      margin-top: 18px;
+      background: #FFFFFF;
+      border: 1px solid var(--border-stone);
+      border-top: 3px solid var(--redfin-red);
+      border-radius: 12px;
+      padding: 16px 18px;
+      font-size: 13px;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      line-height: 1.6;
     }
   </style>
 </head>
 <body>
 
-  <!-- TOP UTILITY BAR WITH INLINE MODEL SELECTOR -->
-  <header class="utility-bar">
-    <div class="utility-left">
-      <span><span class="live-dot"></span> REDFIN MLS TELEMETRY WIRE</span>
-      <span>•</span>
-      <span>GOOGLE ADK MULTI-METRO RUNTIME</span>
-      <span>•</span>
-      <span id="sandbox-latency-pill">SANDBOX: 1.8ms VERIFIED</span>
-    </div>
-    <div class="utility-right">
-      <div class="model-pill-wrap">
-        <span style="color:#FCA5A5;">ADK ENGINE:</span>
-        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
-          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (ADK Default)</option>
+  <!-- Authentic Redfin Header -->
+  <header class="redfin-header">
+    <div class="redfin-header-inner">
+      <div class="brand-cluster">
+        <div class="redfin-logo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M3 10.5L12 3l9 7.5V21a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1v-10.5z"/>
+          </svg>
+          REDFIN
+        </div>
+        <div class="co-brand-tag">
+          <span>Listing-to-Video Studio</span>
+          <span class="co-brand-pill">Rocket Mortgage Instant Reel</span>
+        </div>
+      </div>
+
+      <div class="search-bar-mock">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#767676" stroke-width="2.2">
+          <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/>
+        </svg>
+        <select id="listing-selector" onchange="window.switchRedfinListing(this.value)" aria-label="Select MLS Property">
+          <option value="elmhurst" selected>418 Elmhurst Ave, Royal Oak, MI 48067 · $460,000 (MLS #202604189)</option>
+          <option value="maplewood">912 W Maplehurst St, Ferndale, MI 48220 · $389,000 (MLS #202604412)</option>
+          <option value="linden">1420 Linden Rd, Birmingham, MI 48009 · $675,000 (MLS #202604805)</option>
         </select>
       </div>
-      <button onclick="window.runLiveVertexAI()" style="background:var(--crimson);color:#FFF;border:1px solid #FFF;padding:4px 12px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;">
-        ⚡ Publish Localized Market Editorial
-      </button>
+
+      <div class="header-actions">
+        <div class="model-select-box">
+          <span>AI Engine:</span>
+          <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
+            <option value="gemini-4-argon">Gemini 4 Argon (Frontier)</option>
+            <option value="gemini-3.8-flash">Gemini 3.8 Flash (Fast)</option>
+          </select>
+        </div>
+        <button class="btn-redfin" onclick="window.runLiveVertexAI()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          Generate Reel Script & Veo Prompts
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- NEWSPAPER MASTHEAD -->
-  <section class="masthead">
-    <div class="masthead-kicker">VOL. XLII • NO. 50 • NATIONAL & HYPER-LOCAL REAL ESTATE INTELLIGENCE</div>
-    <h1 class="masthead-title">The Redfin × Rocket Market Pulse</h1>
-    <div class="masthead-subband">
-      <span>50 U.S. METROS INDEXED IN 2M-TOKEN CONTEXT WINDOW</span>
-      <span id="masthead-active-metro" style="color:var(--crimson);font-weight:700;">DISPATCH: OAKLAND COUNTY & METRO DETROIT, MI</span>
-      <span>OCTOBER 2026 EDITION • ROCKET MONEY RENTER COHORT SYNC</span>
-    </div>
-  </section>
-
-  <main class="editorial-container">
-    <!-- CLICKABLE US METRO SELECTOR CARDS -->
-    <div class="metro-strip-header">
-      <div class="section-tag"><span>■</span> SELECT U.S. METRO BUREAU FOR INSTANT EDITORIAL & RENT-VS-BUY SYNTHESIS</div>
-      <div class="mono" style="font-size:11px;color:var(--ink-muted);">Click any metro card to recalculate localized MLS telemetry</div>
-    </div>
-
-    <div class="metro-grid" id="metro-selector-grid">
-      <div class="metro-card active" data-metro="oakland" onclick="window.selectMetro('oakland')">
-        <div>
-          <div class="metro-name">Oakland County, MI</div>
-          <div class="metro-region">ROYAL OAK • TROY • BIRMINGHAM</div>
-        </div>
-        <div class="metro-metrics-row">
-          <span>$312,000</span>
-          <span class="badge-up">+4.8% YoY</span>
-          <span>24 DOM</span>
-        </div>
-      </div>
-
-      <div class="metro-card" data-metro="austin" onclick="window.selectMetro('austin')">
-        <div>
-          <div class="metro-name">Austin, TX</div>
-          <div class="metro-region">ROUND ROCK • SOUTH CONGRESS</div>
-        </div>
-        <div class="metro-metrics-row">
-          <span>$445,000</span>
-          <span class="badge-down">-2.1% YoY</span>
-          <span>58 DOM</span>
-        </div>
-      </div>
-
-      <div class="metro-card" data-metro="seattle" onclick="window.selectMetro('seattle')">
-        <div>
-          <div class="metro-name">Seattle, WA</div>
-          <div class="metro-region">BELLEVUE • BALLARD • KIRKLAND</div>
-        </div>
-        <div class="metro-metrics-row">
-          <span>$765,000</span>
-          <span class="badge-up">+5.4% YoY</span>
-          <span>18 DOM</span>
-        </div>
-      </div>
-
-      <div class="metro-card" data-metro="miami" onclick="window.selectMetro('miami')">
-        <div>
-          <div class="metro-name">Miami, FL</div>
-          <div class="metro-region">BRICKELL • CORAL GABLES • DORAL</div>
-        </div>
-        <div class="metro-metrics-row">
-          <span>$580,000</span>
-          <span class="badge-up">+3.2% YoY</span>
-          <span>44 DOM</span>
-        </div>
-      </div>
-
-      <div class="metro-card" data-metro="denver" onclick="window.selectMetro('denver')">
-        <div>
-          <div class="metro-name">Denver, CO</div>
-          <div class="metro-region">LODO • CHERRY CREEK • BOULDER</div>
-        </div>
-        <div class="metro-metrics-row">
-          <span>$562,000</span>
-          <span class="badge-down">-0.8% YoY</span>
-          <span>41 DOM</span>
-        </div>
+  <main class="page-container">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-row">
+      <div>Michigan &rsaquo; Oakland County &rsaquo; Royal Oak &rsaquo; 48067 &rsaquo; <strong id="crumb-address">418 Elmhurst Ave</strong></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span class="status-pill"><span class="status-dot"></span> Active Redfin Premier Listing · Listed 2 Hours Ago</span>
+        <span style="font-weight:700;color:var(--redfin-red);">Redfin Estimate: <span id="redfin-est-val">$464,500</span></span>
       </div>
     </div>
 
-    <!-- 3-COLUMN BROADSHEET GRID -->
-    <div class="broadsheet-grid">
+    <!-- Listing Key Facts Header -->
+    <section class="listing-hero-header">
+      <div class="address-block">
+        <h1 id="prop-street">418 Elmhurst Ave</h1>
+        <div class="address-sub" id="prop-city-zip">Royal Oak, MI 48067 · Vinsetta Park Historic District</div>
+      </div>
 
-      <!-- LEFT COLUMN: SLIDERS & 50-METRO HEATMAP -->
+      <div class="key-stats-row">
+        <div class="stat-item">
+          <span class="stat-val" id="header-price-val">$460,000</span>
+          <span class="stat-lbl">List Price</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" id="header-beds-val">4</span>
+          <span class="stat-lbl">Beds</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" id="header-baths-val">2.5</span>
+          <span class="stat-lbl">Baths</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val" id="header-sqft-val">2,280</span>
+          <span class="stat-lbl">Sq. Ft. ($202/sq.ft.)</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-val red" id="header-pmt-val">$2,884/mo</span>
+          <span class="stat-lbl">Est. Rocket Mortgage Payment</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 Architectural Listing Photo Gallery Cards -->
+    <div class="gallery-section-title">
+      <div style="font-size:14px;font-weight:800;color:var(--text-main);">
+        MLS High-Resolution Architectural Photos (Click any photo to preview Scene in Reel Storyboard)
+      </div>
+      <div style="font-size:12px;color:var(--text-muted);font-weight:600;">
+        4 Curated Keyframes &rarr; 15-Second Vertical Social Reel (9:16)
+      </div>
+    </div>
+
+    <section class="gallery-grid">
+      <!-- Scene 0: 00:00 Curb Appeal -->
+      <div class="gallery-card active" id="gal-card-0" onclick="window.selectStoryboardScene(0)">
+        <div class="gallery-svg-wrap">
+          <span class="gallery-time-badge">Scene 1 · 00:00–00:04</span>
+          <span class="gallery-room-tag">00:00 Curb Appeal</span>
+          <svg viewBox="0 0 400 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <rect width="400" height="220" fill="#DBEAFE"/>
+            <rect y="168" width="400" height="52" fill="#86EFAC"/>
+            <path d="M175 168 L225 168 L245 220 L155 220 Z" fill="#CBD5E1"/>
+            <!-- Craftsman Bungalow House -->
+            <polygon points="75,95 200,32 325,95" fill="#7C2D12"/>
+            <rect x="95" y="95" width="210" height="75" fill="#F8FAFC" stroke="#94A3B8" stroke-width="2"/>
+            <!-- Brick Wainscoting -->
+            <rect x="95" y="140" width="210" height="30" fill="#B91C1C" opacity="0.82"/>
+            <!-- Gables & Dormer -->
+            <polygon points="160,68 200,44 240,68" fill="#FEF3C7" stroke="#7C2D12" stroke-width="2"/>
+            <!-- Front Porch Columns -->
+            <rect x="112" y="102" width="10" height="66" fill="#FFFFFF"/>
+            <rect x="278" y="102" width="10" height="66" fill="#FFFFFF"/>
+            <!-- Warm Lit Windows -->
+            <rect x="128" y="106" width="38" height="28" rx="2" fill="#FDE68A" stroke="#475569" stroke-width="2"/>
+            <rect x="234" y="106" width="38" height="28" rx="2" fill="#FDE68A" stroke="#475569" stroke-width="2"/>
+            <!-- Redfin Sign -->
+            <rect x="52" y="132" width="6" height="44" fill="#FFFFFF"/>
+            <rect x="34" y="138" width="36" height="22" rx="3" fill="#C82021"/>
+            <!-- Trees -->
+            <circle cx="42" cy="115" r="28" fill="#16A34A"/>
+            <circle cx="358" cy="112" r="32" fill="#15803D"/>
+          </svg>
+        </div>
+        <div class="gallery-meta">
+          <div class="gallery-meta-title">00:00 Curb Appeal · Craftsman Porch</div>
+          <div class="gallery-meta-sub">Brick front porch, mature Royal Oak oaks &amp; sunlit lawn</div>
+        </div>
+      </div>
+
+      <!-- Scene 1: 00:04 Chef's Kitchen -->
+      <div class="gallery-card" id="gal-card-1" onclick="window.selectStoryboardScene(1)">
+        <div class="gallery-svg-wrap">
+          <span class="gallery-time-badge">Scene 2 · 00:04–00:09</span>
+          <span class="gallery-room-tag">00:04 Chef's Kitchen</span>
+          <svg viewBox="0 0 400 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <rect width="400" height="220" fill="#FAF5FF"/>
+            <rect width="400" height="165" fill="#F8FAFC"/>
+            <rect y="165" width="400" height="55" fill="#D6D3D1"/>
+            <!-- Shaker Cabinets -->
+            <rect x="30" y="25" width="140" height="70" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+            <rect x="230" y="25" width="140" height="70" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+            <!-- Range Hood -->
+            <polygon points="180,20 220,20 235,75 165,75" fill="#94A3B8"/>
+            <!-- Waterfall Quartz Island -->
+            <rect x="75" y="122" width="250" height="56" rx="4" fill="#1E293B"/>
+            <rect x="70" y="114" width="260" height="12" rx="3" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/>
+            <!-- Brass Pendant Lights -->
+            <line x1="140" y1="0" x2="140" y2="52" stroke="#B45309" stroke-width="2"/>
+            <circle cx="140" cy="58" r="10" fill="#FDE68A" stroke="#B45309" stroke-width="2"/>
+            <line x1="260" y1="0" x2="260" y2="52" stroke="#B45309" stroke-width="2"/>
+            <circle cx="260" cy="58" r="10" fill="#FDE68A" stroke="#B45309" stroke-width="2"/>
+          </svg>
+        </div>
+        <div class="gallery-meta">
+          <div class="gallery-meta-title">00:04 Chef's Kitchen · Quartz Island</div>
+          <div class="gallery-meta-sub">10-ft waterfall Calacatta quartz island &amp; 36" Wolf range</div>
+        </div>
+      </div>
+
+      <!-- Scene 2: 00:09 Backyard Pergola -->
+      <div class="gallery-card" id="gal-card-2" onclick="window.selectStoryboardScene(2)">
+        <div class="gallery-svg-wrap">
+          <span class="gallery-time-badge">Scene 3 · 00:09–00:13</span>
+          <span class="gallery-room-tag">00:09 Backyard Pergola</span>
+          <svg viewBox="0 0 400 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <rect width="400" height="145" fill="#FEF3C7"/>
+            <rect y="145" width="400" height="75" fill="#86EFAC"/>
+            <!-- Bluestone Patio -->
+            <rect x="55" y="150" width="290" height="48" rx="4" fill="#94A3B8"/>
+            <!-- Cedar Pergola Frame -->
+            <rect x="75" y="48" width="12" height="110" fill="#9A3412"/>
+            <rect x="313" y="48" width="12" height="110" fill="#9A3412"/>
+            <rect x="60" y="42" width="280" height="12" fill="#B45309"/>
+            <!-- Bistro String Lights -->
+            <circle cx="115" cy="62" r="5" fill="#FDE047"/>
+            <circle cx="165" cy="66" r="5" fill="#FDE047"/>
+            <circle cx="215" cy="66" r="5" fill="#FDE047"/>
+            <circle cx="265" cy="62" r="5" fill="#FDE047"/>
+            <!-- Firepit & Lounge -->
+            <ellipse cx="200" cy="168" rx="34" ry="12" fill="#475569"/>
+            <polygon points="190,165 200,142 210,165" fill="#F97316"/>
+          </svg>
+        </div>
+        <div class="gallery-meta">
+          <div class="gallery-meta-title">00:09 Backyard Pergola · Patio Oasis</div>
+          <div class="gallery-meta-sub">Custom cedar pergola, bistro lights &amp; fenced firepit yard</div>
+        </div>
+      </div>
+
+      <!-- Scene 3: 00:13 Rocket Mortgage Payment Breakdown -->
+      <div class="gallery-card" id="gal-card-3" onclick="window.selectStoryboardScene(3)">
+        <div class="gallery-svg-wrap">
+          <span class="gallery-time-badge">Scene 4 · 00:13–00:15</span>
+          <span class="gallery-room-tag">00:13 Payment Card</span>
+          <svg viewBox="0 0 400 220" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
+            <rect width="400" height="220" fill="#FDF2F2"/>
+            <rect x="36" y="34" width="328" height="156" rx="14" fill="#FFFFFF" stroke="#C82021" stroke-width="2.5"/>
+            <rect x="56" y="52" width="140" height="20" rx="5" fill="#C82021"/>
+            <text x="65" y="66" fill="#FFFFFF" font-family="sans-serif" font-size="11" font-weight="bold">ROCKET MORTGAGE</text>
+            <text x="56" y="104" fill="#1E293B" font-family="sans-serif" font-size="24" font-weight="bold" id="svg-card-pmt">$2,884 / mo</text>
+            <text x="56" y="128" fill="#595959" font-family="sans-serif" font-size="12" font-weight="600">30-Yr Fixed · 6.125% APR · 10% Down</text>
+            <rect x="56" y="146" width="288" height="26" rx="6" fill="#DCFCE7"/>
+            <text x="70" y="163" fill="#15803D" font-family="sans-serif" font-size="11.5" font-weight="bold">Redfin + Rocket Preferred Closing Credit: -$2,500</text>
+          </svg>
+        </div>
+        <div class="gallery-meta">
+          <div class="gallery-meta-title">00:13 Rocket Mortgage Payment Breakdown</div>
+          <div class="gallery-meta-sub">Live P&amp;I + taxes end-card with 1-tap pre-approval CTA</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Studio Grid -->
+    <div class="studio-grid">
+      <!-- Left Column: Interactive Pricing Sliders + 4-Scene Storyboard Editor -->
       <div>
-        <div class="editorial-box">
-          <div class="box-header">
-            <span>MLS PARAMETER CALIBRATOR</span>
-            <span style="color:var(--crimson);">/api/sandbox</span>
-          </div>
-
-          <div class="slider-group">
-            <div class="slider-label-row">
-              <span>MEDIAN SALE PRICE</span>
-              <span class="slider-val" id="lbl-price">$312,000</span>
+        <!-- Interactive Listing Price & Rate Sliders -->
+        <div class="stone-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C82021" stroke-width="2.2">
+                  <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+                Interactive Listing Price &amp; Rocket Mortgage Rate Calculator
+              </div>
+              <div class="panel-subtitle">
+                Adjust list price, interest rate, or down payment to dynamically update Scene 4 (`00:13`) and the voiceover script.
+              </div>
             </div>
-            <input type="range" id="slider-price" min="220000" max="850000" step="5000" value="312000" oninput="window.onMetroSliderChange()">
+            <span class="co-brand-pill">Live Payment Sync</span>
           </div>
 
-          <div class="slider-group">
-            <div class="slider-label-row">
-              <span>ACTIVE INVENTORY YoY</span>
-              <span class="slider-val" id="lbl-inv">+11.0%</span>
+          <div class="sliders-grid">
+            <div class="slider-box">
+              <label>
+                <span>Listing Price</span>
+                <span class="slider-val-highlight" id="price-slider-label">$460,000</span>
+              </label>
+              <input type="range" id="price-slider" min="320000" max="750000" step="5000" value="460000" oninput="window.recalculateReelPayment()">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-subtle);margin-top:4px;">
+                <span>$320K</span><span>$460K List</span><span>$750K</span>
+              </div>
             </div>
-            <input type="range" id="slider-inv" min="-15" max="35" step="1" value="11" oninput="window.onMetroSliderChange()">
-          </div>
 
-          <div class="slider-group">
-            <div class="slider-label-row">
-              <span>30-YR FIXED NOTE RATE</span>
-              <span class="slider-val" id="lbl-rate">6.125%</span>
+            <div class="slider-box">
+              <label>
+                <span>30-Yr Interest Rate</span>
+                <span class="slider-val-highlight" id="rate-slider-label">6.125%</span>
+              </label>
+              <input type="range" id="rate-slider" min="4.75" max="7.50" step="0.125" value="6.125" oninput="window.recalculateReelPayment()">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-subtle);margin-top:4px;">
+                <span>4.75%</span><span>6.125%</span><span>7.50%</span>
+              </div>
             </div>
-            <input type="range" id="slider-rate" min="5.0" max="7.25" step="0.125" value="6.125" oninput="window.onMetroSliderChange()">
-          </div>
 
-          <div class="slider-group">
-            <div class="slider-label-row">
-              <span>MEDIAN LOCAL RENT</span>
-              <span class="slider-val" id="lbl-rent">$2,250/mo</span>
+            <div class="slider-box">
+              <label>
+                <span>Down Payment</span>
+                <span class="slider-val-highlight" id="down-slider-label">10% ($46,000)</span>
+              </label>
+              <input type="range" id="down-slider" min="3.5" max="25" step="0.5" value="10" oninput="window.recalculateReelPayment()">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-subtle);margin-top:4px;">
+                <span>3.5% FHA</span><span>10%</span><span>25%</span>
+              </div>
             </div>
-            <input type="range" id="slider-rent" min="1500" max="4200" step="50" value="2250" oninput="window.onMetroSliderChange()">
           </div>
 
-          <div style="background:var(--paper-warm);border:1px solid #D6D1C7;padding:12px;margin-bottom:14px;font-family:'Space Mono',monospace;font-size:11px;line-height:1.55;">
-            <div style="font-weight:700;color:var(--ink);margin-bottom:4px;">SANDBOX EQUITY VERDICT:</div>
-            <div id="sandbox-equity-readout">Purchase $312,000 (P&I $1,800/mo) builds $84,600 in 5-Yr Equity vs $0 Renting at $2,250/mo.</div>
-          </div>
-
-          <button class="btn-editorial-primary" id="btn-publish-editorial" onclick="window.runLiveVertexAI()">
-            [⚡ Publish Localized Market Editorial]
-          </button>
-        </div>
-
-        <!-- 50-METRO INTERACTIVE HEATMAP -->
-        <div class="editorial-box">
-          <div class="box-header">
-            <span>50-METRO BUYER DEMAND HEATMAP</span>
-            <span>OCT 2026</span>
-          </div>
-          <p class="mono" style="font-size:10px;color:var(--ink-muted);margin-bottom:8px;">
-            Color encodes Seller Concession % vs Bidding War Intensity across all 50 Redfin MLS Metros:
-          </p>
-          <div class="heatmap-grid" id="heatmap-50-container"></div>
-          <div style="display:flex;justify-content:space-between;margin-top:10px;font-family:'Space Mono',monospace;font-size:9px;color:var(--ink-subtle);">
-            <span>■ #D92228 Hot Seller Market</span>
-            <span>■ #0F766E High Buyer Concessions</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- CENTER COLUMN: NEWSPAPER EDITORIAL & NEIGHBORHOOD AFFORDABILITY CHART -->
-      <article class="newspaper-sheet">
-        <div class="article-dateline" id="art-dateline">DETROIT & OAKLAND COUNTY BUREAU • REDFIN MLS + ROCKET MONEY COHORT ANALYSIS</div>
-        <h2 class="article-headline" id="art-headline">
-          Oakland County Inventory Rises 11% as Rocket 5%-Down Buyers Outpace $2,250/Mo Renters by $84,600 in 5-Year Wealth
-        </h2>
-        <div class="article-deck" id="art-deck">
-          While 38% of turn-key homes in Royal Oak and Ferndale still command above-list offers within 24 days, expanding autumn inventory and Rocket Mortgage rate-buydown credits have opened a rare window for 14,820 local Rocket Money renters.
-        </div>
-        <div class="byline-row">
-          <span>BY GOOGLE ADK EDITORIAL AGENT • MODEL: <strong id="live-model-pill">gemini-3.8-flash</strong></span>
-          <span id="art-timestamp">VERIFIED MLS FEED • 100% REG Z COMPLIANT</span>
-        </div>
-
-        <div class="article-columns" id="art-body-columns">
-          <p class="dropcap" id="art-p1">
-            Across Oakland, Wayne, and Macomb counties, the October 2026 Redfin MLS tape reveals a decisive inflection point. Median sale prices stand at $312,000 (+4.8% year-over-year), yet active inventory has climbed 11% compared to last autumn—giving prepared first-time buyers breathing room without sacrificing home-equity velocity.
-          </p>
-          <p id="art-p2">
-            According to anonymized Rocket Money savings vault telemetry, over 14,820 Metro Detroit households currently paying $2,250 or more in monthly rent already hold at least $15,000 in liquid down-payment vaults. With a 5% down payment ($15,600) at a 6.125% 30-year fixed note rate, principal and interest totals just $1,800.42 per month—undercutting luxury apartment renewals while locking in $84,600 in projected 5-year principal reduction and appreciation.
-          </p>
-          <div class="pull-quote" id="art-pullquote">
-            “Renters paying $2,250/mo in Royal Oak are effectively funding their landlord's equity; shifting $15,600 from a Rocket Money Vault converts that outflow into $84,600 of net household wealth by 2031.”
-          </div>
-          <p id="art-p3">
-            In contrast, Sunbelt markets such as Austin-Round Rock ($445,000 median price, 58 Days on Market) show seller concessions on 46% of closings. Our ADK Market Pulse Engine automatically pivots creative in Texas toward seller-funded Rocket 2-1 Temporary Rate Buydowns—dropping Year-1 effective rates to 4.125% ($1,940/mo P&I) at zero upfront points to the buyer.
-          </p>
-        </div>
-
-        <!-- NEIGHBORHOOD PRICE & P&I BREAKDOWN CHART -->
-        <div class="chart-section">
-          <div class="box-header" style="border-bottom:1px solid var(--ink);">
-            <span id="chart-title">SUB-MARKET MEDIAN PRICE & MONTHLY P&I (6.125% FIXED)</span>
-            <span>REDFIN SUB-INDEX</span>
-          </div>
-          <div id="neighborhood-bars-container">
-            <div class="bar-row">
-              <span>Ferndale (48220)</span>
-              <div class="bar-track"><div class="bar-fill" style="width:58%;"></div></div>
-              <span style="text-align:right;">$295k • $1,702/m</span>
+          <div class="payment-breakdown-strip">
+            <div class="payment-pill-group">
+              <span>Principal &amp; Interest: <strong id="pi-dollar-val">$2,516/mo</strong></span>
+              <span>Prop. Taxes &amp; Home Ins: <strong id="tax-dollar-val">$368/mo</strong></span>
+              <span>Loan Amount: <strong id="loan-dollar-val">$414,000</strong></span>
             </div>
-            <div class="bar-row">
-              <span>Royal Oak (48067)</span>
-              <div class="bar-track"><div class="bar-fill" style="width:72%;"></div></div>
-              <span style="text-align:right;">$365k • $2,106/m</span>
-            </div>
-            <div class="bar-row">
-              <span>Troy (48084)</span>
-              <div class="bar-track"><div class="bar-fill" style="width:84%;"></div></div>
-              <span style="text-align:right;">$428k • $2,469/m</span>
-            </div>
-            <div class="bar-row">
-              <span>Birmingham (48009)</span>
-              <div class="bar-track"><div class="bar-fill" style="width:96%;background:#111111;"></div></div>
-              <span style="text-align:right;">$615k • $3,548/m</span>
+            <div style="font-size:15px;font-weight:800;color:var(--redfin-red);">
+              Total Reel End-Card Payment: <span id="total-pmt-inline">$2,884/mo</span>
             </div>
           </div>
         </div>
-      </article>
 
-      <!-- RIGHT COLUMN: READY-TO-POST INSTAGRAM & LINKEDIN CARDS -->
-      <div>
-        <div class="social-card">
-          <div class="social-platform-head">
-            <span>📸 INSTAGRAM CAROUSEL & REEL HOOK</span>
-            <span style="color:var(--crimson);">AUTO-GENERATED</span>
-          </div>
-          <div class="ig-visual-mock">
-            <div class="ig-tag" id="ig-badge">REDFIN × ROCKET PULSE • OAKLAND CO.</div>
-            <div class="ig-headline" id="ig-headline">Stop Paying $2,250/mo Rent in Royal Oak. Own for $1,800/mo P&I.</div>
-            <div class="ig-stat-strip">
-              <span id="ig-stat-1">MEDIAN: $312K</span>
-              <span>•</span>
-              <span id="ig-stat-2">5-YR WEALTH: +$84.6K</span>
+        <!-- 4-Scene Social Reel Storyboard Creator -->
+        <div class="stone-panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C82021" stroke-width="2.2">
+                  <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/>
+                </svg>
+                4-Scene Social Reel Storyboard Creator (15-Second Vertical Video)
+              </div>
+              <div class="panel-subtitle">
+                Click any scene card to preview on the 9:16 canvas or customize the on-screen hook caption.
+              </div>
             </div>
           </div>
-          <div class="social-copy" id="ig-caption">
-            Paying $2,250/mo rent in Metro Detroit? 🏠 Active inventory just jumped +11% YoY. Use your Rocket Money Vault + Redfin 1-Tap Pre-Approval to lock in a $312K home with $84,600 in projected 5-yr equity gain. Link in bio to run your zip code. #Redfin #RocketMortgage #DetroitRealEstate
-          </div>
-        </div>
 
-        <div class="social-card">
-          <div class="social-platform-head">
-            <span>💼 LINKEDIN MARKET INTELLIGENCE POST</span>
-            <span style="color:var(--emerald);">B2B / LO SYNDICATION</span>
-          </div>
-          <div class="social-copy" id="linkedin-copy" style="border-left-color:var(--ink);background:#FAF8F5;">
-            <strong>📊 October 2026 Redfin × Rocket 50-Metro Dispatch:</strong><br><br>
-            We just analyzed all 50 US metros inside a single 2M-token Gemini context window:<br>
-            • <strong>Midwest Velocity (Oakland Co, MI):</strong> $312K median (+4.8% YoY), 24 DOM. Rent-vs-Buy favors ownership by +$84.6K over 60 months.<br>
-            • <strong>Sunbelt Buydown Arbitrage (Austin, TX):</strong> 46% of sellers offering concessions—deploying Rocket 2-1 Buydowns drops Year-1 effective rates to 4.125%.
-          </div>
-        </div>
+          <div class="storyboard-list">
+            <!-- Storyboard Card 0 -->
+            <div class="scene-card active" id="scene-card-0" onclick="window.selectStoryboardScene(0)">
+              <div class="scene-top">
+                <span class="scene-time-pill">00:00 Curb Appeal</span>
+                <span class="scene-camera-tag">Veo 3.1 · Gimbal Push-In</span>
+              </div>
+              <div class="scene-heading">Scene 1: Vinsetta Park Craftsman Exterior</div>
+              <input type="text" class="scene-caption-input" id="caption-input-0" value="Just Listed in Royal Oak · 418 Elmhurst Ave ($460,000)" oninput="window.updateSceneCaption(0, this.value)" onclick="event.stopPropagation()">
+              <div class="scene-narration" id="narration-0">
+                "Just listed in Royal Oak's coveted Vinsetta Park—welcome to 418 Elmhurst Avenue, a sunlit 4-bedroom Craftsman at $460,000."
+              </div>
+            </div>
 
-        <div class="social-card" style="background:var(--paper-warm);">
-          <div class="social-platform-head">
-            <span>✉️ EMAIL SUBJECT LINE A/B VARIANTS</span>
-            <span>HIGH CTR</span>
+            <!-- Storyboard Card 1 -->
+            <div class="scene-card" id="scene-card-1" onclick="window.selectStoryboardScene(1)">
+              <div class="scene-top">
+                <span class="scene-time-pill">00:04 Chef's Kitchen</span>
+                <span class="scene-camera-tag">Veo 3.1 · Smooth Orbit Pan</span>
+              </div>
+              <div class="scene-heading">Scene 2: 10-Ft Calacatta Quartz Island</div>
+              <input type="text" class="scene-caption-input" id="caption-input-1" value="Chef's Waterfall Quartz Island + 36&quot; Pro Range" oninput="window.updateSceneCaption(1, this.value)" onclick="event.stopPropagation()">
+              <div class="scene-narration" id="narration-1">
+                "Step inside to 2,280 square feet featuring a ten-foot waterfall quartz island, custom white shaker cabinetry, and brass pendants."
+              </div>
+            </div>
+
+            <!-- Storyboard Card 2 -->
+            <div class="scene-card" id="scene-card-2" onclick="window.selectStoryboardScene(2)">
+              <div class="scene-top">
+                <span class="scene-time-pill">00:09 Backyard Pergola</span>
+                <span class="scene-camera-tag">Veo 3.1 · Golden Hour Crane</span>
+              </div>
+              <div class="scene-heading">Scene 3: Cedar Pergola &amp; Bluestone Patio</div>
+              <input type="text" class="scene-caption-input" id="caption-input-2" value="Private Cedar Pergola, Bistro Lights &amp; Firepit" oninput="window.updateSceneCaption(2, this.value)" onclick="event.stopPropagation()">
+              <div class="scene-narration" id="narration-2">
+                "French doors open to your private backyard retreat with a custom cedar pergola, bluestone patio, and built-in firepit."
+              </div>
+            </div>
+
+            <!-- Storyboard Card 3 -->
+            <div class="scene-card" id="scene-card-3" onclick="window.selectStoryboardScene(3)">
+              <div class="scene-top">
+                <span class="scene-time-pill">00:13 Rocket Mortgage Payment Breakdown</span>
+                <span class="scene-camera-tag">Dynamic Rate Graphics</span>
+              </div>
+              <div class="scene-heading">Scene 4: Instant Monthly Payment End-Card</div>
+              <input type="text" class="scene-caption-input" id="caption-input-3" value="Own for $2,884/mo · 6.125% Rate · $2,500 Redfin Credit" oninput="window.updateSceneCaption(3, this.value)" onclick="event.stopPropagation()">
+              <div class="scene-narration" id="narration-3">
+                "Lock in an estimated $2,884 per month at 6.125% with Rocket Mortgage, plus a $2,500 Redfin closing credit."
+              </div>
+            </div>
           </div>
-          <ul id="email-hooks-list" style="list-style:none;font-family:'Space Mono',monospace;font-size:11px;line-height:1.6;color:var(--ink);">
-            <li style="margin-bottom:8px;"><strong>[A]</strong> "Your $2,250 Royal Oak rent vs. a $1,800/mo Rocket Mortgage (Oct MLS Data)"</li>
-            <li style="margin-bottom:8px;"><strong>[B]</strong> "Inventory is up 11% in Oakland County—see 14 homes under $325k"</li>
-            <li><strong>[C]</strong> "Unlock $3,500 Redfin + Rocket Buy+Borrow Closing Credit this weekend"</li>
-          </ul>
+
+          <!-- Voiceover Script & Gemini 3.8 Live 24kHz HD Audio Trigger -->
+          <div class="voiceover-card">
+            <div class="voiceover-header">
+              <div>
+                <div style="font-size:14px;font-weight:800;color:var(--text-main);">
+                  15-Second Property Video Voiceover Script (Synced to Price &amp; Rate Sliders)
+                </div>
+                <div style="font-size:12px;color:var(--text-muted);">
+                  Synthesized via Gemini 3.8 Live 24kHz Native HD Audio (Voice: Aoede HD)
+                </div>
+              </div>
+              <button class="btn-redfin" id="btn-play-voiceover" onclick="window.playReelVoiceover(this)">
+                🔊 Play Reel Voiceover (Gemini 3.8 Live · Aoede HD)
+              </button>
+            </div>
+            <textarea id="voiceover-script-textarea" class="voiceover-script-box" rows="3">Just listed in Royal Oak's Vinsetta Park! Welcome to 418 Elmhurst Avenue—a 4-bedroom, 2.5-bath Craftsman listed at $460,000. Inside its 2,280 square feet, enjoy a chef's waterfall quartz kitchen and a private backyard cedar pergola. Own this home for an estimated $2,884 a month at 6.125% with Rocket Mortgage, including a $2,500 Redfin closing credit!</textarea>
+          </div>
+
+          <!-- Live Vertex AI Output Box -->
+          <div class="ai-output-card" id="vertex-ai-output">
+            <strong>Redfin + Rocket Mortgage Video Director Ready:</strong> Click <em>"Generate Reel Script &amp; Veo Prompts"</em> in the top header or <em>"Re-Synthesize with Selected Model"</em> in the drawer to generate localized Instagram/TikTok ad hooks and Veo 3.1 scene motion prompts with <span id="live-model-pill">gemini-4-argon</span>.
+          </div>
         </div>
       </div>
 
+      <!-- Right Column: Live 9:16 Social Reel Preview Player -->
+      <aside class="reel-preview-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <div>
+            <div style="font-size:15px;font-weight:800;color:var(--text-main);">Live 9:16 Social Reel Preview</div>
+            <div style="font-size:12px;color:var(--text-muted);">Instagram Reels · TikTok · YouTube Shorts</div>
+          </div>
+          <span class="co-brand-pill" id="active-scene-indicator">00:00 Curb Appeal</span>
+        </div>
+
+        <div class="phone-frame">
+          <!-- Dynamic Scene Illustration Inside Phone -->
+          <div class="reel-canvas-bg" id="phone-svg-stage"></div>
+
+          <!-- Top Overlay -->
+          <div class="reel-top-overlay">
+            <div class="reel-progress-segments">
+              <div class="reel-seg active" id="reel-seg-0"><div class="reel-seg-fill"></div></div>
+              <div class="reel-seg" id="reel-seg-1"><div class="reel-seg-fill"></div></div>
+              <div class="reel-seg" id="reel-seg-2"><div class="reel-seg-fill"></div></div>
+              <div class="reel-seg" id="reel-seg-3"><div class="reel-seg-fill"></div></div>
+            </div>
+            <div class="reel-brand-row">
+              <span>@RedfinDetroit &times; @RocketMortgage</span>
+              <span style="background:rgba(0,0,0,0.45);padding:2px 7px;border-radius:4px;">MLS #202604189</span>
+            </div>
+          </div>
+
+          <!-- Bottom Overlay -->
+          <div class="reel-bottom-overlay">
+            <span class="reel-scene-badge" id="phone-scene-badge">00:00 Curb Appeal</span>
+            <div class="reel-caption-box" id="phone-caption-text">
+              Just Listed in Royal Oak · 418 Elmhurst Ave ($460,000)
+            </div>
+            <div class="reel-mortgage-card">
+              <div>
+                <div style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;">Rocket Mortgage Est.</div>
+                <div class="reel-mortgage-price" id="phone-pmt-val">$2,884/mo</div>
+                <div style="font-size:10.5px;color:var(--text-muted);" id="phone-rate-sub">6.125% Rate · 10% Down</div>
+              </div>
+              <div style="background:var(--redfin-red);color:#FFFFFF;font-size:11px;font-weight:800;padding:7px 11px;border-radius:7px;">
+                Get Pre-Approved
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="reel-controls-bar">
+          <button class="btn-outline" onclick="window.stepReelScene(-1)">&larr; Prev Scene</button>
+          <button class="btn-redfin" onclick="window.autoPlayStoryboardTour()">&#9654; Play 4-Scene Tour</button>
+          <button class="btn-outline" onclick="window.stepReelScene(1)">Next Scene &rarr;</button>
+        </div>
+      </aside>
     </div>
   </main>
 
   <script>
-    const METRO_PRESETS = {
-      oakland: {
-        name: "Oakland County & Metro Detroit, MI",
-        short: "OAKLAND CO., MI",
-        price: 312000,
-        inv: 11,
+    const LISTINGS_DB = {
+      elmhurst: {
+        street: "418 Elmhurst Ave",
+        cityZip: "Royal Oak, MI 48067 · Vinsetta Park Historic District",
+        price: 460000,
+        est: "$464,500",
+        beds: "4",
+        baths: "2.5",
+        sqft: "2,280",
         rate: 6.125,
-        rent: 2250,
-        dom: 24,
-        yoy: "+4.8%",
-        concessions: "18%",
-        headline: "Oakland County Inventory Rises 11% as Rocket 5%-Down Buyers Outpace $2,250/Mo Renters by $84,600 in 5-Year Wealth",
-        deck: "While 38% of turn-key homes in Royal Oak and Ferndale still command above-list offers within 24 days, expanding autumn inventory and Rocket Mortgage rate-buydown credits have opened a rare window for 14,820 local Rocket Money renters.",
-        p1: "Across Oakland, Wayne, and Macomb counties, the October 2026 Redfin MLS tape reveals a decisive inflection point. Median sale prices stand at $312,000 (+4.8% year-over-year), yet active inventory has climbed 11% compared to last autumn—giving prepared first-time buyers breathing room without sacrificing home-equity velocity.",
-        p2: "According to anonymized Rocket Money savings vault telemetry, over 14,820 Metro Detroit households currently paying $2,250 or more in monthly rent already hold at least $15,000 in liquid down-payment vaults. With a 5% down payment ($15,600) at a 6.125% 30-year fixed note rate, principal and interest totals just $1,800.42 per month—undercutting luxury apartment renewals while locking in $84,600 in projected 5-year principal reduction and appreciation.",
-        quote: "“Renters paying $2,250/mo in Royal Oak are effectively funding their landlord's equity; shifting $15,600 from a Rocket Money Vault converts that outflow into $84,600 of net household wealth by 2031.”",
-        neighborhoods: [
-          ["Ferndale (48220)", 58, "$295k • $1,702/m"],
-          ["Royal Oak (48067)", 72, "$365k • $2,106/m"],
-          ["Troy (48084)", 84, "$428k • $2,469/m"],
-          ["Birmingham (48009)", 96, "$615k • $3,548/m"]
-        ]
+        downPct: 10
       },
-      austin: {
-        name: "Austin–Round Rock, TX",
-        short: "AUSTIN, TX",
-        price: 445000,
-        inv: 19,
-        rate: 6.125,
-        rent: 2450,
-        dom: 58,
-        yoy: "-2.1%",
-        concessions: "46%",
-        headline: "Austin Inventory Surges +19% With 46% of Sellers Funding Rocket 2-1 Rate Buydowns to 4.125% Year-1 Note Rates",
-        deck: "With median days on market stretching to 58 days across Travis and Williamson counties, buyers hold peak negotiating leverage—converting seller price cuts into $10,400 Rocket 2-1 temporary buydown subsidies.",
-        p1: "Austin-Round Rock has officially transitioned into a high-leverage buyer's market in October 2026. Active Redfin listings are up 19% year-over-year while median sale prices have softened 2.1% to $445,000, creating unprecedented motivation among homebuilders and resale sellers alike.",
-        p2: "Rather than asking for a modest list-price reduction, Rocket Mortgage loan officers are structuring seller-paid 2-1 Temporary Buydowns on 46% of Austin closings. On a $445,000 purchase with 10% down, a seller-funded subsidy drops the borrower's Year-1 effective rate to 4.125%—slashing monthly P&I to $1,940.15/mo and beating South Congress apartment rents.",
-        quote: "“In Austin's 58-DOM market, a $10,400 seller concession applied to a Rocket 2-1 Buydown saves the buyer 4x more monthly cash flow in Year 1 than a $10,000 price cut.”",
-        neighborhoods: [
-          ["Round Rock (78664)", 55, "$385k • $1,678/m*"],
-          ["South Manchaca (78745)", 68, "$440k • $1,918/m*"],
-          ["Mueller (78723)", 82, "$565k • $2,463/m*"],
-          ["Zilker / 78704", 95, "$790k • $3,444/m*"]
-        ]
-      },
-      seattle: {
-        name: "Seattle–Bellevue–Tacoma, WA",
-        short: "SEATTLE, WA",
-        price: 765000,
-        inv: 6,
+      maplewood: {
+        street: "912 W Maplehurst St",
+        cityZip: "Ferndale, MI 48220 · Drayton Avenue Walkable District",
+        price: 389000,
+        est: "$394,000",
+        beds: "3",
+        baths: "2.0",
+        sqft: "1,740",
         rate: 6.000,
-        rent: 3250,
-        dom: 18,
-        yoy: "+5.4%",
-        concessions: "14%",
-        headline: "Tech RSU Vesting Fuels +5.4% Surge in Seattle-Bellevue as Rocket Jumbo & RSU Qualifier Wins 18-Day Bidding Wars",
-        deck: "Tight 6% inventory growth and rapid 18-day turnarounds in King County reward buyers armed with Rocket's upfront Fannie Mae RSU income verification and Verified Approval letters.",
-        p1: "Puget Sound remains one of the nation's tightest coastal metros at a $765,000 median sale price (+5.4% YoY). Homes in Ballard, Kirkland, and Redmond average just 18 days on market, with multiple offers returning on properties priced under $850,000.",
-        p2: "Rocket Mortgage's GSE Variable Income engine allows Amazon, Microsoft, and Google engineers to qualify 100% of their 24-month vested RSU average upfront—unlocking $765,000+ buying power with Verified Approval certificates that beat all-cash investors.",
-        quote: "“In King County's 18-day market, pre-underwriting RSU stock grants before the Saturday Redfin tour is the difference between winning at list price and losing to cash.”",
-        neighborhoods: [
-          ["Tacoma North (98406)", 52, "$540k • $2,914/m"],
-          ["Ballard (98107)", 74, "$765k • $4,128/m"],
-          ["Kirkland (98033)", 88, "$980k • $5,288/m"],
-          ["Bellevue West (98004)", 98, "$1.35M • $7,285/m"]
-        ]
+        downPct: 10
       },
-      miami: {
-        name: "Miami–Fort Lauderdale–Brickell, FL",
-        short: "MIAMI, FL",
-        price: 580000,
-        inv: 22,
+      linden: {
+        street: "1420 Linden Rd",
+        cityZip: "Birmingham, MI 48009 · Quarton Lake Estates",
+        price: 675000,
+        est: "$682,000",
+        beds: "4",
+        baths: "3.5",
+        sqft: "3,120",
         rate: 6.125,
-        rent: 3100,
-        dom: 44,
-        yoy: "+3.2%",
-        concessions: "34%",
-        headline: "South Florida Condo Inventory Climbs 22% While Single-Family Estates Hold +3.2% YoY Gains Across Miami-Dade",
-        deck: "Bifurcated inventory in Miami gives move-up buyers major negotiating power on Brickell and Edgewater condos while Rocket Close accelerates flood-and-title clearance.",
-        p1: "Miami-Dade's October 2026 market features a sharp split between single-family homes (+5.9% YoY) and high-rise condominiums where active inventory has expanded +22% year-over-year across Brickell and Downtown.",
-        p2: "With median rents holding at $3,100/mo, Rocket Money users relocating to South Florida are pairing Redfin 1% listing fee advantages with Rocket's HOA warrantability pre-screen to lock in $580,000 residences with zero last-minute condo questionnaire delays.",
-        quote: "“Automated HOA & Condo Warrantability screening via Vertex AI cuts Miami closing timelines by 9 days while capturing $8,500 seller closing credits.”",
-        neighborhoods: [
-          ["Kendall (33176)", 60, "$510k • $2,942/m"],
-          ["Brickell Condo (33131)", 68, "$580k • $3,346/m"],
-          ["Doral (33178)", 79, "$675k • $3,894/m"],
-          ["Coral Gables (33134)", 96, "$1.12M • $6,462/m"]
-        ]
-      },
-      denver: {
-        name: "Denver–Aurora–Boulder, CO",
-        short: "DENVER, CO",
-        price: 562000,
-        inv: 16,
-        rate: 6.000,
-        rent: 2550,
-        dom: 41,
-        yoy: "-0.8%",
-        concessions: "41%",
-        headline: "Front Range Equilibrium: 41% of Denver Sellers Offer Rate-Buydown Concessions as Inventory Expands +16%",
-        deck: "Balanced pricing at $562,000 (-0.8% YoY) lets Colorado renters lock in 5.00% Year-1 effective rates via Rocket Mortgage + Redfin Buy+Borrow credits.",
-        p1: "Along the Front Range from LoDo to Littleton, October 2026 marks the most balanced autumn market in six years. Median prices sit steady at $562,000 (-0.8% YoY) with 41 average days on market.",
-        p2: "Over 41% of Denver sellers are actively offering closing cost concessions to attract qualified buyers before winter. Combining seller credits with the $3,500 Redfin + Rocket Buy+Borrow bundle covers 100% of closing costs and permanent rate points.",
-        quote: "“Front Range buyers stacking seller concessions with the $3,500 Redfin × Rocket bundle are walking to the closing table with zero out-of-pocket closing fees.”",
-        neighborhoods: [
-          ["Aurora Highline (80012)", 54, "$445k • $2,401/m"],
-          ["Lakewood (80226)", 68, "$545k • $2,941/m"],
-          ["Wash Park (80209)", 86, "$785k • $4,236/m"],
-          ["Boulder (80302)", 97, "$965k • $5,207/m"]
-        ]
+        downPct: 15
       }
     };
 
-    window.currentMetroKey = 'oakland';
+    let currentSceneIndex = 0;
+    let tourTimer = null;
 
-    function calcMonthlyPI(principal, annualRate) {
-      const r = (annualRate / 100) / 12;
-      const n = 360;
-      if (r <= 0) return principal / n;
-      return principal * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1);
-    }
+    const SCENE_TIMESTAMPS = [
+      "00:00 Curb Appeal",
+      "00:04 Chef's Kitchen",
+      "00:09 Backyard Pergola",
+      "00:13 Rocket Mortgage Payment Breakdown"
+    ];
 
-    function render50MetroHeatmap() {
-      const codes = [
-        "DET","AUS","SEA","MIA","DEN","PHX","ATL","DAL","CLT","TPA",
-        "ORL","RDU","BNA","MSP","ORD","BOS","PHL","DCA","SAN","SJC",
-        "LAX","SAC","PDX","LAS","SLC","MCI","CMH","IND","CVG","CLE",
-        "PIT","BUF","MKE","STL","JAX","RSW","SAT","HOU","OKC","TUL",
-        "OMA","DSM","GRR","ANN","BHM","CHS","SAV","RIC","ORF","PVD"
-      ];
-      const container = document.getElementById('heatmap-50-container');
-      if (!container) return;
-      container.innerHTML = codes.map((c, idx) => {
-        const hot = (idx % 3 === 0) ? '#D92228' : ((idx % 2 === 0) ? '#0F766E' : '#1E293B');
-        return `<div class="heat-cell" style="background:${hot};" title="Metro #${idx+1}: ${c} • Click to inspect" onclick="window.selectMetro('${idx % 2 === 0 ? 'austin' : 'oakland'}')">${c}</div>`;
-      }).join('');
-    }
+    window.selectStoryboardScene = function(idx) {
+      currentSceneIndex = idx;
+      for (let i = 0; i < 4; i++) {
+        const gal = document.getElementById('gal-card-' + i);
+        const sc = document.getElementById('scene-card-' + i);
+        const seg = document.getElementById('reel-seg-' + i);
+        if (gal) gal.classList.toggle('active', i === idx);
+        if (sc) sc.classList.toggle('active', i === idx);
+        if (seg) seg.classList.toggle('active', i <= idx);
+      }
+      const badge = document.getElementById('phone-scene-badge');
+      const topInd = document.getElementById('active-scene-indicator');
+      if (badge) badge.textContent = SCENE_TIMESTAMPS[idx];
+      if (topInd) topInd.textContent = SCENE_TIMESTAMPS[idx];
 
-    window.selectMetro = function(key) {
-      window.currentMetroKey = key;
-      const m = METRO_PRESETS[key] || METRO_PRESETS.oakland;
-      document.querySelectorAll('.metro-card').forEach(el => {
-        el.classList.toggle('active', el.getAttribute('data-metro') === key);
-      });
-      document.getElementById('slider-price').value = m.price;
-      document.getElementById('slider-inv').value = m.inv;
-      document.getElementById('slider-rate').value = m.rate;
-      document.getElementById('slider-rent').value = m.rent;
-
-      document.getElementById('masthead-active-metro').innerText = `DISPATCH: ${m.name.toUpperCase()}`;
-      document.getElementById('art-dateline').innerText = `${m.short} BUREAU • REDFIN MLS + ROCKET MONEY COHORT ANALYSIS`;
-      document.getElementById('art-headline').innerText = m.headline;
-      document.getElementById('art-deck').innerText = m.deck;
-      document.getElementById('art-p1').innerText = m.p1;
-      document.getElementById('art-p2').innerText = m.p2;
-      document.getElementById('art-pullquote').innerText = m.quote;
-
-      const barsEl = document.getElementById('neighborhood-bars-container');
-      if (barsEl) {
-        barsEl.innerHTML = m.neighborhoods.map(row => `
-          <div class="bar-row">
-            <span>${row[0]}</span>
-            <div class="bar-track"><div class="bar-fill" style="width:${row[1]}%;"></div></div>
-            <span style="text-align:right;">${row[2]}</span>
-          </div>
-        `).join('');
+      const capInput = document.getElementById('caption-input-' + idx);
+      const phoneCap = document.getElementById('phone-caption-text');
+      if (capInput && phoneCap) {
+        phoneCap.textContent = capInput.value;
       }
 
-      window.onMetroSliderChange();
-    };
-
-    window.onMetroSliderChange = async function() {
-      const price = parseFloat(document.getElementById('slider-price').value || 312000);
-      const inv = parseFloat(document.getElementById('slider-inv').value || 11);
-      const rate = parseFloat(document.getElementById('slider-rate').value || 6.125);
-      const rent = parseFloat(document.getElementById('slider-rent').value || 2250);
-
-      document.getElementById('lbl-price').innerText = '$' + price.toLocaleString();
-      document.getElementById('lbl-inv').innerText = (inv >= 0 ? '+' : '') + inv.toFixed(1) + '%';
-      document.getElementById('lbl-rate').innerText = rate.toFixed(3) + '%';
-      document.getElementById('lbl-rent').innerText = '$' + rent.toLocaleString() + '/mo';
-
-      const loan95 = price * 0.95;
-      const pi = Math.round(calcMonthlyPI(loan95, rate));
-      const wealth5yr = Math.round(price * 0.21 + (loan95 * 0.062));
-
-      const m = METRO_PRESETS[window.currentMetroKey] || METRO_PRESETS.oakland;
-      document.getElementById('ig-badge').innerText = `REDFIN × ROCKET PULSE • ${m.short}`;
-      document.getElementById('ig-headline').innerText = `Stop Paying $${rent.toLocaleString()}/mo Rent. Own a $${Math.round(price/1000)}K Home for $${pi.toLocaleString()}/mo P&I.`;
-      document.getElementById('ig-stat-1').innerText = `MEDIAN: $${Math.round(price/1000)}K`;
-      document.getElementById('ig-stat-2').innerText = `5-YR WEALTH: +$${(wealth5yr/1000).toFixed(1)}K`;
-      document.getElementById('ig-caption').innerText = `Paying $${rent.toLocaleString()}/mo rent in ${m.name}? 🏠 Active inventory is ${(inv>=0?'+':'') + inv}% YoY. Pair your Rocket Money Vault with Redfin 1-Tap Pre-Approval at ${rate.toFixed(3)}% (${pi.toLocaleString()}/mo P&I) to build +$${wealth5yr.toLocaleString()} in 5-year equity. #Redfin #RocketMortgage`;
-
-      try {
-        const resp = await fetch('/api/sandbox', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code: '4.1',
-            action: 'calc_metro_pulse',
-            params: { detroit_price: price, austin_price: price * 1.25, current_rent: rent, rate: rate }
-          })
-        });
-        const data = await resp.json();
-        if (data && data.ok) {
-          document.getElementById('sandbox-latency-pill').innerText = `SANDBOX: ${data.execution_ms || 1.4}ms VERIFIED`;
-          const metricText = (data.metrics && data.metrics.metro_detroit_5yr_wealth_gain)
-            ? data.metrics.metro_detroit_5yr_wealth_gain
-            : `Purchase $${price.toLocaleString()} (P&I $${pi.toLocaleString()}/mo @ ${rate.toFixed(3)}%) builds +$${wealth5yr.toLocaleString()} in 5-Yr Equity vs $0 Renting at $${rent.toLocaleString()}/mo.`;
-          document.getElementById('sandbox-equity-readout').innerText = metricText;
+      const sourceGalSvg = document.querySelector('#gal-card-' + idx + ' svg');
+      const phoneStage = document.getElementById('phone-svg-stage');
+      if (sourceGalSvg && phoneStage) {
+        phoneStage.innerHTML = sourceGalSvg.outerHTML;
+        const svgEl = phoneStage.querySelector('svg');
+        if (svgEl) {
+          svgEl.setAttribute('width', '100%');
+          svgEl.setAttribute('height', '100%');
+          svgEl.setAttribute('preserveAspectRatio', 'xMidYMid slice');
         }
-      } catch (e) {
-        document.getElementById('sandbox-equity-readout').innerText = `Purchase $${price.toLocaleString()} (P&I $${pi.toLocaleString()}/mo @ ${rate.toFixed(3)}%) builds +$${wealth5yr.toLocaleString()} in 5-Yr Equity vs $0 Renting at $${rent.toLocaleString()}/mo.`;
       }
+    };
+
+    window.updateSceneCaption = function(idx, val) {
+      if (idx === currentSceneIndex) {
+        const phoneCap = document.getElementById('phone-caption-text');
+        if (phoneCap) phoneCap.textContent = val;
+      }
+    };
+
+    window.stepReelScene = function(delta) {
+      const next = (currentSceneIndex + delta + 4) % 4;
+      window.selectStoryboardScene(next);
+    };
+
+    window.autoPlayStoryboardTour = function() {
+      if (tourTimer) {
+        clearInterval(tourTimer);
+        tourTimer = null;
+      }
+      window.selectStoryboardScene(0);
+      let step = 0;
+      tourTimer = setInterval(() => {
+        step++;
+        if (step >= 4) {
+          clearInterval(tourTimer);
+          tourTimer = null;
+          return;
+        }
+        window.selectStoryboardScene(step);
+      }, 1800);
+    };
+
+    window.recalculateReelPayment = function() {
+      const price = parseFloat(document.getElementById('price-slider').value || 460000);
+      const rate = parseFloat(document.getElementById('rate-slider').value || 6.125);
+      const downPct = parseFloat(document.getElementById('down-slider').value || 10);
+
+      const downDollar = Math.round(price * (downPct / 100));
+      const loanAmount = price - downDollar;
+      const monthlyRate = (rate / 100) / 12;
+      const n = 360;
+      const pi = Math.round(loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, n)) / (Math.pow(1 + monthlyRate, n) - 1));
+      const taxesIns = Math.round((price * 0.0096) / 12);
+      const totalPmt = pi + taxesIns;
+
+      const fmtPrice = '$' + price.toLocaleString();
+      const fmtPmt = '$' + totalPmt.toLocaleString() + '/mo';
+
+      document.getElementById('price-slider-label').textContent = fmtPrice;
+      document.getElementById('rate-slider-label').textContent = rate.toFixed(3).replace(/\.?0+$/, '') + '%';
+      document.getElementById('down-slider-label').textContent = downPct + '% ($' + downDollar.toLocaleString() + ')';
+
+      document.getElementById('header-price-val').textContent = fmtPrice;
+      document.getElementById('header-pmt-val').textContent = fmtPmt;
+      document.getElementById('pi-dollar-val').textContent = '$' + pi.toLocaleString() + '/mo';
+      document.getElementById('tax-dollar-val').textContent = '$' + taxesIns.toLocaleString() + '/mo';
+      document.getElementById('loan-dollar-val').textContent = '$' + loanAmount.toLocaleString();
+      document.getElementById('total-pmt-inline').textContent = fmtPmt;
+
+      document.getElementById('phone-pmt-val').textContent = fmtPmt;
+      document.getElementById('phone-rate-sub').textContent = rate.toFixed(3).replace(/\.?0+$/, '') + '% Rate · ' + downPct + '% Down';
+
+      const svgCardPmt = document.getElementById('svg-card-pmt');
+      if (svgCardPmt) svgCardPmt.textContent = '$' + totalPmt.toLocaleString() + ' / mo';
+
+      const street = document.getElementById('prop-street').textContent;
+      const beds = document.getElementById('header-beds-val').textContent;
+      const baths = document.getElementById('header-baths-val').textContent;
+      const sqft = document.getElementById('header-sqft-val').textContent;
+
+      const cap0 = document.getElementById('caption-input-0');
+      const cap3 = document.getElementById('caption-input-3');
+      if (cap0) cap0.value = 'Just Listed · ' + street + ' (' + fmtPrice + ')';
+      if (cap3) cap3.value = 'Own for ' + fmtPmt + ' · ' + rate.toFixed(2) + '% Rate · $2,500 Redfin Credit';
+
+      const nar3 = document.getElementById('narration-3');
+      if (nar3) {
+        nar3.textContent = '"Lock in an estimated ' + fmtPmt + ' at ' + rate.toFixed(2) + '% with Rocket Mortgage, plus a $2,500 Redfin closing credit."';
+      }
+
+      const voBox = document.getElementById('voiceover-script-textarea');
+      if (voBox) {
+        voBox.value = 'Just listed in Royal Oak! Welcome to ' + street + '—a ' + beds + '-bedroom, ' + baths + '-bath Craftsman listed at ' + fmtPrice + '. Inside its ' + sqft + ' square feet, enjoy a chef\'s waterfall quartz kitchen and a private backyard cedar pergola. Own this home for an estimated ' + fmtPmt + ' at ' + rate.toFixed(2) + '% with Rocket Mortgage, including a $2,500 Redfin closing credit!';
+      }
+
+      window.selectStoryboardScene(currentSceneIndex);
+    };
+
+    window.switchRedfinListing = function(key) {
+      const item = LISTINGS_DB[key] || LISTINGS_DB.elmhurst;
+      document.getElementById('crumb-address').textContent = item.street;
+      document.getElementById('prop-street').textContent = item.street;
+      document.getElementById('prop-city-zip').textContent = item.cityZip;
+      document.getElementById('redfin-est-val').textContent = item.est;
+      document.getElementById('header-beds-val').textContent = item.beds;
+      document.getElementById('header-baths-val').textContent = item.baths;
+      document.getElementById('header-sqft-val').textContent = item.sqft;
+
+      document.getElementById('price-slider').value = item.price;
+      document.getElementById('rate-slider').value = item.rate;
+      document.getElementById('down-slider').value = item.downPct;
+      window.recalculateReelPayment();
+    };
+
+    window.playReelVoiceover = function(btnEl) {
+      const voBox = document.getElementById('voiceover-script-textarea');
+      const scriptText = voBox ? voBox.value.trim() : "Welcome to 418 Elmhurst Avenue in Royal Oak, Michigan.";
+      window.playLiveCallClip(
+        scriptText,
+        "Aoede",
+        "Redfin & Rocket Mortgage Listing Video Host",
+        btnEl
+      );
     };
 
     window.runLiveVertexAI = async function() {
-      const btn = document.getElementById('btn-publish-editorial');
-      const origText = btn ? btn.innerText : '';
-      if (btn) {
-        btn.innerText = '⏳ Synthesizing 50-Metro ADK Dispatch via Vertex AI...';
-        btn.disabled = true;
-      }
-      const price = parseFloat(document.getElementById('slider-price').value || 312000);
-      const inv = parseFloat(document.getElementById('slider-inv').value || 11);
-      const rate = parseFloat(document.getElementById('slider-rate').value || 6.125);
-      const rent = parseFloat(document.getElementById('slider-rent').value || 2250);
-      const m = METRO_PRESETS[window.currentMetroKey] || METRO_PRESETS.oakland;
-      const scenarioEl = document.getElementById('scenario-input');
-      const customPrompt = scenarioEl && scenarioEl.value
-        ? scenarioEl.value
-        : `Generate a hyper-local Redfin x Rocket Market Pulse editorial for ${m.name} with Median Price $${price}, Inventory YoY ${inv}%, 30Y Rate ${rate}%, and Local Rent $${rent}/mo.`;
+      const model = window.getSelectedModel ? window.getSelectedModel() : "gemini-4-argon";
+      const outEl = document.getElementById('vertex-ai-output');
+      const street = document.getElementById('prop-street').textContent;
+      const price = document.getElementById('price-slider-label').textContent;
+      const rate = document.getElementById('rate-slider-label').textContent;
+      const pmt = document.getElementById('total-pmt-inline').textContent;
+      const drawerInput = document.getElementById('scenario-input');
+      const promptText = (drawerInput && drawerInput.value.trim())
+        ? drawerInput.value.trim() + "\nProperty: " + street + " (" + price + "), Rate: " + rate + ", Est. Payment: " + pmt
+        : "Create a 4-scene 15-second Redfin + Rocket Mortgage Instagram Reel storyboard and Veo 3.1 camera prompts for " + street + " listed at " + price + " with an estimated monthly payment of " + pmt + " at " + rate + ".";
 
+      if (outEl) {
+        outEl.innerHTML = "<strong>⏳ Generating 4-Scene Storyboard &amp; Veo 3.1 Camera Prompts via Vertex AI (" + model + ")...</strong>";
+      }
       try {
-        const resp = await fetch('/api/run-demo', {
+        const res = await fetch('/api/run-demo', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            code: '4.1',
-            model: window.getSelectedModel(),
-            user_input: customPrompt,
-            params: { detroit_price: price, austin_price: 445000, current_rent: rent, rate: rate }
+            square: "4.1",
+            model: model,
+            scenario: promptText
           })
         });
-        const res = await resp.json();
-        if (res && res.ok) {
-          const sd = res.structured_data || {};
-          if (sd.national_headline) {
-            document.getElementById('art-headline').innerText = sd.national_headline;
-          }
-          if (sd.executive_summary || res.output) {
-            document.getElementById('art-deck').innerText = sd.executive_summary || res.output;
-          }
-          if (sd.seo_newsletter_blurb) {
-            document.getElementById('art-p3').innerText = sd.seo_newsletter_blurb;
-          }
-          if (Array.isArray(sd.metro_cards) && sd.metro_cards.length > 0) {
-            const first = sd.metro_cards[0];
-            if (first.buying_power_headline) {
-              document.getElementById('art-pullquote').innerText = `“${first.buying_power_headline}”`;
-            }
-            if (first.local_ad_hook) {
-              document.getElementById('ig-caption').innerText = first.local_ad_hook;
-            }
-          }
-          if (Array.isArray(sd.action_items) && sd.action_items.length > 0) {
-            document.getElementById('email-hooks-list').innerHTML = sd.action_items.map((item, i) =>
-              `<li style="margin-bottom:8px;"><strong>[${String.fromCharCode(65+i)}]</strong> ${item}</li>`
-            ).join('');
-          }
-          document.getElementById('art-timestamp').innerText = `LIVE VERTEX AI (${res.model_used}) • ${res.vertex && res.vertex.latency_ms ? res.vertex.latency_ms + 'ms' : 'VERIFIED'}`;
+        const data = await res.json();
+        if (outEl) {
+          outEl.textContent = data.output || data.text || "Storyboard synthesis complete.";
         }
       } catch (err) {
-        console.error(err);
-      } finally {
-        if (btn) {
-          btn.innerText = origText;
-          btn.disabled = false;
+        if (outEl) {
+          outEl.textContent = "Unable to reach Vertex AI endpoint: " + err.message;
         }
       }
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      render50MetroHeatmap();
-      window.onMetroSliderChange();
+      window.selectStoryboardScene(0);
     });
   </script>
 
   
-<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
-<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
-  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
-    ← Hub
+<!-- CLEAN HUMAN-CENTRIC FLOATING UTILITY BAR (LIGHT SURFACE) -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:16px;right:16px;z-index:9990;display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border:1px solid #CBD5E1;box-shadow:0 10px 30px rgba(15,23,42,0.12);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#1E293B;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#334155;text-decoration:none;font-weight:600;padding:5px 10px;border-radius:8px;background:#F1F5F9;border:1px solid #E2E8F0;transition:0.15s;white-space:nowrap;">
+    ← All Demos
   </a>
-  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
-    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
-      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
-      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
-      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
-      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
-      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
-      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
-      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
-      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
-      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
-      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
-      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
-      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
-      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
-      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
-      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
-      <option value="4.1" selected style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
-      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
-      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
-      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
-      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
-      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
-      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
-      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
-      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
-      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
-      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
-      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
-      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
-      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
-      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
-      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
-      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
-      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:#F8FAFC;border:1px solid #E2E8F0;">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" aria-label="Switch Use Case" style="background:transparent;color:#0F172A;font-weight:600;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;max-width:210px;">
+      <option value="1.1"  style="background:#FFFFFF;color:#0F172A;">1.1 · The ABCDQ Post-Call Structured Debri</option>
+      <option value="1.2"  style="background:#FFFFFF;color:#0F172A;">1.2 · Outlook Hyper-Personalized Rate-Lock</option>
+      <option value="1.3"  style="background:#FFFFFF;color:#0F172A;">1.3 · No-Code Mortgage Guideline & Competi</option>
+      <option value="1.4"  style="background:#FFFFFF;color:#0F172A;">1.4 · Dynamic Loan Pricing & Amortization </option>
+      <option value="1.5"  style="background:#FFFFFF;color:#0F172A;">1.5 · Autonomous Banker Inbound Triage & C</option>
+      <option value="2.1"  style="background:#FFFFFF;color:#0F172A;">2.1 · Fannie Mae / Freddie Mac Selling Gui</option>
+      <option value="2.2"  style="background:#FFFFFF;color:#0F172A;">2.2 · Low-Code Underwriting Condition Clea</option>
+      <option value="2.3"  style="background:#FFFFFF;color:#0F172A;">2.3 · Automated W-2 & Paystub Entity Extra</option>
+      <option value="2.4"  style="background:#FFFFFF;color:#0F172A;">2.4 · Self-Employed Schedule C / 1040 Cash</option>
+      <option value="2.5"  style="background:#FFFFFF;color:#0F172A;">2.5 · Rocket Close (Amrock) Title Exceptio</option>
+      <option value="3.1"  style="background:#FFFFFF;color:#0F172A;">3.1 · Annual Escrow Shortage Resolution Jo</option>
+      <option value="3.2"  style="background:#FFFFFF;color:#0F172A;">3.2 · Self-Service Payoff Quote & IRS Form</option>
+      <option value="3.3"  style="background:#FFFFFF;color:#0F172A;">3.3 · Hardship & Forbearance Live Servicin</option>
+      <option value="3.4"  style="background:#FFFFFF;color:#0F172A;">3.4 · Conversational Rocket Recapture Voic</option>
+      <option value="3.5"  style="background:#FFFFFF;color:#0F172A;">3.5 · Autonomous Borrower Retention & Life</option>
+      <option value="4.1" selected style="background:#FFFFFF;color:#0F172A;">4.1 · Hyper-Local 50-Metro Real Estate Mar</option>
+      <option value="4.2"  style="background:#FFFFFF;color:#0F172A;">4.2 · Virtual Staging & Localized Hero Ad </option>
+      <option value="4.3"  style="background:#FFFFFF;color:#0F172A;">4.3 · Campaign Sentiment & Ad Creative Per</option>
+      <option value="4.4"  style="background:#FFFFFF;color:#0F172A;">4.4 · Automated Multi-Format Video Tour & </option>
+      <option value="4.5"  style="background:#FFFFFF;color:#0F172A;">4.5 · Redfin-to-Rocket Cross-Funnel Campai</option>
+      <option value="5.1"  style="background:#FFFFFF;color:#0F172A;">5.1 · CFPB Regulatory Circular & State Law</option>
+      <option value="5.2"  style="background:#FFFFFF;color:#0F172A;">5.2 · Ethical Walls & PII/NPI Masking Gove</option>
+      <option value="5.3"  style="background:#FFFFFF;color:#0F172A;">5.3 · Automated TRID 3-Day Tolerance & Dis</option>
+      <option value="5.4"  style="background:#FFFFFF;color:#0F172A;">5.4 · Automated Vendor Contract Risk & GLB</option>
+      <option value="5.5"  style="background:#FFFFFF;color:#0F172A;">5.5 · Fair Lending Disparate Impact & Bias</option>
+      <option value="6.1"  style="background:#FFFFFF;color:#0F172A;">6.1 · Autonomous Vulnerability Trace & Rep</option>
+      <option value="6.2"  style="background:#FFFFFF;color:#0F172A;">6.2 · AI Software Factory: Autonomous PRD-</option>
+      <option value="6.3"  style="background:#FFFFFF;color:#0F172A;">6.3 · Legacy .NET Framework / WCF to Cloud</option>
+      <option value="M.1"  style="background:#FFFFFF;color:#0F172A;">M.1 · Project Siren: The Sub-200ms Voice A</option>
+      <option value="M.2"  style="background:#FFFFFF;color:#0F172A;">M.2 · Project Spatial Close: Immersive Vir</option>
+      <option value="M.3"  style="background:#FFFFFF;color:#0F172A;">M.3 · Project HiveMind: Autonomous Treasur</option>
+      <option value="M.4"  style="background:#FFFFFF;color:#0F172A;">M.4 · Project Mirror: Interactive Virtual </option>
+      <option value="M.5"  style="background:#FFFFFF;color:#0F172A;">M.5 · Project Air-Tight: Self-Healing Auto</option>
     </select>
   </div>
-  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
-    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
-    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
-    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
-      <option value="gemini-4-argon"  style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
-      <option value="gemini-3.8-flash" selected style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+  <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:#EFF6FF;border:1px solid #BFDBFE;">
+    <span style="color:#1D4ED8;font-size:11px;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" aria-label="Select Gemini Model" style="background:transparent;color:#1E3A8A;font-weight:700;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" >Gemini 4 Argon (Frontier)</option>
+      <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash (Low-Latency)</option>
     </select>
   </div>
-  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
-    🛠️ Code & Architecture
+  <button onclick="window.toggleBlueprintDrawer()" style="background:#0F172A;color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+    Code & Blueprint
   </button>
 </div>
 
 <!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
-<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
-  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#FFFFFF;color:#0F172A;border-left:1px solid #E2E8F0;box-shadow:-16px 0 48px rgba(15,23,42,0.16);transition:right 0.25s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;">
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [4.1] • Technical Blueprint & GenAI SDK</div>
-      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Hyper-Local 50-Metro Real Estate Market Update Generator</div>
+      <div style="font-size:11px;color:#475569;font-weight:600;">Use Case 4.1 · Technical Blueprint & Vertex AI SDK</div>
+      <div style="font-size:16px;font-weight:700;color:#0F172A;margin-top:2px;">Hyper-Local 50-Metro Real Estate Market Update Generator</div>
     </div>
-    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#E2E8F0;color:#334155;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
   </div>
   <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/4.1?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        📘 Full Reproduction Guide & SKILL.md ↗
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/4.1?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#1D4ED8;color:#FFF;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Full Reproduction Guide & SKILL.md ↗
       </a>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        ✨ Real Gemini Enterprise UI ↗
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#F3E8FF;border:1px solid #D8B4FE;color:#6B21A8;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Open Gemini Enterprise UI ↗
       </a>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
-        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-3.8-flash</span>)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        1. Vertex AI GenAI SDK Implementation (<span id="drawer-model-label" style="color:#1D4ED8;">gemini-3.8-flash</span>)
       </div>
-      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+      <pre id="drawer-sdk-code" style="background:#0F172A;border:1px solid #1E293B;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#E2E8F0;overflow-x:auto;line-height:1.5;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
-        2. GCP Reference Architecture (<= 78 Cols)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        2. GCP Reference Architecture
       </div>
-      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+      <pre style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1E293B;overflow-x:auto;line-height:1.45;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
         3. Custom Scenario Prompt Override
       </div>
-      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Redfin MLS October 2026 Metro Telemetry Snapshot:
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#FFFFFF;border:1px solid #CBD5E1;border-radius:8px;padding:10px;color:#0F172A;font-family:inherit;font-size:12.5px;">Redfin MLS October 2026 Metro Telemetry Snapshot:
 1) Metro Detroit, MI (Oakland / Wayne / Macomb): Median Sale Price $312,000 (+4.8% YoY) | Avg Days on Market: 24 days | Active Inventory: +11% YoY | Share of Homes Selling Above List: 38% | Avg 30-Yr Fixed Rate: 6.125%.
 2) Austin-Round Rock, TX: Median Sale Price $445,000 (-2.1% YoY) | Avg Days on Market: 58 days | Active Inventory: +19% YoY | Seller Concessions Offered on 46% of closings (ideal for Rocket 2-1 Rate Buydown!).
 Target Audience: Renters in Rocket Money paying >$2,200/mo rent with $15k+ saved.</textarea>
-      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
-        ⚡ Re-Synthesize with Selected Model
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:8px;background:#059669;color:#FFF;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
+        Re-Synthesize with Selected Model
       </button>
     </div>
   </div>
 </div>
 
 <script>
-  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
-  // so sharing or copying the URL never leaks the session token!
+  // Scrub ?auth_token=... from URL bar after cookie authentication
   (function() {
     try {
       if (window.location.search.includes('auth_token=')) {
@@ -1207,7 +1473,7 @@ Target Audience: Renters in Rocket Money paying >$2,200/mo rent with $15k+ saved
   };
 
   window.getSelectedModel = function() {
-    const el = document.getElementById('model-select');
+    const el = document.getElementById('model-select') || document.getElementById('app-model-select');
     return el ? el.value : "gemini-3.8-flash";
   };
 
@@ -1230,7 +1496,174 @@ Target Audience: Renters in Rocket Money paying >$2,200/mo rent with $15k+ saved
     dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
   };
 
-  // Initialize SDK snippet on load
+  // ============================================================================
+  // UNIVERSAL GEMINI 3.8 LIVE 24kHz NATIVE AUDIO & INSTANT BARGE-IN ENGINE
+  // Eliminates all robotic browser speechSynthesis TTS across every demo!
+  // ============================================================================
+  window.RocketLiveAudio = (function() {
+    let audioCtx = null;
+    let activeSources = [];
+    let nextPlayTime = 0;
+    let pcmCache = {};
+    let currentClipBtn = null;
+    let currentClipOrigLabel = "";
+    let animFrameId = null;
+
+    function ensureCtx() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC({ sampleRate: 24000 });
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function stopAll() {
+      activeSources.forEach(src => {
+        try { src.stop(0); src.disconnect(); } catch (e) {}
+      });
+      activeSources = [];
+      if (audioCtx) {
+        nextPlayTime = audioCtx.currentTime;
+      }
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      if (currentClipBtn) {
+        currentClipBtn.innerHTML = currentClipOrigLabel;
+        currentClipBtn.dataset.playing = "0";
+        currentClipBtn = null;
+      }
+    }
+
+    function playPcm24kBase64(b64Data, onAmplitude, onEndedCallback) {
+      const ctx = ensureCtx();
+      const bin = atob(b64Data);
+      const len = bin.length;
+      const int16 = new Int16Array(Math.floor(len / 2));
+      for (let i = 0; i < int16.length; i++) {
+        const lo = bin.charCodeAt(i * 2);
+        const hi = bin.charCodeAt(i * 2 + 1);
+        let val = (hi << 8) | lo;
+        if (val >= 0x8000) val -= 0x10000;
+        int16[i] = val;
+      }
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {
+        float32[i] = int16[i] / 32768.0;
+      }
+      const buf = ctx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      if (onAmplitude) {
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 64;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        function tick() {
+          if (!activeSources.includes(src)) return;
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          onAmplitude(sum / (dataArr.length * 255), dataArr);
+          animFrameId = requestAnimationFrame(tick);
+        }
+        animFrameId = requestAnimationFrame(tick);
+      } else {
+        src.connect(ctx.destination);
+      }
+
+      const now = ctx.currentTime;
+      if (nextPlayTime < now) nextPlayTime = now + 0.01;
+      src.start(nextPlayTime);
+      nextPlayTime += buf.duration;
+      activeSources.push(src);
+
+      src.onended = () => {
+        activeSources = activeSources.filter(s => s !== src);
+        if (activeSources.length === 0 && onEndedCallback) {
+          onEndedCallback();
+        }
+      };
+      return src;
+    }
+
+    async function playClip(text, voice, speakerRole, btnEl, onAmplitude) {
+      if (btnEl && btnEl.dataset.playing === "1") {
+        stopAll();
+        return;
+      }
+      stopAll();
+      ensureCtx();
+
+      if (btnEl) {
+        currentClipBtn = btnEl;
+        currentClipOrigLabel = btnEl.innerHTML;
+        btnEl.dataset.playing = "1";
+        btnEl.innerHTML = "⏳ Connecting Gemini 3.8 Live Audio...";
+      }
+
+      const cacheKey = (voice || "Aoede") + "::" + text;
+      try {
+        let pcmB64 = pcmCache[cacheKey];
+        if (!pcmB64) {
+          const res = await fetch('/api/live-tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: text,
+              voice: voice || "Aoede",
+              speaker_role: speakerRole || "Rocket Mortgage Voice Co-Pilot",
+              live_mode: "gemini-3.8-live"
+            })
+          });
+          const data = await res.json();
+          if (!data.ok || !data.pcm_b64) {
+            throw new Error(data.error || "Audio stream unavailable");
+          }
+          pcmB64 = data.pcm_b64;
+          pcmCache[cacheKey] = pcmB64;
+        }
+        if (btnEl && currentClipBtn === btnEl) {
+          btnEl.innerHTML = "⏹ Stop Live Audio (Playing 24kHz HD)";
+        }
+        playPcm24kBase64(pcmB64, onAmplitude, () => {
+          if (btnEl && currentClipBtn === btnEl) {
+            btnEl.innerHTML = currentClipOrigLabel;
+            btnEl.dataset.playing = "0";
+            currentClipBtn = null;
+          }
+          if (onAmplitude) onAmplitude(0, null);
+        });
+      } catch (err) {
+        if (btnEl) {
+          btnEl.innerHTML = currentClipOrigLabel;
+          btnEl.dataset.playing = "0";
+          currentClipBtn = null;
+        }
+        console.error("Gemini 3.8 Live TTS error:", err);
+      }
+    }
+
+    return {
+      ensureCtx: ensureCtx,
+      stopAll: stopAll,
+      playPcm24kBase64: playPcm24kBase64,
+      playClip: playClip,
+      isPlaying: () => activeSources.length > 0
+    };
+  })();
+
+  window.stopAllLiveAudio = window.RocketLiveAudio.stopAll;
+  window.playLiveCallClip = window.RocketLiveAudio.playClip;
+
   document.addEventListener('DOMContentLoaded', () => {
     window.syncSelectedModel("gemini-3.8-flash");
   });

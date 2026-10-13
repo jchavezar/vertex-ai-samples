@@ -3,636 +3,705 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[5.4] Automated Vendor Contract Risk & GLBA SLA Redliner | Rocket Legal Word Track-Changes</title>
-  <link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;0,6..72,700;1,6..72,400&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Audit Trail & Adverse Action Generator | Official CFPB Appendix C-1 Notice</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Public+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --word-navy: #185ABD;
-      --word-navy-dark: #103F86;
-      --ribbon-bg: #F3F4F6;
-      --desk-gray: #E5E7EB;
-      --page-white: #FFFFFF;
-      --del-red: #DC2626;
-      --del-bg: #FEE2E2;
-      --ins-green: #15803D;
-      --ins-bg: #DCFCE7;
-      --ink: #111827;
-      --muted: #4B5563;
-      --border: #D1D5DB;
+      --desk: #EDF2F7;
+      --paper: #FFFFFF;
+      --ink: #0F172A;
+      --ink-muted: #475569;
+      --federal-navy: #1E3A8A;
+      --crimson: #991B1B;
+      --green: #166534;
+      --border: #CBD5E1;
+      --paper-border: #94A3B8;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: var(--desk-gray);
+      background-color: var(--desk);
       color: var(--ink);
-      font-family: 'Inter', -apple-system, sans-serif;
+      font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
-      padding-bottom: 96px;
+      padding-bottom: 92px;
     }
-    .serif-contract { font-family: 'Newsreader', Georgia, serif; }
-    .mono { font-family: 'JetBrains Mono', monospace; }
+    .serif { font-family: 'Merriweather', Georgia, serif; }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
 
-    /* Microsoft Word Navy Title Bar */
-    .word-titlebar {
-      background: var(--word-navy);
-      color: #FFFFFF;
-      padding: 10px 24px;
+    /* Top Compliance Control Bar */
+    .top-bar {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 14px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+      gap: 14px;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
     }
-    .doc-filename {
+    .bar-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .bar-sub {
+      font-size: 12.5px;
+      color: var(--ink-muted);
+    }
+    .bar-actions {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 13.5px;
-      font-weight: 700;
+      flex-wrap: wrap;
     }
-    .autosave-pill {
-      background: rgba(255, 255, 255, 0.16);
-      padding: 3px 10px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 600;
-    }
-    .word-model-selector {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--word-navy-dark);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+    .model-select-box {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
       padding: 5px 12px;
       border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .word-model-selector select {
+    .model-select-box select {
       background: transparent;
-      color: #FFFFFF;
       border: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      font-family: 'IBM Plex Mono', monospace;
       font-weight: 700;
+      font-size: 12px;
+      color: var(--federal-navy);
       outline: none;
       cursor: pointer;
     }
-    .word-model-selector select option { background: #0F172A; color: #FFFFFF; }
-
-    /* Word Review Ribbon Toolbar */
-    .word-ribbon {
-      background: var(--ribbon-bg);
-      border-bottom: 1px solid var(--border);
-      padding: 10px 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 14px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    .btn-audio {
+      background: var(--federal-navy);
+      color: #FFFFFF;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
     }
-    .ribbon-group {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding-right: 14px;
-      border-right: 1px solid var(--border);
-    }
-    .ribbon-btn {
+    .btn-print {
       background: #FFFFFF;
       color: var(--ink);
       border: 1px solid var(--border);
-      padding: 7px 12px;
-      border-radius: 5px;
-      font-size: 12px;
+      padding: 9px 14px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
       font-weight: 600;
       cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: 0.15s;
     }
-    .ribbon-btn:hover { background: #EFF6FF; border-color: var(--word-navy); color: var(--word-navy); }
-    .ribbon-btn.primary {
-      background: var(--word-navy);
-      color: #FFFFFF;
-      border-color: var(--word-navy-dark);
-    }
-    .ribbon-btn.primary:hover { background: var(--word-navy-dark); }
 
-    /* Desk Canvas: Centered A4 Paper + Right Margin Comment Track */
-    .desk-canvas {
-      max-width: 1460px;
+    /* Workspace Layout: Left Underwriting Sliders + Right Official CFPB Form C-1 Paper Certificate */
+    .desk-workspace {
+      max-width: 1420px;
       margin: 26px auto;
-      padding: 0 24px;
+      padding: 0 32px;
       display: grid;
-      grid-template-columns: 1fr 410px;
-      gap: 24px;
+      grid-template-columns: 420px 1fr;
+      gap: 28px;
       align-items: start;
     }
-    @media (max-width: 1120px) {
-      .desk-canvas { grid-template-columns: 1fr; }
+    @media (max-width: 1080px) {
+      .desk-workspace { grid-template-columns: 1fr; }
     }
 
-    /* A4 Legal Contract Page */
-    .a4-page {
-      background: var(--page-white);
-      border: 1px solid #CBD5E1;
-      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
-      padding: 52px 60px;
-      min-height: 820px;
-      position: relative;
-    }
-    @media (max-width: 720px) {
-      .a4-page { padding: 28px 22px; }
-    }
-    /* Left red track-changes revision bar */
-    .clause-block {
-      position: relative;
-      padding: 16px 18px;
-      margin: 18px 0;
-      border-left: 4px solid var(--del-red);
-      background: #FAFAFA;
-      border-radius: 0 6px 6px 0;
-      cursor: pointer;
-      transition: 0.15s;
-    }
-    .clause-block:hover { background: #F8FAFC; box-shadow: 0 2px 10px rgba(24, 90, 189, 0.08); }
-    .clause-block.accepted {
-      border-left-color: var(--ins-green);
-      background: #F0FDF4;
-    }
-    .clause-block.rejected {
-      border-left-color: #9CA3AF;
-      background: #FEF2F2;
-    }
-
-    .track-del {
-      color: var(--del-red);
-      background: var(--del-bg);
-      text-decoration: line-through;
-      padding: 1px 4px;
-      border-radius: 3px;
-    }
-    .track-ins {
-      color: var(--ins-green);
-      background: var(--ins-bg);
-      font-weight: 700;
-      text-decoration: underline;
-      text-decoration-style: double;
-      padding: 1px 5px;
-      border-radius: 3px;
-    }
-
-    /* Right Margin Track-Changes Comment Balloons */
-    .margin-comments {
+    /* Left Panel: Interactive Applicant Credit/DTI/Reserves Sliders */
+    .simulator-panel {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px 22px;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 18px;
     }
-    .comment-balloon {
-      background: #FFFFFF;
+    .panel-kicker {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--federal-navy);
+    }
+    .panel-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-top: 2px;
+    }
+    .slider-group {
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .slider-group input[type=range] {
+      width: 100%;
+      accent-color: var(--federal-navy);
+      cursor: pointer;
+    }
+    .slider-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+      color: var(--ink-muted);
+      margin-top: 4px;
+    }
+
+    /* Right Panel: Official Printable CFPB Appendix C-1 Legal Certificate on Desk */
+    .cfpb-certificate {
+      background: var(--paper);
+      border: 1px solid var(--paper-border);
+      box-shadow: 0 12px 32px rgba(15, 23, 42, 0.10), 0 2px 6px rgba(15, 23, 42, 0.06);
+      padding: 40px 48px;
+      position: relative;
+    }
+    .certificate-inner-border {
+      border: 2px solid #1E293B;
+      padding: 28px 32px;
+    }
+    .cfpb-top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #0F172A;
+      padding-bottom: 16px;
+      margin-bottom: 18px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .form-title {
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 20px;
+      font-weight: 900;
+      color: #0F172A;
+      text-transform: uppercase;
+      letter-spacing: 0.01em;
+    }
+    .form-subtitle {
+      font-size: 12.5px;
+      color: var(--ink-muted);
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .omb-box {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      border: 1px solid #0F172A;
+      padding: 6px 10px;
+      text-align: right;
+      background: #F8FAFC;
+    }
+
+    .applicant-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid #0F172A;
+      margin-bottom: 20px;
+      font-size: 12.5px;
+    }
+    .app-cell {
+      padding: 10px 12px;
+      border-right: 1px solid #0F172A;
+      border-bottom: 1px solid #0F172A;
+    }
+    .app-cell:nth-child(3n) { border-right: none; }
+    .app-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
+    }
+    .app-val {
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 3px;
+    }
+
+    .part-header {
+      background: #0F172A;
+      color: #FFFFFF;
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 7px 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+
+    .reason-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 12px 14px;
       border: 1px solid #CBD5E1;
-      border-left: 5px solid var(--word-navy);
-      border-radius: 8px;
-      padding: 16px;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
-      transition: 0.15s;
+      margin-bottom: 10px;
+      background: #FCFDFE;
     }
-    .comment-balloon.resolved {
-      border-left-color: var(--ins-green);
-      background: #F0FDF4;
+    .reason-row.active-reason {
+      border-color: var(--crimson);
+      background: #FEF2F2;
     }
-    .balloon-header {
+    .checkbox-sq {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #0F172A;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 2px;
+      background: #FFFFFF;
+    }
+    .reason-row.active-reason .checkbox-sq {
+      border-color: var(--crimson);
+      color: var(--crimson);
+    }
+    .reason-code-title {
+      font-weight: 800;
+      font-size: 13.5px;
+      color: #0F172A;
+    }
+    .reason-shap-detail {
+      font-size: 12.5px;
+      color: #334155;
+      margin-top: 3px;
+      line-height: 1.5;
+    }
+
+    .ecoa-boilerplate {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border: 1px solid #0F172A;
+      background: #F8FAFC;
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 11.5px;
+      line-height: 1.65;
+      color: #1E293B;
+    }
+    .hash-footer {
+      margin-top: 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
-      font-size: 11.5px;
-    }
-    .balloon-actions {
-      display: flex;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--ink-muted);
+      flex-wrap: wrap;
       gap: 8px;
-      margin-top: 12px;
     }
-    .btn-accept {
-      flex: 1;
-      background: var(--ins-green);
-      color: #FFF;
-      border: none;
-      padding: 7px 10px;
-      border-radius: 5px;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
+    .ai-audit-box {
+      margin-top: 14px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      padding: 14px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      display: none;
+      white-space: pre-wrap;
     }
-    .btn-accept:hover { background: #166534; }
-    .btn-reject {
-      flex: 1;
-      background: #FEE2E2;
-      color: var(--del-red);
-      border: 1px solid #FCA5A5;
-      padding: 7px 10px;
-      border-radius: 5px;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-    .btn-reject:hover { background: #FECACA; }
   </style>
 </head>
 <body>
 
-  <!-- MICROSOFT WORD NAVY TOP BAR -->
-  <header class="word-titlebar">
-    <div class="doc-filename">
-      <span style="background:#FFF;color:var(--word-navy);font-weight:900;padding:3px 8px;border-radius:4px;font-size:12px;">W</span>
-      <span>Master_SaaS_AI_Vendor_Agreement_v4_REDLINED.docx</span>
-      <span class="autosave-pill">● Track Changes: ON (Google ADK Legal Runtime • Square [5.4])</span>
+  <!-- Top Compliance Bar -->
+  <header class="top-bar">
+    <div>
+      <div class="bar-title">Audit Trail &amp; Adverse Action Generator (CFPB Regulation B Appendix C-1)</div>
+      <div class="bar-sub">Deterministic SHAP Feature Attribution → Statutory ECOA Reason Codes (12 CFR Part 1002 Supp. I)</div>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div class="word-model-selector">
-        <span>ADK MODEL:</span>
+    <div class="bar-actions">
+      <div class="model-select-box">
+        <span>Model:</span>
         <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
-          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Fast / ADK Runtime)</option>
+          <option value="gemini-4-argon">gemini-4-argon</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash</option>
         </select>
       </div>
+      <button class="btn-print" onclick="window.print()">🖨️ Print Official Form C-1</button>
+      <button class="btn-audio" onclick="window.playAdverseAudio(this)">
+        🔊 Read Official Compliance Audit Summary
+      </button>
     </div>
   </header>
 
-  <!-- WORD TRACK-CHANGES RIBBON TOOLBAR -->
-  <div class="word-ribbon">
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div class="ribbon-group">
-        <button class="ribbon-btn primary" onclick="acceptAllRedlines()">✓ Accept All Rocket Redlines (3)</button>
-        <button class="ribbon-btn" onclick="resetRedlines()">↺ Reset Track Changes</button>
-      </div>
-      <div class="ribbon-group">
-        <button class="ribbon-btn" onclick="runMsaSandboxAudit()">🛡️ Score TPRM Risk (/api/sandbox)</button>
-        <button class="ribbon-btn primary" style="background:#0F172A;border-color:#0F172A;" onclick="window.runLiveVertexAI()">
-          ⚡ Synthesize Rider via Google ADK (/api/run-demo)
-        </button>
-      </div>
-    </div>
-    <div class="mono" style="font-size:11.5px;display:flex;align-items:center;gap:14px;">
-      <span>TPRM RISK SCORE: <strong id="tprm-score-badge" style="color:var(--del-red);">92 / 100 (CRITICAL BLOCKER)</strong></span>
-      <span id="redline-counter-badge" style="background:#DBEAFE;color:var(--word-navy);padding:4px 10px;border-radius:4px;font-weight:700;">0 / 3 Redlines Accepted</span>
-    </div>
-  </div>
+  <!-- Main Desk Workspace -->
+  <main class="desk-workspace">
 
-  <!-- DESK CANVAS: CENTERED A4 CONTRACT PAGE + RIGHT MARGIN BALLOONS -->
-  <main class="desk-canvas">
-
-    <!-- CENTERED A4 CONTRACT PAPER -->
-    <article class="a4-page serif-contract">
-      <div style="text-align:center;border-bottom:2px solid #111827;padding-bottom:18px;margin-bottom:24px;">
-        <div class="mono" style="font-size:10.5px;color:var(--muted);letter-spacing:0.08em;">ROCKET COMPANIES, INC. • THIRD-PARTY RISK MANAGEMENT (TPRM) & GLBA ADDENDUM</div>
-        <h1 style="font-size:24px;font-weight:700;margin-top:6px;">MASTER ENTERPRISE CLOUD & AI SERVICES AGREEMENT</h1>
-        <p style="font-size:13.5px;color:var(--muted);margin-top:4px;font-style:italic;">
-          Between Rocket Mortgage, LLC ("Customer") and DocuCloud AI Analytics, Inc. ("Vendor")
+    <!-- Left Panel: Interactive Applicant Credit / DTI / Reserves Sliders -->
+    <aside class="simulator-panel">
+      <div>
+        <div class="panel-kicker">UNDERWRITING TELEMETRY INPUTS</div>
+        <h2 class="panel-title">Applicant Profile Simulator</h2>
+        <p style="font-size:12.5px;color:var(--ink-muted);margin-top:4px;">
+          Adjust borrower parameters to see real-time SHAP attribution and statutory CFPB Form C-1 reason code updates.
         </p>
       </div>
 
-      <p style="font-size:14.5px;line-height:1.8;margin-bottom:16px;">
-        <strong>WHEREAS,</strong> Customer is a federally regulated financial institution subject to the Gramm-Leach-Bliley Act (GLBA) Safeguards Rule (16 CFR Part 314), CFPB supervisory examination, and NYDFS 23 NYCRR Part 500; and Vendor processes Nonpublic Personal Information ("NPI") including Form 1003 loan applications, Social Security numbers, and tax transcripts.
-      </p>
-
-      <!-- CLAUSE 1: GLBA BREACH NOTICE 72h -> 24h -->
-      <div class="clause-block" id="clause-box-1" onclick="focusBalloon(1)">
-        <div class="mono" style="font-size:11px;font-weight:700;color:var(--word-navy);margin-bottom:6px;font-family:'JetBrains Mono',monospace;">
-          SECTION 11.4 — CYBERSECURITY INCIDENT & GLBA BREACH NOTIFICATION SLA
+      <!-- Slider 1: Back-End DTI -->
+      <div class="slider-group">
+        <div class="slider-top">
+          <span>Back-End Debt-to-Income (DTI)</span>
+          <span class="mono" id="dti-val-lbl" style="color:var(--crimson);">48.2%</span>
         </div>
-        <p style="font-size:15px;line-height:1.85;" id="clause-text-1">
-          11.4 <u>Security Incident Notice</u>. In the event Vendor discovers any unauthorized access, acquisition, or exfiltration of Customer Nonpublic Personal Information (NPI), Vendor shall notify the Rocket CISO and Legal Incident Response Desk within <span class="track-del">seventy-two (72) hours of confirming a material breach</span> <span class="track-ins">twenty-four (24) hours of initial detection of any suspected or confirmed Security Incident per NYDFS 23 NYCRR § 500.17 and FTC GLBA Safeguards Rule</span>, and shall provide continuous root-cause forensic logs every 6 hours thereafter.
-        </p>
-      </div>
-
-      <!-- CLAUSE 2: ZERO DATA RETENTION & AI MODEL TRAINING PROHIBITION -->
-      <div class="clause-block" id="clause-box-2" onclick="focusBalloon(2)">
-        <div class="mono" style="font-size:11px;font-weight:700;color:var(--word-navy);margin-bottom:6px;font-family:'JetBrains Mono',monospace;">
-          SECTION 14.1 — FOUNDATION MODEL TRAINING & ZERO DATA RETENTION COVENANT
-        </div>
-        <p style="font-size:15px;line-height:1.85;" id="clause-text-2">
-          14.1 <u>AI Data Sovereignty</u>. Vendor <span class="track-del">is granted a perpetual, royalty-free license to utilize de-identified and aggregated Customer mortgage documents and borrower prompts to train, fine-tune, and improve Vendor's commercial foundation models</span> <span class="track-ins">strictly covenants that Customer Data, prompts, embeddings, and borrower NPI shall NEVER be used to train, fine-tune, or distill any shared or third-party AI model. Vendor shall enforce ephemeral Zero Data Retention (ZDR) in US-only regions (us-central1 / us-east4)</span>.
-        </p>
-      </div>
-
-      <!-- CLAUSE 3: SOC2 RIGHT-TO-AUDIT & $5M GLBA SUPER-CAP -->
-      <div class="clause-block" id="clause-box-3" onclick="focusBalloon(3)">
-        <div class="mono" style="font-size:11px;font-weight:700;color:var(--word-navy);margin-bottom:6px;font-family:'JetBrains Mono',monospace;">
-          SECTION 8.2 — LIMITATION OF LIABILITY SUPER-CAP & REGULATORY RIGHT-TO-AUDIT
-        </div>
-        <p style="font-size:15px;line-height:1.85;" id="clause-text-3">
-          8.2 <u>Data Breach Super-Cap & SOC2 Audit</u>. Each party's aggregate liability under this Agreement <span class="track-del">shall in no event exceed the total fees paid by Customer during the three (3) months preceding the claim ($45,000)</span> <span class="track-ins">shall be subject to a $5,000,000.00 GLBA NPI Data Breach Super-Cap plus 100% of CFPB/state regulatory fines and borrower credit-monitoring remediation costs. Customer and federal regulators (CFPB/OCC) retain an unconditional annual SOC2 Type II Right-to-Audit</span>.
-        </p>
-      </div>
-
-      <!-- GENERATED EXECUTIVE CONTRACT RIDER -->
-      <div style="margin-top:28px;border-top:2px solid #E5E7EB;padding-top:18px;font-family:'Inter',sans-serif;">
-        <div class="mono" style="font-size:11px;font-weight:700;color:var(--word-navy);margin-bottom:8px;">
-          🤖 GOOGLE ADK LEGAL RUNTIME — GENERATED GLBA RIDER & EXECUTION MEMO
-        </div>
-        <div id="adk-rider-output" style="background:#F8FAFC;border:1px solid #CBD5E1;border-radius:6px;padding:14px;font-size:12.5px;line-height:1.65;color:var(--ink);">
-          Click <strong>[✓ Accept Redline]</strong> on the comment balloons on the right or click <strong>⚡ Synthesize Rider via Google ADK</strong> above to generate the final execution-ready addendum.
-        </div>
-      </div>
-    </article>
-
-    <!-- RIGHT MARGIN COMMENT BALLOONS -->
-    <aside class="margin-comments">
-      <div class="mono" style="font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;padding:0 4px;">
-        💬 ADK Counsel Track-Changes Comments (3)
-      </div>
-
-      <!-- Balloon 1 -->
-      <div class="comment-balloon" id="balloon-1">
-        <div class="balloon-header">
-          <strong style="color:var(--word-navy);">🤖 Google ADK Legal Agent</strong>
-          <span class="mono" id="status-1" style="font-size:10px;background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:4px;font-weight:700;">PENDING REVIEW</span>
-        </div>
-        <div style="font-size:12px;line-height:1.55;color:var(--ink);">
-          <strong>§ 11.4 GLBA Breach Notice (72h → 24h):</strong> Vendor's 72-hour post-confirmation clock violates Rocket's mandatory 24-hour notification window required to meet NYDFS 23 NYCRR 500.17 and FTC GLBA Safeguards timelines.
-        </div>
-        <div class="balloon-actions">
-          <button class="btn-accept" onclick="resolveClause(1, true)">✓ Accept Redline</button>
-          <button class="btn-reject" onclick="resolveClause(1, false)">✗ Reject</button>
+        <input type="range" id="slider-dti" min="28" max="55" step="0.2" value="48.2" oninput="window.updateAdverseForm()">
+        <div class="slider-meta">
+          <span>Guideline Max: ≤ 45.0%</span>
+          <span id="dti-status-lbl" style="font-weight:700;color:var(--crimson);">Exceeds Limit (+3.2%)</span>
         </div>
       </div>
 
-      <!-- Balloon 2 -->
-      <div class="comment-balloon" id="balloon-2">
-        <div class="balloon-header">
-          <strong style="color:var(--word-navy);">🤖 Google ADK Legal Agent</strong>
-          <span class="mono" id="status-2" style="font-size:10px;background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:4px;font-weight:700;">PENDING REVIEW</span>
+      <!-- Slider 2: Liquid Post-Close Reserves -->
+      <div class="slider-group">
+        <div class="slider-top">
+          <span>Verified Liquid Reserves (Months PITI)</span>
+          <span class="mono" id="res-val-lbl" style="color:var(--crimson);">1.5 Months</span>
         </div>
-        <div style="font-size:12px;line-height:1.55;color:var(--ink);">
-          <strong>§ 14.1 Zero Data Retention & Model Training:</strong> Strikes Vendor's foundation model training license over borrower 1003/tax docs and enforces strict US-only (`us-central1`) Zero Data Retention.
-        </div>
-        <div class="balloon-actions">
-          <button class="btn-accept" onclick="resolveClause(2, true)">✓ Accept Redline</button>
-          <button class="btn-reject" onclick="resolveClause(2, false)">✗ Reject</button>
+        <input type="range" id="slider-res" min="0" max="12" step="0.5" value="1.5" oninput="window.updateAdverseForm()">
+        <div class="slider-meta">
+          <span>Jumbo / High-Balance Min: 6.0 Mo</span>
+          <span id="res-status-lbl" style="font-weight:700;color:var(--crimson);">Shortfall (-4.5 Mo)</span>
         </div>
       </div>
 
-      <!-- Balloon 3 -->
-      <div class="comment-balloon" id="balloon-3">
-        <div class="balloon-header">
-          <strong style="color:var(--word-navy);">🤖 Google ADK Legal Agent</strong>
-          <span class="mono" id="status-3" style="font-size:10px;background:#FEE2E2;color:#991B1B;padding:2px 7px;border-radius:4px;font-weight:700;">PENDING REVIEW</span>
+      <!-- Slider 3: Middle Representative FICO Score -->
+      <div class="slider-group">
+        <div class="slider-top">
+          <span>Representative Tri-Merge FICO Score</span>
+          <span class="mono" id="fico-val-lbl" style="color:var(--ink);">712</span>
         </div>
-        <div style="font-size:12px;line-height:1.55;color:var(--ink);">
-          <strong>§ 8.2 $5M GLBA Super-Cap & SOC2 Audit:</strong> Replaces the 3-month fee cap ($45k) with Rocket's mandatory $5,000,000 NPI Data Breach Super-Cap and unconditional CFPB/OCC SOC2 Type II Right-to-Audit.
-        </div>
-        <div class="balloon-actions">
-          <button class="btn-accept" onclick="resolveClause(3, true)">✓ Accept Redline</button>
-          <button class="btn-reject" onclick="resolveClause(3, false)">✗ Reject</button>
+        <input type="range" id="slider-fico" min="580" max="820" step="1" value="712" oninput="window.updateAdverseForm()">
+        <div class="slider-meta">
+          <span>Program Min: 680</span>
+          <span id="fico-status-lbl" style="font-weight:700;color:var(--green);">Passing (+32 pts)</span>
         </div>
       </div>
+
+      <button class="btn-audio" style="width:100%;background:#0F172A;" onclick="window.runLiveVertexAI()">
+        ⚡ Synthesize Vertex AI Explainable AI Audit Packet
+      </button>
+
+      <div id="ai-adverse-output" class="ai-audit-box"></div>
     </aside>
+
+    <!-- Right Panel: Official Printable CFPB Appendix C-1 Statement of Credit Denial -->
+    <section class="cfpb-certificate">
+      <div class="certificate-inner-border">
+
+        <div class="cfpb-top-row">
+          <div>
+            <h2 class="form-title">Statement of Credit Denial, Termination, or Change</h2>
+            <div class="form-subtitle">
+              OFFICIAL CFPB APPENDIX C TO PART 1002 — SAMPLE NOTIFICATION FORM C-1 (EQUAL CREDIT OPPORTUNITY ACT)
+            </div>
+          </div>
+          <div class="omb-box">
+            <div><strong>REGULATION B · 12 CFR § 1002.9</strong></div>
+            <div>DOC ID: RKT-ECOA-2026-99412</div>
+          </div>
+        </div>
+
+        <div class="applicant-grid">
+          <div class="app-cell">
+            <div class="app-label">Applicant Name &amp; Property</div>
+            <div class="app-val">Marcus &amp; Elena Vance · Detroit, MI 48226</div>
+          </div>
+          <div class="app-cell">
+            <div class="app-label">Loan Application Number</div>
+            <div class="app-val mono">#RKT-304981120 (30-Yr Fixed Conforming)</div>
+          </div>
+          <div class="app-cell">
+            <div class="app-label">Underwriting Decision Status</div>
+            <div class="app-val" id="form-decision-badge" style="color:var(--crimson);">ADVERSE ACTION — COUNTEROFFER / DENIAL</div>
+          </div>
+        </div>
+
+        <div class="part-header">
+          PART I — PRINCIPAL REASON(S) FOR CREDIT DENIAL, TERMINATION, OR OTHER ACTION TAKEN CONCERNING CREDIT
+        </div>
+        <p style="font-size:12px;color:var(--ink-muted);margin-bottom:12px;">
+          <em>Pursuant to 12 CFR § 1002.9(a)(2), the specific principal reasons mapped deterministically from Vertex AI Explainable AI SHAP values are checked below:</em>
+        </p>
+
+        <!-- ECOA Code 01: DTI -->
+        <div class="reason-row active-reason" id="reason-row-dti">
+          <div class="checkbox-sq" id="chk-dti">✓</div>
+          <div>
+            <div class="reason-code-title" id="title-dti">
+              ECOA Reason Code 01: Excessive Obligations in Relation to Income (Debt-to-Income Ratio 48.2% exceeds 45.0% limit)
+            </div>
+            <div class="reason-shap-detail" id="detail-dti">
+              <strong>Vertex AI SHAP Attribution (+0.412 Log-Odds Impact):</strong> Verified monthly housing + installment obligations of $5,495 against gross qualifying monthly income of $11,400 yield a <strong>48.2% back-end DTI</strong>, exceeding the <strong>45.0% program cap</strong>. Counteroffer Cure: Pay down $365/mo auto installment balance ($7,800 payoff) or reduce loan amount by $42,000.
+            </div>
+          </div>
+        </div>
+
+        <!-- ECOA Code 04: Liquid Reserves -->
+        <div class="reason-row active-reason" id="reason-row-res">
+          <div class="checkbox-sq" id="chk-res">✓</div>
+          <div>
+            <div class="reason-code-title" id="title-res">
+              ECOA Reason Code 04: Insufficient Liquid Reserves for Closing &amp; Post-Closing PITI Cushion (1.5 Mo vs. 6.0 Mo Req)
+            </div>
+            <div class="reason-shap-detail" id="detail-res">
+              <strong>Vertex AI SHAP Attribution (+0.285 Log-Odds Impact):</strong> Plaid asset verification across Chase Checking (#4419) and Fidelity Brokerage (#8802) confirms <strong>1.5 months ($5,700)</strong> post-closing liquid reserves against the required <strong>6.0 months ($22,800)</strong> guideline.
+            </div>
+          </div>
+        </div>
+
+        <!-- ECOA Code 12: Credit Score -->
+        <div class="reason-row" id="reason-row-fico">
+          <div class="checkbox-sq" id="chk-fico"></div>
+          <div>
+            <div class="reason-code-title" id="title-fico">
+              ECOA Reason Code 12: Credit Application Incomplete / Delinquent Past or Present Credit Obligations (FICO 712 Passing)
+            </div>
+            <div class="reason-shap-detail" id="detail-fico">
+              <strong>Vertex AI SHAP Attribution (-0.190 Favorable Impact):</strong> Representative middle FICO score of <strong>712</strong> satisfies the 680 minimum threshold. Not a principal adverse factor.
+            </div>
+          </div>
+        </div>
+
+        <div class="part-header" style="margin-top:18px;">
+          PART II — DISCLOSURE OF USE OF INFORMATION OBTAINED FROM AN OUTSIDE SOURCE (FCRA § 615(a))
+        </div>
+
+        <div class="ecoa-boilerplate">
+          <strong>Notice:</strong> The Federal Equal Credit Opportunity Act prohibits creditors from discriminating against credit applicants on the basis of race, color, religion, national origin, sex, marital status, age (provided the applicant has the capacity to enter into a binding contract); because all or part of the applicant's income derives from any public assistance program; or because the applicant has in good faith exercised any right under the Consumer Credit Protection Act. The federal agency that administers compliance with this law concerning this creditor is the <strong>Consumer Financial Protection Bureau, 1700 G Street NW, Washington, DC 20552</strong>.
+        </div>
+
+        <div class="hash-footer">
+          <span>CREDITOR: ROCKET MORTGAGE, LLC · 1050 WOODWARD AVE, DETROIT, MI 48226 (NMLS #3030)</span>
+          <span>AUDIT SHA-256: <strong id="audit-hash">9f84c2e1...b7410a</strong></span>
+        </div>
+
+      </div>
+    </section>
 
   </main>
 
   <script>
-    const clauseState = { 1: null, 2: null, 3: null };
+    window.updateAdverseForm = function() {
+      const dti = parseFloat(document.getElementById('slider-dti').value);
+      const res = parseFloat(document.getElementById('slider-res').value);
+      const fico = parseInt(document.getElementById('slider-fico').value, 10);
 
-    function focusBalloon(idx) {
-      const el = document.getElementById('balloon-' + idx);
-      if (el) {
-        el.style.transform = 'scale(1.02)';
-        setTimeout(() => { el.style.transform = 'scale(1)'; }, 200);
-      }
-    }
+      const dtiFail = dti > 45.0;
+      const resFail = res < 6.0;
+      const ficoFail = fico < 680;
 
-    function resolveClause(idx, accept) {
-      clauseState[idx] = accept ? 'accepted' : 'rejected';
-      const box = document.getElementById('clause-box-' + idx);
-      const balloon = document.getElementById('balloon-' + idx);
-      const status = document.getElementById('status-' + idx);
+      // Left slider labels
+      const dtiLbl = document.getElementById('dti-val-lbl');
+      dtiLbl.innerText = dti.toFixed(1) + "%";
+      dtiLbl.style.color = dtiFail ? "var(--crimson)" : "var(--green)";
+      const dtiSt = document.getElementById('dti-status-lbl');
+      dtiSt.innerText = dtiFail ? `Exceeds Limit (+${(dti - 45).toFixed(1)}%)` : `Within Limit (${(45 - dti).toFixed(1)}% buffer)`;
+      dtiSt.style.color = dtiFail ? "var(--crimson)" : "var(--green)";
 
-      box.classList.remove('accepted', 'rejected');
-      balloon.classList.remove('resolved');
+      const resLbl = document.getElementById('res-val-lbl');
+      resLbl.innerText = res.toFixed(1) + " Months";
+      resLbl.style.color = resFail ? "var(--crimson)" : "var(--green)";
+      const resSt = document.getElementById('res-status-lbl');
+      resSt.innerText = resFail ? `Shortfall (-${(6 - res).toFixed(1)} Mo)` : `Satisfies Reserve Floor`;
+      resSt.style.color = resFail ? "var(--crimson)" : "var(--green)";
 
-      if (accept) {
-        box.classList.add('accepted');
-        balloon.classList.add('resolved');
-        status.innerText = '✓ ACCEPTED';
-        status.style.background = '#DCFCE7';
-        status.style.color = '#166534';
+      const ficoLbl = document.getElementById('fico-val-lbl');
+      ficoLbl.innerText = fico;
+      ficoLbl.style.color = ficoFail ? "var(--crimson)" : "var(--green)";
+      const ficoSt = document.getElementById('fico-status-lbl');
+      ficoSt.innerText = ficoFail ? `Below 680 Min (${fico - 680} pts)` : `Passing (+${fico - 680} pts)`;
+      ficoSt.style.color = ficoFail ? "var(--crimson)" : "var(--green)";
+
+      // Right Certificate checkboxes
+      const rowDti = document.getElementById('reason-row-dti');
+      rowDti.classList.toggle('active-reason', dtiFail);
+      document.getElementById('chk-dti').innerText = dtiFail ? "✓" : "";
+      document.getElementById('title-dti').innerText = dtiFail
+        ? `ECOA Reason Code 01: Excessive Obligations in Relation to Income (Debt-to-Income Ratio ${dti.toFixed(1)}% exceeds 45.0% limit)`
+        : `ECOA Reason Code 01: Debt-to-Income Ratio (${dti.toFixed(1)}% satisfies ≤ 45.0% guideline)`;
+
+      const rowRes = document.getElementById('reason-row-res');
+      rowRes.classList.toggle('active-reason', resFail);
+      document.getElementById('chk-res').innerText = resFail ? "✓" : "";
+      document.getElementById('title-res').innerText = resFail
+        ? `ECOA Reason Code 04: Insufficient Liquid Reserves (${res.toFixed(1)} Mo verified vs. 6.0 Mo requirement)`
+        : `ECOA Reason Code 04: Verified Liquid Reserves (${res.toFixed(1)} Mo satisfies ≥ 6.0 Mo requirement)`;
+
+      const rowFico = document.getElementById('reason-row-fico');
+      rowFico.classList.toggle('active-reason', ficoFail);
+      document.getElementById('chk-fico').innerText = ficoFail ? "✓" : "";
+      document.getElementById('title-fico').innerText = ficoFail
+        ? `ECOA Reason Code 12: Credit Score Below Program Minimum (FICO ${fico} < 680 floor)`
+        : `ECOA Reason Code 12: Representative Credit Score (FICO ${fico} Passing)`;
+
+      const decBadge = document.getElementById('form-decision-badge');
+      if (!dtiFail && !resFail && !ficoFail) {
+        decBadge.innerText = "CLEAR TO APPROVE — ALL ECOA CONDITIONS CURED";
+        decBadge.style.color = "var(--green)";
       } else {
-        box.classList.add('rejected');
-        status.innerText = '✗ REJECTED (RISK REMAINS)';
-        status.style.background = '#FEE2E2';
-        status.style.color = '#991B1B';
+        decBadge.innerText = "ADVERSE ACTION — COUNTEROFFER / DENIAL";
+        decBadge.style.color = "var(--crimson)";
       }
-      updateRibbonScore();
-    }
+    };
 
-    function acceptAllRedlines() {
-      resolveClause(1, true);
-      resolveClause(2, true);
-      resolveClause(3, true);
-      runMsaSandboxAudit();
-    }
-
-    function resetRedlines() {
-      [1, 2, 3].forEach(i => {
-        clauseState[i] = null;
-        document.getElementById('clause-box-' + i).classList.remove('accepted', 'rejected');
-        document.getElementById('balloon-' + i).classList.remove('resolved');
-        const st = document.getElementById('status-' + i);
-        st.innerText = 'PENDING REVIEW';
-        st.style.background = '#FEE2E2';
-        st.style.color = '#991B1B';
-      });
-      updateRibbonScore();
-    }
-
-    function updateRibbonScore() {
-      const acceptedCount = Object.values(clauseState).filter(v => v === 'accepted').length;
-      document.getElementById('redline-counter-badge').innerText = `${acceptedCount} / 3 Redlines Accepted`;
-      const scoreBadge = document.getElementById('tprm-score-badge');
-      if (acceptedCount === 3) {
-        scoreBadge.innerText = '12 / 100 (LOW RISK — APPROVED TO SIGN)';
-        scoreBadge.style.color = '#15803D';
-      } else if (acceptedCount > 0) {
-        scoreBadge.innerText = `${92 - acceptedCount * 26} / 100 (PARTIAL REMEDIATION)`;
-        scoreBadge.style.color = '#D97706';
-      } else {
-        scoreBadge.innerText = '92 / 100 (CRITICAL BLOCKER)';
-        scoreBadge.style.color = '#DC2626';
-      }
-    }
-
-    async function runMsaSandboxAudit() {
-      const riderEl = document.getElementById('adk-rider-output');
-      riderEl.innerHTML = `Executing TPRM Contract Audit in Cloud Run gVisor Sandbox (<code>redline_vendor_msa</code> / <code>score_vendor_contract</code>)...`;
-      try {
-        const res = await fetch('/api/sandbox', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code: '5.4',
-            action: 'score_vendor_contract',
-            params: { secondary_action: 'redline_vendor_msa', accepted_clauses: clauseState }
-          })
-        });
-        const data = await res.json();
-        const m = data.metrics || {};
-        riderEl.innerHTML = `
-          <div class="mono" style="font-size:11px;color:var(--word-navy);margin-bottom:6px;">
-            ✅ SANDBOX VERIFIED (${data.execution_ms || 1.1}ms) • GOOGLE ADK TPRM ENGINE:
-          </div>
-          <ul style="padding-left:18px;line-height:1.7;">
-            <li><strong>Liability Cap Check:</strong> ${m.violation_1_sec_8_2_liability || ''}</li>
-            <li><strong>Breach SLA Check:</strong> ${m.violation_2_sec_11_4_breach_sla || ''}</li>
-            <li><strong>AI Training Sovereignty Check:</strong> ${m.violation_3_sec_14_1_ai_training || ''}</li>
-          </ul>
-        `;
-      } catch (e) {
-        riderEl.innerText = "Sandbox Error: " + e.message;
-      }
-    }
+    window.playAdverseAudio = function(btnEl) {
+      const dti = document.getElementById('slider-dti').value;
+      const res = document.getElementById('slider-res').value;
+      const msg = `Official CFPB Regulation B Appendix C-1 Compliance Audit Summary for Loan Application 304981120. Vertex AI Explainable AI mapped our underwriting model's SHAP values directly to two statutory Equal Credit Opportunity Act reason codes. First, ECOA Reason Code 01: the applicant's back-end debt-to-income ratio is ${dti} percent, exceeding the 45.0 percent program ceiling. Second, ECOA Reason Code 04: verified post-closing liquid reserves are ${res} months against a 6.0 month requirement. Every number on this printable notice is deterministically bound to the Encompass audit log.`;
+      window.playLiveCallClip(msg, "Kore", "Rocket Chief Compliance Officer", btnEl);
+    };
 
     window.runLiveVertexAI = async function() {
-      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-3.8-flash';
-      const riderEl = document.getElementById('adk-rider-output');
-      riderEl.innerHTML = `Synthesizing Binding GLBA Contract Rider via Google ADK + <strong>${model}</strong>...`;
+      const out = document.getElementById('ai-adverse-output');
+      out.style.display = 'block';
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      const dti = document.getElementById('slider-dti').value;
+      const res = document.getElementById('slider-res').value;
+      const fico = document.getElementById('slider-fico').value;
+      out.textContent = `Generating CFPB Form C-1 SHAP Audit Packet via Vertex AI (${model})...`;
       try {
-        const res = await fetch('/api/run-demo', {
+        const resp = await fetch('/api/run-demo', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             code: '5.4',
             model: model,
-            user_input: "Generate the binding Rocket Mortgage GLBA Safeguards Rule & Zero-Training Contract Rider for Sections 8.2, 11.4, and 14.1."
+            scenario: `Generate CFPB Appendix C-1 Statement of Credit Denial and Cure Counteroffer for applicant with DTI=${dti}% (limit 45.0%), Liquid Reserves=${res} months (limit 6.0), and FICO=${fico}.`
           })
         });
-        const data = await res.json();
-        const summary = data.output || "Vendor MSA redlines synthesized.";
-        const actions = (data.structured_data && data.structured_data.action_items) || [];
-        riderEl.innerHTML = `
-          <div class="mono" style="font-size:11px;color:#15803D;font-weight:700;margin-bottom:6px;">
-            [${data.model_used || model} • ${data.runtime_badge || 'Google ADK Runtime'}]:
-          </div>
-          <div style="white-space:pre-wrap;margin-bottom:8px;">${summary}</div>
-          ${actions.length ? '<div class="mono" style="font-size:11px;background:#EFF6FF;padding:10px;border-radius:4px;"><strong>EXECUTION CHECKLIST:</strong><ul style="margin-top:4px;padding-left:18px;">' + actions.map(a => `<li>${a}</li>`).join('') + '</ul></div>' : ''}
-        `;
+        const data = await resp.json();
+        out.textContent = data.output || data.text || "Adverse Action Notice generated.";
       } catch (e) {
-        riderEl.innerText = "ADK Error: " + e.message;
+        out.textContent = "Error: " + e.message;
       }
     };
   </script>
 
   
-<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
-<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
-  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
-    ← Hub
+<!-- CLEAN HUMAN-CENTRIC FLOATING UTILITY BAR (LIGHT SURFACE) -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:16px;right:16px;z-index:9990;display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border:1px solid #CBD5E1;box-shadow:0 10px 30px rgba(15,23,42,0.12);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#1E293B;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#334155;text-decoration:none;font-weight:600;padding:5px 10px;border-radius:8px;background:#F1F5F9;border:1px solid #E2E8F0;transition:0.15s;white-space:nowrap;">
+    ← All Demos
   </a>
-  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
-    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
-      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
-      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
-      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
-      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
-      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
-      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
-      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
-      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
-      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
-      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
-      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
-      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
-      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
-      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
-      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
-      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
-      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
-      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
-      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
-      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
-      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
-      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
-      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
-      <option value="5.4" selected style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
-      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
-      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
-      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
-      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
-      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
-      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
-      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
-      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
-      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:#F8FAFC;border:1px solid #E2E8F0;">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" aria-label="Switch Use Case" style="background:transparent;color:#0F172A;font-weight:600;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;max-width:210px;">
+      <option value="1.1"  style="background:#FFFFFF;color:#0F172A;">1.1 · The ABCDQ Post-Call Structured Debri</option>
+      <option value="1.2"  style="background:#FFFFFF;color:#0F172A;">1.2 · Outlook Hyper-Personalized Rate-Lock</option>
+      <option value="1.3"  style="background:#FFFFFF;color:#0F172A;">1.3 · No-Code Mortgage Guideline & Competi</option>
+      <option value="1.4"  style="background:#FFFFFF;color:#0F172A;">1.4 · Dynamic Loan Pricing & Amortization </option>
+      <option value="1.5"  style="background:#FFFFFF;color:#0F172A;">1.5 · Autonomous Banker Inbound Triage & C</option>
+      <option value="2.1"  style="background:#FFFFFF;color:#0F172A;">2.1 · Fannie Mae / Freddie Mac Selling Gui</option>
+      <option value="2.2"  style="background:#FFFFFF;color:#0F172A;">2.2 · Low-Code Underwriting Condition Clea</option>
+      <option value="2.3"  style="background:#FFFFFF;color:#0F172A;">2.3 · Automated W-2 & Paystub Entity Extra</option>
+      <option value="2.4"  style="background:#FFFFFF;color:#0F172A;">2.4 · Self-Employed Schedule C / 1040 Cash</option>
+      <option value="2.5"  style="background:#FFFFFF;color:#0F172A;">2.5 · Rocket Close (Amrock) Title Exceptio</option>
+      <option value="3.1"  style="background:#FFFFFF;color:#0F172A;">3.1 · Annual Escrow Shortage Resolution Jo</option>
+      <option value="3.2"  style="background:#FFFFFF;color:#0F172A;">3.2 · Self-Service Payoff Quote & IRS Form</option>
+      <option value="3.3"  style="background:#FFFFFF;color:#0F172A;">3.3 · Hardship & Forbearance Live Servicin</option>
+      <option value="3.4"  style="background:#FFFFFF;color:#0F172A;">3.4 · Conversational Rocket Recapture Voic</option>
+      <option value="3.5"  style="background:#FFFFFF;color:#0F172A;">3.5 · Autonomous Borrower Retention & Life</option>
+      <option value="4.1"  style="background:#FFFFFF;color:#0F172A;">4.1 · Hyper-Local 50-Metro Real Estate Mar</option>
+      <option value="4.2"  style="background:#FFFFFF;color:#0F172A;">4.2 · Virtual Staging & Localized Hero Ad </option>
+      <option value="4.3"  style="background:#FFFFFF;color:#0F172A;">4.3 · Campaign Sentiment & Ad Creative Per</option>
+      <option value="4.4"  style="background:#FFFFFF;color:#0F172A;">4.4 · Automated Multi-Format Video Tour & </option>
+      <option value="4.5"  style="background:#FFFFFF;color:#0F172A;">4.5 · Redfin-to-Rocket Cross-Funnel Campai</option>
+      <option value="5.1"  style="background:#FFFFFF;color:#0F172A;">5.1 · CFPB Regulatory Circular & State Law</option>
+      <option value="5.2"  style="background:#FFFFFF;color:#0F172A;">5.2 · Ethical Walls & PII/NPI Masking Gove</option>
+      <option value="5.3"  style="background:#FFFFFF;color:#0F172A;">5.3 · Automated TRID 3-Day Tolerance & Dis</option>
+      <option value="5.4" selected style="background:#FFFFFF;color:#0F172A;">5.4 · Automated Vendor Contract Risk & GLB</option>
+      <option value="5.5"  style="background:#FFFFFF;color:#0F172A;">5.5 · Fair Lending Disparate Impact & Bias</option>
+      <option value="6.1"  style="background:#FFFFFF;color:#0F172A;">6.1 · Autonomous Vulnerability Trace & Rep</option>
+      <option value="6.2"  style="background:#FFFFFF;color:#0F172A;">6.2 · AI Software Factory: Autonomous PRD-</option>
+      <option value="6.3"  style="background:#FFFFFF;color:#0F172A;">6.3 · Legacy .NET Framework / WCF to Cloud</option>
+      <option value="M.1"  style="background:#FFFFFF;color:#0F172A;">M.1 · Project Siren: The Sub-200ms Voice A</option>
+      <option value="M.2"  style="background:#FFFFFF;color:#0F172A;">M.2 · Project Spatial Close: Immersive Vir</option>
+      <option value="M.3"  style="background:#FFFFFF;color:#0F172A;">M.3 · Project HiveMind: Autonomous Treasur</option>
+      <option value="M.4"  style="background:#FFFFFF;color:#0F172A;">M.4 · Project Mirror: Interactive Virtual </option>
+      <option value="M.5"  style="background:#FFFFFF;color:#0F172A;">M.5 · Project Air-Tight: Self-Healing Auto</option>
     </select>
   </div>
-  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
-    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
-    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
-    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
-      <option value="gemini-4-argon"  style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
-      <option value="gemini-3.8-flash" selected style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+  <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:#EFF6FF;border:1px solid #BFDBFE;">
+    <span style="color:#1D4ED8;font-size:11px;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" aria-label="Select Gemini Model" style="background:transparent;color:#1E3A8A;font-weight:700;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" >Gemini 4 Argon (Frontier)</option>
+      <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash (Low-Latency)</option>
     </select>
   </div>
-  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
-    🛠️ Code & Architecture
+  <button onclick="window.toggleBlueprintDrawer()" style="background:#0F172A;color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+    Code & Blueprint
   </button>
 </div>
 
 <!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
-<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
-  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#FFFFFF;color:#0F172A;border-left:1px solid #E2E8F0;box-shadow:-16px 0 48px rgba(15,23,42,0.16);transition:right 0.25s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;">
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [5.4] • Technical Blueprint & GenAI SDK</div>
-      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Automated Vendor Contract Risk & GLBA SLA Scorer</div>
+      <div style="font-size:11px;color:#475569;font-weight:600;">Use Case 5.4 · Technical Blueprint & Vertex AI SDK</div>
+      <div style="font-size:16px;font-weight:700;color:#0F172A;margin-top:2px;">Automated Vendor Contract Risk & GLBA SLA Scorer</div>
     </div>
-    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#E2E8F0;color:#334155;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
   </div>
   <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.4?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        📘 Full Reproduction Guide & SKILL.md ↗
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.4?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#1D4ED8;color:#FFF;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Full Reproduction Guide & SKILL.md ↗
       </a>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        ✨ Real Gemini Enterprise UI ↗
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#F3E8FF;border:1px solid #D8B4FE;color:#6B21A8;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Open Gemini Enterprise UI ↗
       </a>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
-        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-3.8-flash</span>)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        1. Vertex AI GenAI SDK Implementation (<span id="drawer-model-label" style="color:#1D4ED8;">gemini-3.8-flash</span>)
       </div>
-      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+      <pre id="drawer-sdk-code" style="background:#0F172A;border:1px solid #1E293B;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#E2E8F0;overflow-x:auto;line-height:1.5;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
-        2. GCP Reference Architecture (<= 78 Cols)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        2. GCP Reference Architecture
       </div>
-      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+      <pre style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1E293B;overflow-x:auto;line-height:1.45;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
         3. Custom Scenario Prompt Override
       </div>
-      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Vendor MSA Draft under Review: "Acme Cloud Valuation Analytics Inc. — Master SaaS Agreement (2026)"
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#FFFFFF;border:1px solid #CBD5E1;border-radius:8px;padding:10px;color:#0F172A;font-family:inherit;font-size:12.5px;">Vendor MSA Draft under Review: "Acme Cloud Valuation Analytics Inc. — Master SaaS Agreement (2026)"
 Extracted Clauses:
 - Section 8.2 (Limitation of Liability): "Vendor's aggregate liability for all claims, including Data Security Breaches involving NPI, shall not exceed three (3) months of fees paid ($45,000)." [Rocket Policy Standard: Minimum 3x Annual Contract Value or $5,000,000 super-cap for GLBA NPI breaches].
 - Section 11.4 (Security Incident Notification): "Vendor shall notify Rocket within seventy-two (72) hours of confirming a breach." [Rocket Policy Standard: <= 24 hours to comply with NYDFS 23 NYCRR 500 & FTC GLBA Safeguards Rule].
 - Section 14.1 (AI Model Training): "Vendor may use anonymized or aggregated Customer Data to train and improve Vendor's foundation models." [Rocket Policy Standard: Strictly PROHIBITED].</textarea>
-      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
-        ⚡ Re-Synthesize with Selected Model
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:8px;background:#059669;color:#FFF;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
+        Re-Synthesize with Selected Model
       </button>
     </div>
   </div>
 </div>
 
 <script>
-  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
-  // so sharing or copying the URL never leaks the session token!
+  // Scrub ?auth_token=... from URL bar after cookie authentication
   (function() {
     try {
       if (window.location.search.includes('auth_token=')) {
@@ -651,7 +720,7 @@ Extracted Clauses:
   };
 
   window.getSelectedModel = function() {
-    const el = document.getElementById('model-select');
+    const el = document.getElementById('model-select') || document.getElementById('app-model-select');
     return el ? el.value : "gemini-3.8-flash";
   };
 
@@ -674,7 +743,174 @@ Extracted Clauses:
     dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
   };
 
-  // Initialize SDK snippet on load
+  // ============================================================================
+  // UNIVERSAL GEMINI 3.8 LIVE 24kHz NATIVE AUDIO & INSTANT BARGE-IN ENGINE
+  // Eliminates all robotic browser speechSynthesis TTS across every demo!
+  // ============================================================================
+  window.RocketLiveAudio = (function() {
+    let audioCtx = null;
+    let activeSources = [];
+    let nextPlayTime = 0;
+    let pcmCache = {};
+    let currentClipBtn = null;
+    let currentClipOrigLabel = "";
+    let animFrameId = null;
+
+    function ensureCtx() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC({ sampleRate: 24000 });
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function stopAll() {
+      activeSources.forEach(src => {
+        try { src.stop(0); src.disconnect(); } catch (e) {}
+      });
+      activeSources = [];
+      if (audioCtx) {
+        nextPlayTime = audioCtx.currentTime;
+      }
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      if (currentClipBtn) {
+        currentClipBtn.innerHTML = currentClipOrigLabel;
+        currentClipBtn.dataset.playing = "0";
+        currentClipBtn = null;
+      }
+    }
+
+    function playPcm24kBase64(b64Data, onAmplitude, onEndedCallback) {
+      const ctx = ensureCtx();
+      const bin = atob(b64Data);
+      const len = bin.length;
+      const int16 = new Int16Array(Math.floor(len / 2));
+      for (let i = 0; i < int16.length; i++) {
+        const lo = bin.charCodeAt(i * 2);
+        const hi = bin.charCodeAt(i * 2 + 1);
+        let val = (hi << 8) | lo;
+        if (val >= 0x8000) val -= 0x10000;
+        int16[i] = val;
+      }
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {
+        float32[i] = int16[i] / 32768.0;
+      }
+      const buf = ctx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      if (onAmplitude) {
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 64;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        function tick() {
+          if (!activeSources.includes(src)) return;
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          onAmplitude(sum / (dataArr.length * 255), dataArr);
+          animFrameId = requestAnimationFrame(tick);
+        }
+        animFrameId = requestAnimationFrame(tick);
+      } else {
+        src.connect(ctx.destination);
+      }
+
+      const now = ctx.currentTime;
+      if (nextPlayTime < now) nextPlayTime = now + 0.01;
+      src.start(nextPlayTime);
+      nextPlayTime += buf.duration;
+      activeSources.push(src);
+
+      src.onended = () => {
+        activeSources = activeSources.filter(s => s !== src);
+        if (activeSources.length === 0 && onEndedCallback) {
+          onEndedCallback();
+        }
+      };
+      return src;
+    }
+
+    async function playClip(text, voice, speakerRole, btnEl, onAmplitude) {
+      if (btnEl && btnEl.dataset.playing === "1") {
+        stopAll();
+        return;
+      }
+      stopAll();
+      ensureCtx();
+
+      if (btnEl) {
+        currentClipBtn = btnEl;
+        currentClipOrigLabel = btnEl.innerHTML;
+        btnEl.dataset.playing = "1";
+        btnEl.innerHTML = "⏳ Connecting Gemini 3.8 Live Audio...";
+      }
+
+      const cacheKey = (voice || "Aoede") + "::" + text;
+      try {
+        let pcmB64 = pcmCache[cacheKey];
+        if (!pcmB64) {
+          const res = await fetch('/api/live-tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: text,
+              voice: voice || "Aoede",
+              speaker_role: speakerRole || "Rocket Mortgage Voice Co-Pilot",
+              live_mode: "gemini-3.8-live"
+            })
+          });
+          const data = await res.json();
+          if (!data.ok || !data.pcm_b64) {
+            throw new Error(data.error || "Audio stream unavailable");
+          }
+          pcmB64 = data.pcm_b64;
+          pcmCache[cacheKey] = pcmB64;
+        }
+        if (btnEl && currentClipBtn === btnEl) {
+          btnEl.innerHTML = "⏹ Stop Live Audio (Playing 24kHz HD)";
+        }
+        playPcm24kBase64(pcmB64, onAmplitude, () => {
+          if (btnEl && currentClipBtn === btnEl) {
+            btnEl.innerHTML = currentClipOrigLabel;
+            btnEl.dataset.playing = "0";
+            currentClipBtn = null;
+          }
+          if (onAmplitude) onAmplitude(0, null);
+        });
+      } catch (err) {
+        if (btnEl) {
+          btnEl.innerHTML = currentClipOrigLabel;
+          btnEl.dataset.playing = "0";
+          currentClipBtn = null;
+        }
+        console.error("Gemini 3.8 Live TTS error:", err);
+      }
+    }
+
+    return {
+      ensureCtx: ensureCtx,
+      stopAll: stopAll,
+      playPcm24kBase64: playPcm24kBase64,
+      playClip: playClip,
+      isPlaying: () => activeSources.length > 0
+    };
+  })();
+
+  window.stopAllLiveAudio = window.RocketLiveAudio.stopAll;
+  window.playLiveCallClip = window.RocketLiveAudio.playClip;
+
   document.addEventListener('DOMContentLoaded', () => {
     window.syncSelectedModel("gemini-3.8-flash");
   });

@@ -36,7 +36,7 @@
       "post_closing_reserve_cushion": "$7,800.00 Left in Rocket Money Emergency Vault!",
       "subscription_offset_impact": "Base P&I $2,078.94/mo minus $215/mo Cancelled Duplicate Subscriptions = $1,863.94/mo Effective Housing Cost"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.01
   },
   "bespoke_visual_artifact": {
     "archetype": "redfin_rocketmoney_flywheel_journey",

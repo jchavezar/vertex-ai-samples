@@ -34,7 +34,7 @@
       "option_a_lump_sum_payment": "Pay $1,740.00 One-Time Shortage -> New Monthly Payment = $2,530.00/mo",
       "option_b_12mo_interest_free_spread": "$0 Upfront -> New Monthly Payment = $2,675.00/mo (Includes $145.00/mo for 12 mos)"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.01
   },
   "bespoke_visual_artifact": {
     "archetype": "escrow_waterfall_interactive",

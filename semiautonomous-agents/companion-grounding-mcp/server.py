@@ -5,7 +5,9 @@ import numpy as np
 from google import genai
 from mcp.server.fastmcp import FastMCP
 
-DB_PATH = os.path.expanduser("~/IdeaProjects/vertex-ai-samples/semiautonomous-agents/companion-grounding-mcp/data/ground_truth.db")
+_LOCAL_DB = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "ground_truth.db")
+_HOME_DB = os.path.expanduser("~/companion-grounding-mcp/data/ground_truth.db")
+DB_PATH = _LOCAL_DB if os.path.exists(_LOCAL_DB) else _HOME_DB
 EMBED_PROJECT = "vtxdemos"
 EMBED_LOCATION = "us-central1"
 EMBED_MODEL = "gemini-embedding-001"
@@ -17,11 +19,11 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
-def _get_surrounding_context(c: sqlite3.Cursor, msg_id: int, platform: str, window: int = 4):
+def _get_surrounding_context(c: sqlite3.Cursor, msg_id: int, platform: str, window: int = 5):
     """Fetch preceding and succeeding messages in the same platform stream for full conversational context."""
     c.execute(
         """
-        SELECT id, platform_msg_index, sender, timestamp, text, sentiment_label, models_net_rating
+        SELECT id, platform_msg_index, channel_name, sender, timestamp_utc, timestamp, text, sentiment_label, models_net_rating
         FROM raw_messages
         WHERE platform = ? AND id < ?
         ORDER BY id DESC LIMIT ?
@@ -32,7 +34,7 @@ def _get_surrounding_context(c: sqlite3.Cursor, msg_id: int, platform: str, wind
 
     c.execute(
         """
-        SELECT id, platform_msg_index, sender, timestamp, text, sentiment_label, models_net_rating
+        SELECT id, platform_msg_index, channel_name, sender, timestamp_utc, timestamp, text, sentiment_label, models_net_rating
         FROM raw_messages
         WHERE platform = ? AND id > ?
         ORDER BY id ASC LIMIT ?
@@ -368,16 +370,19 @@ def get_grounding_dossier(section: str = "full_dossier") -> str:
         return json.dumps(rows, indent=2, ensure_ascii=False) if rows else "Section not found"
 
 @mcp.tool()
-def get_recent_context(limit: int = 15) -> str:
-    """Retrieve the most recent conversation messages and latest strategic advice for quick real-time orientation.
+def get_recent_context(limit: int = 25) -> str:
+    """Retrieve the most recent conversation messages (with exact IDs and full untruncated text) and latest strategic advice for quick real-time orientation.
     
     Args:
-        limit: Number of recent items to return.
+        limit: Number of recent items to return (default 25).
     """
     conn = get_db()
     c = conn.cursor()
     
-    c.execute("SELECT platform, sender, timestamp, text, reactions FROM raw_messages ORDER BY id DESC LIMIT ?", [limit])
+    c.execute(
+        "SELECT id, platform, channel_name, sender, timestamp_utc, timestamp, text, reactions, sentiment_label, models_net_rating FROM raw_messages ORDER BY id DESC LIMIT ?",
+        [limit],
+    )
     messages = [dict(r) for r in c.fetchall()]
     messages.reverse()
     
@@ -389,6 +394,87 @@ def get_recent_context(limit: int = 15) -> str:
     return json.dumps({
         "recent_messages": messages,
         "latest_gemini_advisories": advisories
+    }, indent=2, ensure_ascii=False)
+
+
+@mcp.tool()
+def get_message_context_window(msg_id: int, window: int = 6) -> str:
+    """Fetch a specific message by its exact database ID along with +-window surrounding messages (full verbatim text, zero truncation).
+    
+    Args:
+        msg_id: Exact message ID in raw_messages (1..2453+).
+        window: Number of messages before and after to include (default 6).
+    """
+    conn = get_db()
+    c = conn.cursor()
+    c.execute(
+        "SELECT id, platform, channel_name, sender, timestamp_utc, timestamp, text, reactions, sentiment_label, models_positives, models_flaws, models_net_rating, models_coaching_note FROM raw_messages WHERE id = ?",
+        (msg_id,),
+    )
+    target = c.fetchone()
+    if not target:
+        conn.close()
+        return json.dumps({"error": f"Message ID {msg_id} not found in ground_truth.db"})
+    target_dict = dict(target)
+    c.execute(
+        """
+        SELECT id, platform, channel_name, sender, timestamp_utc, timestamp, text, reactions
+        FROM raw_messages
+        WHERE id BETWEEN ? AND ?
+        ORDER BY id ASC
+        """,
+        (max(1, msg_id - window), msg_id + window),
+    )
+    stream = [dict(r) for r in c.fetchall()]
+    conn.close()
+    return json.dumps({
+        "target_message": target_dict,
+        "chronological_window": stream,
+    }, indent=2, ensure_ascii=False)
+
+
+@mcp.tool()
+def verify_quotes_against_db(quotes_pipe_separated: str) -> str:
+    """Zero-hallucination quote verifier: checks one or more candidate quotes (separated by '|') against ground_truth.db raw_messages and returns exact row IDs, timestamps, senders, and +-2 surrounding messages, or flags HALLUCINATION_BLOCKED if not found.
+    
+    Args:
+        quotes_pipe_separated: One or more substrings/quotes separated by '|' (e.g. 'What time would you like to meet tomorrow?|you ask for availability not for charging').
+    """
+    conn = get_db()
+    c = conn.cursor()
+    parts = [p.strip() for p in quotes_pipe_separated.split("|") if p.strip()]
+    report = []
+    all_verified = True
+    for q in parts:
+        c.execute(
+            "SELECT id, platform, channel_name, sender, timestamp_utc, timestamp, text FROM raw_messages WHERE text LIKE ? ORDER BY id DESC LIMIT 3",
+            (f"%{q}%",),
+        )
+        matches = [dict(r) for r in c.fetchall()]
+        if matches:
+            enriched = []
+            for m in matches:
+                before_ctx, after_ctx = _get_surrounding_context(c, m["id"], m["platform"], window=2)
+                m["context_before"] = before_ctx
+                m["context_after"] = after_ctx
+                enriched.append(m)
+            report.append({
+                "candidate_quote": q,
+                "status": "VERIFIED_IN_GROUND_TRUTH_DB",
+                "matches": enriched,
+            })
+        else:
+            all_verified = False
+            report.append({
+                "candidate_quote": q,
+                "status": "HALLUCINATION_BLOCKED_NOT_IN_DB",
+                "matches": [],
+            })
+    conn.close()
+    return json.dumps({
+        "all_quotes_verified": all_verified,
+        "total_checked": len(parts),
+        "verification_results": report,
     }, indent=2, ensure_ascii=False)
 
 @mcp.tool()
@@ -443,7 +529,7 @@ def get_calendar_schedule(person: str = "both", date: str = "") -> str:
         sql += " AND start_time LIKE ?"
         params.append(f"{date}%")
     else:
-        sql += " AND start_time >= '2026-09-10' AND start_time <= '2026-09-18'"
+        sql += " AND start_time >= date('now') AND start_time <= date('now', '+14 days')"
         
     sql += " ORDER BY start_time ASC"
     c.execute(sql, params)

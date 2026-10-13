@@ -1,0 +1,12 @@
+[project]
+name = "companion-grounding-mcp"
+version = "0.2.0"
+description = "Selene & Jesus Supermemory Grounding Engine & Mark Manson Models Coach MCP Server"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.2.0,<2.0.0",
+    "google-genai>=1.0.0",
+    "numpy>=1.26.0",
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.34.0",
+]

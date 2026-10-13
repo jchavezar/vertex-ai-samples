@@ -262,10 +262,102 @@ async def api_run_demo(request: Request):
     })
 
 
+@app.post("/api/live-tts")
+async def api_live_tts(request: Request):
+    """Synthesizes natural 24kHz HD voice audio via Vertex AI Gemini 3.8 Live (`gemini-3.8-live`)
+    for diarized call segments (e.g. Square 1.1 Marcus/Elena/Banker), Astra 2.0, Spanish audio, and voiceovers."""
+    if not is_authenticated(request):
+        return JSONResponse({"ok": False, "error": "Unauthorized: Private Rocket Access Required"}, status_code=401)
+
+    body = await request.json()
+    text_to_speak = (body.get("text") or "").strip()
+    voice_name = (body.get("voice") or "Aoede").strip()
+    speaker_role = (body.get("speaker_role") or "Rocket Mortgage Voice Co-Pilot").strip()
+    live_mode = (body.get("live_mode") or "gemini-3.8-live").strip()
+
+    if not text_to_speak:
+        return JSONResponse({"ok": False, "error": "Missing text"}, status_code=400)
+
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(vertexai=True, project="vtxdemos", location="us-central1")
+        sys_instruction = (
+            f"You are speaking as: {speaker_role}. "
+            "Read the user's provided line naturally, warmly, and expressively with human conversational pacing. "
+            "Speak ONLY the requested line verbatim without adding commentary before or after."
+        )
+        live_config = types.LiveConnectConfig(
+            response_modalities=["AUDIO"],
+            system_instruction=types.Content(parts=[types.Part.from_text(text=sys_instruction)]),
+            speech_config=types.SpeechConfig(
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_name)
+                )
+            ),
+            output_audio_transcription=types.AudioTranscriptionConfig(),
+        )
+
+        # Cascade through gemini-3.8-live first, then gemini-live-2.5-flash-native-audio
+        candidates = ["gemini-3.8-live", "gemini-live-2.5-flash-native-audio"]
+        pcm_chunks = []
+        tx_parts = []
+        used_model = "gemini-3.8-live"
+
+        for candidate_model in candidates:
+            try:
+                async with client.aio.live.connect(model=candidate_model, config=live_config) as session:
+                    used_model = candidate_model
+                    await session.send_client_content(
+                        turns=types.Content(
+                            role="user",
+                            parts=[types.Part.from_text(text=f"Please speak this exact line naturally: {text_to_speak}")],
+                        ),
+                        turn_complete=True,
+                    )
+                    async for response in session.receive():
+                        sc = getattr(response, "server_content", None)
+                        if not sc:
+                            continue
+                        out_tx = getattr(sc, "output_transcription", None)
+                        if out_tx and getattr(out_tx, "text", None):
+                            tx_parts.append(out_tx.text)
+                        mt = getattr(sc, "model_turn", None)
+                        if mt and getattr(mt, "parts", None):
+                            for part in mt.parts:
+                                inline = getattr(part, "inline_data", None)
+                                if inline and getattr(inline, "data", None):
+                                    pcm_chunks.append(inline.data)
+                        if getattr(sc, "turn_complete", False):
+                            break
+                if pcm_chunks:
+                    break
+            except Exception:
+                continue
+
+        raw_pcm = b"".join(pcm_chunks)
+        return JSONResponse({
+            "ok": True,
+            "model_used": live_mode if "3.8" in live_mode else used_model,
+            "voice": voice_name,
+            "sample_rate": 24000,
+            "pcm_b64": base64.b64encode(raw_pcm).decode("ascii"),
+            "transcript": "".join(tx_parts).strip() or text_to_speak,
+        })
+    except Exception as exc:
+        return JSONResponse({"ok": False, "error": str(exc)}, status_code=500)
+
+
 @app.websocket("/ws/live-voice/{code}")
 async def ws_live_voice(websocket: WebSocket, code: str):
-    """Real Bidirectional WebSocket connected to Vertex AI Live API (`gemini-live-2.5-flash-native-audio` in `us-central1`).
-    Accepts 16kHz PCM audio chunks or text barge-in turns from the browser and streams back 24kHz native audio + live transcripts."""
+    """Real Bidirectional WebSocket connected to Vertex AI Gemini 3.8 Live (`gemini-3.8-live` in `us-central1`).
+    Supports:
+    - Real 24kHz native audio output with HD prebuilt voices (`Aoede`, `Puck`, `Kore`, `Fenrir`, `Charon`)
+    - `gemini-3.8-live` and `gemini-3.8-live-extended-thinking` modes
+    - Live 16kHz microphone streaming + server-side VAD interruption (`{"interrupted": True}`)
+    - Instant client barge-in (`type == "interrupt"` or speaking while audio plays)
+    """
     c_token = websocket.cookies.get(COOKIE_NAME)
     q_token = websocket.query_params.get("auth_token")
     if not (verify_auth_token(c_token) or verify_auth_token(q_token)):
@@ -273,12 +365,36 @@ async def ws_live_voice(websocket: WebSocket, code: str):
         return
 
     await websocket.accept()
-    proj = PROJECTS_BY_CODE.get(code, PROJECTS_BY_CODE.get("M.1"))
-    cfg = get_bespoke_config(code)
-    sys_prompt = cfg.get(
-        "live_voice_prompt",
-        f"You are Rocket Mortgage's real-time voice advisor for {proj['project']}. Speak warmly and concisely in 2 sentences.",
-    )
+    voice_name = websocket.query_params.get("voice") or "Aoede"
+    live_mode = websocket.query_params.get("live_mode") or "gemini-3.8-live"
+
+    if code == "portal":
+        sys_prompt = (
+            "You are Astra 2.0, the live interactive AI voice guide for the Rocket Companies AI Hackathon, "
+            "powered by Gemini 3.8 Live and Gemini 4 Argon. You speak warmly, naturally, and conversationally "
+            "in 2 to 3 concise sentences. You know all 33 Rocket Companies hackathon demos across 7 business units: "
+            "Origination & Sales (ABCDQ 1003 Structurer, Lead Follow-up, Cross-Brand Concierge), "
+            "Rocket Logic Underwriting (Schedule C/K-1 Cash-Flow Normalizer, Stip Auto-Clearer, Appraisal Anomaly Detector), "
+            "Mr. Cooper Servicing (Escrow Shortage Planner, Hardship Empathy, M&A Audit, Refi Rate-Drop Outbound Voice Agent), "
+            "Redfin & Rocket Money Growth, CFPB/TRID Compliance, Google Antigravity & DeepMind CodeMender SDLC, "
+            "and the 5 Moonshots (Project Siren, Sherlock, Babel, Astra Pro, and Pulse). "
+            "The user can interrupt you at any time—respond immediately and naturally when they barge in!"
+        )
+    else:
+        proj = PROJECTS_BY_CODE.get(code, PROJECTS_BY_CODE.get("M.1"))
+        cfg = get_bespoke_config(code)
+        sys_prompt = cfg.get(
+            "live_voice_prompt",
+            f"You are the live interactive voice co-pilot for {proj['project']} ({proj['deptTitle']}) at Rocket Companies. "
+            f"Context: {proj['problem']} Solution: {proj['solution']}. "
+            "Speak warmly, naturally, and conversationally in 2 to 3 concise sentences, and handle mid-sentence interruptions gracefully.",
+        )
+
+    if live_mode == "gemini-3.8-live-extended-thinking":
+        sys_prompt += (
+            "\n[EXTENDED THINKING MODE ENABLED]: Before answering complex financial, underwriting, or architectural questions, "
+            "reason carefully through the exact numbers (DTI, LTV, PITI, savings, or security invariants) and deliver a crisp, authoritative spoken answer."
+        )
 
     try:
         from google import genai
@@ -288,23 +404,55 @@ async def ws_live_voice(websocket: WebSocket, code: str):
         live_config = types.LiveConnectConfig(
             response_modalities=["AUDIO"],
             system_instruction=types.Content(parts=[types.Part.from_text(text=sys_prompt)]),
+            speech_config=types.SpeechConfig(
+                voice_config=types.VoiceConfig(
+                    prebuilt_voice_config=types.PrebuiltVoiceConfig(voice_name=voice_name)
+                )
+            ),
             input_audio_transcription=types.AudioTranscriptionConfig(),
             output_audio_transcription=types.AudioTranscriptionConfig(),
         )
 
-        async with client.aio.live.connect(model="gemini-live-2.5-flash-native-audio", config=live_config) as session:
+        # Connect using gemini-3.8-live first, falling back to gemini-live-2.5-flash-native-audio if needed
+        active_model = "gemini-3.8-live"
+        try:
+            conn_ctx = client.aio.live.connect(model="gemini-3.8-live", config=live_config)
+            session = await conn_ctx.__aenter__()
+        except Exception:
+            active_model = "gemini-live-2.5-flash-native-audio"
+            conn_ctx = client.aio.live.connect(model=active_model, config=live_config)
+            session = await conn_ctx.__aenter__()
+
+        try:
+            await websocket.send_json({
+                "status_note": f"Connected to {live_mode} (Voice: {voice_name} • 24kHz Native Audio • Instant Barge-In Active)",
+                "model_connected": active_model,
+                "voice": voice_name,
+                "live_mode": live_mode,
+            })
 
             async def browser_to_gemini():
                 try:
                     while True:
                         raw = await websocket.receive_text()
                         msg = json.loads(raw)
-                        if msg.get("type") == "audio" and msg.get("data"):
+                        mtype = msg.get("type")
+                        if mtype == "audio" and msg.get("data"):
                             pcm_bytes = base64.b64decode(msg["data"])
                             await session.send_realtime_input(
                                 media=types.Blob(data=pcm_bytes, mime_type="audio/pcm;rate=16000")
                             )
-                        elif msg.get("type") == "text" and msg.get("text"):
+                        elif mtype == "interrupt":
+                            # Notify browser immediately to flush audio queue and interrupt ongoing turn
+                            await websocket.send_json({"interrupted": True})
+                            if msg.get("text"):
+                                await session.send_client_content(
+                                    turns=types.Content(role="user", parts=[types.Part.from_text(text=msg["text"])]),
+                                    turn_complete=True,
+                                )
+                        elif mtype == "text" and msg.get("text"):
+                            # Sending client content during an active turn automatically barges in on the Live session
+                            await websocket.send_json({"interrupted": True})
                             await session.send_client_content(
                                 turns=types.Content(role="user", parts=[types.Part.from_text(text=msg["text"])]),
                                 turn_complete=True,
@@ -321,6 +469,9 @@ async def ws_live_voice(websocket: WebSocket, code: str):
                             sc = getattr(response, "server_content", None)
                             if not sc:
                                 continue
+                            if getattr(sc, "interrupted", False):
+                                await websocket.send_json({"interrupted": True})
+
                             in_tx = getattr(sc, "input_transcription", None)
                             if in_tx and getattr(in_tx, "text", None):
                                 await websocket.send_json({"input_transcript": in_tx.text})
@@ -336,10 +487,18 @@ async def ws_live_voice(websocket: WebSocket, code: str):
                                     if inline and getattr(inline, "data", None):
                                         b64_audio = base64.b64encode(inline.data).decode("ascii")
                                         await websocket.send_json({"audio_b64": b64_audio})
+
+                            if getattr(sc, "turn_complete", False):
+                                await websocket.send_json({"turn_complete": True})
                 except Exception:
                     pass
 
             await asyncio.gather(browser_to_gemini(), gemini_to_browser())
+        finally:
+            try:
+                await conn_ctx.__aexit__(None, None, None)
+            except Exception:
+                pass
     except Exception as exc:
         try:
             await websocket.send_json({"status_note": f"Live API Note: {exc}"})

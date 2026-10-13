@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Square 1.4: Dynamic Loan Pricing & Amortization Co-Pilot — Standalone UI Design File.
-Visual Archetype: Monark™ / Rocket Money Sovereign Wealth & Capital OS Dashboard
-(Wealth Obsidian #07090E, Champagne Gold #D4AF37, Emerald Mint #10B981, Space Grotesk + JetBrains Mono,
-Left Wealth Sidebar + Interactive Rocket Money Vault Transfer Dial + Multi-Curve SVG Amortization Chart)."""
+"""Square 1.4: Pre-Approval Refresh Assistant — Standalone UI Design File.
+Visual Archetype: Apple Wallet / Clean Consumer Mobile- & Desktop-Friendly Banking App
+(#F5F5F7 light warm gray background, #0071E3 clean blue CTA, #FFFFFF elevated certificate card,
+DM Sans + Merriweather serif for the official Rocket Mortgage Verified Pre-Approval Letter)."""
 
 from shared.standalone_uis.base_helpers import render_floating_control_bar_and_drawer
 
@@ -14,302 +14,455 @@ def render_sq_1_4(auth_token: str) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Monark™ x Rocket Money Capital & Amortization OS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Rocket Mortgage · Saturday Open-House Pre-Approval Refresh Assistant</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Merriweather:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
-      font-family: 'Inter', sans-serif;
-      background: #07090E;
-      color: #F8FAFC;
+      font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #F5F5F7;
+      color: #1D1D1F;
       min-height: 100vh;
-      display: grid;
-      grid-template-columns: 250px 1fr;
+      padding-bottom: 88px;
     }}
-    @media (max-width: 960px) {{
-      body {{ grid-template-columns: 1fr; }}
-      .wealth-sidebar {{ display: none; }}
-    }}
-    .mono {{ font-family: 'JetBrains Mono', monospace; }}
-    .grotesk {{ font-family: 'Space Grotesk', sans-serif; }}
+    .serif {{ font-family: 'Merriweather', Georgia, serif; }}
+    .mono {{ font-family: 'IBM Plex Mono', monospace; }}
 
-    /* Left Wealth Navigation Sidebar */
-    .wealth-sidebar {{
-      background: #0B0E17;
-      border-right: 1px solid #1C2333;
-      padding: 24px 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }}
-    .gold-badge {{
-      background: linear-gradient(135deg, rgba(212,175,55,0.2), rgba(16,185,129,0.15));
-      border: 1px solid rgba(212,175,55,0.45);
-      color: #FDE68A;
-      padding: 4px 10px;
-      border-radius: 6px;
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }}
-    .nav-item {{
-      padding: 11px 14px;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #94A3B8;
+    /* Apple Wallet / Consumer Banking Header */
+    .wallet-header {{
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid #E5E5EA;
+      padding: 14px 32px;
       display: flex;
       align-items: center;
-      gap: 10px;
-      cursor: pointer;
-      margin-bottom: 4px;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }}
-    .nav-item.active {{
-      background: linear-gradient(90deg, rgba(212,175,55,0.16), transparent);
-      color: #FDE68A;
-      border-left: 3px solid #D4AF37;
-    }}
-
-    /* Main Financial OS Canvas */
-    .fintech-main {{
-      padding: 28px 36px 90px 36px;
-      overflow-y: auto;
-    }}
-    .kpi-strip {{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin: 22px 0;
-    }}
-    @media (max-width: 1100px) {{
-      .kpi-strip {{ grid-template-columns: repeat(2, 1fr); }}
-    }}
-    .wealth-card {{
-      background: #0F1420;
-      border: 1px solid #1E293B;
-      border-radius: 16px;
-      padding: 20px;
-      position: relative;
-      overflow: hidden;
-    }}
-    .wealth-card.gold-glow {{
-      border-color: rgba(212,175,55,0.5);
-      box-shadow: 0 12px 32px rgba(212,175,55,0.08);
-    }}
-    .ltv-pill {{
-      padding: 8px 16px;
-      border-radius: 10px;
-      border: 1px solid #263147;
-      background: #131A29;
-      color: #CBD5E1;
-      font-family: 'JetBrains Mono', monospace;
+    .apple-pill {{
+      background: #E8F2FF;
+      color: #0071E3;
       font-size: 12px;
       font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }}
+
+    /* 2-Column Workspace */
+    .wallet-grid {{
+      max-width: 1320px;
+      margin: 28px auto;
+      padding: 0 28px;
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 28px;
+      align-items: start;
+    }}
+    @media (max-width: 1040px) {{
+      .wallet-grid {{ grid-template-columns: 1fr; }}
+    }}
+
+    /* Left Consumer Controls Card */
+    .adjuster-card {{
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1px solid #E5E5EA;
+      padding: 24px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.04);
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }}
+    .stepper-row {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #F5F5F7;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 1px solid #E5E5EA;
+    }}
+    .step-btn {{
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #D2D2D7;
+      background: #FFFFFF;
+      color: #0071E3;
+      font-size: 20px;
+      font-weight: 700;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }}
+    .step-btn:hover {{ background: #E8F2FF; }}
+
+    /* Guardrail Status Banner */
+    .guardrail-box {{
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      line-height: 1.5;
       transition: 0.2s;
     }}
-    .ltv-pill.active {{
-      background: linear-gradient(135deg, #D4AF37, #B45309);
-      color: #07090E;
-      border-color: #FDE68A;
+    .guardrail-pass {{
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
     }}
-    .gold-btn {{
-      background: linear-gradient(135deg, #D4AF37, #10B981);
-      color: #07090E;
+    .guardrail-fail {{
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #991B1B;
+    }}
+
+    /* Buttons */
+    .blue-cta-btn {{
+      background: #0071E3;
+      color: #FFFFFF;
       border: none;
-      padding: 11px 20px;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 12.5px;
+      border-radius: 12px;
+      padding: 13px 18px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
       cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }}
+    .blue-cta-btn:hover {{ background: #005BB5; }}
+
+    .voice-read-btn {{
+      background: #F5F5F7;
+      color: #0071E3;
+      border: 1px solid #D2D2D7;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }}
+    .voice-read-btn:hover {{ background: #E8F2FF; border-color: #93C5FD; }}
+
+    /* Official Printable Pre-Approval Certificate Card */
+    .certificate-shell {{
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1px solid #D2D2D7;
+      padding: 36px 42px;
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }}
+    .cert-seal {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      color: #047857;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+    }}
+    .cert-grid {{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+      margin: 22px 0;
+      padding: 18px;
+      background: #F9FAFB;
+      border: 1px solid #E5E7EB;
+      border-radius: 14px;
+      font-family: 'DM Sans', sans-serif;
     }}
   </style>
 </head>
 <body>
 
-  <!-- LEFT SOVEREIGN WEALTH SIDEBAR -->
-  <aside class="wealth-sidebar">
-    <div>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:24px;">
-        <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#D4AF37,#10B981);display:flex;align-items:center;justify-content:center;color:#07090E;font-weight:900;font-size:18px;">M</div>
-        <div>
-          <div class="grotesk" style="font-weight:700;font-size:16px;color:#FFF;">MONARK™ // ROCKET</div>
-          <div class="mono" style="font-size:10px;color:#D4AF37;">CAPITAL & AMORTIZATION OS</div>
-        </div>
-      </div>
-
-      <div class="nav-item active" onclick="setLtvPreset(540000)">💎 LTV & LLPA Tier Optimizer</div>
-      <div class="nav-item" onclick="setLtvPreset(650000)">🏦 Rocket Money Vault Bridge</div>
-      <div class="nav-item" onclick="setLtvPreset(425000)">📈 30-Yr Amortization Ledger</div>
-      <div class="nav-item" onclick="window.runLiveVertexAI()">🤖 AI CFO Capital Strategy</div>
-    </div>
-
-    <div style="background:#131A29;border:1px solid #263147;border-radius:12px;padding:14px;">
-      <div class="mono" style="font-size:10px;color:#D4AF37;text-transform:uppercase;margin-bottom:4px;">Rocket Money Linked Vault</div>
-      <div class="mono" style="font-size:18px;font-weight:700;color:#10B981;">$81,400.00</div>
-      <div style="font-size:11px;color:#94A3B8;margin-top:2px;">High-Yield Savings (4.35% APY)</div>
-    </div>
-  </aside>
-
-  <!-- MAIN FINTECH CANVAS -->
-  <main class="fintech-main">
-    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:14px;border-bottom:1px solid #1E293B;padding-bottom:18px;">
+  <!-- APPLE WALLET / CLEAN CONSUMER BANKING BAR -->
+  <header class="wallet-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div style="width:36px;height:36px;border-radius:10px;background:#0071E3;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:16px;">R</div>
       <div>
-        <span class="gold-badge">gVisor Deterministic Financial Sandbox • Square 1.4</span>
-        <h1 class="grotesk" style="font-size:28px;font-weight:700;margin-top:6px;">Dynamic Loan Pricing, LLPA Cliff & PMI Drop-Off Engine</h1>
+        <div style="font-size:16px;font-weight:800;color:#1D1D1F;">Rocket Mortgage · Pre-Approval Refresh Assistant</div>
+        <div style="font-size:12px;color:#6E6E73;">Saturday Open-House Instant Offer Letter Customizer · Underwriting Cap Guardrail</div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;">
-        <div class="mono" style="background:#0F1420;padding:8px 14px;border-radius:10px;border:1px solid #263147;font-size:11px;">
-          Model:
-          <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FDE68A;font-weight:700;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;">
-            <option value="gemini-4-argon" style="background:#07090E;">gemini-4-argon</option>
-            <option value="gemini-3.8-flash" style="background:#07090E;">gemini-3.8-flash</option>
-          </select>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span class="apple-pill">✓ Max Verified Cap: $475,000</span>
+      <div style="background:#F5F5F7;border:1px solid #D2D2D7;padding:6px 12px;border-radius:10px;font-size:12px;display:flex;align-items:center;gap:6px;">
+        <span style="color:#6E6E73;font-weight:600;">Model:</span>
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#0071E3;font-weight:700;border:none;outline:none;font-family:inherit;font-size:12px;cursor:pointer;">
+          <option value="gemini-4-argon">gemini-4-argon</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="wallet-grid">
+
+    <!-- LEFT COLUMN: SATURDAY OPEN-HOUSE OFFER BID ADJUSTER -->
+    <aside class="adjuster-card">
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#0071E3;text-transform:uppercase;letter-spacing:0.04em;">
+          Saturday Open-House Bid Adjuster
         </div>
-        <button class="gold-btn" onclick="window.runLiveVertexAI()" id="cfo-btn">⚡ Run CFO Capital Synthesis</button>
-      </div>
-    </div>
-
-    <!-- 4 KPI WEALTH CARDS -->
-    <div class="kpi-strip">
-      <div class="wealth-card">
-        <div class="mono" style="font-size:11px;color:#94A3B8;text-transform:uppercase;">90% LTV Baseline (10% Down)</div>
-        <div class="mono" style="font-size:24px;font-weight:700;color:#F8FAFC;margin:8px 0;" id="kpi-90-piti">$3,962.03/mo</div>
-        <div class="mono" style="font-size:11px;color:#F43F5E;" id="kpi-90-sub">Loan $486,000 @ 6.125% + $166 PMI</div>
+        <h2 style="font-size:20px;font-weight:800;margin-top:4px;">Tailor Exact Offer Price</h2>
+        <p style="font-size:13px;color:#6E6E73;margin-top:4px;line-height:1.45;">
+          Generate an exact-dollar Pre-Approval Letter so the listing agent sees your offer strength without exposing your $475,000 maximum approval ceiling.
+        </p>
       </div>
 
-      <div class="wealth-card gold-glow">
-        <div class="mono" style="font-size:11px;color:#FDE68A;text-transform:uppercase;">85% LTV Optimized (15% Down) ★</div>
-        <div class="mono" style="font-size:24px;font-weight:700;color:#10B981;margin:8px 0;" id="kpi-85-piti">$3,675.29/mo</div>
-        <div class="mono" style="font-size:11px;color:#FDE68A;" id="kpi-85-sub">Loan $459,000 @ 5.990% + $92 PMI</div>
+      <!-- Offer Price Stepper ($420k - $525k) -->
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-bottom:6px;">
+          <span>Offer Bid Price ($420k – $525k):</span>
+          <span class="mono" style="color:#0071E3;" id="lbl-offer-step">$455,000</span>
+        </div>
+        <div class="stepper-row">
+          <button class="step-btn" onclick="stepOfferPrice(-5000)" title="Decrease $5,000">−</button>
+          <div style="text-align:center;flex:1;padding:0 12px;">
+            <input type="range" id="sl-offer" min="420000" max="525000" step="5000" value="455000" style="width:100%;accent-color:#0071E3;" oninput="recalcCertificate()">
+          </div>
+          <button class="step-btn" onclick="stepOfferPrice(5000)" title="Increase $5,000">+</button>
+        </div>
       </div>
 
-      <div class="wealth-card">
-        <div class="mono" style="font-size:11px;color:#94A3B8;text-transform:uppercase;">Monthly Cash-Flow Saved</div>
-        <div class="mono" style="font-size:24px;font-weight:700;color:#D4AF37;margin:8px 0;" id="kpi-mo-sav">$286.74/mo</div>
-        <div class="mono" style="font-size:11px;color:#10B981;">12.74% Tax-Free Effective Yield on $27k</div>
+      <!-- Property Tax Slider -->
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:5px;">
+          <span style="color:#6E6E73;">Annual Property Taxes:</span>
+          <strong class="mono" id="lbl-tax">$5,400 / yr ($450/mo)</strong>
+        </div>
+        <input type="range" id="sl-tax" min="3600" max="9600" step="300" value="5400" style="width:100%;accent-color:#0071E3;" oninput="recalcCertificate()">
       </div>
 
-      <div class="wealth-card">
-        <div class="mono" style="font-size:11px;color:#94A3B8;text-transform:uppercase;">60-Month Cumulative Savings</div>
-        <div class="mono" style="font-size:24px;font-weight:700;color:#38BDF8;margin:8px 0;" id="kpi-5yr-sav">$17,204.40</div>
-        <div class="mono" style="font-size:11px;color:#94A3B8;">PMI Auto-Drops at Month 54 (78% LTV)</div>
+      <!-- Monthly HOA Slider -->
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:600;margin-bottom:5px;">
+          <span style="color:#6E6E73;">Monthly HOA Dues:</span>
+          <strong class="mono" id="lbl-hoa">$85 / mo</strong>
+        </div>
+        <input type="range" id="sl-hoa" min="0" max="450" step="15" value="85" style="width:100%;accent-color:#0071E3;" oninput="recalcCertificate()">
       </div>
-    </div>
 
-    <!-- INTERACTIVE CONTROLS + SVG MULTI-CURVE AMORTIZATION CHART -->
-    <div style="display:grid;grid-template-columns:380px 1fr;gap:20px;">
-      <div class="wealth-card" style="display:flex;flex-direction:column;gap:18px;">
-        <div class="grotesk" style="font-size:16px;font-weight:700;color:#FDE68A;">🎛️ Capital Allocation Controls</div>
+      <!-- Instant Max Approval Cap Guardrail Indicator -->
+      <div id="guardrail-banner" class="guardrail-box guardrail-pass">
+        <strong>✓ Instant Guardrail Passed ($20,000 Headroom):</strong> Your $455,000 offer is within your $475,000 Verified Approval Cap and maintains a 36.8% Back-End DTI.
+      </div>
 
+      <button class="blue-cta-btn" id="refresh-cert-btn" onclick="window.runLiveVertexAI()">
+        ✨ Refresh Official Pre-Approval Letter
+      </button>
+
+      <button class="voice-read-btn" onclick="playSummaryAudio(this)">
+        🔊 Read Pre-Approval Summary Aloud (Gemini 3.8 Live)
+      </button>
+    </aside>
+
+    <!-- RIGHT COLUMN: PRINTABLE OFFICIAL ROCKET MORTGAGE VERIFIED PRE-APPROVAL CERTIFICATE -->
+    <section class="certificate-shell">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1D1D1F;padding-bottom:18px;flex-wrap:wrap;gap:12px;">
         <div>
-          <div class="mono" style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
-            <span style="color:#94A3B8;">Target Property Price:</span>
-            <strong id="lbl-price" style="color:#FDE68A;">$540,000</strong>
+          <div style="font-size:12px;font-weight:800;letter-spacing:0.08em;color:#D92228;text-transform:uppercase;">
+            ROCKET MORTGAGE, LLC · NMLS #3030
           </div>
-          <input type="range" id="sl-price" min="320000" max="950000" step="10000" value="540000" style="width:100%;accent-color:#D4AF37;" oninput="recalcPricing()">
+          <h1 class="serif" style="font-size:24px;font-weight:700;color:#1D1D1F;margin-top:4px;">
+            Official Verified Pre-Approval Certificate
+          </h1>
+          <div style="font-size:12.5px;color:#6E6E73;margin-top:2px;">
+            1050 Woodward Ave, Detroit, MI 48226 · Desktop Underwriter® (DU®) Approve/Eligible
+          </div>
         </div>
+        <div style="text-align:right;">
+          <span class="cert-seal" id="cert-seal-badge">✓ VERIFIED APPROVAL ACTIVE</span>
+          <div class="mono" style="font-size:11px;color:#6E6E73;margin-top:6px;">
+            Cert ID: <strong id="cert-id-label">RKT-VPA-2026-8841</strong>
+          </div>
+        </div>
+      </div>
 
+      <!-- Structured Certificate Metrics -->
+      <div class="cert-grid">
         <div>
-          <div class="mono" style="font-size:11px;color:#94A3B8;margin-bottom:8px;">Click Property Price Presets:</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="ltv-pill" onclick="setLtvPreset(420000)">$420k Starter</button>
-            <button class="ltv-pill active" onclick="setLtvPreset(540000)">$540k Move-Up</button>
-            <button class="ltv-pill" onclick="setLtvPreset(720000)">$720k Premier</button>
-          </div>
+          <div style="font-size:11px;color:#6E6E73;text-transform:uppercase;font-weight:700;">Borrowers</div>
+          <div style="font-size:15px;font-weight:700;color:#1D1D1F;margin-top:2px;">Marcus & Elena Vance</div>
         </div>
-
-        <div style="background:#0B0E17;border:1px solid #1E293B;border-radius:12px;padding:14px;">
-          <div class="mono" style="font-size:10px;color:#10B981;text-transform:uppercase;margin-bottom:6px;">AI CFO Arbitrage Verdict</div>
-          <div id="cfo-verdict-box" style="font-size:12.5px;line-height:1.6;color:#CBD5E1;">
-            Shifting <strong>$27,000</strong> from your Rocket Money Vault (earning 4.35% taxable APY) to cross the <strong>85% LTV Fannie Mae LLPA cliff</strong> lowers your note rate to <strong>5.990%</strong> and cuts private MI from 0.41% to 0.24%, generating a <strong>12.7% risk-free return</strong>.
-          </div>
+        <div>
+          <div style="font-size:11px;color:#6E6E73;text-transform:uppercase;font-weight:700;">Certified Offer Purchase Price</div>
+          <div class="mono" id="cert-offer-price" style="font-size:18px;font-weight:800;color:#0071E3;margin-top:2px;">$455,000.00</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6E6E73;text-transform:uppercase;font-weight:700;">Loan Program & Down Payment</div>
+          <div style="font-size:14px;font-weight:700;color:#1D1D1F;margin-top:2px;" id="cert-loan-structure">30-Year Fixed Conventional (10% Down · $409,500 Loan)</div>
+        </div>
+        <div>
+          <div style="font-size:11px;color:#6E6E73;text-transform:uppercase;font-weight:700;">Estimated Total Monthly PITI + HOA</div>
+          <div class="mono" id="cert-piti" style="font-size:15px;font-weight:700;color:#059669;margin-top:2px;">$3,148 / mo (36.8% DTI · Passed)</div>
         </div>
       </div>
 
-      <!-- SVG Multi-Curve 30-Year Principal & Interest Visualizer -->
-      <div class="wealth-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-          <div>
-            <div class="grotesk" style="font-size:16px;font-weight:700;">30-Year Cumulative Equity & Interest Curve (90% LTV vs. 85% LTV)</div>
-            <div class="mono" style="font-size:11px;color:#94A3B8;">Gold = 85% LTV Accelerated Equity • Coral Dashed = 90% LTV Baseline</div>
-          </div>
-          <span class="mono" id="chart-model-tag" style="font-size:11px;color:#10B981;background:rgba(16,185,129,0.12);padding:4px 10px;border-radius:6px;">gVisor Math Verified</span>
-        </div>
-
-        <svg viewBox="0 0 680 230" style="width:100%;height:230px;background:#090C14;border-radius:12px;border:1px solid #1E293B;">
-          <!-- Grid lines -->
-          <line x1="50" y1="30" x2="650" y2="30" stroke="#1E293B" stroke-dasharray="4 4"/>
-          <line x1="50" y1="95" x2="650" y2="95" stroke="#1E293B" stroke-dasharray="4 4"/>
-          <line x1="50" y1="160" x2="650" y2="160" stroke="#1E293B" stroke-dasharray="4 4"/>
-          <line x1="50" y1="200" x2="650" y2="200" stroke="#334155"/>
-          <!-- 90% LTV Curve -->
-          <path d="M 50 195 Q 260 155, 640 55" fill="none" stroke="#F43F5E" stroke-width="2.5" stroke-dasharray="6 4"/>
-          <!-- 85% LTV Curve -->
-          <path id="svg-opt-curve" d="M 50 185 Q 240 120, 640 28" fill="none" stroke="#D4AF37" stroke-width="3.5"/>
-          <!-- PMI Drop Marker -->
-          <circle cx="210" cy="142" r="6" fill="#10B981"/>
-          <text x="222" y="146" fill="#10B981" font-family="JetBrains Mono" font-size="11" font-weight="bold">Month 54: Automatic 78% LTV PMI Drop (-$92/mo)</text>
-          <text x="55" y="218" fill="#94A3B8" font-family="JetBrains Mono" font-size="10">Year 1</text>
-          <text x="330" y="218" fill="#94A3B8" font-family="JetBrains Mono" font-size="10">Year 15</text>
-          <text x="605" y="218" fill="#94A3B8" font-family="JetBrains Mono" font-size="10">Year 30</text>
-        </svg>
+      <!-- Formal Serif Letter Body -->
+      <div class="serif" id="cert-letter-body" style="font-size:14.5px;line-height:1.8;color:#1D1D1F;">
+        To Whom It May Concern (Listing Agent & Seller):<br><br>
+        This letter certifies that <strong>Marcus & Elena Vance</strong> have completed Rocket Mortgage's <strong>Verified Approval</strong> underwriting review. Rocket Mortgage has verified their credit profile (middle FICO 748), W-2 employment income, and liquid down payment assets via direct institution verification.<br><br>
+        Based on a purchase offer price of <strong>$455,000</strong> with <strong>10% down ($45,500)</strong>, annual property taxes of <strong>$5,400</strong>, and HOA dues of <strong>$85/month</strong>, this transaction satisfies all Fannie Mae Conforming and Rocket Mortgage debt-to-income and reserve guardrails, subject only to an acceptable property appraisal and clear title commitment.
       </div>
-    </div>
+
+      <!-- Signature & Print Actions -->
+      <div style="margin-top:26px;padding-top:18px;border-top:1px solid #E5E5EA;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;">
+        <div>
+          <div class="serif" style="font-style:italic;font-size:16px;font-weight:700;color:#1D1D1F;">Jordan Sterling, Sr. Mortgage Banker</div>
+          <div style="font-size:12px;color:#6E6E73;">Rocket Mortgage, LLC · NMLS #1049281 · Equal Housing Lender</div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <span class="mono" id="cert-model-badge" style="font-size:11px;background:#E8F2FF;color:#0071E3;padding:5px 10px;border-radius:6px;font-weight:700;">gemini-4-argon</span>
+          <button onclick="window.print()" style="background:#1D1D1F;color:#FFFFFF;border:none;padding:9px 16px;border-radius:10px;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;">
+            🖨️ Print / Save PDF Certificate
+          </button>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   {controls}
 
   <script>
-    function setLtvPreset(price) {{
-      document.getElementById('sl-price').value = price;
-      recalcPricing();
+    const MAX_APPROVAL_CAP = 475000;
+
+    function calcMonthlyPI(principal, annualRate) {{
+      const r = (annualRate / 100) / 12;
+      return principal * (r * Math.pow(1 + r, 360)) / (Math.pow(1 + r, 360) - 1);
     }}
 
-    async function recalcPricing() {{
-      const price = parseFloat(document.getElementById('sl-price').value);
-      document.getElementById('lbl-price').innerText = '$' + price.toLocaleString();
-      const res = await fetch('/api/sandbox', {{
-        method: 'POST',
-        headers: {{'Content-Type': 'application/json'}},
-        body: JSON.stringify({{code: '1.4', action: 'calc_dynamic_pricing', params: {{price: price}}}})
-      }});
-      const data = await res.json();
-      if (data.ok && data.metrics) {{
-        const m = data.metrics;
-        const p90 = ((m.scenario_90_ltv || '').split('=')[1] || '').trim();
-        const p85 = ((m.scenario_85_ltv || '').split('=')[1] || '').trim();
-        if (p90) document.getElementById('kpi-90-piti').innerText = p90;
-        if (p85) document.getElementById('kpi-85-piti').innerText = p85;
-        document.getElementById('kpi-90-sub').innerText = (m.scenario_90_ltv || '').split('=')[0];
-        document.getElementById('kpi-85-sub').innerText = (m.scenario_85_ltv || '').split('=')[0];
-        document.getElementById('kpi-mo-sav').innerText = ((m.monthly_piti_savings || '').split(' ')[0] || '');
-        document.getElementById('kpi-5yr-sav').innerText = ((m.five_year_interest_pmi_saved || '').split(' ')[0] || '');
+    function stepOfferPrice(delta) {{
+      const sl = document.getElementById('sl-offer');
+      let nextVal = parseInt(sl.value, 10) + delta;
+      nextVal = Math.max(420000, Math.min(525000, nextVal));
+      sl.value = nextVal;
+      recalcCertificate();
+    }}
+
+    function recalcCertificate() {{
+      const offer = parseFloat(document.getElementById('sl-offer').value);
+      const taxYr = parseFloat(document.getElementById('sl-tax').value);
+      const hoaMo = parseFloat(document.getElementById('sl-hoa').value);
+
+      const loanAmt = Math.round(offer * 0.90);
+      const downAmt = Math.round(offer * 0.10);
+      const pi = Math.round(calcMonthlyPI(loanAmt, 6.125));
+      const taxMo = Math.round(taxYr / 12);
+      const insMo = 125;
+      const pmiMo = 92;
+      const totalPiti = pi + taxMo + insMo + pmiMo + hoaMo;
+      const dti = ((totalPiti + 785) / 10650 * 100).toFixed(1);
+
+      document.getElementById('lbl-offer-step').innerText = '$' + offer.toLocaleString();
+      document.getElementById('lbl-tax').innerText = '$' + taxYr.toLocaleString() + ' / yr ($' + taxMo + '/mo)';
+      document.getElementById('lbl-hoa').innerText = '$' + hoaMo + ' / mo';
+
+      document.getElementById('cert-offer-price').innerText = '$' + offer.toLocaleString() + '.00';
+      document.getElementById('cert-loan-structure').innerText =
+        `30-Year Fixed Conventional (10% Down · $${{loanAmt.toLocaleString()}} Loan)`;
+      document.getElementById('cert-piti').innerText =
+        `$${{totalPiti.toLocaleString()}} / mo (${{dti}}% DTI)`;
+
+      const guardEl = document.getElementById('guardrail-banner');
+      const sealEl = document.getElementById('cert-seal-badge');
+
+      if (offer <= MAX_APPROVAL_CAP) {{
+        const headroom = MAX_APPROVAL_CAP - offer;
+        guardEl.className = 'guardrail-box guardrail-pass';
+        guardEl.innerHTML =
+          `<strong>✓ Instant Guardrail Passed ($${{headroom.toLocaleString()}} Headroom):</strong> Your $${{offer.toLocaleString()}} offer is within your $${{MAX_APPROVAL_CAP.toLocaleString()}} Verified Approval Cap and maintains a ${{dti}}% Back-End DTI.`;
+        sealEl.style.background = '#ECFDF5';
+        sealEl.style.color = '#047857';
+        sealEl.innerText = '✓ VERIFIED APPROVAL ACTIVE';
+      }} else {{
+        const overAmt = offer - MAX_APPROVAL_CAP;
+        guardEl.className = 'guardrail-box guardrail-fail';
+        guardEl.innerHTML =
+          `<strong>⚠️ Underwriting Guardrail Alert (+$${{overAmt.toLocaleString()}} Over Cap):</strong> Offer of $${{offer.toLocaleString()}} exceeds your $475,000 Verified Approval Ceiling. Increase down payment by $${{overAmt.toLocaleString()}} or request Banker Exception.`;
+        sealEl.style.background = '#FEF2F2';
+        sealEl.style.color = '#991B1B';
+        sealEl.innerText = '⚠️ REQUIRES BANKER EXCEPTION (> $475K)';
       }}
+
+      document.getElementById('cert-letter-body').innerHTML =
+        `To Whom It May Concern (Listing Agent & Seller):<br><br>` +
+        `This letter certifies that <strong>Marcus & Elena Vance</strong> have completed Rocket Mortgage's <strong>Verified Approval</strong> underwriting review. Rocket Mortgage has verified their credit profile (middle FICO 748), W-2 employment income, and liquid down payment assets via direct institution verification.<br><br>` +
+        `Based on a purchase offer price of <strong>$${{offer.toLocaleString()}}</strong> with <strong>10% down ($${{downAmt.toLocaleString()}})</strong>, annual property taxes of <strong>$${{taxYr.toLocaleString()}}</strong>, and HOA dues of <strong>$${{hoaMo}}/month</strong>, estimated monthly housing payment is <strong>$${{totalPiti.toLocaleString()}}/mo (${{dti}}% DTI)</strong>.`;
+    }}
+
+    function playSummaryAudio(btnEl) {{
+      const offer = parseFloat(document.getElementById('sl-offer').value);
+      const statusText = offer <= MAX_APPROVAL_CAP
+        ? `Your refreshed Verified Pre-Approval Certificate for four hundred fifty-five thousand dollars is ready to attach to your Saturday open-house offer. It keeps twenty thousand dollars of confidential headroom below your four hundred seventy-five thousand dollar maximum cap.`
+        : `Heads up: your selected offer price of $${{offer.toLocaleString()}} is above your four hundred seventy-five thousand dollar verified cap. You can either bridge the difference from your Rocket Money Vault or tap to alert your Senior Banker.`;
+      window.playLiveCallClip(
+        statusText,
+        'Aoede',
+        'Rocket Mortgage Pre-Approval Assistant',
+        btnEl
+      );
     }}
 
     window.runLiveVertexAI = async function() {{
-      const btn = document.getElementById('cfo-btn');
+      const btn = document.getElementById('refresh-cert-btn');
       const model = window.getSelectedModel();
-      btn.innerText = '⏳ Synthesizing on ' + model + '...';
-      const price = parseFloat(document.getElementById('sl-price').value);
+      btn.innerText = '⏳ Refreshing Certificate (' + model + ')...';
+      document.getElementById('cert-model-badge').innerText = model;
+
+      const offer = parseFloat(document.getElementById('sl-offer').value);
+      const taxYr = parseFloat(document.getElementById('sl-tax').value);
+      const hoaMo = parseFloat(document.getElementById('sl-hoa').value);
+
       try {{
         const res = await fetch('/api/run-demo', {{
           method: 'POST',
-          headers: {{'Content-Type': 'application/json'}},
-          body: JSON.stringify({{code: '1.4', model: model, params: {{price: price}}}})
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{
+            code: '1.4',
+            model: model,
+            params: {{
+              price: offer,
+              max_cap: MAX_APPROVAL_CAP,
+              annual_tax: taxYr,
+              monthly_hoa: hoaMo
+            }}
+          }})
         }});
         const data = await res.json();
-        document.getElementById('chart-model-tag').innerText = (data.model_used || model) + ' Verified';
+        document.getElementById('cert-model-badge').innerText = data.model_used || model;
         if (data.structured_data && (data.structured_data.capital_allocation_advice || data.structured_data.executive_summary)) {{
-          document.getElementById('cfo-verdict-box').innerHTML = data.structured_data.capital_allocation_advice || data.structured_data.executive_summary;
+          document.getElementById('cert-letter-body').innerHTML =
+            data.structured_data.capital_allocation_advice || data.structured_data.executive_summary;
         }} else if (data.output) {{
-          document.getElementById('cfo-verdict-box').innerText = data.output;
+          document.getElementById('cert-letter-body').innerHTML = data.output.replace(/\\n/g, '<br>');
         }}
-      }} catch (e) {{}}
-      finally {{
-        btn.innerText = '⚡ Run CFO Capital Synthesis';
+      }} catch (e) {{
+        console.error(e);
+      }} finally {{
+        btn.innerText = '✨ Refresh Official Pre-Approval Letter';
       }}
     }};
   </script>

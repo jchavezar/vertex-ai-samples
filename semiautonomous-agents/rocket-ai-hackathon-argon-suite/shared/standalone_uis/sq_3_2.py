@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Square 3.2: Self-Service Payoff Quote & IRS Form 1098 Action Agent (Google ADK Runtime)
-Visual Design: Official Treasury & Mortgage Document Portal (#0F172A slate chrome framing a crisp
-#FFFFFF printable official Payoff Statement & IRS Form 1098 with #EAB308 gold seal accents,
-Google Fonts Libre Baskerville + JetBrains Mono)."""
+"""Square 3.2: Hardship & Forbearance Empathy Co-Pilot (Google ADK Runtime)
+Visual Design: One Medical / Calm Compassionate Homeowner Assistance Center
+(#FAF7F2 soft linen background, #2D6A4F sage forest green, #1E293B warm slate ink,
+Google Fonts Lora serif headings + Plus Jakarta Sans body)."""
 
 from shared.standalone_uis.base_helpers import render_floating_control_bar_and_drawer
 
@@ -13,477 +13,552 @@ def render_sq_3_2(auth_token: str) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Official Treasury &amp; Payoff Document Portal | Google ADK Runtime [3.2]</title>
+  <title>Homeowner Hardship &amp; Forbearance Assistance Center | Compassionate Servicing [3.2]</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {{
+      --linen-bg: #FAF7F2;
+      --sage-green: #2D6A4F;
+      --sage-soft: #ECFDF5;
+      --slate-ink: #1E293B;
+    }}
     body {{
-      background-color: #0F172A;
-      color: #F8FAFC;
-      font-family: 'Inter', sans-serif;
+      background-color: var(--linen-bg);
+      color: var(--slate-ink);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0;
     }}
-    .serif-doc {{
-      font-family: 'Libre Baskerville', Georgia, serif;
+    .serif-calm {{
+      font-family: 'Lora', Georgia, serif;
     }}
     .mono {{
       font-family: 'JetBrains Mono', monospace;
     }}
-    .paper-sheet {{
+    .calm-card {{
       background: #FFFFFF;
-      color: #0F172A;
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(234, 179, 8, 0.35);
-      border-top: 6px solid #EAB308;
+      border-radius: 22px;
+      border: 1px solid #E5E0D8;
+      box-shadow: 0 12px 30px -10px rgba(45, 106, 79, 0.06), 0 4px 12px -2px rgba(30, 41, 59, 0.04);
     }}
-    .gold-seal {{
-      background: radial-gradient(circle at 30% 30%, #FEF08A, #EAB308, #A16207);
-      box-shadow: 0 4px 16px rgba(234, 179, 8, 0.4);
+    .reason-pill {{
+      border: 1.5px solid #E2DDD5;
+      background: #FAF7F2;
+      border-radius: 14px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }}
+    .reason-pill:hover {{
+      border-color: #95D5B2;
+    }}
+    .reason-pill.active {{
+      border-color: #2D6A4F;
+      background: #ECFDF5;
+      box-shadow: 0 4px 12px rgba(45, 106, 79, 0.12);
+    }}
+    .workout-card {{
+      border-radius: 18px;
+      border: 2px solid #E5E0D8;
+      background: #FFFFFF;
+      transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+    }}
+    .workout-card:hover {{
+      border-color: #74C69D;
+      transform: translateY(-2px);
+    }}
+    .workout-card.selected {{
+      border-color: #2D6A4F;
+      background: linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 100%);
+      box-shadow: 0 12px 26px -6px rgba(45, 106, 79, 0.16);
     }}
     input[type="range"] {{
-      accent-color: #EAB308;
+      accent-color: #2D6A4F;
     }}
     .shrinking-shining-ink {{
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #FEF08A, #EAB308, #10B981);
-      animation: inkPulse 1.2s ease-in-out infinite;
+      background: radial-gradient(circle at 30% 30%, #D8F3DC, #2D6A4F, #1B4332);
+      animation: calmPulse 1.2s ease-in-out infinite;
       display: inline-block;
     }}
-    @keyframes inkPulse {{
+    @keyframes calmPulse {{
       0%, 100% {{ transform: scale(1); opacity: 0.95; }}
-      50% {{ transform: scale(0.55); opacity: 0.5; }}
+      50% {{ transform: scale(0.6); opacity: 0.5; }}
     }}
   </style>
 </head>
-<body class="min-h-screen pb-24">
+<body class="min-h-screen pb-28">
 
-  <!-- TOP SLATE TREASURY & DOCUMENT PORTAL HEADER -->
-  <header class="sticky top-0 z-40 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-6 py-3.5">
+  <!-- TOP ONE MEDICAL / CALM COMPASSIONATE HOMEOWNER ASSISTANCE HEADER -->
+  <header class="sticky top-0 z-40 bg-[#FAF7F2]/95 backdrop-blur-md border-b border-[#E5E0D8] px-6 py-4">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
       <div class="flex items-center gap-3.5">
-        <div class="w-10 h-10 rounded-xl gold-seal flex items-center justify-center text-slate-950 font-black mono text-sm">
-          §
+        <div class="w-11 h-11 rounded-2xl bg-[#2D6A4F] text-white flex items-center justify-center shadow-sm">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+          </svg>
         </div>
         <div>
-          <div class="flex items-center gap-2">
-            <span class="text-[11px] font-bold uppercase tracking-widest text-yellow-400 mono">
-              MR. COOPER x ROCKET TREASURY DESK • GOOGLE ADK RUNTIME
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#ECFDF5] text-[#2D6A4F] border border-emerald-200">
+              Homeowner Care &amp; Hardship Sanctuary
             </span>
-            <span class="px-2 py-0.5 rounded bg-yellow-500/15 text-yellow-300 border border-yellow-500/30 text-[10px] mono font-bold">
-              ACTUAL/365 PER-DIEM ENGINE
-            </span>
+            <span class="text-xs text-slate-500">CFPB Regulation X (§ 1024.41) Protected · Loan #0912-7741-MC</span>
           </div>
-          <h1 class="text-lg md:text-xl font-bold text-white serif-doc tracking-tight">
-            Official Mortgage Payoff Statement &amp; IRS Form 1098 Tax Certificate Portal
+          <h1 class="text-xl md:text-2xl font-semibold serif-calm text-[#1E293B] mt-0.5">
+            Compassionate Forbearance &amp; Payment Relief Co-Pilot
           </h1>
         </div>
       </div>
 
-      <!-- Inline Model Selector + Print Action -->
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-2 bg-slate-900 border border-slate-700 rounded-xl px-3 py-1.5">
-          <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
-          <label for="app-model-select" class="text-[10px] mono uppercase text-slate-400 font-bold">ADK Model:</label>
+      <!-- Right Controls: Model Selector + Hear Empathetic Counselor Voice + Synthesize -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex items-center gap-2 bg-white border border-[#E5E0D8] rounded-full px-3.5 py-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#2D6A4F]"></span>
+          <label for="app-model-select" class="text-[11px] font-semibold text-slate-600">Care Model:</label>
           <select id="app-model-select" onchange="window.syncSelectedModel(this.value)"
-                  class="bg-transparent text-yellow-400 text-xs font-bold mono focus:outline-none cursor-pointer">
-            <option value="gemini-4-argon" class="bg-slate-900 text-sky-300">gemini-4-argon (Frontier Global)</option>
-            <option value="gemini-3.8-flash" selected class="bg-slate-900 text-yellow-300">gemini-3.8-flash (ADK Runtime Default)</option>
+                  class="bg-transparent text-[#1E293B] text-xs font-bold focus:outline-none cursor-pointer">
+            <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
+            <option value="gemini-3.8-flash" selected>gemini-3.8-flash (ADK Care Runtime)</option>
           </select>
         </div>
-        <button onclick="window.print()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold mono text-slate-200 transition">
-          🖨️ Print Official PDF
+
+        <button id="btn-empathetic-voice"
+                onclick="window.playCounselorVoiceMessage(this)"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-[#ECFDF5] text-[#2D6A4F] border border-emerald-300 shadow-sm hover:bg-emerald-100 transition cursor-pointer">
+          <span>🔊 Hear Empathetic Counselor Voice Message (Gemini 3.8 Live · Aoede HD)</span>
+        </button>
+
+        <button id="adk-verify-btn" onclick="window.runLiveVertexAI()"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#2D6A4F] text-white shadow-sm hover:bg-[#1B4332] transition cursor-pointer">
+          <span>🌿 Personalize Relief Plan</span>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- MAIN WORKSPACE: LEFT CONTROL RAIL (4 COLS) + RIGHT PRINTABLE OFFICIAL DOCUMENT CANVAS (8 COLS) -->
+  <!-- CALM REASSURANCE SANCTUARY BANNER -->
+  <div class="max-w-7xl mx-auto px-6 pt-6">
+    <div class="calm-card p-6 bg-gradient-to-r from-[#ECFDF5]/90 via-white to-[#FAF7F2] border-l-4 border-l-[#2D6A4F] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-start gap-4">
+        <div class="w-11 h-11 rounded-full bg-[#2D6A4F] text-white flex items-center justify-center shrink-0 text-lg font-bold shadow-sm">
+          ♥
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider text-[#2D6A4F]">
+            You Are Safe Here — Your Home Is Protected Under Federal CFPB Regulation X
+          </div>
+          <p id="counselor-reassurance-banner" class="text-sm md:text-base text-slate-700 mt-1 leading-relaxed">
+            Life happens, and a temporary setback should never put your family's home at risk. Under <strong>12 CFR § 1024.41</strong>, foreclosure actions are strictly prohibited while we review your relief options, late fees are <strong>100% waived</strong>, and you will never be asked for a lump-sum balloon payment when your forbearance ends.
+          </p>
+        </div>
+      </div>
+      <div class="shrink-0">
+        <span id="payoff-sandbox-badge" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#2D6A4F] border border-emerald-200 inline-block">
+          120-Day Reg X Shield Active
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN WORKSPACE: LEFT HARDSHIP & CASH-FLOW STUDIO (5 COLS) + RIGHT CFPB REG X WORKOUT WATERFALL (7 COLS) -->
   <main class="max-w-7xl mx-auto px-6 py-6 grid lg:grid-cols-12 gap-6 items-start">
 
-    <!-- LEFT INTERACTIVE CONTROL RAIL -->
-    <aside class="lg:col-span-4 bg-slate-900/90 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-2xl">
-      <div class="pb-3 border-b border-slate-800 flex items-center justify-between">
+    <!-- LEFT 5 COLUMNS: HARDSHIP REASON SELECTOR + CASH-FLOW RECOVERY SLIDERS + COUNSELOR NOTE -->
+    <aside class="lg:col-span-5 space-y-6">
+
+      <!-- 1. HARDSHIP REASON SELECTOR -->
+      <section class="calm-card p-6">
+        <span class="text-xs font-bold uppercase tracking-wider text-[#2D6A4F]">Step 1 · Tell Us What Happened</span>
+        <h2 class="text-lg font-bold serif-calm text-[#1E293B] mt-0.5">Select Your Household Hardship Situation</h2>
+        <p class="text-xs text-slate-500 mt-1 mb-4">We tailor your CFPB Regulation X workout options without requiring complex paperwork upfront.</p>
+
+        <div class="space-y-2.5">
+          <div id="reason-1" onclick="window.selectHardshipReason('Temporary Medical Leave', 1)" class="reason-pill active p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-[#2D6A4F] text-white flex items-center justify-center text-xs font-bold">1</div>
+              <div>
+                <div class="text-sm font-bold text-[#1E293B]">Temporary Medical Leave</div>
+                <div class="text-xs text-slate-500">Short-term surgery recovery or family medical care (2–3 mos)</div>
+              </div>
+            </div>
+            <span class="text-xs font-bold text-[#2D6A4F]">Selected ✓</span>
+          </div>
+
+          <div id="reason-2" onclick="window.selectHardshipReason('Spouse Job Transition', 2)" class="reason-pill p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-stone-200 text-slate-700 flex items-center justify-center text-xs font-bold">2</div>
+              <div>
+                <div class="text-sm font-bold text-[#1E293B]">Spouse Job Transition</div>
+                <div class="text-xs text-slate-500">Temporary layoff, plant retooling, or career transition</div>
+              </div>
+            </div>
+            <span class="text-xs font-semibold text-slate-400">Select</span>
+          </div>
+
+          <div id="reason-3" onclick="window.selectHardshipReason('Natural Disaster Recovery', 3)" class="reason-pill p-3.5 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-full bg-stone-200 text-slate-700 flex items-center justify-center text-xs font-bold">3</div>
+              <div>
+                <div class="text-sm font-bold text-[#1E293B]">Natural Disaster Recovery</div>
+                <div class="text-xs text-slate-500">FEMA-declared severe storm, flood, or home repair pause</div>
+              </div>
+            </div>
+            <span class="text-xs font-semibold text-slate-400">Select</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. CASH-FLOW RECOVERY SLIDERS -->
+      <section class="calm-card p-6 space-y-4">
         <div>
-          <div class="text-[10px] mono uppercase tracking-wider text-yellow-400 font-bold">ADK Tool Parameters</div>
-          <h2 class="text-sm font-bold text-white mt-0.5">Per-Diem &amp; County Lien Release Calculator</h2>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#2D6A4F]">Step 2 · Gentle Cash-Flow Planner</span>
+          <h2 class="text-lg font-bold serif-calm text-[#1E293B] mt-0.5">Your Monthly Recovery Comfort Sliders</h2>
         </div>
-        <span id="payoff-sandbox-badge" class="px-2 py-0.5 rounded text-[10px] mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-          0.3ms Sandbox
-        </span>
-      </div>
 
-      <!-- Good-Through Date Picker & Accrued Days Slider -->
-      <div class="space-y-1.5">
-        <div class="flex justify-between text-xs mono">
-          <label class="text-slate-300 font-semibold">Good-Through Payoff Date:</label>
-          <span id="lbl-good-date" class="text-yellow-400 font-bold">Nov 12, 2026</span>
-        </div>
-        <input id="input-good-date" type="date" value="2026-11-12" onchange="window.syncDateToDays(this.value)"
-               class="w-full px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs mono text-white focus:border-yellow-500 focus:outline-none">
-      </div>
+        <div class="space-y-4 pt-1">
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-slate-600">Current Monthly Mortgage (PITI):</span>
+              <strong id="lbl-cur-piti" class="mono text-[#1E293B]">$2,180.00/mo</strong>
+            </div>
+            <input id="slider-cur-piti" type="range" min="1400" max="3800" step="20" value="2180"
+                   oninput="window.updateHardshipControls()" class="w-full cursor-pointer">
+          </div>
 
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs mono">
-          <span class="text-slate-400">Accrued Interest Days (since Oct 1):</span>
-          <strong id="lbl-days" class="text-yellow-400">42 Days</strong>
-        </div>
-        <input id="slider-days" type="range" min="5" max="60" step="1" value="42"
-               oninput="window.updatePayoffControls()" class="w-full cursor-pointer">
-      </div>
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-slate-600">Current Monthly Household Income:</span>
+              <strong id="lbl-house-income" class="mono text-[#2D6A4F]">$5,800.00/mo</strong>
+            </div>
+            <input id="slider-house-income" type="range" min="3200" max="10000" step="100" value="5800"
+                   oninput="window.updateHardshipControls()" class="w-full cursor-pointer">
+          </div>
 
-      <!-- Unpaid Principal Balance Slider -->
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs mono">
-          <span class="text-slate-400">Unpaid Principal Balance (UPB):</span>
-          <strong id="lbl-upb" class="text-yellow-400">$284,500.00</strong>
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-slate-600">Months of Breathing Room Needed:</span>
+              <strong id="lbl-relief-months" class="mono text-[#2D6A4F]">3 Months</strong>
+            </div>
+            <input id="slider-relief-months" type="range" min="1" max="6" step="1" value="3"
+                   oninput="window.updateHardshipControls()" class="w-full cursor-pointer">
+          </div>
         </div>
-        <input id="slider-upb" type="range" min="150000" max="650000" step="2500" value="284500"
-               oninput="window.updatePayoffControls()" class="w-full cursor-pointer">
-      </div>
 
-      <!-- Note Interest Rate Slider -->
-      <div class="space-y-1">
-        <div class="flex justify-between text-xs mono">
-          <span class="text-slate-400">Note Interest Rate (Actual/365):</span>
-          <strong id="lbl-rate" class="text-yellow-400">6.000%</strong>
+        <!-- Dedicated Single Point of Contact (SPOC) Counselor Card -->
+        <div class="p-4 rounded-2xl bg-[#FAF7F2] border border-[#E5E0D8] space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase text-[#2D6A4F]">Dedicated Care Counselor (12 CFR § 1024.40)</span>
+            <span class="text-[11px] mono text-slate-500">SPOC #MC-CARE-409</span>
+          </div>
+          <p id="adk-verdict-text" class="text-xs text-slate-700 leading-relaxed italic">
+            "Please take a deep breath—your home is completely safe. For your <strong>Temporary Medical Leave</strong>, we can pause your next <strong>3 monthly payments ($6,540.00)</strong> and place them at the very end of your mortgage at <strong>0% interest</strong> so you have zero catch-up shock when you recover."
+          </p>
         </div>
-        <input id="slider-rate" type="range" min="3.0" max="8.0" step="0.125" value="6.0"
-               oninput="window.updatePayoffControls()" class="w-full cursor-pointer">
-      </div>
-
-      <!-- State County Recording Fee Selector -->
-      <div class="space-y-1.5">
-        <label class="block text-xs mono text-slate-300 font-semibold">State / County Lien Release Fee:</label>
-        <select id="select-county-fee" onchange="window.updatePayoffControls()"
-                class="w-full px-3 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-xs mono text-white focus:border-yellow-500 focus:outline-none">
-          <option value="30.00" data-county="Wayne County, MI (MCL 600.2567)">Wayne County, MI — $30.00 Statutory Discharge</option>
-          <option value="30.00" data-county="Oakland County, MI (MCL 600.2567)">Oakland County, MI — $30.00 Statutory Discharge</option>
-          <option value="45.00" data-county="Cook County, IL (Release of Mortgage)">Cook County, IL — $45.00 Release Recording</option>
-          <option value="26.00" data-county="Travis County, TX (County Clerk)">Travis County, TX — $26.00 Lien Release</option>
-          <option value="14.00" data-county="Maricopa County, AZ (Flat Release)">Maricopa County, AZ — $14.00 Flat Release</option>
-        </select>
-      </div>
-
-      <!-- ADK Tool Execution Telemetry Box -->
-      <div class="p-3.5 rounded-xl bg-slate-950 border border-slate-800 space-y-2 text-xs mono">
-        <div class="text-[10px] uppercase text-slate-400 font-bold">ADK Sub-Agent Tool Chain Status</div>
-        <div class="flex items-center justify-between">
-          <span class="text-slate-300">1. <code>get_loan_balance_and_rate</code></span>
-          <span class="text-emerald-400 font-bold">✓ PASS</span>
-        </div>
-        <div class="flex items-center justify-between">
-          <span class="text-slate-300">2. <code>calculate_per_diem_payoff</code></span>
-          <span id="tool-perdiem-val" class="text-yellow-400 font-bold">$46.77/day</span>
-        </div>
-        <div class="flex items-center justify-between">
-          <span class="text-slate-300">3. <code>fetch_irs_form_1098_data</code></span>
-          <span class="text-emerald-400 font-bold">✓ TAX YR 2025</span>
-        </div>
-      </div>
-
-      <!-- Primary Action Button -->
-      <button id="adk-verify-btn" onclick="window.runLiveVertexAI()"
-              class="w-full py-3.5 px-4 rounded-xl font-bold text-xs mono text-slate-950 shadow-xl transition transform active:scale-[0.99] flex items-center justify-center gap-2"
-              style="background: linear-gradient(135deg, #FACC15 0%, #EAB308 55%, #CA8A04 100%);">
-        <span>⚡ Run ADK Agent Verification &amp; Issue Payoff Wire Instructions</span>
-      </button>
-
-      <div id="adk-live-verdict" class="p-3.5 rounded-xl bg-yellow-500/10 border border-yellow-500/30 text-xs text-yellow-100 leading-relaxed">
-        <div class="font-bold mono text-[10px] uppercase text-yellow-400 mb-1">ADK Runtime Verification Note</div>
-        <div id="adk-verdict-text">
-          Per-diem interest verified at <strong>$46.77/day</strong> ($284,500.00 × 6.000% ÷ 365). Existing positive escrow balance of <strong>$1,120.00</strong> is scheduled for automatic ACH refund within 10 business days of payoff wire receipt.
-        </div>
-      </div>
+      </section>
     </aside>
 
-    <!-- RIGHT MAIN CANVAS: DUAL-TABBED OFFICIAL PRINTABLE PAYOFF QUOTE & IRS FORM 1098 -->
-    <section class="lg:col-span-8 space-y-4">
+    <!-- RIGHT 7 COLUMNS: INTERACTIVE CFPB REG X WORKOUT WATERFALL CARDS + RESOLUTION SUMMARY -->
+    <section class="lg:col-span-7 space-y-6">
 
-      <!-- Document Tab Switcher -->
-      <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-900 border border-slate-800 p-2 rounded-2xl">
-        <div class="flex gap-2">
-          <button id="tab-btn-payoff" onclick="window.switchDocTab('payoff')"
-                  class="px-4 py-2 rounded-xl text-xs font-bold mono bg-yellow-400 text-slate-950 shadow transition">
-            📜 Tab 1: Official Printable Payoff Statement
-          </button>
-          <button id="tab-btn-1098" onclick="window.switchDocTab('1098')"
-                  class="px-4 py-2 rounded-xl text-xs font-bold mono text-slate-300 hover:bg-slate-800 transition">
-            🏛️ Tab 2: Official IRS Form 1098 Tax Certificate
-          </button>
-        </div>
-        <span class="px-3 py-1 rounded-lg bg-slate-950 text-[11px] mono text-yellow-400 border border-yellow-500/30">
-          Cert #RKT-PAY-2026-99214
-        </span>
-      </div>
-
-      <!-- TAB 1: OFFICIAL PRINTABLE PAYOFF STATEMENT PDF PREVIEW -->
-      <div id="doc-pane-payoff" class="paper-sheet rounded-2xl p-8 md:p-10">
-        <!-- Letterhead -->
-        <div class="flex flex-wrap items-start justify-between gap-4 pb-6 border-b-2 border-slate-900">
+      <!-- 3 INTERACTIVE CFPB REGULATION X WORKOUT WATERFALL CARDS -->
+      <div class="calm-card p-6">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-5 border-b border-stone-200/80">
           <div>
-            <div class="text-xs font-bold uppercase tracking-widest text-amber-700 mono">MR. COOPER GROUP INC. • ROCKET MORTGAGE SERVICING</div>
-            <h2 class="text-2xl md:text-3xl font-bold serif-doc text-slate-900 mt-1">OFFICIAL PAYOFF DEMAND STATEMENT</h2>
-            <p class="text-xs text-slate-600 mt-1">Issued Pursuant to 12 CFR § 1026.36(c)(3) (TILA Payoff Statement Rule)</p>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#2D6A4F]">Step 3 · CFPB Regulation X (§ 1024.41) Workout Waterfall</span>
+            <h2 class="text-lg md:text-xl font-bold serif-calm text-[#1E293B] mt-0.5">
+              Choose the Relief Path That Gives Your Family Peace of Mind
+            </h2>
           </div>
-          <div class="text-right mono text-xs">
-            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full gold-seal text-slate-950 font-extrabold text-[11px] mb-1">
-              ★ TREASURY CERTIFIED
-            </div>
-            <div class="text-slate-600">Statement Date: <strong>Oct 13, 2026</strong></div>
-            <div class="text-slate-900 font-bold">Loan Number: #0449-8821-RKT</div>
-          </div>
+          <span class="px-3 py-1 rounded-full text-xs font-semibold bg-[#ECFDF5] text-[#2D6A4F] border border-emerald-200">
+            $0 Late Fees · No Credit Penalty
+          </span>
         </div>
 
-        <!-- Borrower & Property Metadata Grid -->
-        <div class="grid sm:grid-cols-2 gap-4 my-6 p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs">
-          <div>
-            <div class="text-[10px] font-bold uppercase text-slate-500 mono">Borrower(s) &amp; Property Address</div>
-            <div class="font-bold text-slate-900 text-sm mt-0.5 serif-doc">Elena &amp; David Rostova</div>
-            <div class="text-slate-700">1420 Woodward Ave, Unit 4B, Detroit, MI 48226</div>
-            <div class="text-slate-500 mono mt-1" id="doc-county-label">Jurisdiction: Wayne County, MI (MCL 600.2567)</div>
+        <div class="space-y-4">
+          <!-- Card 1: 3-Month Forbearance + Payment Deferral -->
+          <div id="workout-card-1" onclick="window.selectWorkoutPlan(1)" class="workout-card selected p-5">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div id="workout-radio-1" class="w-6 h-6 rounded-full bg-[#2D6A4F] text-white flex items-center justify-center text-xs font-bold">✓</div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-base font-bold serif-calm text-[#1E293B]" id="wk1-title">1. 3-Month Forbearance + Payment Deferral</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-[#ECFDF5] text-[#2D6A4F] border border-emerald-200">Recommended Sanctuary Path</span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1">
+                    Pause your mortgage payments during recovery, then move the paused amount (<strong id="wk1-defer-sum" class="mono text-[#2D6A4F]">$6,540.00</strong>) to a non-interest-bearing balance at the end of your loan term.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-stone-100 grid sm:grid-cols-3 gap-3 text-xs">
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">During Relief Period</div>
+                <div class="text-sm font-bold text-[#2D6A4F] mono mt-0.5">$0.00 / month</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">Deferred at 0% Interest</div>
+                <div id="wk1-box-deferred" class="text-sm font-bold text-[#1E293B] mono mt-0.5">$6,540.00 (At Maturity)</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">Resumed Monthly Payment</div>
+                <div id="wk1-box-resumed" class="text-sm font-bold text-[#2D6A4F] mono mt-0.5">$2,180.00/mo (No Shock)</div>
+              </div>
+            </div>
           </div>
-          <div class="sm:text-right">
-            <div class="text-[10px] font-bold uppercase text-slate-500 mono">Quote Good-Through Expiration</div>
-            <div id="doc-good-date" class="font-bold text-amber-800 text-base mt-0.5 mono">November 12, 2026 (5:00 PM EST)</div>
-            <div class="text-slate-700 mono">Daily Per-Diem Interest Rate: <strong id="doc-per-diem">$46.77 / day</strong></div>
-            <div class="text-slate-500 mono">Note Rate: <span id="doc-note-rate">6.000%</span> (Actual/365 Basis)</div>
-          </div>
-        </div>
 
-        <!-- Itemized Payoff Calculation Table -->
-        <div class="border border-slate-300 rounded-xl overflow-hidden mb-6">
-          <table class="w-full text-left border-collapse text-xs md:text-sm">
-            <thead>
-              <tr class="bg-slate-900 text-white mono text-xs uppercase">
-                <th class="py-3 px-4">Payoff Line Item Description</th>
-                <th class="py-3 px-4">Statutory / Math Basis</th>
-                <th class="py-3 px-4 text-right">Verified Amount</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-200">
-              <tr>
-                <td class="py-3.5 px-4 font-semibold text-slate-900 serif-doc">1. Unpaid Principal Balance (UPB)</td>
-                <td class="py-3.5 px-4 text-slate-600 mono text-xs">Principal as of Last Paid Installment (Oct 1, 2026)</td>
-                <td id="tbl-upb" class="py-3.5 px-4 text-right font-bold mono text-slate-900">$284,500.00</td>
-              </tr>
-              <tr class="bg-amber-50/40">
-                <td class="py-3.5 px-4 font-semibold text-slate-900 serif-doc">2. Accrued Interest to Good-Through Date</td>
-                <td id="tbl-int-formula" class="py-3.5 px-4 text-slate-600 mono text-xs">42 Days × $46.77/day (Oct 1 – Nov 12, 2026)</td>
-                <td id="tbl-accrued-int" class="py-3.5 px-4 text-right font-bold mono text-slate-900">$1,964.34</td>
-              </tr>
-              <tr>
-                <td class="py-3.5 px-4 font-semibold text-slate-900 serif-doc">3. County Mortgage Discharge / Release Fee</td>
-                <td id="tbl-fee-basis" class="py-3.5 px-4 text-slate-600 mono text-xs">Wayne County Register of Deeds Statutory Fee</td>
-                <td id="tbl-rec-fee" class="py-3.5 px-4 text-right font-bold mono text-slate-900">$30.00</td>
-              </tr>
-              <tr class="bg-slate-50">
-                <td class="py-3 px-4 text-slate-600 serif-doc">4. Prepayment Penalty / Late Charges</td>
-                <td class="py-3 px-4 text-slate-500 mono text-xs">Fannie Mae / Freddie Mac Uniform Note ($0 Penalty)</td>
-                <td class="py-3 px-4 text-right font-bold mono text-emerald-700">$0.00</td>
-              </tr>
-            </tbody>
-            <tfoot>
-              <tr class="bg-slate-900 text-white">
-                <td colspan="2" class="py-4 px-4 font-bold uppercase tracking-wider mono text-xs">
-                  TOTAL OFFICIAL PAYOFF FUNDS REQUIRED BY <span id="tbl-footer-date" class="text-yellow-400">NOV 12, 2026</span>
-                </td>
-                <td id="tbl-total-payoff" class="py-4 px-4 text-right text-xl font-extrabold mono text-yellow-400">
-                  $286,494.34
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <!-- Fedwire Instructions & Escrow Surplus Refund Notice -->
-        <div class="grid sm:grid-cols-2 gap-4 text-xs">
-          <div class="p-4 rounded-xl bg-amber-50 border border-amber-300">
-            <div class="font-bold uppercase tracking-wider text-amber-900 mono text-[11px] mb-1">
-              🏦 Official Same-Day Fedwire Payoff Instructions
+          <!-- Card 2: Flex Modification Rate Drop -->
+          <div id="workout-card-2" onclick="window.selectWorkoutPlan(2)" class="workout-card p-5">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div id="workout-radio-2" class="w-6 h-6 rounded-full border-2 border-stone-300 flex items-center justify-center text-xs font-bold"></div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-base font-bold serif-calm text-[#1E293B]">2. Flex Modification Rate Drop</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-slate-700">Permanent Monthly Savings (-22%)</span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1">
+                    If your household income has permanently changed, we modify your rate down to <strong>4.625%</strong> and extend the term to permanently lower your monthly payment by <strong id="wk2-save-amt" class="mono text-[#2D6A4F]">$479.60/month</strong>.
+                  </p>
+                </div>
+              </div>
             </div>
-            <div class="space-y-1 mono text-slate-800">
-              <div>Beneficiary Bank: <strong>JPMorgan Chase Bank, N.A.</strong></div>
-              <div>ABA Routing (Wire): <strong id="wire-aba">021000021</strong></div>
-              <div>Beneficiary Acct: <strong id="wire-acct">8800-4912-0449 (Mr. Cooper Payoff Trust)</strong></div>
-              <div>Reference Credit: <strong>Loan #0449-8821-RKT — E. Rostova</strong></div>
+            <div class="mt-4 pt-3 border-t border-stone-100 grid sm:grid-cols-3 gap-3 text-xs">
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">Previous Monthly Payment</div>
+                <div id="wk2-box-old" class="text-sm font-bold text-slate-500 line-through mono mt-0.5">$2,180.00/mo</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">New Modified Payment</div>
+                <div id="wk2-box-new" class="text-sm font-bold text-[#2D6A4F] mono mt-0.5">$1,700.40/mo</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">Monthly Budget Relief</div>
+                <div id="wk2-box-sav" class="text-sm font-bold text-[#2D6A4F] mono mt-0.5">Saves $479.60/mo</div>
+              </div>
             </div>
           </div>
-          <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-300">
-            <div class="font-bold uppercase tracking-wider text-emerald-900 mono text-[11px] mb-1">
-              💸 Automatic Escrow Surplus Refund ($1,120.00)
+
+          <!-- Card 3: Repayment Plan -->
+          <div id="workout-card-3" onclick="window.selectWorkoutPlan(3)" class="workout-card p-5">
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <div class="flex items-center gap-3">
+                <div id="workout-radio-3" class="w-6 h-6 rounded-full border-2 border-stone-300 flex items-center justify-center text-xs font-bold"></div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-base font-bold serif-calm text-[#1E293B]">3. Repayment Plan (12-Month Gradual Catch-Up)</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-stone-100 text-slate-700">For Restored Overtime / Bonus Income</span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1">
+                    Spread the paused payments evenly across 12 months at 0% interest once your household income is back above pre-hardship levels.
+                  </p>
+                </div>
+              </div>
             </div>
-            <p class="text-slate-700 leading-relaxed">
-              Your current positive escrow balance of <strong>$1,120.00</strong> is held in trust and will be automatically refunded via direct ACH to your linked checking account (<code>••••4819</code>) within 10 business days of payoff clearance.
-            </p>
+            <div class="mt-4 pt-3 border-t border-stone-100 grid sm:grid-cols-3 gap-3 text-xs">
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">Base Monthly Payment</div>
+                <div id="wk3-box-base" class="text-sm font-bold text-[#1E293B] mono mt-0.5">$2,180.00/mo</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">12-Mo Catch-Up Portion</div>
+                <div id="wk3-box-add" class="text-sm font-bold text-slate-700 mono mt-0.5">+$545.00/mo</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-[#FAF7F2]">
+                <div class="text-[10px] uppercase text-slate-500 font-bold">Total Temporary Payment</div>
+                <div id="wk3-box-tot" class="text-sm font-bold text-[#1E293B] mono mt-0.5">$2,725.00/mo</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- TAB 2: OFFICIAL IRS FORM 1098 TAX CERTIFICATE PREVIEW -->
-      <div id="doc-pane-1098" class="hidden paper-sheet rounded-2xl p-8 md:p-10">
-        <div class="flex flex-wrap items-start justify-between gap-4 pb-5 border-b-2 border-slate-900">
+      <!-- HOMEOWNER PEACE-OF-MIND PROTECTION SUMMARY & ENROLLMENT -->
+      <div class="calm-card p-6 bg-gradient-to-b from-white to-[#ECFDF5]/60">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-stone-200">
           <div>
-            <div class="text-xs font-bold uppercase tracking-widest text-slate-500 mono">OMB No. 1545-1380 • COPY B FOR PAYER/BORROWER</div>
-            <h2 class="text-2xl font-bold serif-doc text-slate-900 mt-1">IRS Form 1098: Mortgage Interest Statement</h2>
-            <p class="text-xs text-slate-600 mt-0.5">Information Return Reported to the Internal Revenue Service</p>
+            <div class="text-[11px] font-bold uppercase tracking-wider text-[#2D6A4F]">Your Written Relief Guarantee</div>
+            <h3 class="text-base font-bold serif-calm text-[#1E293B]" id="summary-plan-heading">
+              Selected Plan: 3-Month Forbearance + Payment Deferral
+            </h3>
           </div>
-          <div class="text-right mono">
-            <div class="text-2xl font-black text-slate-900">2025 / 2026 YTD</div>
-            <div class="text-xs text-amber-700 font-bold">VERIFIED TAX CERTIFICATE</div>
+          <span class="px-3 py-1 rounded-full text-xs font-bold bg-[#2D6A4F] text-white" id="summary-dti-badge">
+            Post-Relief Housing Ratio: 37.6%
+          </span>
+        </div>
+
+        <div class="grid sm:grid-cols-2 gap-4 text-xs text-slate-700 mb-5">
+          <div class="p-3.5 rounded-xl bg-white border border-stone-200">
+            <div class="font-bold text-[#2D6A4F] mb-1">✓ Zero Balloon Payment Guarantee</div>
+            <div id="summary-left-copy">Your paused payments ($6,540.00) are placed into a 0% interest balance due only when you sell, refinance, or reach the end of your mortgage.</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-white border border-stone-200">
+            <div class="font-bold text-[#2D6A4F] mb-1">✓ CFPB Reg X &amp; Credit Protection</div>
+            <div>100% late-fee waiver and CARES/FCRA credit reporting protection while you focus on your family's recovery.</div>
           </div>
         </div>
 
-        <div class="grid sm:grid-cols-2 gap-4 my-6 text-xs mono">
-          <div class="p-4 rounded-xl border border-slate-300 bg-slate-50">
-            <div class="text-[10px] font-bold uppercase text-slate-500">RECIPIENT'S / LENDER'S NAME, ADDRESS &amp; TIN</div>
-            <div class="font-bold text-slate-900 mt-1">Nationstar Mortgage LLC d/b/a Mr. Cooper</div>
-            <div class="text-slate-600">8950 Cypress Waters Blvd, Coppell, TX 75019</div>
-            <div class="text-slate-800 mt-1">Federal FEIN: <strong>75-2921540</strong></div>
-          </div>
-          <div class="p-4 rounded-xl border border-slate-300 bg-slate-50">
-            <div class="text-[10px] font-bold uppercase text-slate-500">PAYER'S / BORROWER'S NAME &amp; TIN</div>
-            <div class="font-bold text-slate-900 mt-1">Elena &amp; David Rostova</div>
-            <div class="text-slate-600">1420 Woodward Ave, Unit 4B, Detroit, MI 48226</div>
-            <div class="text-slate-800 mt-1">Borrower TIN: <strong>***-**-8841 (GLBA Masked)</strong></div>
-          </div>
-        </div>
+        <button onclick="window.activateReliefPlan()"
+                class="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-[#2D6A4F] hover:bg-[#1B4332] shadow-md transition cursor-pointer flex items-center justify-center gap-2">
+          <span>🌿 Confirm &amp; Activate My Homeowner Relief Plan</span>
+        </button>
 
-        <div class="grid sm:grid-cols-3 gap-4 mb-6 text-xs mono">
-          <div class="p-4 rounded-xl border-2 border-amber-500 bg-amber-50/50">
-            <div class="text-[10px] font-bold text-amber-900">BOX 1 • MORTGAGE INTEREST RECEIVED</div>
-            <div id="f1098-box1" class="text-xl font-extrabold text-slate-900 mt-1">$17,190.42</div>
-            <div class="text-[10px] text-slate-600 mt-1">Includes prior year + YTD accrued</div>
-          </div>
-          <div class="p-4 rounded-xl border border-slate-300">
-            <div class="text-[10px] font-bold text-slate-500">BOX 2 • OUTSTANDING MORTGAGE PRINCIPAL</div>
-            <div id="f1098-box2" class="text-xl font-extrabold text-slate-900 mt-1">$284,500.00</div>
-            <div class="text-[10px] text-slate-600 mt-1">Principal balance as of Jan 1</div>
-          </div>
-          <div class="p-4 rounded-xl border border-slate-300">
-            <div class="text-[10px] font-bold text-slate-500">BOX 10 • PROPERTY TAXES PAID FROM ESCROW</div>
-            <div class="text-xl font-extrabold text-emerald-700 mt-1">$5,480.00</div>
-            <div class="text-[10px] text-slate-600 mt-1">Wayne County Treasurer Disbursed</div>
-          </div>
-        </div>
-
-        <div class="p-4 rounded-xl bg-slate-100 border border-slate-300 text-xs text-slate-700 serif-doc leading-relaxed">
-          <strong>Tax Deductibility Notice:</strong> If you pay off your mortgage on <span id="f1098-payoff-date" class="font-bold">Nov 12, 2026</span>, the additional <span id="f1098-add-int" class="font-bold">$1,964.34</span> in per-diem accrued interest paid at closing will be automatically added to Box 1 of your 2026 Form 1098.
-        </div>
+        <div id="relief-confirmation-toast" class="hidden mt-3 p-3.5 rounded-xl bg-[#ECFDF5] border border-emerald-300 text-[#2D6A4F] text-xs font-semibold text-center"></div>
       </div>
     </section>
   </main>
 
   <script>
-    function fmtUSD(v) {{
-      return '$' + Number(v).toLocaleString('en-US', {{ minimumFractionDigits: 2, maximumFractionDigits: 2 }});
+    let currentHardshipReason = 'Temporary Medical Leave';
+    let selectedWorkout = 1;
+
+    function fmtMoney(n) {{
+      return '$' + Number(n).toLocaleString('en-US', {{ minimumFractionDigits: 2, maximumFractionDigits: 2 }});
     }}
 
-    window.switchDocTab = function(tab) {{
-      const pPay = document.getElementById('doc-pane-payoff');
-      const p1098 = document.getElementById('doc-pane-1098');
-      const bPay = document.getElementById('tab-btn-payoff');
-      const b1098 = document.getElementById('tab-btn-1098');
-      if (tab === 'payoff') {{
-        pPay.classList.remove('hidden');
-        p1098.classList.add('hidden');
-        bPay.className = 'px-4 py-2 rounded-xl text-xs font-bold mono bg-yellow-400 text-slate-950 shadow transition';
-        b1098.className = 'px-4 py-2 rounded-xl text-xs font-bold mono text-slate-300 hover:bg-slate-800 transition';
-      }} else {{
-        pPay.classList.add('hidden');
-        p1098.classList.remove('hidden');
-        b1098.className = 'px-4 py-2 rounded-xl text-xs font-bold mono bg-yellow-400 text-slate-950 shadow transition';
-        bPay.className = 'px-4 py-2 rounded-xl text-xs font-bold mono text-slate-300 hover:bg-slate-800 transition';
+    window.playCounselorVoiceMessage = function(btnEl) {{
+      const piti = parseFloat(document.getElementById('slider-cur-piti').value || 2180);
+      const mos = parseInt(document.getElementById('slider-relief-months').value || 3, 10);
+      const deferred = (piti * mos).toLocaleString('en-US', {{ minimumFractionDigits: 2, maximumFractionDigits: 2 }});
+      const modPiti = (piti * 0.78).toLocaleString('en-US', {{ minimumFractionDigits: 2, maximumFractionDigits: 2 }});
+      const msg = `Hello, this is Sarah from the Mr. Cooper and Rocket Homeowner Care team. First, please take a deep breath—your home is completely safe and protected under federal CFPB Regulation X rules. Because your family is navigating ${{currentHardshipReason}}, we can immediately pause your next ${{mos}} monthly payments totaling ${{deferred}} dollars, waive every late fee, and defer that balance to the very end of your mortgage at zero percent interest so there is never a lump sum due. Or, if you need a permanent lower payment, our Flex Modification Rate Drop reduces your monthly payment down to ${{modPiti}} dollars a month. We are right here with you every step of the way.`;
+      window.playLiveCallClip(msg, 'Aoede', 'Compassionate Homeowner Care Counselor', btnEl);
+    }};
+
+    window.selectHardshipReason = function(reasonName, idx) {{
+      currentHardshipReason = reasonName;
+      [1, 2, 3].forEach(i => {{
+        const el = document.getElementById('reason-' + i);
+        if (!el) return;
+        const badge = el.querySelector('span:last-child');
+        const circle = el.querySelector('div > div:first-child');
+        if (i === idx) {{
+          el.classList.add('active');
+          if (badge) {{ badge.innerText = 'Selected ✓'; badge.className = 'text-xs font-bold text-[#2D6A4F]'; }}
+          if (circle) {{ circle.className = 'w-8 h-8 rounded-full bg-[#2D6A4F] text-white flex items-center justify-center text-xs font-bold'; }}
+        }} else {{
+          el.classList.remove('active');
+          if (badge) {{ badge.innerText = 'Select'; badge.className = 'text-xs font-semibold text-slate-400'; }}
+          if (circle) {{ circle.className = 'w-8 h-8 rounded-full bg-stone-200 text-slate-700 flex items-center justify-center text-xs font-bold'; }}
+        }}
+      }});
+      window.updateHardshipControls();
+    }};
+
+    window.selectWorkoutPlan = function(planIdx) {{
+      selectedWorkout = planIdx;
+      [1, 2, 3].forEach(i => {{
+        const card = document.getElementById('workout-card-' + i);
+        const radio = document.getElementById('workout-radio-' + i);
+        if (i === planIdx) {{
+          card.classList.add('selected');
+          radio.className = 'w-6 h-6 rounded-full bg-[#2D6A4F] text-white flex items-center justify-center text-xs font-bold';
+          radio.innerText = '✓';
+        }} else {{
+          card.classList.remove('selected');
+          radio.className = 'w-6 h-6 rounded-full border-2 border-stone-300 flex items-center justify-center text-xs font-bold';
+          radio.innerText = '';
+        }}
+      }});
+      window.updateHardshipControls();
+    }};
+
+    let calcTimer = null;
+    window.updateHardshipControls = function() {{
+      const piti = parseFloat(document.getElementById('slider-cur-piti').value || 2180);
+      const income = parseFloat(document.getElementById('slider-house-income').value || 5800);
+      const mos = parseInt(document.getElementById('slider-relief-months').value || 3, 10);
+
+      const deferredSum = piti * mos;
+      const modNewPiti = Math.round(piti * 0.78 * 100) / 100;
+      const modSave = piti - modNewPiti;
+      const repayAdd = deferredSum / 12.0;
+      const repayTot = piti + repayAdd;
+
+      document.getElementById('lbl-cur-piti').innerText = fmtMoney(piti) + '/mo';
+      document.getElementById('lbl-house-income').innerText = fmtMoney(income) + '/mo';
+      document.getElementById('lbl-relief-months').innerText = mos + (mos === 1 ? ' Month' : ' Months');
+
+      document.getElementById('wk1-title').innerText = `1. ${{mos}}-Month Forbearance + Payment Deferral`;
+      document.getElementById('wk1-defer-sum').innerText = fmtMoney(deferredSum);
+      document.getElementById('wk1-box-deferred').innerText = fmtMoney(deferredSum) + ' (At Maturity)';
+      document.getElementById('wk1-box-resumed').innerText = fmtMoney(piti) + '/mo (No Shock)';
+
+      document.getElementById('wk2-save-amt').innerText = fmtMoney(modSave) + '/month';
+      document.getElementById('wk2-box-old').innerText = fmtMoney(piti) + '/mo';
+      document.getElementById('wk2-box-new').innerText = fmtMoney(modNewPiti) + '/mo';
+      document.getElementById('wk2-box-sav').innerText = 'Saves ' + fmtMoney(modSave) + '/mo';
+
+      document.getElementById('wk3-box-base').innerText = fmtMoney(piti) + '/mo';
+      document.getElementById('wk3-box-add').innerText = '+' + fmtMoney(repayAdd) + '/mo';
+      document.getElementById('wk3-box-tot').innerText = fmtMoney(repayTot) + '/mo';
+
+      const verdictEl = document.getElementById('adk-verdict-text');
+      if (verdictEl) {{
+        verdictEl.innerHTML = `"Please take a deep breath—your home is completely safe. For your <strong>${{currentHardshipReason}}</strong>, we can pause your next <strong>${{mos}} monthly payments (${{fmtMoney(deferredSum)}})</strong> and place them at the very end of your mortgage at <strong>0% interest</strong> so you have zero catch-up shock when you recover."`;
       }}
-    }};
 
-    window.syncDateToDays = function(dateStr) {{
-      try {{
-        const oct1 = new Date('2026-10-01T00:00:00');
-        const target = new Date(dateStr + 'T00:00:00');
-        const diffDays = Math.max(5, Math.min(60, Math.round((target - oct1) / (1000 * 60 * 60 * 24))));
-        document.getElementById('slider-days').value = diffDays;
-        window.updatePayoffControls();
-      }} catch (e) {{}}
-    }};
+      const headingEl = document.getElementById('summary-plan-heading');
+      const dtiEl = document.getElementById('summary-dti-badge');
+      const copyEl = document.getElementById('summary-left-copy');
 
-    let payoffTimer = null;
-    window.updatePayoffControls = function() {{
-      const days = parseInt(document.getElementById('slider-days').value || 42, 10);
-      const upb = parseFloat(document.getElementById('slider-upb').value || 284500);
-      const rate = parseFloat(document.getElementById('slider-rate').value || 6.0);
-      const sel = document.getElementById('select-county-fee');
-      const recFee = parseFloat(sel.value || 30.0);
-      const countyLabel = sel.options[sel.selectedIndex].getAttribute('data-county') || 'Wayne County, MI';
+      if (selectedWorkout === 1) {{
+        headingEl.innerText = `Selected Plan: ${{mos}}-Month Forbearance + Payment Deferral`;
+        dtiEl.innerText = `Resumed Housing Ratio: ${{((piti / income) * 100).toFixed(1)}}%`;
+        copyEl.innerText = `Your paused payments (${{fmtMoney(deferredSum)}}) are placed into a 0% interest balance due only when you sell, refinance, or reach the end of your mortgage.`;
+      }} else if (selectedWorkout === 2) {{
+        headingEl.innerText = `Selected Plan: Flex Modification Rate Drop (${{fmtMoney(modNewPiti)}}/mo)`;
+        dtiEl.innerText = `Modified Housing Ratio: ${{((modNewPiti / income) * 100).toFixed(1)}}%`;
+        copyEl.innerText = `Your monthly payment permanently drops from ${{fmtMoney(piti)}}/mo to ${{fmtMoney(modNewPiti)}}/mo (saving ${{fmtMoney(modSave)}} every month).`;
+      }} else {{
+        headingEl.innerText = `Selected Plan: 12-Month Gradual Repayment Plan`;
+        dtiEl.innerText = `Repayment Housing Ratio: ${{((repayTot / income) * 100).toFixed(1)}}%`;
+        copyEl.innerText = `Your paused balance (${{fmtMoney(deferredSum)}}) is spread across 12 monthly installments of +${{fmtMoney(repayAdd)}}/mo at 0% interest.`;
+      }}
 
-      const oct1 = new Date(2026, 9, 1);
-      oct1.setDate(oct1.getDate() + days);
-      const dateFormatted = oct1.toLocaleDateString('en-US', {{ month: 'short', day: 'numeric', year: 'numeric' }});
-      const isoDate = oct1.toISOString().slice(0, 10);
-      document.getElementById('input-good-date').value = isoDate;
-      document.getElementById('lbl-good-date').innerText = dateFormatted;
-
-      const perDiem = Math.round(((upb * (rate / 100.0)) / 365.0) * 100) / 100;
-      const accrued = Math.round((perDiem * days) * 100) / 100;
-      const totalPayoff = upb + accrued + recFee;
-
-      document.getElementById('lbl-days').innerText = days + ' Days';
-      document.getElementById('lbl-upb').innerText = fmtUSD(upb);
-      document.getElementById('lbl-rate').innerText = rate.toFixed(3) + '%';
-      document.getElementById('tool-perdiem-val').innerText = fmtUSD(perDiem) + '/day';
-
-      document.getElementById('doc-county-label').innerText = 'Jurisdiction: ' + countyLabel;
-      document.getElementById('doc-good-date').innerText = dateFormatted + ' (5:00 PM EST)';
-      document.getElementById('doc-per-diem').innerText = fmtUSD(perDiem) + ' / day';
-      document.getElementById('doc-note-rate').innerText = rate.toFixed(3) + '%';
-
-      document.getElementById('tbl-upb').innerText = fmtUSD(upb);
-      document.getElementById('tbl-int-formula').innerText = `${{days}} Days × ${{fmtUSD(perDiem)}}/day (Oct 1 – ${{dateFormatted}})`;
-      document.getElementById('tbl-accrued-int').innerText = fmtUSD(accrued);
-      document.getElementById('tbl-fee-basis').innerText = countyLabel + ' Statutory Recording';
-      document.getElementById('tbl-rec-fee').innerText = fmtUSD(recFee);
-      document.getElementById('tbl-footer-date').innerText = dateFormatted.toUpperCase();
-      document.getElementById('tbl-total-payoff').innerText = fmtUSD(totalPayoff);
-
-      document.getElementById('f1098-box2').innerText = fmtUSD(upb);
-      document.getElementById('f1098-payoff-date').innerText = dateFormatted;
-      document.getElementById('f1098-add-int').innerText = fmtUSD(accrued);
-
-      clearTimeout(payoffTimer);
-      payoffTimer = setTimeout(async () => {{
+      clearTimeout(calcTimer);
+      calcTimer = setTimeout(async () => {{
         try {{
           const res = await fetch('/api/sandbox', {{
             method: 'POST',
             headers: {{ 'Content-Type': 'application/json' }},
             body: JSON.stringify({{
               code: '3.2',
-              action: 'calc_payoff_quote',
+              action: 'eval_loss_mitigation',
               params: {{
-                upb: upb,
-                rate: rate,
-                days_accrued: days,
-                recording_fee: recFee,
-                escrow_balance: 1120.0
+                piti: piti,
+                delinquent_months: mos
               }}
             }})
           }});
           const data = await res.json();
-          const b = document.getElementById('payoff-sandbox-badge');
-          if (b && data.execution_ms !== undefined) b.innerText = `${{data.execution_ms}}ms Sandbox`;
+          const badge = document.getElementById('payoff-sandbox-badge');
+          if (badge && data.execution_ms !== undefined) {{
+            badge.innerText = `Reg X Shield Verified (${{data.execution_ms}}ms)`;
+          }}
         }} catch (e) {{}}
       }}, 180);
     }};
 
+    window.activateReliefPlan = function() {{
+      const toast = document.getElementById('relief-confirmation-toast');
+      const heading = document.getElementById('summary-plan-heading').innerText;
+      toast.classList.remove('hidden');
+      toast.innerHTML = `🌿 Confirmed! <strong>${{heading}}</strong> is now active for your account (${{currentHardshipReason}}). All late fees are waived and CFPB Regulation X protection is locked in. Reference #CARE-2026-4109.`;
+    }};
+
     window.runLiveVertexAI = async function() {{
       const btn = document.getElementById('adk-verify-btn');
-      const verdictEl = document.getElementById('adk-verdict-text');
-      const days = parseInt(document.getElementById('slider-days').value || 42, 10);
-      const upb = parseFloat(document.getElementById('slider-upb').value || 284500);
-      const rate = parseFloat(document.getElementById('slider-rate').value || 6.0);
-      const recFee = parseFloat(document.getElementById('select-county-fee').value || 30.0);
+      const verdict = document.getElementById('adk-verdict-text');
+      const banner = document.getElementById('counselor-reassurance-banner');
+      const piti = parseFloat(document.getElementById('slider-cur-piti').value || 2180);
+      const mos = parseInt(document.getElementById('slider-relief-months').value || 3, 10);
       const scenarioInput = document.getElementById('scenario-input') ? document.getElementById('scenario-input').value : '';
 
-      if (btn) btn.innerHTML = `<span class="shrinking-shining-ink"></span> <span>Executing Google ADK Verification...</span>`;
+      if (btn) btn.innerHTML = `<span class="shrinking-shining-ink"></span> <span>Personalizing...</span>`;
       try {{
         const res = await fetch('/api/run-demo', {{
           method: 'POST',
@@ -491,35 +566,33 @@ def render_sq_3_2(auth_token: str) -> str:
           body: JSON.stringify({{
             code: '3.2',
             model: window.getSelectedModel(),
-            user_input: scenarioInput,
+            user_input: scenarioInput || `Homeowner experiencing ${{currentHardshipReason}} requesting ${{mos}}-month relief on ${{piti}}/mo PITI.`,
             params: {{
-              upb: upb,
-              rate: rate,
-              days_accrued: days,
-              recording_fee: recFee,
-              escrow_balance: 1120.0
+              piti: piti,
+              delinquent_months: mos,
+              hardship_reason: currentHardshipReason
             }}
           }})
         }});
         const data = await res.json();
         const sd = data.structured_data || {{}};
-        if (sd.payoff_letter && sd.payoff_letter.wire_aba) {{
-          document.getElementById('wire-aba').innerText = sd.payoff_letter.wire_aba;
+        if (sd.executive_summary && verdict) {{
+          verdict.innerHTML = `<strong>[${{data.vertex ? data.vertex.model_used : window.getSelectedModel()}} Counselor Guidance]:</strong> ` + sd.executive_summary;
+        }} else if (data.vertex && data.vertex.response_markdown && verdict) {{
+          verdict.innerHTML = data.vertex.response_markdown;
         }}
-        if (sd.executive_summary && verdictEl) {{
-          verdictEl.innerHTML = `<strong>[${{data.vertex ? data.vertex.model_used : window.getSelectedModel()}} Verified]:</strong> ` + sd.executive_summary;
-        }} else if (data.vertex && data.vertex.response_markdown && verdictEl) {{
-          verdictEl.innerHTML = data.vertex.response_markdown;
+        if (sd.empathetic_headline && banner) {{
+          banner.innerHTML = sd.empathetic_headline;
         }}
       }} catch (e) {{
         console.error(e);
       }} finally {{
-        if (btn) btn.innerHTML = `<span>⚡ Run ADK Agent Verification &amp; Issue Payoff Wire Instructions</span>`;
+        if (btn) btn.innerHTML = `<span>🌿 Personalize Relief Plan</span>`;
       }}
     }};
 
     document.addEventListener('DOMContentLoaded', () => {{
-      window.updatePayoffControls();
+      window.updateHardshipControls();
     }});
   </script>
 

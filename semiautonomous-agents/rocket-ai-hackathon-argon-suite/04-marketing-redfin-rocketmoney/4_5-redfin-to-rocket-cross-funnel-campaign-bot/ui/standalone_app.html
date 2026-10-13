@@ -602,113 +602,111 @@
   </script>
 
   
-<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
-<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
-  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
-    ← Hub
+<!-- CLEAN HUMAN-CENTRIC FLOATING UTILITY BAR (LIGHT SURFACE) -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:16px;right:16px;z-index:9990;display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border:1px solid #CBD5E1;box-shadow:0 10px 30px rgba(15,23,42,0.12);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#1E293B;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#334155;text-decoration:none;font-weight:600;padding:5px 10px;border-radius:8px;background:#F1F5F9;border:1px solid #E2E8F0;transition:0.15s;white-space:nowrap;">
+    ← All Demos
   </a>
-  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
-    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
-      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
-      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
-      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
-      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
-      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
-      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
-      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
-      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
-      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
-      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
-      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
-      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
-      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
-      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
-      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
-      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
-      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
-      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
-      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
-      <option value="4.5" selected style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
-      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
-      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
-      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
-      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
-      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
-      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
-      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
-      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
-      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
-      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
-      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
-      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
-      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:#F8FAFC;border:1px solid #E2E8F0;">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" aria-label="Switch Use Case" style="background:transparent;color:#0F172A;font-weight:600;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;max-width:210px;">
+      <option value="1.1"  style="background:#FFFFFF;color:#0F172A;">1.1 · The ABCDQ Post-Call Structured Debri</option>
+      <option value="1.2"  style="background:#FFFFFF;color:#0F172A;">1.2 · Outlook Hyper-Personalized Rate-Lock</option>
+      <option value="1.3"  style="background:#FFFFFF;color:#0F172A;">1.3 · No-Code Mortgage Guideline & Competi</option>
+      <option value="1.4"  style="background:#FFFFFF;color:#0F172A;">1.4 · Dynamic Loan Pricing & Amortization </option>
+      <option value="1.5"  style="background:#FFFFFF;color:#0F172A;">1.5 · Autonomous Banker Inbound Triage & C</option>
+      <option value="2.1"  style="background:#FFFFFF;color:#0F172A;">2.1 · Fannie Mae / Freddie Mac Selling Gui</option>
+      <option value="2.2"  style="background:#FFFFFF;color:#0F172A;">2.2 · Low-Code Underwriting Condition Clea</option>
+      <option value="2.3"  style="background:#FFFFFF;color:#0F172A;">2.3 · Automated W-2 & Paystub Entity Extra</option>
+      <option value="2.4"  style="background:#FFFFFF;color:#0F172A;">2.4 · Self-Employed Schedule C / 1040 Cash</option>
+      <option value="2.5"  style="background:#FFFFFF;color:#0F172A;">2.5 · Rocket Close (Amrock) Title Exceptio</option>
+      <option value="3.1"  style="background:#FFFFFF;color:#0F172A;">3.1 · Annual Escrow Shortage Resolution Jo</option>
+      <option value="3.2"  style="background:#FFFFFF;color:#0F172A;">3.2 · Self-Service Payoff Quote & IRS Form</option>
+      <option value="3.3"  style="background:#FFFFFF;color:#0F172A;">3.3 · Hardship & Forbearance Live Servicin</option>
+      <option value="3.4"  style="background:#FFFFFF;color:#0F172A;">3.4 · Conversational Rocket Recapture Voic</option>
+      <option value="3.5"  style="background:#FFFFFF;color:#0F172A;">3.5 · Autonomous Borrower Retention & Life</option>
+      <option value="4.1"  style="background:#FFFFFF;color:#0F172A;">4.1 · Hyper-Local 50-Metro Real Estate Mar</option>
+      <option value="4.2"  style="background:#FFFFFF;color:#0F172A;">4.2 · Virtual Staging & Localized Hero Ad </option>
+      <option value="4.3"  style="background:#FFFFFF;color:#0F172A;">4.3 · Campaign Sentiment & Ad Creative Per</option>
+      <option value="4.4"  style="background:#FFFFFF;color:#0F172A;">4.4 · Automated Multi-Format Video Tour & </option>
+      <option value="4.5" selected style="background:#FFFFFF;color:#0F172A;">4.5 · Redfin-to-Rocket Cross-Funnel Campai</option>
+      <option value="5.1"  style="background:#FFFFFF;color:#0F172A;">5.1 · CFPB Regulatory Circular & State Law</option>
+      <option value="5.2"  style="background:#FFFFFF;color:#0F172A;">5.2 · Ethical Walls & PII/NPI Masking Gove</option>
+      <option value="5.3"  style="background:#FFFFFF;color:#0F172A;">5.3 · Automated TRID 3-Day Tolerance & Dis</option>
+      <option value="5.4"  style="background:#FFFFFF;color:#0F172A;">5.4 · Automated Vendor Contract Risk & GLB</option>
+      <option value="5.5"  style="background:#FFFFFF;color:#0F172A;">5.5 · Fair Lending Disparate Impact & Bias</option>
+      <option value="6.1"  style="background:#FFFFFF;color:#0F172A;">6.1 · Autonomous Vulnerability Trace & Rep</option>
+      <option value="6.2"  style="background:#FFFFFF;color:#0F172A;">6.2 · AI Software Factory: Autonomous PRD-</option>
+      <option value="6.3"  style="background:#FFFFFF;color:#0F172A;">6.3 · Legacy .NET Framework / WCF to Cloud</option>
+      <option value="M.1"  style="background:#FFFFFF;color:#0F172A;">M.1 · Project Siren: The Sub-200ms Voice A</option>
+      <option value="M.2"  style="background:#FFFFFF;color:#0F172A;">M.2 · Project Spatial Close: Immersive Vir</option>
+      <option value="M.3"  style="background:#FFFFFF;color:#0F172A;">M.3 · Project HiveMind: Autonomous Treasur</option>
+      <option value="M.4"  style="background:#FFFFFF;color:#0F172A;">M.4 · Project Mirror: Interactive Virtual </option>
+      <option value="M.5"  style="background:#FFFFFF;color:#0F172A;">M.5 · Project Air-Tight: Self-Healing Auto</option>
     </select>
   </div>
-  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
-    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
-    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
-    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
-      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
-      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+  <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:#EFF6FF;border:1px solid #BFDBFE;">
+    <span style="color:#1D4ED8;font-size:11px;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" aria-label="Select Gemini Model" style="background:transparent;color:#1E3A8A;font-weight:700;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected>Gemini 4 Argon (Frontier)</option>
+      <option value="gemini-3.8-flash" >Gemini 3.8 Flash (Low-Latency)</option>
     </select>
   </div>
-  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
-    🛠️ Code & Architecture
+  <button onclick="window.toggleBlueprintDrawer()" style="background:#0F172A;color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+    Code & Blueprint
   </button>
 </div>
 
 <!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
-<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
-  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#FFFFFF;color:#0F172A;border-left:1px solid #E2E8F0;box-shadow:-16px 0 48px rgba(15,23,42,0.16);transition:right 0.25s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;">
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [4.5] • Technical Blueprint & GenAI SDK</div>
-      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Redfin-to-Rocket Cross-Funnel Campaign Bot</div>
+      <div style="font-size:11px;color:#475569;font-weight:600;">Use Case 4.5 · Technical Blueprint & Vertex AI SDK</div>
+      <div style="font-size:16px;font-weight:700;color:#0F172A;margin-top:2px;">Redfin-to-Rocket Cross-Funnel Campaign Bot</div>
     </div>
-    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#E2E8F0;color:#334155;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
   </div>
   <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/4.5?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        📘 Full Reproduction Guide & SKILL.md ↗
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/4.5?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#1D4ED8;color:#FFF;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Full Reproduction Guide & SKILL.md ↗
       </a>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        ✨ Real Gemini Enterprise UI ↗
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#F3E8FF;border:1px solid #D8B4FE;color:#6B21A8;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Open Gemini Enterprise UI ↗
       </a>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
-        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        1. Vertex AI GenAI SDK Implementation (<span id="drawer-model-label" style="color:#1D4ED8;">gemini-4-argon</span>)
       </div>
-      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+      <pre id="drawer-sdk-code" style="background:#0F172A;border:1px solid #1E293B;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#E2E8F0;overflow-x:auto;line-height:1.5;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
-        2. GCP Reference Architecture (<= 78 Cols)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        2. GCP Reference Architecture
       </div>
-      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+      <pre style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1E293B;overflow-x:auto;line-height:1.45;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
         3. Custom Scenario Prompt Override
       </div>
-      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Cross-Funnel MCP Event:
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#FFFFFF;border:1px solid #CBD5E1;border-radius:8px;padding:10px;color:#0F172A;font-family:inherit;font-size:12.5px;">Cross-Funnel MCP Event:
 - User: Maya Lin (Ferndale, MI) — Active Rocket Money Premium Member + Redfin App User.
 - MCP Tool 1 (`redfin_tour_mcp`): Just booked an in-person tour for Saturday at 11:00 AM at `612 W Saratoga St, Ferndale, MI 48220` (List Price: $365,000, Property Tax: $4,680/yr).
 - MCP Tool 2 (`rocket_money_vault_mcp`): Down Payment Goal Vault balance = $31,200 (8.5% of purchase price); Monthly Recurring Subscription Audit found $215/mo in cancellable duplicate streaming/gym subscriptions; Net Monthly Income = $7,800; Monthly Debt = $490.
 - Bundle Offer: Redfin Buyer + Rocket Mortgage clients qualify for the Rocket 'Buy+Borrow' $3,500 Closing Cost Credit!</textarea>
-      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
-        ⚡ Re-Synthesize with Selected Model
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:8px;background:#059669;color:#FFF;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
+        Re-Synthesize with Selected Model
       </button>
     </div>
   </div>
 </div>
 
 <script>
-  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
-  // so sharing or copying the URL never leaks the session token!
+  // Scrub ?auth_token=... from URL bar after cookie authentication
   (function() {
     try {
       if (window.location.search.includes('auth_token=')) {
@@ -727,7 +725,7 @@
   };
 
   window.getSelectedModel = function() {
-    const el = document.getElementById('model-select');
+    const el = document.getElementById('model-select') || document.getElementById('app-model-select');
     return el ? el.value : "gemini-4-argon";
   };
 
@@ -750,7 +748,174 @@
     dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
   };
 
-  // Initialize SDK snippet on load
+  // ============================================================================
+  // UNIVERSAL GEMINI 3.8 LIVE 24kHz NATIVE AUDIO & INSTANT BARGE-IN ENGINE
+  // Eliminates all robotic browser speechSynthesis TTS across every demo!
+  // ============================================================================
+  window.RocketLiveAudio = (function() {
+    let audioCtx = null;
+    let activeSources = [];
+    let nextPlayTime = 0;
+    let pcmCache = {};
+    let currentClipBtn = null;
+    let currentClipOrigLabel = "";
+    let animFrameId = null;
+
+    function ensureCtx() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC({ sampleRate: 24000 });
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function stopAll() {
+      activeSources.forEach(src => {
+        try { src.stop(0); src.disconnect(); } catch (e) {}
+      });
+      activeSources = [];
+      if (audioCtx) {
+        nextPlayTime = audioCtx.currentTime;
+      }
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      if (currentClipBtn) {
+        currentClipBtn.innerHTML = currentClipOrigLabel;
+        currentClipBtn.dataset.playing = "0";
+        currentClipBtn = null;
+      }
+    }
+
+    function playPcm24kBase64(b64Data, onAmplitude, onEndedCallback) {
+      const ctx = ensureCtx();
+      const bin = atob(b64Data);
+      const len = bin.length;
+      const int16 = new Int16Array(Math.floor(len / 2));
+      for (let i = 0; i < int16.length; i++) {
+        const lo = bin.charCodeAt(i * 2);
+        const hi = bin.charCodeAt(i * 2 + 1);
+        let val = (hi << 8) | lo;
+        if (val >= 0x8000) val -= 0x10000;
+        int16[i] = val;
+      }
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {
+        float32[i] = int16[i] / 32768.0;
+      }
+      const buf = ctx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      if (onAmplitude) {
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 64;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        function tick() {
+          if (!activeSources.includes(src)) return;
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          onAmplitude(sum / (dataArr.length * 255), dataArr);
+          animFrameId = requestAnimationFrame(tick);
+        }
+        animFrameId = requestAnimationFrame(tick);
+      } else {
+        src.connect(ctx.destination);
+      }
+
+      const now = ctx.currentTime;
+      if (nextPlayTime < now) nextPlayTime = now + 0.01;
+      src.start(nextPlayTime);
+      nextPlayTime += buf.duration;
+      activeSources.push(src);
+
+      src.onended = () => {
+        activeSources = activeSources.filter(s => s !== src);
+        if (activeSources.length === 0 && onEndedCallback) {
+          onEndedCallback();
+        }
+      };
+      return src;
+    }
+
+    async function playClip(text, voice, speakerRole, btnEl, onAmplitude) {
+      if (btnEl && btnEl.dataset.playing === "1") {
+        stopAll();
+        return;
+      }
+      stopAll();
+      ensureCtx();
+
+      if (btnEl) {
+        currentClipBtn = btnEl;
+        currentClipOrigLabel = btnEl.innerHTML;
+        btnEl.dataset.playing = "1";
+        btnEl.innerHTML = "⏳ Connecting Gemini 3.8 Live Audio...";
+      }
+
+      const cacheKey = (voice || "Aoede") + "::" + text;
+      try {
+        let pcmB64 = pcmCache[cacheKey];
+        if (!pcmB64) {
+          const res = await fetch('/api/live-tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: text,
+              voice: voice || "Aoede",
+              speaker_role: speakerRole || "Rocket Mortgage Voice Co-Pilot",
+              live_mode: "gemini-3.8-live"
+            })
+          });
+          const data = await res.json();
+          if (!data.ok || !data.pcm_b64) {
+            throw new Error(data.error || "Audio stream unavailable");
+          }
+          pcmB64 = data.pcm_b64;
+          pcmCache[cacheKey] = pcmB64;
+        }
+        if (btnEl && currentClipBtn === btnEl) {
+          btnEl.innerHTML = "⏹ Stop Live Audio (Playing 24kHz HD)";
+        }
+        playPcm24kBase64(pcmB64, onAmplitude, () => {
+          if (btnEl && currentClipBtn === btnEl) {
+            btnEl.innerHTML = currentClipOrigLabel;
+            btnEl.dataset.playing = "0";
+            currentClipBtn = null;
+          }
+          if (onAmplitude) onAmplitude(0, null);
+        });
+      } catch (err) {
+        if (btnEl) {
+          btnEl.innerHTML = currentClipOrigLabel;
+          btnEl.dataset.playing = "0";
+          currentClipBtn = null;
+        }
+        console.error("Gemini 3.8 Live TTS error:", err);
+      }
+    }
+
+    return {
+      ensureCtx: ensureCtx,
+      stopAll: stopAll,
+      playPcm24kBase64: playPcm24kBase64,
+      playClip: playClip,
+      isPlaying: () => activeSources.length > 0
+    };
+  })();
+
+  window.stopAllLiveAudio = window.RocketLiveAudio.stopAll;
+  window.playLiveCallClip = window.RocketLiveAudio.playClip;
+
   document.addEventListener('DOMContentLoaded', () => {
     window.syncSelectedModel("gemini-4-argon");
   });

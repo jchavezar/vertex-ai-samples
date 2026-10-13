@@ -3,448 +3,460 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Genesys / CCAI Contact Center Live Agent Cockpit HUD | Synopsis Upgrade [3.3]</title>
+  <title>Mr. Cooper → Rocket Mortgage | M&amp;A Servicing Welcome &amp; Boarding Audit Tracker [3.3]</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --cockpit-bg: #080C14;
-      --cockpit-panel: #0E1525;
-      --cockpit-border: #1E293B;
-      --teal-telemetry: #14B8A6;
-      --coral-stress: #F43F5E;
+      --slate-bg: #F8FAFC;
+      --indigo-primary: #4F46E5;
+      --emerald-verified: #059669;
+      --card-surface: #FFFFFF;
     }
     body {
-      background-color: var(--cockpit-bg);
-      background-image:
-        linear-gradient(to right, rgba(20, 184, 166, 0.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(20, 184, 166, 0.03) 1px, transparent 1px);
-      background-size: 32px 32px;
-      color: #F8FAFC;
-      font-family: 'Barlow', sans-serif;
+      background-color: var(--slate-bg);
+      color: #0F172A;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       margin: 0;
     }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-    .hud-panel {
-      background: rgba(14, 21, 37, 0.92);
-      border: 1px solid var(--cockpit-border);
-      border-radius: 14px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.55);
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
     }
-    .stress-pulse {
-      animation: coralPulse 1.6s ease-in-out infinite;
+    .stripe-card {
+      background: #FFFFFF;
+      border-radius: 18px;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 10px 25px -6px rgba(15, 23, 42, 0.05), 0 2px 6px -1px rgba(79, 70, 229, 0.04);
     }
-    @keyframes coralPulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(244, 63, 94, 0.55); }
-      50% { box-shadow: 0 0 0 10px rgba(244, 63, 94, 0); }
+    .step-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      border: 1.5px solid #E2E8F0;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+    }
+    .step-card:hover {
+      border-color: #818CF8;
+      transform: translateY(-1px);
+    }
+    .step-card.active {
+      border-color: #4F46E5;
+      background: linear-gradient(180deg, #EEF2FF 0%, #FFFFFF 100%);
+      box-shadow: 0 10px 22px -6px rgba(79, 70, 229, 0.14);
     }
     input[type="range"] {
-      accent-color: #14B8A6;
+      accent-color: #4F46E5;
     }
     .shrinking-shining-ink {
-      width: 15px;
-      height: 15px;
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #ffffff, #14B8A6, #F43F5E);
-      animation: inkSpin 1.2s ease-in-out infinite;
+      background: radial-gradient(circle at 30% 30%, #E0E7FF, #4F46E5, #059669);
+      animation: plaidPulse 1.2s ease-in-out infinite;
       display: inline-block;
     }
-    @keyframes inkSpin {
+    @keyframes plaidPulse {
       0%, 100% { transform: scale(1); opacity: 0.95; }
-      50% { transform: scale(0.55); opacity: 0.5; }
+      50% { transform: scale(0.6); opacity: 0.5; }
     }
   </style>
 </head>
-<body class="min-h-screen pb-24">
+<body class="min-h-screen pb-28">
 
-  <!-- TOP GENESYS / CCAI CONTACT CENTER TELEMETRY RIBBON -->
-  <header class="sticky top-0 z-40 bg-[#05080E]/95 backdrop-blur border-b border-slate-800 px-5 py-3">
-    <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2 px-3 py-1 rounded-md bg-rose-500/15 border border-rose-500/40 stress-pulse">
-          <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
-          <span class="text-xs font-extrabold mono text-rose-400 tracking-wider">LIVE CALL • 02:14</span>
+  <!-- TOP STRIPE / PLAID CLEAN FINANCIAL ONBOARDING HEADER -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-[#4F46E5] text-white flex items-center justify-center font-extrabold shadow-sm">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
         </div>
         <div>
-          <div class="flex items-center gap-2 text-[11px] mono text-teal-400">
-            <span>GENESYS CLOUD CX // ROCKET LOGIC SYNOPSIS NEXT-GEN</span>
-            <span class="text-slate-600">|</span>
-            <span>QUEUE: MR. COOPER LOSS MITIGATION &amp; HARDSHIP</span>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-indigo-50 text-[#4F46E5] border border-indigo-200">
+              Mr. Cooper → Rocket Mortgage Onboarding
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-50 text-[#059669] border border-emerald-200">
+              ✓ 100% Penny-Perfect Ledger Match
+            </span>
           </div>
-          <h1 class="text-lg md:text-xl font-extrabold tracking-wide uppercase text-white">
-            Caller: Marcus Vance • Loan #0912-7741-MC • 30-Day Delinquency (CFPB Reg X Shield Active)
+          <h1 class="text-xl md:text-2xl font-extrabold text-slate-900 tracking-tight mt-0.5">
+            M&amp;A Servicing Welcome &amp; Automated Boarding Audit Tracker
           </h1>
         </div>
       </div>
 
-      <!-- Inline App Bar Model Selector & Live Action -->
-      <div class="flex flex-wrap items-center gap-3">
-        <div class="flex items-center gap-2 bg-slate-900 border border-teal-500/30 rounded-lg px-3 py-1.5">
-          <span class="w-2 h-2 rounded-full bg-teal-400"></span>
-          <label for="app-model-select" class="text-[10px] mono uppercase text-slate-400 font-bold">CCAI Engine:</label>
+      <!-- Right Header Controls: Model Selector + Play Personalized Welcome Call + Re-Audit -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div class="flex items-center gap-2 bg-slate-100 border border-slate-200 rounded-full px-3.5 py-1.5">
+          <span class="w-2 h-2 rounded-full bg-[#4F46E5]"></span>
+          <label for="app-model-select" class="text-[11px] font-semibold text-slate-600">Audit Engine:</label>
           <select id="app-model-select" onchange="window.syncSelectedModel(this.value)"
-                  class="bg-transparent text-teal-400 text-xs font-bold mono focus:outline-none cursor-pointer">
-            <option value="gemini-4-argon" selected class="bg-slate-950 text-teal-300">gemini-4-argon (Frontier Global)</option>
-            <option value="gemini-3.8-flash" class="bg-slate-950 text-emerald-300">gemini-3.8-flash (Fast CCAI Stream)</option>
+                  class="bg-transparent text-slate-900 text-xs font-bold focus:outline-none cursor-pointer">
+            <option value="gemini-4-argon" selected>gemini-4-argon (Frontier Global)</option>
+            <option value="gemini-3.8-flash">gemini-3.8-flash (Fast Boarding Audit)</option>
           </select>
         </div>
-        <span id="hud-sandbox-pill" class="px-3 py-1.5 rounded-lg bg-teal-500/10 border border-teal-500/30 text-teal-300 text-xs font-bold mono">
-          12 CFR § 1024.41 Protected
-        </span>
+
+        <button id="btn-welcome-call"
+                onclick="window.playPersonalizedWelcomeCall(this)"
+                class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold bg-indigo-50 text-[#4F46E5] border border-indigo-200 shadow-sm hover:bg-indigo-100 transition cursor-pointer">
+          <span>🔊 Play Personalized Welcome Call (Gemini 3.8 Live · Puck HD)</span>
+        </button>
+
+        <button id="synthesize-empathy-btn" onclick="window.runLiveVertexAI()"
+                class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#4F46E5] text-white shadow-sm hover:bg-indigo-700 transition cursor-pointer">
+          <span>⚡ Re-Run Boarding Audit</span>
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- 3-COLUMN CONTACT CENTER AGENT DESKTOP HUD -->
-  <main class="max-w-[1600px] mx-auto px-5 py-5 grid lg:grid-cols-12 gap-5 items-start">
-
-    <!-- COLUMN 1 (4 COLS): LIVE CALLER SENTIMENT & STRESS METER + SCROLLING HARDSHIP TRANSCRIPT -->
-    <section class="lg:col-span-4 hud-panel p-5 flex flex-col gap-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+  <!-- PLAID-STYLE ACCOUNT BRIDGE STATUS BANNER -->
+  <div class="max-w-7xl mx-auto px-6 pt-6">
+    <div class="stripe-card p-5 bg-gradient-to-r from-indigo-50/80 via-white to-emerald-50/80 border-l-4 border-l-[#4F46E5] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="flex items-center -space-x-2 shrink-0">
+          <div class="w-10 h-10 rounded-full bg-teal-700 text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow">MC</div>
+          <div class="w-10 h-10 rounded-full bg-[#4F46E5] text-white font-bold text-xs flex items-center justify-center border-2 border-white shadow">RKT</div>
+        </div>
         <div>
-          <div class="text-[10px] mono uppercase text-rose-400 font-bold tracking-wider">Column 1 • Acoustic &amp; Diarized Telemetry</div>
-          <h2 class="text-base font-extrabold uppercase tracking-wide text-white">Live Caller Sentiment &amp; Stress Meter</h2>
-        </div>
-        <span id="stress-score-badge" class="px-2.5 py-1 rounded bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs font-bold mono">
-          STRESS: 78/100 (HIGH)
-        </span>
-      </div>
-
-      <!-- Acoustic Pitch / Stress Pulse Meter -->
-      <div class="p-4 rounded-xl bg-slate-950/90 border border-rose-500/30 space-y-3">
-        <div class="flex items-center justify-between text-xs mono">
-          <span class="text-slate-400">Caller Vocal Tremor &amp; Anxiety Index</span>
-          <span id="stress-trend-label" class="text-rose-400 font-bold">▲ Elevated (Foreclosure Fear)</span>
-        </div>
-        <div class="w-full h-3 rounded-full bg-slate-900 overflow-hidden p-0.5 border border-slate-800">
-          <div id="stress-bar-fill" class="h-full rounded-full transition-all duration-500"
-               style="width: 78%; background: linear-gradient(90deg, #14B8A6 0%, #F59E0B 50%, #F43F5E 100%);"></div>
-        </div>
-        <div class="grid grid-cols-3 gap-2 pt-1 text-[11px] mono text-center">
-          <div class="p-2 rounded bg-slate-900 border border-slate-800">
-            <div class="text-slate-500 text-[9px]">HARDSHIP TYPE</div>
-            <div class="text-amber-300 font-bold mt-0.5">Temp Plant Layoff</div>
+          <div class="text-xs font-bold uppercase tracking-wider text-[#4F46E5]">
+            Zero-Disruption Servicing Transfer · RESPA 12 CFR § 1024.33 Verified
           </div>
-          <div class="p-2 rounded bg-slate-900 border border-slate-800">
-            <div class="text-slate-500 text-[9px]">DAYS DELINQUENT</div>
-            <div class="text-teal-300 font-bold mt-0.5">Day 34 (&lt;120d)</div>
-          </div>
-          <div class="p-2 rounded bg-slate-900 border border-slate-800">
-            <div class="text-slate-500 text-[9px]">RECALL VERIFIED</div>
-            <div class="text-emerald-400 font-bold mt-0.5">Dec 1 Stellantis</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Scrolling Hardship Call Transcript -->
-      <div class="flex items-center justify-between text-xs mono text-slate-400 pt-1">
-        <span>LIVE DIARIZED STT STREAM (CHIRP 2)</span>
-        <button onclick="window.injectCallerTurn()" class="text-[11px] text-teal-400 hover:underline font-bold">
-          + Simulate Next Caller Utterance
-        </button>
-      </div>
-
-      <div id="call-transcript-stream" class="space-y-3 max-h-[420px] overflow-y-auto pr-1 text-xs leading-relaxed">
-        <div class="p-3 rounded-xl bg-slate-900/90 border-l-4 border-l-rose-500 border border-slate-800">
-          <div class="flex justify-between text-[10px] mono text-rose-400 font-bold mb-1">
-            <span>BORROWER (MARCUS VANCE)</span>
-            <span>00:42 • Pitch: 218Hz (Anxious)</span>
-          </div>
-          <p class="text-slate-200">
-            "Our assembly plant in Sterling Heights went on a temporary 60-day retooling layoff in September. I missed October's $2,480 payment and I won't have November's either. My wife is terrified we're going to lose the house before I'm called back..."
-          </p>
-        </div>
-
-        <div class="p-3 rounded-xl bg-teal-950/30 border-l-4 border-l-teal-400 border border-teal-500/30">
-          <div class="flex justify-between text-[10px] mono text-teal-300 font-bold mb-1">
-            <span>SERVICING SPECIALIST (YOU)</span>
-            <span>01:18 • Empathy Score: 96%</span>
-          </div>
-          <p class="text-slate-200">
-            "Marcus, take a deep breath—you and your wife are not going to lose your home. Under federal CFPB Regulation X rules, foreclosure referral is strictly prohibited, and we have immediate relief options."
-          </p>
-        </div>
-
-        <div class="p-3 rounded-xl bg-slate-900/90 border-l-4 border-l-amber-400 border border-slate-800">
-          <div class="flex justify-between text-[10px] mono text-amber-300 font-bold mb-1">
-            <span>BORROWER (MARCUS VANCE)</span>
-            <span>01:55 • Intent: Workout Eligibility</span>
-          </div>
-          <p class="text-slate-200">
-            "I have my written Stellantis return-to-work recall letter for December 1st, or if overtime stays cut, we might need a permanent payment reduction. Can we either defer the two missed payments or run a Freddie Mac Flex Modification?"
+          <p id="welcome-audit-headline" class="text-sm md:text-base text-slate-700 mt-0.5">
+            Welcome to Rocket Mortgage! Your loan terms, <strong>5.625% fixed interest rate</strong>, <strong><span id="banner-upb">$342,180.44</span> principal balance</strong>, escrow impounds, and Chase AutoPay routing have been verified and bridged automatically.
           </p>
         </div>
       </div>
-    </section>
-
-    <!-- COLUMN 2 (4 COLS): INTERACTIVE FREDDIE MAC FLEX MODIFICATION WATERFALL SIMULATOR -->
-    <section class="lg:col-span-4 hud-panel p-5 flex flex-col gap-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <div>
-          <div class="text-[10px] mono uppercase text-teal-400 font-bold tracking-wider">Column 2 • GSE Loss-Mitigation Engine</div>
-          <h2 class="text-base font-extrabold uppercase tracking-wide text-white">Freddie Mac Flex Modification Waterfall Simulator</h2>
-        </div>
-        <span id="flex-savings-pill" class="px-2.5 py-1 rounded bg-teal-500/20 border border-teal-500/40 text-teal-300 text-xs font-extrabold mono">
-          24.8% PITI SAVINGS
+      <div class="shrink-0">
+        <span id="hud-sandbox-pill" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-emerald-50 text-[#059669] border border-emerald-200 mono">
+          4 / 4 Checks Verified
         </span>
       </div>
+    </div>
+  </div>
 
-      <!-- Interactive Sliders: Current PITI, Gross Income, Proposed Rate Step-Down -->
-      <div class="p-4 rounded-xl bg-slate-950/90 border border-slate-800 space-y-3.5">
-        <div>
-          <div class="flex justify-between text-xs mono mb-1">
-            <span class="text-slate-400">Current Monthly PITI Payment:</span>
-            <strong id="lbl-flex-piti" class="text-white">$2,480.00/mo</strong>
+  <!-- MAIN 12-COLUMN ONBOARDING & TRANSFER TRACKER WORKSPACE -->
+  <main class="max-w-7xl mx-auto px-6 py-6 grid lg:grid-cols-12 gap-6 items-start">
+
+    <!-- LEFT 7 COLUMNS: 4-STEP TRANSFER TIMELINE -->
+    <section class="lg:col-span-7 space-y-4">
+      <div class="stripe-card p-6">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-5 border-b border-slate-100">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#4F46E5]">Mr. Cooper → Rocket Mortgage Boarding Ledger</span>
+            <h2 class="text-lg md:text-xl font-extrabold text-slate-900 mt-0.5">
+              4-Step Servicing Transfer &amp; Protection Timeline
+            </h2>
           </div>
-          <input id="slider-flex-piti" type="range" min="1800" max="3600" step="20" value="2480"
-                 oninput="window.updateFlexSimulator()" class="w-full cursor-pointer">
+          <span class="text-xs font-semibold text-slate-500">Click any step to inspect audit proof</span>
         </div>
 
-        <div>
-          <div class="flex justify-between text-xs mono mb-1">
-            <span class="text-slate-400">Post-Hardship Gross Monthly Income:</span>
-            <strong id="lbl-flex-income" class="text-teal-400">$6,200.00/mo</strong>
+        <div class="space-y-3.5">
+          <!-- Step 1: Principal Balance Match $342,180.44 -->
+          <div id="step-card-1" onclick="window.selectTransferStep(1)" class="step-card active p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</div>
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-sm md:text-base font-extrabold text-slate-900" id="step1-title">
+                      1. Principal Balance Match $342,180.44
+                    </h3>
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-[#059669] border border-emerald-200 mono">
+                      $0.00 Variance
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1">
+                    Unpaid Principal Balance (<span id="step1-upb-copy" class="mono font-semibold text-slate-900">$342,180.44</span>) and <strong>5.625% fixed note rate</strong> reconciled penny-for-penny between Mr. Cooper Prior Servicer tape and Rocket Mortgage Core Ledger.
+                  </p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-[#4F46E5] shrink-0">Verified</span>
+            </div>
           </div>
-          <input id="slider-flex-income" type="range" min="4200" max="9500" step="100" value="6200"
-                 oninput="window.updateFlexSimulator()" class="w-full cursor-pointer">
-        </div>
 
-        <div>
-          <div class="flex justify-between text-xs mono mb-1">
-            <span class="text-slate-400">Flex Mod Rate Step-Down &amp; 480-Mo Term:</span>
-            <strong id="lbl-flex-rate" class="text-teal-400">4.625% (40-Yr Mod)</strong>
+          <!-- Step 2: Escrow Tax/Insurance Impound Carryover -->
+          <div id="step-card-2" onclick="window.selectTransferStep(2)" class="step-card p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</div>
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-sm md:text-base font-extrabold text-slate-900">
+                      2. Escrow Tax/Insurance Impound Carryover
+                    </h3>
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-[#059669] border border-emerald-200 mono" id="step2-escrow-badge">
+                      $4,280.00 Carried Over
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1">
+                    Your existing property tax and homeowners insurance impound balance (<span id="step2-escrow-copy" class="mono font-semibold text-slate-900">$4,280.00</span>) transferred intact with unbroken county tax &amp; carrier disbursement schedules.
+                  </p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-[#059669] shrink-0">Intact</span>
+            </div>
           </div>
-          <input id="slider-flex-rate" type="range" min="3.875" max="6.250" step="0.125" value="4.625"
-                 oninput="window.updateFlexSimulator()" class="w-full cursor-pointer">
+
+          <!-- Step 3: AutoPay ACH Routing Continuity -->
+          <div id="step-card-3" onclick="window.selectTransferStep(3)" class="step-card p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</div>
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-sm md:text-base font-extrabold text-slate-900">
+                      3. AutoPay ACH Routing Continuity
+                    </h3>
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-[#4F46E5] border border-indigo-200 mono">
+                      Chase Checking ••••4819
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1">
+                    Plaid / NACHA recurring ACH authorization bridged automatically. Your monthly draft of <strong id="step3-draft-amt" class="mono text-slate-900">$2,485.12/mo</strong> on the 1st of each month continues with zero action required.
+                  </p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-[#4F46E5] shrink-0">Bridged</span>
+            </div>
+          </div>
+
+          <!-- Step 4: 60-Day RESPA Goodbye/Hello Fee Waiver Shield -->
+          <div id="step-card-4" onclick="window.selectTransferStep(4)" class="step-card p-4">
+            <div class="flex items-start justify-between gap-3">
+              <div class="flex items-start gap-3.5">
+                <div class="w-8 h-8 rounded-full bg-[#059669] text-white flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">✓</div>
+                <div>
+                  <div class="flex flex-wrap items-center gap-2">
+                    <h3 class="text-sm md:text-base font-extrabold text-slate-900">
+                      4. 60-Day RESPA Goodbye/Hello Fee Waiver Shield
+                    </h3>
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-[#059669] border border-emerald-200 mono">
+                      12 CFR § 1024.33(c)
+                    </span>
+                  </div>
+                  <p class="text-xs text-slate-600 mt-1">
+                    Federal 60-day safe harbor active: even if a check or bank bill-pay is accidentally mailed to Mr. Cooper during the first 60 days, <strong>$0 late fees</strong> apply and it is forwarded &amp; credited as on-time.
+                  </p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-[#059669] shrink-0">Protected</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Visual Before vs After Payment Comparison Cards (24.8% Savings Target) -->
-      <div class="grid grid-cols-2 gap-3 text-xs mono">
-        <div class="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800">
-          <div class="text-[10px] text-slate-400 uppercase">BEFORE WORKOUT (PITI)</div>
-          <div id="card-before-piti" class="text-xl font-extrabold text-rose-400 mt-1">$2,480.00<span class="text-xs font-normal">/mo</span></div>
-          <div id="card-before-dti" class="text-[11px] text-slate-400 mt-1">Housing DTI: 40.0%</div>
-        </div>
-        <div class="p-3.5 rounded-xl bg-teal-950/40 border border-teal-500/40">
-          <div class="text-[10px] text-teal-300 uppercase">AFTER FLEX MODIFICATION</div>
-          <div id="card-after-piti" class="text-xl font-extrabold text-teal-300 mt-1">$1,864.96<span class="text-xs font-normal">/mo</span></div>
-          <div id="card-after-dti" class="text-[11px] text-emerald-400 font-bold mt-1">Saves $615.04/mo (-24.8%)</div>
-        </div>
-      </div>
-
-      <!-- GSE Workout Waterfall Ranking Table -->
-      <div class="space-y-2 text-xs">
-        <div class="text-[10px] mono uppercase text-slate-400 font-bold">GSE Loss-Mitigation Waterfall Evaluation Order</div>
-
-        <div class="p-3 rounded-xl bg-teal-500/10 border border-teal-500/40 flex items-center justify-between">
-          <div>
-            <div class="font-bold text-teal-300">Rank #1: GSE Payment Deferral (D2-3.2-04)</div>
-            <div class="text-[11px] text-slate-300">Defer 2 missed payments (<span id="wf-defer-amt" class="mono font-bold">$4,960.00</span>) to maturity @ 0% interest</div>
+      <!-- SELECTED STEP CRYPTOGRAPHIC AUDIT CERTIFICATE -->
+      <div class="stripe-card p-6 bg-slate-900 text-white">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span class="text-xs font-bold uppercase tracking-wider mono text-indigo-300" id="audit-cert-title">
+              STEP 1 AUDIT PROOF · PRINCIPAL BALANCE RECONCILIATION
+            </span>
           </div>
-          <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold mono text-[10px]">ELIGIBLE NOW</span>
+          <span class="text-[11px] mono text-emerald-400" id="empathy-model-tag">SHA-256 Ledger Match</span>
         </div>
-
-        <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/40 flex items-center justify-between">
-          <div>
-            <div class="font-bold text-indigo-300">Rank #2: Freddie Mac Flex Modification</div>
-            <div class="text-[11px] text-slate-300">480-mo term + rate step-down → <span id="wf-flex-pct" class="mono font-bold text-teal-300">24.8%</span> payment reduction (&ge;20% target)</div>
-          </div>
-          <span id="wf-flex-status" class="px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-bold mono text-[10px]">PASSES &ge;20% RULE</span>
-        </div>
-
-        <div class="p-3 rounded-xl bg-slate-900/80 border border-slate-800 flex items-center justify-between opacity-75">
-          <div>
-            <div class="font-bold text-slate-300">Rank #3: 6-Month Repayment Plan</div>
-            <div class="text-[11px] text-slate-400">Adds +$826.67/mo to base payment (Not recommended for layoff)</div>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400 font-bold mono text-[10px]">BYPASSED</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- COLUMN 3 (4 COLS): INTERACTIVE CFPB REG X COMPLIANCE CHECKLIST + SYNTHESIZE EMPATHY RESPONSE -->
-    <section class="lg:col-span-4 hud-panel p-5 flex flex-col gap-4">
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
-        <div>
-          <div class="text-[10px] mono uppercase text-amber-400 font-bold tracking-wider">Column 3 • Real-Time Reg X Guardrails</div>
-          <h2 class="text-base font-extrabold uppercase tracking-wide text-white">CFPB Reg X Compliance Script Checklist</h2>
-        </div>
-        <span id="checklist-progress-pill" class="px-2.5 py-1 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold mono">
-          4 / 4 VERIFIED
-        </span>
-      </div>
-
-      <!-- Interactive CFPB Reg X Checklist -->
-      <div class="space-y-2.5 text-xs">
-        <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 cursor-pointer hover:border-teal-500/40 transition">
-          <input type="checkbox" checked onchange="window.updateRegXChecklist()" class="regx-chk mt-0.5 w-4 h-4 accent-teal-500">
-          <div>
-            <div class="font-bold text-white mono text-[11px]">12 CFR § 1024.41(f)(1) — 120-Day Foreclosure Shield</div>
-            <div class="text-slate-400 mt-0.5">Explicitly reassure borrower that no first notice or foreclosure filing can occur prior to Day 120 of delinquency.</div>
-          </div>
-        </label>
-
-        <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 cursor-pointer hover:border-teal-500/40 transition">
-          <input type="checkbox" checked onchange="window.updateRegXChecklist()" class="regx-chk mt-0.5 w-4 h-4 accent-teal-500">
-          <div>
-            <div class="font-bold text-white mono text-[11px]">12 CFR § 1024.39 — Early Intervention Written Notice</div>
-            <div class="text-slate-400 mt-0.5">Disclose all available loss-mitigation options (Forbearance, Payment Deferral, Flex Modification) without steering.</div>
-          </div>
-        </label>
-
-        <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 cursor-pointer hover:border-teal-500/40 transition">
-          <input type="checkbox" checked onchange="window.updateRegXChecklist()" class="regx-chk mt-0.5 w-4 h-4 accent-teal-500">
-          <div>
-            <div class="font-bold text-white mono text-[11px]">12 CFR § 1024.40 — Single Point of Contact (SPOC)</div>
-            <div class="text-slate-400 mt-0.5">Assign dedicated Mr. Cooper Loss Mitigation SPOC specialist and log Stellantis Dec 1 recall letter.</div>
-          </div>
-        </label>
-
-        <label class="flex items-start gap-3 p-3 rounded-xl bg-slate-950/80 border border-slate-800 cursor-pointer hover:border-teal-500/40 transition">
-          <input type="checkbox" checked onchange="window.updateRegXChecklist()" class="regx-chk mt-0.5 w-4 h-4 accent-teal-500">
-          <div>
-            <div class="font-bold text-white mono text-[11px]">FCRA / CARES Credit Reporting Guardrail</div>
-            <div class="text-slate-400 mt-0.5">Explain late-fee waiver during approved forbearance plan and zero-interest non-bearing tail balance.</div>
-          </div>
-        </label>
-      </div>
-
-      <!-- Primary CTA Button: Synthesize Next-Best Empathy Response -->
-      <button id="synthesize-empathy-btn" onclick="window.runLiveVertexAI()"
-              class="w-full py-3.5 px-4 rounded-xl font-extrabold text-xs mono uppercase tracking-wider text-slate-950 shadow-lg transition transform active:scale-[0.99] flex items-center justify-center gap-2"
-              style="background: linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%);">
-        <span>⚡ Synthesize Next-Best Empathy Response</span>
-      </button>
-
-      <!-- Live AI Coaching Script Output Box -->
-      <div class="p-4 rounded-xl bg-teal-950/35 border border-teal-500/40 space-y-2">
-        <div class="flex items-center justify-between text-[10px] mono uppercase font-bold text-teal-300">
-          <span>🎙️ READ-ALOUD NEXT-BEST EMPATHY SCRIPT</span>
-          <span id="empathy-model-tag">gemini-4-argon</span>
-        </div>
-        <p id="live-empathy-script" class="text-xs md:text-sm text-white leading-relaxed italic">
-          "Marcus, because you have a confirmed December 1st Stellantis recall date, you qualify for our GSE Payment Deferral—moving your October and November payments ($4,960.00) to the very end of your loan at 0% interest so you resume your normal payment December 1st. Or, if your hours are permanently reduced, our Freddie Mac Flex Modification drops your payment by 24.8% down to $1,864.96/month. Which path feels safest for your family?"
+        <p id="live-empathy-script" class="text-xs md:text-sm text-slate-200 leading-relaxed">
+          Prior Servicer (Mr. Cooper Loan #0912-7741-MC) ending Unpaid Principal Balance of <strong>$342,180.44</strong> matches Rocket Mortgage Boarding Ledger (#RKT-8841-2026) to the exact cent ($0.00 variance). Fixed note rate locked at 5.625% with 312 remaining payments.
         </p>
-        <div class="pt-2 border-t border-teal-500/20 flex items-center justify-between text-[11px] mono text-slate-400">
-          <span>Auto-CRM Code: <strong id="crm-disp-code" class="text-teal-300">LM-DEF-2MO / FLEX-SIM</strong></span>
-          <button onclick="window.pushScriptToTranscript()" class="text-teal-300 hover:underline font-bold">
-            Speak to Caller →
-          </button>
-        </div>
       </div>
     </section>
+
+    <!-- RIGHT 5 COLUMNS: INTERACTIVE LOAN BALANCE & ESCROW SLIDERS + SIDE-BY-SIDE LEDGER COMPARISON -->
+    <aside class="lg:col-span-5 space-y-6">
+
+      <!-- INTERACTIVE LOAN BALANCE & ESCROW SLIDERS -->
+      <section class="stripe-card p-6 space-y-5">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-[#4F46E5]">Interactive Boarding Inspector</span>
+          <h2 class="text-lg font-extrabold text-slate-900 mt-0.5">Loan Balance &amp; Escrow Carryover Sliders</h2>
+          <p class="text-xs text-slate-500 mt-0.5">Adjust the transferred principal balance or escrow impound to verify real-time reconciliation.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-slate-600">Transferred Principal Balance (UPB):</span>
+              <strong id="lbl-board-upb" class="mono text-[#4F46E5]">$342,180.44</strong>
+            </div>
+            <input id="slider-board-upb" type="range" min="180180.44" max="620180.44" step="5000" value="342180.44"
+                   oninput="window.updateBoardingAudit()" class="w-full cursor-pointer">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-slate-600">Escrow Impound Carryover Balance:</span>
+              <strong id="lbl-board-escrow" class="mono text-[#059669]">$4,280.00</strong>
+            </div>
+            <input id="slider-board-escrow" type="range" min="1200" max="9600" step="120" value="4280"
+                   oninput="window.updateBoardingAudit()" class="w-full cursor-pointer">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-semibold mb-1">
+              <span class="text-slate-600">Monthly PITI AutoPay Draft:</span>
+              <strong id="lbl-board-piti" class="mono text-slate-900">$2,485.12/mo</strong>
+            </div>
+            <input id="slider-board-piti" type="range" min="1685.12" max="4285.12" step="100" value="2485.12"
+                   oninput="window.updateBoardingAudit()" class="w-full cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Side-by-Side Ledger Verification Table -->
+        <div class="rounded-2xl border border-slate-200 overflow-hidden text-xs">
+          <div class="grid grid-cols-3 bg-slate-50 px-4 py-2.5 font-bold text-slate-600 border-b border-slate-200">
+            <span>Ledger Field</span>
+            <span class="text-right">Mr. Cooper</span>
+            <span class="text-right text-[#4F46E5]">Rocket Mortgage</span>
+          </div>
+          <div class="divide-y divide-slate-100">
+            <div class="grid grid-cols-3 px-4 py-2.5 items-center">
+              <span class="font-semibold text-slate-700">Principal Balance</span>
+              <span id="tbl-mc-upb" class="text-right mono text-slate-600">$342,180.44</span>
+              <span id="tbl-rkt-upb" class="text-right mono font-bold text-[#059669]">$342,180.44 ✓</span>
+            </div>
+            <div class="grid grid-cols-3 px-4 py-2.5 items-center">
+              <span class="font-semibold text-slate-700">Escrow Impound</span>
+              <span id="tbl-mc-esc" class="text-right mono text-slate-600">$4,280.00</span>
+              <span id="tbl-rkt-esc" class="text-right mono font-bold text-[#059669]">$4,280.00 ✓</span>
+            </div>
+            <div class="grid grid-cols-3 px-4 py-2.5 items-center">
+              <span class="font-semibold text-slate-700">Fixed Note Rate</span>
+              <span class="text-right mono text-slate-600">5.625%</span>
+              <span class="text-right mono font-bold text-[#059669]">5.625% ✓</span>
+            </div>
+            <div class="grid grid-cols-3 px-4 py-2.5 items-center">
+              <span class="font-semibold text-slate-700">Monthly AutoPay</span>
+              <span id="tbl-mc-piti" class="text-right mono text-slate-600">$2,485.12</span>
+              <span id="tbl-rkt-piti" class="text-right mono font-bold text-[#059669]">$2,485.12 ✓</span>
+            </div>
+          </div>
+        </div>
+
+        <button onclick="window.downloadWelcomeCertificate()"
+                class="w-full py-3.5 px-4 rounded-xl font-bold text-sm text-white bg-[#059669] hover:bg-emerald-700 shadow-md transition cursor-pointer flex items-center justify-center gap-2">
+          <span>✓ Confirm Onboarding Audit &amp; Issue Welcome Certificate</span>
+        </button>
+
+        <div id="welcome-cert-toast" class="hidden p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-[#059669] text-xs font-semibold text-center"></div>
+      </section>
+    </aside>
   </main>
 
   <script>
-    function fmtCurrency(n) {
+    let activeStep = 1;
+
+    function fmtMoney(n) {
       return '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    let flexTimer = null;
-    window.updateFlexSimulator = function() {
-      const curPiti = parseFloat(document.getElementById('slider-flex-piti').value || 2480);
-      const grossInc = parseFloat(document.getElementById('slider-flex-income').value || 6200);
-      const modRate = parseFloat(document.getElementById('slider-flex-rate').value || 4.625);
+    window.playPersonalizedWelcomeCall = function(btnEl) {
+      const upb = parseFloat(document.getElementById('slider-board-upb').value || 342180.44);
+      const esc = parseFloat(document.getElementById('slider-board-escrow').value || 4280);
+      const piti = parseFloat(document.getElementById('slider-board-piti').value || 2485.12);
+      const msg = `Welcome to Rocket Mortgage! We are thrilled to care for your home loan following our partnership with Mr. Cooper. We have completed our automated four-step boarding audit: your unpaid principal balance of ${fmtMoney(upb)} and your 5.625 percent fixed rate match to the exact penny, your ${fmtMoney(esc)} tax and insurance escrow balance carried over intact, and your automatic payment of ${fmtMoney(piti)} from Chase Checking ending in 4819 will continue seamlessly with zero action needed from you. Plus, your 60-day RESPA fee-waiver shield is active from day one!`;
+      window.playLiveCallClip(msg, 'Puck', 'Rocket Mortgage Welcome Concierge', btnEl);
+    };
 
-      // Compute Freddie Mac Flex Mod 480-month payment with rate step-down
-      // Calibrated so default ($2,480 PITI, $6,200 income, 4.625% mod rate) yields exactly 24.8% savings ($1,864.96/mo)
-      const rateFactor = (modRate / 4.625);
-      const afterPiti = Math.round((curPiti * 0.752 * rateFactor) * 100) / 100;
-      const savingsDol = curPiti - afterPiti;
-      const savingsPct = ((savingsDol / curPiti) * 100).toFixed(1);
-      const beforeDti = ((curPiti / grossInc) * 100).toFixed(1);
+    window.selectTransferStep = function(stepNum) {
+      activeStep = stepNum;
+      [1, 2, 3, 4].forEach(i => {
+        const c = document.getElementById('step-card-' + i);
+        if (c) {
+          if (i === stepNum) c.classList.add('active');
+          else c.classList.remove('active');
+        }
+      });
+      window.updateBoardingAudit();
+    };
 
-      document.getElementById('lbl-flex-piti').innerText = fmtCurrency(curPiti) + '/mo';
-      document.getElementById('lbl-flex-income').innerText = fmtCurrency(grossInc) + '/mo';
-      document.getElementById('lbl-flex-rate').innerText = modRate.toFixed(3) + '% (40-Yr Mod)';
+    let boardTimer = null;
+    window.updateBoardingAudit = function() {
+      const upb = parseFloat(document.getElementById('slider-board-upb').value || 342180.44);
+      const esc = parseFloat(document.getElementById('slider-board-escrow').value || 4280);
+      const piti = parseFloat(document.getElementById('slider-board-piti').value || 2485.12);
 
-      document.getElementById('flex-savings-pill').innerText = `${savingsPct}% PITI SAVINGS`;
-      document.getElementById('card-before-piti').innerHTML = fmtCurrency(curPiti) + '<span class="text-xs font-normal">/mo</span>';
-      document.getElementById('card-before-dti').innerText = `Housing DTI: ${beforeDti}%`;
-      document.getElementById('card-after-piti').innerHTML = fmtCurrency(afterPiti) + '<span class="text-xs font-normal">/mo</span>';
-      document.getElementById('card-after-dti').innerText = `Saves ${fmtCurrency(savingsDol)}/mo (-${savingsPct}%)`;
+      document.getElementById('banner-upb').innerText = fmtMoney(upb);
+      document.getElementById('lbl-board-upb').innerText = fmtMoney(upb);
+      document.getElementById('lbl-board-escrow').innerText = fmtMoney(esc);
+      document.getElementById('lbl-board-piti').innerText = fmtMoney(piti) + '/mo';
 
-      document.getElementById('wf-defer-amt').innerText = fmtCurrency(curPiti * 2);
-      document.getElementById('wf-flex-pct').innerText = `${savingsPct}%`;
-      const wfStatus = document.getElementById('wf-flex-status');
-      if (parseFloat(savingsPct) >= 20.0) {
-        wfStatus.innerText = 'PASSES ≥20% RULE';
-        wfStatus.className = 'px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-bold mono text-[10px]';
+      document.getElementById('step1-title').innerText = `1. Principal Balance Match ${fmtMoney(upb)}`;
+      document.getElementById('step1-upb-copy').innerText = fmtMoney(upb);
+      document.getElementById('step2-escrow-badge').innerText = `${fmtMoney(esc)} Carried Over`;
+      document.getElementById('step2-escrow-copy').innerText = fmtMoney(esc);
+      document.getElementById('step3-draft-amt').innerText = fmtMoney(piti) + '/mo';
+
+      document.getElementById('tbl-mc-upb').innerText = fmtMoney(upb);
+      document.getElementById('tbl-rkt-upb').innerText = fmtMoney(upb) + ' ✓';
+      document.getElementById('tbl-mc-esc').innerText = fmtMoney(esc);
+      document.getElementById('tbl-rkt-esc').innerText = fmtMoney(esc) + ' ✓';
+      document.getElementById('tbl-mc-piti').innerText = fmtMoney(piti);
+      document.getElementById('tbl-rkt-piti').innerText = fmtMoney(piti) + ' ✓';
+
+      const certTitle = document.getElementById('audit-cert-title');
+      const certBody = document.getElementById('live-empathy-script');
+
+      if (activeStep === 1) {
+        certTitle.innerText = 'STEP 1 AUDIT PROOF · PRINCIPAL BALANCE RECONCILIATION';
+        certBody.innerHTML = `Prior Servicer (Mr. Cooper Loan #0912-7741-MC) ending Unpaid Principal Balance of <strong>${fmtMoney(upb)}</strong> matches Rocket Mortgage Boarding Ledger (#RKT-8841-2026) to the exact cent ($0.00 variance). Fixed note rate locked at 5.625%.`;
+      } else if (activeStep === 2) {
+        certTitle.innerText = 'STEP 2 AUDIT PROOF · ESCROW IMPOUND & DISBURSEMENT CONTINUITY';
+        certBody.innerHTML = `Full Escrow Impound Balance of <strong>${fmtMoney(esc)}</strong> transferred with zero holdback. Upcoming county property tax and hazard insurance policy disbursements are scheduled automatically.`;
+      } else if (activeStep === 3) {
+        certTitle.innerText = 'STEP 3 AUDIT PROOF · NACHA / PLAID AUTOPAY ROUTING BRIDGE';
+        certBody.innerHTML = `Existing recurring ACH mandate on <strong>Chase Checking ••••4819</strong> bridged to Rocket Mortgage Servicing. Your monthly draft of <strong>${fmtMoney(piti)}/mo</strong> will draft on the 1st of the month without interruption.`;
       } else {
-        wfStatus.innerText = 'BELOW 20% TARGET';
-        wfStatus.className = 'px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold mono text-[10px]';
+        certTitle.innerText = 'STEP 4 AUDIT PROOF · 60-DAY RESPA § 1024.33(c) SAFE HARBOR';
+        certBody.innerHTML = `Statutory 60-day Goodbye/Hello protection active from transfer effective date: any payment sent to Mr. Cooper is automatically forwarded to Rocket Mortgage with <strong>$0 late fees</strong> and <strong>zero adverse credit reporting</strong>.`;
       }
 
-      clearTimeout(flexTimer);
-      flexTimer = setTimeout(async () => {
+      clearTimeout(boardTimer);
+      boardTimer = setTimeout(async () => {
         try {
           const res = await fetch('/api/sandbox', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               code: '3.3',
-              action: 'calc_flex_modification',
+              action: 'eval_loss_mitigation',
               params: {
-                piti: curPiti,
-                gross_income: grossInc,
-                proposed_rate: modRate,
-                delinquent_months: 2
+                piti: piti,
+                upb: upb,
+                escrow_balance: esc
               }
             })
           });
           const data = await res.json();
           const pill = document.getElementById('hud-sandbox-pill');
           if (pill && data.execution_ms !== undefined) {
-            pill.innerText = `gVisor Verified (${data.execution_ms}ms) • Reg X Active`;
+            pill.innerText = `4 / 4 Verified (${data.execution_ms}ms)`;
           }
         } catch (e) {}
       }, 180);
     };
 
-    window.updateRegXChecklist = function() {
-      const chks = document.querySelectorAll('.regx-chk');
-      let checked = 0;
-      chks.forEach(c => { if (c.checked) checked++; });
-      const pill = document.getElementById('checklist-progress-pill');
-      pill.innerText = `${checked} / ${chks.length} VERIFIED`;
-    };
-
-    window.pushScriptToTranscript = function() {
-      const stream = document.getElementById('call-transcript-stream');
-      const scriptTxt = document.getElementById('live-empathy-script').innerText;
-      const div = document.createElement('div');
-      div.className = 'p-3 rounded-xl bg-teal-950/40 border-l-4 border-l-teal-400 border border-teal-500/40';
-      div.innerHTML = `<div class="flex justify-between text-[10px] mono text-teal-300 font-bold mb-1"><span>SERVICING SPECIALIST (YOU)</span><span>LIVE COACHING READ-OUT</span></div><p class="text-slate-100">${scriptTxt}</p>`;
-      stream.appendChild(div);
-      stream.scrollTop = stream.scrollHeight;
-      // Lower caller stress meter after empathy reassurance!
-      document.getElementById('stress-bar-fill').style.width = '34%';
-      document.getElementById('stress-score-badge').innerText = 'STRESS: 34/100 (DE-ESCALATED)';
-      document.getElementById('stress-score-badge').className = 'px-2.5 py-1 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-bold mono';
-      document.getElementById('stress-trend-label').innerText = '▼ Relief Detected (-44 pts)';
-      document.getElementById('stress-trend-label').className = 'text-emerald-400 font-bold';
-    };
-
-    window.injectCallerTurn = function() {
-      const stream = document.getElementById('call-transcript-stream');
-      const div = document.createElement('div');
-      div.className = 'p-3 rounded-xl bg-slate-900/90 border-l-4 border-l-emerald-400 border border-slate-800';
-      div.innerHTML = `<div class="flex justify-between text-[10px] mono text-emerald-400 font-bold mb-1"><span>BORROWER (MARCUS VANCE)</span><span>Pitch: 142Hz (Relieved)</span></div><p class="text-slate-200">"Thank you so much—moving October and November to the end of the loan at 0% interest with no lump sum due in December is a lifesaver. Let's lock in that Payment Deferral!"</p>`;
-      stream.appendChild(div);
-      stream.scrollTop = stream.scrollHeight;
+    window.downloadWelcomeCertificate = function() {
+      const toast = document.getElementById('welcome-cert-toast');
+      const upb = parseFloat(document.getElementById('slider-board-upb').value || 342180.44);
+      toast.classList.remove('hidden');
+      toast.innerHTML = `✓ Boarding Audit Certified! Welcome Certificate #RKT-WELCOME-2026-994 issued for Principal Balance <strong>${fmtMoney(upb)}</strong> with 60-Day RESPA Protection.`;
     };
 
     window.runLiveVertexAI = async function() {
       const btn = document.getElementById('synthesize-empathy-btn');
       const scriptEl = document.getElementById('live-empathy-script');
       const modelTag = document.getElementById('empathy-model-tag');
-      const curPiti = parseFloat(document.getElementById('slider-flex-piti').value || 2480);
-      const grossInc = parseFloat(document.getElementById('slider-flex-income').value || 6200);
-      const modRate = parseFloat(document.getElementById('slider-flex-rate').value || 4.625);
+      const upb = parseFloat(document.getElementById('slider-board-upb').value || 342180.44);
+      const esc = parseFloat(document.getElementById('slider-board-escrow').value || 4280);
+      const piti = parseFloat(document.getElementById('slider-board-piti').value || 2485.12);
       const scenarioInput = document.getElementById('scenario-input') ? document.getElementById('scenario-input').value : '';
 
-      if (btn) btn.innerHTML = `<span class="shrinking-shining-ink"></span> <span>Synthesizing CCAI Empathy Script...</span>`;
+      if (btn) btn.innerHTML = `<span class="shrinking-shining-ink"></span> <span>Auditing...</span>`;
       try {
         const res = await fetch('/api/run-demo', {
           method: 'POST',
@@ -452,12 +464,11 @@
           body: JSON.stringify({
             code: '3.3',
             model: window.getSelectedModel(),
-            user_input: scenarioInput,
+            user_input: scenarioInput || `Audit Mr. Cooper to Rocket Mortgage loan boarding for UPB ${upb}, Escrow ${esc}, AutoPay ${piti}/mo.`,
             params: {
-              piti: curPiti,
-              gross_income: grossInc,
-              proposed_rate: modRate,
-              delinquent_months: 2
+              piti: piti,
+              upb: upb,
+              escrow_balance: esc
             }
           })
         });
@@ -466,135 +477,128 @@
         if (modelTag && data.vertex) {
           modelTag.innerText = `${data.vertex.model_used} (${data.vertex.latency_ms}ms)`;
         }
-        if (sd.live_coaching_cards && sd.live_coaching_cards.length && sd.live_coaching_cards[0].script_to_read) {
-          scriptEl.innerText = '"' + sd.live_coaching_cards[0].script_to_read + '"';
-        } else if (sd.executive_summary) {
-          scriptEl.innerText = '"' + sd.executive_summary + '"';
-        } else if (data.vertex && data.vertex.response_markdown) {
-          scriptEl.innerText = data.vertex.response_markdown;
-        }
-        if (sd.auto_crm_disposition) {
-          document.getElementById('crm-disp-code').innerText = sd.auto_crm_disposition;
+        if (sd.executive_summary && scriptEl) {
+          scriptEl.innerHTML = sd.executive_summary;
+        } else if (data.vertex && data.vertex.response_markdown && scriptEl) {
+          scriptEl.innerHTML = data.vertex.response_markdown;
         }
       } catch (e) {
         console.error(e);
       } finally {
-        if (btn) btn.innerHTML = `<span>⚡ Synthesize Next-Best Empathy Response</span>`;
+        if (btn) btn.innerHTML = `<span>⚡ Re-Run Boarding Audit</span>`;
       }
     };
 
     document.addEventListener('DOMContentLoaded', () => {
-      window.updateFlexSimulator();
+      window.updateBoardingAudit();
     });
   </script>
 
   
-<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
-<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
-  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
-    ← Hub
+<!-- CLEAN HUMAN-CENTRIC FLOATING UTILITY BAR (LIGHT SURFACE) -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:16px;right:16px;z-index:9990;display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border:1px solid #CBD5E1;box-shadow:0 10px 30px rgba(15,23,42,0.12);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#1E293B;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#334155;text-decoration:none;font-weight:600;padding:5px 10px;border-radius:8px;background:#F1F5F9;border:1px solid #E2E8F0;transition:0.15s;white-space:nowrap;">
+    ← All Demos
   </a>
-  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
-    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
-      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
-      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
-      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
-      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
-      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
-      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
-      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
-      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
-      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
-      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
-      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
-      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
-      <option value="3.3" selected style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
-      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
-      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
-      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
-      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
-      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
-      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
-      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
-      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
-      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
-      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
-      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
-      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
-      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
-      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
-      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
-      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
-      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
-      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
-      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
-      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:#F8FAFC;border:1px solid #E2E8F0;">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" aria-label="Switch Use Case" style="background:transparent;color:#0F172A;font-weight:600;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;max-width:210px;">
+      <option value="1.1"  style="background:#FFFFFF;color:#0F172A;">1.1 · The ABCDQ Post-Call Structured Debri</option>
+      <option value="1.2"  style="background:#FFFFFF;color:#0F172A;">1.2 · Outlook Hyper-Personalized Rate-Lock</option>
+      <option value="1.3"  style="background:#FFFFFF;color:#0F172A;">1.3 · No-Code Mortgage Guideline & Competi</option>
+      <option value="1.4"  style="background:#FFFFFF;color:#0F172A;">1.4 · Dynamic Loan Pricing & Amortization </option>
+      <option value="1.5"  style="background:#FFFFFF;color:#0F172A;">1.5 · Autonomous Banker Inbound Triage & C</option>
+      <option value="2.1"  style="background:#FFFFFF;color:#0F172A;">2.1 · Fannie Mae / Freddie Mac Selling Gui</option>
+      <option value="2.2"  style="background:#FFFFFF;color:#0F172A;">2.2 · Low-Code Underwriting Condition Clea</option>
+      <option value="2.3"  style="background:#FFFFFF;color:#0F172A;">2.3 · Automated W-2 & Paystub Entity Extra</option>
+      <option value="2.4"  style="background:#FFFFFF;color:#0F172A;">2.4 · Self-Employed Schedule C / 1040 Cash</option>
+      <option value="2.5"  style="background:#FFFFFF;color:#0F172A;">2.5 · Rocket Close (Amrock) Title Exceptio</option>
+      <option value="3.1"  style="background:#FFFFFF;color:#0F172A;">3.1 · Annual Escrow Shortage Resolution Jo</option>
+      <option value="3.2"  style="background:#FFFFFF;color:#0F172A;">3.2 · Self-Service Payoff Quote & IRS Form</option>
+      <option value="3.3" selected style="background:#FFFFFF;color:#0F172A;">3.3 · Hardship & Forbearance Live Servicin</option>
+      <option value="3.4"  style="background:#FFFFFF;color:#0F172A;">3.4 · Conversational Rocket Recapture Voic</option>
+      <option value="3.5"  style="background:#FFFFFF;color:#0F172A;">3.5 · Autonomous Borrower Retention & Life</option>
+      <option value="4.1"  style="background:#FFFFFF;color:#0F172A;">4.1 · Hyper-Local 50-Metro Real Estate Mar</option>
+      <option value="4.2"  style="background:#FFFFFF;color:#0F172A;">4.2 · Virtual Staging & Localized Hero Ad </option>
+      <option value="4.3"  style="background:#FFFFFF;color:#0F172A;">4.3 · Campaign Sentiment & Ad Creative Per</option>
+      <option value="4.4"  style="background:#FFFFFF;color:#0F172A;">4.4 · Automated Multi-Format Video Tour & </option>
+      <option value="4.5"  style="background:#FFFFFF;color:#0F172A;">4.5 · Redfin-to-Rocket Cross-Funnel Campai</option>
+      <option value="5.1"  style="background:#FFFFFF;color:#0F172A;">5.1 · CFPB Regulatory Circular & State Law</option>
+      <option value="5.2"  style="background:#FFFFFF;color:#0F172A;">5.2 · Ethical Walls & PII/NPI Masking Gove</option>
+      <option value="5.3"  style="background:#FFFFFF;color:#0F172A;">5.3 · Automated TRID 3-Day Tolerance & Dis</option>
+      <option value="5.4"  style="background:#FFFFFF;color:#0F172A;">5.4 · Automated Vendor Contract Risk & GLB</option>
+      <option value="5.5"  style="background:#FFFFFF;color:#0F172A;">5.5 · Fair Lending Disparate Impact & Bias</option>
+      <option value="6.1"  style="background:#FFFFFF;color:#0F172A;">6.1 · Autonomous Vulnerability Trace & Rep</option>
+      <option value="6.2"  style="background:#FFFFFF;color:#0F172A;">6.2 · AI Software Factory: Autonomous PRD-</option>
+      <option value="6.3"  style="background:#FFFFFF;color:#0F172A;">6.3 · Legacy .NET Framework / WCF to Cloud</option>
+      <option value="M.1"  style="background:#FFFFFF;color:#0F172A;">M.1 · Project Siren: The Sub-200ms Voice A</option>
+      <option value="M.2"  style="background:#FFFFFF;color:#0F172A;">M.2 · Project Spatial Close: Immersive Vir</option>
+      <option value="M.3"  style="background:#FFFFFF;color:#0F172A;">M.3 · Project HiveMind: Autonomous Treasur</option>
+      <option value="M.4"  style="background:#FFFFFF;color:#0F172A;">M.4 · Project Mirror: Interactive Virtual </option>
+      <option value="M.5"  style="background:#FFFFFF;color:#0F172A;">M.5 · Project Air-Tight: Self-Healing Auto</option>
     </select>
   </div>
-  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
-    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
-    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
-    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
-      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
-      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+  <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:#EFF6FF;border:1px solid #BFDBFE;">
+    <span style="color:#1D4ED8;font-size:11px;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" aria-label="Select Gemini Model" style="background:transparent;color:#1E3A8A;font-weight:700;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected>Gemini 4 Argon (Frontier)</option>
+      <option value="gemini-3.8-flash" >Gemini 3.8 Flash (Low-Latency)</option>
     </select>
   </div>
-  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
-    🛠️ Code & Architecture
+  <button onclick="window.toggleBlueprintDrawer()" style="background:#0F172A;color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+    Code & Blueprint
   </button>
 </div>
 
 <!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
-<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
-  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#FFFFFF;color:#0F172A;border-left:1px solid #E2E8F0;box-shadow:-16px 0 48px rgba(15,23,42,0.16);transition:right 0.25s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;">
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [3.3] • Technical Blueprint & GenAI SDK</div>
-      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Hardship & Forbearance Live Servicing Assistant (CFPB Reg X)</div>
+      <div style="font-size:11px;color:#475569;font-weight:600;">Use Case 3.3 · Technical Blueprint & Vertex AI SDK</div>
+      <div style="font-size:16px;font-weight:700;color:#0F172A;margin-top:2px;">Hardship & Forbearance Live Servicing Assistant (CFPB Reg X)</div>
     </div>
-    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#E2E8F0;color:#334155;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
   </div>
   <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/3.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        📘 Full Reproduction Guide & SKILL.md ↗
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/3.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#1D4ED8;color:#FFF;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Full Reproduction Guide & SKILL.md ↗
       </a>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        ✨ Real Gemini Enterprise UI ↗
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#F3E8FF;border:1px solid #D8B4FE;color:#6B21A8;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Open Gemini Enterprise UI ↗
       </a>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
-        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        1. Vertex AI GenAI SDK Implementation (<span id="drawer-model-label" style="color:#1D4ED8;">gemini-4-argon</span>)
       </div>
-      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+      <pre id="drawer-sdk-code" style="background:#0F172A;border:1px solid #1E293B;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#E2E8F0;overflow-x:auto;line-height:1.5;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
-        2. GCP Reference Architecture (<= 78 Cols)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        2. GCP Reference Architecture
       </div>
-      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+      <pre style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1E293B;overflow-x:auto;line-height:1.45;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
         3. Custom Scenario Prompt Override
       </div>
-      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Live Servicing Call Transcript Stream (Loan #MRC-901244 — Fannie Mae Conforming, Current UPB $312,000, PITI $2,180/mo, 30 Days Delinquent):
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#FFFFFF;border:1px solid #CBD5E1;border-radius:8px;padding:10px;color:#0F172A;font-family:inherit;font-size:12.5px;">Live Servicing Call Transcript Stream (Loan #MRC-901244 — Fannie Mae Conforming, Current UPB $312,000, PITI $2,180/mo, 30 Days Delinquent):
 [00:12] Borrower (David Miller): "Hi, I'm calling because I missed October's payment and I'm really panicking. My plant in Sterling Heights just had a 60-day retooling layoff, and my wife had emergency gallbladder surgery last month."
 [00:28] Borrower: "I'm going back to work full-time on December 1st with my recall letter in hand, so I can afford my normal $2,180 payment starting December, but I can't pay October and November right now. Are you guys going to foreclose on my house?"
 [00:44] Servicing Specialist: "Mr. Miller, take a deep breath—you are safe, and we are here to help you keep your home. Let me pull up your Fannie Mae relief options right now..." </textarea>
-      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
-        ⚡ Re-Synthesize with Selected Model
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:8px;background:#059669;color:#FFF;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
+        Re-Synthesize with Selected Model
       </button>
     </div>
   </div>
 </div>
 
 <script>
-  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
-  // so sharing or copying the URL never leaks the session token!
+  // Scrub ?auth_token=... from URL bar after cookie authentication
   (function() {
     try {
       if (window.location.search.includes('auth_token=')) {
@@ -613,7 +617,7 @@
   };
 
   window.getSelectedModel = function() {
-    const el = document.getElementById('model-select');
+    const el = document.getElementById('model-select') || document.getElementById('app-model-select');
     return el ? el.value : "gemini-4-argon";
   };
 
@@ -636,7 +640,174 @@
     dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
   };
 
-  // Initialize SDK snippet on load
+  // ============================================================================
+  // UNIVERSAL GEMINI 3.8 LIVE 24kHz NATIVE AUDIO & INSTANT BARGE-IN ENGINE
+  // Eliminates all robotic browser speechSynthesis TTS across every demo!
+  // ============================================================================
+  window.RocketLiveAudio = (function() {
+    let audioCtx = null;
+    let activeSources = [];
+    let nextPlayTime = 0;
+    let pcmCache = {};
+    let currentClipBtn = null;
+    let currentClipOrigLabel = "";
+    let animFrameId = null;
+
+    function ensureCtx() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC({ sampleRate: 24000 });
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function stopAll() {
+      activeSources.forEach(src => {
+        try { src.stop(0); src.disconnect(); } catch (e) {}
+      });
+      activeSources = [];
+      if (audioCtx) {
+        nextPlayTime = audioCtx.currentTime;
+      }
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      if (currentClipBtn) {
+        currentClipBtn.innerHTML = currentClipOrigLabel;
+        currentClipBtn.dataset.playing = "0";
+        currentClipBtn = null;
+      }
+    }
+
+    function playPcm24kBase64(b64Data, onAmplitude, onEndedCallback) {
+      const ctx = ensureCtx();
+      const bin = atob(b64Data);
+      const len = bin.length;
+      const int16 = new Int16Array(Math.floor(len / 2));
+      for (let i = 0; i < int16.length; i++) {
+        const lo = bin.charCodeAt(i * 2);
+        const hi = bin.charCodeAt(i * 2 + 1);
+        let val = (hi << 8) | lo;
+        if (val >= 0x8000) val -= 0x10000;
+        int16[i] = val;
+      }
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {
+        float32[i] = int16[i] / 32768.0;
+      }
+      const buf = ctx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      if (onAmplitude) {
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 64;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        function tick() {
+          if (!activeSources.includes(src)) return;
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          onAmplitude(sum / (dataArr.length * 255), dataArr);
+          animFrameId = requestAnimationFrame(tick);
+        }
+        animFrameId = requestAnimationFrame(tick);
+      } else {
+        src.connect(ctx.destination);
+      }
+
+      const now = ctx.currentTime;
+      if (nextPlayTime < now) nextPlayTime = now + 0.01;
+      src.start(nextPlayTime);
+      nextPlayTime += buf.duration;
+      activeSources.push(src);
+
+      src.onended = () => {
+        activeSources = activeSources.filter(s => s !== src);
+        if (activeSources.length === 0 && onEndedCallback) {
+          onEndedCallback();
+        }
+      };
+      return src;
+    }
+
+    async function playClip(text, voice, speakerRole, btnEl, onAmplitude) {
+      if (btnEl && btnEl.dataset.playing === "1") {
+        stopAll();
+        return;
+      }
+      stopAll();
+      ensureCtx();
+
+      if (btnEl) {
+        currentClipBtn = btnEl;
+        currentClipOrigLabel = btnEl.innerHTML;
+        btnEl.dataset.playing = "1";
+        btnEl.innerHTML = "⏳ Connecting Gemini 3.8 Live Audio...";
+      }
+
+      const cacheKey = (voice || "Aoede") + "::" + text;
+      try {
+        let pcmB64 = pcmCache[cacheKey];
+        if (!pcmB64) {
+          const res = await fetch('/api/live-tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: text,
+              voice: voice || "Aoede",
+              speaker_role: speakerRole || "Rocket Mortgage Voice Co-Pilot",
+              live_mode: "gemini-3.8-live"
+            })
+          });
+          const data = await res.json();
+          if (!data.ok || !data.pcm_b64) {
+            throw new Error(data.error || "Audio stream unavailable");
+          }
+          pcmB64 = data.pcm_b64;
+          pcmCache[cacheKey] = pcmB64;
+        }
+        if (btnEl && currentClipBtn === btnEl) {
+          btnEl.innerHTML = "⏹ Stop Live Audio (Playing 24kHz HD)";
+        }
+        playPcm24kBase64(pcmB64, onAmplitude, () => {
+          if (btnEl && currentClipBtn === btnEl) {
+            btnEl.innerHTML = currentClipOrigLabel;
+            btnEl.dataset.playing = "0";
+            currentClipBtn = null;
+          }
+          if (onAmplitude) onAmplitude(0, null);
+        });
+      } catch (err) {
+        if (btnEl) {
+          btnEl.innerHTML = currentClipOrigLabel;
+          btnEl.dataset.playing = "0";
+          currentClipBtn = null;
+        }
+        console.error("Gemini 3.8 Live TTS error:", err);
+      }
+    }
+
+    return {
+      ensureCtx: ensureCtx,
+      stopAll: stopAll,
+      playPcm24kBase64: playPcm24kBase64,
+      playClip: playClip,
+      isPlaying: () => activeSources.length > 0
+    };
+  })();
+
+  window.stopAllLiveAudio = window.RocketLiveAudio.stopAll;
+  window.playLiveCallClip = window.RocketLiveAudio.playClip;
+
   document.addEventListener('DOMContentLoaded', () => {
     window.syncSelectedModel("gemini-4-argon");
   });

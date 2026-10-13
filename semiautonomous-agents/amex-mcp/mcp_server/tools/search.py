@@ -14,6 +14,7 @@ VALID_AGGREGATES = {"sum", "avg", "count", "min", "max"}
 VALID_GROUP_BY = {
     "enriched_category", "subcategory", "merchant_clean", "card_member",
     "merchant_type", "purchase_channel", "purpose", "period", "date",
+    "institution", "account_name",
 }
 
 

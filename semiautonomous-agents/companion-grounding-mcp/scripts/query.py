@@ -2,6 +2,10 @@ import sys
 import json
 import os
 
+_VENV_PY = os.path.expanduser("~/vertex-ai-samples/semiautonomous-agents/companion-grounding-mcp/.venv/bin/python")
+if os.path.exists(_VENV_PY) and os.path.abspath(sys.executable) != os.path.abspath(_VENV_PY):
+    os.execv(_VENV_PY, [_VENV_PY] + sys.argv)
+
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from server import (
@@ -13,6 +17,8 @@ from server import (
     get_meet_transcripts,
     get_grounding_dossier,
     get_recent_context,
+    get_message_context_window,
+    verify_quotes_against_db,
     verify_draft_tone,
     get_calendar_schedule,
     get_upcoming_trips,
@@ -24,6 +30,8 @@ def print_help():
 Usage:
   python3 scripts/query.py semantic <query> [platform]
   python3 scripts/query.py raw <query> [platform]
+  python3 scripts/query.py context <msg_id> [window]
+  python3 scripts/query.py verify "<quote1>|<quote2>|..."
   python3 scripts/query.py models [flaws|positives|all] [platform]
   python3 scripts/query.py graph [topic]
   python3 scripts/query.py advice <query>
@@ -68,8 +76,15 @@ def main():
         sec = sys.argv[2] if len(sys.argv) > 2 else "full_dossier"
         print(get_grounding_dossier(sec))
     elif cmd == "recent":
-        limit = int(sys.argv[2]) if len(sys.argv) > 2 else 15
+        limit = int(sys.argv[2]) if len(sys.argv) > 2 else 25
         print(get_recent_context(limit))
+    elif cmd == "context":
+        msg_id = int(sys.argv[2]) if len(sys.argv) > 2 else 2453
+        win = int(sys.argv[3]) if len(sys.argv) > 3 else 6
+        print(get_message_context_window(msg_id, window=win))
+    elif cmd == "verify":
+        quotes = " ".join(sys.argv[2:])
+        print(verify_quotes_against_db(quotes))
     elif cmd == "check":
         draft = " ".join(sys.argv[2:])
         print(verify_draft_tone(draft))
