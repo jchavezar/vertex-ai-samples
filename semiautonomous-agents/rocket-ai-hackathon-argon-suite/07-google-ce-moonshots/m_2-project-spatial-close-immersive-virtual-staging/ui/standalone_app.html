@@ -596,9 +596,45 @@
       <option value="gemini-3.8-flash" >Gemini 3.8 Flash (Low-Latency)</option>
     </select>
   </div>
+  <button onclick="window.toggleAstraStandaloneDrawer()" style="background:linear-gradient(135deg,#E11D48,#4F46E5);color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(225,29,72,0.25);">
+    🎥 Ask Astra 2.0 (All 33 Demos)
+  </button>
   <button onclick="window.toggleBlueprintDrawer()" style="background:#0F172A;color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
     Code & Blueprint
   </button>
+</div>
+
+<!-- SLIDE-OVER ASTRA 2.0 OMNISCIENT CHAT & 33-DEMO NAVIGATOR DRAWER -->
+<div id="rkt-astra-drawer" style="position:fixed;top:0;right:-580px;width:min(560px,96vw);height:100vh;z-index:9999;background:#FFFFFF;color:#0F172A;border-left:1px solid #E2E8F0;box-shadow:-16px 0 48px rgba(15,23,42,0.18);transition:right 0.25s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+  <div style="padding:16px 20px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;background:#0F172A;color:#FFFFFF;">
+    <div>
+      <div style="font-size:10.5px;color:#FDA4AF;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;">🎥 Astra 2.0 Omniscient Architect · Oct 16 & Oct 28–29 Ready</div>
+      <div style="font-size:15px;font-weight:800;color:#FFFFFF;margin-top:2px;">Ask Across All 33 Rocket Demos & Dossier</div>
+    </div>
+    <button onclick="window.toggleAstraStandaloneDrawer()" style="background:#1E293B;color:#E2E8F0;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
+  </div>
+  <div style="padding:10px 16px;background:#F8FAFC;border-bottom:1px solid #E2E8F0;display:flex;gap:6px;flex-wrap:wrap;">
+    <button onclick="window.sendStandaloneAstraChat('How does this current demo ('+window.SQUARE_CODE+') work, what is its ROI, and which other squares complement it?')" style="padding:5px 10px;border-radius:999px;background:#EFF6FF;border:1px solid #BFDBFE;color:#1D4ED8;font-size:11px;font-weight:700;cursor:pointer;">
+      ✨ Explain This Demo (M.2) & Complementary Squares
+    </button>
+    <button onclick="window.sendStandaloneAstraChat('Give me the Oct 16 Showcase & Oct 28–29 Detroit/Chennai Hackathon agenda and top 5 demos to present.')" style="padding:5px 10px;border-radius:999px;background:#FFF1F2;border:1px solid #FECDD3;color:#BE123C;font-size:11px;font-weight:700;cursor:pointer;">
+      📅 Oct 16 & Oct 28–29 Schedule
+    </button>
+  </div>
+  <div id="rkt-astra-chat-log" style="padding:16px 18px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px;background:#F8FAFC;font-size:13px;line-height:1.55;">
+    <div style="padding:14px;border-radius:12px;background:#FFFFFF;border:1px solid #E2E8F0;box-shadow:0 1px 3px rgba(0,0,0,0.04);">
+      <div style="font-size:11px;font-weight:800;color:#E11D48;margin-bottom:4px;">ASTRA 2.0 • OMNISCIENT CO-PILOT</div>
+      <div style="color:#334155;font-size:12.5px;">
+        You are currently viewing <strong>Square [M.2] Project Spatial Close: Immersive Virtual Staging & 3D Neighborhood Hub</strong>. Ask me anything about this demo, any of the other <strong>33 Rocket Companies use cases</strong>, our <strong>Oct 16 & Oct 28–29 Hackathon dates</strong>, or click <strong>🔊 Speak</strong> to hear my answer in <strong>24kHz Gemini 3.8 Live HD audio</strong>!
+      </div>
+    </div>
+  </div>
+  <div style="padding:12px 16px;border-top:1px solid #E2E8F0;background:#FFFFFF;display:flex;gap:8px;">
+    <input id="rkt-astra-input" type="text" placeholder="Ask Astra 2.0 for specific use cases, ROI, or dates..." onkeydown="if(event.key==='Enter')window.sendStandaloneAstraChat()" style="flex:1;padding:10px 12px;border-radius:10px;border:1px solid #CBD5E1;font-family:inherit;font-size:12.5px;color:#0F172A;outline:none;">
+    <button onclick="window.sendStandaloneAstraChat()" style="padding:10px 16px;border-radius:10px;background:#E11D48;color:#FFFFFF;border:none;font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;">
+      Ask →
+    </button>
+  </div>
 </div>
 
 <!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
@@ -690,6 +726,83 @@
     const dr = document.getElementById('rkt-blueprint-drawer');
     if (!dr) return;
     dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  let standaloneAstraHistory = [];
+  window.toggleAstraStandaloneDrawer = function() {
+    const dr = document.getElementById('rkt-astra-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-580px' : '0px';
+    if (dr.style.right === '0px') {
+      const inp = document.getElementById('rkt-astra-input');
+      if (inp) setTimeout(() => inp.focus(), 80);
+    }
+  };
+
+  window.sendStandaloneAstraChat = async function(customMsg) {
+    const inp = document.getElementById('rkt-astra-input');
+    const log = document.getElementById('rkt-astra-chat-log');
+    const msg = (customMsg || (inp ? inp.value : '')).trim();
+    if (!msg || !log) return;
+    if (!customMsg && inp) inp.value = '';
+
+    const uDiv = document.createElement('div');
+    uDiv.style.cssText = 'align-self:flex-end;max-width:88%;padding:10px 14px;border-radius:12px;background:#0F172A;color:#FFFFFF;font-size:12.5px;font-weight:500;';
+    uDiv.textContent = msg;
+    log.appendChild(uDiv);
+
+    const lDiv = document.createElement('div');
+    lDiv.style.cssText = 'padding:12px 14px;border-radius:12px;background:#FFFFFF;border:1px solid #E2E8F0;font-size:12px;color:#E11D48;font-weight:700;';
+    lDiv.textContent = '⚡ Astra 2.0 querying all 33 demos, event dates & Rocket dossier...';
+    log.appendChild(lDiv);
+    log.scrollTop = log.scrollHeight;
+
+    standaloneAstraHistory.push({ role: 'user', text: msg });
+    try {
+      const res = await fetch('/api/astra-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: `[Context: User is currently inside Square ${window.SQUARE_CODE}] ${msg}`,
+          history: standaloneAstraHistory.slice(-8),
+          model: window.getSelectedModel()
+        })
+      });
+      const data = await res.json();
+      lDiv.remove();
+
+      const reply = data.reply_markdown || 'Here are the matching Rocket use cases:';
+      standaloneAstraHistory.push({ role: 'assistant', text: reply });
+
+      const cardsHtml = (data.matched_squares || []).map(c => `
+        <div style="margin-top:8px;padding:10px 12px;border-radius:10px;background:#F8FAFC;border:1px solid #CBD5E1;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <div style="min-width:0;">
+            <div style="font-size:12px;font-weight:800;color:#0F172A;"><span style="color:#E11D48;">[${c.code}]</span> ${c.title}</div>
+            <div style="font-size:11px;color:#475569;">🎨 ${c.ui_site} · ${c.runtime}</div>
+          </div>
+          <a href="/?case=${encodeURIComponent(c.code)}" style="padding:6px 10px;border-radius:8px;background:#E11D48;color:#FFFFFF;text-decoration:none;font-size:11px;font-weight:700;white-space:nowrap;">Open →</a>
+        </div>
+      `).join('');
+
+      const bDiv = document.createElement('div');
+      bDiv.style.cssText = 'padding:14px;border-radius:12px;background:#FFFFFF;border:1px solid #E2E8F0;box-shadow:0 2px 6px rgba(0,0,0,0.04);';
+      const formatted = reply
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+      bDiv.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:11px;font-weight:800;color:#E11D48;">ASTRA 2.0 (${data.model_used || 'gemini-4-argon'})</span>
+          <button onclick="window.playLiveCallClip(this.dataset.speech, 'Aoede', 'Astra 2.0 Architect', this)" data-speech="${reply.replace(/"/g, '&quot;').slice(0, 360)}" style="padding:3px 8px;border-radius:6px;background:#FFF1F2;border:1px solid #FECDD3;color:#BE123C;font-size:10.5px;font-weight:700;cursor:pointer;">🔊 Speak (3.8 Live)</button>
+        </div>
+        <div style="color:#1E293B;font-size:12.5px;line-height:1.55;">${formatted}</div>
+        ${cardsHtml}
+      `;
+      log.appendChild(bDiv);
+      log.scrollTop = log.scrollHeight;
+    } catch (err) {
+      lDiv.textContent = 'Error contacting Astra 2.0: ' + err.message;
+    }
   };
 
   // ============================================================================

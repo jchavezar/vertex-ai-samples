@@ -31,7 +31,7 @@
       "violation_2_sec_11_4_breach_sla": "72-Hour Notice violates Rocket 24-Hour NYDFS 23 NYCRR 500.17 / FTC GLBA Safeguards requirement",
       "violation_3_sec_14_1_ai_training": "Vendor Foundation Model Training Clause violates Rocket Zero-Training Data Sovereignty Policy"
     },
-    "execution_ms": 0.01
+    "execution_ms": 0.0
   },
   "bespoke_visual_artifact": {
     "archetype": "vendor_glba_contract_redliner",

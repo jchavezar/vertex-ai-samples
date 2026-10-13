@@ -31,7 +31,7 @@
       "redfin_agent_compensation_rule": "PROHIBITED: Per-referral bonus to Redfin agents violates 12 CFR \u00a7 1024.14. ALLOWED: Direct $2,500 Consumer Lender Credit.",
       "fannie_mae_ipc_cap_90_ltv": "6.0% Max IPC Cap ($24,000 on $400k home) \u2014 $10k Seller + $2.5k Affiliated Credit = $12,500 (3.125% <= 6.0% PASS)"
     },
-    "execution_ms": 0.0
+    "execution_ms": 0.01
   },
   "bespoke_visual_artifact": {
     "archetype": "cfpb_respa_regulatory_diff_vault",

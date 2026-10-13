@@ -33,7 +33,7 @@
       "stated_vs_documented_variance": "+8.06% (+$783.33/mo over-stated -> BREACHES 5.0% Tolerance Threshold!)",
       "los_auto_adjustment": "Update Form 1003 Qualifying Income to $9,716.67/mo and recalculate DTI."
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.01
   },
   "bespoke_visual_artifact": {
     "archetype": "docai_paystub_w2_ocr_inspector",

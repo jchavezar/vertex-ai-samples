@@ -31,7 +31,7 @@
       "austin_2_1_seller_buydown_play": "Purchase $445,000 w/ Seller-Funded 2-1 Buydown -> Year 1 P&I drops to $1,941.02/mo (4.125% effective rate!)",
       "targeted_rocket_money_cohort": "14,820 Rocket Money Renters in Detroit & Austin with >= $15,000 in Savings Vaults"
     },
-    "execution_ms": 0.01
+    "execution_ms": 0.02
   },
   "bespoke_visual_artifact": {
     "archetype": "metro_50_market_pulse_heatmap",

@@ -34,7 +34,7 @@
       "official_total_payoff_wire": "$286,494.34 (Includes $30.00 Wayne County Discharge Fee)",
       "escrow_surplus_refund": "$1,120.00 (Auto-refunded via ACH within 10 business days of payoff)"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.01
   },
   "bespoke_visual_artifact": {
     "archetype": "payoff_1098_document_generator",

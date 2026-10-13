@@ -233,9 +233,25 @@ def render_sq_m_4(auth_token: str) -> str:
 
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <div class="select-pill">
+          <span style="color:var(--warm-muted);font-weight:600;">AVATAR:</span>
+          <select id="mirror-avatar-select" onchange="window.updateMirrorVoiceConfig()" aria-label="Astra Pro Live Avatar">
+            <option value="Kira" selected>🎥 Kira (Executive Advisor · 24fps)</option>
+            <option value="Ingrid">🎥 Ingrid (Mortgage Architect · 24fps)</option>
+            <option value="Vera">🎥 Vera (Risk/UW Lead · 24fps)</option>
+            <option value="Sam">🎥 Sam (FDE Director · 24fps)</option>
+            <option value="Jay">🎥 Jay (Staff Cloud Lead · 24fps)</option>
+            <option value="Paul">🎥 Paul (Capital Markets · 24fps)</option>
+            <option value="Kai">🎥 Kai (3D Concierge · 24fps)</option>
+            <option value="Ben">🎥 Ben (Dev Advocate · 24fps)</option>
+            <option value="Carmen">🎥 Carmen (Bilingual · 24fps)</option>
+            <option value="off">🎙️ Audio Only (24kHz HD)</option>
+          </select>
+        </div>
+
+        <div class="select-pill">
           <span style="color:var(--warm-muted);font-weight:600;">LIVE MODE:</span>
           <select id="mirror-live-mode" onchange="window.updateMirrorVoiceConfig()" aria-label="Gemini Live Mode">
-            <option value="gemini-3.8-live" selected>Gemini 3.8 Live (24kHz Native Audio)</option>
+            <option value="gemini-3.8-live" selected>Gemini 3.8 Live (24 FPS + 24kHz)</option>
             <option value="gemini-3.8-live-extended-thinking">Gemini 3.8 Live Extended Thinking</option>
           </select>
         </div>
@@ -278,10 +294,20 @@ def render_sq_m_4(auth_token: str) -> str:
         </span>
       </div>
 
+      <!-- Live 24 FPS Gemini 3.8 Live Video Avatar Stage for Astra Pro -->
+      <div style="margin-bottom:12px;border-radius:14px;overflow:hidden;border:1.5px solid var(--stone-border);background:#1C1917;position:relative;height:220px;display:flex;align-items:center;justify-content:center;">
+        <video id="m4-avatar-video" playsinline autoplay style="width:100%;height:100%;object-fit:cover;display:none;"></video>
+        <div id="m4-avatar-placeholder" style="text-align:center;padding:16px;color:#FAF8F5;">
+          <div style="font-size:28px;margin-bottom:4px;">🎥</div>
+          <div class="serif-ad" style="font-size:15px;font-weight:700;">Astra Pro Live Video Avatar (704×1280 24 FPS)</div>
+          <div style="font-size:11.5px;color:#D6D3D1;margin-top:3px;">Click <strong>Start Astra Pro Live Avatar Session</strong> below to stream real-time lip-synced video + 24kHz audio</div>
+        </div>
+      </div>
+
       <!-- Voice Session & 0ms Barge-In Controls -->
       <div class="voice-control-grid">
         <button id="btn-mirror-session" class="ad-btn ad-btn-primary" onclick="window.toggleMirrorLiveVoice()">
-          🎙️ Start Astra Pro Live Voice Session (/ws/live-voice/M.4)
+          🎥 Start Astra Pro Live Avatar Session (/ws/live-voice/M.4)
         </button>
         <button id="btn-mirror-mic" class="ad-btn ad-btn-sky" onclick="window.toggleMirror16kMic()">
           🎤 16kHz Mic Stream
@@ -538,39 +564,110 @@ def render_sq_m_4(auth_token: str) -> str:
       }} catch (e) {{}}
     }}
 
+    let m4MediaSource = null;
+    let m4SourceBuffer = null;
+    let m4MseQueue = [];
+    let m4MseReady = false;
+
+    function initM4MSE() {{
+      if (m4MediaSource) return;
+      const vid = document.getElementById('m4-avatar-video');
+      const ph = document.getElementById('m4-avatar-placeholder');
+      if (!vid) return;
+      m4MediaSource = new MediaSource();
+      vid.playsInline = true;
+      vid.autoplay = true;
+      vid.muted = mirrorMuted;
+      vid.style.display = 'block';
+      if (ph) ph.style.display = 'none';
+      vid.src = URL.createObjectURL(m4MediaSource);
+      m4MediaSource.addEventListener('sourceopen', () => {{
+        const candidates = [
+          'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+          'video/mp4; codecs="avc1.42c01f, mp4a.40.2"',
+          'video/mp4; codecs="avc1.4D401E, mp4a.40.2"',
+          'video/mp4'
+        ];
+        const mime = candidates.find(t => MediaSource.isTypeSupported(t));
+        if (!mime) return;
+        try {{
+          m4SourceBuffer = m4MediaSource.addSourceBuffer(mime);
+          m4SourceBuffer.mode = 'sequence';
+          m4SourceBuffer.addEventListener('updateend', () => {{
+            pumpM4MseQueue();
+            if (vid.paused) vid.play().catch(() => {{}});
+          }});
+          m4MseReady = true;
+          pumpM4MseQueue();
+        }} catch (e) {{}}
+      }});
+    }}
+
+    function pumpM4MseQueue() {{
+      if (!m4MseReady || !m4SourceBuffer || m4SourceBuffer.updating || !m4MseQueue.length) return;
+      try {{ m4SourceBuffer.appendBuffer(m4MseQueue.shift()); }} catch (e) {{}}
+    }}
+
+    function resetM4MSE() {{
+      m4MseQueue = [];
+      m4MseReady = false;
+      m4SourceBuffer = null;
+      m4MediaSource = null;
+      const vid = document.getElementById('m4-avatar-video');
+      const ph = document.getElementById('m4-avatar-placeholder');
+      if (vid) {{ vid.style.display = 'none'; vid.removeAttribute('src'); }}
+      if (ph) ph.style.display = 'block';
+    }}
+
     window.toggleMirrorLiveVoice = function() {{
       const btn = document.getElementById('btn-mirror-session');
       const status = document.getElementById('mirror-ws-status');
 
       if (mirrorWs && mirrorWs.readyState === WebSocket.OPEN) {{
         window.flushMirrorAudio('Session Closed');
+        resetM4MSE();
         if (mirrorMicOn) window.toggleMirror16kMic();
         mirrorWs.close();
         mirrorWs = null;
         btn.classList.remove('live');
-        btn.innerText = '🎙️ Start Astra Pro Live Voice Session (/ws/live-voice/M.4)';
+        btn.innerText = '🎥 Start Astra Pro Live Avatar Session (/ws/live-voice/M.4)';
         status.innerText = 'Disconnected • Ready';
         return;
       }}
 
       ensureMirrorAudioCtx();
+      resetM4MSE();
       const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
       const mode = document.getElementById('mirror-live-mode').value;
       const voice = document.getElementById('mirror-voice-select').value;
-      mirrorWs = new WebSocket(`${{proto}}//${{window.location.host}}/ws/live-voice/M.4?auth_token=${{AUTH_TOKEN}}&voice=${{encodeURIComponent(voice)}}&live_mode=${{encodeURIComponent(mode)}}`);
+      const avatar = (document.getElementById('mirror-avatar-select') || {{value: 'Kira'}}).value;
+      mirrorWs = new WebSocket(`${{proto}}//${{window.location.host}}/ws/live-voice/M.4?auth_token=${{AUTH_TOKEN}}&voice=${{encodeURIComponent(voice)}}&live_mode=${{encodeURIComponent(mode)}}&avatar=${{encodeURIComponent(avatar)}}`);
+      mirrorWs.binaryType = 'arraybuffer';
       status.innerText = 'Connecting /ws/live-voice/M.4...';
 
       mirrorWs.onopen = () => {{
         btn.classList.add('live');
-        btn.innerText = '⏹️ Stop Astra Pro Live Session (24kHz Active)';
-        status.innerText = `🟢 Connected (${{mode}} • ${{voice}})`;
-        mirrorWs.send(JSON.stringify({{ type: 'config', live_mode: mode, voice: voice }}));
+        btn.innerText = `⏹️ Stop Astra Pro Live (${{avatar !== 'off' ? 'Avatar ' + avatar : voice}})`;
+        status.innerText = `🟢 Connected (${{mode}} • ${{avatar !== 'off' ? '24fps Avatar ' + avatar : voice}})`;
+        mirrorWs.send(JSON.stringify({{
+          type: 'text',
+          text: 'Greet the homeowner warmly at the closing table in 2 concise sentences and offer to walk through Cash to Close, Box A, Box F, or Box G!'
+        }}));
       }};
 
       mirrorWs.onmessage = (evt) => {{
+        if (typeof evt.data !== 'string') {{
+          if (!m4MediaSource) initM4MSE();
+          m4MseQueue.push(evt.data);
+          pumpM4MseQueue();
+          mirrorPcmChunks++;
+          document.getElementById('mirror-chunk-counter').innerText = `${{mirrorPcmChunks}} Live Video+Audio Chunks (24fps + 24kHz)`;
+          return;
+        }}
         const msg = JSON.parse(evt.data);
         if (msg.interrupted === true) {{
           window.flushMirrorAudio('Server Barge-In (msg.interrupted=true)');
+          m4MseQueue = [];
           return;
         }}
         if (msg.thinking_summary) {{
@@ -588,7 +685,7 @@ def render_sq_m_4(auth_token: str) -> str:
 
       mirrorWs.onclose = () => {{
         btn.classList.remove('live');
-        btn.innerText = '🎙️ Start Astra Pro Live Voice Session (/ws/live-voice/M.4)';
+        btn.innerText = '🎥 Start Astra Pro Live Avatar Session (/ws/live-voice/M.4)';
         status.innerText = 'Standby • /ws/live-voice/M.4';
       }};
     }};

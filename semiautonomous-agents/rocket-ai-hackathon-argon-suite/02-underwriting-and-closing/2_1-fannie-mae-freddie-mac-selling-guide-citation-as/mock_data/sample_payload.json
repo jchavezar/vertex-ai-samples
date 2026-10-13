@@ -33,7 +33,7 @@
       "declining_bonus_ conservative_monthly": "$1,166.67/mo (Capped at 2025 $14,000/12 due to -36.4% YoY decline per B3-3.1-01)",
       "total_fannie_mae_qualifying_income": "$19,500.00/month ($234,000.00/yr)"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.01
   },
   "bespoke_visual_artifact": {
     "archetype": "notebooklm_gse_citation_desk",
