@@ -31,7 +31,7 @@
       "michigan_non_pre_second_home_tax": "$11,025.00/yr ($918.75/mo Escrow at 52.5 Mills w/ 18-Mill School Tax)",
       "target_cloud_run_runtime": ".NET 9 Native AOT Minimal API / Python FastAPI (Cold Start < 140ms)"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.01
   },
   "bespoke_visual_artifact": {
     "archetype": "legacy_dotnet_wcf_transpiler",

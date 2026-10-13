@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Square 4.4 — Automated Multi-Format Video Tour & Rate-Drop Producer (Veo 3.1 + Gempix-2).
-Visual Design: CapCut / Premiere Pro 9:16 Vertical Reels & TikTok NLE Video Studio.
-Palette: #0E0E12 studio carbon, #FACC15 cyber yellow playhead, #A855F7 track purple.
-Typography: Google Fonts 'Archivo' + 'JetBrains Mono'.
+"""Square 4.4 — Ad Copy & Fair-Lending Guardrail (Figma / Notion Light Creative Marketing Campaign Review Studio).
+Visual Design: Figma / Notion Light Creative Marketing Campaign Review Studio.
+Palette: #FFFFFF clean white canvas, #F3F4F6 light studio sidebar, #2563EB review blue, #16A34A ECOA approved green, #DC2626 flagged phrase red.
+Typography: Google Fonts 'Plus Jakarta Sans'.
 """
 
 from shared.standalone_uis.base_helpers import render_floating_control_bar_and_drawer
@@ -15,788 +15,860 @@ def render_sq_4_4(auth_token: str) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>4.4 Veo 3.1 + Gempix-2 Vertical NLE Video Studio | Rocket × Redfin</title>
+  <title>Ad Copy & Fair-Lending Guardrail | Figma × Notion Creative Compliance Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {{
-      --carbon: #0E0E12;
-      --panel: #15151C;
-      --panel-elev: #1E1E28;
-      --track-bg: #111117;
-      --cyber-yellow: #FACC15;
-      --track-purple: #A855F7;
-      --crimson: #E11D48;
-      --emerald: #10B981;
-      --cyan: #06B6D4;
-      --text: #F8FAFC;
-      --muted: #9CA3AF;
-      --border: #272736;
+      --canvas-white: #FFFFFF;
+      --sidebar-gray: #F3F4F6;
+      --surface-soft: #F9FAFB;
+      --border-light: #E5E7EB;
+      --border-medium: #D1D5DB;
+      --review-blue: #2563EB;
+      --review-blue-dark: #1D4ED8;
+      --review-blue-soft: #EFF6FF;
+      --ecoa-green: #16A34A;
+      --ecoa-green-soft: #DCFCE7;
+      --flag-red: #DC2626;
+      --flag-red-soft: #FEE2E2;
+      --amber-warn: #D97706;
+      --amber-soft: #FEF3C7;
+      --text-main: #111827;
+      --text-muted: #4B5563;
+      --text-subtle: #6B7280;
     }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
-      background-color: var(--carbon);
-      color: var(--text);
-      font-family: 'Archivo', sans-serif;
+      background-color: var(--canvas-white);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       overflow-x: hidden;
-      padding-bottom: 92px;
-      display: flex;
-      flex-direction: column;
+      padding-bottom: 96px;
+      line-height: 1.5;
     }}
-    .mono {{ font-family: 'JetBrains Mono', monospace; }}
 
-    /* Top Premiere / CapCut Studio Header */
-    .nle-header {{
-      background: #09090D;
-      border-bottom: 1px solid var(--border);
-      padding: 10px 22px;
+    /* Top Figma / Notion Studio Toolbar */
+    .studio-toolbar {{
+      background: var(--canvas-white);
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 11px 22px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-    }}
-    .nle-left {{
-      display: flex;
-      align-items: center;
       gap: 14px;
+      flex-wrap: wrap;
     }}
-    .veo-badge {{
-      background: linear-gradient(135deg, var(--track-purple), var(--crimson));
-      color: #FFF;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 5px 10px;
-      border-radius: 6px;
-      letter-spacing: 0.05em;
-    }}
-    .project-title {{
-      font-size: 15px;
-      font-weight: 800;
-      letter-spacing: -0.01em;
-    }}
-    .project-meta {{
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-    }}
-    .nle-right {{
+    .toolbar-left {{
       display: flex;
       align-items: center;
       gap: 12px;
     }}
-    .model-box {{
+    .figma-badge {{
+      background: var(--review-blue);
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }}
+    .workspace-crumb {{
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--panel-elev);
-      border: 1px solid var(--border);
-      padding: 5px 10px;
-      border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+    }}
+    .status-compliance-pill {{
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }}
+    .status-compliance-pill.flagged {{
+      background: var(--flag-red-soft);
+      color: var(--flag-red);
+      border: 1px solid #FCA5A5;
+    }}
+    .status-compliance-pill.approved {{
+      background: var(--ecoa-green-soft);
+      color: var(--ecoa-green);
+      border: 1px solid #86EFAC;
+    }}
+
+    .toolbar-right {{
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }}
+    .model-select-wrap {{
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--sidebar-gray);
+      border: 1px solid var(--border-light);
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
     }}
     #app-model-select {{
-      background: transparent;
-      color: var(--cyber-yellow);
       border: none;
-      outline: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      background: transparent;
+      font-family: inherit;
+      font-size: 12px;
       font-weight: 700;
+      color: var(--review-blue);
+      outline: none;
       cursor: pointer;
     }}
-    #app-model-select option {{
-      background: var(--panel);
-      color: #FFF;
-    }}
-    .btn-export-reel {{
-      background: var(--cyber-yellow);
-      color: #09090D;
+    .btn-blue {{
+      background: var(--review-blue);
+      color: #FFFFFF;
       border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
+      border-radius: 8px;
+      padding: 8px 15px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: background 0.15s ease;
+    }}
+    .btn-blue:hover {{
+      background: var(--review-blue-dark);
+    }}
+    .btn-green {{
+      background: var(--ecoa-green);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 8px;
+      padding: 8px 15px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: opacity 0.15s ease;
+    }}
+    .btn-green:hover {{
+      opacity: 0.92;
+    }}
+    .btn-secondary {{
+      background: var(--canvas-white);
+      color: var(--text-main);
+      border: 1px solid var(--border-medium);
+      border-radius: 8px;
+      padding: 8px 13px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }}
+    .btn-secondary:hover {{
+      background: var(--sidebar-gray);
+    }}
+
+    /* Studio Layout: Left Sidebar + Center Canvas + Right Redline Inspector */
+    .studio-workspace {{
+      display: grid;
+      grid-template-columns: 270px 1fr 390px;
+      min-height: calc(100vh - 58px);
+    }}
+    @media (max-width: 1180px) {{
+      .studio-workspace {{ grid-template-columns: 1fr; }}
+    }}
+
+    /* Left Studio Sidebar (#F3F4F6) */
+    .studio-sidebar {{
+      background: var(--sidebar-gray);
+      border-right: 1px solid var(--border-light);
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }}
+    .sidebar-section-label {{
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
-      cursor: pointer;
-      box-shadow: 0 4px 16px rgba(250, 204, 21, 0.3);
-      transition: 0.15s;
+      letter-spacing: 0.06em;
+      color: var(--text-subtle);
+      margin-bottom: 8px;
     }}
-    .btn-export-reel:hover {{
-      transform: translateY(-1px);
-      background: #FDE047;
-    }}
-
-    /* Upper NLE Workspace: Left Media Bin, Center 9:16 Phone Monitor, Right Inspector */
-    .nle-upper-grid {{
-      display: grid;
-      grid-template-columns: 290px 1fr 410px;
-      gap: 14px;
-      padding: 14px 20px;
-      flex: 1;
-    }}
-    @media (max-width: 1200px) {{
-      .nle-upper-grid {{ grid-template-columns: 1fr; }}
-    }}
-    .nle-pane {{
-      background: var(--panel);
-      border: 1px solid var(--border);
+    .campaign-preset-btn {{
+      width: 100%;
+      text-align: left;
+      background: var(--canvas-white);
+      border: 1px solid var(--border-light);
       border-radius: 10px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-    }}
-    .pane-head {{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      padding-bottom: 10px;
-      margin-bottom: 12px;
-      border-bottom: 1px solid var(--border);
-    }}
-
-    /* Scene Clips in Media Bin */
-    .clip-card {{
-      background: var(--panel-elev);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 10px 12px;
-      margin-bottom: 10px;
+      padding: 11px 12px;
+      margin-bottom: 8px;
       cursor: pointer;
-      transition: 0.15s;
+      font-family: inherit;
+      transition: all 0.15s ease;
     }}
-    .clip-card:hover {{
-      border-color: var(--track-purple);
+    .campaign-preset-btn:hover {{
+      border-color: var(--review-blue);
     }}
-    .clip-card.active {{
-      border: 1.5px solid var(--cyber-yellow);
-      background: rgba(250, 204, 21, 0.07);
+    .campaign-preset-btn.active {{
+      border: 2px solid var(--review-blue);
+      background: var(--review-blue-soft);
     }}
-    .clip-time {{
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--cyber-yellow);
-      margin-bottom: 3px;
-    }}
-    .clip-name {{
+    .preset-title {{
       font-size: 13px;
       font-weight: 700;
-      margin-bottom: 2px;
+      color: var(--text-main);
     }}
-    .clip-motion {{
-      font-size: 11px;
-      color: var(--muted);
-    }}
-
-    /* Center 9:16 Vertical Smartphone Preview Monitor */
-    .monitor-stage {{
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: #0A0A0E;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      position: relative;
-    }}
-    .phone-9-16 {{
-      width: 292px;
-      height: 518px;
-      border-radius: 34px;
-      border: 6px solid #2A2A38;
-      background: #14141D;
-      position: relative;
-      overflow: hidden;
-      box-shadow: 0 24px 60px rgba(0,0,0,0.85), 0 0 0 1px rgba(168,85,247,0.3);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }}
-    .phone-notch {{
-      position: absolute;
-      top: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 84px;
-      height: 18px;
-      background: #07070A;
-      border-radius: 999px;
-      z-index: 15;
-    }}
-    .reel-canvas-bg {{
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      transition: all 0.45s ease;
-    }}
-    /* Animated Top HUD inside Phone */
-    .reel-top-hud {{
-      position: relative;
-      z-index: 10;
-      padding: 34px 14px 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-    }}
-    .synthid-chip {{
-      background: rgba(0,0,0,0.65);
-      border: 1px solid rgba(255,255,255,0.25);
-      padding: 3px 7px;
-      border-radius: 999px;
-      color: #E2E8F0;
-    }}
-    /* Lower-Third Rate Drop & Caption Overlay inside Phone */
-    .reel-lower-third {{
-      position: relative;
-      z-index: 10;
-      padding: 12px;
-      background: linear-gradient(180deg, transparent 0%, rgba(7,7,11,0.92) 32%, rgba(7,7,11,0.98) 100%);
-    }}
-    .rate-drop-banner {{
-      background: linear-gradient(90deg, var(--crimson), #9F1239);
-      border: 1.5px solid var(--cyber-yellow);
-      border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 8px;
-      box-shadow: 0 6px 20px rgba(225, 29, 72, 0.5);
-    }}
-    .rate-drop-kicker {{
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 9px;
-      font-weight: 700;
-      color: var(--cyber-yellow);
-      text-transform: uppercase;
-    }}
-    .rate-drop-nums {{
-      font-size: 16px;
-      font-weight: 900;
-      color: #FFF;
-      letter-spacing: -0.02em;
-    }}
-    .reel-caption-box {{
-      background: rgba(255,255,255,0.1);
-      backdrop-filter: blur(8px);
-      border-left: 3px solid var(--cyber-yellow);
-      padding: 7px 9px;
-      border-radius: 4px;
+    .preset-sub {{
       font-size: 11.5px;
-      font-weight: 700;
-      line-height: 1.35;
-      color: #FFF;
-      margin-bottom: 8px;
-    }}
-    .reel-regz-micro {{
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 7.5px;
-      line-height: 1.3;
-      color: #9CA3AF;
+      color: var(--text-muted);
+      margin-top: 2px;
     }}
 
-    /* Transport Play/Pause Controls Below Phone */
-    .transport-bar {{
-      margin-top: 12px;
+    .statute-checklist {{
+      background: var(--canvas-white);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }}
+    .statute-item {{
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      color: var(--text-muted);
+    }}
+
+    /* Center Multi-Channel Ad Preview Board (#FFFFFF) */
+    .studio-canvas {{
+      background: var(--canvas-white);
+      padding: 22px 26px;
+    }}
+    .canvas-header {{
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
-      background: var(--panel);
-      padding: 7px 16px;
-      border-radius: 999px;
-      border: 1px solid var(--border);
+      margin-bottom: 18px;
+      flex-wrap: wrap;
     }}
-    .btn-play {{
-      background: var(--cyber-yellow);
-      color: #09090D;
-      border: none;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      font-weight: 900;
-      cursor: pointer;
+    .ad-preview-grid {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-bottom: 22px;
     }}
-    .timecode-readout {{
-      font-family: 'JetBrains Mono', monospace;
+    @media (max-width: 960px) {{
+      .ad-preview-grid {{ grid-template-columns: 1fr; }}
+    }}
+
+    .channel-card {{
+      background: var(--surface-soft);
+      border: 1px solid var(--border-light);
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(17, 24, 39, 0.03);
+    }}
+    .channel-card-top {{
+      background: var(--sidebar-gray);
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       font-size: 12px;
       font-weight: 700;
-      color: var(--cyber-yellow);
+      color: var(--text-main);
     }}
-
-    /* Bottom 4-Track Multi-Scene Timeline Scrubber */
-    .timeline-dock {{
-      margin: 0 20px 16px;
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 18px;
-      position: relative;
+    .channel-body {{
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--canvas-white);
     }}
-    .timeline-ruler {{
+    .channel-visual-banner {{
+      height: 96px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
+      border: 1px solid #BFDBFE;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: var(--review-blue-dark);
+    }}
+    .ad-copy-rendered {{
+      font-size: 13.5px;
+      color: var(--text-main);
+      line-height: 1.55;
+    }}
+    .flagged-span {{
+      background: var(--flag-red-soft);
+      color: var(--flag-red);
+      border-bottom: 2px wavy var(--flag-red);
+      font-weight: 700;
+      padding: 1px 4px;
+      border-radius: 4px;
+    }}
+    .approved-span {{
+      background: var(--ecoa-green-soft);
+      color: var(--ecoa-green);
+      font-weight: 700;
+      padding: 1px 5px;
+      border-radius: 4px;
+    }}
+    .channel-footer {{
+      padding: 10px 14px;
+      background: var(--surface-soft);
+      border-top: 1px solid var(--border-light);
+      font-size: 11px;
+      color: var(--text-subtle);
       display: flex;
       justify-content: space-between;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      color: var(--muted);
-      padding-left: 170px;
-      margin-bottom: 8px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 6px;
-    }}
-    .tracks-wrapper {{
-      position: relative;
-    }}
-    .playhead-line {{
-      position: absolute;
-      top: -18px;
-      bottom: 0;
-      left: calc(170px + 18%);
-      width: 2px;
-      background: var(--cyber-yellow);
-      z-index: 25;
-      pointer-events: none;
-      box-shadow: 0 0 10px var(--cyber-yellow);
-      transition: left 0.2s linear;
-    }}
-    .playhead-cap {{
-      width: 12px;
-      height: 12px;
-      background: var(--cyber-yellow);
-      transform: translateX(-5px) rotate(45deg);
-    }}
-    .track-row {{
-      display: grid;
-      grid-template-columns: 160px 1fr;
-      gap: 10px;
       align-items: center;
-      margin-bottom: 8px;
     }}
-    .track-label {{
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10.5px;
+
+    /* Live Editor & Audio Bar */
+    .copy-editor-panel {{
+      background: var(--surface-soft);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 16px 18px;
+    }}
+    .copy-textarea {{
+      width: 100%;
+      border: 1px solid var(--border-medium);
+      border-radius: 8px;
+      padding: 11px 13px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--text-main);
+      background: var(--canvas-white);
+      line-height: 1.55;
+      margin-top: 8px;
+      resize: vertical;
+    }}
+    .copy-textarea:focus {{
+      outline: none;
+      border-color: var(--review-blue);
+    }}
+
+    /* Right Redline Scanner Column */
+    .redline-inspector {{
+      background: var(--sidebar-gray);
+      border-left: 1px solid var(--border-light);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }}
+    .scanner-score-card {{
+      background: var(--canvas-white);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      padding: 16px;
+    }}
+    .violation-card {{
+      background: var(--canvas-white);
+      border: 1px solid #FCA5A5;
+      border-left: 4px solid var(--flag-red);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 12.5px;
+    }}
+    .violation-card.resolved {{
+      border-color: #86EFAC;
+      border-left-color: var(--ecoa-green);
+    }}
+    .violation-phrase {{
+      font-weight: 800;
+      color: var(--flag-red);
+      font-size: 13px;
+    }}
+    .violation-card.resolved .violation-phrase {{
+      color: var(--ecoa-green);
+    }}
+    .violation-law {{
+      font-size: 11px;
       font-weight: 700;
-      color: #E2E8F0;
-      background: var(--panel-elev);
-      padding: 7px 10px;
-      border-radius: 6px;
-      border-left: 3px solid var(--track-purple);
+      color: var(--review-blue);
+      margin-top: 3px;
     }}
-    .track-lane {{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 6px;
-      background: var(--track-bg);
-      padding: 4px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
+    .violation-fix {{
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
     }}
-    .track-block {{
-      padding: 6px 8px;
-      border-radius: 4px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 10px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      cursor: pointer;
+
+    .ai-compliance-memo {{
+      background: var(--canvas-white);
+      border: 1px solid var(--border-light);
+      border-top: 3px solid var(--review-blue);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 12.5px;
+      line-height: 1.55;
+      white-space: pre-wrap;
     }}
   </style>
 </head>
 <body>
 
-  <!-- TOP PREMIERE / CAPCUT NLE BAR -->
-  <header class="nle-header">
-    <div class="nle-left">
-      <span class="veo-badge">VEO 3.1 × GEMPIX-2 NLE</span>
-      <div>
-        <div class="project-title">MI-772190_HuntingtonWoods_RateDrop_9x16.prproj</div>
-        <div class="project-meta">1080×1920 Vertical Reel • 60 FPS • SynthID Watermarked • TILA Reg Z Track Locked</div>
+  <!-- Top Figma / Notion Studio Toolbar -->
+  <header class="studio-toolbar">
+    <div class="toolbar-left">
+      <div class="figma-badge">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        FAIR-LENDING STUDIO
+      </div>
+      <div class="workspace-crumb">
+        <span>Rocket &times; Redfin Q4 Campaign Board</span>
+        <span id="top-compliance-badge" class="status-compliance-pill flagged">
+          &#9888; 4 ECOA / FHA Phrases Flagged
+        </span>
       </div>
     </div>
-    <div class="nle-right">
-      <div class="model-box">
-        <span style="color:var(--muted);">DIRECTOR MODEL:</span>
+
+    <div class="toolbar-right">
+      <div class="model-select-wrap">
+        <span>Compliance Model:</span>
         <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-4-argon" selected>gemini-4-argon (Frontier Storyboard)</option>
-          <option value="gemini-3.8-flash">gemini-3.8-flash (Fast Omni Sync)</option>
+          <option value="gemini-4-argon">Gemini 4 Argon (Frontier)</option>
+          <option value="gemini-3.8-flash">Gemini 3.8 Flash (Fast)</option>
         </select>
       </div>
-      <button class="btn-export-reel" id="btn-produce-reel" onclick="window.runLiveVertexAI()">
-        ⚡ Produce Veo 3.1 Multi-Scene Reel & Script
+
+      <button class="btn-green" onclick="window.autoRewriteCompliantCampaign()">
+        &#10003; Auto-Rewrite Compliant Campaign
+      </button>
+
+      <button class="btn-blue" id="btn-hear-compliant" onclick="window.hearCompliantAdReadout(this)">
+        🔊 Hear Compliant Ad Readout (Gemini 3.8 Live)
+      </button>
+
+      <button class="btn-secondary" onclick="window.runLiveVertexAI()">
+        Run Full Legal Memo
       </button>
     </div>
   </header>
 
-  <!-- UPPER 3-PANE STUDIO -->
-  <div class="nle-upper-grid">
-    <!-- LEFT: 4 SCENE CLIPS BIN -->
-    <aside class="nle-pane">
-      <div class="pane-head">
-        <span>VEO 3.1 SCENE BIN (4 CLIPS)</span>
-        <span style="color:var(--cyber-yellow);">15.0s TOTAL</span>
+  <div class="studio-workspace">
+    <!-- Left Studio Sidebar (#F3F4F6) -->
+    <aside class="studio-sidebar">
+      <div>
+        <div class="sidebar-section-label">Campaign Drafts in Review</div>
+        <button class="campaign-preset-btn active" id="preset-btn-0" onclick="window.loadCampaignPreset(0)">
+          <div class="preset-title">1. Royal Oak Starter Home Promo</div>
+          <div class="preset-sub">Flags: Familial status &amp; age targeting</div>
+        </button>
+        <button class="campaign-preset-btn" id="preset-btn-1" onclick="window.loadCampaignPreset(1)">
+          <div class="preset-title">2. Downtown Detroit Loft Refi</div>
+          <div class="preset-sub">Flags: Income source &amp; disability phrasing</div>
+        </button>
+        <button class="campaign-preset-btn" id="preset-btn-2" onclick="window.loadCampaignPreset(2)">
+          <div class="preset-title">3. Suburban Move-Up Co-Brand</div>
+          <div class="preset-sub">Flags: Exclusive neighborhood steering</div>
+        </button>
       </div>
 
-      <div class="clip-card active" data-scene="0" onclick="window.selectScene(0)">
-        <div class="clip-time">SCENE 01 • 00:00.0 – 00:03.5</div>
-        <div class="clip-name">Autumn Maple Curb Dolly</div>
-        <div class="clip-motion">Camera: Fast Dolly Zoom In • 24mm f/1.8</div>
+      <div>
+        <div class="sidebar-section-label">Statutory Guardrails Active</div>
+        <div class="statute-checklist">
+          <div class="statute-item">
+            <strong style="color:var(--review-blue);">ECOA Reg B</strong>
+            <span>12 CFR § 1002.4(b) — Prohibits discouraging applicants on age, marital status, or public assistance.</span>
+          </div>
+          <div class="statute-item">
+            <strong style="color:var(--review-blue);">Fair Housing</strong>
+            <span>42 U.S.C. § 3604(c) — Bars ad copy indicating preference on familial status, religion, disability, or national origin.</span>
+          </div>
+          <div class="statute-item">
+            <strong style="color:var(--review-blue);">UDAAP / TILA</strong>
+            <span>Requires representative APR disclosure alongside triggered promotional rates.</span>
+          </div>
+        </div>
       </div>
 
-      <div class="clip-card" data-scene="1" onclick="window.selectScene(1)">
-        <div class="clip-time">SCENE 02 • 00:03.5 – 00:07.5</div>
-        <div class="clip-name">Vaulted Quartz Chef Kitchen</div>
-        <div class="clip-motion">Camera: Smooth Orbital Pan • Sunburst</div>
-      </div>
-
-      <div class="clip-card" data-scene="2" onclick="window.selectScene(2)">
-        <div class="clip-time">SCENE 03 • 00:07.5 – 00:11.5</div>
-        <div class="clip-name">Sunlit Primary Suite & Cedar Deck</div>
-        <div class="clip-motion">Camera: Gimbal Push Through Glass Doors</div>
-      </div>
-
-      <div class="clip-card" data-scene="3" onclick="window.selectScene(3)">
-        <div class="clip-time">SCENE 04 • 00:11.5 – 00:15.0</div>
-        <div class="clip-name">Redfin × Rocket 1-Tap Pre-Approval</div>
-        <div class="clip-motion">Overlay: Gempix-2 End-Card + Reg Z Lock</div>
-      </div>
-
-      <div style="margin-top:auto;padding-top:12px;border-top:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.5;">
-        <div><strong style="color:var(--emerald);">● SynthID™:</strong> Imperceptible Frame Watermark Active</div>
-        <div><strong style="color:var(--cyber-yellow);">● Lyria Beat Sync:</strong> 124 BPM Lo-Fi Architectural House</div>
-      </div>
+      <button class="btn-secondary" style="width:100%;justify-content:center;" onclick="window.resetToFlaggedDraft()">
+        &#8635; Reset to Unedited Draft (Show Redlines)
+      </button>
     </aside>
 
-    <!-- CENTER: 9:16 VERTICAL SMARTPHONE VIDEO PREVIEW FRAME -->
-    <section class="monitor-stage">
-      <div class="phone-9-16">
-        <div class="phone-notch"></div>
-
-        <!-- Animated Scene Vector Canvas Inside Phone -->
-        <div class="reel-canvas-bg" id="phone-scene-svg"></div>
-
-        <!-- Top HUD inside Phone -->
-        <div class="reel-top-hud">
-          <span class="synthid-chip">🔴 LIVE REDFIN REEL • MI-772190</span>
-          <span class="synthid-chip" id="phone-scene-pill">SCENE 1/4</span>
+    <!-- Center Multi-Channel Ad Preview Board (#FFFFFF) -->
+    <main class="studio-canvas">
+      <div class="canvas-header">
+        <div>
+          <h1 style="font-size:20px;font-weight:800;color:var(--text-main);">Multi-Channel Ad Preview Board</h1>
+          <p style="font-size:12.5px;color:var(--text-muted);">
+            Live redline highlights prohibited demographic targeting phrases across Instagram Story, Google Search, and Redfin Postcard formats.
+          </p>
         </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn-green" onclick="window.autoRewriteCompliantCampaign()">
+            Auto-Rewrite Compliant Campaign
+          </button>
+        </div>
+      </div>
 
-        <!-- Lower-Third Rate Drop Banner + Voiceover Subtitles + Reg Z -->
-        <div class="reel-lower-third">
-          <div class="rate-drop-banner">
-            <div class="rate-drop-kicker">⚡ ROCKET INTRADAY RATE-DROP ALERT</div>
-            <div class="rate-drop-nums" id="phone-rate-banner">6.125% → 5.750% ($2,448/mo P&I)</div>
+      <!-- 3 Multi-Channel Ad Cards -->
+      <section class="ad-preview-grid">
+        <!-- Channel 1: Instagram Story Card -->
+        <div class="channel-card">
+          <div class="channel-card-top">
+            <span>Instagram Story Card (9:16)</span>
+            <span id="ch1-badge" style="color:var(--flag-red);">Redline Alert</span>
           </div>
-
-          <div class="reel-caption-box" id="phone-vo-caption">
-            “Huntington Woods Mid-Century Modern just dropped to $2,448/mo P&I after today’s 37.5 bps rate dip!”
+          <div class="channel-body">
+            <div class="channel-visual-banner" id="ch1-banner">
+              Redfin &times; Rocket Mortgage · 418 Elmhurst Ave, Royal Oak
+            </div>
+            <div style="font-size:11px;font-weight:800;color:var(--review-blue);text-transform:uppercase;">Story Primary Hook</div>
+            <div class="ad-copy-rendered" id="ch1-copy"></div>
           </div>
-
-          <div class="reel-regz-micro">
-            Rocket Mortgage, LLC NMLS #3030 • $525k List • 20% Down ($420k Loan) • 5.750% Rate (5.918% APR) • 360 Mos • Equal Housing Lender.
+          <div class="channel-footer">
+            <span>Equal Housing Lender · NMLS #3030</span>
+            <span>CTA: Get Pre-Approved</span>
           </div>
         </div>
-      </div>
 
-      <!-- Play / Pause & Scrubber Slider -->
-      <div class="transport-bar">
-        <button class="btn-play" id="btn-play-toggle" onclick="window.togglePlayback()">▶</button>
-        <span class="timecode-readout" id="timecode-label">00:02.4 / 00:15.0</span>
-        <input type="range" id="scrubber-range" min="0" max="150" value="24" style="width:180px;accent-color:var(--cyber-yellow);cursor:pointer;" oninput="window.scrubTimeline(this.value)">
-      </div>
-    </section>
+        <!-- Channel 2: Google Search Ad Preview -->
+        <div class="channel-card">
+          <div class="channel-card-top">
+            <span>Google Search Ad Preview</span>
+            <span id="ch2-badge" style="color:var(--flag-red);">Redline Alert</span>
+          </div>
+          <div class="channel-body">
+            <div style="font-size:11px;color:var(--text-subtle);">Sponsored · rocketmortgage.com/redfin-offer</div>
+            <div style="font-size:15px;font-weight:800;color:var(--review-blue);" id="ch2-headline">
+              Rocket Mortgage® Official | Royal Oak 3.5% Down Options
+            </div>
+            <div class="ad-copy-rendered" id="ch2-copy"></div>
+          </div>
+          <div class="channel-footer">
+            <span>Rep. APR 6.125% Disclosed</span>
+            <span>Ad Strength: High</span>
+          </div>
+        </div>
 
-    <!-- RIGHT: SCENE INSPECTOR, RATE-DROP SLIDER & VOICEOVER SCRIPT GENERATOR -->
-    <aside class="nle-pane">
-      <div class="pane-head">
-        <span>SCENE INSPECTOR & VOICEOVER GENERATOR</span>
-        <span style="color:var(--track-purple);" id="live-model-pill">gemini-4-argon</span>
-      </div>
+        <!-- Channel 3: Redfin Co-Branded Postcard -->
+        <div class="channel-card">
+          <div class="channel-card-top">
+            <span>Redfin Co-Branded Postcard</span>
+            <span id="ch3-badge" style="color:var(--flag-red);">Redline Alert</span>
+          </div>
+          <div class="channel-body">
+            <div class="channel-visual-banner" style="background:linear-gradient(135deg,#FEF2F2 0%,#FEE2E2 100%);border-color:#FECACA;color:#991B1B;">
+              Direct Mail 6&times;9 Postcard · ZIP 48067 &amp; 48220
+            </div>
+            <div style="font-size:11px;font-weight:800;color:#991B1B;text-transform:uppercase;">Postcard Body Copy</div>
+            <div class="ad-copy-rendered" id="ch3-copy"></div>
+          </div>
+          <div class="channel-footer">
+            <span>HUD Equal Housing Opportunity Logo</span>
+            <span>QR Pre-Approval Link</span>
+          </div>
+        </div>
+      </section>
 
-      <div style="margin-bottom:14px;">
-        <label class="mono" style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;">
-          <span>PROMO NOTE RATE DROP (6.125% → X%)</span>
-          <strong style="color:var(--cyber-yellow);" id="lbl-promo-rate">5.750%</strong>
-        </label>
-        <input type="range" id="inp-promo-rate" min="5.25" max="6.00" step="0.125" value="5.75" style="width:100%;accent-color:var(--track-purple);" oninput="window.updateRateDropBanner()">
-      </div>
+      <!-- Live Unified Ad Copy Editor -->
+      <section class="copy-editor-panel">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+          <div>
+            <div style="font-size:14px;font-weight:800;color:var(--text-main);">
+              Live Campaign Master Copy Editor (Type or Click Auto-Rewrite to Test Guardrail)
+            </div>
+            <div style="font-size:12px;color:var(--text-muted);">
+              Scanner checks in real time for phrases like <code>"young couples"</code>, <code>"empty nesters"</code>, <code>"able-bodied"</code>, <code>"stable W-2 earners"</code>, or <code>"exclusive neighborhood"</code>.
+            </div>
+          </div>
+          <button class="btn-blue" onclick="window.hearCompliantAdReadout(document.getElementById('btn-hear-compliant'))">
+            🔊 Hear Compliant Ad Readout (Gemini 3.8 Live)
+          </button>
+        </div>
+        <textarea id="master-copy-textarea" class="copy-textarea" rows="3" oninput="window.scanMasterCopy()"></textarea>
+      </section>
+    </main>
 
-      <div style="background:var(--panel-elev);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;">
-        <div class="mono" style="font-size:10px;color:var(--cyber-yellow);margin-bottom:4px;">ACTIVE VEO 3.1 CAMERA MOTION PROMPT</div>
-        <div id="insp-camera-prompt" style="font-size:12px;line-height:1.45;color:#E2E8F0;">
-          Fast dolly zoom toward 4-bed Mid-Century Modern home in Huntington Woods MI framed by vibrant crimson autumn maples, golden hour volumetric rays, 60fps gimbal stabilization.
+    <!-- Right Column: Live ECOA / Fair Housing Redline Scanner -->
+    <aside class="redline-inspector">
+      <div class="scanner-score-card">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:12px;font-weight:800;text-transform:uppercase;color:var(--text-subtle);">
+            ECOA &amp; Fair Housing Audit
+          </span>
+          <span id="inspector-score-pill" style="font-size:12px;font-weight:800;color:var(--flag-red);">
+            HOLD FOR REVISION
+          </span>
+        </div>
+        <div style="font-size:24px;font-weight:800;margin-top:4px;" id="inspector-headline">
+          4 Prohibited Phrases Detected
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin-top:2px;" id="inspector-sub">
+          Click "Auto-Rewrite Compliant Campaign" to replace demographic descriptors with objective property &amp; loan terms.
         </div>
       </div>
 
-      <div style="background:var(--panel-elev);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;flex:1;">
-        <div class="mono" style="font-size:10px;color:var(--emerald);margin-bottom:6px;">SYNCHRONIZED TTS VOICEOVER SCRIPT (0.0s – 15.0s)</div>
-        <div id="insp-vo-script" style="font-size:12px;line-height:1.55;color:#F8FAFC;">
-          <p style="margin-bottom:8px;"><strong>[0.0–3.5s]:</strong> “Huntington Woods Mid-Century Modern just dropped to $2,448/mo P&I after today’s 37.5 bps rate dip!”</p>
-          <p style="margin-bottom:8px;"><strong>[3.5–7.5s]:</strong> “Step inside a vaulted waterfall-quartz chef’s kitchen—saving $198 every month vs last week’s 6.125% rate.”</p>
-          <p style="margin-bottom:8px;"><strong>[7.5–11.5s]:</strong> “Sunlit primary suite opening onto a private cedar deck with Rocket Rate-Drop Protector included.”</p>
-          <p><strong>[11.5–15.0s]:</strong> “Tap below to book your Saturday Redfin tour and lock your 1-Tap Rocket Verified Approval!”</p>
-        </div>
-      </div>
+      <div id="violations-list" style="display:flex;flex-direction:column;gap:10px;"></div>
 
-      <button class="btn-export-reel" style="width:100%;padding:11px;" onclick="window.runLiveVertexAI()">
-        [⚡ Regenerate Veo 3.1 Storyboard & Voiceover via Vertex AI]
-      </button>
+      <div class="ai-compliance-memo" id="vertex-ai-output">
+        <strong>Legal &amp; Fair-Lending Counsel Ready:</strong> Click <em>"Run Full Legal Memo"</em> or <em>"Re-Synthesize with Selected Model"</em> to generate a formal CFPB/HUD compliance sign-off memo with <span id="live-model-pill">gemini-4-argon</span>.
+      </div>
     </aside>
   </div>
 
-  <!-- BOTTOM: 4-TRACK MULTI-SCENE TIMELINE SCRUBBER -->
-  <footer class="timeline-dock">
-    <div class="timeline-ruler">
-      <span>00:00.0</span>
-      <span>00:03.5</span>
-      <span>00:07.5</span>
-      <span>00:11.5</span>
-      <span>00:15.0 (END)</span>
-    </div>
-
-    <div class="tracks-wrapper">
-      <div class="playhead-line" id="timeline-playhead">
-        <div class="playhead-cap"></div>
-      </div>
-
-      <!-- Track 1: Veo 3.1 Video Track -->
-      <div class="track-row">
-        <div class="track-label" style="border-left-color:var(--track-purple);">🎥 VEO 3.1 VIDEO</div>
-        <div class="track-lane">
-          <div class="track-block" style="background:rgba(168,85,247,0.3);border:1px solid #A855F7;" onclick="window.selectScene(0)">S1: Autumn Exterior Dolly</div>
-          <div class="track-block" style="background:rgba(168,85,247,0.3);border:1px solid #A855F7;" onclick="window.selectScene(1)">S2: Quartz Chef Kitchen Pan</div>
-          <div class="track-block" style="background:rgba(168,85,247,0.3);border:1px solid #A855F7;" onclick="window.selectScene(2)">S3: Primary Suite & Deck</div>
-          <div class="track-block" style="background:rgba(168,85,247,0.3);border:1px solid #A855F7;" onclick="window.selectScene(3)">S4: Redfin+Rocket End Card</div>
-        </div>
-      </div>
-
-      <!-- Track 2: Gempix-2 Lower-Third Overlays -->
-      <div class="track-row">
-        <div class="track-label" style="border-left-color:var(--cyber-yellow);">✨ GEMPIX-2 OVERLAYS</div>
-        <div class="track-lane">
-          <div class="track-block" style="background:rgba(250,204,21,0.18);border:1px solid var(--cyber-yellow);color:#FEF08A;">Rate Drop: 6.125% → 5.75%</div>
-          <div class="track-block" style="background:rgba(250,204,21,0.18);border:1px solid var(--cyber-yellow);color:#FEF08A;">Badge: $2,448/mo P&I (-$198/m)</div>
-          <div class="track-block" style="background:rgba(250,204,21,0.18);border:1px solid var(--cyber-yellow);color:#FEF08A;">Rate-Drop Protector Shield</div>
-          <div class="track-block" style="background:rgba(250,204,21,0.18);border:1px solid var(--cyber-yellow);color:#FEF08A;">1-Tap Tour + Pre-Approval CTA</div>
-        </div>
-      </div>
-
-      <!-- Track 3: TTS Voiceover & Lyria Beat -->
-      <div class="track-row">
-        <div class="track-label" style="border-left-color:var(--cyan);">🎙️ TTS VOICEOVER</div>
-        <div class="track-lane">
-          <div class="track-block" style="background:rgba(6,182,212,0.2);border:1px solid var(--cyan);color:#A5F3FC;">VO_Hook_37bps_Drop.wav</div>
-          <div class="track-block" style="background:rgba(6,182,212,0.2);border:1px solid var(--cyan);color:#A5F3FC;">VO_Kitchen_Payment.wav</div>
-          <div class="track-block" style="background:rgba(6,182,212,0.2);border:1px solid var(--cyan);color:#A5F3FC;">VO_Suite_Protector.wav</div>
-          <div class="track-block" style="background:rgba(6,182,212,0.2);border:1px solid var(--cyan);color:#A5F3FC;">VO_Book_Redfin_CTA.wav</div>
-        </div>
-      </div>
-
-      <!-- Track 4: TILA Reg Z Legal Disclaimer -->
-      <div class="track-row" style="margin-bottom:0;">
-        <div class="track-label" style="border-left-color:var(--emerald);">⚖️ TILA REG Z LEGAL</div>
-        <div class="track-lane" style="grid-template-columns:1fr;">
-          <div class="track-block" style="background:rgba(16,185,129,0.18);border:1px solid var(--emerald);color:#6EE7B7;text-align:center;">
-            LOCKED CONTINUOUS OVERLAY (0.0s–15.0s): 12 CFR § 1026.24 APR (5.918% APR) + Down Payment + NMLS #3030 Equal Housing Lender
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
-
   <script>
-    const SCENES = [
+    const PROHIBITED_RULES = [
       {{
-        idx: 0,
-        timecode: "00:01.8",
-        scrubVal: 18,
-        cameraPrompt: "Fast dolly zoom toward 4-bed Mid-Century Modern home in Huntington Woods MI framed by vibrant crimson autumn maples, golden hour volumetric rays, 60fps gimbal stabilization.",
-        caption: "“Huntington Woods Mid-Century Modern just dropped to $2,448/mo P&I after today’s 37.5 bps rate dip!”",
-        svg: `<svg viewBox="0 0 300 520" width="100%" height="100%" preserveAspectRatio="none">
-          <defs><linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1E1B4B"/><stop offset="60%" stop-color="#7C2D12"/><stop offset="100%" stop-color="#1F2937"/></linearGradient></defs>
-          <rect width="300" height="520" fill="url(#sky1)"/>
-          <circle cx="230" cy="110" r="42" fill="#FACC15" opacity="0.75"/>
-          <!-- Mid Century Roofline -->
-          <polygon points="20,250 180,185 285,235 20,265" fill="#27272A"/>
-          <rect x="35" y="245" width="230" height="105" fill="#451A03" stroke="#FDE68A" stroke-width="1.5"/>
-          <rect x="55" y="260" width="85" height="65" fill="#FDE047" opacity="0.75"/>
-          <rect x="160" y="260" width="85" height="65" fill="#FDE047" opacity="0.65"/>
-          <!-- Autumn Maple Foliage -->
-          <circle cx="45" cy="195" r="45" fill="#DC2626" opacity="0.85"/>
-          <circle cx="80" cy="175" r="35" fill="#EA580C" opacity="0.85"/>
-        </svg>`
+        phrase: "perfect for young couples",
+        replacement: "featuring 4 bedrooms and a flexible home office layout",
+        law: "Fair Housing Act 42 U.S.C. § 3604(c) & ECOA Age/Familial Status",
+        reason: "Expresses preference based on age and marital/familial status; describe physical house features instead."
       }},
       {{
-        idx: 1,
-        timecode: "00:05.2",
-        scrubVal: 52,
-        cameraPrompt: "Smooth orbital pan across vaulted chef's kitchen with waterfall Calacatta quartz island, walnut cabinetry, and brushed brass pendants.",
-        caption: "“Step inside a vaulted waterfall-quartz chef’s kitchen—saving $198 every month vs last week’s 6.125% rate.”",
-        svg: `<svg viewBox="0 0 300 520" width="100%" height="100%" preserveAspectRatio="none">
-          <rect width="300" height="520" fill="#27201C"/>
-          <rect x="20" y="90" width="260" height="180" fill="#452719"/>
-          <!-- Quartz Island -->
-          <polygon points="30,290 270,290 290,380 10,380" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="2"/>
-          <!-- Brass Pendants -->
-          <line x1="100" y1="40" x2="100" y2="170" stroke="#FACC15" stroke-width="2"/>
-          <circle cx="100" cy="175" r="14" fill="#FEF08A"/>
-          <line x1="200" y1="40" x2="200" y2="170" stroke="#FACC15" stroke-width="2"/>
-          <circle cx="200" cy="175" r="14" fill="#FEF08A"/>
-        </svg>`
+        phrase: "empty nesters",
+        replacement: "buyers seeking single-level main-floor living",
+        law: "ECOA Reg B (12 CFR § 1002.4) & FHA Familial Status",
+        reason: "Age and familial status proxy; replace with architectural layout description."
       }},
       {{
-        idx: 2,
-        timecode: "00:09.4",
-        scrubVal: 94,
-        cameraPrompt: "Gimbal push through floor-to-ceiling glass sliders from sunlit primary suite onto private backyard cedar deck with firepit.",
-        caption: "“Sunlit primary suite opening onto a private cedar deck with Rocket Rate-Drop Protector included.”",
-        svg: `<svg viewBox="0 0 300 520" width="100%" height="100%" preserveAspectRatio="none">
-          <rect width="300" height="520" fill="#0F172A"/>
-          <rect x="25" y="100" width="250" height="220" fill="#065F46" opacity="0.65" stroke="#FDE68A" stroke-width="3"/>
-          <polygon points="0,320 300,320 300,520 0,520" fill="#78350F"/>
-          <circle cx="150" cy="365" r="26" fill="#EA580C"/>
-          <circle cx="150" cy="365" r="14" fill="#FACC15"/>
-        </svg>`
+        phrase: "exclusive neighborhood",
+        replacement: "walkable Vinsetta Park historic district near public transit",
+        law: "HUD Fair Housing Advertising Guidelines (24 CFR § 100.75)",
+        reason: "Implies exclusionary steering; describe objective neighborhood amenities and transit access."
       }},
       {{
-        idx: 3,
-        timecode: "00:13.6",
-        scrubVal: 136,
-        cameraPrompt: "Gempix-2 high-contrast end card with Redfin Saturday 11 AM Tour badge + Rocket 1-Tap Verified Approval shield.",
-        caption: "“Tap below to book your Saturday Redfin tour and lock your 1-Tap Rocket Verified Approval!”",
-        svg: `<svg viewBox="0 0 300 520" width="100%" height="100%" preserveAspectRatio="none">
-          <rect width="300" height="520" fill="#18091E"/>
-          <rect x="28" y="125" width="244" height="145" rx="14" fill="#E11D48" stroke="#FACC15" stroke-width="2"/>
-          <text x="150" y="175" text-anchor="middle" fill="#FFF" font-family="Archivo" font-size="16" font-weight="bold">REDFIN × ROCKET</text>
-          <text x="150" y="205" text-anchor="middle" fill="#FEF08A" font-family="JetBrains Mono" font-size="12" font-weight="bold">1-TAP TOUR + PRE-APPROVAL</text>
-          <text x="150" y="235" text-anchor="middle" fill="#FFF" font-family="JetBrains Mono" font-size="11">$3,500 BUY+BORROW CREDIT</text>
-        </svg>`
+        phrase: "stable W-2 earners",
+        replacement: "qualified applicants (including self-employed, 1099, retirement, or public assistance income)",
+        law: "ECOA Reg B 12 CFR § 1002.6(b)(5) Protected Income Sources",
+        reason: "Discourages applicants receiving public assistance, alimony, retirement, or 1099 income."
+      }},
+      {{
+        phrase: "able-bodied buyers",
+        replacement: "all homebuyers, with step-free patio access",
+        law: "Fair Housing Act 42 U.S.C. § 3604(f) Disability Protection",
+        reason: "Directly discriminates against persons with disabilities; describe objective accessibility features."
       }}
     ];
 
-    window.activeSceneIdx = 0;
-    window.playingTimer = null;
+    const CAMPAIGN_PRESETS = [
+      {{
+        name: "Royal Oak Starter Home Promo",
+        flaggedCopy: "Tour 418 Elmhurst Ave in Royal Oak—an exclusive neighborhood cottage that is perfect for young couples or empty nesters! Fast Rocket Mortgage pre-approval for stable W-2 earners at 6.125% APR.",
+        compliantCopy: "Tour 418 Elmhurst Ave in Royal Oak—a walkable Vinsetta Park historic district home featuring 4 bedrooms and a flexible home office layout or buyers seeking single-level main-floor living! Fast Rocket Mortgage pre-approval for qualified applicants (including self-employed, 1099, retirement, or public assistance income) at 6.125% APR (30-Yr Fixed, Equal Housing Lender)."
+      }},
+      {{
+        name: "Downtown Detroit Loft Refi",
+        flaggedCopy: "Upgrade to a Corktown brick loft—ideal for able-bodied buyers and young couples looking for an exclusive neighborhood with fast Rocket Mortgage approval for stable W-2 earners.",
+        compliantCopy: "Upgrade to a Corktown brick loft—welcoming all homebuyers, with step-free patio access and featuring 4 bedrooms and a flexible home office layout in a walkable historic district with fast Rocket Mortgage approval for qualified applicants (including self-employed, 1099, retirement, or public assistance income) at 6.125% APR."
+      }},
+      {{
+        name: "Suburban Move-Up Co-Brand",
+        flaggedCopy: "Downsizing for empty nesters or upsizing in an exclusive neighborhood? Lock in a 6.125% rate with Rocket Mortgage—tailored for stable W-2 earners.",
+        compliantCopy: "Exploring homes for buyers seeking single-level main-floor living or spacious 4-bedroom layouts in a walkable Vinsetta Park historic district near public transit? Lock in a 6.125% APR (30-Yr Fixed) with Rocket Mortgage—available for qualified applicants (including self-employed, 1099, retirement, or public assistance income)."
+      }}
+    ];
 
-    window.selectScene = function(idx) {{
-      window.activeSceneIdx = idx;
-      const sc = SCENES[idx] || SCENES[0];
-      document.querySelectorAll('.clip-card').forEach((el, i) => {{
-        el.classList.toggle('active', i === idx);
+    let activePresetIdx = 0;
+
+    window.loadCampaignPreset = function(idx) {{
+      activePresetIdx = idx;
+      for (let i = 0; i < 3; i++) {{
+        const btn = document.getElementById('preset-btn-' + i);
+        if (btn) btn.classList.toggle('active', i === idx);
+      }}
+      const textarea = document.getElementById('master-copy-textarea');
+      if (textarea) {{
+        textarea.value = CAMPAIGN_PRESETS[idx].flaggedCopy;
+      }}
+      window.scanMasterCopy();
+    }};
+
+    window.resetToFlaggedDraft = function() {{
+      window.loadCampaignPreset(activePresetIdx);
+    }};
+
+    window.autoRewriteCompliantCampaign = function() {{
+      const textarea = document.getElementById('master-copy-textarea');
+      if (!textarea) return;
+      let text = textarea.value;
+      let replacedAny = false;
+      PROHIBITED_RULES.forEach(rule => {{
+        const regex = new RegExp(rule.phrase, 'gi');
+        if (regex.test(text)) {{
+          text = text.replace(regex, rule.replacement);
+          replacedAny = true;
+        }}
       }});
-      document.getElementById('phone-scene-svg').innerHTML = sc.svg;
-      document.getElementById('phone-scene-pill').innerText = `SCENE ${{idx + 1}}/4`;
-      document.getElementById('phone-vo-caption').innerText = sc.caption;
-      document.getElementById('insp-camera-prompt').innerText = sc.cameraPrompt;
-      document.getElementById('scrubber-range').value = sc.scrubVal;
-      document.getElementById('timecode-label').innerText = `${{sc.timecode}} / 00:15.0`;
-      const pct = (sc.scrubVal / 150) * 76;
-      document.getElementById('timeline-playhead').style.left = `calc(170px + ${{pct}}%)`;
+      if (!replacedAny) {{
+        text = CAMPAIGN_PRESETS[activePresetIdx].compliantCopy;
+      }}
+      textarea.value = text;
+      window.scanMasterCopy();
     }};
 
-    window.scrubTimeline = function(val) {{
-      const v = parseInt(val || 0, 10);
-      const sec = (v / 10).toFixed(1).padStart(4, '0');
-      document.getElementById('timecode-label').innerText = `00:${{sec}} / 00:15.0`;
-      const pct = (v / 150) * 76;
-      document.getElementById('timeline-playhead').style.left = `calc(170px + ${{pct}}%)`;
-      const sceneIdx = v < 35 ? 0 : (v < 75 ? 1 : (v < 115 ? 2 : 3));
-      if (sceneIdx !== window.activeSceneIdx) {{
-        window.selectScene(sceneIdx);
+    window.scanMasterCopy = function() {{
+      const textarea = document.getElementById('master-copy-textarea');
+      const rawText = textarea ? textarea.value : "";
+
+      let highlightedHtml = rawText
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
+      let detectedViolations = [];
+
+      PROHIBITED_RULES.forEach(rule => {{
+        const regex = new RegExp('(' + rule.phrase + ')', 'gi');
+        if (regex.test(rawText)) {{
+          detectedViolations.push(rule);
+          highlightedHtml = highlightedHtml.replace(regex, '<span class="flagged-span">$1</span>');
+        }} else if (rawText.toLowerCase().includes(rule.replacement.toLowerCase())) {{
+          const repRegex = new RegExp('(' + rule.replacement.replace(/[.*+?^${{}}()|[\\]\\\\]/g, '\\\\$&') + ')', 'gi');
+          highlightedHtml = highlightedHtml.replace(repRegex, '<span class="approved-span">$1</span>');
+        }}
+      }});
+
+      // Render into the 3 multi-channel cards
+      document.getElementById('ch1-copy').innerHTML = highlightedHtml;
+      document.getElementById('ch2-copy').innerHTML = highlightedHtml;
+      document.getElementById('ch3-copy').innerHTML = highlightedHtml;
+
+      const isClean = detectedViolations.length === 0;
+      ['ch1-badge', 'ch2-badge', 'ch3-badge'].forEach(id => {{
+        const el = document.getElementById(id);
+        if (el) {{
+          el.textContent = isClean ? "✓ ECOA & FHA Approved" : ("⚠ " + detectedViolations.length + " Redline Flag(s)");
+          el.style.color = isClean ? "var(--ecoa-green)" : "var(--flag-red)";
+        }}
+      }});
+
+      const topBadge = document.getElementById('top-compliance-badge');
+      if (topBadge) {{
+        topBadge.className = 'status-compliance-pill ' + (isClean ? 'approved' : 'flagged');
+        topBadge.innerHTML = isClean
+          ? '&#10003; 100% ECOA Reg B &amp; Fair Housing Compliant'
+          : ('&#9888; ' + detectedViolations.length + ' ECOA / FHA Phrase(s) Flagged');
+      }}
+
+      const scorePill = document.getElementById('inspector-score-pill');
+      const headline = document.getElementById('inspector-headline');
+      const sub = document.getElementById('inspector-sub');
+      if (isClean) {{
+        scorePill.textContent = "APPROVED FOR LAUNCH";
+        scorePill.style.color = "var(--ecoa-green)";
+        headline.textContent = "0 Violations · Ready to Publish";
+        headline.style.color = "var(--ecoa-green)";
+        sub.textContent = "All multi-channel ad variations describe objective property features and inclusive ECOA income criteria.";
+      }} else {{
+        scorePill.textContent = "HOLD FOR REVISION";
+        scorePill.style.color = "var(--flag-red)";
+        headline.textContent = detectedViolations.length + " Prohibited Phrase(s) Detected";
+        headline.style.color = "var(--text-main)";
+        sub.textContent = "Click 'Auto-Rewrite Compliant Campaign' to replace demographic descriptors with objective property & loan terms.";
+      }}
+
+      const listEl = document.getElementById('violations-list');
+      if (listEl) {{
+        if (isClean) {{
+          listEl.innerHTML = PROHIBITED_RULES.slice(0, 3).map(r =>
+            '<div class="violation-card resolved">' +
+              '<div class="violation-phrase">&#10003; Compliant: "' + r.replacement + '"</div>' +
+              '<div class="violation-law">' + r.law + '</div>' +
+              '<div class="violation-fix">Verified neutral property &amp; credit underwriting language.</div>' +
+            '</div>'
+          ).join('');
+        }} else {{
+          listEl.innerHTML = detectedViolations.map(r =>
+            '<div class="violation-card">' +
+              '<div class="violation-phrase">&#9888; Flagged: "' + r.phrase + '"</div>' +
+              '<div class="violation-law">' + r.law + '</div>' +
+              '<div class="violation-fix">' + r.reason + ' &rarr; Replace with: <strong>"' + r.replacement + '"</strong></div>' +
+            '</div>'
+          ).join('');
+        }}
       }}
     }};
 
-    window.togglePlayback = function() {{
-      const btn = document.getElementById('btn-play-toggle');
-      if (window.playingTimer) {{
-        clearInterval(window.playingTimer);
-        window.playingTimer = null;
-        if (btn) btn.innerText = '▶';
-        return;
-      }}
-      if (btn) btn.innerText = '⏸';
-      window.playingTimer = setInterval(() => {{
-        const rng = document.getElementById('scrubber-range');
-        let next = parseInt(rng.value || 0, 10) + 5;
-        if (next > 150) next = 0;
-        rng.value = next;
-        window.scrubTimeline(next);
-      }}, 250);
-    }};
-
-    window.updateRateDropBanner = function() {{
-      const rate = parseFloat(document.getElementById('inp-promo-rate').value || 5.75);
-      document.getElementById('lbl-promo-rate').innerText = rate.toFixed(3) + '%';
-      const loan = 420000;
-      const r = (rate / 100) / 12;
-      const pi = Math.round(loan * (r * Math.pow(1 + r, 360)) / (Math.pow(1 + r, 360) - 1));
-      document.getElementById('phone-rate-banner').innerText = `6.125% → ${{rate.toFixed(3)}}% ($${{pi.toLocaleString()}}/mo P&I)`;
+    window.hearCompliantAdReadout = function(btnEl) {{
+      // Ensure compliant rewrite is spoken aloud
+      const compliantText = CAMPAIGN_PRESETS[activePresetIdx].compliantCopy;
+      window.playLiveCallClip(
+        compliantText,
+        "Aoede",
+        "Rocket & Redfin Fair-Lending Approved Campaign Voice",
+        btnEl
+      );
     }};
 
     window.runLiveVertexAI = async function() {{
-      const btn = document.getElementById('btn-produce-reel');
-      const orig = btn ? btn.innerText : '';
-      if (btn) {{
-        btn.innerText = '⏳ Veo 3.1 + Vertex AI Producing...';
-        btn.disabled = true;
-      }}
-      const rate = parseFloat(document.getElementById('inp-promo-rate').value || 5.75);
-      const scenarioEl = document.getElementById('scenario-input');
-      const promptText = scenarioEl && scenarioEl.value
-        ? scenarioEl.value
-        : `Produce a 15-second 9:16 vertical Reel for Huntington Woods MI ($525,000) featuring a rate drop from 6.125% to ${{rate.toFixed(3)}}% and TILA Reg Z compliance.`;
+      const model = window.getSelectedModel ? window.getSelectedModel() : "gemini-4-argon";
+      const outEl = document.getElementById('vertex-ai-output');
+      const currentCopy = document.getElementById('master-copy-textarea').value;
+      const drawerInput = document.getElementById('scenario-input');
+      const scenarioText = (drawerInput && drawerInput.value.trim())
+        ? drawerInput.value.trim() + "\\nAd Copy Under Review: " + currentCopy
+        : "Audit this Redfin + Rocket Mortgage multi-channel ad copy under ECOA Regulation B (12 CFR § 1002.4) and the Fair Housing Act (42 U.S.C. § 3604), and provide a compliant rewrite: " + currentCopy;
 
+      if (outEl) {{
+        outEl.innerHTML = "<strong>⏳ Running ECOA &amp; Fair Housing Act Legal Redline Audit via Vertex AI (" + model + ")...</strong>";
+      }}
       try {{
-        const resp = await fetch('/api/run-demo', {{
+        const res = await fetch('/api/run-demo', {{
           method: 'POST',
           headers: {{ 'Content-Type': 'application/json' }},
           body: JSON.stringify({{
-            code: '4.4',
-            model: window.getSelectedModel(),
-            user_input: promptText,
-            params: {{ duration_sec: 15, scenes: 4, list_price: 525000, promo_rate: rate }}
+            square: "4.4",
+            model: model,
+            scenario: scenarioText
           }})
         }});
-        const res = await resp.json();
-        if (res && res.ok) {{
-          const sd = res.structured_data || {{}};
-          if (Array.isArray(sd.storyboard_frames) && sd.storyboard_frames.length > 0) {{
-            document.getElementById('insp-vo-script').innerHTML = sd.storyboard_frames.map(f =>
-              `<p style="margin-bottom:8px;"><strong>[${{f.timecode || 'SCENE'}}]:</strong> “${{f.voiceover_line || f.on_screen_typography || ''}}”</p>`
-            ).join('');
-            const first = sd.storyboard_frames[0];
-            if (first.voiceover_line) {{
-              document.getElementById('phone-vo-caption').innerText = `“${{first.voiceover_line}}”`;
-            }}
-            if (first.camera_motion) {{
-              document.getElementById('insp-camera-prompt').innerText = first.camera_motion;
-            }}
-          }} else if (res.output) {{
-            document.getElementById('insp-vo-script').innerHTML = `<p>${{res.output}}</p>`;
-          }}
+        const data = await res.json();
+        if (outEl) {{
+          outEl.textContent = data.output || data.text || "Fair-lending audit complete.";
         }}
-      }} catch (e) {{
-        console.error(e);
-      }} finally {{
-        if (btn) {{
-          btn.innerText = orig;
-          btn.disabled = false;
+      }} catch (err) {{
+        if (outEl) {{
+          outEl.textContent = "Unable to reach Vertex AI endpoint: " + err.message;
         }}
       }}
     }};
 
     document.addEventListener('DOMContentLoaded', () => {{
-      window.selectScene(0);
-      window.updateRateDropBanner();
+      window.loadCampaignPreset(0);
     }});
   </script>
 

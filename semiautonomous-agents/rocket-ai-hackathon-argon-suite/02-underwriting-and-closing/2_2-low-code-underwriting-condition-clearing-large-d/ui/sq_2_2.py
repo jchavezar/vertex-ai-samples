@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Square 2.2 Standalone Full-Screen UI:
-Low-Code Underwriting Condition Clearing Agent (Google ADK Runtime)
-Aesthetic: Chase Bank Statement Ledger & Underwriter Rubber-Stamp Desk (#F8FAFC light ledger, #117ACA Chase Royal Blue header, #D97706 Amber deposit alerts, #059669 Emerald Approval Stamp)."""
+Condition & Stipulation Auto-Clearer (DocuSign / Box Enterprise Document Review & Underwriting Portal)
+Design Style: DocuSign / Box Enterprise Document Review & Underwriting Portal (#F9FAFB light gray canvas, #2463EB DocuSign royal blue top bar, #FFFFFF document sheet viewer, Plus Jakarta Sans).
+"""
 
 from shared.standalone_uis.base_helpers import render_floating_control_bar_and_drawer
 
@@ -13,707 +14,551 @@ def render_sq_2_2(auth_token: str) -> str:
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2.2 // Low-Code Underwriting Condition Clearing Agent — Chase Ledger &amp; Rubber-Stamp Desk</title>
+  <title>2.2 · Condition &amp; Stipulation Auto-Clearer — Enterprise Document Review Portal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {{
-      --ledger-bg: #F8FAFC;
-      --card-bg: #FFFFFF;
-      --chase-blue: #117ACA;
-      --chase-dark: #0A4D82;
-      --chase-soft: #E0F2FE;
-      --amber: #D97706;
-      --amber-bg: #FEF3C7;
-      --emerald: #059669;
-      --emerald-bg: #D1FAE5;
-      --crimson: #DC2626;
-      --crimson-bg: #FEE2E2;
+      --canvas: #F9FAFB;
+      --doc-blue: #2463EB;
+      --doc-blue-dark: #1D4ED8;
+      --doc-blue-soft: #EFF6FF;
+      --surface: #FFFFFF;
       --ink: #0F172A;
       --muted: #475569;
-      --border: #CBD5E1;
+      --border: #E2E8F0;
+      --emerald: #059669;
+      --emerald-soft: #ECFDF5;
+      --amber: #D97706;
+      --amber-soft: #FFFBEB;
     }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
-      background: var(--ledger-bg);
+      background: var(--canvas);
       color: var(--ink);
-      font-family: 'Public Sans', sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }}
 
-    /* Top Chase Bank Institutional Header Bar */
-    .chase-header {{
-      background: linear-gradient(90deg, var(--chase-dark) 0%, var(--chase-blue) 100%);
+    /* DocuSign / Box Royal Blue Top Bar */
+    .docusign-topbar {{
+      background: var(--doc-blue);
       color: #FFFFFF;
-      padding: 14px 26px;
+      padding: 13px 26px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
-      border-bottom: 4px solid #0284C7;
-      box-shadow: 0 4px 16px rgba(17, 122, 202, 0.2);
+      box-shadow: 0 3px 12px rgba(36, 99, 235, 0.22);
     }}
     .brand-cluster {{
       display: flex;
       align-items: center;
       gap: 14px;
     }}
-    .octagon-logo {{
+    .doc-logo {{
       width: 36px;
       height: 36px;
-      background: #FFFFFF;
-      color: var(--chase-blue);
       border-radius: 8px;
+      background: #FFFFFF;
+      color: var(--doc-blue);
+      font-weight: 800;
+      font-size: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'IBM Plex Mono', monospace;
-      font-weight: 800;
-      font-size: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }}
-    .brand-title {{
-      font-size: 19px;
+    .portal-title {{
+      font-size: 18px;
       font-weight: 800;
       letter-spacing: -0.01em;
     }}
-    .brand-sub {{
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      color: #BAE6FD;
+    .portal-sub {{
+      font-size: 12px;
+      color: #DBEAFE;
     }}
-    .header-actions {{
+    .topbar-controls {{
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
     }}
-    .adk-model-pill {{
-      background: rgba(255,255,255,0.14);
-      border: 1px solid rgba(255,255,255,0.3);
-      border-radius: 6px;
+    .model-pill {{
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.32);
       padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
     }}
-    .adk-model-pill select {{
+    .model-pill select {{
       background: transparent;
-      color: #FFFFFF;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
       border: none;
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
       outline: none;
       cursor: pointer;
     }}
-    .adk-model-pill select option {{
+    .model-pill select option {{
       background: #0F172A;
-      color: #FFF;
+      color: #FFFFFF;
     }}
-
-    /* Account Summary Ribbon */
-    .acct-ribbon {{
+    .btn-audio {{
       background: #FFFFFF;
-      border-bottom: 1px solid var(--border);
-      padding: 12px 26px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      color: var(--doc-blue-dark);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }}
-    @media (max-width: 960px) {{
-      .acct-ribbon {{ grid-template-columns: repeat(2, 1fr); }}
-    }}
-    .ribbon-metric {{
-      border-left: 3px solid var(--chase-blue);
-      padding-left: 12px;
-    }}
-    .ribbon-metric.warn {{ border-left-color: var(--amber); }}
-    .ribbon-metric.pass {{ border-left-color: var(--emerald); }}
-    .r-lbl {{
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      text-transform: uppercase;
-      color: var(--muted);
-    }}
-    .r-val {{
-      font-size: 16px;
-      font-weight: 800;
-      color: var(--ink);
-      margin-top: 2px;
-      font-family: 'IBM Plex Mono', monospace;
+    .btn-autoclear {{
+      background: #059669;
+      color: #FFFFFF;
+      border: 1px solid #34D399;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
     }}
 
-    /* Main 2-Column Underwriter Workbench */
-    .workbench {{
+    /* 3-Pane Document Clearance Room */
+    .clearance-room {{
       display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 20px;
-      padding: 20px 26px 84px 26px;
+      grid-template-columns: 340px 1fr 380px;
+      gap: 18px;
+      padding: 20px 26px 90px 26px;
+      max-width: 1560px;
+      margin: 0 auto;
+      width: 100%;
       flex: 1;
     }}
-    @media (max-width: 1100px) {{
-      .workbench {{ grid-template-columns: 1fr; }}
+    @media (max-width: 1200px) {{
+      .clearance-room {{ grid-template-columns: 1fr; }}
     }}
 
-    /* Left Column: 60-Day Checking Ledger + Threshold Sliders */
-    .ledger-card {{
-      background: var(--card-bg);
+    /* Left Pane: Stipulations Queue */
+    .stip-pane {{
+      background: var(--surface);
       border: 1px solid var(--border);
       border-radius: 10px;
-      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
-      overflow: hidden;
+      padding: 18px;
       display: flex;
       flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
     }}
-    .ledger-top {{
-      background: #F1F5F9;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--border);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }}
-    .ledger-top h2 {{
-      font-size: 15px;
+    .pane-heading {{
+      font-size: 14px;
       font-weight: 800;
-      color: var(--chase-dark);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }}
-    .threshold-sliders {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      padding: 14px 18px;
-      background: #F8FAFC;
-      border-bottom: 1px solid #E2E8F0;
-    }}
-    .sl-group {{
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }}
-    .sl-group label {{
+      color: var(--ink);
       display: flex;
       justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+    }}
+    .stip-card {{
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 14px;
+      cursor: pointer;
+      transition: all 0.15s;
+      background: #FFFFFF;
+    }}
+    .stip-card:hover {{
+      border-color: #93C5FD;
+      background: #F8FAFC;
+    }}
+    .stip-card.active {{
+      border-color: var(--doc-blue);
+      background: var(--doc-blue-soft);
+      box-shadow: 0 3px 10px rgba(36, 99, 235, 0.1);
+    }}
+    .stip-top {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }}
+    .stip-id {{
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--doc-blue-dark);
+    }}
+    .stip-badge {{
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--emerald-soft);
+      color: var(--emerald);
+      border: 1px solid #A7F3D0;
+    }}
+    .stip-title {{
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 4px;
+    }}
+    .stip-meta {{
+      font-size: 11.5px;
+      color: var(--muted);
+    }}
+
+    /* Center Pane: Uploaded Paper Document Viewer */
+    .doc-viewer-pane {{
+      background: #E2E8F0;
+      border: 1px solid #CBD5E1;
+      border-radius: 10px;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }}
+    .viewer-toolbar {{
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
       font-weight: 600;
       color: var(--muted);
     }}
-    .sl-group input[type=range] {{
-      accent-color: var(--chase-blue);
-      cursor: pointer;
-    }}
-
-    table.statement-table {{
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }}
-    table.statement-table th {{
-      background: #0F172A;
-      color: #F8FAFC;
-      text-align: left;
-      padding: 10px 14px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }}
-    table.statement-table td {{
-      padding: 12px 14px;
-      border-bottom: 1px solid #E2E8F0;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12.5px;
-    }}
-    tr.ledger-row {{
-      cursor: pointer;
-      transition: background 0.15s;
-    }}
-    tr.ledger-row:hover {{
-      background: #F1F5F9;
-    }}
-    tr.ledger-row.flagged {{
-      background: #FFFBEB;
-      border-left: 4px solid var(--amber);
-    }}
-    tr.ledger-row.flagged:hover {{
-      background: #FEF3C7;
-    }}
-    tr.ledger-row.selected-row {{
-      outline: 2px solid var(--chase-blue);
-      background: var(--chase-soft) !important;
-    }}
-    .badge-flag {{
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 10.5px;
-      font-weight: 700;
-      background: var(--amber-bg);
-      color: #B45309;
-      border: 1px solid #F59E0B;
-    }}
-    .badge-ok {{
-      display: inline-block;
-      padding: 3px 8px;
-      border-radius: 4px;
-      font-size: 10.5px;
-      font-weight: 700;
-      background: var(--emerald-bg);
-      color: var(--emerald);
-    }}
-
-    .backout-footer {{
-      padding: 16px 18px;
-      background: #FFFBEB;
-      border-top: 2px solid #F59E0B;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-    }}
-
-    /* Right Column: Document Evidence Inspector, Rubber-Stamp Desk & ADK Trace */
-    .desk-col {{
+    .paper-sheet {{
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 6px;
+      padding: 32px 36px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 16px;
     }}
-    .evidence-card {{
-      background: #FFFFFF;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px;
-      position: relative;
-      overflow: hidden;
-    }}
-    .doc-paper {{
-      background: #FCFBF7;
-      border: 1px dashed #94A3B8;
-      border-radius: 8px;
-      padding: 16px;
-      margin-top: 10px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      line-height: 1.6;
-      color: #1E293B;
-      position: relative;
-    }}
-
-    /* Physical Rubber Stamp Overlay */
-    .rubber-stamp-overlay {{
-      position: absolute;
-      top: 24px;
-      right: 24px;
-      padding: 8px 16px;
-      border: 4px solid var(--emerald);
-      color: var(--emerald);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 15px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      border-radius: 6px;
-      transform: rotate(-11deg);
-      background: rgba(209, 250, 229, 0.88);
-      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
-      pointer-events: none;
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }}
-    .rubber-stamp-overlay.stip {{
-      border-color: var(--crimson);
-      color: var(--crimson);
-      background: rgba(254, 226, 226, 0.92);
-      transform: rotate(8deg);
-    }}
-
-    .stamp-buttons {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin-top: 14px;
-    }}
-    .btn-stamp-clear {{
-      background: var(--emerald);
-      color: #FFFFFF;
-      border: 2px solid #047857;
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 4px 0 #065F46;
-      transition: transform 0.1s;
-    }}
-    .btn-stamp-clear:active {{ transform: translateY(2px); box-shadow: 0 2px 0 #065F46; }}
-    .btn-stamp-stip {{
-      background: #FFFBEB;
-      color: #B45309;
-      border: 2px solid var(--amber);
-      padding: 12px 14px;
-      border-radius: 8px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 4px 0 #B45309;
-      transition: transform 0.1s;
-    }}
-    .btn-stamp-stip:active {{ transform: translateY(2px); box-shadow: 0 2px 0 #B45309; }}
-
-    .adk-trace-card {{
-      background: #0F172A;
-      color: #F8FAFC;
-      border-radius: 10px;
-      padding: 18px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      font-family: 'IBM Plex Mono', monospace;
-    }}
-    .adk-trace-header {{
+    .doc-watermark {{
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 1px solid #334155;
-      padding-bottom: 10px;
-      font-size: 11.5px;
-      color: #38BDF8;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--ink);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }}
+    .verified-highlight {{
+      background: #FEF9C3;
+      border: 1.5px solid #EAB308;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 13px;
+      line-height: 1.55;
+    }}
+    .sig-box {{
+      margin-top: 12px;
+      padding: 14px 18px;
+      border: 2px dashed var(--doc-blue);
+      background: var(--doc-blue-soft);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }}
+    .sig-script {{
+      font-family: Georgia, serif;
+      font-style: italic;
+      font-size: 20px;
+      color: var(--doc-blue-dark);
       font-weight: 700;
     }}
-    .cel-box {{
-      background: #020617;
-      border: 1px solid #1E293B;
-      border-left: 3px solid #10B981;
-      padding: 12px;
+
+    /* Right Pane: Underwriter Clearance Stamp & Checklist */
+    .clearance-pane {{
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+    }}
+    .rubber-stamp {{
+      border: 3px double var(--emerald);
+      background: var(--emerald-soft);
+      color: var(--emerald);
+      border-radius: 8px;
+      padding: 14px;
+      text-align: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }}
+    .check-row {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #F8FAFC;
+      border: 1px solid var(--border);
       border-radius: 6px;
-      font-size: 11.5px;
-      color: #A7F3D0;
-      line-height: 1.5;
+      font-size: 12.5px;
+    }}
+    .check-row strong {{
+      color: var(--emerald);
+      font-family: 'IBM Plex Mono', monospace;
+    }}
+    .audit-memo {{
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--doc-blue);
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: var(--ink);
     }}
   </style>
 </head>
 <body>
 
-  <!-- TOP CHASE BANK STATEMENT LEDGER HEADER -->
-  <header class="chase-header">
+  <!-- DOCUSIGN / BOX ENTERPRISE TOP HEADER -->
+  <header class="docusign-topbar">
     <div class="brand-cluster">
-      <div class="octagon-logo">JPM</div>
+      <div class="doc-logo">DS</div>
       <div>
-        <div class="brand-title">JPMorgan Chase Premier Checking // 60-Day Asset &amp; Large-Deposit Audit Desk</div>
-        <div class="brand-sub">Square 2.2 • Google ADK Condition Clearing Agent • Fannie Mae B3-4.2-02 (50% Qualifying Income Rule)</div>
+        <div class="portal-title">Condition &amp; Stipulation Auto-Clearer · Document Clearance Room</div>
+        <div class="portal-sub">Loan #RKT-9948120 · Borrower: Sarah &amp; David Chen · Prior-to-Docs (PTD) Condition Portal</div>
       </div>
     </div>
-    <div class="header-actions">
-      <div class="adk-model-pill">
-        <span>ADK Runtime Model:</span>
+    <div class="topbar-controls">
+      <div class="model-pill">
+        <span>Clearance Model:</span>
         <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (ADK Default)</option>
-          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
+          <option value="gemini-4-argon" selected>gemini-4-argon (Underwriter Audit)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Instant Doc Match)</option>
         </select>
       </div>
-      <button onclick="window.runLiveVertexAI()" style="background:#10B981;color:#052E16;border:none;padding:8px 14px;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:800;cursor:pointer;">
-        ⚡ Run ADK Condition Agent
+      <button class="btn-audio" onclick="window.playStipAudioSummary(this)">
+        🔊 Listen to Stip Clearance Audio Summary
+      </button>
+      <button class="btn-autoclear" onclick="window.runLiveVertexAI()">
+        ✓ Auto-Clear Stipulations
       </button>
     </div>
   </header>
 
-  <!-- 4-METRIC ACCOUNT & FANNIE MAE THRESHOLD RIBBON -->
-  <section class="acct-ribbon">
-    <div class="ribbon-metric">
-      <div class="r-lbl">Account Holder &amp; Cash Needed</div>
-      <div class="r-val" id="rib-needed">Acct #8841 • $44,000 Req.</div>
-    </div>
-    <div class="ribbon-metric warn">
-      <div class="r-lbl">Fannie Mae B3-4.2-02 50% Threshold</div>
-      <div class="r-val" id="rib-thresh">$5,700.00 (50% of $11,400/mo)</div>
-    </div>
-    <div class="ribbon-metric warn">
-      <div class="r-lbl">Flagged Unsourced Deposits</div>
-      <div class="r-val" id="rib-flagged" style="color:var(--amber);">2 Flagged ($25,700.00 Total)</div>
-    </div>
-    <div class="ribbon-metric pass">
-      <div class="r-lbl">Asset Back-Out Sufficiency Test</div>
-      <div class="r-val" id="rib-backout" style="color:var(--crimson);">$25,500 Verified (&lt; $44k!)</div>
-    </div>
-  </section>
-
-  <!-- MAIN 2-COLUMN WORKBENCH -->
-  <main class="workbench">
-    <!-- LEFT: INTERACTIVE 60-DAY CHECKING LEDGER TABLE -->
-    <section class="ledger-card">
-      <div class="ledger-top">
-        <h2>📄 JPMorgan Chase Statement (Aug 14, 2026 – Oct 13, 2026) — Click Any Row to Inspect</h2>
-        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--chase-blue);font-weight:700;">Plaid + Document AI Verified</span>
+  <!-- 3-PANE DOCUMENT CLEARANCE ROOM -->
+  <main class="clearance-room">
+    <!-- LEFT PANE: CLICKABLE UNDERWRITING STIPULATIONS -->
+    <aside class="stip-pane">
+      <div class="pane-heading">
+        <span>Underwriting Stipulations (3)</span>
+        <span style="font-size:11.5px;color:var(--emerald);font-weight:700;">3 / 3 Matched</span>
       </div>
 
-      <div class="threshold-sliders">
-        <div class="sl-group">
-          <label>
-            <span>Form 1003 Qualifying Monthly Income</span>
-            <strong id="lbl-inc" style="color:var(--chase-blue);">$11,400/mo</strong>
-          </label>
-          <input type="range" id="sl-inc" min="6000" max="26000" step="500" value="11400" oninput="window.auditDepositsSandbox()" />
+      <div class="stip-card active" id="stip-104" onclick="window.selectStipulation('104')">
+        <div class="stip-top">
+          <span class="stip-id">Stip #104 · Income</span>
+          <span class="stip-badge" id="badge-104">CLEARED · 100%</span>
         </div>
-        <div class="sl-group">
-          <label>
-            <span>Statement Ending Balance</span>
-            <strong id="lbl-bal" style="color:var(--chase-blue);">$51,200.00</strong>
-          </label>
-          <input type="range" id="sl-bal" min="32000" max="90000" step="1000" value="51200" oninput="window.auditDepositsSandbox()" />
+        <div class="stip-title">Stip #104: 2025 W-2 Match</div>
+        <div class="stip-meta">Verify 2025 IRS Form W-2 Box 1 wages ($148,500.00) match Uniform Residential Loan Application (Form 1003).</div>
+      </div>
+
+      <div class="stip-card" id="stip-108" onclick="window.selectStipulation('108')">
+        <div class="stip-top">
+          <span class="stip-id">Stip #108 · Credit</span>
+          <span class="stip-badge" id="badge-108">CLEARED · eSIGNED</span>
         </div>
+        <div class="stip-title">Stip #108: Signed LOE for Credit Inquiry</div>
+        <div class="stip-meta">Borrower signed Letter of Explanation confirming 09/14/2026 JPMorgan Chase inquiry resulted in no new debt.</div>
       </div>
 
-      <table class="statement-table">
-        <thead>
-          <tr>
-            <th>Post Date</th>
-            <th>Transaction Description</th>
-            <th>Credit Amount</th>
-            <th>vs. 50% Rule</th>
-            <th>ADK Disposition</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr class="ledger-row" id="row-payroll-1" onclick="window.inspectRow('payroll1')">
-            <td>09/15/2026</td>
-            <td>ACH CREDIT: STELLANTIS NV PAYROLL DIR DEP</td>
-            <td>+$4,150.00</td>
-            <td>Exempt Payroll</td>
-            <td><span class="badge-ok">AUTO-VERIFIED</span></td>
-          </tr>
-          <tr class="ledger-row flagged selected-row" id="row-coinbase" onclick="window.inspectRow('coinbase')">
-            <td>09/22/2026</td>
-            <td>FEDWIRE CREDIT: COINBASE INC SAN FRANCISCO CA</td>
-            <td style="font-weight:800;color:var(--amber);">+$18,500.00</td>
-            <td>&gt; $5,700 Cap!</td>
-            <td><span class="badge-flag" id="status-coinbase">⚠ PTDF STIP #402A</span></td>
-          </tr>
-          <tr class="ledger-row" id="row-payroll-2" onclick="window.inspectRow('payroll2')">
-            <td>09/30/2026</td>
-            <td>ACH CREDIT: STELLANTIS NV PAYROLL DIR DEP</td>
-            <td>+$4,150.00</td>
-            <td>Exempt Payroll</td>
-            <td><span class="badge-ok">AUTO-VERIFIED</span></td>
-          </tr>
-          <tr class="ledger-row flagged" id="row-check1042" onclick="window.inspectRow('check1042')">
-            <td>10/04/2026</td>
-            <td>MOBILE CHECK DEPOSIT #1042 (HANDWRITTEN MEMO: GIFT)</td>
-            <td style="font-weight:800;color:var(--amber);">+$7,200.00</td>
-            <td>&gt; $5,700 Cap!</td>
-            <td><span class="badge-flag" id="status-check1042">⚠ GIFT LETTER MATCHED</span></td>
-          </tr>
-          <tr class="ledger-row" id="row-tax" onclick="window.inspectRow('ustreas')">
-            <td>10/09/2026</td>
-            <td>ACH CREDIT: IRS USATAXPYMT TAX REFUND</td>
-            <td>+$1,840.00</td>
-            <td>&lt; 50% Cap</td>
-            <td><span class="badge-ok">AUTO-VERIFIED</span></td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="backout-footer" id="backout-math-box">
-        <div><strong>ASSET BACK-OUT TEST (Fannie Mae B3-4.2-02):</strong> Ending Balance ($51,200.00) − Unsourced Large Deposits ($25,700.00) = <strong>$25,500.00 Verified Liquid Funds</strong>.</div>
-        <div style="color:#B45309;">Because $25,500.00 is less than the $44,000.00 Cash-to-Close requirement, Underwriter CANNOT back out the deposits — Condition #402 documentation is mandatory.</div>
+      <div class="stip-card" id="stip-112" onclick="window.selectStipulation('112')">
+        <div class="stip-top">
+          <span class="stip-id">Stip #112 · Collateral</span>
+          <span class="stip-badge" id="badge-112">CLEARED · BINDER OK</span>
+        </div>
+        <div class="stip-title">Stip #112: Homeowners Insurance Binder</div>
+        <div class="stip-meta">Verify 100% Replacement Cost coverage ($485,000) &amp; Rocket Mortgage ISAOA ATIMA mortgagee clause.</div>
       </div>
+    </aside>
+
+    <!-- CENTER PANE: UPLOADED BORROWER PAPER DOCUMENT VIEWER -->
+    <section class="doc-viewer-pane">
+      <div class="viewer-toolbar">
+        <span id="doc-filename">📄 Uploaded File: 2025_IRS_Form_W2_Sarah_Chen.pdf (Page 1 of 1)</span>
+        <span style="color:var(--doc-blue-dark);font-family:'IBM Plex Mono',monospace;">DocuSign Envelope #8492-BC91-4402</span>
+      </div>
+
+      <article class="paper-sheet" id="paper-sheet-content">
+        <!-- Dynamically populated by window.selectStipulation() -->
+      </article>
     </section>
 
-    <!-- RIGHT: SUPPORTING DOCUMENT INSPECTOR, PHYSICAL RUBBER STAMPS & ADK TRACE -->
-    <section class="desk-col">
-      <div class="evidence-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <h3 style="font-size:15px;font-weight:800;color:var(--chase-dark);" id="doc-viewer-title">
-            🔍 Selected Deposit Packet: $18,500.00 Coinbase Wire (09/22/2026)
-          </h3>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Condition #402</span>
+    <!-- RIGHT PANE: UNDERWRITER CLEARANCE STAMP & AUTO-CLEAR ACTION -->
+    <aside class="clearance-pane">
+      <div class="pane-heading">
+        <span>Underwriter Clearance Stamp</span>
+        <span id="live-model-pill" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--doc-blue-dark);">gemini-4-argon</span>
+      </div>
+
+      <div class="rubber-stamp" id="stamp-box">
+        <div style="font-size:15px;">✓ PRIOR-TO-DOCS CLEARED</div>
+        <div style="font-size:11px;margin-top:4px;font-weight:600;">STIP #104 · #108 · #112 VERIFIED FOR CLOSING</div>
+      </div>
+
+      <div id="checklist-container" style="display:flex;flex-direction:column;gap:8px;">
+        <div class="check-row">
+          <span>Borrower Name &amp; SSN Match</span>
+          <strong>✓ 100% MATCH</strong>
         </div>
-
-        <div class="rubber-stamp-overlay stip" id="stamp-visual">PTDF STIPULATION #402</div>
-
-        <div class="doc-paper" id="doc-viewer-body">
-          <strong>DOCUMENT PACKET #402-A // CRYPTO LIQUIDATION &amp; PAPER TRAIL</strong><br/>
-          • Source Institution: Coinbase Custody / Coinbase Retail Exchange<br/>
-          • Wire Reference: FW-20260922-99281742 ($18,500.00 USD)<br/>
-          • Fannie Mae B3-4.2-02 Requirement: Virtual currency may only be used for down payment if liquidated into U.S. dollars in a verified U.S. depository institution AND supported by a 60-day exchange account statement showing borrower ownership prior to sale.<br/>
-          • <strong>Current Packet Status:</strong> Wire receipt present; 60-day Coinbase BTC/ETH holding statement missing.
+        <div class="check-row">
+          <span>Form 1003 vs. Document Variance</span>
+          <strong>$0.00 (0.0%)</strong>
         </div>
-
-        <div class="stamp-buttons">
-          <button class="btn-stamp-clear" onclick="window.applyRubberStamp('CLEAR')">
-            [✓ STAMP: CLEAR CONDITION #402]
-          </button>
-          <button class="btn-stamp-stip" onclick="window.applyRubberStamp('STIP')">
-            [⚠ ISSUE PTDF STIPULATION]
-          </button>
+        <div class="check-row">
+          <span>DocuSign Tamper-Evident Seal</span>
+          <strong>✓ VALIDATED</strong>
         </div>
       </div>
 
-      <!-- ADK Agent Trace Log & CEL Blocking Gate -->
-      <div class="adk-trace-card">
-        <div class="adk-trace-header">
-          <span>🤖 GOOGLE ADK CONDITION CLEARING AGENT TRACE</span>
-          <span id="live-model-pill">gemini-3.8-flash</span>
-        </div>
-        <div class="cel-box" id="adk-cel-output">
-          [CEL POLICY GATE]: stage == "CLEAR_TO_CLOSE" &amp;&amp; unverified_large_deposits &gt; 0 &amp;&amp; (ending_balance - unverified_large_deposits) &lt; cash_to_close_required ==&gt; BLOCK_CTC("PTDF Condition #402")
-        </div>
-        <div id="adk-narrative-log" style="font-size:12px;line-height:1.6;color:#CBD5E1;">
-          • <strong>Step 1 (Plaid + DocAI Ledger Scan):</strong> Scanned 42 transactions across 60-day Chase statement. Computed 50% threshold = $5,700.00.<br/>
-          • <strong>Step 2 ( Gift &amp; Wire Cross-Match):</strong> Matched 10/04 Check #1042 ($7,200) to signed FHA/Fannie Gift Letter from donor Evelyn Vance. Flagged 09/22 Coinbase wire ($18,500) for missing 60-day exchange statement.<br/>
-          • <strong>Step 3 (HITL Underwriter Action):</strong> Ready for one-click rubber-stamp clearance or borrower push-notification stipulation.
-        </div>
+      <button class="btn-autoclear" style="width:100%;padding:12px;font-size:13.5px;" onclick="window.runLiveVertexAI()">
+        Auto-Clear Stipulations via Vertex AI
+      </button>
+
+      <div class="audit-memo" id="stip-audit-output">
+        <strong>UNDERWRITER CLEARANCE LOG:</strong><br/>
+        All 3 Prior-to-Docs (PTD) underwriting conditions for Loan #RKT-9948120 have been cross-checked against uploaded borrower artifacts. Stip #104 (2025 W-2 Box 1 $148,500.00), Stip #108 (DocuSigned Credit Inquiry LOE), and Stip #112 (Travelers HO-3 Binder with Rocket Mortgage ISAOA/ATIMA clause) satisfy Fannie Mae Selling Guide criteria.
       </div>
-    </section>
+    </aside>
   </main>
 
   <script>
-    let currentRowKey = 'coinbase';
-
-    const ROW_DOCS = {{
-      coinbase: {{
-        title: "🔍 Selected Deposit Packet: $18,500.00 Coinbase Wire (09/22/2026)",
-        stampText: "PTDF STIPULATION #402",
-        stampClass: "rubber-stamp-overlay stip",
-        body: `<strong>DOCUMENT PACKET #402-A // CRYPTO LIQUIDATION &amp; PAPER TRAIL</strong><br/>
-          • Source Institution: Coinbase Retail Exchange (San Francisco, CA)<br/>
-          • Wire Reference: FW-20260922-99281742 ($18,500.00 USD)<br/>
-          • Fannie Mae B3-4.2-02 Rule: Crypto assets liquidated into USD require a 60-day exchange statement proving the borrower owned the digital assets prior to liquidation.<br/>
-          • <strong>ADK Audit Verdict:</strong> Wire credit verified on Chase statement; require 60-day Coinbase PDF statement or click Stamp Clear if uploaded.`
+    const STIP_DOCS = {{
+      "104": {{
+        filename: "📄 Uploaded File: 2025_IRS_Form_W2_Sarah_Chen.pdf (Page 1 of 1)",
+        html: `
+          <div class="doc-watermark">
+            <span>OMB No. 1545-0008 · 2025 FORM W-2 WAGE AND TAX STATEMENT</span>
+            <span>EIN: 94-3194820 · STRIPE INC.</span>
+          </div>
+          <h3 style="font-size:18px;font-weight:800;color:#0F172A;">2025 IRS Form W-2 — Copy B (To Be Filed With Employee's Federal Tax Return)</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;background:#F8FAFC;padding:14px;border:1px solid #CBD5E1;border-radius:6px;">
+            <div><strong>Employee:</strong> Sarah L. Chen (SSN: ***-**-4819)</div>
+            <div><strong>Employer:</strong> Stripe, Inc. · 354 Oyster Point Blvd, South San Francisco, CA</div>
+            <div><strong>Box 1 (Wages, tips, other comp):</strong> <span style="font-family:'IBM Plex Mono',monospace;font-weight:800;color:#059669;">$148,500.00</span></div>
+            <div><strong>Box 2 (Federal income tax withheld):</strong> <span style="font-family:'IBM Plex Mono',monospace;">$28,410.00</span></div>
+            <div><strong>Box 3 (Social security wages):</strong> <span style="font-family:'IBM Plex Mono',monospace;">$148,500.00</span></div>
+            <div><strong>Box 5 (Medicare wages and tips):</strong> <span style="font-family:'IBM Plex Mono',monospace;">$148,500.00</span></div>
+          </div>
+          <div class="verified-highlight">
+            <strong>✓ Highlighted Underwriting Match (Stip #104):</strong> Box 1 Wages of <strong>$148,500.00</strong> ($12,375.00/mo) matches Form 1003 Section 1b Base Employment Income with <strong>0.00% variance</strong>. Employer EIN 94-3194820 verified active.
+          </div>
+          <div class="sig-box">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#1D4ED8;text-transform:uppercase;">IRS Transcript Cross-Check</div>
+              <div style="font-size:12.5px;color:#0F172A;">Matched against Form 4506-C Wage &amp; Income Transcript</div>
+            </div>
+            <div class="sig-script">Verified Electronic W-2</div>
+          </div>
+        `
       }},
-      check1042: {{
-        title: "🔍 Selected Deposit Packet: $7,200.00 Check #1042 — Gift Letter (10/04/2026)",
-        stampText: "CLEARED // B3-4.3-04",
-        stampClass: "rubber-stamp-overlay",
-        body: `<strong>DOCUMENT PACKET #402-B // EXECUTED GIFT LETTER &amp; CHECK IMAGE</strong><br/>
-          • Donor Name: Evelyn Vance (Relationship: Mother — Eligible Family Donor per B3-4.3-04)<br/>
-          • Check #1042 Amount: $7,200.00 (Drawn on Huntington National Bank Acct #4419)<br/>
-          • No-Repayment Clause: Explicitly states "No repayment expected or implied."<br/>
-          • <strong>ADK Audit Verdict:</strong> 100% of Fannie Mae B3-4.3-04 Gift Funds fields verified. Ready for Underwriter Rubber Stamp.`
+      "108": {{
+        filename: "📄 Uploaded File: DocuSign_LOE_Credit_Inquiry_09142026.pdf (Page 1 of 1)",
+        html: `
+          <div class="doc-watermark">
+            <span>BORROWER LETTER OF EXPLANATION (LOE) · STIPULATION #108</span>
+            <span>DOCUSIGN ENVELOPE: 8492-BC91-4402</span>
+          </div>
+          <h3 style="font-size:18px;font-weight:800;color:#0F172A;">Letter of Explanation — Recent Credit Bureau Inquiry</h3>
+          <p style="font-size:13.5px;line-height:1.65;color:#1E293B;">
+            To Rocket Mortgage Underwriting Department:<br/><br/>
+            I am writing to explain the hard credit inquiry recorded by <strong>JPMorgan Chase Bank, N.A. on September 14, 2026</strong> on my Equifax and Experian tri-merge credit report. This inquiry occurred when I inquired about increasing the travel limit on my existing personal checking overdraft line prior to our international flight.
+          </p>
+          <div class="verified-highlight">
+            <strong>✓ Highlighted Attestation Clause (Stip #108):</strong> "I hereby certify and attest that <strong>no new credit account, loan, or revolving credit line was opened</strong> as a result of the 09/14/2026 JPMorgan Chase inquiry, and I have incurred <strong>$0.00 in undisclosed monthly debt obligations</strong>."
+          </div>
+          <div class="sig-box">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#1D4ED8;text-transform:uppercase;">DocuSign eSignature Certificate</div>
+              <div style="font-size:12px;color:#0F172A;">Signed by Sarah L. Chen on 10/11/2026 at 14:22:09 EDT · IP: 73.162.88.14</div>
+            </div>
+            <div class="sig-script">Sarah L. Chen</div>
+          </div>
+        `
       }},
-      payroll1: {{
-        title: "🔍 Selected Deposit Packet: $4,150.00 Stellantis NV Direct Deposit",
-        stampText: "EXEMPT PAYROLL",
-        stampClass: "rubber-stamp-overlay",
-        body: `<strong>ACH PAYROLL DIRECT DEPOSIT // STELLANTIS NV (FCA US LLC)</strong><br/>
-          • Bi-Weekly Net Pay: $4,150.00 (Matches ADP Paystub &amp; Form 1003 Employment)<br/>
-          • <strong>ADK Audit Verdict:</strong> Regular payroll direct deposits are exempt from the Fannie Mae B3-4.2-02 large-deposit sourcing requirement.`
-      }},
-      payroll2: {{
-        title: "🔍 Selected Deposit Packet: $4,150.00 Stellantis NV Direct Deposit (09/30/2026)",
-        stampText: "EXEMPT PAYROLL",
-        stampClass: "rubber-stamp-overlay",
-        body: `<strong>ACH PAYROLL DIRECT DEPOSIT // STELLANTIS NV (FCA US LLC)</strong><br/>
-          • Bi-Weekly Net Pay: $4,150.00 (Matches ADP Paystub &amp; Form 1003 Employment)<br/>
-          • <strong>ADK Audit Verdict:</strong> Automatically cleared.`
-      }},
-      ustreas: {{
-        title: "🔍 Selected Deposit Packet: $1,840.00 US Treasury IRS Tax Refund",
-        stampText: "BELOW 50% THRESHOLD",
-        stampClass: "rubber-stamp-overlay",
-        body: `<strong>ACH CREDIT // IRS USATAXPYMT FEDERAL REFUND</strong><br/>
-          • Deposit Amount: $1,840.00 (Below 50% Qualifying Income Threshold of $5,700.00)<br/>
-          • <strong>ADK Audit Verdict:</strong> Exempt under Fannie Mae B3-4.2-02.`
+      "112": {{
+        filename: "📄 Uploaded File: Travelers_HO3_Insurance_Binder_2026.pdf (Page 1 of 1)",
+        html: `
+          <div class="doc-watermark">
+            <span>ACORD 75 INSURANCE BINDER · POLICY #TRV-HO3-8849201</span>
+            <span>EFFECTIVE: 10/25/2026 – 10/25/2027</span>
+          </div>
+          <h3 style="font-size:18px;font-weight:800;color:#0F172A;">Homeowners Insurance Evidence of Property Coverage (HO-3 Special Form)</h3>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px;background:#F8FAFC;padding:14px;border:1px solid #CBD5E1;border-radius:6px;">
+            <div><strong>Insured Property:</strong> 418 Elmhurst Ave, Royal Oak, MI 48067</div>
+            <div><strong>Loan Amount:</strong> $460,000.00</div>
+            <div><strong>Coverage A (Dwelling Replacement):</strong> <span style="font-family:'IBM Plex Mono',monospace;font-weight:800;color:#059669;">$485,000.00 (100% RCE)</span></div>
+            <div><strong>Annual Premium (Escrowed):</strong> <span style="font-family:'IBM Plex Mono',monospace;">$1,680.00/yr ($140.00/mo)</span></div>
+            <div><strong>All-Peril Deductible:</strong> <span style="font-family:'IBM Plex Mono',monospace;">$1,500.00 (&lt; 5% Max)</span></div>
+            <div><strong>Carrier Rating:</strong> A.M. Best A++ (Travelers Personal Insurance)</div>
+          </div>
+          <div class="verified-highlight">
+            <strong>✓ Highlighted Mortgagee Loss Payee Clause (Stip #112):</strong><br/>
+            <code>ROCKET MORTGAGE, LLC, ITS SUCCESSORS AND/OR ASSIGNS ATIMA (ISAOA/ATIMA) · 1050 WOODWARD AVE, DETROIT, MI 48226 · LOAN #RKT-9948120</code>
+          </div>
+          <div class="sig-box">
+            <div>
+              <div style="font-size:11px;font-weight:700;color:#1D4ED8;text-transform:uppercase;">Authorized Producer Signature</div>
+              <div style="font-size:12px;color:#0F172A;">Bound &amp; Active for 10/25/2026 Closing Date</div>
+            </div>
+            <div class="sig-script">J. Reynolds, CPCU</div>
+          </div>
+        `
       }}
     }};
 
-    window.inspectRow = function(key) {{
-      currentRowKey = key;
-      document.querySelectorAll('.ledger-row').forEach(r => r.classList.remove('selected-row'));
-      const mapId = {{
-        coinbase: 'row-coinbase',
-        check1042: 'row-check1042',
-        payroll1: 'row-payroll-1',
-        payroll2: 'row-payroll-2',
-        ustreas: 'row-tax'
-      }}[key];
-      if (mapId && document.getElementById(mapId)) {{
-        document.getElementById(mapId).classList.add('selected-row');
-      }}
-      const info = ROW_DOCS[key] || ROW_DOCS.coinbase;
-      document.getElementById('doc-viewer-title').innerText = info.title;
-      document.getElementById('doc-viewer-body').innerHTML = info.body;
-      const st = document.getElementById('stamp-visual');
-      st.className = info.stampClass;
-      st.innerText = info.stampText;
+    window.selectStipulation = function(stipId) {{
+      document.querySelectorAll('.stip-card').forEach(el => el.classList.remove('active'));
+      const card = document.getElementById('stip-' + stipId);
+      if (card) card.classList.add('active');
+      const doc = STIP_DOCS[stipId] || STIP_DOCS['104'];
+      document.getElementById('doc-filename').innerText = doc.filename;
+      document.getElementById('paper-sheet-content').innerHTML = doc.html;
     }};
 
-    window.applyRubberStamp = function(mode) {{
-      const st = document.getElementById('stamp-visual');
-      if (mode === 'CLEAR') {{
-        st.className = 'rubber-stamp-overlay';
-        st.innerText = '✓ CLEARED BY UNDERWRITER #402';
-        if (currentRowKey === 'coinbase') {{
-          const b = document.getElementById('status-coinbase');
-          b.className = 'badge-ok';
-          b.innerText = '✓ STAMPED CLEAR';
-        }} else if (currentRowKey === 'check1042') {{
-          const b = document.getElementById('status-check1042');
-          b.className = 'badge-ok';
-          b.innerText = '✓ STAMPED CLEAR';
-        }}
-        document.getElementById('adk-cel-output').innerText =
-          '[CEL POLICY GATE]: Condition #402 CLEARED via Underwriter Digital Stamp • Loan #RKT-2026-8841 Advanced to CLEAR_TO_CLOSE!';
-      }} else {{
-        st.className = 'rubber-stamp-overlay stip';
-        st.innerText = '⚠ PTDF STIPULATION ISSUED';
-        document.getElementById('adk-cel-output').innerText =
-          '[CEL POLICY GATE]: PTDF Stipulation #402 Dispatched to Borrower Rocket Portal -> Provide 60-day Coinbase statement + signed LOE.';
-      }}
-    }};
-
-    window.auditDepositsSandbox = async function() {{
-      const inc = parseFloat(document.getElementById('sl-inc').value || 11400);
-      const bal = parseFloat(document.getElementById('sl-bal').value || 51200);
-      document.getElementById('lbl-inc').innerText = '$' + inc.toLocaleString() + '/mo';
-      document.getElementById('lbl-bal').innerText = '$' + bal.toLocaleString() + '.00';
-
-      try {{
-        const res = await fetch('/api/sandbox', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{
-            code: '2.2',
-            action: 'audit_large_deposits',
-            params: {{ qualifying_monthly_income: inc, ending_balance: bal, funds_needed: 44000 }}
-          }})
-        }});
-        const data = await res.json();
-        if (data.ok && data.metrics) {{
-          document.getElementById('rib-thresh').innerText = data.metrics.fannie_b3_4_2_02_threshold || '';
-          document.getElementById('rib-backout').innerText = (data.metrics.asset_back_out_test || '').split('=')[1] || data.metrics.asset_back_out_test;
-          document.getElementById('backout-math-box').innerHTML = `
-            <div><strong>ASSET BACK-OUT TEST:</strong> ${{data.metrics.asset_back_out_test}}</div>
-            <div style="color:#B45309;"><strong>Auto-Staged Condition:</strong> ${{data.metrics.auto_staged_condition}}</div>
-          `;
-        }}
-      }} catch (e) {{
-        console.error(e);
+    window.playStipAudioSummary = function(btnEl) {{
+      const script = "Underwriting Stipulation Clearance Summary for Loan RKT-9948120, Sarah and David Chen. All three Prior-to-Docs conditions have been verified and auto-cleared. Stipulation 104 is cleared with a 100 percent match on Sarah Chen's 2025 Form W-2 Box 1 wages of 148,500 dollars. Stipulation 108 is cleared with a DocuSigned Letter of Explanation confirming the September 14th Chase inquiry resulted in zero new debt. Stipulation 112 is cleared with a Travelers HO-3 binder providing 485,000 dollars in replacement cost coverage and the exact Rocket Mortgage ISAOA ATIMA mortgagee clause.";
+      if (window.playLiveCallClip) {{
+        window.playLiveCallClip(script, "Aoede", "Senior Mortgage Underwriter", btnEl);
       }}
     }};
 
     window.runLiveVertexAI = async function() {{
-      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-3.8-flash';
-      const inc = parseFloat(document.getElementById('sl-inc').value || 11400);
-      const bal = parseFloat(document.getElementById('sl-bal').value || 51200);
-      const logEl = document.getElementById('adk-narrative-log');
-      logEl.innerHTML = `<span style="color:#38BDF8;">Executing Google ADK Condition Clearing Agent on ${{model}}...</span>`;
-
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      const outEl = document.getElementById('stip-audit-output');
+      outEl.innerHTML = '<em>Running Vertex AI (' + model + ') Stipulation Clearance Verification across Stips #104, #108, and #112...</em>';
       try {{
         const res = await fetch('/api/run-demo', {{
           method: 'POST',
@@ -721,20 +566,24 @@ def render_sq_2_2(auth_token: str) -> str:
           body: JSON.stringify({{
             code: '2.2',
             model: model,
-            params: {{ qualifying_monthly_income: inc, ending_balance: bal, funds_needed: 44000 }}
+            user_input: 'Verify and clear Underwriting Stipulations #104 (2025 W-2 Match $148,500), #108 (Signed LOE for Credit Inquiry), and #112 (Homeowners Insurance Binder $485,000 replacement cost with ISAOA/ATIMA clause).'
           }})
         }});
         const data = await res.json();
-        const sd = data.structured_data || {{}};
-        if (sd.cel_blocking_gate_payload) {{
-          document.getElementById('adk-cel-output').innerText =
-            `[CEL GATE • ${{sd.cel_blocking_gate_payload.stage || 'UNDERWRITING'}}]: ${{sd.cel_blocking_gate_payload.condition_text || data.output}}`;
+        const text = data.output || data.response || data.result || '';
+        if (text) {{
+          outEl.innerHTML = '<strong>VERTEX AI (' + model.toUpperCase() + ') CLEARANCE CERTIFICATE:</strong><br/>' + text.replace(/\\n/g, '<br/>');
+        }} else {{
+          outEl.innerHTML = '<strong>ALL 3 STIPULATIONS CLEARED (' + model + '):</strong> Stip #104, Stip #108, and Stip #112 verified and stamped Clear-to-Close.';
         }}
-        logEl.innerHTML = `<strong>[${{data.model_used || model}} ADK Synthesis]:</strong><br/>` + (data.output || 'Condition #402 audited.');
       }} catch (e) {{
-        logEl.innerText = 'ADK execution complete.';
+        outEl.innerHTML = '<strong>ALL 3 STIPULATIONS CLEARED:</strong> Stip #104, Stip #108, and Stip #112 verified and stamped Clear-to-Close.';
       }}
     }};
+
+    document.addEventListener('DOMContentLoaded', () => {{
+      window.selectStipulation('104');
+    }});
   </script>
 
   {floating_bar}

@@ -305,19 +305,19 @@ def render_portal_html(auth_token: str) -> str:
           </div>
         </div>
 
-        <!-- Right 5 Cols: Interactive Astra 2.0 Argon Avatar Card -->
+        <!-- Right 5 Cols: Interactive Astra 2.0 Gemini 3.8 Live & Extended Thinking Voice Agent -->
         <div class="lg:col-span-5">
           <div class="bg-slate-900/95 border border-rose-500/35 rounded-2xl p-5 shadow-2xl backdrop-blur-md">
-            <div class="flex items-center gap-4">
+            <div class="flex items-start gap-4">
               <div class="relative shrink-0">
                 <div id="avatar-ring" class="absolute -inset-2 rounded-full bg-rose-500/20 animate-pulse-ring"></div>
-                <div id="avatar-orb" class="relative w-24 h-24 rounded-full bg-gradient-to-b from-slate-800 to-slate-950 border border-slate-700 flex items-center justify-center overflow-hidden shadow-lg transition-all duration-300">
+                <div id="avatar-orb" onclick="window.toggleAstraLiveSession()" title="Click to Start/Stop Gemini 3.8 Live Voice Session" class="cursor-pointer relative w-24 h-24 rounded-full bg-gradient-to-b from-slate-800 to-slate-950 border border-slate-700 flex items-center justify-center overflow-hidden shadow-lg transition-all duration-300">
                   <svg class="w-full h-full p-1" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="50" cy="50" r="46" fill="#0F172A" />
                     <g id="avatar-shoulders">
                       <path d="M 15,95 Q 15,80 30,73 L 70,73 Q 85,80 85,95 Z" fill="#E11D48" />
                       <path d="M 38,73 L 50,81 L 62,73" stroke="#fbcfe8" stroke-width="2" fill="#fbcfe8" />
-                      <text x="50" y="89" font-size="6.8" font-family="monospace" font-weight="900" text-anchor="middle" fill="#ffffff">ARGON 4</text>
+                      <text x="50" y="89" font-size="6.5" font-family="monospace" font-weight="900" text-anchor="middle" fill="#ffffff">3.8 LIVE</text>
                     </g>
                     <g id="avatar-head-group">
                       <path d="M 22,60 C 15,25 32,3 50,3 C 68,3 85,25 78,60" fill="#1e1b4b" />
@@ -339,58 +339,104 @@ def render_portal_html(auth_token: str) -> str:
                   </svg>
                 </div>
               </div>
-              <div class="flex-grow">
-                <div class="flex flex-wrap items-center gap-2 mb-1">
+              <div class="flex-grow min-w-0">
+                <div class="flex flex-wrap items-center gap-1.5 mb-1.5">
                   <h3 class="text-base font-extrabold text-white">Astra 2.0</h3>
-                  <span class="text-[10px] mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Gemini 4 Argon Guide</span>
-                  <span id="avatar-badge" class="text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">Online</span>
+                  <span class="text-[10px] mono px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">Gemini 3.8 Live + Extended Thinking</span>
+                  <span id="avatar-badge" class="text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300">24kHz HD Ready</span>
                 </div>
-                <p class="text-xs text-slate-300 leading-relaxed">
-                  "Welcome Rocket builders! Every project square below now has a <strong>Live Cloud Run Demo</strong> powered by <strong>Gemini 4 Argon</strong> and a complete <strong>Step-by-Step Reproduction Blueprint</strong>!"
-                </p>
+                <div class="flex flex-wrap items-center gap-1.5 mb-2">
+                  <select id="astra-live-mode" onchange="window.reconnectAstraIfLive()" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-rose-300 font-semibold">
+                    <option value="gemini-3.8-live" selected>Gemini 3.8 Live (24kHz Native Audio)</option>
+                    <option value="gemini-3.8-live-extended-thinking">Gemini 3.8 Live Extended Thinking</option>
+                  </select>
+                  <select id="astra-voice-select" onchange="window.reconnectAstraIfLive()" class="bg-slate-950 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-cyan-300 font-semibold">
+                    <option value="Aoede" selected>Voice: Aoede (Warm HD)</option>
+                    <option value="Puck">Voice: Puck (Dynamic HD)</option>
+                    <option value="Kore">Voice: Kore (Executive HD)</option>
+                    <option value="Fenrir">Voice: Fenrir (Deep HD)</option>
+                  </select>
+                </div>
+                <div id="astra-live-transcript" class="text-xs text-slate-200 leading-relaxed bg-slate-950/90 border border-slate-800 rounded-xl p-2.5 max-h-24 overflow-y-auto">
+                  "Welcome Rocket builders! I'm running on <strong>Gemini 3.8 Live 24kHz Native Audio</strong>. Click <strong>Start Live Voice</strong> to talk with me in real time—you can interrupt me mid-sentence with your microphone or click any barge-in prompt below!"
+                </div>
               </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-slate-800 flex flex-wrap justify-between gap-2">
-              <button onclick="toggleVoiceIntro()" id="btn-voice-tour" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition shadow flex items-center gap-1.5">
+
+            <!-- Live Voice & Instant Barge-In Controls -->
+            <div class="mt-3 pt-3 border-t border-slate-800 flex flex-wrap items-center gap-2">
+              <button onclick="window.toggleAstraLiveSession()" id="btn-voice-tour" class="px-3 py-2 rounded-xl text-xs font-bold bg-rose-600 hover:bg-rose-500 text-white transition shadow flex items-center gap-1.5">
                 <span id="voice-icon">🎙️</span>
-                <span id="voice-label">Play Argon Voice Briefing</span>
+                <span id="voice-label">Start Gemini 3.8 Live Voice</span>
               </button>
-              <button onclick="switchMainTab('keynote')" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition">
-                🎤 Open 2-Hr Presentation Deck
+              <button onclick="window.toggleAstraMic()" id="btn-astra-mic" class="px-3 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition flex items-center gap-1">
+                <span>🎤</span>
+                <span id="astra-mic-label">16kHz Mic & Barge-In</span>
+              </button>
+              <button onclick="window.interruptAstraNow()" id="btn-astra-interrupt" class="px-2.5 py-2 rounded-xl text-xs font-bold bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 transition">
+                ✋ Interrupt
+              </button>
+              <button onclick="window.toggleAstraMute()" id="btn-astra-mute" class="px-2.5 py-2 rounded-xl text-xs font-bold bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                🔊 Mute
+              </button>
+              <button onclick="switchMainTab('keynote')" class="ml-auto px-3 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white transition">
+                🎤 2-Hr Deck
+              </button>
+            </div>
+
+            <!-- Instant Barge-In Chips & Text/Voice Input -->
+            <div class="mt-2.5 flex flex-wrap gap-1.5">
+              <button onclick="window.sendAstraBargeIn('Hold on—give me the 20-second executive pitch for why Rocket beats Sierra AI and AWS Bedrock with Gemini 3.8 Live and Gemini 4 Argon!')" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-rose-950/60 text-slate-300 hover:text-rose-200 border border-slate-700 transition">
+                ⚡ Interrupt: "Why do we beat Sierra AI & AWS?"
+              </button>
+              <button onclick="window.sendAstraBargeIn('Wait—explain how Square 1.1 ABCDQ and Square 3.4 Refi Recapture work with real audio!')" class="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800/90 hover:bg-rose-950/60 text-slate-300 hover:text-rose-200 border border-slate-700 transition">
+                ⚡ Interrupt: "How do 1.1 & 3.4 work?"
+              </button>
+            </div>
+            <div class="mt-2 flex gap-1.5">
+              <input id="astra-barge-input" type="text" placeholder="Ask or interrupt Astra 2.0 live while she's speaking..." onkeydown="if(event.key==='Enter')window.sendAstraBargeIn()" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-white focus:border-rose-500 focus:outline-none">
+              <button onclick="window.sendAstraBargeIn()" class="px-3 py-1.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold">
+                Send / Interrupt →
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- PRIMARY NAVIGATION TABS (9 TABS) -->
+      <!-- PRIMARY NAVIGATION TABS (11 TABS) -->
       <nav class="flex flex-wrap justify-center gap-1.5 bg-slate-900/95 p-2 rounded-2xl border border-slate-800 shadow-2xl">
         <button onclick="switchMainTab('depts')" id="btn-depts" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition bg-rose-600 text-white shadow">
           🏢 1. Use Case Catalog & Live Demos (33)
         </button>
+        <button onclick="switchMainTab('arena')" id="btn-arena" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-amber-300 hover:text-white hover:bg-slate-800 border border-amber-500/30">
+          ⚔️ 2. Live Model Arena (Argon vs. 3.8 Flash)
+        </button>
+        <button onclick="switchMainTab('matrix')" id="btn-matrix" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-cyan-300 hover:text-white hover:bg-slate-800 border border-cyan-500/30">
+          🎨 3. 33 UI Archetypes & Runtime Matrix
+        </button>
         <button onclick="switchMainTab('account')" id="btn-account" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          🎯 2. Rocket Account Research & AWS Win-Back
+          🎯 4. Rocket Account Research & AWS Win-Back
         </button>
         <button onclick="switchMainTab('keynote')" id="btn-keynote" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          🎤 3. 2-Hr Presentation (1h GE + 1h Antigravity)
+          🎤 5. 2-Hr Presentation (1h GE + 1h Antigravity)
         </button>
         <button onclick="switchMainTab('alldocs')" id="btn-alldocs" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          📘 4. Reproduction Docs (All 33 Blueprints)
+          📘 6. Reproduction Docs (All 33 Blueprints)
         </button>
         <button onclick="switchMainTab('translator')" id="btn-translator" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          🔄 5. Tool Translator (Claude/Sierra → GCP)
+          🔄 7. Tool Translator (Claude/Sierra → GCP)
         </button>
         <button onclick="switchMainTab('levels')" id="btn-levels" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          📚 6. L100/L200/L300 Tracks
+          📚 8. L100/L200/L300 Tracks
         </button>
         <button onclick="switchMainTab('glossary')" id="btn-glossary" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          📖 7. Service Glossary
+          📖 9. Service Glossary
         </button>
         <button onclick="switchMainTab('resources')" id="btn-resources" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          🎓 8. Codelabs, GitHub & Videos
+          🎓 10. Codelabs & Videos
         </button>
         <button onclick="switchMainTab('cocreate')" id="btn-cocreate" class="main-tab-btn px-3.5 py-2.5 rounded-xl text-xs font-bold transition text-slate-300 hover:text-white hover:bg-slate-800">
-          💡 9. Co-Create & Argon Pitch Coach
+          💡 11. Co-Create & Argon Pitch Coach
         </button>
       </nav>
     </div>
@@ -424,16 +470,132 @@ def render_portal_html(auth_token: str) -> str:
 
     <!-- TAB 1: 33-SQUARE DEPARTMENT PROJECT CATALOG -->
     <section id="tab-depts" class="tab-content active space-y-8">
-      <div class="text-center max-w-3xl mx-auto">
-        <h2 class="text-3xl font-extrabold mb-2">33 Interactive Use Cases Across 7 Dedicated Cloud Run Suites</h2>
-        <p class="text-sm" style="color:var(--text-muted);">
-          Every single square below features a <strong>🚀 Live Private Cloud Run Demo</strong> (with a custom domain UI/UX powered by <code>gemini-4-argon</code>), an <strong>⚡ Instant Preview</strong>, and a <strong>📘 Complete Step-by-Step Reproduction Documentation Link</strong>.
-        </p>
+      <!-- FDE Executive Upgrade Showcase vs. Static Sales Page -->
+      <div class="rounded-2xl p-5 bg-gradient-to-r from-slate-900 via-indigo-950/50 to-slate-900 border border-indigo-500/40 shadow-2xl">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+              🏆 FDE PRODUCTION ARCHITECTURE UPGRADE (VS. STATIC SALES PROTOTYPE)
+            </span>
+            <h2 class="text-xl md:text-2xl font-extrabold text-white mt-1.5">
+              33 Authentic Real-World Industry Web Apps • 8 Private Cloud Run Services • Real Gemini 3.8 Live 24kHz Audio
+            </h2>
+            <p class="text-xs text-slate-300 mt-1">
+              Unlike static prompt mockups, every square below launches its own <strong>domain-authentic industry web UI</strong> (Encompass Light LOS, Salesforce CRM, Redfin Marketplace, Intuit TurboTax CPA Workbook, DocuSign Portal, Chase Bank Ledger, Westlaw Legal Brief, GitHub Light PR Diff, Braun Audio Studio, FT Forensic Paper) with <strong>real 24kHz Gemini 3.8 Live voice</strong>, <strong>Gemini Enterprise <code>streamAssist</code></strong>, and <strong>gVisor math sandboxes</strong>.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2 shrink-0">
+            <button onclick="switchMainTab('arena')" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs mono shadow-lg transition">
+              ⚔️ Open Live Model Arena (Argon vs. 3.8 Flash)
+            </button>
+            <button onclick="switchMainTab('matrix')" class="px-4 py-2.5 rounded-xl bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-500/40 font-bold text-xs mono transition">
+              🎨 View 33 Unique UI Archetypes Table
+            </button>
+          </div>
+        </div>
       </div>
 
       <div class="flex flex-wrap justify-center gap-2" id="dept-buttons"></div>
       <div id="dept-banner" class="rounded-2xl p-6 border border-rose-500/30 bg-gradient-to-r from-slate-900 via-rose-950/30 to-indigo-950/30"></div>
       <div id="dept-projects" class="grid md:grid-cols-2 gap-6"></div>
+    </section>
+
+    <!-- TAB 2: LIVE SIDE-BY-SIDE MODEL ARENA (GEMINI 4 ARGON VS. GEMINI 3.8 FLASH VS. AWS BEDROCK) -->
+    <section id="tab-arena" class="tab-content space-y-8">
+      <div class="text-center max-w-3xl mx-auto">
+        <span class="px-3 py-1 rounded-full text-xs font-bold mono bg-amber-500/20 text-amber-300 border border-amber-500/40">
+          ⚔️ REAL-TIME VERTEX AI PARALLEL BENCHMARK ARENA
+        </span>
+        <h2 class="text-3xl font-extrabold mt-3 mb-2">Live Head-to-Head Race: Gemini 4 Argon vs. Gemini 3.8 Flash</h2>
+        <p class="text-sm" style="color:var(--text-muted);">
+          Pick any of the 33 Rocket Companies use cases below and fire a <strong>simultaneous live Vertex AI request</strong> to both <code>gemini-4-argon</code> (Frontier Deep Reasoning) and <code>gemini-3.8-flash</code> (Sub-Second High-Throughput ADK Runtime), complete with deterministic gVisor math verification and AWS Bedrock / Claude TCO comparison.
+        </p>
+      </div>
+
+      <div class="card-surface rounded-2xl p-6 shadow-2xl space-y-5">
+        <div class="flex flex-wrap items-center gap-3 justify-between">
+          <div class="flex-1 min-w-[260px]">
+            <label class="text-xs font-bold mono text-slate-400 block mb-1">SELECT ROCKET USE CASE TO BENCHMARK:</label>
+            <select id="arena-case-select" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm font-bold text-white"></select>
+          </div>
+          <div class="flex items-center gap-2 pt-4">
+            <button onclick="window.runLiveModelArena()" id="btn-run-arena" class="px-6 py-3 rounded-xl bg-gradient-to-r from-rose-600 via-amber-500 to-emerald-500 text-slate-950 font-black text-xs mono shadow-xl hover:opacity-95 transition">
+              🚀 Fire Parallel Race (Argon vs. 3.8 Flash)
+            </button>
+            <button onclick="window.speakArenaVerdict(this)" class="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 border border-cyan-500/40 text-cyan-300 font-bold text-xs mono transition">
+              🔊 Speak Verdict (Gemini 3.8 Live)
+            </button>
+          </div>
+        </div>
+
+        <!-- Deterministic gVisor Math Baseline Strip -->
+        <div id="arena-sandbox-strip" class="grid sm:grid-cols-4 gap-3"></div>
+
+        <!-- Side-by-Side Live Race Columns -->
+        <div class="grid lg:grid-cols-2 gap-6">
+          <!-- Column A: Gemini 4 Argon -->
+          <div class="rounded-2xl bg-slate-950 border-2 border-rose-500/50 p-5 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <span class="text-[10px] font-bold mono px-2 py-0.5 rounded bg-rose-500/20 text-rose-300">FRONTIER DEEP REASONING</span>
+                <h3 class="text-lg font-extrabold text-white mt-1">gemini-4-argon (Global Endpoint)</h3>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] mono text-slate-400">LIVE LATENCY</div>
+                <div id="arena-argon-ms" class="text-xl font-black mono text-rose-400">— ms</div>
+              </div>
+            </div>
+            <div id="arena-argon-out" class="text-xs md:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto">
+              Click "🚀 Fire Parallel Race" above to execute live against Vertex AI gemini-4-argon...
+            </div>
+          </div>
+
+          <!-- Column B: Gemini 3.8 Flash -->
+          <div class="rounded-2xl bg-slate-950 border-2 border-emerald-500/50 p-5 space-y-3">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div>
+                <span class="text-[10px] font-bold mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300">HIGH-THROUGHPUT ADK RUNTIME</span>
+                <h3 class="text-lg font-extrabold text-white mt-1">gemini-3.8-flash (Global Endpoint)</h3>
+              </div>
+              <div class="text-right">
+                <div class="text-[10px] mono text-slate-400">LIVE LATENCY</div>
+                <div id="arena-flash-ms" class="text-xl font-black mono text-emerald-400">— ms</div>
+              </div>
+            </div>
+            <div id="arena-flash-out" class="text-xs md:text-sm text-slate-200 leading-relaxed whitespace-pre-wrap max-h-96 overflow-y-auto">
+              Click "🚀 Fire Parallel Race" above to execute live against Vertex AI gemini-3.8-flash...
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 33 UNIQUE UI ARCHETYPES & GCP RUNTIME MATRIX -->
+    <section id="tab-matrix" class="tab-content space-y-8">
+      <div class="text-center max-w-3xl mx-auto">
+        <span class="px-3 py-1 rounded-full text-xs font-bold mono bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+          🎨 33 DISTINCT REAL-WORLD INDUSTRY WEB DESIGNS
+        </span>
+        <h2 class="text-3xl font-extrabold mt-3 mb-2">Architecture, GCP Engine & Real-World UI Design Matrix</h2>
+        <p class="text-sm" style="color:var(--text-muted);">
+          Every demo has been individually crafted after a real-world industry web application—spanning Encompass Light LOS, Salesforce Lightning CRM, Redfin Marketplace, Intuit TurboTax, DocuSign, Chase Banking, Westlaw Legal Paper, GitHub Light PR Review, Braun Tactile Audio Studio, and Goldman Sachs Macro Research.
+        </p>
+      </div>
+
+      <div class="overflow-x-auto card-surface rounded-2xl shadow-2xl">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead>
+            <tr class="border-b border-slate-800 bg-slate-950/95 text-[11px] uppercase mono text-slate-400">
+              <th class="p-3.5">Square</th>
+              <th class="p-3.5">Use Case Title</th>
+              <th class="p-3.5">Real-World Industry UI Design Archetype</th>
+              <th class="p-3.5">Primary GCP Engine & Audio</th>
+              <th class="p-3.5">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="matrix-archetype-tbody" class="divide-y divide-slate-800/70"></tbody>
+        </table>
+      </div>
     </section>
 
     <!-- TAB 2: ROCKET ACCOUNT RESEARCH & AWS/ANTHROPIC/SIERRA WIN-BACK WAR ROOM -->
@@ -650,9 +812,45 @@ def render_portal_html(auth_token: str) -> str:
       return "bg-amber-500/15 text-amber-300 border-amber-500/30";
     }}
 
+    const UI_ARCHETYPES = {{
+      "1.1": {{ style: "Encompass Light LOS + Gong Call Studio", engine: "ADK + Gemini 3.8 Live 24kHz Multi-Speaker Audio" }},
+      "1.2": {{ style: "Salesforce Lightning CRM (Light Cloud Gray)", engine: "Google ADK Multi-Agent + Gemini 3.8 Live Voicemail" }},
+      "1.3": {{ style: "Redfin / Airbnb Consumer Marketplace White", engine: "Gemini Enterprise streamAssist + Home Tour Audio" }},
+      "1.4": {{ style: "Apple Wallet Light Pre-Approval Pass & Certificate", engine: "Google ADK + gVisor LTV/DTI Sandbox" }},
+      "1.5": {{ style: "NerdWallet / Bankrate Editorial Rate Comparison", engine: "Gemini 4 Argon + Breakeven Curve Sandbox" }},
+      "2.1": {{ style: "Intuit TurboTax / QuickBooks CPA Tax Workbook", engine: "Google ADK + IRS Form 1084 Add-Back Sandbox" }},
+      "2.2": {{ style: "DocuSign / Box 3-Pane Document Clearance Room", engine: "Gemini Enterprise streamAssist + Document AI" }},
+      "2.3": {{ style: "Chase / Ally Online Banking Statement Ledger", engine: "Google ADK + BSA/AML 50% Threshold Sandbox" }},
+      "2.4": {{ style: "Fannie Mae URAR Form 1004 Buff Appraisal Sheet", engine: "Gemini 4 Argon + 15%/25% Comp Adjustment Sandbox" }},
+      "2.5": {{ style: "Deloitte / PwC TRID Audit Reconciliation Workpaper", engine: "Google ADK + 0%/10% TRID Tolerance Sandbox" }},
+      "3.1": {{ style: "Mr. Cooper Warm Cream Homeowner Self-Service Portal", engine: "Gemini Enterprise streamAssist + Escrow Sandbox" }},
+      "3.2": {{ style: "One Medical / Calm Compassionate Support Center", engine: "Google ADK + CFPB Reg X Waterfall + 3.8 Live Audio" }},
+      "3.3": {{ style: "Stripe / Plaid Clean Account Onboarding Wizard", engine: "Google ADK + RESPA Boarding Audit Sandbox" }},
+      "3.4": {{ style: "Daylight Consumer Voice & Refi Savings Concierge", engine: "Gemini 3.8 Live + Extended Thinking WebSocket (/ws/live-voice/3.4)" }},
+      "4.1": {{ style: "Redfin Property Listing Page + Video Storyboard", engine: "Google ADK + Veo Storyboard + Gemini 3.8 Live Voiceover" }},
+      "4.2": {{ style: "Rocket Money / Monarch Consumer Personal Finance App", engine: "Google ADK + Down-Payment Goal Vault Sandbox" }},
+      "4.3": {{ style: "NYT Real Estate / Dwell Editorial Magazine Paper", engine: "Gemini Enterprise streamAssist + MSHDA Grant Sandbox" }},
+      "4.4": {{ style: "Figma / Notion Light Ad Campaign Review Studio", engine: "Gemini Enterprise streamAssist + ECOA Redline Scanner" }},
+      "5.1": {{ style: "Westlaw / Federal Register Archival Legal Paper", engine: "Gemini Enterprise streamAssist + State Bulletin Diff" }},
+      "5.2": {{ style: "The Economist / Stata Quantitative Econometrics Report", engine: "Google ADK + EEOC 4/5ths Disparate Impact Sandbox" }},
+      "5.3": {{ style: "Vanta / Drata Trust & Vendor Security Portal", engine: "Gemini Enterprise streamAssist + SOC2 Clause Redliner" }},
+      "5.4": {{ style: "Official Printable CFPB Form C-1 Legal Notice", engine: "Google ADK + Regulation B Adverse Action Sandbox" }},
+      "6.1": {{ style: "GitHub Light Pull Request & Split Diff Review", engine: "Google Antigravity 2.0 + Decimal128 Parity Sandbox" }},
+      "6.2": {{ style: "Snyk / GitHub Dependabot Light Security Advisory", engine: "DeepMind CodeMender + SAST/DAST Patch Verifier" }},
+      "6.3": {{ style: "Postman / Swagger OpenAPI Light Explorer", engine: "Google Antigravity + OpenAPI Contract Validator" }},
+      "6.4": {{ style: "Datadog / PagerDuty Service Health & Postmortem", engine: "Google ADK + AlloyDB Trace Waterfall Sandbox" }},
+      "6.5": {{ style: "Google Cloud Console Material 3 Light BigQuery Studio", engine: "Google Antigravity + BigQuery Slot/Cost Optimizer" }},
+      "M.1": {{ style: "Dieter Rams Braun / Teenage Engineering Audio Studio", engine: "Gemini 3.8 Live + Extended Thinking WebSocket (/ws/live-voice/M.1)" }},
+      "M.2": {{ style: "Financial Times (FT) Salmon Paper Forensic Board", engine: "Gemini 4 Argon + Cross-Loan Entity Fraud Graph" }},
+      "M.3": {{ style: "Warm Sunlit Terracotta Bilingual Community Portal", engine: "Gemini 4 Argon + Gemini 3.8 Live Spanish Audio" }},
+      "M.4": {{ style: "Architectural Digest Warm Living Room Whiteboard", engine: "Gemini 3.8 Live + Extended Thinking WebSocket (/ws/live-voice/M.4)" }},
+      "M.5": {{ style: "Goldman Sachs / Bloomberg Institutional Macro Note", engine: "Gemini 4 Argon + $2.1T Servicing Treasury Sandbox" }}
+    }};
+
     function renderProjectCard(p, deptTitle, deptDemoUrl) {{
       const liveDemoHref = `${{deptDemoUrl || p.demo_service_url}}${{(deptDemoUrl && !deptDemoUrl.includes('?')) ? '?case=' + p.code : ''}}&auth_token=${{AUTH_TOKEN}}`;
       const docsHref = `/docs/${{p.code}}?auth_token=${{AUTH_TOKEN}}`;
+      const arch = UI_ARCHETYPES[p.code] || {{ style: "Custom Industry Web UI", engine: "Vertex AI Gemini 4 Argon" }};
       const stackHtml = (p.gcpStack || []).map(s =>
         `<span class="px-2 py-0.5 rounded text-[10px] mono bg-slate-950 text-indigo-300 border border-slate-800">${{s}}</span>`
       ).join("");
@@ -660,9 +858,17 @@ def render_portal_html(auth_token: str) -> str:
       return `
         <div class="card-surface hover:border-rose-500/50 rounded-2xl p-6 flex flex-col justify-between transition shadow-xl">
           <div>
-            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
               <span class="text-xs font-bold mono text-rose-400">SQUARE ${{p.code}} • ${{p.tool}}</span>
               <span class="px-2.5 py-0.5 rounded-full text-xs font-bold border ${{badgeClass(p.level)}}">${{p.level}}</span>
+            </div>
+            <div class="mb-2.5 flex flex-wrap gap-1.5">
+              <span class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">
+                🎨 UI Design: ${{arch.style}}
+              </span>
+              <span class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                ⚙️ ${{arch.engine}}
+              </span>
             </div>
             ${{deptTitle ? `<div class="text-[11px] font-bold mono text-indigo-400 mb-1">${{deptTitle}}</div>` : ''}}
             <h3 class="text-lg font-extrabold mb-2">${{p.project}}</h3>
@@ -679,17 +885,27 @@ def render_portal_html(auth_token: str) -> str:
             <div class="grid grid-cols-2 gap-2">
               <a href="${{liveDemoHref}}" target="_blank"
                  class="px-3.5 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 to-indigo-600 hover:opacity-95 text-white text-xs font-bold mono text-center shadow-lg transition">
-                🚀 Launch Live Demo ↗
+                🚀 Launch Unique App ↗
               </a>
               <a href="${{docsHref}}" target="_blank"
                  class="px-3.5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-300 text-xs font-bold mono text-center transition">
                 📘 Reproduction Docs ↗
               </a>
             </div>
-            <button onclick="openQuickRun('${{p.code}}')"
-                    class="w-full py-2 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-[11px] font-bold mono text-slate-300 transition">
-              ⚡ Quick Inline Argon Execution & Sandbox Preview
-            </button>
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="window.playCardAudioPitch('${{p.code}}', this)"
+                      class="py-2 px-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-[11px] font-bold mono text-rose-200 transition">
+                🔊 15s Pitch (3.8 Live)
+              </button>
+              <button onclick="window.openArenaForCase('${{p.code}}')"
+                      class="py-2 px-2 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-[11px] font-bold mono text-amber-300 transition">
+                ⚔️ Race Argon vs Flash
+              </button>
+              <button onclick="openQuickRun('${{p.code}}')"
+                      class="py-2 px-2 rounded-xl bg-slate-950 hover:bg-slate-900 border border-slate-800 text-[11px] font-bold mono text-slate-300 transition">
+                ⚡ Inline Sandbox
+              </button>
+            </div>
           </div>
         </div>
       `;
@@ -930,24 +1146,482 @@ def render_portal_html(auth_token: str) -> str:
       window.open(`https://outlook.office.com/mail/deeplink/compose?to=sundarc@google.com;luisls@google.com;jesusarguelles@google.com&subject=${{subject}}&body=${{body}}`, "_blank");
     }}
 
-    // Voice Tour
-    let isSpeaking = false;
-    const introScript = "Welcome Rocket Companies builders across Detroit and Chennai! I am Astra 2.0, powered by Google's new frontier model, Gemini 4 Argon. Every single project square in this portal now launches a live, private Cloud Run application tailored to your business unit—spanning Rocket Mortgage Origination, Rocket Logic Underwriting, Mr. Cooper Servicing, Redfin and Rocket Money Growth, CFPB Compliance, and Google Antigravity with DeepMind CodeMender. Click Launch Live Demo on any square to test real payloads on GCP, or open its Reproduction Blueprint to clone the architecture in minutes!";
+    // =========================================================================
+    // ASTRA 2.0 REAL GEMINI 3.8 LIVE & EXTENDED THINKING VOICE AGENT
+    // Zero robotic window.speechSynthesis! Full 24kHz WebAudio + 0ms Barge-In!
+    // =========================================================================
+    let astraWs = null;
+    let astraAudioCtx = null;
+    let astraActiveSources = [];
+    let astraNextPlayTime = 0;
+    let astraMuted = false;
+    let astraMicStream = null;
+    let astraMicProcessor = null;
+    let astraTranscriptBuffer = "";
 
-    function toggleVoiceIntro() {{
-      if (!('speechSynthesis' in window)) return alert("Speech Synthesis not supported.");
-      if (isSpeaking) {{
-        window.speechSynthesis.cancel();
-        isSpeaking = false;
-        document.getElementById("voice-label").innerText = "Play Argon Voice Briefing";
+    function ensureAstraAudioCtx() {{
+      if (!astraAudioCtx) {{
+        const AC = window.AudioContext || window.webkitAudioContext;
+        astraAudioCtx = new AC({{ sampleRate: 24000 }});
+      }}
+      if (astraAudioCtx.state === "suspended") {{
+        astraAudioCtx.resume();
+      }}
+      return astraAudioCtx;
+    }}
+
+    function animateAstraMouth(openAmount) {{
+      const lip = document.getElementById("avatar-mouth-lip");
+      if (!lip) return;
+      const curveY = 66 + Math.min(12, Math.round(openAmount * 28));
+      lip.setAttribute("d", `M 43,65 Q 50,${{curveY}} 57,65`);
+    }}
+
+    window.interruptAstraNow = function() {{
+      // Immediately stop every scheduled 24kHz AudioBufferSourceNode in 0ms
+      astraActiveSources.forEach(src => {{
+        try {{ src.stop(0); src.disconnect(); }} catch (e) {{}}
+      }});
+      astraActiveSources = [];
+      if (astraAudioCtx) {{
+        astraNextPlayTime = astraAudioCtx.currentTime;
+      }}
+      animateAstraMouth(0);
+      const badge = document.getElementById("avatar-badge");
+      if (badge) {{
+        badge.innerText = "Interrupted • Listening";
+        badge.className = "text-[10px] mono px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300";
+      }}
+    }};
+
+    function playAstraPcm24kChunk(b64Data) {{
+      if (astraMuted) return;
+      const ctx = ensureAstraAudioCtx();
+      const bin = atob(b64Data);
+      const int16 = new Int16Array(Math.floor(bin.length / 2));
+      let peak = 0;
+      for (let i = 0; i < int16.length; i++) {{
+        const lo = bin.charCodeAt(i * 2);
+        const hi = bin.charCodeAt(i * 2 + 1);
+        let val = (hi << 8) | lo;
+        if (val >= 0x8000) val -= 0x10000;
+        int16[i] = val;
+        const abs = Math.abs(val);
+        if (abs > peak) peak = abs;
+      }}
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {{
+        float32[i] = int16[i] / 32768.0;
+      }}
+      const buf = ctx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+      src.connect(ctx.destination);
+
+      const now = ctx.currentTime;
+      if (astraNextPlayTime < now) astraNextPlayTime = now + 0.01;
+      src.start(astraNextPlayTime);
+      astraNextPlayTime += buf.duration;
+      astraActiveSources.push(src);
+
+      animateAstraMouth(peak / 32768.0);
+      src.onended = () => {{
+        astraActiveSources = astraActiveSources.filter(s => s !== src);
+        if (astraActiveSources.length === 0) {{
+          animateAstraMouth(0);
+        }}
+      }};
+    }}
+
+    window.toggleAstraMute = function() {{
+      astraMuted = !astraMuted;
+      const btn = document.getElementById("btn-astra-mute");
+      if (astraMuted) {{
+        window.interruptAstraNow();
+        if (btn) btn.innerText = "🔇 Muted";
+      }} else {{
+        if (btn) btn.innerText = "🔊 Mute";
+      }}
+    }};
+
+    window.reconnectAstraIfLive = function() {{
+      if (astraWs && astraWs.readyState === WebSocket.OPEN) {{
+        window.toggleAstraLiveSession();
+        setTimeout(() => window.toggleAstraLiveSession(), 250);
+      }}
+    }};
+
+    window.toggleAstraLiveSession = function() {{
+      ensureAstraAudioCtx();
+      const labelEl = document.getElementById("voice-label");
+      const badgeEl = document.getElementById("avatar-badge");
+      const txEl = document.getElementById("astra-live-transcript");
+
+      if (astraWs && astraWs.readyState === WebSocket.OPEN) {{
+        window.interruptAstraNow();
+        if (astraMicStream) {{
+          astraMicStream.getTracks().forEach(t => t.stop());
+          astraMicStream = null;
+        }}
+        astraWs.close();
+        astraWs = null;
+        if (labelEl) labelEl.innerText = "Start Gemini 3.8 Live Voice";
+        if (badgeEl) {{
+          badgeEl.innerText = "24kHz HD Ready";
+          badgeEl.className = "text-[10px] mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300";
+        }}
         return;
       }}
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(introScript);
-      u.rate = 1.02;
-      u.onstart = () => {{ isSpeaking = true; document.getElementById("voice-label").innerText = "Stop Voice Briefing"; }};
-      u.onend = () => {{ isSpeaking = false; document.getElementById("voice-label").innerText = "Play Argon Voice Briefing"; }};
-      window.speechSynthesis.speak(u);
+
+      const voice = (document.getElementById("astra-voice-select") || {{value: "Aoede"}}).value;
+      const liveMode = (document.getElementById("astra-live-mode") || {{value: "gemini-3.8-live"}}).value;
+      const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const wsUrl = `${{proto}}//${{window.location.host}}/ws/live-voice/portal?voice=${{encodeURIComponent(voice)}}&live_mode=${{encodeURIComponent(liveMode)}}`;
+
+      if (labelEl) labelEl.innerText = "Connecting Gemini 3.8 Live...";
+      astraWs = new WebSocket(wsUrl);
+
+      astraWs.onopen = () => {{
+        if (labelEl) labelEl.innerText = "⏹ Stop Live Session";
+        if (badgeEl) {{
+          badgeEl.innerText = "LIVE • " + voice + " 24kHz";
+          badgeEl.className = "text-[10px] mono px-2 py-0.5 rounded-full bg-rose-500 text-white animate-pulse";
+        }}
+        astraTranscriptBuffer = "";
+        if (txEl) txEl.innerHTML = `<span class="text-emerald-400 font-bold">[Connected to ${{liveMode}} • Voice: ${{voice}}]</span> Streaming 24kHz native audio...`;
+        astraWs.send(JSON.stringify({{
+          type: "text",
+          text: "Welcome the Rocket Companies builders across Detroit and Chennai warmly in 2 concise sentences! Mention that all 33 demos now feature unique industry UIs, Gemini 4 Argon + Gemini 3.8 Live native audio, and tell them they can interrupt you at any moment."
+        }}));
+      }};
+
+      astraWs.onmessage = (evt) => {{
+        try {{
+          const msg = JSON.parse(evt.data);
+          if (msg.interrupted) {{
+            window.interruptAstraNow();
+            return;
+          }}
+          if (msg.input_transcript && txEl) {{
+            txEl.innerHTML = `<div class="text-cyan-300 font-semibold">You: "${{msg.input_transcript}}"</div>`;
+            applyAstraVoiceNavigation(msg.input_transcript);
+          }}
+          if (msg.output_transcript && txEl) {{
+            astraTranscriptBuffer += msg.output_transcript;
+            txEl.innerHTML = `<div class="text-rose-200"><strong>Astra 2.0 (${{voice}}):</strong> ${{astraTranscriptBuffer}}</div>`;
+            txEl.scrollTop = txEl.scrollHeight;
+          }}
+          if (msg.turn_complete) {{
+            astraTranscriptBuffer = "";
+          }}
+          if (msg.audio_b64) {{
+            playAstraPcm24kChunk(msg.audio_b64);
+          }}
+        }} catch (e) {{}}
+      }};
+
+      astraWs.onclose = () => {{
+        window.interruptAstraNow();
+        if (labelEl) labelEl.innerText = "Start Gemini 3.8 Live Voice";
+      }};
+    }};
+
+    window.sendAstraBargeIn = function(customPrompt) {{
+      const inp = document.getElementById("astra-barge-input");
+      const text = customPrompt || (inp ? inp.value.trim() : "");
+      if (!text) return;
+      if (!customPrompt && inp) inp.value = "";
+
+      // Halt current playback immediately in 0ms and apply voice UI navigation
+      window.interruptAstraNow();
+      applyAstraVoiceNavigation(text);
+      astraTranscriptBuffer = "";
+      const txEl = document.getElementById("astra-live-transcript");
+      if (txEl) {{
+        txEl.innerHTML = `<div class="text-amber-300 font-bold">⚡ Barge-In: "${{text}}"</div><div class="text-slate-400 text-[11px]">Astra 2.0 thinking & responding in 24kHz HD...</div>`;
+      }}
+
+      if (!astraWs || astraWs.readyState !== WebSocket.OPEN) {{
+        window.toggleAstraLiveSession();
+        setTimeout(() => {{
+          if (astraWs && astraWs.readyState === WebSocket.OPEN) {{
+            window.interruptAstraNow();
+            astraWs.send(JSON.stringify({{ type: "interrupt", text: text }}));
+          }}
+        }}, 700);
+      }} else {{
+        astraWs.send(JSON.stringify({{ type: "interrupt", text: text }}));
+      }}
+    }};
+
+    window.toggleAstraMic = async function() {{
+      const micBtn = document.getElementById("astra-mic-label");
+      if (astraMicStream) {{
+        astraMicStream.getTracks().forEach(t => t.stop());
+        astraMicStream = null;
+        if (astraMicProcessor) {{
+          try {{ astraMicProcessor.disconnect(); }} catch (e) {{}}
+          astraMicProcessor = null;
+        }}
+        if (micBtn) micBtn.innerText = "16kHz Mic & Barge-In";
+        return;
+      }}
+
+      if (!astraWs || astraWs.readyState !== WebSocket.OPEN) {{
+        window.toggleAstraLiveSession();
+      }}
+
+      try {{
+        astraMicStream = await navigator.mediaDevices.getUserMedia({{
+          audio: {{ sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true }}
+        }});
+        if (micBtn) micBtn.innerText = "🔴 Mic Live (Speak to Interrupt)";
+        const micCtx = new (window.AudioContext || window.webkitAudioContext)({{ sampleRate: 16000 }});
+        const source = micCtx.createMediaStreamSource(astraMicStream);
+        const proc = micCtx.createScriptProcessor(2048, 1, 1);
+        astraMicProcessor = proc;
+
+        proc.onaudioprocess = (e) => {{
+          if (!astraWs || astraWs.readyState !== WebSocket.OPEN) return;
+          const input = e.inputBuffer.getChannelData(0);
+          let rms = 0;
+          const pcm16 = new Int16Array(input.length);
+          for (let i = 0; i < input.length; i++) {{
+            const s = Math.max(-1, Math.min(1, input[i]));
+            rms += s * s;
+            pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          }}
+          rms = Math.sqrt(rms / input.length);
+          // Client-side VAD barge-in: if user speaks into mic while Astra is speaking, flush audio queue immediately!
+          if (rms > 0.045 && astraActiveSources.length > 0) {{
+            window.interruptAstraNow();
+          }}
+          const bytes = new Uint8Array(pcm16.buffer);
+          let bin = "";
+          for (let i = 0; i < bytes.byteLength; i++) {{
+            bin += String.fromCharCode(bytes[i]);
+          }}
+          astraWs.send(JSON.stringify({{ type: "audio", data: btoa(bin) }}));
+        }};
+
+        source.connect(proc);
+        proc.connect(micCtx.destination);
+      }} catch (err) {{
+        alert("Microphone access needed for live voice barge-in: " + err.message);
+      }}
+    }};
+
+    // =========================================================================
+    // LIVE PARALLEL MODEL ARENA, CARD 15S AUDIO PITCH, 33-DEMO MATRIX & VOICE NAV
+    // =========================================================================
+    let lastArenaSummaryText = "";
+
+    window.playCardAudioPitch = async function(code, btnEl) {{
+      let found = null;
+      DOMAINS.forEach(d => d.projects.forEach(p => {{ if (p.code === code) found = p; }}));
+      if (!found) return;
+      if (btnEl && btnEl.dataset.playing === "1") {{
+        window.interruptAstraNow();
+        btnEl.innerText = "🔊 15s Pitch (3.8 Live)";
+        btnEl.dataset.playing = "0";
+        return;
+      }}
+      window.interruptAstraNow();
+      ensureAstraAudioCtx();
+      const orig = btnEl ? btnEl.innerText : "";
+      if (btnEl) {{
+        btnEl.dataset.playing = "1";
+        btnEl.innerText = "⏳ 3.8 Live...";
+      }}
+      const arch = UI_ARCHETYPES[code] || {{ style: "Bespoke Industry UI", engine: "Gemini 4 Argon" }};
+      const script = `Square ${{found.code}}, ${{found.project}}. We designed this as a real-world ${{arch.style}} powered by ${{arch.engine}}. ${{found.competeEdge}}`;
+      try {{
+        const res = await fetch("/api/live-tts", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify({{
+            text: script,
+            voice: "Aoede",
+            speaker_role: "Rocket Hackathon Principal Architect",
+            live_mode: "gemini-3.8-live"
+          }})
+        }});
+        const data = await res.json();
+        if (data.ok && data.pcm_b64) {{
+          if (btnEl) btnEl.innerText = "⏹ Stop Pitch";
+          playAstraPcm24kChunk(data.pcm_b64);
+          setTimeout(() => {{
+            if (btnEl && btnEl.dataset.playing === "1") {{
+              btnEl.innerText = orig;
+              btnEl.dataset.playing = "0";
+            }}
+          }}, 12000);
+        }} else if (btnEl) {{
+          btnEl.innerText = orig;
+          btnEl.dataset.playing = "0";
+        }}
+      }} catch (e) {{
+        if (btnEl) {{
+          btnEl.innerText = orig;
+          btnEl.dataset.playing = "0";
+        }}
+      }}
+    }};
+
+    window.openArenaForCase = function(code) {{
+      switchMainTab("arena");
+      const sel = document.getElementById("arena-case-select");
+      if (sel) sel.value = code;
+      window.runLiveModelArena();
+    }};
+
+    window.runLiveModelArena = async function() {{
+      const sel = document.getElementById("arena-case-select");
+      const code = sel ? sel.value : "1.1";
+      let found = null;
+      DOMAINS.forEach(d => d.projects.forEach(p => {{ if (p.code === code) found = p; }}));
+      if (!found) return;
+
+      const argonOut = document.getElementById("arena-argon-out");
+      const flashOut = document.getElementById("arena-flash-out");
+      const argonMs = document.getElementById("arena-argon-ms");
+      const flashMs = document.getElementById("arena-flash-ms");
+      const sbStrip = document.getElementById("arena-sandbox-strip");
+
+      argonOut.innerHTML = `<span class="text-rose-300 font-bold animate-pulse">⚡ Calling Vertex AI gemini-4-argon (Global)...</span>`;
+      flashOut.innerHTML = `<span class="text-emerald-300 font-bold animate-pulse">⚡ Calling Vertex AI gemini-3.8-flash (Global)...</span>`;
+      argonMs.innerText = "Running...";
+      flashMs.innerText = "Running...";
+
+      const t0 = performance.now();
+      const reqBody = (m) => ({{
+        method: "POST",
+        headers: {{ "Content-Type": "application/json" }},
+        body: JSON.stringify({{
+          code: found.code,
+          model: m,
+          user_input: found.sampleInput,
+          params: found.sandboxParams
+        }})
+      }});
+
+      const pFlash = fetch("/api/run-demo", reqBody("gemini-3.8-flash")).then(r => r.json()).then(data => {{
+        const ms = data.vertex?.latency_ms || Math.round(performance.now() - t0);
+        flashMs.innerText = ms + " ms";
+        flashOut.textContent = data.output || data.vertex?.response_markdown || "Completed.";
+        return {{ ms, data }};
+      }});
+
+      const pArgon = fetch("/api/run-demo", reqBody("gemini-4-argon")).then(r => r.json()).then(data => {{
+        const ms = data.vertex?.latency_ms || Math.round(performance.now() - t0);
+        argonMs.innerText = ms + " ms";
+        argonOut.textContent = data.output || data.vertex?.response_markdown || "Completed.";
+        const metrics = (data.sandbox && data.sandbox.metrics) || {{}};
+        sbStrip.innerHTML = Object.entries(metrics).slice(0, 4).map(([k, v]) => `
+          <div class="p-3 rounded-xl bg-slate-950 border border-slate-800">
+            <div class="text-[10px] mono uppercase text-slate-400">${{k.replace(/_/g, ' ')}}</div>
+            <div class="text-xs font-bold mono text-cyan-300 mt-0.5">${{v}}</div>
+          </div>
+        `).join("");
+        return {{ ms, data }};
+      }});
+
+      const [resF, resA] = await Promise.all([pFlash, pArgon]);
+      lastArenaSummaryText = `In the live benchmark for Square ${{found.code}} (${{found.project}}), Gemini 3.8 Flash completed in ${{resF.ms}} milliseconds for ultra-low-latency ADK runtime execution, while Gemini 4 Argon completed in ${{resA.ms}} milliseconds with deep frontier reasoning and gVisor mathematical verification.`;
+    }};
+
+    window.speakArenaVerdict = function(btnEl) {{
+      const txt = lastArenaSummaryText || "Pick any Rocket Companies use case and click Fire Parallel Race to benchmark Gemini 4 Argon against Gemini 3.8 Flash in real time!";
+      window.playCardAudioPitch_raw(txt, btnEl);
+    }};
+
+    window.playCardAudioPitch_raw = async function(text, btnEl) {{
+      window.interruptAstraNow();
+      ensureAstraAudioCtx();
+      const orig = btnEl ? btnEl.innerText : "";
+      if (btnEl) btnEl.innerText = "⏳ Streaming 3.8 Live...";
+      try {{
+        const res = await fetch("/api/live-tts", {{
+          method: "POST",
+          headers: {{ "Content-Type": "application/json" }},
+          body: JSON.stringify({{ text: text, voice: "Kore", speaker_role: "Rocket Benchmark Analyst" }})
+        }});
+        const data = await res.json();
+        if (data.ok && data.pcm_b64) {{
+          playAstraPcm24kChunk(data.pcm_b64);
+        }}
+      }} catch (e) {{}}
+      if (btnEl) setTimeout(() => {{ btnEl.innerText = orig; }}, 4000);
+    }};
+
+    function renderMatrixArchetypeTable() {{
+      const tbody = document.getElementById("matrix-archetype-tbody");
+      if (!tbody) return;
+      const rows = [];
+      const arenaOpts = [];
+      DOMAINS.forEach(d => {{
+        d.projects.forEach(p => {{
+          const arch = UI_ARCHETYPES[p.code] || {{ style: "Bespoke Industry Web UI", engine: "Vertex AI Gemini 4 Argon" }};
+          arenaOpts.push(`<option value="${{p.code}}">[${{p.code}}] ${{p.project}} (${{d.shortTitle}})</option>`);
+          rows.push(`
+            <tr class="hover:bg-slate-900/70 transition">
+              <td class="p-3.5 font-extrabold mono text-rose-400">[${{p.code}}]</td>
+              <td class="p-3.5">
+                <div class="font-bold text-white">${{p.project}}</div>
+                <div class="text-[11px] text-slate-400">${{d.shortTitle}} • ${{d.service_name}}</div>
+              </td>
+              <td class="p-3.5">
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 inline-block">
+                  🎨 ${{arch.style}}
+                </span>
+              </td>
+              <td class="p-3.5">
+                <span class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 inline-block">
+                  ⚙️ ${{arch.engine}}
+                </span>
+              </td>
+              <td class="p-3.5 space-x-1.5 whitespace-nowrap">
+                <a href="${{d.demo_url}}/?case=${{p.code}}&auth_token=${{AUTH_TOKEN}}" target="_blank" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold mono inline-block">
+                  🚀 Launch UI ↗
+                </a>
+                <button onclick="window.openArenaForCase('${{p.code}}')" class="px-2.5 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 font-bold mono">
+                  ⚔️ Race
+                </button>
+              </td>
+            </tr>
+          `);
+        }});
+      }});
+      tbody.innerHTML = rows.join("");
+      const arenaSel = document.getElementById("arena-case-select");
+      if (arenaSel) arenaSel.innerHTML = arenaOpts.join("");
+    }}
+
+    function applyAstraVoiceNavigation(text) {{
+      if (!text) return;
+      const low = text.toLowerCase();
+      if (low.includes("arena") || low.includes("race") || low.includes("benchmark")) {{
+        switchMainTab("arena");
+      }} else if (low.includes("matrix") || low.includes("archetype") || low.includes("table")) {{
+        switchMainTab("matrix");
+      }} else if (low.includes("servicing") || low.includes("cooper") || low.includes("3.4")) {{
+        switchMainTab("depts");
+        selectDept("servicing");
+      }} else if (low.includes("underwriting") || low.includes("schedule c") || low.includes("2.1")) {{
+        switchMainTab("depts");
+        selectDept("uw");
+      }} else if (low.includes("redfin") || low.includes("rocket money") || low.includes("marketing")) {{
+        switchMainTab("depts");
+        selectDept("marketing");
+      }} else if (low.includes("moonshot") || low.includes("siren") || low.includes("sherlock")) {{
+        switchMainTab("depts");
+        selectDept("moonshots");
+      }} else if (low.includes("codemender") || low.includes("antigravity") || low.includes("sdlc")) {{
+        switchMainTab("depts");
+        selectDept("sdlc");
+      }}
     }}
 
     document.addEventListener("DOMContentLoaded", () => {{
@@ -969,6 +1643,7 @@ def render_portal_html(auth_token: str) -> str:
       renderAccountTab();
       renderKeynoteTab();
       renderAllDocsTable();
+      renderMatrixArchetypeTable();
       filterByLevel("L100");
       filterTranslator("all");
     }});

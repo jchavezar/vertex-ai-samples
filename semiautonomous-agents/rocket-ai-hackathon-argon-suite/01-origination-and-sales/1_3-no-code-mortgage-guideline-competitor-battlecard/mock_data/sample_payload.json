@@ -33,7 +33,7 @@
       "fha_96_5_program": "P&I $2,207.13 + FHA MIP $168.07 = $2,375.20/mo (Lowest Monthly Payment by $286/mo!)",
       "recommended_winner": "FHA 3.5% Down (or HomeReady if Census Tract <= 80% AMI)"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.03
   },
   "bespoke_visual_artifact": {
     "archetype": "gemini_enterprise_streamassist_hub",

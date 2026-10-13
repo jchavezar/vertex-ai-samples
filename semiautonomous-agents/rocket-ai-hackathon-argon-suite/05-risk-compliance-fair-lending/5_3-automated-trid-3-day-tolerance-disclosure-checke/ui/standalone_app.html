@@ -3,604 +3,610 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[5.3] CFPB TRID Loan Estimate vs. Closing Disclosure Tolerance Auditor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Vendor Contract & SOC2 Risk Scorer | Rocket Trust & TPRM Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --paper: #FFFFFF;
-      --desk-bg: #E5E7EB;
-      --black-ink: #000000;
-      --violation-red: #DC2626;
-      --violation-bg: #FEF2F2;
-      --compliant-green: #16A34A;
-      --compliant-bg: #F0FDF4;
-      --amber-warn: #D97706;
-      --gray-rule: #9CA3AF;
+      --bg: #F9FAFB;
+      --card: #FFFFFF;
+      --indigo: #4338CA;
+      --indigo-dark: #312E81;
+      --indigo-light: #EEF2FF;
+      --pass-green: #15803D;
+      --pass-bg: #F0FDF4;
+      --pass-border: #BBF7D0;
+      --gap-red: #B91C1C;
+      --gap-bg: #FEF2F2;
+      --gap-border: #FECACA;
+      --warn-amber: #B45309;
+      --warn-bg: #FFFBEB;
+      --ink: #111827;
+      --ink-muted: #4B5563;
+      --border: #E5E7EB;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background-color: var(--desk-bg);
-      color: var(--black-ink);
-      font-family: 'Public Sans', -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
-      padding-bottom: 96px;
+      padding-bottom: 88px;
     }
     .mono { font-family: 'IBM Plex Mono', monospace; }
 
-    /* Top Federal Accounting Control Ribbon */
-    .cfpb-topbar {
-      background: #111827;
-      color: #FFFFFF;
-      border-bottom: 4px solid #000000;
-      padding: 12px 28px;
+    /* Vanta / Drata Trust Portal Top Bar */
+    .trust-nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 14px;
+      gap: 16px;
     }
-    .cfpb-form-tag {
-      background: #FFFFFF;
-      color: #000000;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border: 2px solid #000;
-      text-transform: uppercase;
-    }
-    .model-select-box {
+    .trust-brand {
       display: flex;
       align-items: center;
-      gap: 8px;
-      background: #1F2937;
-      border: 1px solid #4B5563;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
+      gap: 14px;
     }
-    .model-select-box select {
+    .vanta-shield {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: var(--indigo);
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(67, 56, 202, 0.25);
+    }
+    .trust-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+    .trust-sub {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .model-pill {
+      background: var(--indigo-light);
+      border: 1px solid #C7D2FE;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--indigo);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .model-pill select {
       background: transparent;
-      color: #38BDF8;
       border: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
+      color: var(--indigo-dark);
+      font-family: inherit;
       font-weight: 700;
+      font-size: 12px;
       outline: none;
       cursor: pointer;
     }
-    .model-select-box select option { background: #111827; color: #FFFFFF; }
-
-    /* Printable Federal Form Sheet */
-    .cfpb-sheet {
-      max-width: 1440px;
-      margin: 24px auto;
-      background: var(--paper);
-      border: 3px solid var(--black-ink);
-      box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.2);
-      padding: 28px 32px;
-    }
-
-    /* Official CFPB Header Block */
-    .cfpb-masthead {
-      display: grid;
-      grid-template-columns: 1.5fr 1fr;
-      border-bottom: 4px solid var(--black-ink);
-      padding-bottom: 16px;
-      margin-bottom: 20px;
-      gap: 20px;
-    }
-    @media (max-width: 900px) {
-      .cfpb-masthead { grid-template-columns: 1fr; }
-    }
-    .cfpb-title-main {
-      font-size: 26px;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      text-transform: uppercase;
-    }
-    .cfpb-meta-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      border: 2px solid var(--black-ink);
-      font-size: 12px;
-    }
-    .cfpb-meta-cell {
-      padding: 7px 10px;
-      border-bottom: 1px solid var(--black-ink);
-      border-right: 1px solid var(--black-ink);
-    }
-
-    /* Summary KPI Banner inside Federal Form */
-    .tolerance-kpi-strip {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 980px) {
-      .tolerance-kpi-strip { grid-template-columns: 1fr 1fr; }
-    }
-    .kpi-box {
-      border: 2px solid var(--black-ink);
-      padding: 12px 14px;
-      background: #F9FAFB;
-    }
-    .kpi-box.breach {
-      background: var(--violation-bg);
-      border-color: var(--violation-red);
-    }
-    .kpi-box.pass {
-      background: var(--compliant-bg);
-      border-color: var(--compliant-green);
-    }
-    .kpi-label {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: #374151;
-    }
-    .kpi-val {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 20px;
-      font-weight: 700;
-      margin-top: 4px;
-    }
-
-    /* Two-Column Workspace: Left = CFPB Comparison Table, Right = Principal Cure Letter */
-    .cfpb-two-col {
-      display: grid;
-      grid-template-columns: 1.35fr 1fr;
-      gap: 26px;
-    }
-    @media (max-width: 1120px) {
-      .cfpb-two-col { grid-template-columns: 1fr; }
-    }
-
-    .bucket-section-header {
-      background: var(--black-ink);
+    .ciso-audio-btn {
+      background: var(--indigo);
       color: #FFFFFF;
-      padding: 8px 12px;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-family: inherit;
       font-size: 13px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.03em;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 14px;
-    }
-    .trid-table {
-      width: 100%;
-      border-collapse: collapse;
-      border: 2px solid var(--black-ink);
-      font-size: 12.5px;
-    }
-    .trid-table th {
-      background: #F3F4F6;
-      border-bottom: 2px solid var(--black-ink);
-      border-right: 1px solid var(--black-ink);
-      padding: 8px 10px;
-      text-align: left;
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-    }
-    .trid-table td {
-      padding: 9px 10px;
-      border-bottom: 1px solid var(--black-ink);
-      border-right: 1px solid var(--black-ink);
-      vertical-align: middle;
-    }
-    .fee-input {
-      width: 105px;
-      padding: 5px 8px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12.5px;
       font-weight: 600;
-      border: 2px solid #000000;
-      background: #FFFBEB;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 2px 6px rgba(67, 56, 202, 0.2);
+    }
+    .ciso-audio-btn:hover { background: var(--indigo-dark); }
+
+    /* Vendor Scorecard Hero Banner */
+    .scorecard-banner {
+      max-width: 1420px;
+      margin: 22px auto 0;
+      padding: 0 32px;
+    }
+    .scorecard-inner {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+      box-shadow: 0 2px 8px rgba(17, 24, 39, 0.04);
+    }
+    .vendor-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .vendor-tag {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--indigo);
+    }
+    .vendor-name {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .vendor-docs {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+    .score-ring-box {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .score-pill {
+      padding: 12px 20px;
+      border-radius: 10px;
+      background: var(--warn-bg);
+      border: 1px solid #FDE68A;
       text-align: right;
     }
-    .fee-input:focus {
-      outline: none;
-      background: #FEF3C7;
-      border-color: var(--violation-red);
+    .score-pill.approved {
+      background: var(--pass-bg);
+      border-color: var(--pass-border);
+    }
+    .score-num {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--warn-amber);
+    }
+    .score-pill.approved .score-num {
+      color: var(--pass-green);
+    }
+    .score-status {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-muted);
     }
 
-    .badge-breach {
-      background: var(--violation-red);
-      color: #FFFFFF;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      font-weight: 700;
-      padding: 3px 7px;
-      display: inline-block;
+    /* Main Two-Column Vanta Layout */
+    .portal-grid {
+      max-width: 1420px;
+      margin: 22px auto;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 24px;
     }
-    .badge-pass {
-      background: var(--compliant-green);
-      color: #FFFFFF;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      font-weight: 700;
-      padding: 3px 7px;
-      display: inline-block;
+    @media (max-width: 1060px) {
+      .portal-grid { grid-template-columns: 1fr; }
     }
 
-    /* Printable 12 CFR 1026.19(f)(2)(v) Principal Cure Letter */
-    .cure-letter-panel {
-      border: 2px solid var(--black-ink);
-      background: #FAFAFA;
-      padding: 22px 24px;
+    .portal-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(17, 24, 39, 0.03);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .portal-card-head {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FCFDFE;
+    }
+    .portal-card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .portal-card-body {
+      padding: 20px 22px;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      position: relative;
     }
-    .cure-stamp {
-      border: 3px solid var(--violation-red);
-      color: var(--violation-red);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 800;
-      padding: 4px 10px;
-      text-transform: uppercase;
-      display: inline-block;
-      transform: rotate(-1.5deg);
+
+    /* SOC2 Control Rows */
+    .control-row {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 13px 16px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
     }
-    .btn-black {
-      background: #000000;
-      color: #FFFFFF;
-      border: 2px solid #000000;
-      padding: 10px 16px;
+    .control-id {
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
-      cursor: pointer;
-      text-transform: uppercase;
+      color: var(--indigo);
+    }
+    .control-name {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 2px;
+    }
+    .control-detail {
+      font-size: 12.5px;
+      color: var(--ink-muted);
+      margin-top: 3px;
+    }
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge.pass { background: var(--pass-bg); color: var(--pass-green); border: 1px solid var(--pass-border); }
+    .badge.gap { background: var(--gap-bg); color: var(--gap-red); border: 1px solid var(--gap-border); }
+
+    /* Side-by-Side MSA Clause Reviewer */
+    .clause-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 18px;
+      background: #FFFFFF;
       transition: 0.15s;
     }
-    .btn-black:hover { background: #DC2626; border-color: #DC2626; }
-    .btn-outline {
-      background: #FFFFFF;
-      color: #000000;
-      border: 2px solid #000000;
-      padding: 10px 16px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      text-transform: uppercase;
+    .clause-card.remediated {
+      border-color: var(--pass-border);
+      background: #F9FEFB;
     }
-    .btn-outline:hover { background: #F3F4F6; }
+    .clause-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .clause-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .side-by-side-diff {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 720px) {
+      .side-by-side-diff { grid-template-columns: 1fr; }
+    }
+    .diff-pane {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      line-height: 1.55;
+    }
+    .diff-pane.vendor-draft {
+      background: var(--gap-bg);
+      border: 1px solid var(--gap-border);
+      color: #7F1D1D;
+    }
+    .diff-pane.rocket-redline {
+      background: var(--pass-bg);
+      border: 1px solid var(--pass-border);
+      color: #14532D;
+    }
+    .pane-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 5px;
+    }
+    .redline-toggle-btn {
+      background: var(--indigo);
+      color: #FFFFFF;
+      border: none;
+      padding: 7px 14px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .redline-toggle-btn.accepted {
+      background: var(--pass-green);
+    }
+    .ai-output {
+      background: #F8FAFC;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      display: none;
+      white-space: pre-wrap;
+    }
   </style>
 </head>
 <body>
 
-  <!-- TOP FEDERAL ACCOUNTING RIBBON -->
-  <header class="cfpb-topbar">
-    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-      <span class="cfpb-form-tag">CFPB FORM H-24 / H-25 AUDITOR • SQUARE [5.3]</span>
+  <!-- Vanta / Drata Trust Portal Header -->
+  <header class="trust-nav">
+    <div class="trust-brand">
+      <div class="vanta-shield">V</div>
       <div>
-        <div style="font-size:16px;font-weight:800;">Automated TRID 3-Day Tolerance & Disclosure Cure Checker</div>
-        <div class="mono" style="font-size:11px;color:#9CA3AF;">12 CFR § 1026.19(e)(3) Good Faith Tolerance Math • 12 CFR § 1026.19(f)(2)(v) Lender Tolerance Cure</div>
+        <h1 class="trust-title">Vendor Contract &amp; SOC2 Type II Risk Scorer</h1>
+        <p class="trust-sub">Rocket Third-Party Risk Management (TPRM) · GLBA &amp; NYDFS 23 NYCRR 500 Continuous Assurance</p>
       </div>
     </div>
-    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-      <div class="model-select-box">
-        <span>MODEL:</span>
+    <div class="nav-right">
+      <div class="model-pill">
+        <span>Model:</span>
         <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-4-argon" selected>gemini-4-argon (Frontier Global)</option>
-          <option value="gemini-3.8-flash">gemini-3.8-flash (Fast / ADK Runtime)</option>
+          <option value="gemini-4-argon">gemini-4-argon (1M Context)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash</option>
         </select>
       </div>
-      <button class="btn-black" style="border-color:#FFF;" onclick="window.runLiveVertexAI()">
-        ⚡ Generate Executive TRID Audit & Cure Letter (/api/run-demo)
+      <button class="ciso-audio-btn" onclick="window.playCISOSummary(this)">
+        🔊 Play CISO Vendor Risk Summary
       </button>
     </div>
   </header>
 
-  <!-- MAIN CFPB TABULAR ACCOUNTING FORM SHEET -->
-  <main class="cfpb-sheet">
-    <div class="cfpb-masthead">
-      <div>
-        <div class="mono" style="font-size:11px;font-weight:700;text-transform:uppercase;margin-bottom:4px;">
-          TILA-RESPA INTEGRATED DISCLOSURE (TRID) • PRE-CLOSING AUDIT WORKSHEET
+  <!-- Vendor Security Scorecard Hero -->
+  <section class="scorecard-banner">
+    <div class="scorecard-inner">
+      <div class="vendor-meta">
+        <span class="vendor-tag">ACTIVE TPRM REVIEW · VENDOR ID #VND-2026-884</span>
+        <div class="vendor-name">ClearTitle AI Settlement Services, Inc.</div>
+        <div class="vendor-docs">
+          Ingested Corpus: <strong>SOC2 Type II Report (184 pages)</strong> + <strong>Master Services Agreement v2.4 (62 pages)</strong> · Tier-1 NPI Processor
         </div>
-        <h1 class="cfpb-title-main">Loan Estimate (LE) vs. Closing Disclosure (CD)</h1>
-        <p style="font-size:13px;margin-top:6px;color:#374151;">
-          Edit any Loan Estimate or Closing Disclosure fee below. The Cloud Run gVisor Sandbox (`audit_trid_tolerance` / `audit_trid_tolerances`) dynamically recalculates <strong>0% Zero Tolerance</strong> and <strong>10% Cumulative Bucket</strong> cures in real time.
-        </p>
       </div>
-      <div class="cfpb-meta-grid mono">
-        <div class="cfpb-meta-cell"><strong>BORROWER:</strong> Marcus & Elena Vance</div>
-        <div class="cfpb-meta-cell"><strong>LOAN ID:</strong> #RKT-2026-884920</div>
-        <div class="cfpb-meta-cell"><strong>PROPERTY:</strong> 1420 Vinsetta Blvd, Royal Oak MI</div>
-        <div class="cfpb-meta-cell"><strong>NOTE RATE / APR:</strong> 6.125% / 6.298%</div>
-        <div class="cfpb-meta-cell"><strong>CLOSING DATE:</strong> Oct 16, 2026</div>
-        <div class="cfpb-meta-cell"><strong>VALID COC ON FILE:</strong> NO (Unapproved)</div>
+      <div class="score-ring-box">
+        <div class="score-pill" id="vendor-score-pill">
+          <div class="score-num" id="vendor-score-num">71/100 · Conditional</div>
+          <div class="score-status" id="vendor-score-sub">3 Mandatory MSA Redlines Pending</div>
+        </div>
+        <button class="ciso-audio-btn" style="background:#111827;" onclick="window.acceptAllClauses()">
+          ✓ Enforce All 3 Rocket Security Addenda (→ 96/100 Approved)
+        </button>
       </div>
     </div>
+  </section>
 
-    <!-- 4-BOX KPI TOLERANCE SUMMARY -->
-    <div class="tolerance-kpi-strip">
-      <div class="kpi-box breach" id="kpi-box-zero">
-        <div class="kpi-label">0% Zero-Tolerance Breach</div>
-        <div class="kpi-val" id="kpi-zero-val" style="color:var(--violation-red);">$200.00</div>
-        <div class="mono" style="font-size:10.5px;margin-top:3px;">12 CFR § 1026.19(e)(3)(i)</div>
+  <!-- Main Two-Column Vanta Trust & MSA Reviewer -->
+  <main class="portal-grid">
+    <!-- Left Column: SOC2 Type II Trust Services Criteria Audit -->
+    <section class="portal-card">
+      <div class="portal-card-head">
+        <span class="portal-card-title">AICPA SOC2 Type II Controls Matrix (184-Page Audit Extraction)</span>
+        <span class="badge pass" id="controls-summary-badge">142 Passing · 3 Exceptions</span>
       </div>
-      <div class="kpi-box breach" id="kpi-box-ten">
-        <div class="kpi-label">10% Cumulative Bucket Overage</div>
-        <div class="kpi-val" id="kpi-ten-val" style="color:var(--violation-red);">$285.00</div>
-        <div class="mono" style="font-size:10.5px;margin-top:3px;" id="kpi-ten-sub">CD $935 vs 110% Cap $650</div>
-      </div>
-      <div class="kpi-box breach" id="kpi-box-total">
-        <div class="kpi-label">Mandatory Section J Lender Cure</div>
-        <div class="kpi-val" id="kpi-total-cure" style="color:var(--violation-red);">$485.00</div>
-        <div class="mono" style="font-size:10.5px;margin-top:3px;">CD Page 2 Section J Credit</div>
-      </div>
-      <div class="kpi-box pass">
-        <div class="kpi-label">3-Day Waiting Period Reset</div>
-        <div class="kpi-val" style="color:var(--compliant-green);">NO RESET (0 DAYS)</div>
-        <div class="mono" style="font-size:10.5px;margin-top:3px;">12 CFR § 1026.19(f)(2)(ii)</div>
-      </div>
-    </div>
-
-    <div class="cfpb-two-col">
-      <!-- LEFT COLUMN: EDITABLE CFPB COMPARISON TABLE -->
-      <div>
-        <!-- BUCKET 1: 0% ZERO TOLERANCE -->
-        <div class="bucket-section-header">
-          <span>A & B. 0% Zero-Tolerance Bucket — 12 CFR § 1026.19(e)(3)(i)</span>
-          <span class="mono" style="font-size:11px;color:#FCD34D;">Fee Increases Strictly Prohibited Without Valid COC</span>
-        </div>
-        <table class="trid-table">
-          <thead>
-            <tr>
-              <th>Closing Cost Line Item</th>
-              <th>Initial LE ($)</th>
-              <th>Final CD ($)</th>
-              <th>Variance</th>
-              <th>Required Cure</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <strong>01. Rocket Origination & Underwriting Fee</strong>
-                <div class="mono" style="font-size:10.5px;color:#4B5563;">CD Section A • Lender Charge</div>
-              </td>
-              <td><input type="number" id="z1-le" class="fee-input" value="1295" oninput="recalcTridTable()"></td>
-              <td><input type="number" id="z1-cd" class="fee-input" value="1295" oninput="recalcTridTable()"></td>
-              <td class="mono" id="z1-diff">$0.00</td>
-              <td id="z1-cure"><span class="badge-pass">$0.00 PASS</span></td>
-            </tr>
-            <tr>
-              <td>
-                <strong>02. Appraisal Fee (Unapproved Rush Surcharge)</strong>
-                <div class="mono" style="font-size:10.5px;color:#4B5563;">CD Section B • Did Not Shop For</div>
-              </td>
-              <td><input type="number" id="z2-le" class="fee-input" value="550" oninput="recalcTridTable()"></td>
-              <td><input type="number" id="z2-cd" class="fee-input" value="725" oninput="recalcTridTable()"></td>
-              <td class="mono" id="z2-diff">+$175.00</td>
-              <td id="z2-cure"><span class="badge-breach">🚩 $175.00 CURE</span></td>
-            </tr>
-            <tr>
-              <td>
-                <strong>03. Tri-Merge Credit Report & Transfer Taxes</strong>
-                <div class="mono" style="font-size:10.5px;color:#4B5563;">CD Section B & E • Zero Tolerance</div>
-              </td>
-              <td><input type="number" id="z3-le" class="fee-input" value="85" oninput="recalcTridTable()"></td>
-              <td><input type="number" id="z3-cd" class="fee-input" value="110" oninput="recalcTridTable()"></td>
-              <td class="mono" id="z3-diff">+$25.00</td>
-              <td id="z3-cure"><span class="badge-breach">🚩 $25.00 CURE</span></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <!-- BUCKET 2: 10% CUMULATIVE TOLERANCE -->
-        <div class="bucket-section-header" style="margin-top:22px;">
-          <span>C & E. 10% Cumulative Tolerance Bucket — 12 CFR § 1026.19(e)(3)(ii)</span>
-          <span class="mono" style="font-size:11px;color:#FCD34D;">Aggregate CD May Not Exceed 110% of Aggregate LE</span>
-        </div>
-        <table class="trid-table">
-          <thead>
-            <tr>
-              <th>Closing Cost Line Item</th>
-              <th>Initial LE ($)</th>
-              <th>Final CD ($)</th>
-              <th>Item Delta</th>
-              <th>Bucket Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <strong>04. Oakland County Deed & Mortgage Recording Fees</strong>
-                <div class="mono" style="font-size:10.5px;color:#4B5563;">CD Section E • Government Recording</div>
-              </td>
-              <td><input type="number" id="t1-le" class="fee-input" value="150" oninput="recalcTridTable()"></td>
-              <td><input type="number" id="t1-cd" class="fee-input" value="285" oninput="recalcTridTable()"></td>
-              <td class="mono" id="t1-diff">+$135.00</td>
-              <td class="mono" style="font-size:11px;">Pooled in 10% Bucket</td>
-            </tr>
-            <tr>
-              <td>
-                <strong>05. Amrock Title Search & Lender's Title Policy</strong>
-                <div class="mono" style="font-size:10.5px;color:#4B5563;">CD Section C • Lender-Identified Provider</div>
-              </td>
-              <td><input type="number" id="t2-le" class="fee-input" value="440" oninput="recalcTridTable()"></td>
-              <td><input type="number" id="t2-cd" class="fee-input" value="650" oninput="recalcTridTable()"></td>
-              <td class="mono" id="t2-diff">+$210.00</td>
-              <td class="mono" style="font-size:11px;">Pooled in 10% Bucket</td>
-            </tr>
-            <tr style="background:#F3F4F6;font-weight:800;">
-              <td>10% CUMULATIVE BUCKET AGGREGATE TOTALS</td>
-              <td class="mono" id="t-sum-le">$590.00 (110% Cap: $649.00)</td>
-              <td class="mono" id="t-sum-cd">$935.00</td>
-              <td class="mono" id="t-sum-diff">+$345.00 (+58.5%)</td>
-              <td id="t-sum-cure"><span class="badge-breach">🚩 $286.00 CURE</span></td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap;">
-          <button class="btn-black" onclick="recalcTridTable()">🔄 Recalculate via gVisor Sandbox (/api/sandbox)</button>
-          <button class="btn-outline" onclick="applyZeroViolationPreset()">✅ Simulate Cured CD (Apply Section J Credit)</button>
-        </div>
-      </div>
-
-      <!-- RIGHT COLUMN: AUTO-GENERATED 12 CFR 1026.19(f)(2)(v) PRINCIPAL CURE LETTER -->
-      <div class="cure-letter-panel">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #000;padding-bottom:12px;">
+      <div class="portal-card-body">
+        <div class="control-row">
           <div>
-            <div class="mono" style="font-size:10.5px;font-weight:700;">STATUTORY INSTRUMENT • 12 CFR § 1026.19(f)(2)(v)</div>
-            <h2 style="font-size:17px;font-weight:900;margin-top:2px;">Official TRID Tolerance Cure & Section J Credit Notice</h2>
+            <div class="control-id">CC6.1 · Logical Access &amp; SSO Federation</div>
+            <div class="control-name">Okta SAML 2.0 + Hardware WebAuthn MFA Enforced</div>
+            <div class="control-detail">Zero exceptions noted across 12-month audit period (p. 64).</div>
           </div>
-          <span class="cure-stamp" id="cure-letter-stamp">CURE REQUIRED</span>
+          <span class="badge pass">PASSING</span>
         </div>
 
-        <div id="cure-letter-content" style="font-size:12.5px;line-height:1.7;font-family:'Public Sans',sans-serif;">
-          <!-- Populated dynamically by JS -->
+        <div class="control-row">
+          <div>
+            <div class="control-id">CC6.7 · Encryption in Transit &amp; At Rest</div>
+            <div class="control-name">TLS 1.3 &amp; AES-256 Cloud KMS Customer-Managed Keys (CMEK)</div>
+            <div class="control-detail">Verified HSM key rotation every 90 days (p. 89).</div>
+          </div>
+          <span class="badge pass">PASSING</span>
         </div>
 
-        <div style="border-top:2px solid #000;padding-top:12px;margin-top:auto;">
-          <div class="mono" style="font-size:11px;font-weight:700;margin-bottom:6px;">VERTEX AI REGULATORY AUDITOR TAKEAWAY:</div>
-          <div id="vertex-trid-notes" style="font-size:12px;line-height:1.6;background:#FFFFFF;border:1px solid #000;padding:10px;">
-            Under <strong>12 CFR § 1026.19(f)(2)(v)</strong>, Rocket Mortgage may cure a good-faith tolerance violation by providing a lender credit on Closing Disclosure Page 2, Section J no later than 60 calendar days after consummation. Applying the credit prior to closing lowers Cash to Close and does <strong>not</strong> trigger a new 3-business-day waiting period under § 1026.19(f)(2)(ii).
+        <div class="control-row">
+          <div>
+            <div class="control-id">CC7.3 · Security Incident Notification SLA</div>
+            <div class="control-name">Vendor MSA Draft Allows 72-Hour Notification Window</div>
+            <div class="control-detail">Conflicts with Rocket NYDFS 23 NYCRR 500.17 24-hour TPRM mandate.</div>
           </div>
-          <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;">
-            <span class="mono" id="trid-sandbox-status" style="font-size:10.5px;color:#4B5563;">Sandbox Status: Verified</span>
-            <button class="btn-outline" style="padding:6px 12px;font-size:11px;" onclick="window.print()">🖨️ Print Official Cure Letter</button>
-          </div>
+          <span class="badge gap" id="ctrl-badge-1">GAP · § 8.2</span>
         </div>
+
+        <div class="control-row">
+          <div>
+            <div class="control-id">CC8.1 · Sub-Processor &amp; LLM Data Retention</div>
+            <div class="control-name">Third-Party Foundation Model Training Opt-Out Missing</div>
+            <div class="control-detail">MSA § 11.4 permits anonymized telemetry retention unless amended.</div>
+          </div>
+          <span class="badge gap" id="ctrl-badge-2">GAP · § 11.4</span>
+        </div>
+
+        <div class="control-row">
+          <div>
+            <div class="control-id">A1.2 · Multi-Region Disaster Recovery RTO</div>
+            <div class="control-name">SOC2 Table 4.9 Notes 24-Hour RTO on Single-Region Failover</div>
+            <div class="control-detail">Rocket Tier-1 Closing Criticality requires ≤ 4-Hour Active-Active RTO.</div>
+          </div>
+          <span class="badge gap" id="ctrl-badge-3">GAP · § 14.1</span>
+        </div>
+
+        <div style="padding-top:6px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+          <button class="redline-toggle-btn" onclick="window.runLiveVertexAI()">
+            ⚡ Generate Live Vertex AI TPRM Risk Memo
+          </button>
+          <span class="mono" style="font-size:11.5px;color:var(--ink-muted);">Context Window Used: 214,890 / 1,000,000 tokens</span>
+        </div>
+
+        <div id="ai-tprm-output" class="ai-output"></div>
       </div>
-    </div>
+    </section>
+
+    <!-- Right Column: Side-by-Side MSA Contract Clause Reviewer -->
+    <section class="portal-card">
+      <div class="portal-card-head">
+        <span class="portal-card-title">Side-by-Side MSA Contract Clause Reviewer &amp; Redline Enforcer</span>
+        <span style="font-size:12px;color:var(--ink-muted);font-weight:600;">Click each clause to enforce Rocket Addendum</span>
+      </div>
+      <div class="portal-card-body">
+
+        <!-- Clause 1: § 8.2 Breach Notification -->
+        <div class="clause-card" id="clause-card-1">
+          <div class="clause-header">
+            <span class="clause-title">§ 8.2 Security Incident &amp; Breach Notification Window (+9 pts)</span>
+            <button class="redline-toggle-btn" id="clause-btn-1" onclick="window.toggleClause(1)">
+              Enforce 24h Notification Redline
+            </button>
+          </div>
+          <div class="side-by-side-diff">
+            <div class="diff-pane vendor-draft">
+              <div class="pane-label">✗ VENDOR MSA DRAFT (§ 8.2)</div>
+              “Vendor shall notify Rocket Companies within <strong>seventy-two (72) hours</strong> after confirming a security breach impacting Non-Public Personal Information (NPI).”
+            </div>
+            <div class="diff-pane rocket-redline">
+              <div class="pane-label">✓ ROCKET TPRM MANDATORY REDLINE</div>
+              “Vendor shall notify Rocket SOC within <strong>twenty-four (24) hours</strong> of detecting any suspected or confirmed unauthorized access to Borrower NPI per NYDFS 23 NYCRR 500.17.”
+            </div>
+          </div>
+        </div>
+
+        <!-- Clause 2: § 11.4 Zero-Retention Vertex AI BAA -->
+        <div class="clause-card" id="clause-card-2">
+          <div class="clause-header">
+            <span class="clause-title">§ 11.4 Zero-Retention Vertex AI BAA &amp; Model Training Ban (+9 pts)</span>
+            <button class="redline-toggle-btn" id="clause-btn-2" onclick="window.toggleClause(2)">
+              Enforce Zero-Retention Addendum
+            </button>
+          </div>
+          <div class="side-by-side-diff">
+            <div class="diff-pane vendor-draft">
+              <div class="pane-label">✗ VENDOR MSA DRAFT (§ 11.4)</div>
+              “Vendor may utilize de-identified closing settlement documents to fine-tune and improve proprietary machine learning models.”
+            </div>
+            <div class="diff-pane rocket-redline">
+              <div class="pane-label">✓ ROCKET TPRM MANDATORY REDLINE</div>
+              “Vendor shall process all Rocket data exclusively via <strong>Zero-Data-Retention Vertex AI enterprise endpoints</strong>. Training, fine-tuning, or caching of Borrower NPI is strictly prohibited.”
+            </div>
+          </div>
+        </div>
+
+        <!-- Clause 3: § 14.1 Multi-Region DR RTO <= 4h -->
+        <div class="clause-card" id="clause-card-3">
+          <div class="clause-header">
+            <span class="clause-title">§ 14.1 Multi-Region Disaster Recovery RTO ≤ 4 Hours (+7 pts)</span>
+            <button class="redline-toggle-btn" id="clause-btn-3" onclick="window.toggleClause(3)">
+              Enforce ≤ 4h Multi-Region DR SLA
+            </button>
+          </div>
+          <div class="side-by-side-diff">
+            <div class="diff-pane vendor-draft">
+              <div class="pane-label">✗ VENDOR MSA DRAFT (§ 14.1)</div>
+              “Vendor targets a commercially reasonable Recovery Time Objective (RTO) of <strong>twenty-four (24) hours</strong> in the event of a regional cloud outage.”
+            </div>
+            <div class="diff-pane rocket-redline">
+              <div class="pane-label">✓ ROCKET TPRM MANDATORY REDLINE</div>
+              “Vendor guarantees an active-active multi-region <strong>RTO ≤ 4 hours and RPO ≤ 15 minutes</strong> backed by semi-annual failover attestation.”
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
   </main>
 
   <script>
-    async function recalcTridTable() {
-      const z1Le = parseFloat(document.getElementById('z1-le').value || 0);
-      const z1Cd = parseFloat(document.getElementById('z1-cd').value || 0);
-      const z2Le = parseFloat(document.getElementById('z2-le').value || 0);
-      const z2Cd = parseFloat(document.getElementById('z2-cd').value || 0);
-      const z3Le = parseFloat(document.getElementById('z3-le').value || 0);
-      const z3Cd = parseFloat(document.getElementById('z3-cd').value || 0);
+    const clauses = { 1: false, 2: false, 3: false };
+    const weights = { 1: 9, 2: 9, 3: 7 };
 
-      const t1Le = parseFloat(document.getElementById('t1-le').value || 0);
-      const t1Cd = parseFloat(document.getElementById('t1-cd').value || 0);
-      const t2Le = parseFloat(document.getElementById('t2-le').value || 0);
-      const t2Cd = parseFloat(document.getElementById('t2-cd').value || 0);
+    function updateScorecard() {
+      let score = 71;
+      let resolvedCount = 0;
+      [1, 2, 3].forEach(id => {
+        if (clauses[id]) {
+          score += weights[id];
+          resolvedCount++;
+        }
+      });
 
-      const z1Cure = Math.max(0, z1Cd - z1Le);
-      const z2Cure = Math.max(0, z2Cd - z2Le);
-      const z3Cure = Math.max(0, z3Cd - z3Le);
-      const totalZeroCure = z1Cure + z2Cure + z3Cure;
+      const pill = document.getElementById('vendor-score-pill');
+      const num = document.getElementById('vendor-score-num');
+      const sub = document.getElementById('vendor-score-sub');
+      const ctrlBadge = document.getElementById('controls-summary-badge');
 
-      const sumLe10 = t1Le + t2Le;
-      const sumCd10 = t1Cd + t2Cd;
-      const cap10 = Math.round(sumLe10 * 1.10 * 100) / 100;
-      const tenCure = Math.max(0, Math.round((sumCd10 - cap10) * 100) / 100);
-      const grandTotalCure = Math.round((totalZeroCure + tenCure) * 100) / 100;
-
-      // Update row cells
-      document.getElementById('z1-diff').innerText = (z1Cd - z1Le >= 0 ? '+' : '') + '$' + (z1Cd - z1Le).toFixed(2);
-      document.getElementById('z1-cure').innerHTML = z1Cure > 0 ? `<span class="badge-breach">🚩 $${z1Cure.toFixed(2)} CURE</span>` : `<span class="badge-pass">$0.00 PASS</span>`;
-
-      document.getElementById('z2-diff').innerText = (z2Cd - z2Le >= 0 ? '+' : '') + '$' + (z2Cd - z2Le).toFixed(2);
-      document.getElementById('z2-cure').innerHTML = z2Cure > 0 ? `<span class="badge-breach">🚩 $${z2Cure.toFixed(2)} CURE</span>` : `<span class="badge-pass">$0.00 PASS</span>`;
-
-      document.getElementById('z3-diff').innerText = (z3Cd - z3Le >= 0 ? '+' : '') + '$' + (z3Cd - z3Le).toFixed(2);
-      document.getElementById('z3-cure').innerHTML = z3Cure > 0 ? `<span class="badge-breach">🚩 $${z3Cure.toFixed(2)} CURE</span>` : `<span class="badge-pass">$0.00 PASS</span>`;
-
-      document.getElementById('t1-diff').innerText = (t1Cd - t1Le >= 0 ? '+' : '') + '$' + (t1Cd - t1Le).toFixed(2);
-      document.getElementById('t2-diff').innerText = (t2Cd - t2Le >= 0 ? '+' : '') + '$' + (t2Cd - t2Le).toFixed(2);
-
-      document.getElementById('t-sum-le').innerText = `$${sumLe10.toFixed(2)} (110% Cap: $${cap10.toFixed(2)})`;
-      document.getElementById('t-sum-cd').innerText = `$${sumCd10.toFixed(2)}`;
-      const pct10 = sumLe10 > 0 ? (((sumCd10 - sumLe10) / sumLe10) * 100).toFixed(1) : '0.0';
-      document.getElementById('t-sum-diff').innerText = `+$${Math.max(0, sumCd10 - sumLe10).toFixed(2)} (+${pct10}%)`;
-      document.getElementById('t-sum-cure').innerHTML = tenCure > 0 ? `<span class="badge-breach">🚩 $${tenCure.toFixed(2)} CURE</span>` : `<span class="badge-pass">$0.00 PASS</span>`;
-
-      // Update KPI boxes
-      document.getElementById('kpi-zero-val').innerText = `$${totalZeroCure.toFixed(2)}`;
-      document.getElementById('kpi-ten-val').innerText = `$${tenCure.toFixed(2)}`;
-      document.getElementById('kpi-ten-sub').innerText = `CD $${sumCd10.toFixed(0)} vs 110% Cap $${cap10.toFixed(0)}`;
-      document.getElementById('kpi-total-cure').innerText = `$${grandTotalCure.toFixed(2)}`;
-
-      // Update Cure Letter
-      const stampEl = document.getElementById('cure-letter-stamp');
-      if (grandTotalCure > 0) {
-        stampEl.innerText = `CURE REQUIRED: $${grandTotalCure.toFixed(2)}`;
-        stampEl.style.borderColor = '#DC2626';
-        stampEl.style.color = '#DC2626';
+      if (resolvedCount === 3) {
+        pill.classList.add('approved');
+        num.innerText = `${score}/100 · Approved`;
+        sub.innerText = "All 3 Mandatory MSA Security Addenda Executed";
+        ctrlBadge.innerText = "145 Passing · 0 Exceptions";
       } else {
-        stampEl.innerText = 'ZERO TOLERANCE BREACHES';
-        stampEl.style.borderColor = '#16A34A';
-        stampEl.style.color = '#16A34A';
+        pill.classList.remove('approved');
+        num.innerText = `${score}/100 · Conditional`;
+        sub.innerText = `${3 - resolvedCount} Mandatory MSA Redline(s) Pending`;
+        ctrlBadge.innerText = `${142 + resolvedCount} Passing · ${3 - resolvedCount} Exceptions`;
       }
-
-      document.getElementById('cure-letter-content').innerHTML = `
-        <div class="mono" style="background:#FFF;border:1px solid #000;padding:12px;margin-bottom:10px;font-size:11.5px;">
-          <div><strong>TO:</strong> Marcus & Elena Vance (Loan #RKT-2026-884920)</div>
-          <div><strong>FROM:</strong> Rocket Mortgage, LLC (NMLS #3030) — Post-Lock TRID Compliance Desk</div>
-          <div><strong>AUTHORITY:</strong> 12 CFR § 1026.19(e)(3) & § 1026.19(f)(2)(v) Tolerance Cure Provision</div>
-        </div>
-        <p style="margin-bottom:8px;">
-          Pursuant to our automated TILA-RESPA Integrated Disclosure (TRID) pre-closing audit, Rocket Mortgage has identified the following fee variances between your initial Loan Estimate (LE) and final Closing Disclosure (CD) without a documented Changed Circumstance:
-        </p>
-        <ul style="padding-left:20px;margin-bottom:10px;" class="mono">
-          <li><strong>0% Zero-Tolerance Bucket Cure:</strong> $${totalZeroCure.toFixed(2)}</li>
-          <li><strong>10% Cumulative Bucket Overage Cure:</strong> $${tenCure.toFixed(2)} (CD $${sumCd10.toFixed(2)} minus 110% Cap $${cap10.toFixed(2)})</li>
-          <li style="color:#DC2626;font-weight:700;"><strong>TOTAL SECTION J LENDER TOLERANCE CREDIT: $${grandTotalCure.toFixed(2)}</strong></li>
-        </ul>
-        <p>
-          <strong>Remediation Applied:</strong> A binding <strong>$${grandTotalCure.toFixed(2)} Lender Tolerance Cure Credit</strong> has been injected directly onto <em>Closing Disclosure Page 2, Section J (Total Closing Costs — Lender Credits)</em>, reducing your Cash to Close dollar-for-dollar prior to consummation.
-        </p>
-      `;
-
-      // Call backend gVisor sandbox (/api/sandbox)
-      try {
-        const res = await fetch('/api/sandbox', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            code: '5.3',
-            action: 'audit_trid_tolerances',
-            params: {
-              secondary_action: 'audit_trid_tolerance',
-              zero_bucket: [
-                { name: 'Origination', le: z1Le, cd: z1Cd },
-                { name: 'Appraisal', le: z2Le, cd: z2Cd },
-                { name: 'Credit Report', le: z3Le, cd: z3Cd }
-              ],
-              ten_pct_bucket: [
-                { name: 'Recording', le: t1Le, cd: t1Cd },
-                { name: 'Title Search', le: t2Le, cd: t2Cd }
-              ]
-            }
-          })
-        });
-        const data = await res.json();
-        document.getElementById('trid-sandbox-status').innerText = `gVisor Sandbox Verified (${data.execution_ms || 0.9}ms) • Total Cure: $${grandTotalCure.toFixed(2)}`;
-      } catch (e) {}
     }
 
-    function applyZeroViolationPreset() {
-      document.getElementById('z2-cd').value = document.getElementById('z2-le').value;
-      document.getElementById('z3-cd').value = document.getElementById('z3-le').value;
-      document.getElementById('t1-cd').value = "160";
-      document.getElementById('t2-cd').value = "480";
-      recalcTridTable();
-    }
+    window.toggleClause = function(id) {
+      clauses[id] = !clauses[id];
+      const card = document.getElementById('clause-card-' + id);
+      const btn = document.getElementById('clause-btn-' + id);
+      const badge = document.getElementById('ctrl-badge-' + id);
+
+      card.classList.toggle('remediated', clauses[id]);
+      btn.classList.toggle('accepted', clauses[id]);
+
+      if (clauses[id]) {
+        btn.innerText = "✓ Redline Adopted into MSA";
+        badge.className = "badge pass";
+        badge.innerText = "REMEDIATED";
+      } else {
+        const labels = {
+          1: "Enforce 24h Notification Redline",
+          2: "Enforce Zero-Retention Addendum",
+          3: "Enforce ≤ 4h Multi-Region DR SLA"
+        };
+        const gaps = { 1: "GAP · § 8.2", 2: "GAP · § 11.4", 3: "GAP · § 14.1" };
+        btn.innerText = labels[id];
+        badge.className = "badge gap";
+        badge.innerText = gaps[id];
+      }
+      updateScorecard();
+    };
+
+    window.acceptAllClauses = function() {
+      [1, 2, 3].forEach(id => {
+        if (!clauses[id]) window.toggleClause(id);
+      });
+    };
+
+    window.playCISOSummary = function(btnEl) {
+      const msg = "CISO Third-Party Risk Summary for ClearTitle AI Settlement Services. Gemini 4 Argon ingested the full 184-page SOC2 Type 2 audit and 62-page Master Services Agreement in a single prompt. The vendor initially scored 71 out of 100 Conditional due to three gaps: a 72-hour breach notice clause in Section 8.2, permissive AI model training language in Section 11.4, and a 24-hour disaster recovery RTO in Section 14.1. Enforcing our three standard Rocket security redlines raises the vendor score to 96 out of 100 Approved.";
+      window.playLiveCallClip(msg, "Charon", "Rocket Chief Information Security Officer", btnEl);
+    };
 
     window.runLiveVertexAI = async function() {
+      const out = document.getElementById('ai-tprm-output');
+      out.style.display = 'block';
       const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
-      const notesEl = document.getElementById('vertex-trid-notes');
-      notesEl.innerHTML = `Synthesizing 12 CFR § 1026.19(f)(2)(v) Legal Audit with <strong>${model}</strong>...`;
-
+      out.textContent = `Running 1M-Context SOC2 + MSA Cross-Audit via Vertex AI (${model})...`;
       try {
         const res = await fetch('/api/run-demo', {
           method: 'POST',
@@ -608,116 +614,110 @@
           body: JSON.stringify({
             code: '5.3',
             model: model,
-            user_input: "Audit the LE vs CD fee variances for Loan #RKT-2026-884920 and generate the 12 CFR 1026.19(f)(2)(v) Principal/Lender Tolerance Cure certification."
+            scenario: "Audit ClearTitle AI SOC2 Type II + MSA (§ 8.2 72h->24h breach notice, § 11.4 Zero-Retention Vertex AI BAA, § 14.1 Multi-Region DR RTO <= 4h)."
           })
         });
         const data = await res.json();
-        const summary = data.output || "TRID Tolerance Cure verified.";
-        notesEl.innerHTML = `<strong>[${data.model_used || model} • ${data.vertex ? data.vertex.latency_ms : 440}ms]:</strong> ${summary}`;
+        out.textContent = data.output || data.text || "TPRM risk assessment complete.";
       } catch (e) {
-        notesEl.innerText = "Audit Error: " + e.message;
+        out.textContent = "Error: " + e.message;
       }
     };
-
-    document.addEventListener('DOMContentLoaded', () => {
-      recalcTridTable();
-    });
   </script>
 
   
-<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
-<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
-  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
-    ← Hub
+<!-- CLEAN HUMAN-CENTRIC FLOATING UTILITY BAR (LIGHT SURFACE) -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:16px;right:16px;z-index:9990;display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border:1px solid #CBD5E1;box-shadow:0 10px 30px rgba(15,23,42,0.12);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#1E293B;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#334155;text-decoration:none;font-weight:600;padding:5px 10px;border-radius:8px;background:#F1F5F9;border:1px solid #E2E8F0;transition:0.15s;white-space:nowrap;">
+    ← All Demos
   </a>
-  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
-    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
-      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
-      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
-      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
-      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
-      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
-      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
-      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
-      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
-      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
-      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
-      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
-      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
-      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
-      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
-      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
-      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
-      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
-      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
-      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
-      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
-      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
-      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
-      <option value="5.3" selected style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
-      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
-      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
-      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
-      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
-      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
-      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
-      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
-      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
-      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
-      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:#F8FAFC;border:1px solid #E2E8F0;">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" aria-label="Switch Use Case" style="background:transparent;color:#0F172A;font-weight:600;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;max-width:210px;">
+      <option value="1.1"  style="background:#FFFFFF;color:#0F172A;">1.1 · The ABCDQ Post-Call Structured Debri</option>
+      <option value="1.2"  style="background:#FFFFFF;color:#0F172A;">1.2 · Outlook Hyper-Personalized Rate-Lock</option>
+      <option value="1.3"  style="background:#FFFFFF;color:#0F172A;">1.3 · No-Code Mortgage Guideline & Competi</option>
+      <option value="1.4"  style="background:#FFFFFF;color:#0F172A;">1.4 · Dynamic Loan Pricing & Amortization </option>
+      <option value="1.5"  style="background:#FFFFFF;color:#0F172A;">1.5 · Autonomous Banker Inbound Triage & C</option>
+      <option value="2.1"  style="background:#FFFFFF;color:#0F172A;">2.1 · Fannie Mae / Freddie Mac Selling Gui</option>
+      <option value="2.2"  style="background:#FFFFFF;color:#0F172A;">2.2 · Low-Code Underwriting Condition Clea</option>
+      <option value="2.3"  style="background:#FFFFFF;color:#0F172A;">2.3 · Automated W-2 & Paystub Entity Extra</option>
+      <option value="2.4"  style="background:#FFFFFF;color:#0F172A;">2.4 · Self-Employed Schedule C / 1040 Cash</option>
+      <option value="2.5"  style="background:#FFFFFF;color:#0F172A;">2.5 · Rocket Close (Amrock) Title Exceptio</option>
+      <option value="3.1"  style="background:#FFFFFF;color:#0F172A;">3.1 · Annual Escrow Shortage Resolution Jo</option>
+      <option value="3.2"  style="background:#FFFFFF;color:#0F172A;">3.2 · Self-Service Payoff Quote & IRS Form</option>
+      <option value="3.3"  style="background:#FFFFFF;color:#0F172A;">3.3 · Hardship & Forbearance Live Servicin</option>
+      <option value="3.4"  style="background:#FFFFFF;color:#0F172A;">3.4 · Conversational Rocket Recapture Voic</option>
+      <option value="3.5"  style="background:#FFFFFF;color:#0F172A;">3.5 · Autonomous Borrower Retention & Life</option>
+      <option value="4.1"  style="background:#FFFFFF;color:#0F172A;">4.1 · Hyper-Local 50-Metro Real Estate Mar</option>
+      <option value="4.2"  style="background:#FFFFFF;color:#0F172A;">4.2 · Virtual Staging & Localized Hero Ad </option>
+      <option value="4.3"  style="background:#FFFFFF;color:#0F172A;">4.3 · Campaign Sentiment & Ad Creative Per</option>
+      <option value="4.4"  style="background:#FFFFFF;color:#0F172A;">4.4 · Automated Multi-Format Video Tour & </option>
+      <option value="4.5"  style="background:#FFFFFF;color:#0F172A;">4.5 · Redfin-to-Rocket Cross-Funnel Campai</option>
+      <option value="5.1"  style="background:#FFFFFF;color:#0F172A;">5.1 · CFPB Regulatory Circular & State Law</option>
+      <option value="5.2"  style="background:#FFFFFF;color:#0F172A;">5.2 · Ethical Walls & PII/NPI Masking Gove</option>
+      <option value="5.3" selected style="background:#FFFFFF;color:#0F172A;">5.3 · Automated TRID 3-Day Tolerance & Dis</option>
+      <option value="5.4"  style="background:#FFFFFF;color:#0F172A;">5.4 · Automated Vendor Contract Risk & GLB</option>
+      <option value="5.5"  style="background:#FFFFFF;color:#0F172A;">5.5 · Fair Lending Disparate Impact & Bias</option>
+      <option value="6.1"  style="background:#FFFFFF;color:#0F172A;">6.1 · Autonomous Vulnerability Trace & Rep</option>
+      <option value="6.2"  style="background:#FFFFFF;color:#0F172A;">6.2 · AI Software Factory: Autonomous PRD-</option>
+      <option value="6.3"  style="background:#FFFFFF;color:#0F172A;">6.3 · Legacy .NET Framework / WCF to Cloud</option>
+      <option value="M.1"  style="background:#FFFFFF;color:#0F172A;">M.1 · Project Siren: The Sub-200ms Voice A</option>
+      <option value="M.2"  style="background:#FFFFFF;color:#0F172A;">M.2 · Project Spatial Close: Immersive Vir</option>
+      <option value="M.3"  style="background:#FFFFFF;color:#0F172A;">M.3 · Project HiveMind: Autonomous Treasur</option>
+      <option value="M.4"  style="background:#FFFFFF;color:#0F172A;">M.4 · Project Mirror: Interactive Virtual </option>
+      <option value="M.5"  style="background:#FFFFFF;color:#0F172A;">M.5 · Project Air-Tight: Self-Healing Auto</option>
     </select>
   </div>
-  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
-    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
-    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
-    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
-      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
-      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+  <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:#EFF6FF;border:1px solid #BFDBFE;">
+    <span style="color:#1D4ED8;font-size:11px;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" aria-label="Select Gemini Model" style="background:transparent;color:#1E3A8A;font-weight:700;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected>Gemini 4 Argon (Frontier)</option>
+      <option value="gemini-3.8-flash" >Gemini 3.8 Flash (Low-Latency)</option>
     </select>
   </div>
-  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
-    🛠️ Code & Architecture
+  <button onclick="window.toggleBlueprintDrawer()" style="background:#0F172A;color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+    Code & Blueprint
   </button>
 </div>
 
 <!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
-<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
-  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#FFFFFF;color:#0F172A;border-left:1px solid #E2E8F0;box-shadow:-16px 0 48px rgba(15,23,42,0.16);transition:right 0.25s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;">
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [5.3] • Technical Blueprint & GenAI SDK</div>
-      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Automated TRID 3-Day Tolerance & Disclosure Checker (LE vs. CD)</div>
+      <div style="font-size:11px;color:#475569;font-weight:600;">Use Case 5.3 · Technical Blueprint & Vertex AI SDK</div>
+      <div style="font-size:16px;font-weight:700;color:#0F172A;margin-top:2px;">Automated TRID 3-Day Tolerance & Disclosure Checker (LE vs. CD)</div>
     </div>
-    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#E2E8F0;color:#334155;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
   </div>
   <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        📘 Full Reproduction Guide & SKILL.md ↗
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#1D4ED8;color:#FFF;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Full Reproduction Guide & SKILL.md ↗
       </a>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        ✨ Real Gemini Enterprise UI ↗
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#F3E8FF;border:1px solid #D8B4FE;color:#6B21A8;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Open Gemini Enterprise UI ↗
       </a>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
-        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        1. Vertex AI GenAI SDK Implementation (<span id="drawer-model-label" style="color:#1D4ED8;">gemini-4-argon</span>)
       </div>
-      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+      <pre id="drawer-sdk-code" style="background:#0F172A;border:1px solid #1E293B;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#E2E8F0;overflow-x:auto;line-height:1.5;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
-        2. GCP Reference Architecture (<= 78 Cols)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        2. GCP Reference Architecture
       </div>
-      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+      <pre style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1E293B;overflow-x:auto;line-height:1.45;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
         3. Custom Scenario Prompt Override
       </div>
-      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">TRID Pre-Closing Audit File #TRID-2026-8831 (No Valid Changed Circumstance Logged):
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#FFFFFF;border:1px solid #CBD5E1;border-radius:8px;padding:10px;color:#0F172A;font-family:inherit;font-size:12.5px;">TRID Pre-Closing Audit File #TRID-2026-8831 (No Valid Changed Circumstance Logged):
 1) Zero-Tolerance Bucket (0% Permitted Increase — Section A Origination & Unshoppable Fees):
    - Rocket Origination Fee: LE = $1,250.00 | CD = $1,250.00
    - Appraisal Fee: LE = $650.00 | CD = $825.00 (+$175.00 increase without valid Changed Circumstance!)
@@ -726,16 +726,15 @@
    - Title — Lender's Title Policy (Rocket Close): LE = $1,100.00 | CD = $1,180.00
    - Title — Settlement/Closing Fee (Rocket Close): LE = $450.00 | CD = $620.00
    - County Government Recording Fees: LE = $250.00 | CD = $310.00</textarea>
-      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
-        ⚡ Re-Synthesize with Selected Model
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:8px;background:#059669;color:#FFF;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
+        Re-Synthesize with Selected Model
       </button>
     </div>
   </div>
 </div>
 
 <script>
-  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
-  // so sharing or copying the URL never leaks the session token!
+  // Scrub ?auth_token=... from URL bar after cookie authentication
   (function() {
     try {
       if (window.location.search.includes('auth_token=')) {
@@ -754,7 +753,7 @@
   };
 
   window.getSelectedModel = function() {
-    const el = document.getElementById('model-select');
+    const el = document.getElementById('model-select') || document.getElementById('app-model-select');
     return el ? el.value : "gemini-4-argon";
   };
 
@@ -777,7 +776,174 @@
     dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
   };
 
-  // Initialize SDK snippet on load
+  // ============================================================================
+  // UNIVERSAL GEMINI 3.8 LIVE 24kHz NATIVE AUDIO & INSTANT BARGE-IN ENGINE
+  // Eliminates all robotic browser speechSynthesis TTS across every demo!
+  // ============================================================================
+  window.RocketLiveAudio = (function() {
+    let audioCtx = null;
+    let activeSources = [];
+    let nextPlayTime = 0;
+    let pcmCache = {};
+    let currentClipBtn = null;
+    let currentClipOrigLabel = "";
+    let animFrameId = null;
+
+    function ensureCtx() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC({ sampleRate: 24000 });
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function stopAll() {
+      activeSources.forEach(src => {
+        try { src.stop(0); src.disconnect(); } catch (e) {}
+      });
+      activeSources = [];
+      if (audioCtx) {
+        nextPlayTime = audioCtx.currentTime;
+      }
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      if (currentClipBtn) {
+        currentClipBtn.innerHTML = currentClipOrigLabel;
+        currentClipBtn.dataset.playing = "0";
+        currentClipBtn = null;
+      }
+    }
+
+    function playPcm24kBase64(b64Data, onAmplitude, onEndedCallback) {
+      const ctx = ensureCtx();
+      const bin = atob(b64Data);
+      const len = bin.length;
+      const int16 = new Int16Array(Math.floor(len / 2));
+      for (let i = 0; i < int16.length; i++) {
+        const lo = bin.charCodeAt(i * 2);
+        const hi = bin.charCodeAt(i * 2 + 1);
+        let val = (hi << 8) | lo;
+        if (val >= 0x8000) val -= 0x10000;
+        int16[i] = val;
+      }
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {
+        float32[i] = int16[i] / 32768.0;
+      }
+      const buf = ctx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      if (onAmplitude) {
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 64;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        function tick() {
+          if (!activeSources.includes(src)) return;
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          onAmplitude(sum / (dataArr.length * 255), dataArr);
+          animFrameId = requestAnimationFrame(tick);
+        }
+        animFrameId = requestAnimationFrame(tick);
+      } else {
+        src.connect(ctx.destination);
+      }
+
+      const now = ctx.currentTime;
+      if (nextPlayTime < now) nextPlayTime = now + 0.01;
+      src.start(nextPlayTime);
+      nextPlayTime += buf.duration;
+      activeSources.push(src);
+
+      src.onended = () => {
+        activeSources = activeSources.filter(s => s !== src);
+        if (activeSources.length === 0 && onEndedCallback) {
+          onEndedCallback();
+        }
+      };
+      return src;
+    }
+
+    async function playClip(text, voice, speakerRole, btnEl, onAmplitude) {
+      if (btnEl && btnEl.dataset.playing === "1") {
+        stopAll();
+        return;
+      }
+      stopAll();
+      ensureCtx();
+
+      if (btnEl) {
+        currentClipBtn = btnEl;
+        currentClipOrigLabel = btnEl.innerHTML;
+        btnEl.dataset.playing = "1";
+        btnEl.innerHTML = "⏳ Connecting Gemini 3.8 Live Audio...";
+      }
+
+      const cacheKey = (voice || "Aoede") + "::" + text;
+      try {
+        let pcmB64 = pcmCache[cacheKey];
+        if (!pcmB64) {
+          const res = await fetch('/api/live-tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: text,
+              voice: voice || "Aoede",
+              speaker_role: speakerRole || "Rocket Mortgage Voice Co-Pilot",
+              live_mode: "gemini-3.8-live"
+            })
+          });
+          const data = await res.json();
+          if (!data.ok || !data.pcm_b64) {
+            throw new Error(data.error || "Audio stream unavailable");
+          }
+          pcmB64 = data.pcm_b64;
+          pcmCache[cacheKey] = pcmB64;
+        }
+        if (btnEl && currentClipBtn === btnEl) {
+          btnEl.innerHTML = "⏹ Stop Live Audio (Playing 24kHz HD)";
+        }
+        playPcm24kBase64(pcmB64, onAmplitude, () => {
+          if (btnEl && currentClipBtn === btnEl) {
+            btnEl.innerHTML = currentClipOrigLabel;
+            btnEl.dataset.playing = "0";
+            currentClipBtn = null;
+          }
+          if (onAmplitude) onAmplitude(0, null);
+        });
+      } catch (err) {
+        if (btnEl) {
+          btnEl.innerHTML = currentClipOrigLabel;
+          btnEl.dataset.playing = "0";
+          currentClipBtn = null;
+        }
+        console.error("Gemini 3.8 Live TTS error:", err);
+      }
+    }
+
+    return {
+      ensureCtx: ensureCtx,
+      stopAll: stopAll,
+      playPcm24kBase64: playPcm24kBase64,
+      playClip: playClip,
+      isPlaying: () => activeSources.length > 0
+    };
+  })();
+
+  window.stopAllLiveAudio = window.RocketLiveAudio.stopAll;
+  window.playLiveCallClip = window.RocketLiveAudio.playClip;
+
   document.addEventListener('DOMContentLoaded', () => {
     window.syncSelectedModel("gemini-4-argon");
   });

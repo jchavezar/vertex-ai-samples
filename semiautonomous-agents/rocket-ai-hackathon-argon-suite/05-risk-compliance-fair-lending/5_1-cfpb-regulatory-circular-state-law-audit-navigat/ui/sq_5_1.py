@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Square 5.1: CFPB Regulatory Circular & State Law Audit Assistant — Gemini Enterprise streamAssist
-Visual Design: Supreme Court / CFPB Statutory Law Library (#F9F8F6 legal vellum paper,
-#7F1D1D judicial mahogany, #B45309 gold seal, Google Fonts Merriweather serif + Fira Code).
+"""Square 5.1: CFPB & State Regulatory Change Radar — Gemini Enterprise streamAssist
+Design Style: Westlaw / Federal Register Archival Legal Publication
+(#FAF8F5 warm archival legal paper, #1E3A8A lapis law blue, #991B1B statutory redline crimson,
+Merriweather serif headings + Source Serif 4 & Public Sans).
 """
 
 from shared.standalone_uis.base_helpers import render_floating_control_bar_and_drawer
@@ -15,774 +16,708 @@ def render_sq_5_1(auth_token: str) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[5.1] CFPB Regulatory Circular & State Law Audit Library | Rocket Legal & Risk</title>
-  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Fira+Code:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>CFPB & State Regulatory Change Radar | Rocket Legal & Compliance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {{
-      --vellum: #F9F8F6;
-      --vellum-card: #FFFFFF;
-      --vellum-deep: #EFECE6;
-      --mahogany: #7F1D1D;
-      --mahogany-dark: #450A0A;
-      --gold-seal: #B45309;
-      --gold-light: #FEF3C7;
+      --paper: #FAF8F5;
+      --paper-card: #FFFFFF;
+      --paper-tint: #F3EFEA;
+      --lapis: #1E3A8A;
+      --lapis-dark: #172554;
+      --lapis-light: #EFF6FF;
+      --crimson: #991B1B;
+      --crimson-bg: #FEF2F2;
+      --green: #166534;
+      --green-bg: #F0FDF4;
       --ink: #1C1917;
       --ink-muted: #57534E;
-      --border: #D6D3D1;
-      --redline-del: #991B1B;
-      --redline-ins: #166534;
+      --rule: #D6D3D1;
+      --gold-rule: #B45309;
     }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
-      background-color: var(--vellum);
+      background-color: var(--paper);
       color: var(--ink);
-      font-family: 'Merriweather', Georgia, serif;
+      font-family: 'Source Serif 4', Georgia, serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      background-image: radial-gradient(#D6D3D1 0.6px, transparent 0.6px);
-      background-size: 24px 24px;
+      padding-bottom: 84px;
     }}
-    .mono {{ font-family: 'Fira Code', monospace; }}
-    .sans {{ font-family: 'Inter', sans-serif; }}
+    .sans {{ font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif; }}
+    .serif-head {{ font-family: 'Merriweather', Georgia, serif; }}
 
-    /* Judicial Mahogany Top Header */
-    .law-header {{
-      background: linear-gradient(90deg, var(--mahogany-dark) 0%, var(--mahogany) 60%, #5B1313 100%);
-      color: #FAF8F5;
-      border-bottom: 4px double #D97706;
-      padding: 14px 28px;
+    /* Top Archival Masthead (Federal Register / Westlaw Style) */
+    .legal-masthead {{
+      background: #FFFFFF;
+      border-bottom: 3px double var(--lapis);
+      padding: 16px 32px;
+    }}
+    .masthead-top-bar {{
       display: flex;
       align-items: center;
       justify-content: space-between;
+      border-bottom: 1px solid var(--rule);
+      padding-bottom: 10px;
+      margin-bottom: 12px;
       flex-wrap: wrap;
-      gap: 14px;
-      box-shadow: 0 6px 20px rgba(69, 10, 10, 0.25);
+      gap: 12px;
     }}
-    .seal-badge {{
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      background: rgba(180, 83, 9, 0.28);
-      border: 1px solid #F59E0B;
-      color: #FDE68A;
-      padding: 6px 12px;
-      border-radius: 4px;
-      font-family: 'Fira Code', monospace;
-      font-size: 11px;
-      letter-spacing: 0.06em;
+    .vol-meta {{
+      font-family: 'Public Sans', sans-serif;
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      letter-spacing: 0.04em;
       text-transform: uppercase;
     }}
-    .header-controls {{
+    .masthead-actions {{
       display: flex;
       align-items: center;
       gap: 10px;
       flex-wrap: wrap;
     }}
-    .ge-external-btn {{
-      background: #FEF3C7;
-      color: #78350F;
-      border: 1px solid #F59E0B;
-      padding: 7px 14px;
-      border-radius: 4px;
-      font-family: 'Fira Code', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      text-decoration: none;
-      transition: 0.15s;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    }}
-    .ge-external-btn:hover {{ background: #FDE68A; transform: translateY(-1px); }}
-
-    .model-pill-box {{
-      display: flex;
+    .model-select-pill {{
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(253, 230, 138, 0.4);
-      padding: 5px 10px;
-      border-radius: 4px;
-      font-family: 'Fira Code', monospace;
-      font-size: 11px;
-      color: #FDE68A;
-    }}
-    .model-pill-box select {{
-      background: transparent;
-      color: #FFFFFF;
-      border: none;
-      font-family: 'Fira Code', monospace;
-      font-size: 11px;
+      background: var(--lapis-light);
+      border: 1px solid #BFDBFE;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 12px;
+      color: var(--lapis);
       font-weight: 600;
+    }}
+    .model-select-pill select {{
+      background: transparent;
+      border: none;
+      color: var(--lapis-dark);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 700;
       outline: none;
       cursor: pointer;
     }}
-    .model-pill-box select option {{ background: #1C1917; color: #FDE68A; }}
+    .masthead-main {{
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+    }}
+    .publication-title {{
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 24px;
+      font-weight: 900;
+      color: var(--lapis-dark);
+      letter-spacing: -0.01em;
+    }}
+    .publication-sub {{
+      font-size: 14px;
+      color: var(--ink-muted);
+      margin-top: 4px;
+    }}
+    .audio-brief-btn {{
+      background: var(--lapis);
+      color: #FFFFFF;
+      border: 1px solid var(--lapis-dark);
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 6px rgba(30, 58, 138, 0.18);
+      transition: 0.15s;
+    }}
+    .audio-brief-btn:hover {{ background: var(--lapis-dark); }}
 
-    /* Sub-banner statutory citation strip */
-    .citation-ribbon {{
-      background: #EFECE6;
-      border-bottom: 1px solid var(--border);
-      padding: 8px 28px;
+    /* State Bulletin Selector Tabs */
+    .bulletin-bar {{
+      background: var(--paper-tint);
+      border-bottom: 1px solid var(--rule);
+      padding: 12px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-family: 'Fira Code', monospace;
-      font-size: 11px;
-      color: #44403C;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 12px;
+    }}
+    .state-tabs {{
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }}
+    .state-tab {{
+      background: #FFFFFF;
+      border: 1px solid var(--rule);
+      color: var(--ink);
+      padding: 8px 15px;
+      border-radius: 5px;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }}
+    .state-tab:hover {{ border-color: var(--lapis); color: var(--lapis); }}
+    .state-tab.active {{
+      background: var(--lapis);
+      color: #FFFFFF;
+      border-color: var(--lapis-dark);
+      box-shadow: 0 2px 5px rgba(30, 58, 138, 0.2);
+    }}
+    .cite-badge {{
+      font-size: 10.5px;
+      padding: 2px 6px;
+      border-radius: 3px;
+      background: rgba(0,0,0,0.07);
+      font-weight: 700;
+    }}
+    .state-tab.active .cite-badge {{
+      background: rgba(255,255,255,0.2);
+      color: #FFFFFF;
     }}
 
-    /* Main Law Library Layout */
-    .library-container {{
-      max-width: 1520px;
+    /* Main Two-Column Legal Digest Layout */
+    .digest-grid {{
+      max-width: 1440px;
       width: 100%;
-      margin: 0 auto;
-      padding: 24px 28px 90px;
+      margin: 24px auto;
+      padding: 0 32px;
       display: grid;
-      grid-template-columns: 330px 1fr;
-      gap: 24px;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 28px;
+      flex: 1;
     }}
-    @media (max-width: 1080px) {{
-      .library-container {{ grid-template-columns: 1fr; }}
+    @media (max-width: 1060px) {{
+      .digest-grid {{ grid-template-columns: 1fr; }}
     }}
 
-    /* Left Statutory Spine */
-    .statutory-spine {{
-      background: var(--vellum-card);
-      border: 1px solid var(--border);
-      border-top: 4px solid var(--mahogany);
+    .archival-card {{
+      background: var(--paper-card);
+      border: 1px solid var(--rule);
+      border-top: 4px solid var(--lapis);
       border-radius: 4px;
-      padding: 20px;
-      box-shadow: 0 4px 14px rgba(28, 25, 23, 0.06);
+      box-shadow: 0 4px 16px rgba(28, 25, 23, 0.05);
+      display: flex;
+      flex-direction: column;
+    }}
+    .archival-card.redline-card {{
+      border-top-color: var(--crimson);
+    }}
+    .card-header {{
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--rule);
+      background: #FCFBF9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }}
+    .card-kicker {{
+      font-family: 'Public Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--lapis);
+    }}
+    .redline-card .card-kicker {{ color: var(--crimson); }}
+    .card-title {{
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 3px;
+    }}
+    .card-body {{
+      padding: 22px 24px;
       display: flex;
       flex-direction: column;
       gap: 18px;
     }}
-    .spine-title {{
-      font-size: 13px;
-      font-weight: 900;
-      color: var(--mahogany);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      border-bottom: 2px solid var(--vellum-deep);
-      padding-bottom: 8px;
-      font-family: 'Inter', sans-serif;
+
+    /* Statutory Text Box */
+    .statutory-notice {{
+      background: var(--paper);
+      border: 1px solid #E7E5E4;
+      border-left: 4px solid var(--lapis);
+      padding: 16px 18px;
+      line-height: 1.7;
+      font-size: 15px;
     }}
-    .state-btn-grid {{
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }}
-    .state-btn {{
-      text-align: left;
-      padding: 12px 14px;
-      background: var(--vellum);
-      border: 1px solid var(--border);
-      border-left: 4px solid transparent;
-      border-radius: 3px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }}
-    .state-btn:hover {{
-      background: #F5F2EB;
-      border-left-color: var(--gold-seal);
-    }}
-    .state-btn.active {{
-      background: #FEF3C7;
-      border-color: #D97706;
-      border-left: 5px solid var(--mahogany);
-      box-shadow: 0 2px 8px rgba(180, 83, 9, 0.12);
-    }}
-    .state-code {{
-      font-family: 'Fira Code', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--mahogany);
+    .statute-citation-bar {{
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--lapis-dark);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #E7E5E4;
     }}
-    .state-name {{
+    .key-holding {{
+      background: #FEF3C7;
+      padding: 1px 4px;
+      border-bottom: 1px solid #D97706;
+      font-weight: 600;
+    }}
+
+    /* Impact Matrix Table */
+    .impact-table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Public Sans', sans-serif;
       font-size: 13px;
+    }}
+    .impact-table th {{
+      text-align: left;
+      padding: 9px 12px;
+      background: var(--paper-tint);
+      color: var(--ink-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--rule);
+    }}
+    .impact-table td {{
+      padding: 10px 12px;
+      border-bottom: 1px solid #E7E5E4;
+      vertical-align: top;
+    }}
+    .severity-pill {{
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--crimson-bg);
+      color: var(--crimson);
+      border: 1px solid #FECACA;
+    }}
+
+    /* Microsoft Word Track-Changes Style Redline Policy Diff */
+    .word-toolbar {{
+      background: #F8FAFC;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }}
+    .track-pill {{
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 600;
+      color: var(--crimson);
+    }}
+    .word-page {{
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.03), 0 2px 8px rgba(0,0,0,0.04);
+      padding: 24px 28px 24px 36px;
+      border-left: 5px solid var(--crimson);
+      position: relative;
+      line-height: 1.8;
+      font-size: 15px;
+    }}
+    .word-section-heading {{
+      font-family: 'Merriweather', Georgia, serif;
+      font-size: 15px;
       font-weight: 700;
       color: var(--ink);
-      margin-top: 3px;
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #E2E8F0;
     }}
-    .state-statute {{
-      font-family: 'Fira Code', monospace;
-      font-size: 10.5px;
-      color: var(--ink-muted);
-      margin-top: 3px;
+    del.redline-del {{
+      background: #FEE2E2;
+      color: var(--crimson);
+      text-decoration: line-through;
+      padding: 1px 4px;
+      border-radius: 2px;
     }}
-
-    /* Right Workspace */
-    .law-desk {{
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
+    ins.redline-ins {{
+      background: #DCFCE7;
+      color: var(--green);
+      text-decoration: underline;
+      text-decoration-thickness: 2px;
+      padding: 1px 4px;
+      border-radius: 2px;
+      font-weight: 600;
     }}
-
-    /* Gemini Enterprise streamAssist Search Bar */
-    .streamassist-card {{
-      background: var(--vellum-card);
-      border: 1px solid var(--border);
-      border-top: 4px solid var(--gold-seal);
+    .margin-comment {{
+      margin-top: 14px;
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      border-left: 3px solid var(--gold-rule);
+      padding: 10px 14px;
       border-radius: 4px;
-      padding: 20px 24px;
-      box-shadow: 0 4px 14px rgba(28, 25, 23, 0.06);
+      font-family: 'Public Sans', sans-serif;
+      font-size: 12.5px;
+      color: #78350F;
     }}
-    .search-bar-row {{
+
+    /* Action Bar */
+    .redline-actions {{
       display: flex;
       gap: 10px;
-      margin-top: 10px;
       flex-wrap: wrap;
-    }}
-    .law-search-input {{
-      flex: 1;
-      min-width: 260px;
-      padding: 12px 16px;
-      font-family: 'Merriweather', serif;
-      font-size: 13.5px;
-      background: var(--vellum);
-      border: 1px solid #A8A29E;
-      border-radius: 3px;
-      color: var(--ink);
-      outline: none;
-    }}
-    .law-search-input:focus {{
-      border-color: var(--mahogany);
-      box-shadow: 0 0 0 2px rgba(127, 29, 29, 0.15);
-    }}
-    .btn-stream-assist {{
-      background: var(--mahogany);
-      color: #FFF;
-      border: 1px solid var(--mahogany-dark);
-      padding: 12px 20px;
-      font-family: 'Fira Code', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 3px;
-      cursor: pointer;
-      transition: 0.15s;
-    }}
-    .btn-stream-assist:hover {{ background: var(--mahogany-dark); }}
-    .btn-sandbox-audit {{
-      background: var(--gold-seal);
-      color: #FFF;
-      border: 1px solid #92400E;
-      padding: 12px 18px;
-      font-family: 'Fira Code', monospace;
-      font-size: 12px;
-      font-weight: 700;
-      border-radius: 3px;
-      cursor: pointer;
-      transition: 0.15s;
-    }}
-    .btn-sandbox-audit:hover {{ background: #92400E; }}
-
-    /* Side-by-Side Statutory Redliner */
-    .redliner-grid {{
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }}
-    @media (max-width: 960px) {{
-      .redliner-grid {{ grid-template-columns: 1fr; }}
-    }}
-    .folio-panel {{
-      background: var(--vellum-card);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 22px 24px;
-      box-shadow: 0 4px 14px rgba(28, 25, 23, 0.05);
-      position: relative;
-    }}
-    .folio-header {{
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid var(--ink);
-      padding-bottom: 10px;
-      margin-bottom: 16px;
+      justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px solid #E7E5E4;
     }}
-    .folio-tag {{
-      font-family: 'Fira Code', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 3px;
-      text-transform: uppercase;
+    .btn-primary {{
+      background: var(--lapis);
+      color: #FFFFFF;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 5px;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
     }}
-    .tag-defect {{ background: #FEE2E2; color: #991B1B; border: 1px solid #FCA5A5; }}
-    .tag-remedy {{ background: #DCFCE7; color: #166534; border: 1px solid #86EFAC; }}
-
-    .clause-box {{
-      background: var(--vellum);
-      border-left: 4px solid var(--mahogany);
-      padding: 14px 16px;
-      margin-bottom: 14px;
-      font-size: 13px;
-      line-height: 1.75;
+    .btn-primary:hover {{ background: var(--lapis-dark); }}
+    .btn-outline {{
+      background: #FFFFFF;
+      color: var(--ink);
+      border: 1px solid var(--rule);
+      padding: 8px 14px;
+      border-radius: 5px;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
     }}
-    .clause-box.compliant {{
-      border-left-color: #166534;
-      background: #F0FDF4;
-    }}
-    .strike-red {{
-      color: var(--redline-del);
-      text-decoration: line-through;
-      background: rgba(220, 38, 38, 0.12);
-      padding: 1px 4px;
-    }}
-    .insert-green {{
-      color: var(--redline-ins);
-      font-weight: 700;
-      background: rgba(22, 101, 52, 0.12);
-      padding: 1px 4px;
-      border-bottom: 1px dashed #166534;
-    }}
-
-    .opinion-ledger {{
-      background: var(--vellum-card);
-      border: 2px solid var(--mahogany);
+    .btn-outline:hover {{ background: var(--paper-tint); }}
+    .ai-output-box {{
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
       border-radius: 4px;
-      padding: 22px 26px;
-      box-shadow: 0 8px 24px rgba(127, 29, 29, 0.08);
-    }}
-    .shrinking-shining-ink {{
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #B45309, #7F1D1D, #1C1917);
-      animation: inkPulse 1.3s infinite ease-in-out;
-    }}
-    @keyframes inkPulse {{
-      0%, 100% {{ transform: scale(0.8); opacity: 0.65; }}
-      50% {{ transform: scale(1.2); opacity: 1; }}
+      padding: 14px 16px;
+      font-family: 'Public Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #1E293B;
+      display: none;
+      white-space: pre-wrap;
     }}
   </style>
 </head>
 <body>
 
-  <!-- JUDICIAL MAHOGANY HEADER -->
-  <header class="law-header">
-    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-      <span class="seal-badge">⚖️ U.S. STATUTORY & CFPB REPOSITORY • SQUARE [5.1]</span>
-      <div>
-        <h1 style="font-size:19px;font-weight:900;letter-spacing:-0.01em;">CFPB Regulatory Circular & 50-State Law Audit Assistant</h1>
-        <p class="mono" style="font-size:11px;color:#FDE68A;opacity:0.9;">RESPA Section 8 (12 U.S.C. § 2607) • CFPB Digital Mortgage Comparison Circular • Multi-State Mortgage Banking Acts</p>
+  <!-- Archival Legal Masthead -->
+  <header class="legal-masthead">
+    <div class="masthead-top-bar">
+      <div class="vol-meta">
+        WESTLAW ARCHIVAL DIGEST · FEDERAL REGISTER &amp; STATE MORTGAGE SUPERVISORY RADAR · USE CASE 5.1
+      </div>
+      <div class="masthead-actions">
+        <div class="model-select-pill">
+          <span>Model:</span>
+          <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
+            <option value="gemini-4-argon">gemini-4-argon (Frontier Legal)</option>
+            <option value="gemini-3.8-flash">gemini-3.8-flash (Fast Audit)</option>
+          </select>
+        </div>
+        <a href="{ge_ui_url}" target="_blank" class="sans" style="font-size:12px;font-weight:600;color:var(--lapis);text-decoration:none;padding:6px 10px;border:1px solid #BFDBFE;border-radius:5px;background:#EFF6FF;">
+          Gemini Enterprise Search ↗
+        </a>
       </div>
     </div>
-    <div class="header-controls">
-      <div class="model-pill-box">
-        <span>MODEL:</span>
-        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
-          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Fast / StreamAssist)</option>
-        </select>
+
+    <div class="masthead-main">
+      <div>
+        <h1 class="publication-title">CFPB &amp; State Regulatory Change Radar</h1>
+        <p class="publication-sub">
+          Automated Statutory Cross-Referencing against Rocket Mortgage Servicing Manual &amp; Encompass Lock Rules
+        </p>
       </div>
-      <a href="{ge_ui_url}" target="_blank" class="ge-external-btn">✨ Real Gemini Enterprise UI ↗</a>
+      <button class="audio-brief-btn" onclick="window.playGCBriefing(this)">
+        🔊 Listen to General Counsel Audio Briefing (Gemini 3.8 Live · Kore HD)
+      </button>
     </div>
   </header>
 
-  <!-- CITATION RIBBON -->
-  <div class="citation-ribbon">
-    <div><strong>ACTIVE CORPUS:</strong> CFPB Advisory Opinions (2024–2026) • 12 CFR Part 1024 (Reg X) • 12 CFR Part 1026 (Reg Z) • 50-State Banking Statutes</div>
-    <div id="engine-telemetry-strip">ENGINE: <strong>gemini-enterprise-17877637_1787763712023</strong> • STATUS: <span style="color:#166534;font-weight:700;">GROUNDED & READY</span></div>
-  </div>
+  <!-- State Bulletin Selector Bar -->
+  <nav class="bulletin-bar">
+    <div class="state-tabs" role="tablist">
+      <button class="state-tab active" onclick="window.selectBulletin('MI', this)">
+        <span>Michigan DIFS</span>
+        <span class="cite-badge">Bulletin 2026-14-CF</span>
+      </button>
+      <button class="state-tab" onclick="window.selectBulletin('CA', this)">
+        <span>California DFPI</span>
+        <span class="cite-badge">CRMLA § 50204(i)</span>
+      </button>
+      <button class="state-tab" onclick="window.selectBulletin('NY', this)">
+        <span>New York DFS</span>
+        <span class="cite-badge">3 NYCRR Part 419.11</span>
+      </button>
+      <button class="state-tab" onclick="window.selectBulletin('TX', this)">
+        <span>Texas SML</span>
+        <span class="cite-badge">7 TAC § 80.204</span>
+      </button>
+    </div>
+    <div class="sans" style="font-size:12px;color:var(--ink-muted);">
+      Effective Compliance Window: <strong id="eff-date-label" style="color:var(--crimson);">November 15, 2026 (33 Days Remaining)</strong>
+    </div>
+  </nav>
 
-  <!-- MAIN WORKSPACE -->
-  <main class="library-container">
-    <!-- Left Column: 50-State Statutory Selector -->
-    <aside class="statutory-spine">
-      <div class="spine-title">🏛️ 50-State Statutory Selector</div>
-      <p style="font-size:12px;color:var(--ink-muted);line-height:1.6;">
-        Select a state jurisdiction to audit Redfin x Rocket Mortgage cross-brand product flows, Affiliated Business Arrangement (AfBA) disclosures, and state-specific fee caps.
-      </p>
-
-      <div class="state-btn-grid" id="state-selector-list">
-        <button class="state-btn active" onclick="selectJurisdiction('MI', this)">
-          <div class="state-code"><span>STATE OF MICHIGAN</span><span>MCL § 445.1651</span></div>
-          <div class="state-name">Michigan Mortgage Brokers, Lenders & Servicers Act</div>
-          <div class="state-statute">+ RESPA Sec. 8 AfBA Safe Harbor & 6% IPC Cap</div>
-        </button>
-
-        <button class="state-btn" onclick="selectJurisdiction('TX', this)">
-          <div class="state-code"><span>STATE OF TEXAS</span><span>TEX. CONST. ART. XVI § 50(a)(6)</span></div>
-          <div class="state-name">Texas Home Equity 2% Fee Cap & 12-Day Cooling Rule</div>
-          <div class="state-statute">Strict 2% Bona Fide Fee Cap on Cash-Out Refi</div>
-        </button>
-
-        <button class="state-btn" onclick="selectJurisdiction('NY', this)">
-          <div class="state-code"><span>STATE OF NEW YORK</span><span>NY BANKING LAW § 6-L / 23 NYCRR 500</span></div>
-          <div class="state-name">New York Subprime High-Cost & CEMA Mortgage Tax</div>
-          <div class="state-statute">Mandatory Counseling + NYDFS 24h Cyber Notice</div>
-        </button>
-
-        <button class="state-btn" onclick="selectJurisdiction('CA', this)">
-          <div class="state-code"><span>STATE OF CALIFORNIA</span><span>CAL. FIN. CODE § 50000 (CRMLA)</span></div>
-          <div class="state-name">California Residential Mortgage Lending Act & Per Diem</div>
-          <div class="state-statute">Cal. Civ. Code § 2948.5 (1-Day Prior Interest Cap)</div>
-        </button>
-
-        <button class="state-btn" onclick="selectJurisdiction('WA', this)">
-          <div class="state-code"><span>STATE OF WASHINGTON</span><span>RCW 19.146 & WAC 208-660</span></div>
-          <div class="state-name">Washington Consumer Loan Act & Lock-In Disclosures</div>
-          <div class="state-statute">Strict Affiliated Broker Rebate & Lock Agreement Rules</div>
-        </button>
+  <!-- Two-Column Legal Digest -->
+  <main class="digest-grid">
+    <!-- Left Column: Primary Statutory Text & Supervisory Digest -->
+    <section class="archival-card">
+      <div class="card-header">
+        <div>
+          <div class="card-kicker" id="digest-kicker">PRIMARY STATUTORY SOURCE · MICHIGAN DIFS + CFPB CIRCULAR 2026-04</div>
+          <h2 class="card-title" id="digest-title">Servicing Loss Mitigation &amp; Junk Fee Prohibition Order</h2>
+        </div>
+        <span class="severity-pill" id="digest-severity">MANDATORY POLICY UPDATE</span>
       </div>
 
-      <div style="border-top:1px solid var(--border);padding-top:14px;margin-top:4px;">
-        <div class="mono" style="font-size:11px;font-weight:700;color:var(--mahogany);margin-bottom:8px;">INTERACTIVE STATUTORY PARAMETERS</div>
-        <label class="mono" style="font-size:10.5px;display:block;margin-bottom:4px;">Purchase Price ($):</label>
-        <input type="number" id="inp-price" value="400000" style="width:100%;padding:7px 10px;border:1px solid var(--border);font-family:'Fira Code',monospace;font-size:12px;margin-bottom:10px;background:var(--vellum);">
-        <label class="mono" style="font-size:10.5px;display:block;margin-bottom:4px;">Seller Concession + Affiliate Credit ($):</label>
-        <input type="number" id="inp-concession" value="12500" style="width:100%;padding:7px 10px;border:1px solid var(--border);font-family:'Fira Code',monospace;font-size:12px;margin-bottom:12px;background:var(--vellum);">
-        <button class="btn-sandbox-audit" style="width:100%;" onclick="runStatutoryAuditSandbox()">
-          ⚖️ Execute Statutory Compliance Audit
-        </button>
-      </div>
-    </aside>
-
-    <!-- Right Column: Search & Side-by-Side Redliner -->
-    <section class="law-desk">
-      <!-- Live Gemini Enterprise streamAssist Bar -->
-      <div class="streamassist-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-          <div>
-            <span class="mono" style="font-size:11px;font-weight:700;color:var(--mahogany);text-transform:uppercase;">
-              🔍 Live Gemini Enterprise Discovery Engine (`v1alpha streamAssist`)
-            </span>
-            <h2 style="font-size:16px;font-weight:900;margin-top:2px;">Query CFPB Circulars, RESPA Section 8 & State Mortgage Statutes</h2>
+      <div class="card-body">
+        <div class="statutory-notice">
+          <div class="statute-citation-bar">
+            <span id="statute-cite">12 CFR § 1024.41(c)(2)(iii) &amp; MI DIFS Bulletin 2026-14-CF</span>
+            <span>Archival Vol. 91, No. 198</span>
           </div>
-          <span class="mono" id="stream-status-badge" style="font-size:11px;background:#FEF3C7;color:#92400E;padding:4px 10px;border-radius:3px;border:1px solid #F59E0B;">
-            Corpus: 12 U.S.C. § 2607 + State Law
+          <p id="statute-excerpt">
+            “A mortgage servicer operating within the State of Michigan shall not assess, accrue, or collect convenience pay-by-phone fees, automated IVR processing fees, or late charges while a borrower’s <span class="key-holding">facially complete loss mitigation application</span> or streamlined forbearance deferral is under supervisory review. Furthermore, acknowledgment notices must be transmitted within <span class="key-holding">three (3) business days</span> (reduced from 5 business days under federal baseline RESPA Rule X).”
+          </p>
+        </div>
+
+        <div>
+          <h3 class="sans" style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--ink-muted);margin-bottom:8px;">
+            Impacted Rocket Servicing Systems &amp; Controls
+          </h3>
+          <table class="impact-table">
+            <thead>
+              <tr>
+                <th>Manual Section</th>
+                <th>Current Rocket Control</th>
+                <th>Statutory Gap Detected</th>
+              </tr>
+            </thead>
+            <tbody id="impact-tbody">
+              <tr>
+                <td><strong>§ 4.12(a)</strong> SLA Clock</td>
+                <td>5 Business Days acknowledgment</td>
+                <td><span class="severity-pill">Shorten to 3 Business Days (MI)</span></td>
+              </tr>
+              <tr>
+                <td><strong>§ 4.12(c)</strong> Fee Waiver</td>
+                <td>Suspends late fees upon full approval</td>
+                <td><span class="severity-pill">Suspend upon receipt of application</span></td>
+              </tr>
+              <tr>
+                <td><strong>§ 7.04</strong> IVR/ACH Billing</td>
+                <td>$7.50 agent-assisted phone fee</td>
+                <td><span class="severity-pill">Zero-Fee Mandate (Prohibited)</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="sans" style="background:var(--lapis-light);border:1px solid #BFDBFE;padding:12px 16px;border-radius:4px;font-size:12.5px;color:var(--lapis-dark);">
+          <strong>Gemini Enterprise Grounding Source:</strong> Indexed across 1,420 CFPB Supervisory Highlights, 50 State Banking Bulletins, and Rocket Servicing Policy Corpus (`v2026.10`).
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Microsoft Word Track-Changes Style Redline Policy Diff -->
+    <section class="archival-card redline-card">
+      <div class="card-header">
+        <div>
+          <div class="card-kicker">MICROSOFT WORD TRACK-CHANGES REDLINE · ROCKET SERVICING MANUAL</div>
+          <h2 class="card-title" id="redline-doc-title">Rocket Servicing Manual § 4.12 — Loss Mitigation &amp; Fee Suspension</h2>
+        </div>
+        <div class="sans" style="display:flex;gap:6px;">
+          <button class="btn-outline" style="padding:5px 10px;font-size:11.5px;" onclick="window.toggleViewMode('redline')">All Markup</button>
+          <button class="btn-outline" style="padding:5px 10px;font-size:11.5px;" onclick="window.toggleViewMode('clean')">Clean Final</button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="word-toolbar">
+          <span class="track-pill">● Track Changes: ON (Author: Gemini 4 Argon General Counsel Co-Pilot)</span>
+          <span id="redline-stats" style="color:var(--ink-muted);">3 Deletions · 3 Statutory Insertions</span>
+        </div>
+
+        <div class="word-page" id="word-redline-container">
+          <div class="word-section-heading" id="word-sec-head">
+            SECTION 4.12 — LOSS MITIGATION APPLICATION ACKNOWLEDGMENT &amp; FEE MORATORIUM
+          </div>
+          <div id="word-diff-body">
+            <p style="margin-bottom:12px;">
+              <strong>4.12.1 Written Acknowledgment Timeline.</strong> Upon receipt of a borrower’s loss mitigation package through the Rocket Homes Servicing Portal or mail intake, Servicing Operations shall issue a written notice of completeness within <del class="redline-del">five (5) business days</del> <ins class="redline-ins">three (3) business days for Michigan, California, and New York properties (and five (5) business days for all other jurisdictions)</ins> pursuant to 12 CFR § 1024.41(b)(2) and MI DIFS Bulletin 2026-14-CF.
+            </p>
+            <p style="margin-bottom:12px;">
+              <strong>4.12.2 Late Charge &amp; Convenience Fee Suppression.</strong> Automated Servicing Core (MSP / Rocket Logic) shall suppress late fee accrual <del class="redline-del">only after final underwriting approval of a trial modification plan</del> <ins class="redline-ins">immediately upon intake timestamp of a facially complete loss mitigation application or hardship attestation</ins>.
+            </p>
+            <p>
+              <strong>4.12.3 Expedited Payment Processing Fees.</strong> Representatives and IVR voice agents <del class="redline-del">may collect a standard $7.50 expedited drafting fee when authorized by the borrower</del> <ins class="redline-ins">are strictly prohibited from assessing any pay-by-phone, IVR, or electronic ACH convenience fee across all 50 states under CFPB Circular 2026-04</ins>.
+            </p>
+          </div>
+
+          <div class="margin-comment" id="word-margin-note">
+            <strong>General Counsel Audit Note (Cite: MI DIFS 2026-14-CF § III.B):</strong> Encompass &amp; Rocket Servicing Core rule flag <code>SRV_FEE_LOCK_2026</code> must be toggled prior to November 15, 2026 to avoid retroactive restitution orders.
+          </div>
+        </div>
+
+        <div class="redline-actions">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn-primary" onclick="window.acceptAllRedlines()">✓ Accept All Statutory Redlines into § 4.12</button>
+            <button class="btn-outline" onclick="window.runLiveVertexAI()">⚡ Synthesize Live Vertex AI Legal Opinion</button>
+          </div>
+          <span class="sans" id="approval-status" style="font-size:12px;font-weight:700;color:var(--gold-rule);">
+            Status: Pending Deputy GC Sign-Off
           </span>
         </div>
 
-        <div class="search-bar-row">
-          <input type="text" id="ge-query-input" class="law-search-input"
-            value="Audit Redfin mobile app 'Preferred Lender' default pre-selection + $2,500 Rocket closing credit + $10,000 seller concession on $400k 90% LTV under CFPB RESPA Section 8 Circular and Fannie Mae B3-4.1-02 IPC caps.">
-          <button class="btn-stream-assist" onclick="executeStreamAssistSearch()">
-            🏛️ Query Gemini Enterprise streamAssist
-          </button>
-          <button class="btn-sandbox-audit" onclick="window.runLiveVertexAI()">
-            ⚡ Deep Judicial Opinion (/api/run-demo)
-          </button>
-        </div>
-      </div>
-
-      <!-- Side-by-Side Statutory Clause Compliance Redliner -->
-      <div class="redliner-grid">
-        <!-- Left Folio: Proposed Product Spec / Defective Clause -->
-        <div class="folio-panel">
-          <div class="folio-header">
-            <div>
-              <div class="mono" style="font-size:10px;color:var(--ink-muted);">EXHIBIT A • PROPOSED PRODUCT UX & FEE STRUCTURE</div>
-              <h3 style="font-size:15px;font-weight:900;margin-top:2px;" id="exhibit-a-title">Michigan / Federal RESPA Sec. 8 Filing</h3>
-            </div>
-            <span class="folio-tag tag-defect" id="defect-count-pill">2 STATUTORY DEFECTS</span>
-          </div>
-
-          <div id="defect-clauses-container">
-            <div class="clause-box">
-              <div class="mono" style="font-size:11px;font-weight:700;color:var(--mahogany);margin-bottom:6px;">
-                CLAUSE 1.1 — REDFIN DIGITAL COMPARISON SORTING & STEERING
-              </div>
-              <p>
-                "Upon booking a home tour in the Redfin app, the mortgage calculator shall <span class="strike-red">pre-select Rocket Mortgage as the default featured lender when the user clicks 'Sort by Lowest Monthly Payment', even where a participating wholesale lender quotes a 12 bps lower APR</span>, and award Redfin partner agents <span class="strike-red">$300 per funded referral</span>."
-              </p>
-              <div class="mono" style="font-size:10.5px;color:#991B1B;margin-top:8px;">
-                ⚠️ VIOLATION: CFPB Consumer Financial Protection Circular 2024-01 & 12 U.S.C. § 2607(a) (Non-Neutral Digital Steering & Prohibited Thing of Value).
-              </div>
-            </div>
-
-            <div class="clause-box">
-              <div class="mono" style="font-size:11px;font-weight:700;color:var(--mahogany);margin-bottom:6px;">
-                CLAUSE 1.2 — AFFILIATED DISCLOSURE & INTERESTED PARTY CONTRIBUTION (IPC)
-              </div>
-              <p>
-                "Affiliated Business Arrangement status between Rocket Companies, Redfin, and Amrock shall be <span class="strike-red">referenced inside the general Terms of Use footer hyperlink</span>. Combined seller concession ($10,000) and lender credit ($2,500) totals $12,500 on a $400,000 90% LTV purchase."
-              </p>
-              <div class="mono" style="font-size:10.5px;color:#991B1B;margin-top:8px;">
-                ⚠️ VIOLATION: 12 U.S.C. § 2607(c)(4) & 12 CFR § 1024.15 require standalone Appendix D AfBA disclosure prior to referral.
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Folio: Statutory Safe-Harbor Redline & Cure -->
-        <div class="folio-panel">
-          <div class="folio-header">
-            <div>
-              <div class="mono" style="font-size:10px;color:var(--ink-muted);">EXHIBIT B • CERTIFIED SAFE-HARBOR STATUTORY REDLINE</div>
-              <h3 style="font-size:15px;font-weight:900;margin-top:2px;" id="exhibit-b-title">12 CFR § 1024.15 & Fannie Mae B3-4.1-02 Cure</h3>
-            </div>
-            <span class="folio-tag tag-remedy">SAFE HARBOR VERIFIED</span>
-          </div>
-
-          <div id="remedy-clauses-container">
-            <div class="clause-box compliant">
-              <div class="mono" style="font-size:11px;font-weight:700;color:#166534;margin-bottom:6px;">
-                REMEDIED CLAUSE 1.1 — OBJECTIVE MATHEMATICAL APR SORTING
-              </div>
-              <p>
-                "The Redfin comparison table shall <span class="insert-green">rank all participating lenders strictly by objective mathematical APR and total monthly P&I without paid preference</span>. Redfin agent compensation is <span class="insert-green">0% tied to mortgage referral volume; the $2,500 credit is applied directly as a bona fide consumer closing cost credit on CD Page 2 Section J</span>."
-              </p>
-              <div class="mono" style="font-size:10.5px;color:#166534;margin-top:8px;">
-                ✅ COMPLIANT: Satisfies CFPB Digital Mortgage Comparison Shopping Circular & RESPA Sec. 8(c).
-              </div>
-            </div>
-
-            <div class="clause-box compliant">
-              <div class="mono" style="font-size:11px;font-weight:700;color:#166534;margin-bottom:6px;">
-                REMEDIED CLAUSE 1.2 — APPENDIX D MODAL + 6.0% IPC CAP VERIFICATION
-              </div>
-              <p>
-                "Render a <span class="insert-green">full-screen 12 CFR § 1024 Appendix D Affiliated Business Arrangement Disclosure with explicit 'No Required Use' attestation</span> prior to pre-approval routing. Total IPC of <span class="insert-green">$12,500 equals 3.125% of $400,000 purchase price — strictly below Fannie Mae B3-4.1-02 6.0% Max Cap ($24,000) for 90% LTV</span>."
-              </p>
-              <div class="mono" style="font-size:10.5px;color:#166534;margin-top:8px;">
-                ✅ COMPLIANT: Verified in Cloud Run gVisor Sandbox (`audit_respa_ipc`).
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Judicial Opinion & Grounded Citations Ledger -->
-      <div class="opinion-ledger">
-        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-size:18px;">📜</span>
-            <div>
-              <div class="mono" style="font-size:10.5px;color:var(--mahogany);font-weight:700;">FORMAL STATUTORY MEMORANDUM & STREAMASSIST GROUNDING</div>
-              <h3 style="font-size:15px;font-weight:900;">Judicial & Regulatory Opinion Output</h3>
-            </div>
-          </div>
-          <div class="mono" id="opinion-latency-pill" style="font-size:11px;color:var(--ink-muted);">
-            Ready • Click Query or Audit above
-          </div>
-        </div>
-
-        <div id="opinion-body" style="font-size:13.5px;line-height:1.8;color:var(--ink);">
-          <p style="margin-bottom:10px;">
-            <strong>1. RESPA Section 8 & CFPB Comparison-Shopping Circular Holding:</strong> Pre-checking an affiliated lender under a "Lowest Payment" filter when lower-APR alternatives exist constitutes unlawful digital steering under <em>12 U.S.C. § 2607(a)</em>. Converting the $300 agent incentive into a direct <strong>$2,500 consumer closing credit</strong> coupled with neutral APR sorting and a standalone <em>12 CFR § 1024 Appendix D AfBA disclosure</em> restores full statutory Safe Harbor.
-          </p>
-          <p>
-            <strong>2. Fannie Mae B3-4.1-02 Interested Party Contribution (IPC) Math:</strong> For a 90% LTV primary residence ($400,000 purchase price), the maximum permissible IPC is <strong>6.0% ($24,000)</strong>. The combined $10,000 seller credit + $2,500 affiliated lender credit equals <strong>$12,500 (3.125%)</strong>, leaving $11,500 of unused concession headroom.
-          </p>
-        </div>
-
-        <div id="citations-bar" style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border);display:flex;gap:8px;flex-wrap:wrap;" class="mono">
-          <span style="font-size:10.5px;background:var(--vellum-deep);padding:4px 9px;border-radius:3px;">📖 12 U.S.C. § 2607(c)(4)</span>
-          <span style="font-size:10.5px;background:var(--vellum-deep);padding:4px 9px;border-radius:3px;">📖 12 CFR § 1024.14 & Appendix D</span>
-          <span style="font-size:10.5px;background:var(--vellum-deep);padding:4px 9px;border-radius:3px;">📖 Fannie Mae Selling Guide B3-4.1-02</span>
-          <span style="font-size:10.5px;background:var(--vellum-deep);padding:4px 9px;border-radius:3px;">📖 CFPB Circular 2024-01</span>
-        </div>
+        <div id="ai-legal-output" class="ai-output-box"></div>
       </div>
     </section>
   </main>
 
   <script>
-    const STATE_STATUTES = {{
-      "MI": {{
-        title: "Michigan MCL § 445.1651 & Federal RESPA Sec. 8",
-        remedyTitle: "12 CFR § 1024.15 + MI MBLSLA Safe Harbor",
-        query: "Audit Redfin Michigan 'Preferred Lender' default sorting + $2,500 Rocket credit + $10,000 seller concession on $400k 90% LTV under MCL 445.1651 and RESPA Section 8.",
-        defect1: "Pre-selecting Rocket Mortgage under 'Lowest Payment' while hiding a 12 bps lower APR option and paying a $300 per-referral bonus to Redfin agents in Royal Oak, MI.",
-        defect2: "Burying the Rocket/Redfin/Amrock Affiliated Business Arrangement disclosure inside an 8pt footer link on a $400,000 90% LTV loan.",
-        fix1: "Rank all lenders strictly by objective APR/P&I math; route 100% of the $2,500 benefit directly to the Michigan consumer on CD Page 2 Section J.",
-        fix2: "Present standalone 12 CFR § 1024 Appendix D AfBA disclosure modal prior to referral; verify $12,500 total IPC (3.125%) <= 6.0% Fannie Mae cap ($24,000)."
+    const BULLETINS = {{
+      MI: {{
+        kicker: "PRIMARY STATUTORY SOURCE · MICHIGAN DIFS + CFPB CIRCULAR 2026-04",
+        title: "Servicing Loss Mitigation & Junk Fee Prohibition Order",
+        effDate: "November 15, 2026 (33 Days Remaining)",
+        cite: "12 CFR § 1024.41(c)(2)(iii) & MI DIFS Bulletin 2026-14-CF",
+        excerpt: `“A mortgage servicer operating within the State of Michigan shall not assess, accrue, or collect convenience pay-by-phone fees, automated IVR processing fees, or late charges while a borrower’s <span class="key-holding">facially complete loss mitigation application</span> or streamlined forbearance deferral is under supervisory review. Furthermore, acknowledgment notices must be transmitted within <span class="key-holding">three (3) business days</span> (reduced from 5 business days under federal baseline RESPA Rule X).”`,
+        docTitle: "Rocket Servicing Manual § 4.12 — Loss Mitigation & Fee Suspension",
+        secHead: "SECTION 4.12 — LOSS MITIGATION APPLICATION ACKNOWLEDGMENT & FEE MORATORIUM",
+        diffHtml: `<p style="margin-bottom:12px;"><strong>4.12.1 Written Acknowledgment Timeline.</strong> Upon receipt of a borrower’s loss mitigation package through the Rocket Homes Servicing Portal or mail intake, Servicing Operations shall issue a written notice of completeness within <del class="redline-del">five (5) business days</del> <ins class="redline-ins">three (3) business days for Michigan, California, and New York properties (and five (5) business days for all other jurisdictions)</ins> pursuant to 12 CFR § 1024.41(b)(2) and MI DIFS Bulletin 2026-14-CF.</p><p style="margin-bottom:12px;"><strong>4.12.2 Late Charge &amp; Convenience Fee Suppression.</strong> Automated Servicing Core (MSP / Rocket Logic) shall suppress late fee accrual <del class="redline-del">only after final underwriting approval of a trial modification plan</del> <ins class="redline-ins">immediately upon intake timestamp of a facially complete loss mitigation application or hardship attestation</ins>.</p><p><strong>4.12.3 Expedited Payment Processing Fees.</strong> Representatives and IVR voice agents <del class="redline-del">may collect a standard $7.50 expedited drafting fee when authorized by the borrower</del> <ins class="redline-ins">are strictly prohibited from assessing any pay-by-phone, IVR, or electronic ACH convenience fee across all 50 states under CFPB Circular 2026-04</ins>.</p>`,
+        note: "<strong>General Counsel Audit Note (Cite: MI DIFS 2026-14-CF § III.B):</strong> Encompass & Rocket Servicing Core rule flag <code>SRV_FEE_LOCK_2026</code> must be toggled prior to November 15, 2026 to avoid retroactive restitution orders.",
+        audioScript: "General Counsel Regulatory Alert for Michigan DIFS Bulletin 2026-14-CF and CFPB Circular 2026-04. We have drafted three mandatory redlines to Rocket Servicing Manual Section 4.12. First, loss mitigation acknowledgment notices must be issued within three business days instead of five. Second, late fee accrual must pause immediately upon intake of a facially complete application. Third, all IVR and pay-by-phone convenience fees are permanently prohibited."
       }},
-      "TX": {{
-        title: "Texas Home Equity Art. XVI § 50(a)(6) Audit",
-        remedyTitle: "Texas 2% Fee Cap & 12-Day Cooling Safe Harbor",
-        query: "Audit a $450,000 Austin TX cash-out refinance under Texas Constitution Art. XVI Sec. 50(a)(6): verify the strict 2% fee cap, 80% maximum CLTV, and mandatory 12-day cooling period.",
-        defect1: "Charging $11,400 in total origination, processing, and non-exempt closing fees (2.53% of loan amount) on a Texas Section 50(a)(6) home equity loan.",
-        defect2: "Scheduling electronic remote closing 8 days after the borrower signed the Notice Concerning Extensions of Credit.",
-        fix1: "Cap all covered lender/third-party fees strictly at <= 2.0% ($9,000 max on $450k loan); issue automatic $2,400 Lender Fee Reduction Credit.",
-        fix2: "Enforce mandatory 12-day statutory cooling clock after both formal application and Texas Section 50(a)(6) disclosure receipt + physical title office closing."
+      CA: {{
+        kicker: "PRIMARY STATUTORY SOURCE · CALIFORNIA DFPI CRMLA § 50204(i)",
+        title: "California Per-Diem Interest & Impound Account Escrow Yield Mandate",
+        effDate: "December 1, 2026 (49 Days Remaining)",
+        cite: "Cal. Civ. Code § 2948.5 & Cal. Fin. Code § 50204(i)",
+        excerpt: `“A residential mortgage lender shall not require a borrower to pay interest on the principal obligation for a period in excess of <span class="key-holding">one (1) business day prior to recording</span> of the deed of trust. Additionally, all California escrow impound accounts must credit statutory minimum interest of <span class="key-holding">2.00% per annum</span> paid quarterly.”`,
+        docTitle: "Rocket Servicing Manual § 4.12 & Closing Addendum § 2.08 (CA)",
+        secHead: "SECTION 4.12(CA) — CALIFORNIA PER-DIEM DISBURSEMENT & ESCROW INTEREST",
+        diffHtml: `<p style="margin-bottom:12px;"><strong>4.12.1(CA) Per-Diem Interest Start Date.</strong> For California properties where disbursement occurs on a Monday or day following a state holiday, per-diem interest calculation shall commence <del class="redline-del">on the wire initiation date</del> <ins class="redline-ins">no earlier than one (1) business day immediately preceding the County Recorder confirmation timestamp</ins> per Cal. Civ. Code § 2948.5.</p><p><strong>4.12.2(CA) Escrow Impound Yield Credit.</strong> Rocket Servicing Treasury shall credit California tax and hazard impound balances at <del class="redline-del">standard money-market pass-through rates</del> <ins class="redline-ins">a statutory floor of 2.00% per annum compounded quarterly</ins>.</p>`,
+        note: "<strong>General Counsel Audit Note (Cite: CA DFPI Exam Manual):</strong> Auto-refund trigger added in Rocket Closing Engine if county recording slips by >24 hours.",
+        audioScript: "California DFPI Regulatory Briefing. Under California Civil Code Section 2948.5, per-diem mortgage interest cannot be charged more than one business day before deed recording. Our redline to Section 4.12 automatically triggers a borrower per-diem credit whenever county recording is delayed over a weekend."
       }},
-      "NY": {{
-        title: "New York Banking Law § 6-L & 23 NYCRR 500",
-        remedyTitle: "NY CEMA Tax Assignment & NYDFS Compliance",
-        query: "Audit a New York Consolidation, Extension, and Modification Agreement (CEMA) refinance under NY Tax Law § 255 and Banking Law § 6-L high-cost thresholds.",
-        defect1: "Charging full 1.80% NY Mortgage Recording Tax on the entire $650,000 refinance balance instead of only the $85,000 new-money gap via NY Tax Law § 255 CEMA.",
-        defect2: "Omitting mandatory NY Banking Law § 6-L subprime counseling list and 72-hour vendor incident language under 23 NYCRR 500.17.",
-        fix1: "Execute NY Tax Law § 255 CEMA assignment of prior $565,000 unpaid principal -> saves borrower $10,170.00 in NY Mortgage Recording Tax.",
-        fix2: "Inject NY Banking Law § 6-L certified housing counselor disclosure + enforce NYDFS 23 NYCRR 500.17 24-hour cybersecurity notification covenant."
+      NY: {{
+        kicker: "PRIMARY STATUTORY SOURCE · NEW YORK DFS 3 NYCRR PART 419.11",
+        title: "NY DFS Single Point of Contact (SPOC) & Dual-Tracking Ban",
+        effDate: "November 30, 2026 (48 Days Remaining)",
+        cite: "3 NYCRR § 419.11(d) & RPAPL § 1304",
+        excerpt: `“Where a New York borrower submits an incomplete loss mitigation application, the servicer shall assign a dedicated <span class="key-holding">Single Point of Contact (SPOC) within 48 hours</span> and stay all foreclosure referrals or dispositive motions for a minimum of <span class="key-holding">45 calendar days</span> to permit document cure.”`,
+        docTitle: "Rocket Servicing Manual § 4.12(NY) — Dual-Tracking Prohibition",
+        secHead: "SECTION 4.12(NY) — NEW YORK 3 NYCRR PART 419 FORECLOSURE HOLD",
+        diffHtml: `<p style="margin-bottom:12px;"><strong>4.12.1(NY) Dedicated SPOC Assignment.</strong> New York borrowers requesting hardship assistance shall be routed to a dedicated New York SPOC specialist <del class="redline-del">upon reaching 60 days delinquency</del> <ins class="redline-ins">within 48 hours of initial verbal or portal hardship inquiry regardless of delinquency day-count</ins>.</p><p><strong>4.12.2(NY) Incomplete Package Cure Window.</strong> Foreclosure counsel holds shall remain active for <del class="redline-del">30 calendar days</del> <ins class="redline-ins">45 calendar days following written itemized notice of missing borrower documents</ins> under 3 NYCRR § 419.11.</p>`,
+        note: "<strong>General Counsel Audit Note (Cite: 3 NYCRR § 419.11):</strong> Rocket Logic Foreclosure Gate updated to enforce 45-day document cure timer on all NY loans.",
+        audioScript: "New York Department of Financial Services Part 419 update. We have updated Section 4.12 to assign a dedicated Single Point of Contact within 48 hours of any borrower hardship inquiry and extended the foreclosure dual-tracking hold from 30 days to 45 days."
       }},
-      "CA": {{
-        title: "California CRMLA Fin. Code § 50000 & Per Diem",
-        remedyTitle: "Cal. Civ. Code § 2948.5 Per-Diem Interest Guard",
-        query: "Audit a California CRMLA mortgage closing on Friday where wire disbursement occurs Monday: verify California Civil Code § 2948.5 prohibition on charging per-diem interest > 1 business day prior to disbursement.",
-        defect1: "Collecting 4 days of pre-disbursement per-diem interest ($348.00) when loan funds are disbursed by the settlement agent on the following Tuesday.",
-        defect2: "Omitting the California Fair Lending Notice (Holden Act, H&S Code § 35830) from the initial digital disclosure packet.",
-        fix1: "Restrict per-diem interest calculation to strictly <= 1 business day prior to recording/disbursement per Cal. Civ. Code § 2948.5 (auto-refund $261.00).",
-        fix2: "Auto-append California Holden Act Fair Lending Notice & DFPI License #4130033 attestation into initial Loan Estimate package."
-      }},
-      "WA": {{
-        title: "Washington Consumer Loan Act RCW 19.146",
-        remedyTitle: "WAC 208-660 Rate Lock & AfBA Safe Harbor",
-        query: "Audit a Seattle WA Redfin + Rocket Mortgage transaction under Washington RCW 19.146 and WAC 208-660-430 rate-lock disclosure rules.",
-        defect1: "Issuing a floating rate quote labeled 'Locked Payment Preview' without a signed WAC 208-660-430 Rate Lock Agreement specifying lock expiration and guarantee terms.",
-        defect2: "Combining affiliated title and mortgage credits without itemized Washington DFI fee allocation schedule.",
-        fix1: "Generate binding WAC 208-660-430 Washington Rate Lock Agreement within 3 business days with explicit lock period (45 Days) and point cost.",
-        fix2: "Separate Rocket Mortgage Lender Credit ($2,500) and Amrock Title Filing Rates per Washington OIC & DFI examination standards."
+      TX: {{
+        kicker: "PRIMARY STATUTORY SOURCE · TEXAS CONSTITUTION ART. XVI § 50(a)(6)",
+        title: "Texas Home Equity 2% Fee Cap & 12-Day Cooling-Off Verification",
+        effDate: "December 10, 2026 (58 Days Remaining)",
+        cite: "Tex. Const. art. XVI, § 50(a)(6)(E) & 7 TAC § 80.204",
+        excerpt: `“Under revised Texas Finance Commission interpretation, bona fide discount points and automated valuation model (AVM) inspection fees must be <span class="key-holding">included inside the mandatory 2.00% constitutional fee cap</span> unless substantiated by a signed borrower rate-reduction election form executed <span class="key-holding">12 days prior to closing</span>.”`,
+        docTitle: "Rocket Servicing & Origination Manual § 4.12(TX) — 50(a)(6) Audit",
+        secHead: "SECTION 4.12(TX) — TEXAS HOME EQUITY 2.00% FEE CAP & CURE PROVISION",
+        diffHtml: `<p style="margin-bottom:12px;"><strong>4.12.1(TX) Constitutional 2% Fee Cap Inclusion.</strong> The Encompass Texas 50(a)(6) fee accumulator shall include <del class="redline-del">only lender origination and processing charges</del> <ins class="redline-ins">all lender origination, processing, AVM property inspection, and unsubstantiated discount fees inside the strict 2.00% principal cap</ins>.</p><p><strong>4.12.2(TX) 60-Day Constitutional Cure Protocol.</strong> Any post-closing audit detecting a cap overage of even $0.01 shall trigger <del class="redline-del">manual compliance review</del> <ins class="redline-ins">an automated principal curtailment and borrower refund wire within 10 business days</ins> (well inside the 60-day statutory cure window).</p>`,
+        note: "<strong>General Counsel Audit Note (Cite: Tex. Const. Art. XVI § 50(a)(6)):</strong> Prevents forfeiture of principal and interest under Texas home equity strict liability rules.",
+        audioScript: "Texas Department of Savings and Mortgage Lending update for Section 50(a)(6) Home Equity loans. Our redline includes AVM inspection fees inside the strict two percent constitutional fee cap and automates a ten-day refund wire if any post-close audit detects a single cent overage."
       }}
     }};
 
-    let currentStateCode = "MI";
+    let currentState = 'MI';
 
-    function selectJurisdiction(stateCode, btnEl) {{
-      currentStateCode = stateCode;
-      document.querySelectorAll('.state-btn').forEach(b => b.classList.remove('active'));
+    window.selectBulletin = function(stateCode, btnEl) {{
+      currentState = stateCode;
+      document.querySelectorAll('.state-tab').forEach(b => b.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
-      const st = STATE_STATUTES[stateCode] || STATE_STATUTES["MI"];
-      document.getElementById('exhibit-a-title').innerText = st.title;
-      document.getElementById('exhibit-b-title').innerText = st.remedyTitle;
-      document.getElementById('ge-query-input').value = st.query;
-      document.getElementById('stream-status-badge').innerText = "Jurisdiction: " + stateCode + " Statutory Code";
+      const b = BULLETINS[stateCode];
+      document.getElementById('digest-kicker').innerText = b.kicker;
+      document.getElementById('digest-title').innerText = b.title;
+      document.getElementById('eff-date-label').innerText = b.effDate;
+      document.getElementById('statute-cite').innerText = b.cite;
+      document.getElementById('statute-excerpt').innerHTML = b.excerpt;
+      document.getElementById('redline-doc-title').innerText = b.docTitle;
+      document.getElementById('word-sec-head').innerText = b.secHead;
+      document.getElementById('word-diff-body').innerHTML = b.diffHtml;
+      document.getElementById('word-margin-note').innerHTML = b.note;
+      document.getElementById('approval-status').innerText = "Status: Pending Deputy GC Sign-Off";
+      document.getElementById('approval-status').style.color = "#B45309";
+    }};
 
-      document.getElementById('defect-clauses-container').innerHTML = `
-        <div class="clause-box">
-          <div class="mono" style="font-size:11px;font-weight:700;color:var(--mahogany);margin-bottom:6px;">CLAUSE 1.1 — ${'{'}stateCode{'}'} STATUTORY AUDIT FINDING A</div>
-          <p><span class="strike-red">${'{'}st.defect1{'}'}</span></p>
-          <div class="mono" style="font-size:10.5px;color:#991B1B;margin-top:8px;">⚠️ STATUTORY DEFECT FLAGGED IN ${'{'}stateCode{'}'} EXAMINATION</div>
-        </div>
-        <div class="clause-box">
-          <div class="mono" style="font-size:11px;font-weight:700;color:var(--mahogany);margin-bottom:6px;">CLAUSE 1.2 — ${'{'}stateCode{'}'} STATUTORY AUDIT FINDING B</div>
-          <p><span class="strike-red">${'{'}st.defect2{'}'}</span></p>
-          <div class="mono" style="font-size:10.5px;color:#991B1B;margin-top:8px;">⚠️ DISCLOSURE / TIMING DEFECT FLAGGED</div>
-        </div>
-      `;
+    window.toggleViewMode = function(mode) {{
+      const dels = document.querySelectorAll('.redline-del');
+      const inss = document.querySelectorAll('.redline-ins');
+      dels.forEach(d => {{ d.style.display = (mode === 'clean') ? 'none' : 'inline'; }});
+      inss.forEach(i => {{
+        i.style.background = (mode === 'clean') ? 'transparent' : '#DCFCE7';
+        i.style.textDecoration = (mode === 'clean') ? 'none' : 'underline';
+      }});
+    }};
 
-      document.getElementById('remedy-clauses-container').innerHTML = `
-        <div class="clause-box compliant">
-          <div class="mono" style="font-size:11px;font-weight:700;color:#166534;margin-bottom:6px;">REMEDIED CLAUSE 1.1 — ${'{'}stateCode{'}'} SAFE HARBOR CURE</div>
-          <p><span class="insert-green">${'{'}st.fix1{'}'}</span></p>
-          <div class="mono" style="font-size:10.5px;color:#166534;margin-top:8px;">✅ VERIFIED SAFE HARBOR CURE</div>
-        </div>
-        <div class="clause-box compliant">
-          <div class="mono" style="font-size:11px;font-weight:700;color:#166534;margin-bottom:6px;">REMEDIED CLAUSE 1.2 — ${'{'}stateCode{'}'} COMPLIANCE ATTESTATION</div>
-          <p><span class="insert-green">${'{'}st.fix2{'}'}</span></p>
-          <div class="mono" style="font-size:10.5px;color:#166534;margin-top:8px;">✅ CERTIFIED FOR PRODUCTION RELEASE</div>
-        </div>
-      `;
-    }}
+    window.acceptAllRedlines = function() {{
+      window.toggleViewMode('clean');
+      const st = document.getElementById('approval-status');
+      st.innerText = "✓ Signed & Adopted into Rocket Servicing Manual v2026.11";
+      st.style.color = "#166534";
+    }};
 
-    async function runStatutoryAuditSandbox() {{
-      const price = parseFloat(document.getElementById('inp-price').value || 400000);
-      const conc = parseFloat(document.getElementById('inp-concession').value || 12500);
-      const pill = document.getElementById('opinion-latency-pill');
-      pill.innerHTML = `<span class="shrinking-shining-ink"></span> Running Statutory Sandbox...`;
-
-      try {{
-        const res = await fetch('/api/sandbox', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{
-            code: '5.1',
-            action: 'audit_respa_ipc',
-            params: {{ state: currentStateCode, purchase_price: price, total_concession: conc }}
-          }})
-        }});
-        const data = await res.json();
-        const m = data.metrics || {{}};
-        const ipcPct = ((conc / price) * 100).toFixed(3);
-        const maxCap = (price * 0.06).toLocaleString('en-US', {{ style: 'currency', currency: 'USD' }});
-        const passIpc = (conc <= price * 0.06);
-
-        pill.innerText = `Sandbox Verified (${'{'}data.execution_ms || 1.4{'}'}ms) • Action: audit_state_regulatory / audit_respa_ipc`;
-        document.getElementById('opinion-body').innerHTML = `
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:14px;">
-            <div style="background:var(--vellum);border:1px solid var(--border);padding:12px;border-radius:4px;">
-              <div class="mono" style="font-size:10px;color:var(--mahogany);">RESPA SEC. 8 VERDICT (${'{'}currentStateCode{'}'})</div>
-              <div style="font-weight:700;font-size:13px;margin-top:4px;">${'{'}m.respa_section_8_verdict || 'CONDITIONAL PASS — Appendix D Required'{'}'}</div>
-            </div>
-            <div style="background:var(--vellum);border:1px solid var(--border);padding:12px;border-radius:4px;">
-              <div class="mono" style="font-size:10px;color:var(--mahogany);">AGENT COMP RULE</div>
-              <div style="font-weight:700;font-size:13px;margin-top:4px;">${'{'}m.redfin_agent_compensation_rule || 'Direct Consumer Credit Allowed'{'}'}</div>
-            </div>
-            <div style="background:${'{'}passIpc ? '#F0FDF4' : '#FEF2F2'{'}'};border:1px solid ${'{'}passIpc ? '#86EFAC' : '#FCA5A5'{'}'};padding:12px;border-radius:4px;">
-              <div class="mono" style="font-size:10px;color:${'{'}passIpc ? '#166534' : '#991B1B'{'}'};">FANNIE MAE 90% LTV IPC CAP (6.0%)</div>
-              <div style="font-weight:900;font-size:13.5px;margin-top:4px;">$${'{'}conc.toLocaleString(){'}'} / ${'{'}maxCap{'}'} (${'{'}ipcPct{'}'}% — ${'{'}passIpc ? 'PASS' : 'EXCEEDS 6% CAP!'{'}'})</div>
-            </div>
-          </div>
-          <p><strong>Statutory Determination (${'{'}currentStateCode{'}'}):</strong> ${'{'}m.fannie_mae_ipc_cap_90_ltv || ''{'}'}</p>
-        `;
-      }} catch (e) {{
-        pill.innerText = "Sandbox Audit Error: " + e.message;
-      }}
-    }}
-
-    async function executeStreamAssistSearch() {{
-      const query = document.getElementById('ge-query-input').value;
-      const pill = document.getElementById('opinion-latency-pill');
-      const bodyEl = document.getElementById('opinion-body');
-      pill.innerHTML = `<span class="shrinking-shining-ink"></span> Querying Gemini Enterprise Discovery Engine v1alpha streamAssist...`;
-
-      try {{
-        const res = await fetch('/api/stream-assist', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{ code: '5.1', query: query }})
-        }});
-        const data = await res.json();
-        pill.innerText = `Gemini Enterprise streamAssist • ${'{'}data.latency_ms || 420{'}'}ms • Engine: ${'{'}data.engine_id || 'weil-legal-spanner-ge'{'}'}`;
-        bodyEl.innerHTML = `
-          <div style="background:#FFFBEB;border-left:4px solid #D97706;padding:12px 16px;margin-bottom:12px;font-family:'Fira Code',monospace;font-size:11.5px;">
-            <strong>STREAMASSIST GROUNDED SYNTHESIS (Session: ${'{'}data.assist_token || 'verified'{'}'}):</strong>
-          </div>
-          <div style="white-space:pre-wrap;font-size:13.5px;line-height:1.75;">${'{'}data.answer_markdown || 'Grounded regulatory analysis complete.'{'}'}</div>
-        `;
-        if (data.citations && data.citations.length) {{
-          document.getElementById('citations-bar').innerHTML = data.citations.map(c =>
-            `<span style="font-size:10.5px;background:#FEF3C7;border:1px solid #F59E0B;padding:4px 9px;border-radius:3px;">🏛️ ${'{'}c.title{'}'}</span>`
-          ).join('');
-        }}
-      }} catch (e) {{
-        pill.innerText = "streamAssist Complete";
-      }}
-    }}
+    window.playGCBriefing = function(btnEl) {{
+      const b = BULLETINS[currentState] || BULLETINS.MI;
+      window.playLiveCallClip(b.audioScript, "Kore", "Rocket Deputy General Counsel", btnEl);
+    }};
 
     window.runLiveVertexAI = async function() {{
-      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-3.8-flash';
-      const query = document.getElementById('ge-query-input').value;
-      const pill = document.getElementById('opinion-latency-pill');
-      pill.innerHTML = `<span class="shrinking-shining-ink"></span> Synthesizing Judicial Opinion with ${'{'}model{'}'}...`;
+      const out = document.getElementById('ai-legal-output');
+      out.style.display = 'block';
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      out.textContent = `Synthesizing statutory redline memo for ${{currentState}} via Vertex AI (${{model}})...`;
+      const b = BULLETINS[currentState] || BULLETINS.MI;
+      const scenarioEl = document.getElementById('scenario-input');
+      const promptText = `Analyze statutory change (${{b.cite}}): ${{b.title}}. Draft formal General Counsel redline justification for Rocket Servicing Manual Section 4.12. ` + (scenarioEl ? scenarioEl.value : '');
       try {{
         const res = await fetch('/api/run-demo', {{
           method: 'POST',
           headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{
-            code: '5.1',
-            model: model,
-            user_input: query,
-            params: {{
-              state: currentStateCode,
-              purchase_price: parseFloat(document.getElementById('inp-price').value || 400000),
-              total_concession: parseFloat(document.getElementById('inp-concession').value || 12500)
-            }}
-          }})
+          body: JSON.stringify({{ code: '5.1', model: model, scenario: promptText }})
         }});
         const data = await res.json();
-        pill.innerText = `Vertex AI (${'{'}data.model_used || model{'}'}) • ${'{'}data.vertex ? data.vertex.latency_ms : 510{'}'}ms`;
-        const summary = data.output || (data.structured_data && data.structured_data.executive_summary) || "Statutory review completed.";
-        const actions = (data.structured_data && data.structured_data.action_items) || [];
-        document.getElementById('opinion-body').innerHTML = `
-          <p style="font-weight:700;color:var(--mahogany);margin-bottom:8px;">Formal Judicial Holding (${'{'}data.model_used || model{'}'}):</p>
-          <p style="margin-bottom:12px;white-space:pre-wrap;">${'{'}summary{'}'}</p>
-          ${'{'}actions.length ? '<div class="mono" style="font-size:11.5px;background:var(--vellum);padding:12px;border:1px solid var(--border);"><strong>MANDATORY COMPLIANCE DIRECTIVES:</strong><ul style="margin-top:6px;padding-left:18px;">' + actions.map(a => `<li>${'{'}a{'}'}</li>`).join('') + '</ul></div>' : ''{'}'}
-        `;
+        out.textContent = data.output || data.text || "Statutory opinion generated successfully.";
       }} catch (e) {{
-        pill.innerText = "Vertex AI Error: " + e.message;
+        out.textContent = "Error invoking Vertex AI endpoint: " + e.message;
       }}
     }};
   </script>
 
   {render_floating_control_bar_and_drawer(code, auth_token)}
 </body>
-</html>"""
+</html>
+"""

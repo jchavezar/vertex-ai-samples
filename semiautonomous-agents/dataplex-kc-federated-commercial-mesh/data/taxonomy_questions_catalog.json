@@ -1,0 +1,980 @@
+{
+  "metadata": {
+    "title": "Dataplex Knowledge Catalog & Federated Commercial Mesh Benchmark",
+    "version": "2026.10.1",
+    "total_benchmark_questions": 24,
+    "production_corpus_equivalent": 203,
+    "database_only_pass_rate_pct": 18.2,
+    "hybrid_mesh_coverage_pct": 100.0,
+    "average_readiness_confidence_pct": 62.0
+  },
+  "tier_summary": [
+    {
+      "tier_code": "Tier 1",
+      "title": "Tier 1: Deterministic Parameterized SQL via MCP Toolbox",
+      "share_pct": 18,
+      "benchmark_count": 5,
+      "production_equivalent_count": 37,
+      "avg_confidence_pct": 91,
+      "latency_target": "350ms - 800ms",
+      "description": "Direct single/multi-table SQL lookups over canonical BigQuery Gold Views with zero LLM SQL hallucination risk."
+    },
+    {
+      "tier_code": "Tier 2",
+      "title": "Tier 2: Semantic Layer (Dataplex KC DAX) + Gold Views + Simulator",
+      "share_pct": 30,
+      "benchmark_count": 8,
+      "production_equivalent_count": 61,
+      "avg_confidence_pct": 68,
+      "latency_target": "800ms - 1.8s",
+      "description": "Materializes proprietary DAX formulas (Adjusted Yield v1/v3/v4, Markov Regimes) in BigQuery Gold Views and executes Python counterfactual What-If simulations."
+    },
+    {
+      "tier_code": "Tier 3",
+      "title": "Tier 3: Federated Multi-Tool Agent (SQL + Unstructured RAG + 3P Market APIs)",
+      "share_pct": 49,
+      "benchmark_count": 9,
+      "production_equivalent_count": 100,
+      "avg_confidence_pct": 45,
+      "latency_target": "1.8s - 4.2s",
+      "description": "Combines structured BigQuery telemetry with unstructured CLM/Visit RAG and licensed external market/intent feeds behind a Dataplex GenAI Compliance Guard."
+    },
+    {
+      "tier_code": "Tier 4",
+      "title": "Tier 4: Multi-System Action & Executive Briefing Automation",
+      "share_pct": 3,
+      "benchmark_count": 2,
+      "production_equivalent_count": 5,
+      "avg_confidence_pct": 44,
+      "latency_target": "3.5s - 7.0s",
+      "description": "Synthesizes cross-domain Account 360 intelligence into executive QBR packets and triggers pursuit squad mobilization workflows."
+    }
+  ],
+  "blocker_summary": {
+    "Incomplete Schema Mapping": 4,
+    "Counterfactual / What-If Simulator Required": 5,
+    "Missing ML / Econometric Model in DB": 3,
+    "External 3P Market API Required": 8,
+    "Hidden Unstructured Notes in Tabular Source": 8,
+    "License Compliance Blocker (GenAI Rights: No)": 1
+  },
+  "governance_sources": [
+    {
+      "source_id": "SRC-001",
+      "source_name": "CRM_Opportunity_Spine",
+      "category": "Internal Structured (BQ)",
+      "storage_engine": "BigQuery Cluster (1.8 TB)",
+      "refresh_cadence": "Real-time CDC (15 min)",
+      "genai_usage_rights": 1,
+      "pii_classification": "Confidential - Customer Commercial",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/commercial-spine-crm",
+      "steward_team": "Global Sales Operations Engineering",
+      "notes": "Primary pipeline spine tracking Stage 1-5 opportunities, TCV, ACV, and deal team assignments."
+    },
+    {
+      "source_id": "SRC-002",
+      "source_name": "Revenue_ODS_15TB",
+      "category": "Internal Structured (BQ)",
+      "storage_engine": "BigQuery Partitioned ODS (15.4 TB)",
+      "refresh_cadence": "Hourly Incremental",
+      "genai_usage_rights": 1,
+      "pii_classification": "Restricted Financial",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/revenue-ods-core",
+      "steward_team": "Enterprise Data Warehouse Platform",
+      "notes": "36-month historical snapshot ledger across 420+ wide tables; requires Gold Views to avoid join hallucinations."
+    },
+    {
+      "source_id": "SRC-003",
+      "source_name": "Deal_Pricing_Engine",
+      "category": "Internal Structured (BQ)",
+      "storage_engine": "BigQuery + Cloud SQL Replica",
+      "refresh_cadence": "Sub-hour Event Stream",
+      "genai_usage_rights": 1,
+      "pii_classification": "Highly Confidential - Margin & Rate Cards",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/pricing-scenario-engine",
+      "steward_team": "Commercial Pricing & Margin Analytics",
+      "notes": "Stores scenario versions, rate cards, gross/adjusted yield, pass-through hardware/cloud costs, and discount approvals."
+    },
+    {
+      "source_id": "SRC-004",
+      "source_name": "ERP_Financials_Ledger",
+      "category": "Internal Structured (BQ)",
+      "storage_engine": "BigQuery Federated SAP/Oracle Replication",
+      "refresh_cadence": "Nightly Batch + Period Close",
+      "genai_usage_rights": 1,
+      "pii_classification": "SOX Regulated Financial",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/erp-actuals-ledger",
+      "steward_team": "Corporate Controllership & FP&A",
+      "notes": "Booked revenue, recognized actuals, billable utilization, and EAC (Estimate at Completion) margin variance."
+    },
+    {
+      "source_id": "SRC-005",
+      "source_name": "Delivery_Governance_Hub",
+      "category": "Internal Hybrid (BQ + Text)",
+      "storage_engine": "BigQuery + Unstructured Commentary Blobs",
+      "refresh_cadence": "Weekly Delivery Pulse",
+      "genai_usage_rights": 1,
+      "pii_classification": "Internal Operational",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/delivery-governance-rag",
+      "steward_team": "Global Delivery Excellence PMO",
+      "notes": "Tracks milestone SLA slippage, red/amber/green status, change orders, and unstructured delivery director logs."
+    },
+    {
+      "source_id": "SRC-006",
+      "source_name": "CLM_Contract_Vault",
+      "category": "Internal Unstructured (RAG)",
+      "storage_engine": "Vertex AI Search + Cloud Storage PDF Corpus",
+      "refresh_cadence": "Continuous Document Ingestion",
+      "genai_usage_rights": 1,
+      "pii_classification": "Privileged Legal & Commercial",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/clm-contract-clauses",
+      "steward_team": "Commercial Legal Operations",
+      "notes": "Executed MSAs, SOWs, COLA inflation caps, termination-for-convenience clauses, and volume rebate tiers."
+    },
+    {
+      "source_id": "SRC-007",
+      "source_name": "Customer_Visit_Logs",
+      "category": "Internal Unstructured (RAG)",
+      "storage_engine": "BigQuery Text + Vertex Embeddings",
+      "refresh_cadence": "Daily Sync",
+      "genai_usage_rights": 1,
+      "pii_classification": "Confidential Executive Notes",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/executive-visit-briefings",
+      "steward_team": "Executive Client Programs",
+      "notes": "Executive sponsor visit debriefs, C-suite sentiment notes, competitor mentions, and stakeholder alignment scores."
+    },
+    {
+      "source_id": "SRC-008",
+      "source_name": "Workforce_Skills_Graph",
+      "category": "Internal Structured (BQ)",
+      "storage_engine": "BigQuery Graph Projection",
+      "refresh_cadence": "Daily",
+      "genai_usage_rights": 1,
+      "pii_classification": "Internal HR Anonymized",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/workforce-bench-skills",
+      "steward_team": "Talent Supply Chain Analytics",
+      "notes": " tracks certified AI/Cloud architects, bench availability, regional Pyramid ratios, and mobilization lead times."
+    },
+    {
+      "source_id": "SRC-009",
+      "source_name": "Market_Financials_API",
+      "category": "External 3P Market API",
+      "storage_engine": "REST Gateway + BigQuery Cache",
+      "refresh_cadence": "Daily Market Close",
+      "genai_usage_rights": 1,
+      "pii_classification": "Public / Licensed Commercial",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/external-market-financials",
+      "steward_team": "Market Intelligence CoE",
+      "notes": "Enterprise 10-K/10-Q fundamentals, R&D capex ratios, SG&A compression trends, and peer solvency metrics."
+    },
+    {
+      "source_id": "SRC-010",
+      "source_name": "Tech_Stack_Telemetry_Feed",
+      "category": "External 3P Market API",
+      "storage_engine": "External API + Weekly Iceberg Sync",
+      "refresh_cadence": "Weekly",
+      "genai_usage_rights": 1,
+      "pii_classification": "Licensed 3P Telemetry",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/tech-stack-telemetry",
+      "steward_team": "Market Intelligence CoE",
+      "notes": "Detects installed cloud footprint, LLM framework adoption, GPU cluster hiring, and DIY AI self-sufficiency signals."
+    },
+    {
+      "source_id": "SRC-011",
+      "source_name": "Buyer_Intent_Signal_Stream",
+      "category": "External 3P Market API",
+      "storage_engine": "Streaming Webhook + BigQuery Landing",
+      "refresh_cadence": "Daily Surge Scores",
+      "genai_usage_rights": 1,
+      "pii_classification": "Licensed 3P Intent",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/buyer-intent-stream",
+      "steward_team": "Growth & ABM Analytics",
+      "notes": "B2B topic surge scores across Cloud FinOps, Agentic AI, ERP Modernization, and Managed SOC."
+    },
+    {
+      "source_id": "SRC-012",
+      "source_name": "AI_Web_Synthesis_Engine",
+      "category": "External Grounded Search",
+      "storage_engine": "Vertex AI Grounded Search API",
+      "refresh_cadence": "On-Demand Live",
+      "genai_usage_rights": 1,
+      "pii_classification": "Public Web",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/live-web-synthesis",
+      "steward_team": "AI Platform Engineering",
+      "notes": "Real-time earnings call transcripts, M&A press releases, executive leadership changes, and regulatory news."
+    },
+    {
+      "source_id": "SRC-013",
+      "source_name": "SEC_Regulatory_Filings",
+      "category": "External Structured/Text",
+      "storage_engine": "EDGAR Filing Index + Vector Store",
+      "refresh_cadence": "Quarterly / 8-K Event Driven",
+      "genai_usage_rights": 1,
+      "pii_classification": "Public Regulatory",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/sec-edgar-filings",
+      "steward_team": "Market Intelligence CoE",
+      "notes": "Risk factor disclosures, IT transformation budget commitments, and cybersecurity incident disclosures."
+    },
+    {
+      "source_id": "SRC-014",
+      "source_name": "Analyst_Benchmark_Feed_Unlicensed",
+      "category": "External Restricted Feed",
+      "storage_engine": "Quarantined CSV Drop (No LLM Egress)",
+      "refresh_cadence": "Quarterly",
+      "genai_usage_rights": 0,
+      "pii_classification": "RESTRICTED - ZERO GENAI RIGHTS",
+      "dataplex_aspect_uri": "projects/enterprise-mesh/locations/us/aspectTypes/quarantined-analyst-feed",
+      "steward_team": "Enterprise Procurement & Legal Compliance",
+      "notes": "Syndicated rate-card and peer market-share tables. Contract explicitly forbids LLM prompt injection, RAG indexing, or derivative GenAI synthesis."
+    }
+  ],
+  "questions": [
+    {
+      "id": "Q-001",
+      "priority": "P1-Now",
+      "tier_code": "Tier 1",
+      "tier_name": "Tier 1 (18%): Deterministic Parameterized SQL via MCP Toolbox",
+      "persona": "Global Pipeline Operations Director",
+      "domain_group": "Pipeline Velocity & Stage Bottlenecks",
+      "question": "Which active opportunities are stalled in Stage 3 (Solutioning) for more than 90 days, ordered by Total Contract Value (TCV) and showing days since last stage progression?",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "Revenue_ODS_15TB"
+      ],
+      "kpis": [
+        "Stage_3_Age_Days = DATE_DIFF(CURRENT_DATE(), stage_entry_date, DAY)",
+        "Stalled_TCV_At_Risk = SUM(IF(stage_name = 'Stage 3 - Solutioning' AND stage_age_days > 90, tcv_usd, 0))"
+      ],
+      "flags": [],
+      "db_only_verdict": "PASS - Direct Parameterized SQL",
+      "diagnosis": "100% deterministic filter, projection, and sort over canonical pipeline columns. Ideal for MCP Toolbox parameterized SQL (`get_stalled_stage_opportunities`) with zero LLM SQL hallucination risk.",
+      "recommended_architecture": "Route directly through Google MCP Toolbox (`genai-toolbox`) bound to `v_gold_opportunity_spine` in BigQuery.",
+      "sample_sql": "SELECT opp_id, account_name, region, industry, tcv_usd, acv_usd, stage_age_days, win_prob, deal_owner, markov_regime\nFROM opportunities\nWHERE stage_name LIKE 'Stage 3%' AND stage_age_days >= :min_days\nORDER BY tcv_usd DESC;",
+      "sample_tools_yaml": "  get_stalled_stage_opportunities:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Fetch opportunities stalled in a pipeline stage beyond a threshold of days.\n    parameters:\n      - name: min_days\n        type: integer\n        description: Minimum days stalled in stage (default 90).",
+      "confidence_pct": 92,
+      "missing_artifacts": [
+        "Physical BigQuery DDL for CRM_Opportunity_Spine stage history audit table (to verify whether Stage 3 re-entry resets stage_entry_date)."
+      ]
+    },
+    {
+      "id": "Q-002",
+      "priority": "P1-Now",
+      "tier_code": "Tier 1",
+      "tier_name": "Tier 1 (18%): Deterministic Parameterized SQL via MCP Toolbox",
+      "persona": "Regional Commercial Lead",
+      "domain_group": "Regional Win Rate & Booking Velocity",
+      "question": "Show our regional pipeline TCV, average win probability, and weighted bookings across North America, EMEA, APAC, and Latin America.",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "ERP_Financials_Ledger"
+      ],
+      "kpis": [
+        "Weighted_Pipeline_USD = SUM(tcv_usd * win_prob)",
+        "Regional_Avg_Adjusted_Yield = AVG(adjusted_yield_v4)"
+      ],
+      "flags": [],
+      "db_only_verdict": "PASS - Direct Parameterized SQL",
+      "diagnosis": "Deterministic regional aggregation over verified Gold Spine measures. Requires no external APIs or stochastic simulation.",
+      "recommended_architecture": "Execute parameterized MCP Toolbox tool `get_regional_win_rate_trends` against `v_gold_opportunity_spine`.",
+      "sample_sql": "SELECT region,\n       COUNT(*) AS deal_count,\n       ROUND(SUM(tcv_usd) / 1e6, 2) AS total_tcv_millions,\n       ROUND(AVG(win_prob) * 100, 1) AS avg_win_prob_pct,\n       ROUND(SUM(tcv_usd * win_prob) / 1e6, 2) AS weighted_tcv_millions,\n       ROUND(AVG(adjusted_yield_v4) * 100, 1) AS avg_adj_yield_pct\nFROM opportunities\nGROUP BY region\nORDER BY total_tcv_millions DESC;",
+      "sample_tools_yaml": "  get_regional_win_rate_trends:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Aggregate TCV, weighted bookings, and win rates by geographic region.",
+      "confidence_pct": 91,
+      "missing_artifacts": [
+        "Corporate FX currency conversion rate table DDL in ERP_Financials_Ledger (constant-dollar vs. spot USD normalization)."
+      ]
+    },
+    {
+      "id": "Q-003",
+      "priority": "P1-Now",
+      "tier_code": "Tier 1",
+      "tier_name": "Tier 1 (18%): Deterministic Parameterized SQL via MCP Toolbox",
+      "persona": "Chief Revenue Officer (CRO)",
+      "domain_group": "Mega-Deal Concentration & Top Deals",
+      "question": "List the top 10 active deals by TCV across all regions along with their current stage, gross margin, and assigned deal owner.",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "Deal_Pricing_Engine"
+      ],
+      "kpis": [
+        "Top_N_Concentration_Share = SUM(Top_10_TCV) / SUM(Total_Pipeline_TCV)"
+      ],
+      "flags": [],
+      "db_only_verdict": "PASS - Direct Parameterized SQL",
+      "diagnosis": "Standard top-N ranking query on primary opportunity spine.",
+      "recommended_architecture": "Execute MCP Toolbox tool `get_top_tcv_deals_by_region` with optional region parameter.",
+      "sample_sql": "SELECT opp_id, account_name, region, stage_name,\n       ROUND(tcv_usd / 1e6, 2) AS tcv_millions,\n       ROUND(gross_margin_pct * 100, 1) AS gross_margin_pct,\n       ROUND(adjusted_yield_v4 * 100, 1) AS adjusted_yield_pct,\n       deal_owner\nFROM opportunities\nORDER BY tcv_usd DESC\nLIMIT 10;",
+      "sample_tools_yaml": "  get_top_tcv_deals_by_region:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Return top N opportunities ordered by TCV.",
+      "confidence_pct": 92,
+      "missing_artifacts": [
+        "Primary scenario flag convention in Deal_Pricing_Engine (confirming is_primary_scenario = TRUE vs. max(version_tag) join key)."
+      ]
+    },
+    {
+      "id": "Q-004",
+      "priority": "P1-Now",
+      "tier_code": "Tier 1",
+      "tier_name": "Tier 1 (18%): Deterministic Parameterized SQL via MCP Toolbox",
+      "persona": "Sales Governance Manager",
+      "domain_group": "Pipeline Hygiene & Stale Ownership",
+      "question": "Which opportunities have had zero deal owner activity or CRM update for more than 14 days prior to the current snapshot?",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "CRM_Opportunity_Spine"
+      ],
+      "kpis": [
+        "Owner_Inactivity_Days = DATE_DIFF(DATE('2026-10-13'), DATE(last_owner_activity_date), DAY)"
+      ],
+      "flags": [],
+      "db_only_verdict": "PASS - Direct Parameterized SQL",
+      "diagnosis": "Deterministic date-diff hygiene check on opportunity audit timestamps.",
+      "recommended_architecture": "Invoke MCP Toolbox `get_stale_owner_opportunities` and surface hygiene alerts.",
+      "sample_sql": "SELECT opp_id, account_name, stage_name, deal_owner,\n       last_owner_activity_date,\n       CAST(julianday('2026-10-13') - julianday(last_owner_activity_date) AS INTEGER) AS inactive_days,\n       ROUND(tcv_usd / 1e6, 2) AS tcv_millions\nFROM opportunities\nWHERE julianday('2026-10-13') - julianday(last_owner_activity_date) >= 14\nORDER BY inactive_days DESC;",
+      "sample_tools_yaml": "  get_stale_owner_opportunities:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Identify pipeline opportunities with no owner activity for >= N days.",
+      "confidence_pct": 89,
+      "missing_artifacts": [
+        "Activity event taxonomy in CRM_Opportunity_Spine (confirming whether automated marketing touches update last_owner_activity_date)."
+      ]
+    },
+    {
+      "id": "Q-005",
+      "priority": "P2-Next",
+      "tier_code": "Tier 1",
+      "tier_name": "Tier 1 (18%): Deterministic Parameterized SQL via MCP Toolbox",
+      "persona": "Service Line Managing Director",
+      "domain_group": "Service Line Mix & ACV Breakdown",
+      "question": "Break down active Annual Contract Value (ACV) and Total Contract Value (TCV) by industry vertical and service line.",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "Revenue_ODS_15TB"
+      ],
+      "kpis": [
+        "ACV_to_TCV_Velocity_Ratio = SAFE_DIVIDE(SUM(acv_usd), SUM(tcv_usd))"
+      ],
+      "flags": [],
+      "db_only_verdict": "PASS - Direct Parameterized SQL",
+      "diagnosis": "Clean dimensional group-by on curated Gold View columns.",
+      "recommended_architecture": "Serve via MCP Toolbox parameterized dimensional aggregation over `v_gold_opportunity_spine`.",
+      "sample_sql": "SELECT industry, service_line,\n       COUNT(*) AS opps,\n       ROUND(SUM(acv_usd) / 1e6, 2) AS total_acv_m,\n       ROUND(SUM(tcv_usd) / 1e6, 2) AS total_tcv_m\nFROM opportunities\nGROUP BY industry, service_line\nORDER BY total_tcv_m DESC;",
+      "sample_tools_yaml": "  get_service_line_acv_mix:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Group ACV and TCV by industry vertical and service line.",
+      "confidence_pct": 90,
+      "missing_artifacts": [
+        "Multi-service-line split allocation table in Revenue_ODS_15TB for bundled multi-tower contracts."
+      ]
+    },
+    {
+      "id": "Q-006",
+      "priority": "P1-Now",
+      "tier_code": "Tier 2",
+      "tier_name": "Tier 2 (30%): Semantic Layer (Dataplex KC DAX Formulas) + Pre-Computed Gold Views + Counterfactual Simulator",
+      "persona": "Global Pricing & Margin VP",
+      "domain_group": "Adjusted Yield DAX & Outlier Trimming",
+      "question": "Calculate Adjusted Yield v1, v3, and v4 across our deal portfolio after stripping pass-through cloud/hardware costs, trimming top/bottom 5% outliers, and capping standard deviation sensitivity at 1.5 sigma.",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "Deal_Pricing_Engine",
+        "CRM_Opportunity_Spine",
+        "ERP_Financials_Ledger"
+      ],
+      "kpis": [
+        "Adjusted_Yield_v1 = SAFE_DIVIDE(Gross_Margin_USD - PassThrough_Cost_USD, Net_Service_Revenue_USD)",
+        "Adjusted_Yield_v3_Trimmed = PERCENTILE_CONT(Adjusted_Yield_v1, 0.05..0.95) OVER (PARTITION BY industry)",
+        "Adjusted_Yield_v4_SigmaCapped = LEAST(GREATEST(Adjusted_Yield_v1, Mean_Yield - 1.5*StdDev_Yield), Mean_Yield + 1.5*StdDev_Yield)"
+      ],
+      "flags": [
+        "Incomplete Schema Mapping"
+      ],
+      "db_only_verdict": "PARTIAL - Requires Semantic DAX + Gold View",
+      "diagnosis": "Raw LLM Text-to-SQL fails because 'Adjusted Yield v4' is a multi-stage proprietary DAX formula with pass-through deduction and 1.5-sigma clipping that does not exist as a raw column in the 15TB ODS.",
+      "recommended_architecture": "Materialize the v1/v3/v4 DAX formulas inside BigQuery Gold View `v_gold_adjusted_yield_dax` and register business glossary lineage in Dataplex Knowledge Catalog.",
+      "sample_sql": "SELECT p.opp_id, o.account_name, o.industry,\n       ROUND(p.tcv_usd / 1e6, 2) AS tcv_m,\n       ROUND(p.passthrough_cost_usd / 1e6, 2) AS passthrough_m,\n       ROUND(p.gross_yield_v1 * 100, 1) AS gross_yield_v1_pct,\n       ROUND(p.adjusted_yield_v3_trimmed * 100, 1) AS adj_yield_v3_trimmed_pct,\n       ROUND(p.adjusted_yield_v4_sigma_capped * 100, 1) AS adj_yield_v4_sigma_pct,\n       p.sigma_zscore\nFROM pricing_scenarios p\nJOIN opportunities o ON p.opp_id = o.opp_id\nORDER BY p.adjusted_yield_v4_sigma_capped ASC;",
+      "sample_tools_yaml": "  get_adjusted_yield_dax_metrics:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Query materialized Adjusted Yield v1/v3/v4 DAX metrics from Gold View.",
+      "confidence_pct": 74,
+      "missing_artifacts": [
+        "Exact semantic DAX formula sheet for Adjusted Yield v1/v3/v4 (specifically pass-through cloud/hardware cost GL account codes).",
+        "Confirm whether 1.5-sigma clipping is partitioned by Industry Vertical or Global Region."
+      ]
+    },
+    {
+      "id": "Q-007",
+      "priority": "P1-Now",
+      "tier_code": "Tier 2",
+      "tier_name": "Tier 2 (30%): Semantic Layer (Dataplex KC DAX Formulas) + Pre-Computed Gold Views + Counterfactual Simulator",
+      "persona": "Portfolio Strategy CFO",
+      "domain_group": "Counterfactual Portfolio Pruning Simulator",
+      "question": "If we systematically exit or re-price the bottom 20% lowest-yielding deals in our pipeline, what is the counterfactual impact on blended portfolio margin, total revenue retained, and freed-up delivery capacity?",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "Deal_Pricing_Engine",
+        "CRM_Opportunity_Spine",
+        "Workforce_Skills_Graph"
+      ],
+      "kpis": [
+        "Baseline_Blended_Yield = SUM(Net_Margin_USD) / SUM(Net_Service_Rev_USD)",
+        "Post_Cull_Blended_Yield = SUM(Net_Margin_USD WHERE Yield_Percentile > 0.20) / SUM(Net_Service_Rev_USD WHERE Yield_Percentile > 0.20)",
+        "Margin_Bps_Uplift = (Post_Cull_Blended_Yield - Baseline_Blended_Yield) * 10000"
+      ],
+      "flags": [
+        "Counterfactual / What-If Simulator Required"
+      ],
+      "db_only_verdict": "PARTIAL - Requires Counterfactual Simulator",
+      "diagnosis": "Static SQL only reports historical state. Answering 'what if we exit the bottom X% or reprice to floor Y%' requires a parameterized percentile-cull and elasticity simulator.",
+      "recommended_architecture": "Combine MCP Toolbox Gold View query (`simulate_portfolio_margin_cull`) with the Python Counterfactual Monte Carlo Engine.",
+      "sample_sql": "WITH ranked AS (\n  SELECT o.opp_id, o.account_name, p.tcv_usd, p.net_service_rev_usd,\n         p.adjusted_yield_v4_sigma_capped AS adj_yield,\n         PERCENT_RANK() OVER (ORDER BY p.adjusted_yield_v4_sigma_capped ASC) AS yield_pct_rank\n  FROM pricing_scenarios p\n  JOIN opportunities o ON p.opp_id = o.opp_id\n)\nSELECT\n  ROUND(AVG(adj_yield) * 100, 2) AS baseline_avg_yield_pct,\n  ROUND(AVG(CASE WHEN yield_pct_rank >= 0.20 THEN adj_yield END) * 100, 2) AS post_exit_avg_yield_pct,\n  ROUND(SUM(CASE WHEN yield_pct_rank < 0.20 THEN tcv_usd ELSE 0 END) / 1e6, 2) AS exited_tcv_millions,\n  ROUND(SUM(CASE WHEN yield_pct_rank >= 0.20 THEN tcv_usd ELSE 0 END) / 1e6, 2) AS retained_tcv_millions\nFROM ranked;",
+      "sample_tools_yaml": "  simulate_portfolio_margin_cull:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Simulate blended margin uplift when pruning bottom N% yield deals.",
+      "confidence_pct": 68,
+      "missing_artifacts": [
+        "Counterfactual customer churn elasticity curve when repricing bottom-decile deals by +300 bps.",
+        "Stranded bench cost absorption parameters in Workforce_Skills_Graph."
+      ]
+    },
+    {
+      "id": "Q-008",
+      "priority": "P1-Now",
+      "tier_code": "Tier 2",
+      "tier_name": "Tier 2 (30%): Semantic Layer (Dataplex KC DAX Formulas) + Pre-Computed Gold Views + Counterfactual Simulator",
+      "persona": "Commercial Data Science Lead",
+      "domain_group": "Econometric & Markov Regime Modeling",
+      "question": "Classify all active accounts into Hidden Markov Pricing Regimes (High-Velocity Expansion, Margin Compression, or Stalled Procurement) and show transition probabilities when discount concessions exceed 15%.",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "Deal_Pricing_Engine",
+        "CRM_Opportunity_Spine",
+        "Revenue_ODS_15TB"
+      ],
+      "kpis": [
+        "Markov_Regime_State = ARGMAX_s P(S_t = s | Yield_Delta, Stage_Velocity, Giveaway_Pct)",
+        "Compression_Transition_Prob = P(S_{t+1} = Margin_Compression | Discount_Pct > 0.15)"
+      ],
+      "flags": [
+        "Missing ML / Econometric Model in DB",
+        "Counterfactual / What-If Simulator Required"
+      ],
+      "db_only_verdict": "PARTIAL - Requires Semantic DAX + Gold View",
+      "diagnosis": "A relational database does not natively run Hidden Markov Baum-Welch / Viterbi state estimation at query time unless pre-materialized by BQML or a Python econometric pipeline.",
+      "recommended_architecture": "Pre-compute Markov state probabilities in BigQuery ML / Python job into `v_gold_markov_regime_states` and expose transition shocks in the Tier-2 Simulator.",
+      "sample_sql": "SELECT o.markov_regime,\n       COUNT(*) AS deal_count,\n       ROUND(SUM(o.tcv_usd) / 1e6, 2) AS regime_tcv_millions,\n       ROUND(AVG(p.discount_giveaway_pct) * 100, 1) AS avg_giveaway_pct,\n       ROUND(AVG(p.adjusted_yield_v4_sigma_capped) * 100, 1) AS avg_adj_yield_pct\nFROM opportunities o\nJOIN pricing_scenarios p ON o.opp_id = p.opp_id\nGROUP BY o.markov_regime\nORDER BY regime_tcv_millions DESC;",
+      "sample_tools_yaml": "  get_markov_regime_distribution:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Retrieve Hidden Markov commercial regime states and giveaway averages.",
+      "confidence_pct": 52,
+      "missing_artifacts": [
+        "Trained Hidden Markov Model (Baum-Welch transition matrix & emission probability weights) not currently persisted in BigQuery.",
+        "Historical 8-quarter pricing version sequence log in Deal_Pricing_Engine."
+      ]
+    },
+    {
+      "id": "Q-009",
+      "priority": "P1-Now",
+      "tier_code": "Tier 2",
+      "tier_name": "Tier 2 (30%): Semantic Layer (Dataplex KC DAX Formulas) + Pre-Computed Gold Views + Counterfactual Simulator",
+      "persona": "Enterprise Deal Desk Lead",
+      "domain_group": "6-Lever Win Probability Elasticity",
+      "question": "Decompose deal win probability across the 6 commercial levers (Price Competitiveness, Executive Sponsor Alignment, Technical Differentiation, Delivery Track Record, Contracting Speed, and Partner Co-Sell) and simulate a +10% improvement in Price Competitiveness.",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "Deal_Pricing_Engine",
+        "Delivery_Governance_Hub"
+      ],
+      "kpis": [
+        "Logit_Win_Prob = 1 / (1 + EXP(-(b0 + b1*Price_Score + b2*Sponsor_Alignment + b3*Delivery_SLA + b4*Stage_Velocity)))",
+        "Elasticity_dWin_dPrice = b1 * Win_Prob * (1 - Win_Prob)"
+      ],
+      "flags": [
+        "Missing ML / Econometric Model in DB",
+        "Counterfactual / What-If Simulator Required"
+      ],
+      "db_only_verdict": "PARTIAL - Requires Counterfactual Simulator",
+      "diagnosis": "Calculating marginal win-rate elasticity across 6 interacting levers requires logistic regression coefficients stored in the Gold View plus an interactive perturbation engine.",
+      "recommended_architecture": "Query baseline lever scores via MCP Toolbox `get_deal_win_lever_elasticity` and run the 6-Lever Logit Perturbation Simulator in the agent tier.",
+      "sample_sql": "SELECT o.opp_id, o.account_name,\n       ROUND(o.tcv_usd / 1e6, 2) AS tcv_m,\n       ROUND(o.win_prob * 100, 1) AS baseline_win_prob_pct,\n       ROUND(o.client_Temp_score * 100, 1) AS sponsor_alignment_score,\n       ROUND(p.price_competitiveness_score * 100, 1) AS price_competitiveness_score,\n       ROUND(MIN(0.96, o.win_prob + 0.085 * (1 - o.win_prob)) * 100, 1) AS simulated_win_prob_plus10_price_pct\nFROM opportunities o\nJOIN pricing_scenarios p ON o.opp_id = p.opp_id\nORDER BY o.tcv_usd DESC;",
+      "sample_tools_yaml": "  get_deal_win_lever_elasticity:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Fetch 6-lever deal win probability drivers and elasticity uplift.",
+      "confidence_pct": 58,
+      "missing_artifacts": [
+        "Fitted 6-lever logistic regression feature weights (b0..b6) across won/lost deals in CRM_Opportunity_Spine.",
+        "Competitor bid spread proxy variable in Deal_Pricing_Engine."
+      ]
+    },
+    {
+      "id": "Q-010",
+      "priority": "P2-Next",
+      "tier_code": "Tier 2",
+      "tier_name": "Tier 2 (30%): Semantic Layer (Dataplex KC DAX Formulas) + Pre-Computed Gold Views + Counterfactual Simulator",
+      "persona": "Corporate FP&A Stress-Test Director",
+      "domain_group": "Mega-Deal Loss & Concentration Stress Test",
+      "question": "Run a downside stress test: if our single largest $510M mega-deal (OPP-9020) is lost or slips by two quarters, what happens to North America bookings coverage and blended delivery utilization?",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "ERP_Financials_Ledger",
+        "Workforce_Skills_Graph"
+      ],
+      "kpis": [
+        "Stress_Coverage_Ratio = (Weighted_Pipeline_USD - MegaDeal_Weighted_USD) / Quarterly_Target_USD",
+        "Bench_Utilization_Shock_Bps = -1 * (MegaDeal_FTE_Demand / Regional_Billable_Headcount) * 10000"
+      ],
+      "flags": [
+        "Counterfactual / What-If Simulator Required"
+      ],
+      "db_only_verdict": "PARTIAL - Requires Counterfactual Simulator",
+      "diagnosis": "Requires counterfactual removal of specific mega-deal IDs and recomputation of regional target coverage and bench absorption.",
+      "recommended_architecture": "Execute stress-test simulation over `v_gold_opportunity_spine` comparing baseline vs. ex-OPP-9020 scenarios.",
+      "sample_sql": "SELECT\n  ROUND(SUM(tcv_usd * win_prob) / 1e6, 2) AS baseline_weighted_pipeline_m,\n  ROUND(SUM(CASE WHEN opp_id != 'OPP-9020' THEN tcv_usd * win_prob ELSE 0 END) / 1e6, 2) AS stressed_weighted_pipeline_m,\n  ROUND(SUM(CASE WHEN opp_id = 'OPP-9020' THEN tcv_usd * win_prob ELSE 0 END) / 1e6, 2) AS mega_deal_exposure_m\nFROM opportunities\nWHERE region = 'North America';",
+      "sample_tools_yaml": "  simulate_megadeal_slippage_shock:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Compute weighted pipeline shock if a specified mega-deal slips or is lost.",
+      "confidence_pct": 76,
+      "missing_artifacts": [
+        "Quarterly regional bookings target table in ERP_Financials_Ledger.",
+        "Role-level ramp schedule linking OPP-9020 to Workforce_Skills_Graph bench headcount."
+      ]
+    },
+    {
+      "id": "Q-011",
+      "priority": "P2-Next",
+      "tier_code": "Tier 2",
+      "tier_name": "Tier 2 (30%): Semantic Layer (Dataplex KC DAX Formulas) + Pre-Computed Gold Views + Counterfactual Simulator",
+      "persona": "Commercial Pricing Operations Lead",
+      "domain_group": "Unapproved Giveaway & Margin Leakage",
+      "question": "Quantify total commercial giveaway (rate card ceiling vs. negotiated bill rate excluding pass-through expenses) across deals where discount exceeds 15%.",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "Deal_Pricing_Engine",
+        "CRM_Opportunity_Spine"
+      ],
+      "kpis": [
+        "Rate_Card_Giveaway_USD = (standard_rate_usd - negotiated_rate_usd) / standard_rate_usd * net_service_rev_usd",
+        "Net_Margin_Erosion_Bps = (gross_yield_v1 - adjusted_yield_v4_sigma_capped) * 10000"
+      ],
+      "flags": [
+        "Incomplete Schema Mapping"
+      ],
+      "db_only_verdict": "PARTIAL - Requires Semantic DAX + Gold View",
+      "diagnosis": "Requires joining rate card baselines to final pricing scenarios while excluding hardware/cloud pass-through revenue.",
+      "recommended_architecture": "Expose via `v_gold_adjusted_yield_dax` in Dataplex Knowledge Catalog with strict semantic definition of Net Service Revenue.",
+      "sample_sql": "SELECT p.opp_id, o.account_name,\n       p.standard_rate_usd, p.negotiated_rate_usd,\n       ROUND(p.discount_giveaway_pct * 100, 1) AS giveaway_pct,\n       ROUND((p.net_service_rev_usd * p.discount_giveaway_pct) / 1e6, 2) AS giveaway_leakage_millions\nFROM pricing_scenarios p\nJOIN opportunities o ON p.opp_id = o.opp_id\nWHERE p.discount_giveaway_pct >= 0.15\nORDER BY giveaway_leakage_millions DESC;",
+      "sample_tools_yaml": "  get_commercial_giveaway_leakage:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Calculate dollar margin leakage from rate card giveaways > threshold.",
+      "confidence_pct": 79,
+      "missing_artifacts": [
+        "Master regional rate-card ceiling table DDL in Deal_Pricing_Engine mapped by labor grade and shore tier."
+      ]
+    },
+    {
+      "id": "Q-012",
+      "priority": "P2-Next",
+      "tier_code": "Tier 2",
+      "tier_name": "Tier 2 (30%): Semantic Layer (Dataplex KC DAX Formulas) + Pre-Computed Gold Views + Counterfactual Simulator",
+      "persona": "Global Delivery Commercial Controller",
+      "domain_group": "Sold Margin vs. Delivered EAC Variance",
+      "question": "Which accounts exhibit the largest negative gap between Sold Margin in Deal_Pricing_Engine and actual Delivered EAC Margin in Delivery_Governance_Hub?",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "Deal_Pricing_Engine",
+        "Delivery_Governance_Hub",
+        "ERP_Financials_Ledger"
+      ],
+      "kpis": [
+        "Sold_vs_Delivered_Variance_Bps = d.eac_margin_variance_pct * 10000",
+        "Unbilled_Overrun_Exposure_USD = ABS(d.eac_margin_variance_pct) * p.net_service_rev_usd"
+      ],
+      "flags": [
+        "Incomplete Schema Mapping"
+      ],
+      "db_only_verdict": "PARTIAL - Requires Semantic DAX + Gold View",
+      "diagnosis": "Pre-sales opportunity IDs and post-sales ERP project codes use disparate composite keys across systems; requires pre-joined entity resolution in `v_gold_account_360_health`.",
+      "recommended_architecture": "Query `v_gold_account_360_health` via MCP Toolbox `get_account_360_composite_health`.",
+      "sample_sql": "SELECT o.account_id, o.account_name, d.rag_status,\n       ROUND(p.adjusted_yield_v4_sigma_capped * 100, 1) AS sold_adj_yield_pct,\n       ROUND(d.eac_margin_variance_pct * 100, 1) AS eac_variance_pct,\n       d.sla_slippage_days,\n       ROUND(ABS(d.eac_margin_variance_pct) * p.net_service_rev_usd / 1e6, 2) AS margin_erosion_millions\nFROM opportunities o\nJOIN pricing_scenarios p ON o.opp_id = p.opp_id\nJOIN delivery_health d ON o.account_id = d.account_id\nWHERE d.eac_margin_variance_pct < 0\nORDER BY d.eac_margin_variance_pct ASC;",
+      "sample_tools_yaml": "  get_account_360_composite_health:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Join pre-sales pricing yield with post-sales delivery EAC margin variance.",
+      "confidence_pct": 72,
+      "missing_artifacts": [
+        "Cross-system entity resolution bridge table mapping pre-sales CRM opp_id to post-sales ERP_Financials_Ledger project WBS codes."
+      ]
+    },
+    {
+      "id": "Q-013",
+      "priority": "P3-Next",
+      "tier_code": "Tier 2",
+      "tier_name": "Tier 2 (30%): Semantic Layer (Dataplex KC DAX Formulas) + Pre-Computed Gold Views + Counterfactual Simulator",
+      "persona": "Talent & Pyramid Optimization VP",
+      "domain_group": "Pyramid Leverage & Rate Realization",
+      "question": "Simulate the margin impact of shifting 15% of onshore principal hours to nearshore AI-augmented delivery pods across all Stage 3 and Stage 4 opportunities.",
+      "topology": "Internal Structured (BQ)",
+      "sources": [
+        "Deal_Pricing_Engine",
+        "Workforce_Skills_Graph"
+      ],
+      "kpis": [
+        "Pyramid_Mix_Savings_USD = Net_Service_Rev_USD * 0.15 * (1 - Nearshore_Cost_Ratio)",
+        "Simulated_Yield_Post_Pyramid = Adjusted_Yield_v4 + 0.032"
+      ],
+      "flags": [
+        "Counterfactual / What-If Simulator Required"
+      ],
+      "db_only_verdict": "PARTIAL - Requires Counterfactual Simulator",
+      "diagnosis": "Requires dynamic cost-rate substitution in the pricing model rather than static table retrieval.",
+      "recommended_architecture": "Invoke the Tier-2 Python Counterfactual Simulator over `pricing_scenarios`.",
+      "sample_sql": "SELECT o.opp_id, o.account_name, o.stage_name,\n       ROUND(p.adjusted_yield_v4_sigma_capped * 100, 1) AS current_yield_pct,\n       ROUND((p.adjusted_yield_v4_sigma_capped + 0.032) * 100, 1) AS pyramid_shifted_yield_pct,\n       ROUND(p.net_service_rev_usd * 0.032 / 1e6, 2) AS incremental_margin_millions\nFROM opportunities o\nJOIN pricing_scenarios p ON o.opp_id = p.opp_id\nWHERE o.stage_name LIKE 'Stage 3%' OR o.stage_name LIKE 'Stage 4%'\nORDER BY incremental_margin_millions DESC;",
+      "sample_tools_yaml": "  simulate_pyramid_mix_shift:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Estimate margin expansion from nearshore pyramid mix optimization.",
+      "confidence_pct": 66,
+      "missing_artifacts": [
+        "Loaded hourly cost rate card by onshore/nearshore/offshore tier in Workforce_Skills_Graph.",
+        "Client MSA offshoring restriction flags in CLM_Contract_Vault."
+      ]
+    },
+    {
+      "id": "Q-014",
+      "priority": "P1-Now",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Strategic Account Executive",
+      "domain_group": "Client AI Self-Sufficiency & Insourcing Risk",
+      "question": "Which top accounts show high 'AI Self-Sufficiency / Insourcing Risk' based on external ML engineering hiring telemetry (`Tech_Stack_Telemetry_Feed`) combined with executive visit debrief notes (`Customer_Visit_Logs`), and how much active TCV is exposed?",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "Tech_Stack_Telemetry_Feed",
+        "Customer_Visit_Logs"
+      ],
+      "kpis": [
+        "AI_Insourcing_Exposure_USD = SUM(tcv_usd WHERE ai_self_sufficiency_index > 0.65)",
+        "Composite_Insourcing_Risk_Score = 0.6 * ai_self_sufficiency_index + 0.4 * Unstructured_Sentiment_Risk"
+      ],
+      "flags": [
+        "External 3P Market API Required",
+        "Hidden Unstructured Notes in Tabular Source"
+      ],
+      "db_only_verdict": "FAIL - Requires Unstructured RAG + 3P API",
+      "diagnosis": "Internal CRM tables have zero visibility into a client's external ML job postings (`Tech_Stack_Telemetry_Feed`) or qualitative CTO statements in `Customer_Visit_Logs`.",
+      "recommended_architecture": "Federated ADK Agent: (1) Query `CRM_Opportunity_Spine` via MCP Toolbox, (2) Fetch external hiring telemetry from `Tech_Stack_Telemetry_Feed`, (3) Run semantic search over `Customer_Visit_Logs`.",
+      "sample_sql": "SELECT o.opp_id, o.account_name, ROUND(o.tcv_usd / 1e6, 2) AS tcv_m,\n       m.ai_self_sufficiency_index, m.signal_summary,\n       u.extracted_risk_tag, u.note_snippet\nFROM opportunities o\nJOIN external_market_signals m ON o.account_id = m.account_id\nLEFT JOIN unstructured_deal_notes u ON o.opp_id = u.opp_id\nWHERE m.ai_self_sufficiency_index >= 0.60\nORDER BY m.ai_self_sufficiency_index DESC;",
+      "sample_tools_yaml": "  get_ai_insourcing_risk_signals:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Federate internal opportunity TCV with external tech-stack telemetry and visit notes.",
+      "confidence_pct": 48,
+      "missing_artifacts": [
+        "Live API schema and entity-matching D-U-N-S bridge for Tech_Stack_Telemetry_Feed.",
+        "Vector embedding index over unstructured executive debriefs in Customer_Visit_Logs."
+      ]
+    },
+    {
+      "id": "Q-015",
+      "priority": "P1-Now",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Commercial Legal & Pricing Counsel",
+      "domain_group": "Contractual COLA Caps & Toxic Clauses",
+      "question": "Cross-reference our active Stage 3-4 deals against executed MSAs in `CLM_Contract_Vault` to identify accounts where COLA inflation caps (<3%) or termination-for-convenience clauses threaten Adjusted Yield v4.",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "Deal_Pricing_Engine",
+        "CLM_Contract_Vault",
+        "CRM_Opportunity_Spine"
+      ],
+      "kpis": [
+        "Inflation_Unrecovered_Bps = MAX(0, Regional_Wage_Inflation_Pct - MSA_COLA_Cap_Pct) * 10000"
+      ],
+      "flags": [
+        "Hidden Unstructured Notes in Tabular Source"
+      ],
+      "db_only_verdict": "FAIL - Requires Unstructured RAG + 3P API",
+      "diagnosis": "COLA caps, MFN clauses, and termination-for-convenience penalties live inside unstructured PDF contract clauses in `CLM_Contract_Vault`, not in structured ERP columns.",
+      "recommended_architecture": "Hybrid Retrieval: MCP Toolbox fetches deal margins from `Deal_Pricing_Engine` while Vertex AI RAG extracts legal clauses from `CLM_Contract_Vault`.",
+      "sample_sql": "SELECT o.opp_id, o.account_name, o.stage_name,\n       ROUND(o.tcv_usd / 1e6, 2) AS tcv_m,\n       ROUND(p.adjusted_yield_v4_sigma_capped * 100, 1) AS adj_yield_pct,\n       u.extracted_risk_tag, u.note_snippet\nFROM opportunities o\nJOIN pricing_scenarios p ON o.opp_id = p.opp_id\nJOIN unstructured_deal_notes u ON o.opp_id = u.opp_id\nWHERE u.source_system = 'CLM_Contract_Vault';",
+      "sample_tools_yaml": "  search_clm_contract_clauses:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Retrieve extracted MSA/SOW risk clauses joined with deal pricing scenarios.",
+      "confidence_pct": 54,
+      "missing_artifacts": [
+        "Document AI / Vertex RAG chunking pipeline over executed PDF MSAs and SOW amendments in CLM_Contract_Vault.",
+        "Structured metadata extraction schema for COLA cap % and termination notice days."
+      ]
+    },
+    {
+      "id": "Q-016",
+      "priority": "P1-Now",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Competitive Intelligence & Pricing Lead",
+      "domain_group": "Competitor Rate Benchmarking (Compliance Guard)",
+      "question": "Synthesize competitor hourly rate cards and market-share tables from `Analyst_Benchmark_Feed_Unlicensed` to recommend unit-rate cuts on our top 5 deals.",
+      "topology": "External / Market Only",
+      "sources": [
+        "Analyst_Benchmark_Feed_Unlicensed",
+        "Deal_Pricing_Engine"
+      ],
+      "kpis": [
+        "Governance_Compliance_Check = MIN(genai_usage_rights) OVER (Selected_Sources)"
+      ],
+      "flags": [
+        "License Compliance Blocker (GenAI Rights: No)",
+        "External 3P Market API Required"
+      ],
+      "db_only_verdict": "BLOCKED - GenAI License Compliance Guard",
+      "diagnosis": "CRITICAL COMPLIANCE VIOLATION: `Analyst_Benchmark_Feed_Unlicensed` carries `genai_usage_rights = False` in Dataplex Knowledge Catalog. Passing its rows into an LLM prompt violates 3P syndication licensing.",
+      "recommended_architecture": "Pre-flight Dataplex Governance Guard (`check_source_genai_compliance`) intercepts the query, blocks LLM ingestion of `Analyst_Benchmark_Feed_Unlicensed`, and substitutes clean internal `Deal_Pricing_Engine` historical win/loss elasticity.",
+      "sample_sql": "SELECT source_id, source_name, category, genai_usage_rights, pii_classification, steward_team, notes\nFROM data_source_governance\nWHERE source_name = 'Analyst_Benchmark_Feed_Unlicensed';",
+      "sample_tools_yaml": "  check_source_genai_compliance:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Verify Dataplex GenAI usage rights before routing data to Vertex AI LLM prompts.",
+      "confidence_pct": 15,
+      "missing_artifacts": [
+        "LEGAL BLOCKER: Analyst_Benchmark_Feed_Unlicensed has GenAI_Usage_Rights = False (zero LLM ingestion permitted).",
+        "Requires clean-room aggregated benchmark substitution or commercial contract amendment with 3P vendor."
+      ]
+    },
+    {
+      "id": "Q-017",
+      "priority": "P1-Now",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Mega-Deal Negotiation Strategist",
+      "domain_group": "Game-Theoretic Schelling Focal Point Synthesis",
+      "question": "For our \u20ac128.5M Nordic Telecom deal (OPP-9016), combine our internal floor margin (`Deal_Pricing_Engine`), sovereign NOC differentiation notes (`Customer_Visit_Logs`), and external buyer intent (`Buyer_Intent_Signal_Stream`) to compute the Schelling negotiation focal point.",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "Deal_Pricing_Engine",
+        "Customer_Visit_Logs",
+        "Buyer_Intent_Signal_Stream"
+      ],
+      "kpis": [
+        "Schelling_Focal_Discount_Pct = (Client_Target_Discount + Provider_Walkaway_Floor) / 2 * Differentiation_Weight",
+        "Expected_Value_At_Focal_Point = TCV_Focal * P(Win | Focal_Discount) * Yield_Focal"
+      ],
+      "flags": [
+        "Missing ML / Econometric Model in DB",
+        "Hidden Unstructured Notes in Tabular Source",
+        "External 3P Market API Required"
+      ],
+      "db_only_verdict": "FAIL - Requires Unstructured RAG + 3P API",
+      "diagnosis": "Computing a bargaining focal point requires synthesizing structured floor margins, unstructured CIO sentiment from visit notes, and external buyer urgency scores.",
+      "recommended_architecture": "Federated Multi-Tool Agent orchestrates SQL pricing lookup + RAG visit note extraction + Game-Theoretic Nash/Schelling solver in Python.",
+      "sample_sql": "SELECT o.opp_id, o.account_name, o.tcv_usd,\n       p.standard_rate_usd, p.negotiated_rate_usd, p.adjusted_yield_v4_sigma_capped,\n       u.note_snippet AS cio_visit_intelligence,\n       m.intent_surge_score, m.signal_summary\nFROM opportunities o\nJOIN pricing_scenarios p ON o.opp_id = p.opp_id\nLEFT JOIN unstructured_deal_notes u ON o.opp_id = u.opp_id\nLEFT JOIN external_market_signals m ON o.account_id = m.account_id\nWHERE o.opp_id = 'OPP-9016';",
+      "sample_tools_yaml": "  get_schelling_negotiation_context:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Assemble pricing floor, CIO visit notes, and intent surge for negotiation modeling.",
+      "confidence_pct": 44,
+      "missing_artifacts": [
+        "Game-theoretic Nash/Schelling bargaining utility function parameters (client walk-away reservation price vs. switching cost).",
+        "Real-time feed integration for Buyer_Intent_Signal_Stream and Customer_Visit_Logs."
+      ]
+    },
+    {
+      "id": "Q-018",
+      "priority": "P2-Next",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Account Growth Director",
+      "domain_group": "White-Space ABM & Intent Surge Matching",
+      "question": "Which accounts have an external `Buyer_Intent_Signal_Stream` surge score above 85 or strong R&D capex expansion in `Market_Financials_API`, and how does that compare to our current pipeline stage and delivery health?",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "Buyer_Intent_Signal_Stream",
+        "Market_Financials_API",
+        "CRM_Opportunity_Spine",
+        "Delivery_Governance_Hub"
+      ],
+      "kpis": [
+        "Account_Expansion_Propensity = 0.5 * (intent_surge_score / 100) + 0.3 * client_rd_intensity_pct + 0.2 * csat_index"
+      ],
+      "flags": [
+        "External 3P Market API Required"
+      ],
+      "db_only_verdict": "FAIL - Requires Unstructured RAG + 3P API",
+      "diagnosis": "Requires joining external B2B intent streams and quarterly 10-Q R&D ratios with internal CRM and delivery CSAT scores.",
+      "recommended_architecture": "Federated Agent queries `external_market_signals` and joins with `v_gold_account_360_health`.",
+      "sample_sql": "SELECT o.account_name, o.stage_name, ROUND(o.tcv_usd / 1e6, 2) AS tcv_m,\n       d.rag_status, d.csat_score,\n       m.signal_source, m.intent_surge_score,\n       ROUND(m.client_rd_intensity_pct * 100, 1) AS rd_intensity_pct,\n       m.signal_summary\nFROM opportunities o\nJOIN delivery_health d ON o.account_id = d.account_id\nJOIN external_market_signals m ON o.account_id = m.account_id\nWHERE m.intent_surge_score >= 85\nORDER BY m.intent_surge_score DESC;",
+      "sample_tools_yaml": "  get_intent_surge_whitespace_accounts:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Match external buyer intent surge and 10-Q R&D signals with internal delivery health.",
+      "confidence_pct": 56,
+      "missing_artifacts": [
+        "3P topic taxonomy mapping between Buyer_Intent_Signal_Stream surge topics and internal service_line catalog.",
+        "SEC CIK / ticker to CRM account_id cross-walk for Market_Financials_API."
+      ]
+    },
+    {
+      "id": "Q-019",
+      "priority": "P2-Next",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Enterprise Risk & Portfolio Officer",
+      "domain_group": "SEC 8-K Restructuring & Pipeline Freeze Contagion",
+      "question": "Scan `SEC_Regulatory_Filings` for 8-K/10-Q restructuring charges or vendor spend freezes among our clients and quantify the immediate pipeline TCV and red-account delivery exposure.",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "SEC_Regulatory_Filings",
+        "CRM_Opportunity_Spine",
+        "Delivery_Governance_Hub"
+      ],
+      "kpis": [
+        "Macro_Contagion_TCV_USD = SUM(tcv_usd WHERE SEC_Filing_Sentiment = 'Spend_Freeze')"
+      ],
+      "flags": [
+        "External 3P Market API Required",
+        "Hidden Unstructured Notes in Tabular Source"
+      ],
+      "db_only_verdict": "FAIL - Requires Unstructured RAG + 3P API",
+      "diagnosis": "Client 8-K restructuring disclosures and activist investor demands occur in external SEC filings long before sales reps downgrade CRM win probabilities.",
+      "recommended_architecture": "Early-Warning Federated Agent joins `SEC_Regulatory_Filings` alerts with `CRM_Opportunity_Spine` and `Delivery_Governance_Hub`.",
+      "sample_sql": "SELECT o.opp_id, o.account_name, o.stage_name,\n       ROUND(o.tcv_usd / 1e6, 2) AS tcv_m,\n       o.win_prob AS crm_win_prob,\n       d.rag_status,\n       m.signal_summary AS sec_filing_alert\nFROM opportunities o\nJOIN delivery_health d ON o.account_id = d.account_id\nJOIN external_market_signals m ON o.account_id = m.account_id\nWHERE m.signal_source = 'SEC_Regulatory_Filings';",
+      "sample_tools_yaml": "  get_sec_filing_pipeline_exposure:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Cross-reference SEC 8-K/10-Q restructuring alerts with active pipeline TCV.",
+      "confidence_pct": 49,
+      "missing_artifacts": [
+        "Automated EDGAR 8-K/10-Q ingestion webhook and restructuring sentiment classifier for SEC_Regulatory_Filings.",
+        "Subsidiary-to-parent corporate hierarchy tree in CRM_Opportunity_Spine."
+      ]
+    },
+    {
+      "id": "Q-020",
+      "priority": "P2-Next",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Global Delivery Excellence Lead",
+      "domain_group": "Unstructured Delivery Logs & Change-Order Recovery",
+      "question": "Analyze unstructured delivery director commentary in `Delivery_Governance_Hub` alongside contract terms in `CLM_Contract_Vault` to diagnose why RED accounts are experiencing negative EAC margin variance.",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "Delivery_Governance_Hub",
+        "CLM_Contract_Vault",
+        "Deal_Pricing_Engine"
+      ],
+      "kpis": [
+        "Recoverable_Change_Order_USD = Unbilled_Backlog_USD * Clause_Enforceability_Score"
+      ],
+      "flags": [
+        "Hidden Unstructured Notes in Tabular Source"
+      ],
+      "db_only_verdict": "FAIL - Requires Unstructured RAG + 3P API",
+      "diagnosis": "The root cause of RED delivery status (e.g., cleared architect shortages, unbilled change orders, fixed-price conversion traps) is embedded in free-text commentary and SOW clauses.",
+      "recommended_architecture": "Combine SQL filter on `rag_status = 'RED'` with semantic synthesis over `delivery_commentary` and `CLM_Contract_Vault` notes.",
+      "sample_sql": "SELECT d.account_name, d.rag_status, d.milestone_delays,\n       ROUND(d.eac_margin_variance_pct * 100, 1) AS eac_var_pct,\n       d.sla_slippage_days, d.delivery_commentary,\n       u.extracted_risk_tag, u.note_snippet AS contract_clause_note\nFROM delivery_health d\nLEFT JOIN unstructured_deal_notes u ON d.account_id = u.account_id\nWHERE d.rag_status = 'RED';",
+      "sample_tools_yaml": "  diagnose_red_delivery_accounts:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Fetch RED delivery accounts with free-text director logs and contract risk clauses.",
+      "confidence_pct": 61,
+      "missing_artifacts": [
+        "Unstructured text indexing of weekly delivery director commentary blobs in Delivery_Governance_Hub.",
+        "Change-request (CR) status ledger in ERP_Financials_Ledger."
+      ]
+    },
+    {
+      "id": "Q-021",
+      "priority": "P3-Next",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Outcome-Based Pricing Architect",
+      "domain_group": "Value-Sharing & Gain-Share Structuring",
+      "question": "Identify accounts where high client R&D intensity (`Market_Financials_API`) and strong delivery CSAT (`Delivery_Governance_Hub`) support converting standard T&M rate cards into outcome-based gain-share contracts (`CLM_Contract_Vault`).",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "Market_Financials_API",
+        "Delivery_Governance_Hub",
+        "CLM_Contract_Vault",
+        "Deal_Pricing_Engine"
+      ],
+      "kpis": [
+        "Gain_Share_Upside_Yield = Adjusted_Yield_v4 + (Verified_KPI_Uplift * Bonus_Pool_Share)"
+      ],
+      "flags": [
+        "External 3P Market API Required",
+        "Hidden Unstructured Notes in Tabular Source"
+      ],
+      "db_only_verdict": "FAIL - Requires Unstructured RAG + 3P API",
+      "diagnosis": "Requires combining external client cash-flow/R&D posture with internal delivery reliability and precedent gain-share language in CLM.",
+      "recommended_architecture": "Federated Agent queries `Market_Financials_API` + `Delivery_Governance_Hub` + `CLM_Contract_Vault` exemplars.",
+      "sample_sql": "SELECT o.opp_id, o.account_name, o.service_line,\n       ROUND(o.tcv_usd / 1e6, 2) AS tcv_m,\n       ROUND(p.adjusted_yield_v4_sigma_capped * 100, 1) AS adj_yield_pct,\n       d.csat_score, d.delivery_commentary,\n       m.client_rd_intensity_pct, m.signal_summary\nFROM opportunities o\nJOIN pricing_scenarios p ON o.opp_id = p.opp_id\nJOIN delivery_health d ON o.account_id = d.account_id\nJOIN external_market_signals m ON o.account_id = m.account_id\nWHERE d.csat_score >= 0.90\nORDER BY m.client_rd_intensity_pct DESC;",
+      "sample_tools_yaml": "  find_outcome_based_pricing_candidates:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Identify high-CSAT, high-R&D accounts suited for gain-share commercial models.",
+      "confidence_pct": 51,
+      "missing_artifacts": [
+        "Historical outcome-based gain-share KPI realization ledger in ERP_Financials_Ledger.",
+        "Approved value-sharing addendum templates in CLM_Contract_Vault."
+      ]
+    },
+    {
+      "id": "Q-022",
+      "priority": "P4-Next",
+      "tier_code": "Tier 3",
+      "tier_name": "Tier 3 (49%): Federated Multi-Tool Agent (Structured SQL + Unstructured CLM/Visit RAG + External Market Intelligence APIs)",
+      "persona": "Corporate M&A & Ecosystem Strategy Lead",
+      "domain_group": "Unmapped Ecosystem Partner Influence",
+      "question": "Quantify how co-sell hyperscaler commit drawdown speed correlates with competitor displacement across unmapped regional partner registries.",
+      "topology": "Unmapped Spec",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "AI_Web_Synthesis_Engine"
+      ],
+      "kpis": [
+        "Partner_Commit_Burn_Multiplier = CoSell_Win_Rate / Solo_Win_Rate"
+      ],
+      "flags": [
+        "Incomplete Schema Mapping",
+        "External 3P Market API Required"
+      ],
+      "db_only_verdict": "FAIL - Requires Unstructured RAG + 3P API",
+      "diagnosis": "Hyperscaler private-offer drawdown telemetry is currently unmapped in the internal ODS schema; requires schema onboarding into Dataplex plus external web synthesis.",
+      "recommended_architecture": "Flag as P4 Schema Onboarding gap in Dataplex Knowledge Catalog; provide proxy pipeline correlation from `CRM_Opportunity_Spine`.",
+      "sample_sql": "SELECT service_line, COUNT(*) AS deals,\n       ROUND(AVG(win_prob) * 100, 1) AS avg_win_prob_pct,\n       ROUND(SUM(tcv_usd) / 1e6, 2) AS total_tcv_m\nFROM opportunities\nGROUP BY service_line;",
+      "sample_tools_yaml": "  get_partner_cosell_proxy_metrics:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Proxy service-line win rates while Partner Drawdown schema is onboarded.",
+      "confidence_pct": 24,
+      "missing_artifacts": [
+        "UNMAPPED SCHEMA: Hyperscaler co-sell private-offer drawdown registry is not yet ingested into Revenue_ODS_15TB.",
+        "Partner influence attribution model in CRM_Opportunity_Spine."
+      ]
+    },
+    {
+      "id": "Q-023",
+      "priority": "P3-Next",
+      "tier_code": "Tier 4",
+      "tier_name": "Tier 4 (3%): Multi-System Action & Executive Briefing Automation",
+      "persona": "Executive Client Sponsor (MD)",
+      "domain_group": "Automated Executive QBR Briefing Generation",
+      "question": "Generate an executive-ready Quarterly Business Review (QBR) briefing packet for Apex Global Banking Corp (ACC-101) combining pipeline TCV, Adjusted Yield v4, delivery SLA health, contract COLA risks, and external AI hiring signals.",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "Deal_Pricing_Engine",
+        "Delivery_Governance_Hub",
+        "CLM_Contract_Vault",
+        "Customer_Visit_Logs",
+        "Tech_Stack_Telemetry_Feed"
+      ],
+      "kpis": [
+        "Account_360_Composite_Health = 0.35*Yield_Index + 0.35*Delivery_CSAT + 0.30*(1 - AI_Insourcing_Risk)"
+      ],
+      "flags": [
+        "Hidden Unstructured Notes in Tabular Source",
+        "External 3P Market API Required"
+      ],
+      "db_only_verdict": "FAIL - Requires Multi-System Action Orchestration",
+      "diagnosis": "Requires multi-source synthesis across 6 structured, unstructured, and 3P systems followed by structured artifact formatting for executive consumption.",
+      "recommended_architecture": "Tier-4 Action Orchestrator: Invoke Account 360 Federated Toolset + synthesize executive briefing markdown/slides packet.",
+      "sample_sql": "SELECT o.opp_id, o.account_name, o.stage_name, o.tcv_usd,\n       p.adjusted_yield_v4_sigma_capped, p.discount_giveaway_pct,\n       d.rag_status, d.csat_score, d.delivery_commentary,\n       m.ai_self_sufficiency_index, m.signal_summary\nFROM opportunities o\nJOIN pricing_scenarios p ON o.opp_id = p.opp_id\nJOIN delivery_health d ON o.account_id = d.account_id\nLEFT JOIN external_market_signals m ON o.account_id = m.account_id\nWHERE o.account_id = 'ACC-101';",
+      "sample_tools_yaml": "  assemble_executive_qbr_dossier:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Aggregate full Account 360 telemetry for executive QBR generation.",
+      "confidence_pct": 46,
+      "missing_artifacts": [
+        "Cross-system Account 360 orchestration workflow binding 6 structured, RAG, and 3P telemetry sources.",
+        "Executive QBR slide template schema and automated write-back service account permissions."
+      ]
+    },
+    {
+      "id": "Q-024",
+      "priority": "P3-Next",
+      "tier_code": "Tier 4",
+      "tier_name": "Tier 4 (3%): Multi-System Action & Executive Briefing Automation",
+      "persona": "Global Deal Pursuit Director",
+      "domain_group": "Pre-Call SME Mobilization & Action Dispatch",
+      "question": "For all RED delivery accounts with active Stage 3 opportunities > $150M, match required architectural skills from `Workforce_Skills_Graph` and generate a pre-call intervention action plan.",
+      "topology": "Hybrid (BQ + External/Unstructured)",
+      "sources": [
+        "CRM_Opportunity_Spine",
+        "Delivery_Governance_Hub",
+        "Workforce_Skills_Graph",
+        "CLM_Contract_Vault"
+      ],
+      "kpis": [
+        "At_Risk_MegaDeal_TCV_USD = SUM(tcv_usd WHERE rag_status = 'RED' AND tcv_usd > 150000000)"
+      ],
+      "flags": [
+        "Hidden Unstructured Notes in Tabular Source"
+      ],
+      "db_only_verdict": "FAIL - Requires Multi-System Action Orchestration",
+      "diagnosis": "Combines structured deal/delivery filtering with unstructured bottleneck diagnosis and downstream mobilization workflow generation.",
+      "recommended_architecture": "Tier-4 Multi-System Agent: Query at-risk mega-deals, extract delivery/contract bottlenecks, and trigger SME mobilization workflow.",
+      "sample_sql": "SELECT o.opp_id, o.account_name, o.service_line,\n       ROUND(o.tcv_usd / 1e6, 2) AS tcv_millions,\n       d.rag_status, d.sla_slippage_days, d.delivery_commentary\nFROM opportunities o\nJOIN delivery_health d ON o.account_id = d.account_id\nWHERE d.rag_status = 'RED' AND o.tcv_usd >= 150000000\nORDER BY o.tcv_usd DESC;",
+      "sample_tools_yaml": "  mobilize_red_account_pursuit_squad:\n    kind: bigquery-sql\n    source: enterprise-commercial-bq\n    description: Identify >$150M opportunities on RED delivery accounts for SME intervention.",
+      "confidence_pct": 42,
+      "missing_artifacts": [
+        "Real-time skill availability and clearance verification API in Workforce_Skills_Graph.",
+        "Downstream calendar/dispatch webhook for automated pursuit squad mobilization."
+      ]
+    }
+  ]
+}

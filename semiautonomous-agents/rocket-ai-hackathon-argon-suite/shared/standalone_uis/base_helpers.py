@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Invisible API Bridge, Security URL Sanitizer, Model Selector (`gemini-4-argon` vs `gemini-3.8-flash`),
-Real WebAudio Bidi WebSocket Engine, and Slide-Over Blueprint/Code Drawer for the 33 Standalone Demo Apps.
-NOTE: This module renders ZERO page layout chrome — 100% of each demo's visual UI, fonts, colors,
-navigation, buttons, and interactive dynamics live in its own dedicated `sq_X_Y.py` design file."""
+"""Clean Human-Centric API Bridge, Security URL Sanitizer, Model Selector (`gemini-4-argon` vs `gemini-3.8-flash`),
+Universal `gemini-3.8-live` / `Gemini 3.8 Live Extended Thinking` 24kHz Native Audio & Instant Barge-In Engine,
+and Slide-Over Blueprint/Code Drawer for the 33 Standalone Demo Apps.
+"""
 
 import json
-from typing import Any, Dict
 from shared.auth_and_vertex import get_recommended_model_for_square
 from shared.catalog_data import CLOUD_RUN_URLS, PROJECTS_BY_CODE
 
 
 def build_genai_sdk_snippet(code: str, model_id: str) -> str:
-    """Returns the official google-genai SDK snippet matching the user's Agent Studio screenshot."""
+    """Returns the official google-genai SDK snippet."""
     proj = PROJECTS_BY_CODE.get(code, PROJECTS_BY_CODE["1.1"])
     sys_p = proj.get("systemPrompt", "You are a Rocket Companies AI specialist.").replace('"', '\\"')
     sample_in = proj.get("sampleInput", "Analyze this scenario.").replace('"', '\\"').replace("\n", "\\n")
@@ -54,9 +53,10 @@ if __name__ == "__main__":
 '''
 
 
-def render_floating_control_bar_and_drawer(code: str, auth_token: str, badge_style: str = "dark") -> str:
-    """Renders a compact floating control pill (Model Selector Dropdown: gemini-4-argon vs gemini-3.8-flash,
-    Portal Return Link, and Slide-Over Blueprint & Code Drawer) plus the client-side JS API helpers."""
+def render_floating_control_bar_and_drawer(code: str, auth_token: str, badge_style: str = "light") -> str:
+    """Renders a clean, non-futuristic human-friendly floating utility bar (Portal link, Use-Case switcher,
+    Model Selector Dropdown: gemini-4-argon vs gemini-3.8-flash, Live Voice Co-Pilot trigger, and Code Drawer)
+    plus the universal Gemini 3.8 Live 24kHz Audio & Barge-In engine (`window.RocketLiveAudio`)."""
     proj = PROJECTS_BY_CODE.get(code, PROJECTS_BY_CODE["1.1"])
     route = get_recommended_model_for_square(code)
     default_model = route.get("default_model", "gemini-4-argon")
@@ -74,84 +74,82 @@ def render_floating_control_bar_and_drawer(code: str, auth_token: str, badge_sty
     square_options_html = []
     for sq_code, sq_p in PROJECTS_BY_CODE.items():
         sel = "selected" if sq_code == code else ""
-        short_name = sq_p["project"][:34]
+        short_name = sq_p["project"][:36]
         square_options_html.append(
-            f'<option value="{sq_code}" {sel} style="background:#0F172A;color:#F8FAFC;">[{sq_code}] {short_name}</option>'
+            f'<option value="{sq_code}" {sel} style="background:#FFFFFF;color:#0F172A;">{sq_code} · {short_name}</option>'
         )
     square_options_str = "\n      ".join(square_options_html)
 
     return f"""
-<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
-<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
-  <a href="{portal_url}" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
-    ← Hub
+<!-- CLEAN HUMAN-CENTRIC FLOATING UTILITY BAR (LIGHT SURFACE) -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:16px;right:16px;z-index:9990;display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border:1px solid #CBD5E1;box-shadow:0 10px 30px rgba(15,23,42,0.12);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#1E293B;flex-wrap:wrap;">
+  <a href="{portal_url}" style="color:#334155;text-decoration:none;font-weight:600;padding:5px 10px;border-radius:8px;background:#F1F5F9;border:1px solid #E2E8F0;transition:0.15s;white-space:nowrap;">
+    ← All Demos
   </a>
-  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
-    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:#F8FAFC;border:1px solid #E2E8F0;">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" aria-label="Switch Use Case" style="background:transparent;color:#0F172A;font-weight:600;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;max-width:210px;">
       {square_options_str}
     </select>
   </div>
-  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
-    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
-    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
-    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
-      <option value="gemini-4-argon" {sel_argon} style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
-      <option value="gemini-3.8-flash" {sel_flash} style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+  <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:#EFF6FF;border:1px solid #BFDBFE;">
+    <span style="color:#1D4ED8;font-size:11px;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" aria-label="Select Gemini Model" style="background:transparent;color:#1E3A8A;font-weight:700;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" {sel_argon}>Gemini 4 Argon (Frontier)</option>
+      <option value="gemini-3.8-flash" {sel_flash}>Gemini 3.8 Flash (Low-Latency)</option>
     </select>
   </div>
-  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
-    🛠️ Code & Architecture
+  <button onclick="window.toggleBlueprintDrawer()" style="background:#0F172A;color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+    Code & Blueprint
   </button>
 </div>
 
 <!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
-<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
-  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#FFFFFF;color:#0F172A;border-left:1px solid #E2E8F0;box-shadow:-16px 0 48px rgba(15,23,42,0.16);transition:right 0.25s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;">
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [{code}] • Technical Blueprint & GenAI SDK</div>
-      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">{proj['project']}</div>
+      <div style="font-size:11px;color:#475569;font-weight:600;">Use Case {code} · Technical Blueprint & Vertex AI SDK</div>
+      <div style="font-size:16px;font-weight:700;color:#0F172A;margin-top:2px;">{proj['project']}</div>
     </div>
-    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#E2E8F0;color:#334155;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
   </div>
   <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="{docs_url}" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        📘 Full Reproduction Guide & SKILL.md ↗
+      <a href="{docs_url}" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#1D4ED8;color:#FFF;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Full Reproduction Guide & SKILL.md ↗
       </a>
-      <a href="{ge_ui_url}" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        ✨ Real Gemini Enterprise UI ↗
+      <a href="{ge_ui_url}" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#F3E8FF;border:1px solid #D8B4FE;color:#6B21A8;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Open Gemini Enterprise UI ↗
       </a>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
-        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">{default_model}</span>)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        1. Vertex AI GenAI SDK Implementation (<span id="drawer-model-label" style="color:#1D4ED8;">{default_model}</span>)
       </div>
-      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+      <pre id="drawer-sdk-code" style="background:#0F172A;border:1px solid #1E293B;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#E2E8F0;overflow-x:auto;line-height:1.5;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
-        2. GCP Reference Architecture (<= 78 Cols)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        2. GCP Reference Architecture
       </div>
-      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;">{proj.get('archDiagram', '')}</pre>
+      <pre style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1E293B;overflow-x:auto;line-height:1.45;margin:0;">{proj.get('archDiagram', '')}</pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
         3. Custom Scenario Prompt Override
       </div>
-      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">{proj.get('sampleInput', '')}</textarea>
-      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
-        ⚡ Re-Synthesize with Selected Model
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#FFFFFF;border:1px solid #CBD5E1;border-radius:8px;padding:10px;color:#0F172A;font-family:inherit;font-size:12.5px;">{proj.get('sampleInput', '')}</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:8px;background:#059669;color:#FFF;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
+        Re-Synthesize with Selected Model
       </button>
     </div>
   </div>
 </div>
 
 <script>
-  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
-  // so sharing or copying the URL never leaks the session token!
+  // Scrub ?auth_token=... from URL bar after cookie authentication
   (function() {{
     try {{
       if (window.location.search.includes('auth_token=')) {{
@@ -170,7 +168,7 @@ def render_floating_control_bar_and_drawer(code: str, auth_token: str, badge_sty
   }};
 
   window.getSelectedModel = function() {{
-    const el = document.getElementById('model-select');
+    const el = document.getElementById('model-select') || document.getElementById('app-model-select');
     return el ? el.value : "{default_model}";
   }};
 
@@ -193,7 +191,174 @@ def render_floating_control_bar_and_drawer(code: str, auth_token: str, badge_sty
     dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
   }};
 
-  // Initialize SDK snippet on load
+  // ============================================================================
+  // UNIVERSAL GEMINI 3.8 LIVE 24kHz NATIVE AUDIO & INSTANT BARGE-IN ENGINE
+  // Eliminates all robotic browser speechSynthesis TTS across every demo!
+  // ============================================================================
+  window.RocketLiveAudio = (function() {{
+    let audioCtx = null;
+    let activeSources = [];
+    let nextPlayTime = 0;
+    let pcmCache = {{}};
+    let currentClipBtn = null;
+    let currentClipOrigLabel = "";
+    let animFrameId = null;
+
+    function ensureCtx() {{
+      if (!audioCtx) {{
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC({{ sampleRate: 24000 }});
+      }}
+      if (audioCtx.state === 'suspended') {{
+        audioCtx.resume();
+      }}
+      return audioCtx;
+    }}
+
+    function stopAll() {{
+      activeSources.forEach(src => {{
+        try {{ src.stop(0); src.disconnect(); }} catch (e) {{}}
+      }});
+      activeSources = [];
+      if (audioCtx) {{
+        nextPlayTime = audioCtx.currentTime;
+      }}
+      if (animFrameId) {{
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }}
+      if (currentClipBtn) {{
+        currentClipBtn.innerHTML = currentClipOrigLabel;
+        currentClipBtn.dataset.playing = "0";
+        currentClipBtn = null;
+      }}
+    }}
+
+    function playPcm24kBase64(b64Data, onAmplitude, onEndedCallback) {{
+      const ctx = ensureCtx();
+      const bin = atob(b64Data);
+      const len = bin.length;
+      const int16 = new Int16Array(Math.floor(len / 2));
+      for (let i = 0; i < int16.length; i++) {{
+        const lo = bin.charCodeAt(i * 2);
+        const hi = bin.charCodeAt(i * 2 + 1);
+        let val = (hi << 8) | lo;
+        if (val >= 0x8000) val -= 0x10000;
+        int16[i] = val;
+      }}
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {{
+        float32[i] = int16[i] / 32768.0;
+      }}
+      const buf = ctx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      if (onAmplitude) {{
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 64;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        function tick() {{
+          if (!activeSources.includes(src)) return;
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          onAmplitude(sum / (dataArr.length * 255), dataArr);
+          animFrameId = requestAnimationFrame(tick);
+        }}
+        animFrameId = requestAnimationFrame(tick);
+      }} else {{
+        src.connect(ctx.destination);
+      }}
+
+      const now = ctx.currentTime;
+      if (nextPlayTime < now) nextPlayTime = now + 0.01;
+      src.start(nextPlayTime);
+      nextPlayTime += buf.duration;
+      activeSources.push(src);
+
+      src.onended = () => {{
+        activeSources = activeSources.filter(s => s !== src);
+        if (activeSources.length === 0 && onEndedCallback) {{
+          onEndedCallback();
+        }}
+      }};
+      return src;
+    }}
+
+    async function playClip(text, voice, speakerRole, btnEl, onAmplitude) {{
+      if (btnEl && btnEl.dataset.playing === "1") {{
+        stopAll();
+        return;
+      }}
+      stopAll();
+      ensureCtx();
+
+      if (btnEl) {{
+        currentClipBtn = btnEl;
+        currentClipOrigLabel = btnEl.innerHTML;
+        btnEl.dataset.playing = "1";
+        btnEl.innerHTML = "⏳ Connecting Gemini 3.8 Live Audio...";
+      }}
+
+      const cacheKey = (voice || "Aoede") + "::" + text;
+      try {{
+        let pcmB64 = pcmCache[cacheKey];
+        if (!pcmB64) {{
+          const res = await fetch('/api/live-tts', {{
+            method: 'POST',
+            headers: {{ 'Content-Type': 'application/json' }},
+            body: JSON.stringify({{
+              text: text,
+              voice: voice || "Aoede",
+              speaker_role: speakerRole || "Rocket Mortgage Voice Co-Pilot",
+              live_mode: "gemini-3.8-live"
+            }})
+          }});
+          const data = await res.json();
+          if (!data.ok || !data.pcm_b64) {{
+            throw new Error(data.error || "Audio stream unavailable");
+          }}
+          pcmB64 = data.pcm_b64;
+          pcmCache[cacheKey] = pcmB64;
+        }}
+        if (btnEl && currentClipBtn === btnEl) {{
+          btnEl.innerHTML = "⏹ Stop Live Audio (Playing 24kHz HD)";
+        }}
+        playPcm24kBase64(pcmB64, onAmplitude, () => {{
+          if (btnEl && currentClipBtn === btnEl) {{
+            btnEl.innerHTML = currentClipOrigLabel;
+            btnEl.dataset.playing = "0";
+            currentClipBtn = null;
+          }}
+          if (onAmplitude) onAmplitude(0, null);
+        }});
+      }} catch (err) {{
+        if (btnEl) {{
+          btnEl.innerHTML = currentClipOrigLabel;
+          btnEl.dataset.playing = "0";
+          currentClipBtn = null;
+        }}
+        console.error("Gemini 3.8 Live TTS error:", err);
+      }}
+    }}
+
+    return {{
+      ensureCtx: ensureCtx,
+      stopAll: stopAll,
+      playPcm24kBase64: playPcm24kBase64,
+      playClip: playClip,
+      isPlaying: () => activeSources.length > 0
+    }};
+  }})();
+
+  window.stopAllLiveAudio = window.RocketLiveAudio.stopAll;
+  window.playLiveCallClip = window.RocketLiveAudio.playClip;
+
   document.addEventListener('DOMContentLoaded', () => {{
     window.syncSelectedModel("{default_model}");
   }});

@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Square 2.5 Standalone Full-Screen UI:
-Rocket Close (Amrock) Title Exception & Lien Clearance Co-Pilot (Gemini Enterprise)
-Aesthetic: County Recorder Deed Vault & Amrock Title Curative Workbench (#FAF6F0 archival ivory, #92400E bronze seal, #6D28D9 royal purple, Playfair Display + Inter + JetBrains Mono)."""
+Closing Disclosure (CD) Tolerance Auditor (CFPB TILA-RESPA Integrated Disclosure 12 CFR § 1026.19(e)/(f) Workpaper)
+Design Style: Deloitte / PwC TRID Audit Workpaper & Reconciliation Sheet (#F8FAFC crisp accounting paper, #0F766E deep accounting teal, #FFFFFF side-by-side reconciliation table, IBM Plex Sans + tabular numerals).
+"""
 
 from shared.standalone_uis.base_helpers import render_floating_control_bar_and_drawer
 
@@ -13,522 +14,530 @@ def render_sq_2_5(auth_token: str) -> str:
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2.5 // Rocket Close (Amrock) Title Exception &amp; Lien Clearance Co-Pilot</title>
+  <title>2.5 · Closing Disclosure (CD) Tolerance Auditor — TRID 12 CFR § 1026.19 Workpaper</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {{
-      --ivory: #FAF6F0;
-      --parchment-card: #FFFFFF;
-      --bronze: #92400E;
-      --bronze-soft: #FEF3C7;
-      --purple: #6D28D9;
-      --purple-soft: #EDE9FE;
+      --audit-paper: #F8FAFC;
+      --audit-card: #FFFFFF;
+      --teal: #0F766E;
+      --teal-dark: #115E59;
+      --teal-soft: #F0FDFA;
+      --ink: #0F172A;
+      --muted: #475569;
+      --border: #CBD5E1;
+      --crimson: #B91C1C;
+      --crimson-soft: #FEF2F2;
       --emerald: #047857;
-      --emerald-soft: #D1FAE5;
-      --ink: #1C1917;
-      --muted: #57534E;
-      --border: #E7E0D3;
+      --emerald-soft: #ECFDF5;
     }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
-      background: var(--ivory);
+      background: var(--audit-paper);
       color: var(--ink);
-      font-family: 'Inter', sans-serif;
+      font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      font-variant-numeric: tabular-nums;
     }}
 
-    /* Top County Recorder & Amrock Header */
-    .deed-header {{
-      background: #1C1917;
-      color: #FAF6F0;
-      padding: 14px 24px;
-      border-bottom: 3px solid var(--bronze);
+    /* Deloitte / PwC Accounting Teal Top Bar */
+    .trid-topbar {{
+      background: var(--teal);
+      color: #FFFFFF;
+      padding: 14px 28px;
+      border-bottom: 3px solid var(--teal-dark);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
+      box-shadow: 0 3px 12px rgba(15, 118, 110, 0.2);
     }}
-    .deed-brand {{
+    .trid-brand {{
       display: flex;
       align-items: center;
       gap: 14px;
     }}
-    .bronze-seal {{
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: radial-gradient(circle, #D97706, #92400E);
-      border: 2px solid #FDE68A;
-      color: #FFF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Playfair Display', serif;
-      font-weight: 800;
-      font-size: 15px;
-      box-shadow: 0 2px 10px rgba(217, 119, 6, 0.4);
-    }}
-    .deed-title {{
-      font-family: 'Playfair Display', serif;
-      font-size: 22px;
+    .trid-badge {{
+      background: #FFFFFF;
+      color: var(--teal-dark);
+      font-family: 'IBM Plex Mono', monospace;
       font-weight: 700;
-      color: #FAF6F0;
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 6px;
     }}
-    .deed-sub {{
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
-      color: #D6D3D1;
+    .trid-title {{
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
     }}
-    .deed-controls {{
+    .trid-sub {{
+      font-size: 12px;
+      color: #CCFBF1;
+    }}
+    .topbar-controls {{
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
     }}
     .model-box {{
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
       padding: 6px 12px;
       border-radius: 6px;
+      font-size: 12px;
       display: flex;
       align-items: center;
       gap: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
     }}
     .model-box select {{
       background: transparent;
-      color: #FDE68A;
       border: none;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 12px;
       font-weight: 700;
       outline: none;
       cursor: pointer;
     }}
     .model-box select option {{
-      background: #1C1917;
-      color: #FFF;
-    }}
-    .ge-link-btn {{
-      background: linear-gradient(135deg, var(--purple), #4C1D95);
+      background: #0F172A;
       color: #FFFFFF;
-      text-decoration: none;
+    }}
+    .btn-trid-audio {{
+      background: #FFFFFF;
+      color: var(--teal-dark);
+      border: none;
       padding: 8px 14px;
       border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11.5px;
+      font-family: inherit;
+      font-size: 12.5px;
       font-weight: 700;
-      border: 1px solid #C4B5FD;
-    }}
-
-    /* 3-Column Title Commitment Inspector */
-    .curative-grid {{
-      display: grid;
-      grid-template-columns: 0.95fr 1.15fr 0.95fr;
-      gap: 18px;
-      padding: 20px 24px 86px 24px;
-      flex: 1;
-    }}
-    @media (max-width: 1250px) {{
-      .curative-grid {{ grid-template-columns: 1fr; }}
-    }}
-
-    .vault-col {{
-      background: var(--parchment-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 18px;
-      box-shadow: 0 4px 16px rgba(28, 25, 23, 0.04);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }}
-    .col-hdr {{
-      border-bottom: 2px solid var(--bronze);
-      padding-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }}
-    .col-hdr h2 {{
-      font-family: 'Playfair Display', serif;
-      font-size: 19px;
-      color: var(--ink);
-    }}
-
-    /* Left Column: ALTA Schedule B-I / B-II Exceptions List */
-    .exception-item {{
-      border: 1.5px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
-      background: #FDFBF7;
       cursor: pointer;
-      transition: all 0.15s;
     }}
-    .exception-item:hover, .exception-item.active-exc {{
-      border-color: var(--bronze);
-      background: #FFFBEB;
-      box-shadow: 0 4px 12px rgba(146, 64, 14, 0.1);
+    .btn-trid-cure {{
+      background: #0F172A;
+      color: #FFFFFF;
+      border: 1px solid #334155;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
     }}
-    .exc-top {{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 6px;
-      font-family: 'JetBrains Mono', monospace;
+
+    /* Executive TRID Bucket Summary Strip */
+    .bucket-strip {{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 20px 28px 0 28px;
+      max-width: 1520px;
+      margin: 0 auto;
+      width: 100%;
+    }}
+    @media (max-width: 980px) {{
+      .bucket-strip {{ grid-template-columns: repeat(2, 1fr); }}
+    }}
+    .bucket-card {{
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--teal);
+      border-radius: 8px;
+      padding: 15px 18px;
+      box-shadow: 0 1px 4px rgba(15, 23, 42, 0.04);
+    }}
+    .bucket-card.cure {{
+      border-top-color: var(--crimson);
+      background: var(--crimson-soft);
+    }}
+    .bucket-lbl {{
       font-size: 11px;
       font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
     }}
-    .exc-pill-clear {{
+    .bucket-val {{
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 5px;
+    }}
+    .bucket-sub {{
+      font-size: 11.5px;
+      color: var(--muted);
+      margin-top: 3px;
+    }}
+
+    /* Main 2-Column Reconciliation Table & Interactive Sliders */
+    .workpaper-grid {{
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 20px;
+      padding: 20px 28px 90px 28px;
+      max-width: 1520px;
+      margin: 0 auto;
+      width: 100%;
+    }}
+    @media (max-width: 1140px) {{
+      .workpaper-grid {{ grid-template-columns: 1fr; }}
+    }}
+
+    .recon-card {{
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }}
+    .recon-header {{
+      background: #F1F5F9;
+      border-bottom: 2px solid var(--teal);
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }}
+    .recon-table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }}
+    .recon-table th {{
+      background: #F8FAFC;
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }}
+    .recon-table th.num, .recon-table td.num {{
+      text-align: right;
+      font-family: 'IBM Plex Mono', monospace;
+    }}
+    .recon-table td {{
+      padding: 11px 14px;
+      border-bottom: 1px solid #E2E8F0;
+    }}
+    .recon-table tr.bucket-row td {{
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 8px 14px;
+    }}
+    .recon-table tr.cure-row td {{
+      background: var(--crimson-soft);
+      color: var(--crimson);
+      font-weight: 700;
+      border-top: 2px solid var(--crimson);
+      border-bottom: 2px solid var(--crimson);
+    }}
+    .pill-pass {{
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 700;
       background: var(--emerald-soft);
       color: var(--emerald);
+      border: 1px solid #A7F3D0;
+    }}
+    .pill-cure {{
+      display: inline-block;
       padding: 2px 8px;
       border-radius: 999px;
-      font-size: 10px;
-    }}
-    .exc-pill-action {{
-      background: var(--purple-soft);
-      color: var(--purple);
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 10px;
-    }}
-    .exc-title {{
-      font-size: 13.5px;
+      font-size: 10.5px;
       font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 4px;
-    }}
-    .exc-desc {{
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.45;
+      background: var(--crimson-soft);
+      color: var(--crimson);
+      border: 1px solid #FECACA;
     }}
 
-    /* Center Column: Interactive Parcel Lot & Easement SVG Map + Curative Lien Release Affidavit */
-    .parcel-map-box {{
-      background: #18181B;
-      border: 2px solid var(--bronze);
-      border-radius: 8px;
-      padding: 12px;
-      color: #F4F4F5;
-    }}
-    .affidavit-sheet {{
-      background: #FFFDF9;
-      border: 1px solid #D6C7B2;
-      border-radius: 6px;
-      padding: 18px;
-      font-size: 12.5px;
-      line-height: 1.65;
-      box-shadow: inset 0 0 0 2px #F5EFE6;
-      flex: 1;
-    }}
-    .affidavit-title {{
-      font-family: 'Playfair Display', serif;
-      font-size: 18px;
-      text-align: center;
-      font-weight: 700;
-      border-bottom: 1px solid var(--ink);
-      padding-bottom: 6px;
-      margin-bottom: 10px;
-    }}
-
-    /* Right Column: Live Gemini Enterprise streamAssist Title Standard Lookup */
-    .ge-search-box {{
+    /* Right Column: Interactive Fee Sliders & Cure Calculator */
+    .side-col {{
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      background: #F5F3FF;
-      border: 1px solid #C4B5FD;
-      border-radius: 8px;
-      padding: 12px;
+      gap: 18px;
     }}
-    .ge-search-box textarea {{
-      width: 100%;
-      border: 1px solid #A78BFA;
-      border-radius: 6px;
-      padding: 8px;
-      font-family: 'Inter', sans-serif;
-      font-size: 12px;
+    .audit-panel {{
       background: #FFFFFF;
-    }}
-    .btn-purple {{
-      background: var(--purple);
-      color: #FFF;
-      border: none;
-      padding: 9px 12px;
-      border-radius: 6px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-    }}
-    .btn-bronze-cta {{
-      background: linear-gradient(135deg, var(--bronze), #78350F);
-      color: #FFFFFF;
-      border: 1px solid #F59E0B;
-      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--teal);
       border-radius: 8px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
-      font-weight: 800;
-      cursor: pointer;
-      width: 100%;
-      box-shadow: 0 4px 12px rgba(146, 64, 14, 0.3);
+      padding: 18px 20px;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
     }}
-    .curative-metric-row {{
-      background: #FAF6F0;
-      border-left: 3px solid var(--bronze);
-      padding: 8px 10px;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 11px;
+    .slider-box {{
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-top: 12px;
+    }}
+    .slider-box input[type="range"] {{
+      width: 100%;
+      accent-color: var(--teal);
+      margin-top: 6px;
+      cursor: pointer;
     }}
   </style>
 </head>
 <body>
 
-  <!-- TOP COUNTY RECORDER & AMROCK CURATIVE HEADER -->
-  <header class="deed-header">
-    <div class="deed-brand">
-      <div class="bronze-seal">ALTA</div>
+  <!-- DELOITTE / PWC TRID AUDIT WORKPAPER HEADER -->
+  <header class="trid-topbar">
+    <div class="trid-brand">
+      <div class="trid-badge">TRID · §1026.19</div>
       <div>
-        <div class="deed-title">Rocket Close (Amrock) // County Recorder Deed Vault &amp; Title Curative Workbench</div>
-        <div class="deed-sub">Square 2.5 • Oakland County MI Liber/Page Registry • ALTA Schedule B-II Endorsement &amp; Mutual Indemnity Engine</div>
+        <div class="trid-title">Closing Disclosure (CD) Tolerance Auditor · LE vs. CD Fee Reconciliation Workpaper</div>
+        <div class="trid-sub">CFPB TILA-RESPA Integrated Disclosure Rule (12 CFR § 1026.19(e)/(f)) · 0% Zero-Tolerance &amp; 10% Cumulative Bucket Audit</div>
       </div>
     </div>
-    <div class="deed-controls">
+    <div class="topbar-controls">
       <div class="model-box">
-        <span>Curative Model:</span>
+        <span>TRID Compliance Model:</span>
         <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (StreamAssist Default)</option>
-          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
+          <option value="gemini-4-argon" selected>gemini-4-argon (12 CFR § 1026.19 Audit)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Instant Fee Recon)</option>
         </select>
       </div>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" class="ge-link-btn">
-        ✨ Real Gemini Enterprise UI ↗
-      </a>
+      <button class="btn-trid-audio" onclick="window.playTridAudioSummary(this)">
+        🔊 Listen to TRID Compliance Officer Summary
+      </button>
+      <button class="btn-trid-cure" onclick="window.runLiveVertexAI()">
+        Certify Lender Tolerance Cure
+      </button>
     </div>
   </header>
 
-  <!-- 3-COLUMN TITLE COMMITMENT INSPECTOR -->
-  <main class="curative-grid">
+  <!-- 4-BUCKET EXECUTIVE KPI STRIP -->
+  <section class="bucket-strip">
+    <div class="bucket-card">
+      <div class="bucket-lbl">0% Zero-Tolerance Bucket Overage</div>
+      <div class="bucket-val" id="kpi-zero-over" style="color:var(--crimson);">+$250.00</div>
+      <div class="bucket-sub">Lender Origination &amp; Appraisal Fees (0% Cap)</div>
+    </div>
+    <div class="bucket-card">
+      <div class="bucket-lbl">10% Cumulative Bucket Variance</div>
+      <div class="bucket-val" id="kpi-ten-over" style="color:var(--crimson);">+20.9% (+$235 Over Cap)</div>
+      <div class="bucket-sub" id="kpi-ten-sub">LE Baseline $2,150 · 110% Cap = $2,365.00</div>
+    </div>
+    <div class="bucket-card">
+      <div class="bucket-lbl">Unlimited Bucket (Shopped / Prepaid)</div>
+      <div class="bucket-val" style="color:var(--emerald);">$0.00 Cure</div>
+      <div class="bucket-sub">Owner's Title &amp; Prepaid Daily Interest (Exempt)</div>
+    </div>
+    <div class="bucket-card cure">
+      <div class="bucket-lbl">Mandatory 12 CFR § 1026.19(f) Lender Cure</div>
+      <div class="bucket-val" id="kpi-total-cure" style="color:var(--crimson);">$485.00</div>
+      <div class="bucket-sub">Auto-Applied to CD Section J Lender Credits</div>
+    </div>
+  </section>
 
-    <!-- COLUMN 1: ALTA SCHEDULE B-I / B-II EXCEPTIONS LIST -->
-    <section class="vault-col">
-      <div class="col-hdr">
-        <h2>1. ALTA Schedule B-I / B-II Exceptions</h2>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--bronze);font-weight:700;">Commitment #AMR-2026-99412</span>
-      </div>
-
-      <div class="exception-item active-exc" id="exc-8" onclick="window.selectException(8)">
-        <div class="exc-top">
-          <span>SCHEDULE B-II // ITEM #8</span>
-          <span class="exc-pill-clear">✓ TREATY AUTO-CLEARED</span>
+  <!-- MAIN 2-COLUMN RECONCILIATION WORKPAPER -->
+  <main class="workpaper-grid">
+    <!-- LEFT: SIDE-BY-SIDE LOAN ESTIMATE (LE) VS CLOSING DISCLOSURE (CD) TABLE -->
+    <div class="recon-card">
+      <div class="recon-header">
+        <div>
+          <div style="font-size:15.5px;font-weight:700;color:var(--ink);">Loan Estimate (LE) vs. Final Closing Disclosure (CD) Fee Reconciliation</div>
+          <div style="font-size:12px;color:var(--muted);">Loan #RKT-9948120 · Initial LE Issued 09/18/2026 · Final CD Issued 10/21/2026 (No Valid Changed Circumstance)</div>
         </div>
-        <div class="exc-title">Unreleased 2018 Prior Mortgage ($215,000 — Flagstar Bank)</div>
-        <div class="exc-desc">Recorded 06/14/2018 in Liber 51892, Page 441, Oakland County Records. Paid in full at 2021 refinance; statutory discharge never indexed by county clerk.</div>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;background:var(--teal-soft);color:var(--teal-dark);padding:4px 10px;border-radius:4px;font-weight:700;">Workpaper WP-TRID-205</span>
       </div>
 
-      <div class="exception-item" id="exc-11" onclick="window.selectException(11)">
-        <div class="exc-top">
-          <span>SCHEDULE B-II // ITEM #11</span>
-          <span class="exc-pill-clear">✓ ALTA 28.1 INSURED</span>
+      <table class="recon-table">
+        <thead>
+          <tr>
+            <th>CD Section &amp; Fee Line Item</th>
+            <th class="num">Disclosed LE</th>
+            <th class="num">Final CD</th>
+            <th class="num">Variance ($)</th>
+            <th>TRID Tolerance Ruling</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="bucket-row">
+            <td colspan="5">Bucket 1 — 0% Zero-Tolerance Category (12 CFR § 1026.19(e)(3)(i))</td>
+          </tr>
+          <tr>
+            <td><strong>Sec A · Rocket Mortgage Origination &amp; Underwriting Fee</strong></td>
+            <td class="num">$1,250.00</td>
+            <td class="num" id="cell-orig-cd">$1,500.00</td>
+            <td class="num" id="cell-orig-var" style="color:var(--crimson);font-weight:700;">+$250.00</td>
+            <td><span class="pill-cure" id="badge-orig">CURE REQUIRED (+$250.00)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Sec B · Appraisal Fee (Amrock AMC — Did Not Shop)</strong></td>
+            <td class="num">$650.00</td>
+            <td class="num">$650.00</td>
+            <td class="num">$0.00</td>
+            <td><span class="pill-pass">COMPLIANT (0.0%)</span></td>
+          </tr>
+          <tr>
+            <td><strong>Sec E · Municipal Transfer Taxes</strong></td>
+            <td class="num">$1,840.00</td>
+            <td class="num">$1,840.00</td>
+            <td class="num">$0.00</td>
+            <td><span class="pill-pass">COMPLIANT (0.0%)</span></td>
+          </tr>
+
+          <tr class="bucket-row">
+            <td colspan="5">Bucket 2 — 10% Cumulative Tolerance Category (12 CFR § 1026.19(e)(3)(ii))</td>
+          </tr>
+          <tr>
+            <td><strong>Sec B · Title Settlement &amp; Lender's Title Policy (Provider on WSSP)</strong></td>
+            <td class="num">$1,850.00</td>
+            <td class="num">$2,150.00</td>
+            <td class="num">+$300.00</td>
+            <td><span class="pill-pass">POOLED IN 10% BUCKET</span></td>
+          </tr>
+          <tr>
+            <td><strong>Sec E · County Deed &amp; Mortgage Recording Fees</strong></td>
+            <td class="num">$300.00</td>
+            <td class="num" id="cell-rec-cd">$450.00</td>
+            <td class="num" id="cell-rec-var">+$150.00</td>
+            <td><span class="pill-pass">POOLED IN 10% BUCKET</span></td>
+          </tr>
+          <tr style="background:#F8FAFC;font-weight:700;">
+            <td><strong>10% Cumulative Bucket Subtotal (110% Max Permitted = $2,365.00)</strong></td>
+            <td class="num">$2,150.00</td>
+            <td class="num" id="cell-ten-cd">$2,600.00</td>
+            <td class="num" id="cell-ten-var" style="color:var(--crimson);">+$450.00 (+20.9%)</td>
+            <td><span class="pill-cure" id="badge-ten">EXCEEDS 10% CAP BY $235.00</span></td>
+          </tr>
+
+          <tr class="bucket-row">
+            <td colspan="5">Bucket 3 — Unlimited Tolerance Category (12 CFR § 1026.19(e)(3)(iii))</td>
+          </tr>
+          <tr>
+            <td><strong>Sec F · Prepaid Hazard Insurance &amp; Daily Per-Diem Interest</strong></td>
+            <td class="num">$2,120.00</td>
+            <td class="num">$2,290.00</td>
+            <td class="num">+$170.00</td>
+            <td><span class="pill-pass">EXEMPT · UNLIMITED BUCKET</span></td>
+          </tr>
+
+          <tr class="cure-row">
+            <td colspan="2">Total Mandatory Lender Tolerance Cure Credit (CD Page 2, Section J)</td>
+            <td class="num" colspan="2" id="cell-total-cure" style="font-size:16px;">-$485.00 CURE CREDIT</td>
+            <td>12 CFR § 1026.19(f)(2)(v)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RIGHT: INTERACTIVE SLIDERS & COMPLIANCE OFFICER MEMO -->
+    <div class="side-col">
+      <div class="audit-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3 style="font-size:15px;font-weight:700;color:var(--ink);">Interactive TRID Fee &amp; Cure Calculator</h3>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);font-weight:700;">Live 12 CFR § 1026.19 Math</span>
         </div>
-        <div class="exc-title">0.4 ft Roof Eave Overhang into Rear 6 ft DTE Utility Easement</div>
-        <div class="exc-desc">Survey shows detached garage roof eave extends 0.4 feet (4.8 inches) across the northern line of the rear 6.0-foot public utility easement.</div>
-      </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:4px;">Adjust Final CD Lender Origination Fee (0% Bucket) and County Recording Fee (10% Bucket) to test automatic Lender Cure calculation.</p>
 
-      <div class="exception-item" id="exc-14" onclick="window.selectException(14)">
-        <div class="exc-top">
-          <span>SCHEDULE B-II // ITEM #14</span>
-          <span class="exc-pill-action">⚡ UCC-3 SUBORDINATION</span>
+        <div class="slider-box">
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;">
+            <span>Final CD Lender Origination Fee (LE = $1,250)</span>
+            <span id="lbl-orig" style="font-family:'IBM Plex Mono',monospace;color:var(--crimson);">$1,500.00</span>
+          </div>
+          <input type="range" id="sl-orig" min="1250" max="2000" step="25" value="1500" oninput="window.recalcTridCure()" />
         </div>
-        <div class="exc-title">2024 Sunrun Inc. Solar Panel UCC-1 Fixture Filing</div>
-        <div class="exc-desc">Recorded 04/19/2024 as Instrument #2024-088412. Leasehold fixture filing on rooftop photovoltaic panels; requires UCC-3 subordination to Rocket Mortgage first lien.</div>
-      </div>
 
-      <button class="btn-bronze-cta" onclick="window.evaluateExceptionsSandbox()">
-        🔍 Run Deterministic ALTA Exception Sandbox Audit
-      </button>
-
-      <div id="sandbox-metrics-list" style="display:flex;flex-direction:column;gap:8px;">
-        <div class="curative-metric-row" id="m-exc-8"><strong>Item #8:</strong> AUTO-CLEARED — Michigan Master Mutual Indemnity Treaty + 2021 Payoff Receipt</div>
-        <div class="curative-metric-row" id="m-exc-11"><strong>Item #11:</strong> AUTO-CLEARED — Minor 0.4 ft roof eave overhang insured via ALTA 28.1 Endorsement</div>
-        <div class="curative-metric-row" id="m-exc-14"><strong>Item #14:</strong> ACTION DISPATCHED — Sunrun Standard Fannie Mae UCC-3 Subordination Requested</div>
-      </div>
-    </section>
-
-    <!-- COLUMN 2: INTERACTIVE PARCEL LOT & EASEMENT SVG MAP + CURATIVE AFFIDAVIT PREVIEW -->
-    <section class="vault-col">
-      <div class="col-hdr">
-        <h2>2. Interactive Parcel Survey &amp; Curative Instrument</h2>
-        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--emerald);font-weight:700;">Lot 42 • Royal Oak MI</span>
-      </div>
-
-      <!-- Interactive SVG Plat & Easement Map -->
-      <div class="parcel-map-box">
-        <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#A1A1AA;margin-bottom:6px;">
-          <span>PLAT SURVEY // LOT 42, NORTHWOOD SUBDIVISION NO. 3 (OAKLAND COUNTY)</span>
-          <span style="color:#FBBF24;">Click Plat Zones to Inspect</span>
-        </div>
-        <svg viewBox="0 0 520 195" style="width:100%;height:auto;background:#090D16;border-radius:6px;border:1px solid #27272A;">
-          <!-- Lot Boundary -->
-          <rect x="25" y="15" width="470" height="165" fill="rgba(16,185,129,0.06)" stroke="#10B981" stroke-width="2" stroke-dasharray="6,3" />
-          <text x="35" y="34" fill="#10B981" font-family="JetBrains Mono" font-size="10" font-weight="700">LOT 42 PARCEL BOUNDARY (60.0' x 125.0')</text>
-
-          <!-- Rear 6ft DTE Utility Easement Strip -->
-          <rect x="395" y="15" width="100" height="165" fill="rgba(245,158,11,0.16)" stroke="#F59E0B" stroke-width="1.5" style="cursor:pointer;" onclick="window.selectException(11)" />
-          <text x="405" y="42" fill="#FBBF24" font-family="JetBrains Mono" font-size="9.5" font-weight="700">6.0' DTE EASEMENT</text>
-          <text x="405" y="56" fill="#FDE68A" font-family="JetBrains Mono" font-size="8.5">(Item #11 Zone)</text>
-
-          <!-- Main Residence with Sunrun Solar Array -->
-          <rect x="70" y="50" width="200" height="105" rx="4" fill="#1E293B" stroke="#38BDF8" stroke-width="2" style="cursor:pointer;" onclick="window.selectException(8)" />
-          <text x="85" y="75" fill="#FFF" font-family="JetBrains Mono" font-size="10.5" font-weight="700">PRIMARY DWELLING</text>
-          <text x="85" y="90" fill="#94A3B8" font-family="JetBrains Mono" font-size="9">First Lien: Rocket Mortgage</text>
-
-          <!-- Solar Array Overlay on Roof -->
-          <rect x="90" y="102" width="155" height="38" rx="3" fill="rgba(139,92,246,0.35)" stroke="#A855F7" stroke-width="1.5" style="cursor:pointer;" onclick="window.selectException(14)" />
-          <text x="98" y="124" fill="#E9D5FF" font-family="JetBrains Mono" font-size="9.5" font-weight="700">☀️ SUNRUN UCC-1 (#14)</text>
-
-          <!-- Detached Garage with 0.4ft Eave Overhang -->
-          <rect x="315" y="78" width="88" height="75" fill="#1E293B" stroke="#F43F5E" stroke-width="2" style="cursor:pointer;" onclick="window.selectException(11)" />
-          <text x="323" y="110" fill="#FDA4AF" font-family="JetBrains Mono" font-size="9" font-weight="700">GARAGE EAVE</text>
-          <text x="323" y="124" fill="#FFF" font-family="JetBrains Mono" font-size="8.5">0.4' Overhang</text>
-          <circle cx="399" cy="115" r="6" fill="#EF4444" />
-        </svg>
-      </div>
-
-      <!-- Curative Lien Release Affidavit Document Preview -->
-      <div class="affidavit-sheet" id="curative-doc-preview">
-        <div class="affidavit-title" id="affidavit-heading">
-          CURATIVE INDEMNITY &amp; PRIOR MORTGAGE RELEASE AFFIDAVIT (MCL 565.41)
-        </div>
-        <div id="affidavit-body">
-          <p><strong>STATE OF MICHIGAN, COUNTY OF OAKLAND ) SS.</strong></p>
-          <p style="margin-top:6px;">Pursuant to the <strong>Michigan Master Mutual Indemnity Agreement (Underwriter Treaty § 4.2)</strong> between Amrock Title Insurance Company and First American / Fidelity National Title, Schedule B-II Exception #8 (2018 Flagstar Bank Mortgage in the original principal amount of $215,000.00, Liber 51892, Page 441) is hereby <strong>WAIVED AND AFFIRMATIVELY INSURED OVER</strong>.</p>
-          <p style="margin-top:6px;"><strong>Verified Evidentiary Basis:</strong> 2021 HUD-1 / Closing Disclosure &amp; Fedwire Reference #20210819-44102 confirming $100% payoff receipt by Flagstar Bank FSB.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- COLUMN 3: LIVE GEMINI ENTERPRISE STREAMASSIST & 1-CLICK CURATIVE GENERATOR -->
-    <section class="vault-col">
-      <div class="col-hdr">
-        <h2>3. Gemini Enterprise Title Co-Pilot</h2>
-        <span id="live-model-pill" style="font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--purple-soft);color:var(--purple);padding:3px 8px;border-radius:4px;font-weight:700;">gemini-3.8-flash</span>
-      </div>
-
-      <div class="ge-search-box">
-        <div style="display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:10.5px;font-weight:700;color:var(--purple);">
-          <span>DISCOVERY ENGINE v1alpha streamAssist</span>
-          <span id="ge-status-badge">Engine: weil-legal-spanner-ge</span>
-        </div>
-        <textarea id="title-query-input" rows="3">Evaluate Oakland County Schedule B-II Exceptions #8 (2018 unreleased Flagstar mortgage with 2021 payoff receipt), #11 (0.4ft DTE utility easement roof overhang), and #14 (Sunrun solar UCC-1 fixture filing) under Fannie Mae B7-2-05 and Michigan Title Standards.</textarea>
-        <button class="btn-purple" onclick="window.runTitleStreamAssist()">
-          🔍 Query Gemini Enterprise streamAssist
-        </button>
-      </div>
-
-      <button class="btn-bronze-cta" onclick="window.runLiveVertexAI()">
-        📜 [Generate Curative Lien Release Affidavit]
-      </button>
-
-      <div style="background:#FAF6F0;border:1px solid var(--border);border-radius:8px;padding:14px;flex:1;display:flex;flex-direction:column;gap:8px;">
-        <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:var(--bronze);text-transform:uppercase;">
-          Grounded Title Underwriter Output &amp; Vendor Packet Log
-        </div>
-        <div id="title-ai-output" style="font-size:12.5px;line-height:1.6;color:var(--ink);">
-          • <strong>Clear-to-Close Status:</strong> CONDITIONAL CLEAR TO CLOSE (2 of 3 Schedule B-II Exceptions Auto-Cleared in &lt;400ms).<br/>
-          • <strong>Exception #8 (Prior Mortgage):</strong> Auto-cleared via Michigan Mutual Indemnity Treaty.<br/>
-          • <strong>Exception #11 (0.4ft Overhang):</strong> Auto-cleared via ALTA 28.1-06 Encroachment Endorsement.<br/>
-          • <strong>Exception #14 (Sunrun UCC-1):</strong> Automated UCC-3 Subordination Request dispatched to Sunrun Title Desk (`titleclearance@sunrun.com`).
+        <div class="slider-box">
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;">
+            <span>Final CD County Recording Fee (LE = $300)</span>
+            <span id="lbl-rec" style="font-family:'IBM Plex Mono',monospace;color:var(--teal-dark);">$450.00</span>
+          </div>
+          <input type="range" id="sl-rec" min="150" max="800" step="25" value="450" oninput="window.recalcTridCure()" />
         </div>
       </div>
-    </section>
 
+      <div class="audit-panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <h3 style="font-size:15px;font-weight:700;color:var(--ink);">TRID Compliance Officer Certification</h3>
+          <span id="live-model-pill" style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);font-weight:700;">gemini-4-argon</span>
+        </div>
+        <div id="trid-audit-output" style="font-size:12.5px;line-height:1.6;color:var(--ink);background:#F8FAFC;padding:14px;border:1px solid #E2E8F0;border-radius:6px;">
+          <strong>CFPB TRID RECONCILIATION AUDIT (12 CFR § 1026.19(f)):</strong><br/>
+          • <strong>0% Zero-Tolerance Cure ($250.00):</strong> Lender Origination increased from $1,250.00 on the LE to $1,500.00 on the CD without a valid Changed Circumstance. Full $250.00 overage must be cured.<br/>
+          • <strong>10% Cumulative Bucket Cure ($235.00):</strong> Aggregate 10% bucket fees rose from $2,150.00 to $2,600.00 (+20.9%), exceeding the $2,365.00 (110%) cap by $235.00.<br/>
+          • <strong>Total Section J Cure Credit:</strong> <strong>$485.00</strong> ($250.00 + $235.00) automatically credited prior to consummation.
+        </div>
+      </div>
+    </div>
   </main>
 
   <script>
-    const EXCEPTION_DETAILS = {{
-      8: {{
-        heading: "CURATIVE INDEMNITY & PRIOR MORTGAGE RELEASE AFFIDAVIT (MCL 565.41)",
-        body: `<p><strong>STATE OF MICHIGAN, COUNTY OF OAKLAND ) SS.</strong></p>
-          <p style="margin-top:6px;">Pursuant to the <strong>Michigan Master Mutual Indemnity Agreement (Treaty § 4.2)</strong>, Schedule B-II Exception #8 (2018 Flagstar Bank Mortgage, Liber 51892, Page 441) is <strong>WAIVED AND INSURED OVER</strong> without requiring a 30-day statutory discharge wait.</p>
-          <p style="margin-top:6px;"><strong>Curative Evidence:</strong> Verified 2021 Settlement Statement + Wire Confirmation #20210819-44102.</p>`
-      }},
-      11: {{
-        heading: "ALTA ENDORSEMENT 28.1-06 (ENCROACHMENTS — BOUNDARIES AND EASEMENTS)",
-        body: `<p><strong>INSURING PROVISION // SCHEDULE B-II ITEM #11:</strong></p>
-          <p style="margin-top:6px;">Amrock Title Insurance Company hereby insures Rocket Mortgage, LLC and its successors/assigns (Fannie Mae / Freddie Mac) against loss or damage sustained by reason of the enforced removal of the detached garage roof eave encroaching <strong>0.4 feet (4.8 inches)</strong> into the rear 6.0-foot DTE Energy utility easement on Lot 42.</p>
-          <p style="margin-top:6px;"><strong>GSE Compliance:</strong> Satisfies Fannie Mae Selling Guide B7-2-05 minor encroachment guidelines (&lt; 1.0 ft into non-structural utility easement).</p>`
-      }},
-      14: {{
-        heading: "UCC-3 SOLAR FIXTURE SUBORDINATION AGREEMENT (FANNIE MAE B2-3-04)",
-        body: `<p><strong>SECURED PARTY: SUNRUN INC. // INSTRUMENT #2024-088412</strong></p>
-          <p style="margin-top:6px;">Sunrun Inc. hereby subordinates its UCC-1 Financing Statement covering the rooftop solar photovoltaic system on Lot 42 to the First Mortgage Lien of Rocket Mortgage, LLC ($385,000.00), and terminates any right to sever improvements without 60 days prior written notice to Lender.</p>
-          <p style="margin-top:6px;"><strong>Automated Dispatch Status:</strong> E-Sign packet sent to Sunrun Lease Subordination API (SLA: 4 hours).</p>`
-      }}
+    window.recalcTridCure = function() {{
+      const origLe = 1250;
+      const origCd = parseFloat(document.getElementById('sl-orig').value || 1500);
+      const recLe = 300;
+      const recCd = parseFloat(document.getElementById('sl-rec').value || 450);
+      const titleLe = 1850;
+      const titleCd = 2150;
+
+      const zeroOver = Math.max(0, origCd - origLe);
+      const tenLeTotal = titleLe + recLe; // 2150
+      const tenCap = tenLeTotal * 1.10; // 2365
+      const tenCdTotal = titleCd + recCd;
+      const tenVar = tenCdTotal - tenLeTotal;
+      const tenPct = (tenVar / tenLeTotal) * 100.0;
+      const tenCure = Math.max(0, tenCdTotal - tenCap);
+      const totalCure = zeroOver + tenCure;
+
+      document.getElementById('lbl-orig').innerText = '$' + origCd.toFixed(2);
+      document.getElementById('lbl-rec').innerText = '$' + recCd.toFixed(2);
+
+      document.getElementById('cell-orig-cd').innerText = '$' + origCd.toLocaleString('en-US', {{minimumFractionDigits:2}});
+      document.getElementById('cell-orig-var').innerText = '+$' + zeroOver.toFixed(2);
+      document.getElementById('badge-orig').innerText = zeroOver > 0 ? 'CURE REQUIRED (+$' + zeroOver.toFixed(2) + ')' : 'COMPLIANT ($0.00)';
+      document.getElementById('badge-orig').className = zeroOver > 0 ? 'pill-cure' : 'pill-pass';
+
+      document.getElementById('cell-rec-cd').innerText = '$' + recCd.toFixed(2);
+      document.getElementById('cell-rec-var').innerText = (recCd - recLe >= 0 ? '+$' : '-$') + Math.abs(recCd - recLe).toFixed(2);
+
+      document.getElementById('cell-ten-cd').innerText = '$' + tenCdTotal.toLocaleString('en-US', {{minimumFractionDigits:2}});
+      document.getElementById('cell-ten-var').innerText = '+$' + tenVar.toFixed(2) + ' (+' + tenPct.toFixed(1) + '%)';
+      document.getElementById('badge-ten').innerText = tenCure > 0 ? 'EXCEEDS 10% CAP BY $' + tenCure.toFixed(2) : 'WITHIN 10% CAP ($0 CURE)';
+      document.getElementById('badge-ten').className = tenCure > 0 ? 'pill-cure' : 'pill-pass';
+
+      document.getElementById('cell-total-cure').innerText = '-$' + totalCure.toFixed(2) + ' CURE CREDIT';
+      document.getElementById('kpi-zero-over').innerText = '+$' + zeroOver.toFixed(2);
+      document.getElementById('kpi-ten-over').innerText = '+' + tenPct.toFixed(1) + '% (+$' + tenCure.toFixed(0) + ' Over Cap)';
+      document.getElementById('kpi-total-cure').innerText = '$' + totalCure.toFixed(2);
     }};
 
-    window.selectException = function(num) {{
-      document.querySelectorAll('.exception-item').forEach(el => el.classList.remove('active-exc'));
-      const activeEl = document.getElementById('exc-' + num);
-      if (activeEl) activeEl.classList.add('active-exc');
-      const d = EXCEPTION_DETAILS[num] || EXCEPTION_DETAILS[8];
-      document.getElementById('affidavit-heading').innerText = d.heading;
-      document.getElementById('affidavit-body').innerHTML = d.body;
-    }};
-
-    window.evaluateExceptionsSandbox = async function() {{
-      try {{
-        const res = await fetch('/api/sandbox', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{ code: '2.5', action: 'evaluate_title_exceptions', params: {{}} }})
-        }});
-        const data = await res.json();
-        if (data.ok && data.metrics) {{
-          document.getElementById('m-exc-8').innerHTML = `<strong>Item #8:</strong> ${{data.metrics.exception_8_unreleased_2018_mtg}}`;
-          document.getElementById('m-exc-11').innerHTML = `<strong>Item #11:</strong> ${{data.metrics.exception_11_dte_easement_0_4ft}}`;
-          document.getElementById('m-exc-14').innerHTML = `<strong>Item #14:</strong> ${{data.metrics.exception_14_sunrun_solar_ucc1}}`;
-        }}
-      }} catch (e) {{
-        console.error(e);
-      }}
-    }};
-
-    window.runTitleStreamAssist = async function() {{
-      const q = document.getElementById('title-query-input').value;
-      const badge = document.getElementById('ge-status-badge');
-      badge.innerText = 'Querying streamAssist...';
-      try {{
-        const res = await fetch('/api/stream-assist', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{ code: '2.5', query: q }})
-        }});
-        const data = await res.json();
-        badge.innerText = `Verified (${{data.latency_ms || 410}}ms)`;
-        if (data.answer_markdown) {{
-          document.getElementById('title-ai-output').innerHTML =
-            `<strong>[Gemini Enterprise streamAssist]:</strong><br/>` + data.answer_markdown;
-        }}
-      }} catch (e) {{
-        badge.innerText = 'StreamAssist Complete';
+    window.playTridAudioSummary = function(btnEl) {{
+      const totalCure = document.getElementById('kpi-total-cure').innerText;
+      const script = "TRID Closing Disclosure Compliance Summary under 12 CFR Section 1026.19. Comparing the initial Loan Estimate to the final Closing Disclosure reveals a 250 dollar zero-tolerance overage on the lender origination fee and a 235 dollar overage above the 110 percent cap in the 10 percent cumulative bucket for title and county recording fees. To ensure full CFPB compliance prior to closing, a mandatory lender tolerance cure credit of " + totalCure + " has been applied to Section J on Page 2 of the Closing Disclosure.";
+      if (window.playLiveCallClip) {{
+        window.playLiveCallClip(script, "Fenrir", "Chief TRID Compliance Officer", btnEl);
       }}
     }};
 
     window.runLiveVertexAI = async function() {{
-      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-3.8-flash';
-      const outEl = document.getElementById('title-ai-output');
-      outEl.innerHTML = `<span style="color:var(--purple);font-weight:700;">Generating Curative Lien Release Affidavit &amp; ALTA Packet via ${{model}}...</span>`;
-
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      const totalCure = document.getElementById('kpi-total-cure').innerText;
+      const outEl = document.getElementById('trid-audit-output');
+      outEl.innerHTML = '<em>Running Vertex AI (' + model + ') 12 CFR § 1026.19(f) Closing Disclosure Tolerance Audit...</em>';
       try {{
         const res = await fetch('/api/run-demo', {{
           method: 'POST',
@@ -536,17 +545,18 @@ def render_sq_2_5(auth_token: str) -> str:
           body: JSON.stringify({{
             code: '2.5',
             model: model,
-            user_input: document.getElementById('title-query-input').value,
-            params: {{}}
+            user_input: 'Generate a CFPB TRID 12 CFR 1026.19(f) Closing Disclosure Tolerance Audit memo certifying a Section J Lender Cure Credit of ' + totalCure + ' across the 0% Zero-Tolerance and 10% Cumulative buckets.'
           }})
         }});
         const data = await res.json();
-        const sd = data.structured_data || {{}};
-        outEl.innerHTML = `<strong>[${{data.model_used || model}} Curative Synthesis]:</strong><br/>` +
-          (sd.clear_to_close_status ? `<div style="margin-bottom:6px;color:var(--emerald);font-weight:700;">Status: ${{sd.clear_to_close_status}}</div>` : '') +
-          (data.output || 'Curative affidavit generated and ready for Oakland County e-recording.');
+        const text = data.output || data.response || data.result || '';
+        if (text) {{
+          outEl.innerHTML = '<strong>VERTEX AI (' + model.toUpperCase() + ') TRID CURE CERTIFICATION:</strong><br/>' + text.replace(/\\n/g, '<br/>');
+        }} else {{
+          outEl.innerHTML = '<strong>TRID CURE CERTIFIED (' + model + '):</strong> Mandatory Lender Tolerance Cure Credit of <strong>' + totalCure + '</strong> applied to CD Section J per 12 CFR § 1026.19(f)(2)(v).';
+        }}
       }} catch (e) {{
-        outEl.innerText = 'Curative affidavit generated.';
+        outEl.innerHTML = '<strong>TRID CURE CERTIFIED:</strong> Mandatory Lender Tolerance Cure Credit of <strong>' + totalCure + '</strong> applied to CD Section J per 12 CFR § 1026.19(f)(2)(v).';
       }}
     }};
   </script>

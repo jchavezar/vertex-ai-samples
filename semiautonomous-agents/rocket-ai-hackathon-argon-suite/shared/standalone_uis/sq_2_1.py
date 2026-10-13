@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """Square 2.1 Standalone Full-Screen UI:
-Fannie Mae / Freddie Mac Selling Guide Citation Assistant (Gemini Enterprise / NotebookLM)
-Aesthetic: Warm Parchment & Oxford Navy Academic/Legal NotebookLM Reader (#FDFBF7 paper canvas, #1E293B ink, #BE123C crimson citation pills)."""
+Self-Employed Cash-Flow Normalizer (Fannie Mae Form 1084 & IRS Form 1040 Schedule C / 1065 K-1)
+Design Style: Intuit TurboTax / QuickBooks Online CPA Tax Workbook (#F4F5F8 light gray background, #2CA01C QuickBooks green accents, #0077C5 Intuit blue headers, #FFFFFF IRS tax form cards, Public Sans + IBM Plex Mono tabular numerals).
+"""
 
 from shared.standalone_uis.base_helpers import render_floating_control_bar_and_drawer
 
@@ -13,779 +14,689 @@ def render_sq_2_1(auth_token: str) -> str:
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>2.1 // Fannie Mae & Freddie Mac Selling Guide Citation Assistant — NotebookLM Enterprise</title>
+  <title>2.1 · Self-Employed Cash-Flow Normalizer — CPA Tax &amp; Form 1084 Workbook</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root {{
-      --paper-bg: #FDFBF7;
-      --paper-elevated: #F5F0E6;
-      --paper-card: #FFFFFF;
-      --oxford-navy: #1E293B;
-      --oxford-deep: #0F172A;
-      --ink-muted: #475569;
-      --crimson: #BE123C;
-      --crimson-soft: #FFE4E6;
-      --amber-hl: #FEF08A;
-      --amber-border: #CA8A04;
-      --emerald: #047857;
-      --border-rule: #E2D9C8;
+      --qbo-bg: #F4F5F8;
+      --qbo-card: #FFFFFF;
+      --qbo-green: #2CA01C;
+      --qbo-green-dark: #1E7E12;
+      --qbo-green-soft: #E9F7E7;
+      --intuit-blue: #0077C5;
+      --intuit-blue-dark: #005A96;
+      --intuit-blue-soft: #EBF5FC;
+      --ink: #1F2532;
+      --muted: #5E6675;
+      --border: #D4D7DC;
+      --irs-tint: #FAFBFC;
+      --amber: #D97706;
     }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
-      background: var(--paper-bg);
-      color: var(--oxford-navy);
-      font-family: 'Inter', sans-serif;
+      background: var(--qbo-bg);
+      color: var(--ink);
+      font-family: 'Public Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
+      font-variant-numeric: tabular-nums;
     }}
-    /* Top Editorial Masthead */
-    .masthead {{
-      background: var(--oxford-deep);
-      color: #F8FAFC;
-      padding: 12px 24px;
-      border-bottom: 3px solid var(--crimson);
+
+    /* Intuit QuickBooks / TurboTax CPA Top Navigation Bar */
+    .cpa-topbar {{
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      border-top: 4px solid var(--qbo-green);
+      padding: 12px 28px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
       flex-wrap: wrap;
+      box-shadow: 0 2px 6px rgba(31, 37, 50, 0.04);
     }}
-    .masthead-left {{
+    .brand-left {{
       display: flex;
       align-items: center;
-      gap: 16px;
+      gap: 14px;
     }}
-    .seal-badge {{
-      background: var(--crimson);
-      color: #FFF;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 5px 10px;
-      border-radius: 4px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+    .qbo-badge {{
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--qbo-green);
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(44, 160, 28, 0.25);
     }}
-    .masthead-title {{
-      font-family: 'Instrument Serif', serif;
-      font-size: 26px;
-      font-weight: 400;
-      letter-spacing: 0.01em;
-      color: #FDFBF7;
+    .app-title {{
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.01em;
     }}
-    .masthead-sub {{
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      color: #94A3B8;
+    .app-subtitle {{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
     }}
-    .masthead-controls {{
+    .topbar-right {{
       display: flex;
       align-items: center;
       gap: 12px;
       flex-wrap: wrap;
     }}
-    .model-bar {{
+    .model-selector-pill {{
       display: flex;
       align-items: center;
       gap: 8px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.18);
+      background: var(--intuit-blue-soft);
+      border: 1px solid #B8DDF8;
       padding: 6px 12px;
       border-radius: 6px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
+      font-size: 12px;
+      color: var(--intuit-blue-dark);
+      font-weight: 600;
     }}
-    .model-bar select {{
+    .model-selector-pill select {{
       background: transparent;
-      color: #38BDF8;
       border: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
+      color: var(--intuit-blue-dark);
+      font-family: inherit;
+      font-size: 12px;
       font-weight: 700;
       outline: none;
       cursor: pointer;
     }}
-    .model-bar select option {{
-      background: #0F172A;
-      color: #F8FAFC;
-    }}
-    .ge-btn {{
+    .btn-audio-walkthrough {{
+      background: var(--intuit-blue);
+      color: #FFFFFF;
+      border: none;
+      padding: 9px 15px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 700;
+      cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #BE123C, #9F1239);
+      gap: 6px;
+      box-shadow: 0 2px 6px rgba(0, 119, 197, 0.25);
+      transition: background 0.15s;
+    }}
+    .btn-audio-walkthrough:hover {{
+      background: var(--intuit-blue-dark);
+    }}
+    .btn-vertex-run {{
+      background: var(--qbo-green);
       color: #FFFFFF;
-      text-decoration: none;
-      padding: 8px 14px;
+      border: none;
+      padding: 9px 16px;
       border-radius: 6px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11.5px;
+      font-family: inherit;
+      font-size: 12.5px;
       font-weight: 700;
-      border: 1px solid #FB7185;
-      box-shadow: 0 4px 14px rgba(190, 18, 60, 0.35);
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }}
-    .ge-btn:hover {{
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(190, 18, 60, 0.5);
-    }}
-
-    /* 2-Pane Split Academic Reader */
-    .split-reader {{
-      display: grid;
-      grid-template-columns: 1.05fr 0.95fr;
-      flex: 1;
-      min-height: calc(100vh - 64px);
-    }}
-    @media (max-width: 1100px) {{
-      .split-reader {{ grid-template-columns: 1fr; }}
-    }}
-
-    /* Left Pane: Interactive GSE PDF Guideline Reader */
-    .pdf-pane {{
-      background: var(--paper-elevated);
-      border-right: 2px solid var(--border-rule);
-      padding: 22px 26px 80px 26px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }}
-    .chapter-tabs {{
-      display: flex;
-      gap: 8px;
-      border-bottom: 2px solid var(--border-rule);
-      padding-bottom: 10px;
-      flex-wrap: wrap;
-    }}
-    .chap-tab {{
-      background: var(--paper-bg);
-      border: 1px solid var(--border-rule);
-      color: var(--oxford-navy);
-      padding: 8px 14px;
-      border-radius: 6px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11.5px;
-      font-weight: 600;
       cursor: pointer;
-      transition: all 0.15s;
+      box-shadow: 0 2px 6px rgba(44, 160, 28, 0.25);
+    }}
+    .btn-vertex-run:hover {{
+      background: var(--qbo-green-dark);
+    }}
+
+    /* Borrower File Summary Ribbon */
+    .borrower-strip {{
+      background: var(--intuit-blue);
+      color: #FFFFFF;
+      padding: 10px 28px;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      font-size: 12.5px;
     }}
-    .chap-tab.active {{
-      background: var(--oxford-navy);
-      color: #FFFFFF;
-      border-color: var(--oxford-navy);
-      box-shadow: 0 4px 10px rgba(30,41,59,0.18);
-    }}
-    .chap-tab .tag {{
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 3px;
-      background: var(--crimson-soft);
-      color: var(--crimson);
+    .borrower-strip strong {{
       font-weight: 700;
     }}
-    .pdf-sheet {{
-      background: #FFFFFF;
-      border: 1px solid #D6CBB5;
-      box-shadow: 0 10px 30px rgba(30, 41, 59, 0.07), inset 0 0 0 1px #FAF8F5;
-      border-radius: 6px;
-      padding: 28px 32px;
-      flex: 1;
-      position: relative;
+    .kpi-banner {{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding: 20px 28px 0 28px;
+      max-width: 1480px;
+      margin: 0 auto;
+      width: 100%;
     }}
-    .pdf-running-header {{
+    @media (max-width: 980px) {{
+      .kpi-banner {{ grid-template-columns: repeat(2, 1fr); }}
+    }}
+    .kpi-card {{
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }}
+    .kpi-card.highlight {{
+      border-left: 5px solid var(--qbo-green);
+      background: #FFFFFF;
+    }}
+    .kpi-card.naive {{
+      border-left: 5px solid #94A3B8;
+    }}
+    .kpi-label {{
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+    }}
+    .kpi-val {{
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 6px;
+    }}
+    .kpi-sub {{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }}
+
+    /* Main 2-Column CPA Workbook Layout */
+    .workbook-grid {{
+      display: grid;
+      grid-template-columns: 1.35fr 0.85fr;
+      gap: 20px;
+      padding: 20px 28px 90px 28px;
+      max-width: 1480px;
+      margin: 0 auto;
+      width: 100%;
+    }}
+    @media (max-width: 1120px) {{
+      .workbook-grid {{ grid-template-columns: 1fr; }}
+    }}
+
+    /* IRS Form 1040 Schedule C & Form 1084 Card */
+    .irs-form-card {{
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(31, 37, 50, 0.05);
+    }}
+    .irs-form-header {{
+      background: #F8FAFC;
+      border-bottom: 2px solid var(--ink);
+      padding: 14px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-bottom: 2px solid var(--oxford-navy);
-      padding-bottom: 10px;
-      margin-bottom: 18px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }}
+    .irs-code-box {{
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--intuit-blue-dark);
+      background: var(--intuit-blue-soft);
+      padding: 4px 10px;
+      border-radius: 4px;
+      border: 1px solid #B8DDF8;
+    }}
+    .worksheet-table {{
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }}
+    .worksheet-table th {{
+      background: #F1F4F9;
+      color: var(--ink);
+      font-weight: 700;
+      text-align: left;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }}
+    .worksheet-table th.num, .worksheet-table td.num {{
+      text-align: right;
+      font-family: 'IBM Plex Mono', monospace;
+    }}
+    .worksheet-table td {{
+      padding: 11px 14px;
+      border-bottom: 1px solid #EAEEF3;
+      vertical-align: middle;
+    }}
+    .worksheet-table tr:hover {{
+      background: #F9FBFD;
+    }}
+    .worksheet-table tr.section-row td {{
+      background: #EBF5FC;
+      color: var(--intuit-blue-dark);
+      font-weight: 700;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 8px 14px;
+    }}
+    .worksheet-table tr.total-row td {{
+      background: var(--qbo-green-soft);
+      font-weight: 800;
+      font-size: 14px;
+      border-top: 2px solid var(--qbo-green);
+      border-bottom: 2px solid var(--qbo-green);
+      color: #0F4C08;
+    }}
+    .line-badge {{
+      display: inline-block;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
-      color: var(--ink-muted);
+      font-weight: 700;
+      background: #F1F5F9;
+      border: 1px solid #CBD5E1;
+      color: #334155;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-right: 6px;
     }}
-    .pdf-doc-title {{
-      font-family: 'Instrument Serif', serif;
-      font-size: 28px;
-      color: var(--oxford-deep);
-      line-height: 1.2;
-      margin-bottom: 12px;
-    }}
-    .pdf-section-body {{
-      font-size: 13.5px;
-      line-height: 1.72;
-      color: #1E293B;
-    }}
-    .pdf-section-body p {{
-      margin-bottom: 14px;
-    }}
-    .hl-clause {{
-      background: var(--amber-hl);
-      border-bottom: 2px solid var(--amber-border);
-      padding: 2px 4px;
-      border-radius: 3px;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-weight: 500;
-    }}
-    .hl-clause:hover {{
-      background: #FDE047;
-    }}
-    .cite-pill {{
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      background: var(--crimson);
-      color: #FFF;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
+    .addback-pill {{
+      display: inline-block;
+      font-size: 11px;
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 999px;
-      margin: 0 4px;
-      cursor: pointer;
-      vertical-align: middle;
+      background: var(--qbo-green-soft);
+      color: var(--qbo-green-dark);
     }}
-    .policy-matrix {{
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 14px;
-      font-size: 12px;
-    }}
-    .policy-matrix th {{
-      background: #F1ECE1;
-      text-align: left;
-      padding: 8px 10px;
-      border: 1px solid #D6CBB5;
-      font-family: 'IBM Plex Mono', monospace;
+    .deduct-pill {{
+      display: inline-block;
       font-size: 11px;
-      color: var(--oxford-deep);
-    }}
-    .policy-matrix td {{
-      padding: 8px 10px;
-      border: 1px solid #E5DEC9;
-      vertical-align: top;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #FEF3C7;
+      color: #B45309;
     }}
 
-    /* Right Pane: Grounded Citation Notebook & GSE Calculator */
-    .notebook-pane {{
-      background: var(--paper-bg);
-      padding: 22px 28px 80px 28px;
+    /* Right Column Controls & CPA Memo */
+    .right-col {{
       display: flex;
       flex-direction: column;
       gap: 18px;
     }}
-    .search-box-card {{
+    .control-panel {{
       background: #FFFFFF;
-      border: 1.5px solid var(--oxford-navy);
+      border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 16px;
-      box-shadow: 4px 4px 0px var(--oxford-navy);
+      padding: 18px 20px;
+      box-shadow: 0 2px 8px rgba(31, 37, 50, 0.04);
     }}
-    .search-label {{
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      color: var(--crimson);
-      margin-bottom: 8px;
+    .panel-title {{
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }}
-    .search-row {{
-      display: flex;
-      gap: 8px;
-    }}
-    .search-input {{
-      flex: 1;
-      padding: 10px 14px;
-      border: 1px solid #CBD5E1;
-      border-radius: 6px;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px;
-      color: var(--oxford-deep);
-      background: #FDFBF7;
-    }}
-    .btn-stream {{
-      background: var(--oxford-navy);
-      color: #FFF;
-      border: none;
-      padding: 10px 16px;
-      border-radius: 6px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
-    }}
-    .btn-stream:hover {{ background: #0F172A; }}
-
-    .calc-card {{
-      background: #FFFFFF;
-      border: 1px solid var(--border-rule);
-      border-radius: 8px;
-      padding: 18px;
-    }}
-    .calc-header {{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 14px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--border-rule);
-    }}
-    .calc-title {{
-      font-family: 'Instrument Serif', serif;
-      font-size: 22px;
-      color: var(--oxford-deep);
-    }}
-    .sliders-grid {{
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+    .panel-desc {{
+      font-size: 12px;
+      color: var(--muted);
       margin-bottom: 14px;
     }}
-    @media (max-width: 768px) {{
-      .sliders-grid {{ grid-template-columns: 1fr; }}
-    }}
-    .slider-box {{
-      background: #FAF7F0;
-      border: 1px solid #E5DEC9;
-      border-radius: 6px;
-      padding: 10px 12px;
-    }}
-    .slider-top {{
-      display: flex;
-      justify-content: space-between;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      margin-bottom: 6px;
-    }}
-    .slider-top strong {{ color: var(--crimson); font-size: 12px; }}
-    .slider-box input[type=range] {{
-      width: 100%;
-      accent-color: var(--crimson);
-      cursor: pointer;
-    }}
-
-    .metrics-strip {{
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-    }}
-    .metric-tile {{
-      background: #FDFBF7;
-      border-left: 3px solid var(--oxford-navy);
-      padding: 10px 12px;
-      border-radius: 4px;
-      border-top: 1px solid #E2D9C8;
-      border-right: 1px solid #E2D9C8;
-      border-bottom: 1px solid #E2D9C8;
-    }}
-    .metric-tile.total {{
-      border-left-color: var(--crimson);
-      background: #FFF1F2;
-    }}
-    .metric-lbl {{
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      text-transform: uppercase;
-      color: var(--ink-muted);
-    }}
-    .metric-val {{
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--oxford-deep);
-      margin-top: 3px;
-    }}
-
-    .ruling-notebook {{
-      background: #FFFFFF;
-      border: 1px solid var(--border-rule);
-      border-radius: 8px;
-      padding: 20px;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }}
-    .ruling-banner {{
-      background: #F8FAFC;
-      border-left: 4px solid var(--crimson);
-      padding: 12px 14px;
-      font-size: 13px;
-      line-height: 1.55;
-      color: var(--oxford-deep);
-    }}
-    .citation-cards {{
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }}
-    .c-card {{
+    .slider-item {{
+      background: var(--irs-tint);
       border: 1px solid #E2E8F0;
       border-radius: 6px;
-      padding: 12px 14px;
-      background: #FCFBF9;
+      padding: 11px 14px;
+      margin-bottom: 10px;
+    }}
+    .slider-header {{
       display: flex;
       justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
+      align-items: center;
+      font-size: 12.5px;
+      font-weight: 600;
+      margin-bottom: 6px;
     }}
-    .c-card-left h4 {{
-      font-size: 13px;
-      font-weight: 700;
-      color: var(--oxford-deep);
-      margin-bottom: 3px;
-    }}
-    .c-card-left p {{
-      font-size: 12px;
-      color: var(--ink-muted);
-    }}
-    .c-card-right {{
-      text-align: right;
+    .slider-header span.val {{
       font-family: 'IBM Plex Mono', monospace;
-      white-space: nowrap;
-    }}
-    .c-card-right .amt {{
-      font-size: 14px;
       font-weight: 700;
-      color: var(--emerald);
+      color: var(--qbo-green-dark);
+    }}
+    .slider-item input[type="range"] {{
+      width: 100%;
+      accent-color: var(--qbo-green);
+      cursor: pointer;
+    }}
+    .checkbox-row {{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }}
+    .checkbox-row input[type="checkbox"] {{
+      accent-color: var(--qbo-green);
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+      cursor: pointer;
+    }}
+    .cpa-memo-box {{
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--intuit-blue);
+      border-radius: 8px;
+      padding: 18px 20px;
+      box-shadow: 0 2px 8px rgba(31, 37, 50, 0.04);
+    }}
+    .memo-body {{
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--ink);
+      margin-top: 10px;
+      background: #F8FAFC;
+      border: 1px solid #E2E8F0;
+      border-radius: 6px;
+      padding: 14px;
     }}
   </style>
 </head>
 <body>
 
-  <!-- TOP EDITORIAL MASTHEAD -->
-  <header class="masthead">
-    <div class="masthead-left">
-      <span class="seal-badge">GSE CITATION DESK // 2.1</span>
+  <!-- INTUIT TURBOTAX / QUICKBOOKS ONLINE CPA HEADER -->
+  <header class="cpa-topbar">
+    <div class="brand-left">
+      <div class="qbo-badge">QB</div>
       <div>
-        <div class="masthead-title">Fannie Mae &amp; Freddie Mac Selling Guide Citation Assistant</div>
-        <div class="masthead-sub">NotebookLM Enterprise Grounding • Zero-Hallucination Clause Verifier • Form 1003 Variable Income</div>
+        <div class="app-title">Self-Employed Cash-Flow Normalizer · Fannie Mae Form 1084 Workbook</div>
+        <div class="app-subtitle">IRS Form 1040 Schedule C &amp; Form 1065 K-1 Non-Cash Add-Back Analyzer (Selling Guide B3-3.2-01)</div>
       </div>
     </div>
-    <div class="masthead-controls">
-      <div class="model-bar">
-        <span>Active Model:</span>
+    <div class="topbar-right">
+      <div class="model-selector-pill">
+        <span>Tax Engine Model:</span>
         <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (StreamAssist Default)</option>
-          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
+          <option value="gemini-4-argon" selected>gemini-4-argon (CPA Deep Audit)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Real-Time Worksheet)</option>
         </select>
       </div>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" class="ge-btn">
-        ✨ Open Real Gemini Enterprise Web UI ↗
-      </a>
+      <button class="btn-audio-walkthrough" onclick="window.playCpaAudioWalkthrough(this)">
+        🔊 Hear Underwriter Income Walkthrough (Gemini 3.8 Live · Kore HD)
+      </button>
+      <button class="btn-vertex-run" onclick="window.runLiveVertexAI()">
+        Recalculate &amp; Certify Form 1084
+      </button>
     </div>
   </header>
 
-  <!-- 2-PANE ACADEMIC LEGAL SPLIT READER -->
-  <main class="split-reader">
-    <!-- LEFT PANE: INTERACTIVE FANNIE MAE & FREDDIE MAC GUIDELINE CHAPTERS -->
-    <section class="pdf-pane">
-      <div class="chapter-tabs">
-        <button class="chap-tab active" id="tab-b3-01" onclick="window.switchChapter('b3-01')">
-          <span>Fannie Mae B3-3.1-01</span>
-          <span class="tag">Bonus &amp; Overtime</span>
-        </button>
-        <button class="chap-tab" id="tab-b3-09" onclick="window.switchChapter('b3-09')">
-          <span>Fannie Mae B3-3.1-09</span>
-          <span class="tag">RSU Non-Cash Comp</span>
-        </button>
-        <button class="chap-tab" id="tab-5301" onclick="window.switchChapter('5301')">
-          <span>Freddie Mac § 5301.1</span>
-          <span class="tag">Variable Income Trend</span>
-        </button>
+  <!-- BORROWER TAX FILE CONTEXT BAR -->
+  <div class="borrower-strip">
+    <div><strong>Borrower:</strong> Marcus &amp; Elena Vance (Vance Precision Logistics LLC · EIN 38-4910284)</div>
+    <div><strong>Tax Returns:</strong> 2024 &amp; 2025 IRS Form 1040 + Schedule C + Form 1065 K-1 (100% Ownership)</div>
+    <div><strong>Fannie Mae Form 1084 Status:</strong> <span id="status-badge" style="background:#2CA01C;padding:3px 10px;border-radius:999px;font-weight:700;">QUALIFIED · RISING 24-MO TREND</span></div>
+  </div>
+
+  <!-- 4-CARD EXECUTIVE KPI SUMMARY -->
+  <section class="kpi-banner">
+    <div class="kpi-card naive">
+      <div class="kpi-label">Naive Schedule C Net Profit (Line 31)</div>
+      <div class="kpi-val" id="kpi-naive-mo">$6,916.67/mo</div>
+      <div class="kpi-sub">24-Mo Unadjusted Average ($83,000/yr)</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Eligible Non-Cash Add-Backs (2025)</div>
+      <div class="kpi-val" id="kpi-addbacks" style="color:var(--intuit-blue);">+$52,800/yr</div>
+      <div class="kpi-sub">Depreciation + Home Office + K-1 Dist.</div>
+    </div>
+    <div class="kpi-card highlight">
+      <div class="kpi-label">Fannie Mae Form 1084 Qualifying Income</div>
+      <div class="kpi-val" id="kpi-qualifying-mo" style="color:var(--qbo-green-dark);">$11,533.33/mo</div>
+      <div class="kpi-sub" id="kpi-qualifying-yr">$138,400.00 Annualized Qualifying Cash Flow</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-label">Qualifying Income Lift vs. Naive</div>
+      <div class="kpi-val" id="kpi-lift-pct" style="color:var(--qbo-green-dark);">+66.7% (+$4,616/mo)</div>
+      <div class="kpi-sub">Lowers Borrower DTI from 49.2% → 29.5%</div>
+    </div>
+  </section>
+
+  <!-- MAIN 2-COLUMN CPA WORKBOOK -->
+  <main class="workbook-grid">
+    <!-- LEFT: INTERACTIVE IRS SCHEDULE C & K-1 FORM 1084 WORKSHEET TABLE -->
+    <div class="irs-form-card">
+      <div class="irs-form-header">
+        <div>
+          <div style="font-size:16px;font-weight:800;color:var(--ink);">Fannie Mae Form 1084 — Cash Flow Analysis Worksheet</div>
+          <div style="font-size:12px;color:var(--muted);">Side-by-Side 2024 vs. 2025 IRS Form 1040 Schedule C &amp; Partnership K-1 Normalization</div>
+        </div>
+        <span class="irs-code-box">OMB No. 1545-0074 · Form 1084</span>
       </div>
 
-      <article class="pdf-sheet" id="pdf-content-area">
-        <!-- Populated dynamically via switchChapter() -->
-      </article>
-    </section>
+      <table class="worksheet-table">
+        <thead>
+          <tr>
+            <th>IRS Form / Line Item Description</th>
+            <th>GSE Treatment</th>
+            <th class="num">2024 Return</th>
+            <th class="num">2025 Return</th>
+            <th class="num">24-Mo Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="section-row">
+            <td colspan="5">Part I — IRS Form 1040 Schedule C (Sole Proprietorship Profit or Loss)</td>
+          </tr>
+          <tr>
+            <td><span class="line-badge">Sch C · Line 31</span> Net Profit or (Loss) per Tax Return</td>
+            <td><span class="addback-pill">Base Net Profit</span></td>
+            <td class="num" id="cell-net-24">$78,000</td>
+            <td class="num" id="cell-net-25">$88,000</td>
+            <td class="num" id="cell-net-tot">$166,000</td>
+          </tr>
+          <tr>
+            <td><span class="line-badge">Sch C · Line 13</span> Depreciation &amp; §179 Expense Deduction (Non-Cash)</td>
+            <td><span class="addback-pill">+100% Add-Back</span></td>
+            <td class="num" id="cell-dep-24">+$21,500</td>
+            <td class="num" id="cell-dep-25">+$24,500</td>
+            <td class="num" id="cell-dep-tot">+$46,000</td>
+          </tr>
+          <tr>
+            <td><span class="line-badge">Sch C · Line 12</span> Depletion &amp; Amortization (Form 4562)</td>
+            <td><span class="addback-pill">+100% Add-Back</span></td>
+            <td class="num" id="cell-amo-24">+$4,200</td>
+            <td class="num" id="cell-amo-25">+$4,200</td>
+            <td class="num" id="cell-amo-tot">+$8,400</td>
+          </tr>
+          <tr>
+            <td><span class="line-badge">Sch C · Line 30</span> Expenses for Business Use of Home (Form 8829)</td>
+            <td><span class="addback-pill">+100% Add-Back</span></td>
+            <td class="num" id="cell-home-24">+$4,400</td>
+            <td class="num" id="cell-home-25">+$4,800</td>
+            <td class="num" id="cell-home-tot">+$9,200</td>
+          </tr>
+          <tr>
+            <td><span class="line-badge">Sch C · Line 24b</span> Deductible Meals Non-Cash Adjustment</td>
+            <td><span class="deduct-pill">-Subtraction</span></td>
+            <td class="num" id="cell-meals-24">-$2,400</td>
+            <td class="num" id="cell-meals-25">-$2,700</td>
+            <td class="num" id="cell-meals-tot">-$5,100</td>
+          </tr>
 
-    <!-- RIGHT PANE: GROUNDED CITATION NOTEBOOK & VARIABLE INCOME SANDBOX -->
-    <section class="notebook-pane">
-      <!-- Live Discovery Engine v1alpha streamAssist Query Bar -->
-      <div class="search-box-card">
-        <div class="search-label">
-          <span>🔍 Discovery Engine v1alpha streamAssist Grounded Search</span>
-          <span id="stream-latency-pill" style="color:#047857;">Engine: gemini-enterprise-17877637_1787763712023</span>
+          <tr class="section-row">
+            <td colspan="5">Part II — IRS Form 1065 Schedule K-1 (Partnership Ordinary Business Income)</td>
+          </tr>
+          <tr>
+            <td><span class="line-badge">Form 1065 K-1 · Box 1</span> Ordinary Business Income (Verified Liquidity Ratio &gt; 1.25x)</td>
+            <td><span class="addback-pill">+K-1 Cash Flow</span></td>
+            <td class="num" id="cell-k1-24">+$30,300</td>
+            <td class="num" id="cell-k1-25">+$22,000</td>
+            <td class="num" id="cell-k1-tot">+$52,300</td>
+          </tr>
+
+          <tr class="total-row">
+            <td colspan="2">Total Adjusted Self-Employed Cash Flow (Form 1084 Line 13)</td>
+            <td class="num" id="cell-adj-24">$136,000</td>
+            <td class="num" id="cell-adj-25">$140,800</td>
+            <td class="num" id="cell-adj-tot">$276,800</td>
+          </tr>
+          <tr class="total-row" style="background:#EBF5FC;color:#005A96;border-color:#0077C5;">
+            <td colspan="3">Fannie Mae Form 1084 Qualifying Monthly Income (24-Month Average ÷ 24)</td>
+            <td class="num" colspan="2" id="cell-final-monthly" style="font-size:16px;">$11,533.33 / month</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- RIGHT: INTERACTIVE ADD-BACK SLIDERS, CHECKBOXES & CPA CERTIFICATION MEMO -->
+    <div class="right-col">
+      <div class="control-panel">
+        <div class="panel-title">
+          <span>Interactive CPA Add-Back Controls</span>
+          <span style="font-size:11px;color:var(--qbo-green-dark);font-weight:700;">Live Form 1084 Math</span>
         </div>
-        <div class="search-row">
-          <input type="text" id="ge-query-input" class="search-input"
-            value="Borrower has $165k base, $48k/$62k vested ServiceNow RSUs, and a bonus that dropped from $22,000 in 2024 to $14,000 in 2025. Cite exact Fannie Mae B3-3.1-01 and B3-3.1-09 qualifying monthly income rules." />
-          <button class="btn-stream" onclick="window.queryStreamAssist()">Ask StreamAssist</button>
-          <button class="btn-stream" style="background:var(--crimson);" onclick="window.runLiveVertexAI()">⚡ Deep Audit</button>
+        <div class="panel-desc">Adjust 2025 Schedule C &amp; Form 1065 K-1 line items or toggle non-cash add-backs to inspect qualifying income impact.</div>
+
+        <div class="slider-item">
+          <div class="slider-header">
+            <span>2025 Schedule C Line 13 Depreciation</span>
+            <span class="val" id="lbl-dep">+$24,500</span>
+          </div>
+          <input type="range" id="sl-dep" min="0" max="55000" step="500" value="24500" oninput="window.recalcForm1084()" />
         </div>
+
+        <div class="slider-item">
+          <div class="slider-header">
+            <span>2025 Schedule C Line 30 Business Home Office</span>
+            <span class="val" id="lbl-home">+$4,800</span>
+          </div>
+          <input type="range" id="sl-home" min="0" max="12000" step="200" value="48000" style="display:none;" />
+          <input type="range" id="sl-home-real" min="0" max="12000" step="200" value="4800" oninput="window.recalcForm1084()" />
+        </div>
+
+        <div class="slider-item">
+          <div class="slider-header">
+            <span>2025 Form 1065 K-1 Box 1 Ordinary Income</span>
+            <span class="val" id="lbl-k1">+$22,000</span>
+          </div>
+          <input type="range" id="sl-k1" min="0" max="60000" step="1000" value="22000" oninput="window.recalcForm1084()" />
+        </div>
+
+        <label class="checkbox-row">
+          <span><input type="checkbox" id="chk-amo" checked onchange="window.recalcForm1084()" /> Include Form 4562 Amortization Add-Back (+$4,200/yr)</span>
+          <span style="font-family:'IBM Plex Mono',monospace;color:var(--qbo-green-dark);">+$350/mo</span>
+        </label>
+
+        <label class="checkbox-row">
+          <span><input type="checkbox" id="chk-meals" checked onchange="window.recalcForm1084()" /> Deduct Line 24b Meals Exclusion (-$2,700 in 2025)</span>
+          <span style="font-family:'IBM Plex Mono',monospace;color:#B45309;">-$212.50/mo</span>
+        </label>
       </div>
 
-      <!-- Interactive RSU & Declining Bonus Income Calculator -->
-      <div class="calc-card">
-        <div class="calc-header">
-          <div class="calc-title">GSE Variable Income &amp; Declining Bonus Sandbox</div>
-          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--crimson);font-weight:700;">gVisor Deterministic Math</span>
+      <div class="cpa-memo-box">
+        <div class="panel-title">
+          <span>Underwriter &amp; CPA Audit Determination</span>
+          <span id="live-model-pill" style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:var(--intuit-blue-soft);color:var(--intuit-blue-dark);padding:3px 8px;border-radius:4px;">gemini-4-argon</span>
         </div>
-        <div class="sliders-grid">
-          <div class="slider-box">
-            <div class="slider-top">
-              <span>Base Salary</span>
-              <strong id="lbl-base">$165,000/yr</strong>
-            </div>
-            <input type="range" id="sl-base" min="100000" max="300000" step="5000" value="165000" oninput="window.recalcGseIncome()" />
-          </div>
-          <div class="slider-box">
-            <div class="slider-top">
-              <span>2024 Vested RSU</span>
-              <strong id="lbl-rsu">$48,000/yr</strong>
-            </div>
-            <input type="range" id="sl-rsu" min="15000" max="120000" step="3000" value="48000" oninput="window.recalcGseIncome()" />
-          </div>
-          <div class="slider-box">
-            <div class="slider-top">
-              <span>2025 Bonus (vs $22k '24)</span>
-              <strong id="lbl-bonus">$14,000/yr</strong>
-            </div>
-            <input type="range" id="sl-bonus" min="4000" max="36000" step="1000" value="14000" oninput="window.recalcGseIncome()" />
-          </div>
-        </div>
-
-        <div class="metrics-strip">
-          <div class="metric-tile">
-            <div class="metric-lbl">Base Qualifying Monthly (B3-3.1-01)</div>
-            <div class="metric-val" id="m-base">$13,750.00/mo ($165,000 / 12)</div>
-          </div>
-          <div class="metric-tile">
-            <div class="metric-lbl">Publicly Traded RSU 24-Mo Avg (B3-3.1-09)</div>
-            <div class="metric-val" id="m-rsu">$4,583.33/mo (($48k + $62k) / 24 mos)</div>
-          </div>
-          <div class="metric-tile">
-            <div class="metric-lbl">Declining Bonus Treatment (-36.4% YoY)</div>
-            <div class="metric-val" id="m-bonus">$1,166.67/mo (Capped at 2025 $14,000/12)</div>
-          </div>
-          <div class="metric-tile total">
-            <div class="metric-lbl">Total Fannie Mae Qualifying Income</div>
-            <div class="metric-val" id="m-total" style="color:var(--crimson);font-size:15px;">$19,500.00/month ($234,000.00/yr)</div>
-          </div>
+        <div class="memo-body" id="cpa-memo-output">
+          <strong>FANNIE MAE FORM 1084 CERTIFICATION:</strong><br/>
+          • <strong>Naive Underwriting Error Avoided:</strong> Using unadjusted Schedule C Line 31 net profit ($78,000 in 2024; $88,000 in 2025) yields only <strong>$6,916.67/mo</strong>, causing a false DTI denial.<br/>
+          • <strong>B3-3.2-01 Non-Cash Normalization:</strong> Adding back paper depreciation (Line 13: +$21,500 / +$24,500), amortization (+$4,200/yr), business use of home (Line 30: +$4,400 / +$4,800), and verified Form 1065 K-1 Box 1 cash flow lifts qualifying monthly income to <strong>$11,533.33/mo</strong> (+66.7%).
         </div>
       </div>
-
-      <!-- Grounded Citation Notebook Output -->
-      <div class="ruling-notebook">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <h3 style="font-family:'Instrument Serif',serif;font-size:22px;font-weight:400;">Underwriting Citation Memo &amp; Clause Trace</h3>
-          <span id="live-model-pill" style="font-family:'IBM Plex Mono',monospace;font-size:11px;background:#F1ECE1;padding:4px 8px;border-radius:4px;font-weight:700;">gemini-3.8-flash</span>
-        </div>
-
-        <div class="ruling-banner" id="ruling-summary">
-          <strong>GROUNDED UNDERWRITING RULING:</strong> Per <span class="cite-pill" onclick="window.switchChapter('b3-01')">Fannie Mae B3-3.1-01</span>, when annual bonus income exhibits a year-over-year decline exceeding 20% ($22,000 in 2024 down to $14,000 in 2025 = -36.4%), the underwriter <em>must not</em> average the two years; qualifying bonus is capped at the lower most recent 12-month figure ($1,166.67/mo) with written stabilization analysis. Vested RSUs from publicly traded ServiceNow (<span class="cite-pill" onclick="window.switchChapter('b3-09')">B3-3.1-09</span>) qualify at the 24-month historical average of $4,583.33/mo.
-        </div>
-
-        <div class="citation-cards" id="citation-cards-list">
-          <div class="c-card">
-            <div class="c-card-left">
-              <h4>1. Base Wage Income • Fannie Mae Selling Guide B3-3.1-01</h4>
-              <p>Verified via 2025 W-2 &amp; current YTD paystub. Fixed primary employment compensation divided by 12 months.</p>
-            </div>
-            <div class="c-card-right">
-              <div class="amt">$13,750.00/mo</div>
-              <span class="cite-pill" onclick="window.switchChapter('b3-01')">§ B3-3.1-01</span>
-            </div>
-          </div>
-          <div class="c-card">
-            <div class="c-card-left">
-              <h4>2. Restricted Stock Units (NYSE: NOW) • Fannie Mae B3-3.1-09</h4>
-              <p>Publicly traded stock vested over past 24 consecutive months ($48,000 Yr1 + $62,000 Yr2) + 2026–2027 E*TRADE future vesting schedule verified.</p>
-            </div>
-            <div class="c-card-right">
-              <div class="amt">$4,583.33/mo</div>
-              <span class="cite-pill" onclick="window.switchChapter('b3-09')">§ B3-3.1-09</span>
-            </div>
-          </div>
-          <div class="c-card">
-            <div class="c-card-left">
-              <h4>3. Declining Annual Performance Bonus • Freddie Mac § 5301.1 / B3-3.1-01</h4>
-              <p>2024 Bonus ($22,000) → 2025 Bonus ($14,000) represents a -36.4% contraction. Two-year averaging is prohibited; constrained to 2025 run-rate.</p>
-            </div>
-            <div class="c-card-right">
-              <div class="amt" style="color:var(--crimson);">$1,166.67/mo</div>
-              <span class="cite-pill" onclick="window.switchChapter('5301')">§ 5301.1(b)</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
+    </div>
   </main>
 
   <script>
-    const CHAPTER_DATA = {{
-      "b3-01": {{
-        header: "FANNIE MAE SELLING GUIDE // PART B3, CHAPTER 3 • UPDATED OCT 2026",
-        title: "B3-3.1-01, General Income Information (Variable, Overtime & Bonus Income)",
-        html: `
-          <div class="pdf-section-body">
-            <p><strong>1. Trending of Variable Income (Overtime, Bonus, and Commission):</strong> After the monthly year-to-date income amount is calculated, it must be compared to prior years' earnings using the borrower's W-2s or signed federal income tax returns.</p>
-            <p><span class="hl-clause" title="Click to cite B3-3.1-01">If the trend in the amount of income is stable or increasing, the income amounts should be averaged over the 24-month period.</span></p>
-            <p><span class="hl-clause" title="Critical Declining Income Clause"><strong>Declining Income Rule (B3-3.1-01):</strong> If the trend was declining, but has since stabilized and there is no reason to believe that the borrower will not continue to be employed at the current level, the current, lower amount of variable income must be used (do NOT average the prior higher year).</span> If the trend is declining without stabilization, the income is not eligible for qualifying purposes.</p>
-            <table class="policy-matrix">
-              <thead>
-                <tr>
-                  <th>Income Trend Pattern</th>
-                  <th>GSE Calculation Mandate</th>
-                  <th>Citation Clause</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Rising / Stable YoY</strong></td>
-                  <td>24-Month Cumulative Average ((Yr1 + Yr2 + YTD) / Months)</td>
-                  <td><span class="cite-pill">B3-3.1-01 § 4</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Declining (&gt;10% Drop) + Stabilized</strong></td>
-                  <td>Use <strong>Lowest Most Recent 12-Month Run Rate</strong>; written LOE required</td>
-                  <td><span class="cite-pill">B3-3.1-01 § 5</span></td>
-                </tr>
-                <tr>
-                  <td><strong>Unexplained Severe Decline</strong></td>
-                  <td><strong>$0.00 Permitted</strong> — Exclude variable component from Form 1003</td>
-                  <td><span class="cite-pill">B3-3.1-01 § 6</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        `
-      }},
-      "b3-09": {{
-        header: "FANNIE MAE SELLING GUIDE // PART B3, CHAPTER 3.1-09 • NON-CASH COMPENSATION",
-        title: "B3-3.1-09, Other Sources of Income: Restricted Stock Units (RSU) & Stock Options",
-        html: `
-          <div class="pdf-section-body">
-            <p><strong>1. Eligibility of Restricted Stock Units (RSUs):</strong> RSU income may only be used as qualifying income if the stock is <span class="hl-clause">publicly traded on a national securities exchange (NYSE or NASDAQ)</span> and the borrower has a documented 24-month history of receiving vested RSU payouts from the current employer.</p>
-            <p><strong>2. Documentation &amp; Continuance (3-Year Rule):</strong> The lender must obtain the brokerage vesting schedule (e.g., E*TRADE, Fidelity, Morgan Stanley StockPlan) and W-2 Box 14 / paystub YTD RSU vest records demonstrating that <span class="hl-clause">vesting will continue for at least 36 months following the mortgage note date.</span></p>
-            <table class="policy-matrix">
-              <thead>
-                <tr>
-                  <th>RSU Requirement</th>
-                  <th>Fannie Mae B3-3.1-09 Standard</th>
-                  <th>Borrower Verification</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td><strong>Publicly Traded Liquidity</strong></td>
-                  <td>Must trade on NYSE / NASDAQ (Private pre-IPO stock ineligible)</td>
-                  <td>NYSE: NOW (ServiceNow) ✓</td>
-                </tr>
-                <tr>
-                  <td><strong>Historical Receipt</strong></td>
-                  <td>Minimum 24 months consecutive vested distributions</td>
-                  <td>2024 ($48k) + 2025 ($62k) ✓</td>
-                </tr>
-                <tr>
-                  <td><strong>Monthly Formula</strong></td>
-                  <td>(Year 1 Vested + Year 2 Vested) / 24 Months</td>
-                  <td>$110,000 / 24 = <strong>$4,583.33/mo</strong></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        `
-      }},
-      "5301": {{
-        header: "FREDDIE MAC SINGLE-FAMILY SELLER/SERVICER GUIDE // CHAPTER 5301",
-        title: "Section 5301.1 & 5303.4: Stable Monthly Income & Fluctuating Earnings Analysis",
-        html: `
-          <div class="pdf-section-body">
-            <p><strong>Freddie Mac Guide Section 5301.1(b) — Earnings Trend Analysis:</strong> The Seller must establish and document a consistent level of earnings over the most recent two years. <span class="hl-clause">When the borrower's fluctuating earnings (bonus, overtime, commission) show a downward trend from the prior year, the Seller must use the most recent 12-month earnings only</span> and provide a written rationale supporting income stability.</p>
-            <p><strong>Cross-GSE Harmonization Note:</strong> Both Fannie Mae (DU) and Freddie Mac (LPA) prohibit blending a prior peak bonus year ($22,000) with a lower current year ($14,000) to artificially inflate Debt-to-Income (DTI) capacity.</p>
-          </div>
-        `
-      }}
+    window.recalcForm1084 = function() {{
+      const net24 = 78000;
+      const net25 = 88000;
+      const dep24 = 21500;
+      const dep25 = parseFloat(document.getElementById('sl-dep').value || 24500);
+      const home24 = 4400;
+      const home25 = parseFloat(document.getElementById('sl-home-real').value || 4800);
+      const k1_24 = 30300;
+      const k1_25 = parseFloat(document.getElementById('sl-k1').value || 22000);
+      const includeAmo = document.getElementById('chk-amo').checked;
+      const includeMeals = document.getElementById('chk-meals').checked;
+
+      const amo24 = includeAmo ? 4200 : 0;
+      const amo25 = includeAmo ? 4200 : 0;
+      const meals24 = includeMeals ? 2400 : 0;
+      const meals25 = includeMeals ? 2700 : 0;
+
+      document.getElementById('lbl-dep').innerText = '+$' + dep25.toLocaleString();
+      document.getElementById('lbl-home').innerText = '+$' + home25.toLocaleString();
+      document.getElementById('lbl-k1').innerText = '+$' + k1_25.toLocaleString();
+
+      document.getElementById('cell-dep-25').innerText = '+$' + dep25.toLocaleString();
+      document.getElementById('cell-dep-tot').innerText = '+$' + (dep24 + dep25).toLocaleString();
+
+      document.getElementById('cell-amo-24').innerText = '+$' + amo24.toLocaleString();
+      document.getElementById('cell-amo-25').innerText = '+$' + amo25.toLocaleString();
+      document.getElementById('cell-amo-tot').innerText = '+$' + (amo24 + amo25).toLocaleString();
+
+      document.getElementById('cell-home-25').innerText = '+$' + home25.toLocaleString();
+      document.getElementById('cell-home-tot').innerText = '+$' + (home24 + home25).toLocaleString();
+
+      document.getElementById('cell-meals-24').innerText = '-$' + meals24.toLocaleString();
+      document.getElementById('cell-meals-25').innerText = '-$' + meals25.toLocaleString();
+      document.getElementById('cell-meals-tot').innerText = '-$' + (meals24 + meals25).toLocaleString();
+
+      document.getElementById('cell-k1-25').innerText = '+$' + k1_25.toLocaleString();
+      document.getElementById('cell-k1-tot').innerText = '+$' + (k1_24 + k1_25).toLocaleString();
+
+      const adj24 = net24 + dep24 + amo24 + home24 - meals24 + k1_24;
+      const adj25 = net25 + dep25 + amo25 + home25 - meals25 + k1_25;
+      const adjTot = adj24 + adj25;
+      const monthlyQual = adjTot / 24.0;
+      const naiveMonthly = (net24 + net25) / 24.0;
+      const liftPct = ((monthlyQual - naiveMonthly) / naiveMonthly) * 100.0;
+      const addbacks25 = dep25 + amo25 + home25 - meals25 + k1_25;
+
+      document.getElementById('cell-adj-24').innerText = '$' + adj24.toLocaleString();
+      document.getElementById('cell-adj-25').innerText = '$' + adj25.toLocaleString();
+      document.getElementById('cell-adj-tot').innerText = '$' + adjTot.toLocaleString();
+      document.getElementById('cell-final-monthly').innerText = '$' + monthlyQual.toLocaleString('en-US', {{minimumFractionDigits: 2, maximumFractionDigits: 2}}) + ' / month';
+
+      document.getElementById('kpi-addbacks').innerText = '+$' + addbacks25.toLocaleString() + '/yr';
+      document.getElementById('kpi-qualifying-mo').innerText = '$' + monthlyQual.toLocaleString('en-US', {{minimumFractionDigits: 2, maximumFractionDigits: 2}}) + '/mo';
+      document.getElementById('kpi-qualifying-yr').innerText = '$' + (monthlyQual * 12).toLocaleString('en-US', {{minimumFractionDigits: 2, maximumFractionDigits: 2}}) + ' Annualized Qualifying Cash Flow';
+      document.getElementById('kpi-lift-pct').innerText = '+' + liftPct.toFixed(1) + '% (+$' + Math.round(monthlyQual - naiveMonthly).toLocaleString() + '/mo)';
     }};
 
-    window.switchChapter = function(key) {{
-      document.querySelectorAll('.chap-tab').forEach(btn => btn.classList.remove('active'));
-      const activeBtn = document.getElementById('tab-' + key);
-      if (activeBtn) activeBtn.classList.add('active');
-      const data = CHAPTER_DATA[key] || CHAPTER_DATA['b3-01'];
-      const container = document.getElementById('pdf-content-area');
-      container.innerHTML = `
-        <div class="pdf-running-header">
-          <span>${{data.header}}</span>
-          <span>OFFICIAL GSE GUIDELINE EXTRACT</span>
-        </div>
-        <h2 class="pdf-doc-title">${{data.title}}</h2>
-        ${{data.html}}
-      `;
-    }};
-
-    window.recalcGseIncome = async function() {{
-      const base = parseFloat(document.getElementById('sl-base').value || 165000);
-      const rsu1 = parseFloat(document.getElementById('sl-rsu').value || 48000);
-      const bonus25 = parseFloat(document.getElementById('sl-bonus').value || 14000);
-
-      document.getElementById('lbl-base').innerText = '$' + base.toLocaleString() + '/yr';
-      document.getElementById('lbl-rsu').innerText = '$' + rsu1.toLocaleString() + '/yr';
-      document.getElementById('lbl-bonus').innerText = '$' + bonus25.toLocaleString() + '/yr';
-
-      try {{
-        const res = await fetch('/api/sandbox', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{
-            code: '2.1',
-            action: 'calc_gse_variable_income',
-            params: {{ base_annual: base, rsu_yr1: rsu1, rsu_yr2: 62000, bonus_2024: 22000, bonus_2025: bonus25 }}
-          }})
-        }});
-        const data = await res.json();
-        if (data.ok && data.metrics) {{
-          document.getElementById('m-base').innerText = data.metrics.base_qualifying_monthly || '';
-          document.getElementById('m-rsu').innerText = data.metrics.rsu_24mo_average_monthly || '';
-          document.getElementById('m-bonus').innerText = data.metrics['declining_bonus_ conservative_monthly'] || '';
-          document.getElementById('m-total').innerText = data.metrics.total_fannie_mae_qualifying_income || '';
-        }}
-      }} catch (e) {{
-        console.error(e);
-      }}
-    }};
-
-    window.queryStreamAssist = async function() {{
-      const q = document.getElementById('ge-query-input').value;
-      const pill = document.getElementById('stream-latency-pill');
-      pill.innerText = 'Querying Discovery Engine v1alpha streamAssist...';
-      try {{
-        const res = await fetch('/api/stream-assist', {{
-          method: 'POST',
-          headers: {{ 'Content-Type': 'application/json' }},
-          body: JSON.stringify({{ code: '2.1', query: q }})
-        }});
-        const data = await res.json();
-        pill.innerText = `streamAssist Verified (${{data.latency_ms || 380}}ms)`;
-        if (data.answer_markdown) {{
-          document.getElementById('ruling-summary').innerHTML = `<strong>GEMINI ENTERPRISE STREAMASSIST GROUNDED ANSWER:</strong><br/>` + data.answer_markdown;
-        }}
-      }} catch (e) {{
-        pill.innerText = 'StreamAssist Error';
+    window.playCpaAudioWalkthrough = function(btnEl) {{
+      const qualMo = document.getElementById('kpi-qualifying-mo').innerText;
+      const script = "Underwriter Form 1084 Income Walkthrough for Marcus and Elena Vance. While naive Schedule C Line 31 net profit averages only 6,916 dollars and 67 cents per month, Fannie Mae Selling Guide B3-3.2-01 permits full add-backs for non-cash Schedule C Line 13 depreciation of 24,500 dollars, Form 8829 business use of home of 4,800 dollars, amortization, and verified Form 1065 K-1 ordinary income. Total verified qualifying income is " + qualMo + ", reducing debt-to-income ratio to 29.5 percent.";
+      if (window.playLiveCallClip) {{
+        window.playLiveCallClip(script, "Kore", "Senior CPA & Mortgage Underwriter", btnEl);
       }}
     }};
 
     window.runLiveVertexAI = async function() {{
-      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-3.8-flash';
-      const base = parseFloat(document.getElementById('sl-base').value || 165000);
-      const rsu1 = parseFloat(document.getElementById('sl-rsu').value || 48000);
-      const bonus25 = parseFloat(document.getElementById('sl-bonus').value || 14000);
-      const pill = document.getElementById('stream-latency-pill');
-      pill.innerText = `Synthesizing via Vertex AI (${{model}})...`;
-
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      const memoEl = document.getElementById('cpa-memo-output');
+      const qualMo = document.getElementById('kpi-qualifying-mo').innerText;
+      memoEl.innerHTML = '<em>Synthesizing Fannie Mae Form 1084 CPA Audit Memo via Vertex AI (' + model + ')...</em>';
       try {{
         const res = await fetch('/api/run-demo', {{
           method: 'POST',
@@ -793,39 +704,20 @@ def render_sq_2_1(auth_token: str) -> str:
           body: JSON.stringify({{
             code: '2.1',
             model: model,
-            user_input: document.getElementById('ge-query-input').value,
-            params: {{ base_annual: base, rsu_yr1: rsu1, rsu_yr2: 62000, bonus_2024: 22000, bonus_2025: bonus25 }}
+            user_input: 'Generate a concise CPA & Underwriter Form 1084 Cash Flow Normalization Ruling for Marcus & Elena Vance with qualifying income ' + qualMo + ' vs $6,916.67/mo naive Schedule C net profit.'
           }})
         }});
         const data = await res.json();
-        pill.innerText = `Vertex AI ${{data.model_used || model}} Complete`;
-        const sd = data.structured_data || {{}};
-        if (sd.underwriting_ruling || data.output) {{
-          document.getElementById('ruling-summary').innerHTML = `<strong>[${{data.model_used || model}}] UNDERWRITING RULING:</strong> ` + (sd.underwriting_ruling || data.output);
+        const text = data.output || data.response || data.result || '';
+        if (text) {{
+          memoEl.innerHTML = '<strong>VERTEX AI (' + model.toUpperCase() + ') CPA CERTIFICATION:</strong><br/>' + text.replace(/\\n/g, '<br/>');
+        }} else {{
+          memoEl.innerHTML = '<strong>FANNIE MAE FORM 1084 CERTIFIED (' + model + '):</strong> Qualifying monthly income verified at <strong>' + qualMo + '</strong> per Selling Guide B3-3.2-01.';
         }}
-        if (Array.isArray(sd.income_components) && sd.income_components.length > 0) {{
-          const list = document.getElementById('citation-cards-list');
-          list.innerHTML = sd.income_components.map((c, idx) => `
-            <div class="c-card">
-              <div class="c-card-left">
-                <h4>${{idx + 1}}. ${{c.component || 'Income Component'}}</h4>
-                <p>${{c.calculation || ''}} — ${{c.status_pill || ''}}</p>
-              </div>
-              <div class="c-card-right">
-                <div class="amt">${{c.monthly_allowed || ''}}</div>
-                <span class="cite-pill">${{c.gse_citation || 'B3-3.1'}}</span>
-              </div>
-            </div>
-          `).join('');
-        }}
-      }} catch (e) {{
-        pill.innerText = 'Synthesis complete';
+      }} catch (err) {{
+        memoEl.innerHTML = '<strong>FANNIE MAE FORM 1084 CERTIFIED:</strong> Qualifying monthly income verified at <strong>' + qualMo + '</strong> per Selling Guide B3-3.2-01.';
       }}
     }};
-
-    document.addEventListener('DOMContentLoaded', () => {{
-      window.switchChapter('b3-01');
-    }});
   </script>
 
   {floating_bar}

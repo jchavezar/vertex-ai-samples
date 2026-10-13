@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Square M.3: Project HiveMind: Autonomous Treasury & Asset Swarm — Google ADK Runtime
-Visual Design: Wall Street Bloomberg Terminal (#000000 pure black canvas, #FF9900 Bloomberg amber headers,
-#00E5FF cyan, #00E676 ticker green, #FF1744 ticker red, strict IBM Plex Mono / JetBrains Mono high-density terminal layout).
+"""Square M.3: Project Babel: Multicultural Hispanic Homebuyer Studio (Familia Morales)
+Visual Design: Warm Sunlit Terracotta & Artisanal Community Homeownership Portal
+(#FFFBF5 warm sunlit stucco cream, #C2410C warm terracotta, #047857 emerald trust green,
+#1E293B warm charcoal, Fraunces expressive serif + Plus Jakarta Sans + IBM Plex Mono).
 """
 
 from shared.standalone_uis.base_helpers import render_floating_control_bar_and_drawer
@@ -14,464 +15,480 @@ def render_sq_m_3(auth_token: str) -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>[M.3] Project HiveMind: Autonomous Treasury & MBS Swarm | Bloomberg Terminal</title>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>[M.3] Project Babel: Multicultural Hispanic Homebuyer Studio | Familia Morales Concierge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;0,9..144,700;0,9..144,800;1,9..144,500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {{
-      --bb-black: #000000;
-      --bb-panel: #070707;
-      --bb-amber: #FF9900;
-      --bb-amber-bg: rgba(255, 153, 0, 0.14);
-      --bb-cyan: #00E5FF;
-      --bb-green: #00E676;
-      --bb-red: #FF1744;
-      --bb-border: #262626;
-      --bb-text: #F5F5F5;
-      --bb-muted: #8C8C8C;
+      --stucco-cream: #FFFBF5;
+      --sand-panel: #FBF3E8;
+      --terracotta: #C2410C;
+      --terracotta-soft: #FFEDD5;
+      --emerald-trust: #047857;
+      --emerald-soft: #ECFDF5;
+      --warm-charcoal: #1E293B;
+      --warm-muted: #64748B;
+      --clay-border: #E7D8C5;
+      --card-white: #FFFFFF;
     }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
-      background-color: var(--bb-black);
-      color: var(--bb-text);
-      font-family: 'IBM Plex Mono', 'JetBrains Mono', monospace;
+      background-color: var(--stucco-cream);
+      color: var(--warm-charcoal);
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
-      font-size: 12px;
-      padding-bottom: 92px;
+      padding-bottom: 96px;
     }}
+    .serif-warm {{ font-family: 'Fraunces', Georgia, serif; }}
+    .mono {{ font-family: 'IBM Plex Mono', monospace; }}
 
-    /* Top Bloomberg Command Bar */
-    .bb-cmd-bar {{
-      background: #120B00;
-      border-bottom: 2px solid var(--bb-amber);
-      padding: 8px 18px;
+    /* Warm Sunlit Terracotta Community Portal Header */
+    .babel-header {{
+      background: var(--sand-panel);
+      border-top: 4px solid var(--terracotta);
+      border-bottom: 1.5px solid var(--clay-border);
+      padding: 18px 28px;
+    }}
+    .babel-header-inner {{
+      max-width: 1540px;
+      margin: 0 auto;
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 16px;
     }}
-    .bb-fn-key {{
-      background: var(--bb-amber);
-      color: #000000;
-      font-weight: 800;
-      padding: 3px 8px;
-      font-size: 11px;
-      letter-spacing: 0.04em;
-    }}
-    .bb-model-select {{
-      display: flex;
+    .community-pill {{
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: #000;
-      border: 1px solid var(--bb-amber);
-      padding: 4px 10px;
-      font-size: 11px;
-      color: var(--bb-amber);
+      gap: 8px;
+      background: var(--terracotta-soft);
+      border: 1px solid #FDBA74;
+      color: var(--terracotta);
+      font-size: 11.5px;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 999px;
     }}
-    .bb-model-select select {{
-      background: #000;
-      color: var(--bb-cyan);
+    .babel-select-box {{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card-white);
+      border: 1.5px solid var(--clay-border);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }}
+    .babel-select-box select {{
+      background: transparent;
+      color: var(--terracotta);
       border: none;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 700;
       outline: none;
       cursor: pointer;
     }}
 
-    /* Live Flashing Treasury & UMBS Coupon Ticker Strip */
-    .bb-ticker-strip {{
-      background: #050505;
-      border-bottom: 1px solid var(--bb-border);
-      padding: 7px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 14px;
-      font-size: 11.5px;
-    }}
-    .ticker-item {{
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 2px 8px;
-      border: 1px solid #1C1C1C;
-      background: #0A0A0A;
-    }}
-    .flash-green {{
-      color: var(--bb-green);
-      animation: pulseTicker 1.6s infinite;
-    }}
-    .flash-red {{
-      color: var(--bb-red);
-      animation: pulseTicker 1.6s infinite;
-    }}
-    @keyframes pulseTicker {{
-      0%, 100% {{ opacity: 1; }}
-      50% {{ opacity: 0.55; }}
-    }}
-
-    /* High-Density 4-Quadrant Bloomberg Grid */
-    .bb-terminal-grid {{
-      max-width: 1600px;
-      margin: 12px auto;
-      padding: 0 14px;
+    /* Main Community Studio Grid */
+    .babel-grid {{
+      max-width: 1540px;
+      margin: 24px auto;
+      padding: 0 28px;
       display: grid;
-      grid-template-columns: 390px 1fr;
-      gap: 12px;
+      grid-template-columns: 430px 1fr;
+      gap: 24px;
+      align-items: start;
     }}
     @media (max-width: 1120px) {{
-      .bb-terminal-grid {{ grid-template-columns: 1fr; }}
+      .babel-grid {{ grid-template-columns: 1fr; }}
     }}
 
-    .bb-window {{
-      background: var(--bb-panel);
-      border: 1px solid var(--bb-border);
-      display: flex;
-      flex-direction: column;
+    .portal-card {{
+      background: var(--card-white);
+      border: 1.5px solid var(--clay-border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 28px rgba(194, 65, 12, 0.05);
     }}
-    .bb-win-header {{
-      background: #1A1100;
-      border-bottom: 1px solid var(--bb-amber);
-      color: var(--bb-amber);
-      padding: 6px 12px;
-      font-size: 11.5px;
-      font-weight: 700;
+
+    /* Family Co-Borrower Sliders */
+    .slider-group {{
+      background: var(--stucco-cream);
+      border: 1px solid var(--clay-border);
+      border-radius: 14px;
+      padding: 13px 15px;
+      margin-bottom: 12px;
+    }}
+    .slider-label-row {{
       display: flex;
       justify-content: space-between;
       align-items: center;
-      text-transform: uppercase;
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
     }}
-    .bb-win-body {{
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }}
-
-    .bps-slider {{
+    input[type="range"] {{
       width: 100%;
-      accent-color: var(--bb-amber);
+      accent-color: var(--terracotta);
       cursor: pointer;
     }}
 
-    /* 4-Agent ADK Swarm Bus Cards */
-    .swarm-bus-grid {{
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }}
-    @media (max-width: 1050px) {{
-      .swarm-bus-grid {{ grid-template-columns: 1fr 1fr; }}
-    }}
-    .agent-node {{
-      background: #000000;
-      border: 1px solid var(--bb-border);
-      border-top: 2px solid var(--bb-cyan);
-      padding: 10px 12px;
-    }}
-    .agent-node.amber {{ border-top-color: var(--bb-amber); }}
-    .agent-node.green {{ border-top-color: var(--bb-green); }}
-
-    .bb-table {{
+    /* Spanish Audio Button */
+    .es-audio-btn {{
       width: 100%;
-      border-collapse: collapse;
-      font-size: 11.5px;
-    }}
-    .bb-table th {{
-      background: #121212;
-      color: var(--bb-amber);
-      text-align: left;
-      padding: 6px 8px;
-      border-bottom: 1px solid var(--bb-amber);
-      font-size: 10.5px;
-      text-transform: uppercase;
-    }}
-    .bb-table td {{
-      padding: 7px 8px;
-      border-bottom: 1px solid #1C1C1C;
-    }}
-
-    .btn-execute-hedge {{
-      width: 100%;
-      padding: 12px 16px;
-      background: var(--bb-amber);
-      color: #000000;
-      border: 2px solid #FFB74D;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 13px;
+      background: var(--terracotta);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13.5px;
       font-weight: 800;
       cursor: pointer;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      transition: 0.12s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 18px rgba(194, 65, 12, 0.24);
+      transition: transform 0.1s, opacity 0.15s;
     }}
-    .btn-execute-hedge:hover {{
-      background: var(--bb-green);
-      border-color: var(--bb-green);
+    .es-audio-btn:hover {{ opacity: 0.95; }}
+
+    /* Side-by-Side Cultural Glossary Cards */
+    .glossary-grid {{
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 14px;
+    }}
+    @media (max-width: 960px) {{
+      .glossary-grid {{ grid-template-columns: 1fr; }}
+    }}
+    .glossary-card {{
+      background: var(--stucco-cream);
+      border: 1.5px solid var(--clay-border);
+      border-top: 4px solid var(--terracotta);
+      border-radius: 14px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }}
+    .glossary-card:hover, .glossary-card.active {{
+      background: var(--terracotta-soft);
+      border-color: var(--terracotta);
+      box-shadow: 0 6px 16px rgba(194, 65, 12, 0.10);
+    }}
+
+    /* Qualification Summary Strip */
+    .qual-strip {{
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }}
+    @media (max-width: 900px) {{
+      .qual-strip {{ grid-template-columns: 1fr 1fr; }}
+    }}
+    .qual-tile {{
+      background: var(--stucco-cream);
+      border: 1px solid var(--clay-border);
+      border-radius: 14px;
+      padding: 14px;
     }}
   </style>
 </head>
 <body>
 
-  <!-- TOP BLOOMBERG COMMAND BAR -->
-  <header class="bb-cmd-bar">
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <span class="bb-fn-key">&lt;GO&gt; RKT HIVEMIND // SQUARE [M.3]</span>
-      <span style="color:var(--bb-amber);font-weight:700;">AUTONOMOUS TREASURY, TBA HEDGE & MR. COOPER RECAPTURE SWARM</span>
-      <span style="color:var(--bb-cyan);">[GOOGLE ADK 4-AGENT BUS]</span>
-    </div>
-    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      <div class="bb-model-select">
-        <span>SWARM MODEL:</span>
-        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
-          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
-          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Fast / ADK Runtime)</option>
-        </select>
+  <!-- WARM SUNLIT TERRACOTTA & ARTISANAL COMMUNITY HOMEOWNERSHIP HEADER -->
+  <header class="babel-header">
+    <div class="babel-header-inner">
+      <div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;">
+          <span class="community-pill">🏡 BIENVENIDOS A CASA • USE CASE M.3</span>
+          <span class="mono" style="font-size:11px;color:var(--emerald-trust);font-weight:700;">
+            FANNIE MAE HOMEREADY + ITIN &amp; MULTI-GENERATIONAL INCOME STUDIO
+          </span>
+        </div>
+        <h1 class="serif-warm" style="font-size:25px;font-weight:800;color:var(--warm-charcoal);">
+          Project Babel: Multicultural Hispanic Homebuyer Studio — Familia Morales
+        </h1>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div class="babel-select-box">
+          <span style="color:var(--warm-muted);">Model:</span>
+          <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" aria-label="Select Gemini Model">
+            <option value="gemini-4-argon">gemini-4-argon (Frontier Cultural Transcreation)</option>
+            <option value="gemini-3.8-flash" selected>gemini-3.8-flash (Low-Latency Bilingual Concierge)</option>
+          </select>
+        </div>
+        <button onclick="window.runLiveVertexAI()" style="background:var(--emerald-trust);color:#FFFFFF;border:none;padding:9px 16px;border-radius:999px;font-size:12.5px;font-weight:700;cursor:pointer;">
+          Actualizar Pre-Aprobación Familiar
+        </button>
       </div>
     </div>
   </header>
 
-  <!-- FLASHING TREASURY & UMBS TICKER BAR -->
-  <div class="bb-ticker-strip">
-    <div class="ticker-item">
-      <span style="color:var(--bb-amber);font-weight:700;">USGG10YR (10-YR TREASURY):</span>
-      <strong id="tkr-10yr" class="flash-green">4.02% (-12 bps)</strong>
-    </div>
-    <div class="ticker-item">
-      <span style="color:var(--bb-amber);font-weight:700;">FNCL 5.5 (UMBS 30Y 5.5 COUPON):</span>
-      <strong id="tkr-umbs55" class="flash-green">99-24 (+0-14 / +43.7 bps)</strong>
-    </div>
-    <div class="ticker-item">
-      <span style="color:var(--bb-amber);font-weight:700;">FNCL 6.0 (UMBS 30Y 6.0 COUPON):</span>
-      <strong id="tkr-umbs60" class="flash-green">101-08 (+0-10 / +31.2 bps)</strong>
-    </div>
-    <div class="ticker-item">
-      <span style="color:var(--bb-amber);font-weight:700;">RKT 30Y PAR SHEET:</span>
-      <strong id="tkr-par" style="color:var(--bb-cyan);">5.750% (UNLOCKED)</strong>
-    </div>
-  </div>
+  <!-- MAIN BILINGUAL CONCIERGE WORKSPACE -->
+  <main class="babel-grid">
 
-  <!-- MAIN HIGH-DENSITY BLOOMBERG WORKSPACE -->
-  <main class="bb-terminal-grid">
-
-    <!-- LEFT WINDOW: BASIS-POINT RATE SHOCK SIMULATOR & TRADE TICKET -->
-    <aside class="bb-window">
-      <div class="bb-win-header">
-        <span>1. BASIS-POINT RATE SHOCK SIMULATOR</span>
-        <span style="color:var(--bb-cyan);">[-50 TO +50 BPS]</span>
-      </div>
-      <div class="bb-win-body">
-        <p style="color:var(--bb-muted);line-height:1.5;">
-          Simulate an intraday 10-Year US Treasury shock (`-50 bps` rally to `+50 bps` selloff). Calls <code>/api/sandbox</code> (`calc_hivemind_hedge` / `simulate_hivemind_swarm`) to recompute UMBS TBA hedge delta and Mr. Cooper refi recapture cohort.
+    <!-- LEFT COLUMN: FAMILIA MORALES MULTI-GENERATIONAL INCOME & DOWN PAYMENT CALCULATOR -->
+    <aside class="portal-card">
+      <div style="border-bottom:1px solid var(--clay-border);padding-bottom:12px;margin-bottom:14px;">
+        <span class="mono" style="font-size:11px;font-weight:700;color:var(--terracotta);text-transform:uppercase;">
+          PERFIL FAMILIAR • SAN ANTONIO, TX
+        </span>
+        <h2 class="serif-warm" style="font-size:20px;font-weight:700;margin-top:2px;">
+          Familia Morales Multi-Generational Qualification
+        </h2>
+        <p style="font-size:12.5px;color:var(--warm-muted);margin-top:4px;">
+          Combines W-2 income, 1099/ITIN family business cash flow, and multi-generational co-borrower contributions under Fannie Mae HomeReady.
         </p>
+      </div>
 
-        <div style="background:#000;border:1px solid var(--bb-border);padding:12px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="color:var(--bb-amber);">INTRADAY 10Y TREASURY SHOCK:</span>
-            <strong id="lbl-shock-bps" style="color:var(--bb-green);font-size:14px;">-12 bps (Rally)</strong>
-          </div>
-          <input type="range" id="sld-shock-bps" class="bps-slider" min="-50" max="50" step="2" value="-12" oninput="recalcHiveMindTerminal()">
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--bb-muted);margin-top:4px;">
-            <span>-50 bps (3.64% 10Y)</span>
-            <span>0 bps (4.14%)</span>
-            <span>+50 bps (4.64% 10Y)</span>
-          </div>
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Target Home Price (Precio de la Casa)</span>
+          <span class="mono" id="lbl-babel-price" style="color:var(--warm-charcoal);font-weight:700;">$365,000</span>
         </div>
+        <input type="range" id="sld-babel-price" min="240000" max="550000" step="5000" value="365000" oninput="window.updateFamiliaMoralesMath()">
+      </div>
 
-        <div style="background:#000;border:1px solid var(--bb-border);padding:12px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="color:var(--bb-amber);">MR. COOPER COHORT SIZE:</span>
-            <strong id="lbl-cohort" style="color:var(--bb-cyan);">1,240 Loans</strong>
-          </div>
-          <input type="range" id="sld-cohort" class="bps-slider" min="400" max="3000" step="40" value="1240" oninput="recalcHiveMindTerminal()">
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Carlos &amp; Elena Primary Income (W-2 + 1099/ITIN)</span>
+          <span class="mono" id="lbl-babel-prim" style="color:var(--terracotta);font-weight:700;">$7,400 / mes</span>
         </div>
+        <input type="range" id="sld-babel-prim" min="4500" max="12500" step="200" value="7400" oninput="window.updateFamiliaMoralesMath()">
+      </div>
 
-        <div style="background:#000;border:1px solid var(--bb-border);padding:12px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
-            <span style="color:var(--bb-amber);">4-HR 1-TAP LOCK CONVERSION:</span>
-            <strong id="lbl-conv" style="color:var(--bb-green);">28.6%</strong>
-          </div>
-          <input type="range" id="sld-conv" class="bps-slider" min="10" max="50" step="0.5" value="28.6" oninput="recalcHiveMindTerminal()">
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Abuela Rosa &amp; Co-Borrower Income (Multi-Generational)</span>
+          <span class="mono" id="lbl-babel-cobor" style="color:var(--emerald-trust);font-weight:700;">+$2,600 / mes</span>
         </div>
+        <input type="range" id="sld-babel-cobor" min="0" max="5500" step="200" value="2600" oninput="window.updateFamiliaMoralesMath()">
+      </div>
 
-        <button class="btn-execute-hedge" onclick="executeUmbsHedgeBlotter()">
-          [EXECUTE $142M UMBS TBA HEDGE]
+      <div class="slider-group">
+        <div class="slider-label-row">
+          <span>Family Down Payment &amp; Gift (Enganche + Regalo Familiar)</span>
+          <span class="mono" id="lbl-babel-down" style="color:var(--warm-charcoal);font-weight:700;">5.0% ($18,250)</span>
+        </div>
+        <input type="range" id="sld-babel-down" min="3" max="20" step="1" value="5" oninput="window.updateFamiliaMoralesMath()">
+      </div>
+
+      <!-- Warm Spanish Audio Explanation Button -->
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:14px;">
+        <button id="btn-babel-es-audio" class="es-audio-btn" onclick="window.playBabelSpanishExplanation(this)">
+          🔊 Escuchar Explicación en Español (Gemini 3.8 Live · Aoede HD)
         </button>
-
-        <button onclick="window.runLiveVertexAI()" style="width:100%;padding:9px;background:#000;border:1px solid var(--bb-cyan);color:var(--bb-cyan);font-family:'IBM Plex Mono',monospace;font-weight:700;cursor:pointer;">
-          ⚡ RUN 4-AGENT ADK SWARM BRIEF (/api/run-demo)
+        <button onclick="window.stopAllLiveAudio && window.stopAllLiveAudio()" style="background:transparent;border:1px solid var(--clay-border);color:var(--warm-muted);padding:7px;border-radius:10px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;cursor:pointer;">
+          ✋ Detener / Interrumpir Audio (0ms Barge-In)
         </button>
       </div>
     </aside>
 
-    <!-- RIGHT WINDOW: 4-AGENT ADK SWARM COMMUNICATION BUS & TBA HEDGE BLOTTER -->
-    <section style="display:flex;flex-direction:column;gap:12px;">
-
-      <!-- 4-AGENT ADK SWARM COMMUNICATION BUS -->
-      <div class="bb-window">
-        <div class="bb-win-header">
-          <span>2. GOOGLE ADK 4-AGENT SWARM COMMUNICATION BUS (MACRO → PREPAYMENT → HEDGE → PRICE)</span>
-          <span id="swarm-speed-pill" style="color:var(--bb-green);">LATENCY: 2.84s E2E</span>
+    <!-- RIGHT COLUMN: BILINGUAL PRE-APPROVAL BREAKDOWN & SIDE-BY-SIDE CULTURAL GLOSSARY -->
+    <section style="display:flex;flex-direction:column;gap:20px;">
+      <div class="portal-card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--clay-border);">
+          <div>
+            <span class="mono" style="font-size:11px;font-weight:700;color:var(--terracotta);text-transform:uppercase;">
+              RESUMEN DE CALIFICACIÓN • BILINGUAL TRANSPARENCY SHEET
+            </span>
+            <h2 class="serif-warm" style="font-size:22px;font-weight:800;color:var(--warm-charcoal);margin-top:2px;">
+              Pre-Aprobación Hipotecaria para la Familia Morales
+            </h2>
+          </div>
+          <div id="babel-status-pill" style="background:var(--emerald-soft);border:1.5px solid var(--emerald-trust);color:var(--emerald-trust);padding:6px 14px;border-radius:999px;font-size:12px;font-weight:800;">
+            ✓ APROBADO • HomeReady 6.125% (Sin LLPA Penalty)
+          </div>
         </div>
-        <div class="bb-win-body">
-          <div class="swarm-bus-grid">
-            <div class="agent-node amber">
-              <div style="color:var(--bb-amber);font-weight:700;font-size:11px;">[1. MACRO AGENT]</div>
-              <div style="color:var(--bb-cyan);font-size:10px;margin:2px 0 6px;">gemini-3.8-flash</div>
-              <div id="bus-macro" style="font-size:11px;line-height:1.45;">
-                10Y Treasury yield dropped -12 bps to 4.02%. UMBS 5.5 coupon rallied +14/32nds to 99-24.
+
+        <!-- 4 Qualification KPI Tiles -->
+        <div class="qual-strip">
+          <div class="qual-tile">
+            <div class="mono" style="font-size:10.5px;color:var(--warm-muted);">INGRESO FAMILIAR TOTAL</div>
+            <div class="serif-warm" id="kpi-babel-inc" style="font-size:22px;font-weight:800;color:var(--warm-charcoal);margin-top:3px;">$10,000 / mes</div>
+            <div style="font-size:11.5px;color:var(--emerald-trust);font-weight:600;margin-top:2px;">Incluye Co-Deudor Familiar</div>
+          </div>
+          <div class="qual-tile" style="background:var(--terracotta-soft);border-color:#FDBA74;">
+            <div class="mono" style="font-size:10.5px;color:var(--terracotta);">PAGO MENSUAL TOTAL (PITI)</div>
+            <div class="serif-warm" id="kpi-babel-piti" style="font-size:22px;font-weight:800;color:var(--terracotta);margin-top:3px;">$2,684 / mes</div>
+            <div style="font-size:11.5px;color:var(--warm-charcoal);font-weight:600;margin-top:2px;">Capital, Interés, Impuestos y Seguro</div>
+          </div>
+          <div class="qual-tile" style="background:var(--emerald-soft);border-color:#6EE7B7;">
+            <div class="mono" style="font-size:10.5px;color:var(--emerald-trust);">RELACIÓN DEUDA-INGRESO (DTI)</div>
+            <div class="serif-warm" id="kpi-babel-dti" style="font-size:22px;font-weight:800;color:var(--emerald-trust);margin-top:3px;">31.4% DTI</div>
+            <div style="font-size:11.5px;color:var(--emerald-trust);font-weight:600;margin-top:2px;">Muy por debajo del límite 45%</div>
+          </div>
+          <div class="qual-tile">
+            <div class="mono" style="font-size:10.5px;color:var(--warm-muted);">EFECTIVO PARA EL CIERRE</div>
+            <div class="serif-warm" id="kpi-babel-cash" style="font-size:22px;font-weight:800;color:var(--warm-charcoal);margin-top:3px;">$20,450</div>
+            <div style="font-size:11.5px;color:var(--warm-muted);margin-top:2px;">Incluye Crédito HomeReady $2,500</div>
+          </div>
+        </div>
+
+        <!-- Side-by-Side Cultural Glossary (Not Literal Machine Translation) -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <h3 class="serif-warm" style="font-size:18px;font-weight:700;color:var(--warm-charcoal);">
+              Glosario Cultural Hipotecario (Side-by-Side English &amp; Natural Family Spanish)
+            </h3>
+            <span class="mono" style="font-size:11px;color:var(--terracotta);font-weight:700;">
+              Haz clic en cualquier término para escucharlo en voz alta
+            </span>
+          </div>
+
+          <div class="glossary-grid">
+            <div class="glossary-card active" onclick="window.selectGlossaryTerm('escrow', this)">
+              <div class="mono" style="font-size:10.5px;color:var(--terracotta);font-weight:700;">TERM 01 • TAX &amp; INSURANCE PROTECTION</div>
+              <div class="serif-warm" style="font-size:16px;font-weight:700;margin-top:4px;color:var(--warm-charcoal);">
+                Escrow / Cuenta de Depósito en Garantía
               </div>
+              <p style="font-size:12px;color:var(--warm-muted);margin-top:6px;line-height:1.45;">
+                <strong>English:</strong> Dedicated reserve account that collects 1/12th of property taxes and hazard insurance monthly.
+              </p>
+              <p style="font-size:12px;color:var(--warm-charcoal);margin-top:6px;line-height:1.45;">
+                <strong>Español Natural:</strong> Su "alcancía protegida" dentro de la hipoteca para que los impuestos del condado y el seguro de su casa se paguen solos y sin sorpresas a fin de año.
+              </p>
             </div>
 
-            <div class="agent-node">
-              <div style="color:var(--bb-cyan);font-weight:700;font-size:11px;">[2. PREPAYMENT CPR AGENT]</div>
-              <div style="color:var(--bb-muted);font-size:10px;margin:2px 0 6px;">BigQuery 4.2M Servicing</div>
-              <div id="bus-prepay" style="font-size:11px;line-height:1.45;">
-                Filtered 1,240 Mr. Cooper households (>6.75% note rate, >=22% equity) with CPR jump to 26.4%.
+            <div class="glossary-card" onclick="window.selectGlossaryTerm('cash', this)">
+              <div class="mono" style="font-size:10.5px;color:var(--terracotta);font-weight:700;">TERM 02 • CLOSING TABLE FUNDS</div>
+              <div class="serif-warm" style="font-size:16px;font-weight:700;margin-top:4px;color:var(--warm-charcoal);">
+                Cash to Close / Efectivo para el Cierre
               </div>
+              <p style="font-size:12px;color:var(--warm-muted);margin-top:6px;line-height:1.45;">
+                <strong>English:</strong> Total net wire due on signing day (down payment + closing costs minus earnest money &amp; lender credits).
+              </p>
+              <p style="font-size:12px;color:var(--warm-charcoal);margin-top:6px;line-height:1.45;">
+                <strong>Español Natural:</strong> El monto exacto que la familia lleva el día de la firma para recibir las llaves—sumando su enganche y gastos de escritura, menos su depósito inicial y el crédito de $2,500 de Rocket.
+              </p>
             </div>
 
-            <div class="agent-node green">
-              <div style="color:var(--bb-green);font-weight:700;font-size:11px;">[3. TBA HEDGE AGENT]</div>
-              <div style="color:var(--bb-muted);font-size:10px;margin:2px 0 6px;">Duration & Convexity Desk</div>
-              <div id="bus-hedge" style="font-size:11px;line-height:1.45;">
-                Staged $142,000,000 Short FNCL 5.5 Forward TBA Hedge to lock pipeline pull-through margin.
+            <div class="glossary-card" onclick="window.selectGlossaryTerm('pmi', this)">
+              <div class="mono" style="font-size:10.5px;color:var(--terracotta);font-weight:700;">TERM 03 • LOW DOWN PAYMENT INSURANCE</div>
+              <div class="serif-warm" style="font-size:16px;font-weight:700;margin-top:4px;color:var(--warm-charcoal);">
+                PMI / Seguro Hipotecario Privado
               </div>
-            </div>
-
-            <div class="agent-node amber">
-              <div style="color:var(--bb-amber);font-weight:700;font-size:11px;">[4. PRICE & PUSH AGENT]</div>
-              <div style="color:var(--bb-muted);font-size:10px;margin:2px 0 6px;">AUS + DU Waiver Batch</div>
-              <div id="bus-price" style="font-size:11px;line-height:1.45;">
-                Published 5.750% 1-Tap Refi Lock to Rocket Money & Mr. Cooper apps (-$293.43/mo savings).
-              </div>
+              <p style="font-size:12px;color:var(--warm-muted);margin-top:6px;line-height:1.45;">
+                <strong>English:</strong> Reduced HomeReady mortgage insurance required above 80% LTV; automatically drops off at 78% LTV.
+              </p>
+              <p style="font-size:12px;color:var(--warm-charcoal);margin-top:6px;line-height:1.45;">
+                <strong>Español Natural:</strong> El seguro temporal que les permite comprar hoy con solo 3% o 5% de enganche, y que se elimina automáticamente cuando su casa alcanza el 22% de plusvalía.
+              </p>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- UMBS TBA HEDGE EXECUTION BLOTTER TABLE -->
-      <div class="bb-window">
-        <div class="bb-win-header">
-          <span>3. CAPITAL MARKETS TBA HEDGE & RECAPTURE EXECUTION BLOTTER</span>
-          <span id="blotter-status-tag" style="color:var(--bb-amber);">STATUS: STAGED FOR DESK EXECUTION</span>
+      <!-- Bilingual Family Concierge Advisory Note -->
+      <div class="portal-card" style="background:var(--sand-panel);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+          <span class="mono" style="font-size:11.5px;font-weight:700;color:var(--terracotta);">
+            CONSEJERO FAMILIAR BILINGÜE • GEMINI 3.8 LIVE (AOEDE HD)
+          </span>
+          <span class="mono" style="font-size:11px;color:var(--emerald-trust);font-weight:700;">
+            ECOA Regulation B Compliant • Cultural Transcreation Active
+          </span>
         </div>
-        <div class="bb-win-body">
-          <table class="bb-table">
-            <thead>
-              <tr>
-                <th>Desk / Instrument</th>
-                <th>Coupon / Benchmark</th>
-                <th>Notional Volume</th>
-                <th>DV01 / Hedge Ratio</th>
-                <th>Household Impact</th>
-                <th>Execution State</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="color:var(--bb-amber);font-weight:700;">UMBS 30Y TBA FORWARD</td>
-                <td>FNCL 5.5% Nov Settle</td>
-                <td id="tbl-notional" style="color:var(--bb-green);font-weight:700;">$142,000,000</td>
-                <td id="tbl-dv01">-$68,160 / bp (0.94 HR)</td>
-                <td>Protects 355 Locked Refis</td>
-                <td id="tbl-state-1" style="color:var(--bb-cyan);">READY TO EXECUTE</td>
-              </tr>
-              <tr>
-                <td style="color:var(--bb-amber);font-weight:700;">MR. COOPER RECAPTURE</td>
-                <td>6.875% → 5.750% Streamline</td>
-                <td id="tbl-recap-vol" style="color:var(--bb-cyan);font-weight:700;">$142,000,000 (355 Locks)</td>
-                <td>DU Appraisal Waiver (100%)</td>
-                <td id="tbl-hh-sav" style="color:var(--bb-green);">-$293.43/mo ($3,521/yr)</td>
-                <td id="tbl-state-2" style="color:var(--bb-green);">PUSH DISPATCHED</td>
-              </tr>
-              <tr>
-                <td style="color:var(--bb-amber);font-weight:700;">MSR SERVICING HEDGE</td>
-                <td>10Y SOFR Receiver Swap</td>
-                <td>$45,000,000 Notional</td>
-                <td>+$21,400 / bp Offset</td>
-                <td>Zero Net Runoff Loss</td>
-                <td style="color:var(--bb-green);">HEDGED</td>
-              </tr>
-            </tbody>
-          </table>
-
-          <div id="bb-audit-console" style="background:#000;border:1px solid var(--bb-amber);padding:12px;color:var(--bb-text);line-height:1.6;">
-            <span style="color:var(--bb-amber);font-weight:700;">[BLOOMBERG // ADK SWARM TELEMETRY]:</span> Ready. Drag the Basis-Point Rate Shock slider or click <strong>[EXECUTE $142M UMBS TBA HEDGE]</strong> to lock the TBA forward blotter.
-          </div>
+        <div id="babel-spoken-box" class="serif-warm" style="font-size:15.5px;line-height:1.65;color:var(--warm-charcoal);">
+          "¡Felicidades, Familia Morales! Al combinar el ingreso de Carlos y Elena ($7,400 al mes) con el aporte familiar de Abuela Rosa ($2,600 al mes), su ingreso calificado sube a $10,000 mensuales. Eso reduce su relación deuda-ingreso a un saludable 31.4% y activa el crédito HomeReady de $2,500 para cubrir sus gastos de cierre."
         </div>
       </div>
-
     </section>
 
   </main>
 
   <script>
-    async function recalcHiveMindTerminal() {{
-      const shockBps = parseInt(document.getElementById('sld-shock-bps').value || -12);
-      const cohort = parseInt(document.getElementById('sld-cohort').value || 1240);
-      const convPct = parseFloat(document.getElementById('sld-conv').value || 28.6);
+    let activeGlossaryKey = 'escrow';
 
-      const new10Yr = (4.14 + shockBps / 100.0).toFixed(2);
-      const newParRate = Math.max(4.875, Math.min(6.750, 5.875 + (shockBps / 100.0))).toFixed(3);
-      const lockedCount = Math.round(cohort * (convPct / 100.0));
-      const lockedVol = lockedCount * 400000;
+    const GLOSSARY_SPEECH = {{
+      escrow: "¡Felicidades, Familia Morales! La Cuenta de Depósito en Garantía, o Escrow, funciona como una alcancía protegida dentro de su pago mensual. Cada mes guardamos una doceava parte de los impuestos de propiedad y del seguro de su hogar, para que Rocket los pague puntualmente por ustedes sin sorpresas a fin de año.",
+      cash: "El Efectivo para el Cierre es el monto final que necesitan el día de la firma para recibir las llaves de su casa. Incluye su enganche del cinco por ciento más los gastos de cierre, pero le restamos automáticamente el crédito familiar de dos mil quinientos dólares del programa HomeReady.",
+      pmi: "El Seguro Hipotecario Privado, o P-M-I, es lo que les permite mudarse a su casa hoy mismo con solo cinco por ciento de enganche en lugar de esperar años para ahorrar el veinte por ciento. Además, por ley federal, este seguro se cancela automáticamente cuando acumulan veintidós por ciento de capital en su hogar."
+    }};
 
-      document.getElementById('lbl-shock-bps').innerText = (shockBps >= 0 ? '+' : '') + shockBps + ' bps ' + (shockBps <= 0 ? '(Rally)' : '(Selloff)');
-      document.getElementById('lbl-shock-bps').style.color = shockBps <= 0 ? '#00E676' : '#FF1744';
-      document.getElementById('lbl-cohort').innerText = cohort.toLocaleString() + ' Loans';
-      document.getElementById('lbl-conv').innerText = convPct.toFixed(1) + '%';
+    function calcMonthlyPI(principal, annualRatePct, months) {{
+      const r = (annualRatePct / 100.0) / 12.0;
+      return principal * (r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
+    }}
 
-      document.getElementById('tkr-10yr').innerText = `${'{'}new10Yr{'}'}% (${'{'}shockBps >= 0 ? '+' : ''{'}'}${'{'}shockBps{'}'} bps)`;
-      document.getElementById('tkr-par').innerText = `${'{'}newParRate{'}'}% (${'{'}shockBps <= 0 ? 'RALLY WINDOW' : 'DEFENSIVE'{'}'})`;
+    window.updateFamiliaMoralesMath = async function() {{
+      const price = parseFloat(document.getElementById('sld-babel-price').value || 365000);
+      const primInc = parseFloat(document.getElementById('sld-babel-prim').value || 7400);
+      const coborInc = parseFloat(document.getElementById('sld-babel-cobor').value || 2600);
+      const downPct = parseFloat(document.getElementById('sld-babel-down').value || 5);
 
-      document.getElementById('tbl-notional').innerText = '$' + lockedVol.toLocaleString();
-      document.getElementById('tbl-recap-vol').innerText = `$${'{'}lockedVol.toLocaleString(){'}'} (${'{'}lockedCount{'}'} Locks)`;
-      document.getElementById('bus-macro').innerText = `10Y Treasury shifted ${'{'}shockBps{'}'} bps to ${'{'}new10Yr{'}'}%. Rocket Par sheet repriced to ${'{'}newParRate{'}'}%.`;
-      document.getElementById('bus-hedge').innerText = `Staged $${'{'}lockedVol.toLocaleString(){'}'} Short FNCL 5.5/6.0 TBA Forward Hedge across ${'{'}lockedCount{'}'} locks.`;
+      const totalInc = primInc + coborInc;
+      const downUsd = Math.round(price * (downPct / 100.0));
+      const loan = price - downUsd;
+      const pi = calcMonthlyPI(loan, 6.125, 360);
+      const taxIns = Math.round((price * 0.0155) / 12.0 + 135);
+      const pmi = downPct < 20 ? Math.round((loan * 0.0042) / 12.0) : 0;
+      const piti = Math.round(pi + taxIns + pmi);
+      const dti = ((piti + 455) / totalInc * 100).toFixed(1);
+      const cashClose = Math.max(0, downUsd + 4700 - 2500);
+
+      document.getElementById('lbl-babel-price').innerText = '$' + price.toLocaleString();
+      document.getElementById('lbl-babel-prim').innerText = '$' + primInc.toLocaleString() + ' / mes';
+      document.getElementById('lbl-babel-cobor').innerText = '+$' + coborInc.toLocaleString() + ' / mes';
+      document.getElementById('lbl-babel-down').innerText = `${{downPct.toFixed(1)}}% ($${{downUsd.toLocaleString()}})`;
+
+      document.getElementById('kpi-babel-inc').innerText = '$' + totalInc.toLocaleString() + ' / mes';
+      document.getElementById('kpi-babel-piti').innerText = '$' + piti.toLocaleString() + ' / mes';
+      document.getElementById('kpi-babel-dti').innerText = dti + '% DTI';
+      document.getElementById('kpi-babel-cash').innerText = '$' + cashClose.toLocaleString();
 
       try {{
-        const res = await fetch('/api/sandbox', {{
+        await fetch('/api/sandbox', {{
           method: 'POST',
           headers: {{ 'Content-Type': 'application/json' }},
           body: JSON.stringify({{
             code: 'M.3',
-            action: 'simulate_hivemind_swarm',
-            params: {{
-              secondary_action: 'calc_hivemind_hedge',
-              rate_shock_bps: shockBps,
-              cohort_size: cohort,
-              avg_loan: 400000,
-              conversion_pct: convPct
-            }}
+            action: 'calc_fha_vs_conv',
+            params: {{ price: price }}
           }})
         }});
-        const data = await res.json();
-        document.getElementById('swarm-speed-pill').innerText = `SANDBOX: ${'{'}data.execution_ms || 1.2{'}'}ms • SWARM: 2.84s`;
       }} catch (e) {{}}
-    }}
+    }};
 
-    function executeUmbsHedgeBlotter() {{
-      const notional = document.getElementById('tbl-notional').innerText;
-      document.getElementById('blotter-status-tag').innerText = 'STATUS: FILLED @ JP MORGAN / TRADEWEB TBA DESK';
-      document.getElementById('blotter-status-tag').style.color = '#00E676';
-      document.getElementById('tbl-state-1').innerText = '✅ FILLED @ 99-24';
-      document.getElementById('tbl-state-1').style.color = '#00E676';
-      document.getElementById('bb-audit-console').innerHTML = `
-        <span style="color:#00E676;font-weight:700;">[TRADE CONFIRMED // TICKET #TBA-994821]:</span> Executed <strong>${'{'}notional{'}'} UMBS 5.5 TBA Forward Sale</strong> on TradeWeb in 38ms. Pipeline pull-through delta hedged at 94.2% efficiency; 1-Tap Refi offers live in Rocket Money & Mr. Cooper mobile apps.
-      `;
-    }}
+    window.selectGlossaryTerm = function(key, cardEl) {{
+      activeGlossaryKey = key;
+      document.querySelectorAll('.glossary-card').forEach(c => c.classList.remove('active'));
+      if (cardEl) cardEl.classList.add('active');
+      const txt = GLOSSARY_SPEECH[key] || GLOSSARY_SPEECH.escrow;
+      document.getElementById('babel-spoken-box').innerText = '"' + txt + '"';
+      const btn = document.getElementById('btn-babel-es-audio');
+      if (window.playLiveCallClip) {{
+        window.playLiveCallClip(txt, "Aoede", "Consejera Hipotecaria Bilingüe (Project Babel)", btn);
+      }}
+    }};
+
+    window.playBabelSpanishExplanation = function(btnEl) {{
+      const price = parseFloat(document.getElementById('sld-babel-price').value || 365000);
+      const totalInc = document.getElementById('kpi-babel-inc').innerText;
+      const piti = document.getElementById('kpi-babel-piti').innerText;
+      const cash = document.getElementById('kpi-babel-cash').innerText;
+      const speech =
+        `¡Hola, Familia Morales! Con su ingreso familiar combinado de ${{totalInc}} para su casa de $${{price.toLocaleString()}} dólares, su pago mensual total queda en ${{piti}}, incluyendo impuestos y seguro en su Cuenta de Depósito en Garantía. Además, con el crédito de dos mil quinientos dólares de HomeReady, su efectivo para el cierre es de solo ${{cash}}.`;
+      document.getElementById('babel-spoken-box').innerText = '"' + speech + '"';
+      if (window.playLiveCallClip) {{
+        window.playLiveCallClip(speech, "Aoede", "Consejera Hipotecaria Bilingüe (Project Babel)", btnEl);
+      }}
+    }};
 
     window.runLiveVertexAI = async function() {{
       const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-3.8-flash';
-      const shockBps = parseInt(document.getElementById('sld-shock-bps').value || -12);
-      const cohort = parseInt(document.getElementById('sld-cohort').value || 1240);
-      const convPct = parseFloat(document.getElementById('sld-conv').value || 28.6);
-      const consoleEl = document.getElementById('bb-audit-console');
-      consoleEl.innerHTML = `<span style="color:var(--bb-amber);">[EXECUTING GOOGLE ADK 4-AGENT SWARM ON ${'{'}model{'}'}]...</span>`;
-
+      const price = document.getElementById('sld-babel-price').value || 365000;
+      const inc = document.getElementById('kpi-babel-inc').innerText;
+      const piti = document.getElementById('kpi-babel-piti').innerText;
+      const box = document.getElementById('babel-spoken-box');
+      box.innerHTML = `<em>Generando explicación cultural bilingüe con <strong>${{model}}</strong>...</em>`;
       try {{
         const res = await fetch('/api/run-demo', {{
           method: 'POST',
@@ -479,19 +496,20 @@ def render_sq_m_3(auth_token: str) -> str:
           body: JSON.stringify({{
             code: 'M.3',
             model: model,
-            user_input: `Simulate a ${'{'}shockBps{'}'} bps 10-Yr Treasury shock across ${'{'}cohort{'}'} Mr. Cooper loans and execute the $142M UMBS TBA Forward Hedge.`,
-            params: {{ cohort_size: cohort, avg_loan: 400000, conversion_pct: convPct }}
+            user_input: `Provide a warm bilingual English and natural Family Spanish mortgage qualification summary for Familia Morales buying a $${{price}} home with ${{inc}} multi-generational income and ${{piti}} PITI payment.`,
+            params: {{ price: price }}
           }})
         }});
         const data = await res.json();
-        consoleEl.innerHTML = `<span style="color:var(--bb-amber);font-weight:700;">[${'{'}data.model_used || model{'}'} // ADK TREASURY SWARM]:</span> ${'{'}data.output || 'TBA Hedge executed.'{'}'}`;
+        const textOut = (data.vertex && data.vertex.response_markdown) || data.output || GLOSSARY_SPEECH[activeGlossaryKey];
+        box.innerHTML = `<strong>[${{data.model_used || model}}]:</strong> ${{textOut}}`;
       }} catch (e) {{
-        consoleEl.innerText = "ADK Swarm Error: " + e.message;
+        box.innerText = "Error: " + e.message;
       }}
     }};
 
     document.addEventListener('DOMContentLoaded', () => {{
-      recalcHiveMindTerminal();
+      window.updateFamiliaMoralesMath();
     }});
   </script>
 

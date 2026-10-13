@@ -1,0 +1,1869 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ADK // StreamAssist Enterprise Session & Memory Architecture Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://alcdn.msauth.net/browser/2.38.0/js/msal-browser.min.js"></script>
+  <style>
+    :root {
+      /* Light Mode (Default - Mandatory Vercel Monochrome Standard) */
+      --bg-canvas: #fafafa;
+      --bg-grid: #eaeaea;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f4f4f5;
+      --bg-header: #fafafa;
+      --border-subtle: #eaeaea;
+      --border-hover: #111111;
+      --text-primary: #09090b;
+      --text-secondary: #666666;
+      --text-muted: #a1a1aa;
+      --btn-primary-bg: #09090b;
+      --btn-primary-text: #ffffff;
+      --btn-primary-hover: #27272a;
+      --btn-secondary-bg: #ffffff;
+      --btn-secondary-text: #09090b;
+      --btn-secondary-hover: #f4f4f5;
+      --shadow-card: 0 12px 32px rgba(0, 0, 0, 0.06);
+      --ink-grad-1: radial-gradient(circle at 20% 20%, #52525b, #18181b, #000000);
+      --ink-grad-2: radial-gradient(circle at 80% 20%, #71717a, #27272a, #09090b);
+      --ink-grad-3: radial-gradient(circle at 40% 80%, #3f3f46, #09090b, #000000);
+      --ink-shadow: rgba(0, 0, 0, 0.28);
+      --sweep-grad: linear-gradient(90deg, #71717a 0%, #09090b 50%, #71717a 100%);
+      --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    [data-theme="dark"] {
+      /* OLED Dark Mode */
+      --bg-canvas: #000000;
+      --bg-grid: #111111;
+      --bg-surface: #0a0a0a;
+      --bg-elevated: #111111;
+      --bg-header: #050505;
+      --border-subtle: #222222;
+      --border-hover: #ededed;
+      --text-primary: #ededed;
+      --text-secondary: #888888;
+      --text-muted: #52525b;
+      --btn-primary-bg: #ffffff;
+      --btn-primary-text: #000000;
+      --btn-primary-hover: #d4d4d8;
+      --btn-secondary-bg: #000000;
+      --btn-secondary-text: #ededed;
+      --btn-secondary-hover: #111111;
+      --shadow-card: 0 24px 60px rgba(0, 0, 0, 0.85);
+      --ink-grad-1: radial-gradient(circle at 20% 20%, #ffffff, #a1a1aa, #09090b);
+      --ink-grad-2: radial-gradient(circle at 80% 20%, #f4f4f5, #71717a, #18181b);
+      --ink-grad-3: radial-gradient(circle at 40% 80%, #e4e4e7, #52525b, #000000);
+      --ink-shadow: rgba(255, 255, 255, 0.45);
+      --sweep-grad: linear-gradient(90deg, #71717a 0%, #ffffff 50%, #71717a 100%);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-canvas);
+      background-image:
+        linear-gradient(to right, var(--bg-grid) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--bg-grid) 1px, transparent 1px);
+      background-size: 48px 48px;
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      letter-spacing: -0.01em;
+    }
+
+    /* Claude-Code Shrinking & Shining Ink Loader */
+    .shrinking-shining-ink {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      flex-shrink: 0;
+      background: var(--ink-grad-1);
+      border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+      animation:
+        ink-morph 5s ease-in-out infinite alternate,
+        ink-pulse 1.8s ease-in-out infinite,
+        ink-shine 3.5s linear infinite;
+      filter: drop-shadow(0 0 6px var(--ink-shadow));
+    }
+
+    @keyframes ink-morph {
+      0% {
+        border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        background: var(--ink-grad-1);
+      }
+      50% {
+        border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+        background: var(--ink-grad-2);
+      }
+      100% {
+        border-radius: 70% 30% 50% 50% / 30% 30% 70% 70%;
+        background: var(--ink-grad-3);
+      }
+    }
+
+    @keyframes ink-pulse {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      50% { transform: scale(0.72) rotate(18deg); }
+    }
+
+    @keyframes ink-shine {
+      0% { filter: drop-shadow(0 0 4px var(--ink-shadow)) brightness(1); }
+      50% { filter: drop-shadow(0 0 9px var(--ink-shadow)) brightness(1.35); }
+      100% { filter: drop-shadow(0 0 4px var(--ink-shadow)) brightness(1); }
+    }
+
+    .sweep-text {
+      background: var(--sweep-grad);
+      background-size: 200% auto;
+      color: transparent;
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: sweep-shimmer 2.2s linear infinite;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+    }
+
+    @keyframes sweep-shimmer {
+      to { background-position: 200% center; }
+    }
+
+    /* Header Bar */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 0 24px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-mark {
+      width: 26px;
+      height: 26px;
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--bg-elevated);
+      padding: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    .nav-tab {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 7px 14px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .nav-tab.active {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border-color: var(--border-subtle);
+      font-weight: 600;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 7px 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      border-color: var(--border-hover);
+      background: var(--btn-secondary-hover);
+    }
+
+    .btn-primary {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border-color: var(--btn-primary-bg);
+    }
+
+    .btn-primary:hover {
+      background: var(--btn-primary-hover);
+      color: var(--btn-primary-text);
+    }
+
+    .telemetry-strip {
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 8px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .telemetry-group {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-elevated);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-primary);
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-primary);
+    }
+
+    /* Main containers */
+    .tab-view {
+      display: none;
+    }
+
+    .tab-view.active {
+      display: block;
+    }
+
+    /* Architecture Tab Layout */
+    .arch-container {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 24px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      padding: 24px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .section-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(460px, 1fr));
+      gap: 18px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 14px;
+    }
+
+    .subcard {
+      background: var(--bg-canvas);
+      border: 1px solid var(--border-subtle);
+      padding: 16px;
+      transition: border-color 0.15s ease;
+    }
+
+    .subcard:hover {
+      border-color: var(--border-hover);
+    }
+
+    .subcard-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .subcard p, .subcard li {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .subcard ul {
+      padding-left: 18px;
+      margin-top: 6px;
+    }
+
+    code, pre {
+      font-family: var(--font-mono);
+    }
+
+    code {
+      font-size: 11.5px;
+      background: var(--bg-elevated);
+      padding: 2px 5px;
+      border: 1px solid var(--border-subtle);
+    }
+
+    pre {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 12px;
+      font-size: 11.5px;
+      overflow-x: auto;
+      line-height: 1.5;
+      color: var(--text-primary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+
+    th {
+      text-align: left;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-secondary);
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-hover);
+      background: var(--bg-elevated);
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: top;
+      color: var(--text-primary);
+    }
+
+    .plane-diagram {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .plane-box {
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .plane-box.selected {
+      border-color: var(--text-primary);
+      background: var(--bg-elevated);
+    }
+
+    /* Workbench Tab Layout (3-Column Studio) */
+    .workbench-layout {
+      display: grid;
+      grid-template-columns: 330px 1fr 430px;
+      height: calc(100vh - 95px);
+      overflow: hidden;
+    }
+
+    .pane {
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      overflow: hidden;
+    }
+
+    .pane:last-child {
+      border-right: none;
+    }
+
+    .pane-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-subtle);
+      background: var(--bg-header);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .pane-header-title {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+
+    .pane-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .session-item {
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .session-item:hover {
+      border-color: var(--border-hover);
+    }
+
+    .session-item.active {
+      border-color: var(--text-primary);
+      background: var(--bg-elevated);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--bg-canvas);
+    }
+
+    .msg {
+      max-width: 92%;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      padding: 14px 16px;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      border-color: var(--text-primary);
+    }
+
+    .msg.model {
+      align-self: flex-start;
+    }
+
+    .msg.system {
+      align-self: stretch;
+      max-width: 100%;
+      background: var(--bg-elevated);
+      border-style: dashed;
+    }
+
+    .msg-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .msg-body {
+      font-size: 13.5px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chat-composer {
+      border-top: 1px solid var(--border-subtle);
+      background: var(--bg-surface);
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input[type="text"], textarea, select {
+      width: 100%;
+      font-family: var(--font-sans);
+      font-size: 13px;
+      padding: 9px 12px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      color: var(--text-primary);
+      outline: none;
+    }
+
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--border-hover);
+    }
+
+    .scope-chip {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      padding: 4px 8px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      color: var(--text-secondary);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .scope-chip.active {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      border-color: var(--btn-primary-bg);
+    }
+
+    details {
+      margin-top: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--bg-canvas);
+      padding: 8px 10px;
+    }
+
+    summary {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      cursor: pointer;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 1180px) {
+      .workbench-layout {
+        grid-template-columns: 1fr;
+        height: auto;
+      }
+      .plane-diagram {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- TOP ARCHITECTURAL HEADER BAR -->
+  <header>
+    <div class="brand">
+      <div class="brand-mark">GE</div>
+      <div>
+        <div class="brand-title">ADK // STREAMASSIST ENTERPRISE ARCHITECTURE STUDIO</div>
+        <div class="brand-sub">Session Coordinator · 3-Tier Memory Lifecycle · Entra WIF & Federated ACLs</div>
+      </div>
+    </div>
+
+    <div class="nav-tabs">
+      <button class="nav-tab active" id="tab-btn-arch" onclick="switchTab('arch')">
+        01 // Architecture & Internal Topology
+      </button>
+      <button class="nav-tab" id="tab-btn-workbench" onclick="switchTab('workbench')">
+        02 // Live Session & Memory Workbench
+      </button>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn" id="btn-msal-login" onclick="triggerMsalLogin()">
+        Entra ID Login (MSAL)
+      </button>
+      <button class="btn" onclick="refreshAll()">
+        Sync Live State
+      </button>
+      <button class="btn btn-primary" id="theme-toggle-btn" onclick="toggleTheme()">
+        🌙 Dark Mode
+      </button>
+    </div>
+  </header>
+
+  <!-- TELEMETRY STRIP -->
+  <div class="telemetry-strip">
+    <div class="telemetry-group">
+      <span>PROJECT: <strong id="tel-project">545964020693 (sharepoint-wif-agent)</strong></span>
+      <span>ENGINE: <strong id="tel-engine">gemini-enterprise</strong></span>
+      <span>WIF POOL: <strong id="tel-wif">sp-wif-pool-v2 / entra-provider</strong></span>
+      <span>ENTRA TENANT: <strong id="tel-tenant">de46a3fd-0d68-4b25-8343-6eb5d71afce9</strong></span>
+    </div>
+    <div class="telemetry-group">
+      <span class="pill"><span class="dot"></span> AUTH MODE: <strong id="tel-auth-mode">LOADING...</strong></span>
+      <span class="pill">SESSION LIFECYCLE: <strong id="tel-lifecycle">ACTIVE</strong></span>
+      <span class="pill">IDLE TIMER: <strong id="tel-idle-timer">05:00</strong></span>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 1: ARCHITECTURE & INTERNAL TOPOLOGY (DEEP DIVE & TRANSCRIPT AUDIT) -->
+  <!-- ===================================================================== -->
+  <main id="view-arch" class="tab-view active">
+    <div class="arch-container">
+
+      <!-- SECTION 01: TRANSCRIPT AUDIT (CRITICAL COLLABORATOR REALITY CHECK) -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-tag">SECTION 01 // FIRST-PRINCIPLES TRANSCRIPT AUDIT (CRITICAL-COLLABORATOR)</div>
+            <h2 class="card-title">Where the Previous Chat Confabulated Mechanics vs. Verified Google Internal Source Code</h2>
+          </div>
+          <span class="pill">VERIFIED AGAINST //depot/google3 & LIVE GCP API</span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 22%;">Architectural Claim in Transcript</th>
+              <th style="width: 34%;">Why It Breaks in Production (Confabulation)</th>
+              <th style="width: 44%;">Verified Production Reality (Google Internal Source & Proto)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>1. "ADK Intercepts StreamAssist Mid-Turn"</strong><br><span style="color:var(--text-secondary);font-size:11px;">(Turns 8 & 22)</span></td>
+              <td>The transcript claimed ADK invokes <code>StreamAssist</code> as a "streaming cognitive engine" while ADK intercepts its intermediate tool loop and injects ephemeral 50-page document frames into each turn.</td>
+              <td><strong><code>StreamAssist</code> is defined on <code>google.cloud.discoveryengine.v1.AssistantService</code></strong> (<code>assistant_service.proto</code>, 45-min RPC deadline), <em>not</em> a raw LLM completion endpoint. It runs its own closed-loop <code>DolphinServer</code> planner, DRIP query rewriter, and server-side Spanner <code>Session</code>. ADK cannot intercept <code>StreamAssist</code> mid-generation; ADK orchestrates <code>StreamAssist</code> as a sub-agent/tool handle (<code>adk_session_id &leftrightarrow; stream_assist_session_id</code>).</td>
+            </tr>
+            <tr>
+              <td><strong>2. "Federated Connectors Stream 100-Page PDFs into 2M Context"</strong><br><span style="color:var(--text-secondary);font-size:11px;">(Turn 12 Pushback Pivot)</span></td>
+              <td>When corrected about Federated Connectors, the previous assistant invented a story where Microsoft Graph Federated Search streams raw 100-page PDFs into a 2M context window on every query and flushes them.</td>
+              <td>Live inspection of project <code>545964020693</code> proves connectors are <code>connectorType: "THIRD_PARTY_FEDERATED"</code> with <code>connectorModes: ["FEDERATED", "ACTIONS"]</code> + <code>bapConfig</code>. Federated search queries Graph for <strong>ranked snippets + metadata</strong>. Full file reads only occur when Dolphin invokes <code>fetch_documents</code> / BAP <code>download_document</code> into an ephemeral per-turn RAM cache (<code>temp:w1_document_cache</code>, capped at <strong>64 MB total / 10 MB per doc</strong>).</td>
+            </tr>
+            <tr>
+              <td><strong>3. "Duplicate Connectors on Both StreamAssist & ADK MCP"</strong><br><span style="color:var(--text-secondary);font-size:11px;">(Turns 1 &ndash; 22)</span></td>
+              <td>Accepted connecting SharePoint & Outlook simultaneously via <code>StreamAssist</code> AND via custom ADK MCP servers, creating double Entra ID OAuth/WIF token pipelines and routing split-brain.</td>
+              <td>Eliminate duplicate M365 connectors. Let <code>StreamAssist</code> own <strong>M365 Federated Search + BAP Actions</strong> (SharePoint <code>download_document</code> / <code>upload_document</code>, Outlook <code>send_mail</code> / <code>create_event</code>) under a single WIF identity (<code>sp-wif-pool-v2</code>), while ADK MCP servers handle custom internal enterprise systems (ERP, SQL, domain workflows).</td>
+            </tr>
+            <tr>
+              <td><strong>4. "Probabilistic LLM Filter Before Memory Bank"</strong><br><span style="color:var(--text-secondary);font-size:11px;">(Turn 22 Defense)</span></td>
+              <td>Proposed letting an LLM "extraction filter" strip confidential SharePoint/Outlook facts from synthesized chat turns before calling <code>memory_service.generate_memories()</code>.</td>
+              <td>Synthesized assistant turns blend user intent with restricted document facts at the token level. In production compliance, <strong>document facts must never enter cross-session Memory Banks</strong>. Tier 3 Memory Bank persists strictly structured <code>user:*</code> preferences/aliases, while all enterprise facts require live Entra ID / Microsoft Graph ACL checks on every session.</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- SECTION 02: INTERACTIVE GRAPHICAL SVG 4-PLANE ARCHITECTURAL TOPOLOGY -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-tag">SECTION 02 // INTERACTIVE GRAPHICAL ARCHITECTURE TOPOLOGY (SVG SCHEMATIC)</div>
+            <h2 class="card-title">End-to-End Control Plane, Data Plane & Memory Tier Topology (Click Any Node in Diagram)</h2>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="btn" onclick="selectPlane(1)">Plane 1: Client/WIF</button>
+            <button class="btn" onclick="selectPlane(2)">Plane 2: ADK Core</button>
+            <button class="btn" onclick="selectPlane(3)">Plane 3: StreamAssist</button>
+            <button class="btn" onclick="selectPlane(4)">Plane 4: M365 Graph/BAP</button>
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border-subtle);background:var(--bg-canvas);padding:16px;margin-bottom:16px;overflow-x:auto;">
+          <svg viewBox="0 0 1320 560" style="width:100%;min-width:980px;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <marker id="arrow-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb" />
+              </marker>
+              <marker id="arrow-muted" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b" />
+              </marker>
+              <style>
+                /* Diagram-specific high-legibility palette & zero text-stroke bleed */
+                .diag-svg text {
+                  stroke: none !important;
+                  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                  text-rendering: geometricPrecision;
+                }
+                .svg-lane { fill: var(--bg-surface); stroke: var(--border-subtle); stroke-width: 1.2; rx: 6; }
+                .svg-node { cursor: pointer; }
+                .svg-node rect {
+                  fill: var(--bg-surface);
+                  stroke-width: 1.5;
+                  rx: 6;
+                  transition: all 0.15s ease;
+                }
+                .svg-node:hover rect { stroke-width: 2.4; filter: drop-shadow(0 4px 12px rgba(0,0,0,0.08)); }
+                .svg-node.active-node rect { stroke-width: 2.8; filter: drop-shadow(0 6px 16px rgba(37,99,235,0.18)); }
+
+                /* Color-coded plane borders & subtle header accents */
+                .plane-1-node rect { stroke: #2563eb; fill: rgba(37, 99, 235, 0.04); }
+                .plane-2-node rect { stroke: #059669; fill: rgba(5, 150, 105, 0.04); }
+                .plane-3-node rect { stroke: #7c3aed; fill: rgba(124, 58, 237, 0.04); }
+                .plane-4-node rect { stroke: #d97706; fill: rgba(217, 119, 6, 0.04); }
+
+                [data-theme="dark"] .plane-1-node rect { stroke: #60a5fa; fill: rgba(96, 165, 250, 0.08); }
+                [data-theme="dark"] .plane-2-node rect { stroke: #34d399; fill: rgba(52, 211, 153, 0.08); }
+                [data-theme="dark"] .plane-3-node rect { stroke: #a78bfa; fill: rgba(167, 139, 250, 0.08); }
+                [data-theme="dark"] .plane-4-node rect { stroke: #fbbf24; fill: rgba(251, 191, 36, 0.08); }
+
+                .svg-lane-title-1 { fill: #1d4ed8; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+                .svg-lane-title-2 { fill: #047857; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+                .svg-lane-title-3 { fill: #6d28d9; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+                .svg-lane-title-4 { fill: #b45309; font-size: 12px; font-weight: 700; letter-spacing: 0.03em; }
+
+                [data-theme="dark"] .svg-lane-title-1 { fill: #93c5fd; }
+                [data-theme="dark"] .svg-lane-title-2 { fill: #6ee7b7; }
+                [data-theme="dark"] .svg-lane-title-3 { fill: #c4b5fd; }
+                [data-theme="dark"] .svg-lane-title-4 { fill: #fde68a; }
+
+                .svg-title { fill: #09090b; font-size: 11.5px; font-weight: 700; letter-spacing: -0.01em; }
+                .svg-sub { fill: #27272a; font-size: 10.5px; font-weight: 500; }
+                .svg-lane-sub { fill: #52525b; font-size: 10.5px; font-weight: 500; }
+
+                [data-theme="dark"] .svg-title { fill: #ffffff; }
+                [data-theme="dark"] .svg-sub { fill: #e4e4e7; }
+                [data-theme="dark"] .svg-lane-sub { fill: #a1a1aa; }
+
+                .svg-edge { fill: none; stroke: #2563eb; stroke-width: 1.6; marker-end: url(#arrow-head); }
+                .svg-edge-dashed { fill: none; stroke: #64748b; stroke-width: 1.4; stroke-dasharray: 5 4; marker-end: url(#arrow-muted); }
+                .svg-flow { fill: none; stroke: #2563eb; stroke-width: 2; stroke-dasharray: 6 6; animation: dash-flow 1.4s linear infinite; }
+                @keyframes dash-flow { to { stroke-dashoffset: -24; } }
+              </style>
+            </defs>
+
+            <g class="diag-svg">
+              <!-- SWIMLANE 1: PLANE 01 (CLIENT & IDENTITY) -->
+              <rect x="16" y="16" width="285" height="528" class="svg-lane" />
+              <text x="32" y="40" class="svg-lane-title-1">PLANE 01 // CLIENT &amp; IDENTITY</text>
+              <text x="32" y="56" class="svg-lane-sub">Entra ID Tenant: de46a3fd-0d68...</text>
+
+              <g id="svg-plane-1" class="svg-node plane-1-node active-node" onclick="selectPlane(1)">
+                <rect x="34" y="80" width="249" height="98" />
+                <text x="48" y="103" class="svg-title">BROWSER CUSTOM UI + MSAL.JS</text>
+                <text x="48" y="122" class="svg-sub">• Portal App: 7868d053-cf9c...</text>
+                <text x="48" y="139" class="svg-sub">• Scope: api://.../user_impersonation</text>
+                <text x="48" y="156" class="svg-sub">• Holds OIDC JWT in browser RAM only</text>
+              </g>
+
+              <g class="svg-node plane-1-node" onclick="selectPlane(1)">
+                <rect x="34" y="216" width="249" height="108" />
+                <text x="48" y="239" class="svg-title">GOOGLE CLOUD STS (WIF BRIDGE)</text>
+                <text x="48" y="258" class="svg-sub">• POST sts.googleapis.com/v1/token</text>
+                <text x="48" y="275" class="svg-sub">• Pool: sp-wif-pool-v2</text>
+                <text x="48" y="292" class="svg-sub">• Provider: entra-provider</text>
+                <text x="48" y="309" class="svg-sub">• Mints 1h GCP principalSet token</text>
+              </g>
+
+              <g class="svg-node plane-1-node" onclick="selectPlane(1)">
+                <rect x="34" y="362" width="249" height="156" />
+                <text x="48" y="385" class="svg-title">ENTRA CONNECTOR APP (3LO OAUTH)</text>
+                <text x="48" y="404" class="svg-sub">• Client ID: 22c127d8-f3e5...</text>
+                <text x="48" y="421" class="svg-sub">• Redirect: vertexaisearch.../oauth-redirect</text>
+                <text x="48" y="438" class="svg-sub">• SharePoint: AllSites.Read, Sites.Search</text>
+                <text x="48" y="455" class="svg-sub">• Outlook: Mail.Read, Calendars.Read</text>
+                <text x="48" y="472" class="svg-sub">• One-time consent stores Tink AEAD</text>
+                <text x="48" y="489" class="svg-sub">  refresh token in Discovery Engine</text>
+              </g>
+
+              <!-- SWIMLANE 2: PLANE 02 (ADK ORCHESTRATOR & 3-TIER MEMORY) -->
+              <rect x="331" y="16" width="320" height="528" class="svg-lane" />
+              <text x="347" y="40" class="svg-lane-title-2">PLANE 02 // ADK ORCHESTRATOR</text>
+              <text x="347" y="56" class="svg-lane-sub">Master Session Coordinator &amp; Memory Lifecycle</text>
+
+              <g id="svg-plane-2" class="svg-node plane-2-node" onclick="selectPlane(2)">
+                <rect x="349" y="80" width="284" height="108" />
+                <text x="363" y="103" class="svg-title">ADK RUNTIME &amp; EVENT LOOP</text>
+                <text x="363" y="122" class="svg-sub">• Owns Master ID: adk_session_id</text>
+                <text x="363" y="139" class="svg-sub">• Maps 1:1 &rarr; stream_assist_session_id</text>
+                <text x="363" y="156" class="svg-sub">• Coordinates MCP tools + StreamAssist</text>
+                <text x="363" y="173" class="svg-sub">• Intercepts Idle / Logoff / Rehydrate</text>
+              </g>
+
+              <g class="svg-node plane-2-node" onclick="selectPlane(2)">
+                <rect x="349" y="216" width="284" height="150" />
+                <text x="363" y="239" class="svg-title">TIER 1 &amp; TIER 2 SESSION STORE</text>
+                <text x="363" y="258" class="svg-sub">• Tier 1 RAM (State.TEMP_PREFIX `temp:*`):</text>
+                <text x="363" y="274" class="svg-sub">  temp:sharepointauth2, active buffers</text>
+                <text x="363" y="290" class="svg-sub">  &rarr; PURGED TO 0 BYTES ON IDLE / LOGOFF</text>
+                <text x="363" y="308" class="svg-sub">• Tier 2 SQLite / Cloud SQL (`adk_sessions`):</text>
+                <text x="363" y="324" class="svg-sub">  Entity pointers (driveItemId, messageId)</text>
+                <text x="363" y="340" class="svg-sub">  + Gemini 2.5 Flash compacted_summary</text>
+              </g>
+
+              <g class="svg-node plane-2-node" onclick="selectPlane(2)">
+                <rect x="349" y="390" width="284" height="128" />
+                <text x="363" y="413" class="svg-title">TIER 3 CROSS-SESSION MEMORY BANK</text>
+                <text x="363" y="432" class="svg-sub">• Persistent across all user threads</text>
+                <text x="363" y="449" class="svg-sub">• ALLOW: PERSISTED_USER_PREF (style, TZ)</text>
+                <text x="363" y="466" class="svg-sub">• BLOCK: BLOCKED_ACL_DOCUMENT_FACT</text>
+                <text x="363" y="483" class="svg-sub">  (Prevents cross-session ACL privilege bleed</text>
+                <text x="363" y="500" class="svg-sub">   when SharePoint permissions change)</text>
+              </g>
+
+              <!-- SWIMLANE 3: PLANE 03 (DISCOVERY ENGINE STREAMASSIST & DOLPHIN) -->
+              <rect x="681" y="16" width="315" height="528" class="svg-lane" />
+              <text x="697" y="40" class="svg-lane-title-3">PLANE 03 // GEMINI ENTERPRISE</text>
+              <text x="697" y="56" class="svg-lane-sub">AssistantService.StreamAssist (45m Deadline)</text>
+
+              <g id="svg-plane-3" class="svg-node plane-3-node" onclick="selectPlane(3)">
+                <rect x="699" y="80" width="279" height="118" />
+                <text x="713" y="103" class="svg-title">STREAMASSIST HANDLER (C++)</text>
+                <text x="713" y="122" class="svg-sub">• stream_assist_handler.cc</text>
+                <text x="713" y="139" class="svg-sub">• Widget Payload: query.parts[] +</text>
+                <text x="713" y="155" class="svg-sub">  assistSkippingMode: REQUEST_ASSIST</text>
+                <text x="713" y="171" class="svg-sub">• Explicit dataStoreSpecs[14 entities]</text>
+                <text x="713" y="187" class="svg-sub">• EncryptConnectorTokens (SPIFFE egress)</text>
+              </g>
+
+              <g class="svg-node plane-3-node" onclick="selectPlane(3)">
+                <rect x="699" y="222" width="279" height="144" />
+                <text x="713" y="245" class="svg-title">DOLPHIN PYTHON AGENT RUNTIME</text>
+                <text x="713" y="264" class="svg-sub">• DRIP Query Rewriter (Gemini Flash)</text>
+                <text x="713" y="281" class="svg-sub">• Ephemeral ADK InMemorySessionService</text>
+                <text x="713" y="298" class="svg-sub">• L1 Cache: temp:w1_document_cache</text>
+                <text x="713" y="314" class="svg-sub">  (Max 64 MB total / 10 MB per doc)</text>
+                <text x="713" y="330" class="svg-sub">  &rarr; DROPPED AT TURN COMPLETION</text>
+                <text x="713" y="347" class="svg-sub">• truncate_past_events (pair integrity)</text>
+              </g>
+
+              <g class="svg-node plane-3-node" onclick="selectPlane(3)">
+                <rect x="699" y="390" width="279" height="128" />
+                <text x="713" y="413" class="svg-title">SPANNER RICH SESSION TABLES</text>
+                <text x="713" y="432" class="svg-sub">• Sessions + AssistAnswers (snippets only)</text>
+                <text x="713" y="449" class="svg-sub">• retrieved_context STRIPPED before save</text>
+                <text x="713" y="466" class="svg-sub">• SessionCompactions (async LLM summary</text>
+                <text x="713" y="483" class="svg-sub">  via SessionOperationsQueueHandler)</text>
+                <text x="713" y="500" class="svg-sub">• Session.mcp_session_bindings</text>
+              </g>
+
+              <!-- SWIMLANE 4: PLANE 04 (FEDERATED GRAPH & BAP ACTION CONNECTORS) -->
+              <rect x="1026" y="16" width="278" height="528" class="svg-lane" />
+              <text x="1042" y="40" class="svg-lane-title-4">PLANE 04 // M365 &amp; BAP TOOLS</text>
+              <text x="1042" y="56" class="svg-lane-sub">Live Per-User OBO ACL Enforcement</text>
+
+              <g id="svg-plane-4" class="svg-node plane-4-node" onclick="selectPlane(4)">
+                <rect x="1044" y="80" width="242" height="134" />
+                <text x="1058" y="103" class="svg-title">SHAREPOINT CONNECTOR</text>
+                <text x="1058" y="122" class="svg-sub">• sharepoint-data-def-connector</text>
+                <text x="1058" y="139" class="svg-sub">• Modes: FEDERATED + ACTIONS</text>
+                <text x="1058" y="156" class="svg-sub">• Search: file, page, comment, event</text>
+                <text x="1058" y="173" class="svg-sub">• BAP Actions: download_document,</text>
+                <text x="1058" y="189" class="svg-sub">  upload_document, check_in/out</text>
+              </g>
+
+              <g class="svg-node plane-4-node" onclick="selectPlane(4)">
+                <rect x="1044" y="234" width="242" height="134" />
+                <text x="1058" y="257" class="svg-title">OUTLOOK CONNECTOR</text>
+                <text x="1058" y="276" class="svg-sub">• outlook-connector_1784199575073</text>
+                <text x="1058" y="293" class="svg-sub">• Modes: FEDERATED + ACTIONS</text>
+                <text x="1058" y="310" class="svg-sub">• Search: mail, attachment, calendar</text>
+                <text x="1058" y="327" class="svg-sub">• BAP Actions: send_mail, forward,</text>
+                <text x="1058" y="343" class="svg-sub">  create_event, download_attachments</text>
+              </g>
+
+              <g class="svg-node plane-4-node" onclick="selectPlane(4)">
+                <rect x="1044" y="390" width="242" height="128" />
+                <text x="1058" y="413" class="svg-title">SERVICENOW &amp; ADK MCP</text>
+                <text x="1058" y="432" class="svg-sub">• servicenow-connector-1777047657</text>
+                <text x="1058" y="449" class="svg-sub">  (incident, knowledge, catalog, users)</text>
+                <text x="1058" y="467" class="svg-sub">• Custom ADK MCP Servers:</text>
+                <text x="1058" y="484" class="svg-sub">  Domain write actions &amp; ERP/DB</text>
+                <text x="1058" y="500" class="svg-sub">  (Stateless per-turn parameters)</text>
+              </g>
+
+              <!-- ANIMATED & DIRECTIONAL ARCHITECTURAL DATA-FLOW EDGES -->
+              <path d="M 158 178 L 158 216" class="svg-edge" />
+              <path d="M 283 125 L 347 125" class="svg-flow" />
+              <path d="M 283 265 L 316 265 L 316 148 L 347 148" class="svg-edge" />
+              <path d="M 491 188 L 491 216" class="svg-edge" />
+              <path d="M 491 366 L 491 390" class="svg-edge-dashed" />
+              <path d="M 633 130 L 697 130" class="svg-flow" />
+              <path d="M 838 198 L 838 222" class="svg-edge" />
+              <path d="M 838 366 L 838 390" class="svg-edge" />
+              <path d="M 978 265 L 1010 265 L 1010 145 L 1042 145" class="svg-flow" />
+              <path d="M 978 295 L 1042 295" class="svg-flow" />
+              <path d="M 978 325 L 1010 325 L 1010 435 L 1042 435" class="svg-edge" />
+              <path d="M 283 445 L 316 445 L 316 534 L 838 534 L 838 518" class="svg-edge-dashed" />
+            </g>
+          </svg>
+        </div>
+
+        <div id="plane-inspector-detail" class="subcard">
+          <!-- Populated dynamically by selectPlane() -->
+        </div>
+      </section>
+
+      <!-- SECTION 03: EXACT PERSISTENCE VS EPHEMERAL DROP MATRIX -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-tag">SECTION 03 // EXACT MEMORY &amp; STORAGE BOUNDARIES</div>
+            <h2 class="card-title">What Is Retained vs. Dropped Across ADK &amp; Discovery Engine Spanner</h2>
+          </div>
+          <span class="pill">SOURCE: session_content_cache.py &amp; assist_answer.proto</span>
+        </div>
+
+        <div class="grid-3">
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>TIER 1: EPHEMERAL INVOCATION RAM (DROPPED AT TURN END / IDLE / LOGOFF)</span>
+              <span class="pill">TTL: 1 TURN / 0s AT REST</span>
+            </div>
+            <ul>
+              <li><strong>ADK <code>temp:*</code> State Keys</strong> (<code>State.TEMP_PREFIX</code> in <code>base_session_service.py</code>): Applied in-memory via <code>_apply_temp_state()</code> and stripped via <code>_trim_temp_delta_state()</code> before DB commit.</li>
+              <li><strong>Dolphin <code>temp:w1_document_cache</code></strong> (<code>session_content_cache.py</code>): Holds downloaded files &amp; parsed text during the turn (capped at <strong>64 MB total / 10 MB per doc</strong>). Garbage-collected immediately when turn finishes.</li>
+              <li><strong><code>TextGroundingMetadata.Reference.retrieved_context</code></strong> (<code>assist_answer.proto:1396</code>): Full retrieved passage used only for LLM Pulse verification; explicitly stripped before saving to Spanner.</li>
+              <li><strong>Per-User OAuth Access Tokens &amp; SPIFFE Encrypted Egress Tokens</strong> (<code>EncryptConnectorTokens</code>): Held strictly in in-flight RPC memory.</li>
+            </ul>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>TIER 2: DURABLE SESSION STATE (SPANNER &amp; ADK DATABASE)</span>
+              <span class="pill">TTL: 24H &ndash; 30 DAYS</span>
+            </div>
+            <ul>
+              <li><strong>ADK Master Session (<code>adk_sessions</code> / <code>DatabaseSessionService</code>)</strong>: Stores <code>adk_session_id</code>, linked <code>stream_assist_session_id</code>, workflow pointers (<code>referenced_entities</code>: <code>driveItemId</code>, <code>messageId</code>, URI), and rolling <code>compacted_summary</code>.</li>
+              <li><strong>Discovery Engine Spanner <code>Sessions</code> &amp; <code>AssistAnswers</code></strong>: Stores turn queries, synthesized answers, short citation snippets (<code>Reference.content</code> + <code>DocumentMetadata</code> URI/title), planner steps (<code>thought: true</code>), and <code>Session.mcp_session_bindings</code>.</li>
+              <li><strong>Spanner Interleaved <code>SessionCompactions</code></strong> (<code>discovery_schema.sdl:1128</code>): Asynchronous LLM summaries generated by <code>SessionOperationsQueueHandler</code> covering turns older than <code>protection_window</code>.</li>
+            </ul>
+          </div>
+
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>TIER 3: CROSS-SESSION MEMORY BANK (STRICT ACL ISOLATION)</span>
+              <span class="pill">TTL: PERSISTENT</span>
+            </div>
+            <ul>
+              <li><strong>ADK <code>user:*</code> State &amp; <code>VertexAiMemoryBankService</code></strong>: Persists across all conversations for a given <code>user_id</code>.</li>
+              <li><strong>ALLOWED (<code>PERSISTED_USER_PREF</code>)</strong>: User formatting preferences, role/department context, timezone, recurring workflow preferences, and non-sensitive entity aliases.</li>
+              <li><strong>BLOCKED (<code>BLOCKED_ACL_DOCUMENT_FACT</code>)</strong>: Specific contract terms, financial figures, or confidential email/SharePoint contents. These are blocked from Tier 3 so revoked SharePoint/Outlook permissions take effect immediately on the next live turn.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 04: GRAPHICAL FINITE STATE MACHINE FOR IDLE, LOG-OFF & RE-HYDRATION -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-tag">SECTION 04 // GRAPHICAL SESSION &amp; MEMORY LIFECYCLE STATE MACHINE</div>
+            <h2 class="card-title">Finite State Machine: Active Execution &rarr; Idle Compaction &rarr; User Log-Off &rarr; Session Re-Hydration</h2>
+          </div>
+          <span class="pill">4 DETERMINISTIC STATES</span>
+        </div>
+
+        <div style="border:1px solid var(--border-subtle);background:var(--bg-canvas);padding:16px;margin-bottom:16px;overflow-x:auto;">
+          <svg viewBox="0 0 1320 230" style="width:100%;min-width:960px;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg">
+            <g class="diag-svg">
+              <!-- State 1 -->
+              <g class="svg-node plane-2-node">
+                <rect x="20" y="45" width="265" height="140" />
+                <text x="36" y="72" class="svg-lane-title-2">STATE 1: ACTIVE</text>
+                <text x="36" y="92" class="svg-sub">• Entra JWT (1h) + WIF STS Token live</text>
+                <text x="36" y="109" class="svg-sub">• temp:w1_document_cache active (64MB)</text>
+                <text x="36" y="126" class="svg-sub">• Live Graph OBO ACL checks per turn</text>
+                <text x="36" y="143" class="svg-sub">• Verbatim sliding window (6 turns)</text>
+              </g>
+
+              <!-- Edge 1 -> 2 -->
+              <path d="M 285 95 L 365 95" class="svg-flow" />
+              <text x="292" y="84" class="svg-sub">Idle &gt; 5m</text>
+
+              <!-- State 2 -->
+              <g class="svg-node plane-4-node">
+                <rect x="367" y="45" width="285" height="140" />
+                <text x="383" y="72" class="svg-lane-title-4">STATE 2: IDLE_COMPACTED</text>
+                <text x="383" y="92" class="svg-sub">• Purges temp:* RAM to 0 bytes</text>
+                <text x="383" y="109" class="svg-sub">• Gemini 2.5 Flash writes compacted_summary</text>
+                <text x="383" y="126" class="svg-sub">• Distills PERSISTED_USER_PREF to Tier 3</text>
+                <text x="383" y="143" class="svg-sub">• Blocks ACL doc facts from Memory Bank</text>
+              </g>
+
+              <!-- Edge 2 -> 3 -->
+              <path d="M 652 95 L 732 95" class="svg-edge" />
+              <text x="658" y="84" class="svg-sub">Log-off / Expire</text>
+
+              <!-- State 3 -->
+              <g class="svg-node plane-3-node">
+                <rect x="734" y="45" width="275" height="140" />
+                <text x="750" y="72" class="svg-lane-title-3">STATE 3: DORMANT_LOGGED_OUT</text>
+                <text x="750" y="92" class="svg-sub">• Zero active tokens in memory</text>
+                <text x="750" y="109" class="svg-sub">• Chat API returns 403 LOCKED</text>
+                <text x="750" y="126" class="svg-sub">• Checkpoints adk_session_id + GE ID</text>
+                <text x="750" y="143" class="svg-sub">  + entity pointers in SQLite/Spanner</text>
+              </g>
+
+              <!-- Edge 3 -> 4 -->
+              <path d="M 1009 95 L 1079 95" class="svg-flow" />
+              <text x="1014" y="84" class="svg-sub">MSAL Re-Auth</text>
+
+              <!-- State 4 -->
+              <g class="svg-node plane-1-node">
+                <rect x="1081" y="45" width="220" height="140" />
+                <text x="1095" y="72" class="svg-lane-title-1">STATE 4: RE-HYDRATED</text>
+                <text x="1095" y="92" class="svg-sub">• Mints fresh WIF STS token</text>
+                <text x="1095" y="109" class="svg-sub">• Injects Tier 3 Memory Bank</text>
+                <text x="1095" y="126" class="svg-sub">• Injects compacted_summary</text>
+                <text x="1095" y="143" class="svg-sub">• Re-links GE Spanner Session</text>
+              </g>
+
+              <!-- Return loop 4 -> 1 -->
+              <path d="M 1191 185 L 1191 214 L 152 214 L 152 187" class="svg-edge-dashed" />
+              <text x="560" y="208" class="svg-sub">&larr; Resumes Active Turn Execution with Fresh Real-Time Microsoft Graph ACLs</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="grid-4">
+          <div class="subcard">
+            <div class="subcard-title"><span>1. ACTIVE</span><span class="pill">LIVE TURN LOOP</span></div>
+            <p>User is actively chatting. Browser holds fresh Entra ID JWT (1h TTL) &rarr; STS mints GCP WIF token &rarr; <code>StreamAssist</code> queries SharePoint/Outlook with live ACLs. <code>temp:w1_document_cache</code> active per turn.</p>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title"><span>2. IDLE_COMPACTED</span><span class="pill">IDLE SWEEP HOOK</span></div>
+            <p>When user goes idle (&gt;5m), background sweeper: (1) purges all <code>temp:*</code> RAM buffers & cached bearer tokens, (2) compacts turns into <code>session.state["compacted_summary"]</code>, (3) distills safe <code>user:*</code> preferences to Tier 3 Memory Bank.</p>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title"><span>3. DORMANT_LOGGED_OUT</span><span class="pill">ZERO ACTIVE TOKENS</span></div>
+            <p>When user logs off or Entra token expires, session transitions to <code>DORMANT_LOGGED_OUT</code>. All in-memory credentials are destroyed; durable pointers (<code>adk_session_id</code> + <code>stream_assist_session_id</code> + entity IDs) remain checkpointed in SQLite/Spanner.</p>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title"><span>4. RE-HYDRATED ACTIVE</span><span class="pill">SEAMLESS RETURN</span></div>
+            <p>User returns hours/days later & signs in via MSAL. Backend reloads durable checkpoint, injects Tier 3 Memory Bank preferences + rolling summary, re-binds Discovery Engine <code>stream_assist_session_id</code>, and enforces fresh live Graph ACLs.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 05: LIVE CONNECTOR & ENVIRONMENT MATRIX -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="section-tag">SECTION 05 // LIVE VERIFIED GCP & ENTRA INFRASTRUCTURE</div>
+            <h2 class="card-title">Live Connectors & WIF Bindings Discovered in GCP Project 545964020693</h2>
+          </div>
+          <button class="btn" onclick="loadConnectorsStatus()">Refresh Live Connector Status</button>
+        </div>
+        <div id="arch-connectors-table">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px;">
+            <span class="shrinking-shining-ink"></span>
+            <span class="sweep-text">Querying live Google Cloud Discovery Engine DataConnectors...</span>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ===================================================================== -->
+  <!-- TAB 2: LIVE ADK + STREAMASSIST + MEMORY LIFECYCLE WORKBENCH           -->
+  <!-- ===================================================================== -->
+  <main id="view-workbench" class="tab-view">
+    <div class="workbench-layout">
+
+      <!-- LEFT PANE: SESSION LIST + LIFECYCLE STATE CONTROLLER + ENTRA AUTH -->
+      <aside class="pane">
+        <div class="pane-header">
+          <span class="pane-header-title">01 // Durable ADK Sessions</span>
+          <button class="btn btn-primary" onclick="createNewSession()">+ New Session</button>
+        </div>
+
+        <div class="pane-body">
+          <!-- LIFECYCLE SIMULATOR / CONTROLLER CARD -->
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>LIFECYCLE & IDLE CONTROLLER</span>
+              <span class="pill" id="ctrl-state-badge">ACTIVE</span>
+            </div>
+            <p style="font-size:11.5px;margin-bottom:10px;">
+              Trigger real server-side state transitions on the active session to test RAM purging, Gemini compaction, ACL memory filtering, and re-hydration:
+            </p>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <button class="btn" onclick="triggerLifecycle('idle')" style="justify-content:space-between;width:100%;">
+                <span>1. Trigger Idle Compaction</span>
+                <span>&rarr; IDLE_COMPACTED</span>
+              </button>
+              <button class="btn" onclick="triggerLifecycle('logoff')" style="justify-content:space-between;width:100%;">
+                <span>2. Trigger User Log-Off</span>
+                <span>&rarr; DORMANT_LOGGED_OUT</span>
+              </button>
+              <button class="btn btn-primary" onclick="triggerLifecycle('rehydrate')" style="justify-content:space-between;width:100%;">
+                <span>3. Log In & Re-Hydrate</span>
+                <span>&rarr; ACTIVE (RESTORED)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- ENTRA ID / WIF TOKEN & CONNECTOR OAUTH BOX -->
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>ENTRA ID / WIF TOKEN BRIDGE</span>
+              <span class="pill" id="auth-bridge-pill">GCLOUD_ADC</span>
+            </div>
+            <input type="text" id="manual-entra-jwt" placeholder="Optional: Paste Entra ID Bearer JWT (id_token)..." style="margin-bottom:6px;font-family:var(--font-mono);font-size:11px;" oninput="syncManualJwt()" />
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              <button class="btn" onclick="testWifExchange()">Test STS Exchange</button>
+              <button class="btn" onclick="openConnectorConsent('sharepoint')">Consent SharePoint</button>
+              <button class="btn" onclick="openConnectorConsent('outlook')">Consent Outlook</button>
+            </div>
+            <div id="wif-test-output" style="margin-top:8px;font-family:var(--font-mono);font-size:10.5px;color:var(--text-secondary);"></div>
+          </div>
+
+          <!-- IMPORT EXISTING DISCOVERY ENGINE SESSION -->
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>BIND EXISTING GE SESSION</span>
+              <button class="btn" onclick="loadDiscoverySessions()" style="padding:3px 6px;font-size:10px;">Fetch Live</button>
+            </div>
+            <select id="de-session-select" style="font-family:var(--font-mono);font-size:11px;margin-bottom:6px;">
+              <option value="">-- Select live session from Engine gemini-enterprise --</option>
+            </select>
+            <button class="btn" style="width:100%;justify-content:center;" onclick="bindSelectedDiscoverySession()">
+              Bind Selected GE Session to New ADK Thread
+            </button>
+          </div>
+
+          <div class="section-tag" style="margin-top:4px;">SQLITE DURABLE SESSIONS (adk_sessions)</div>
+          <div id="session-list-container" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </aside>
+
+      <!-- CENTER PANE: MULTI-TURN CHAT + REASONING TRACES + LIFECYCLE AUDIT CARDS -->
+      <section class="pane">
+        <div class="pane-header">
+          <div>
+            <span class="pane-header-title" id="active-chat-title">Select or Create an ADK Session</span>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);" id="active-chat-subtitle">
+              ADK Master ID: -- | StreamAssist Session: --
+            </div>
+          </div>
+          <div id="chat-loader-indicator" style="display:none;align-items:center;gap:8px;">
+            <span class="shrinking-shining-ink"></span>
+            <span class="sweep-text" id="chat-loader-text">Executing StreamAssist + ADK State Pipeline...</span>
+          </div>
+        </div>
+
+        <div class="chat-messages" id="chat-messages-container">
+          <div class="subcard" style="margin:auto;max-width:520px;text-align:center;">
+            <div class="section-tag">ZERO-MOCK LIVE WORKBENCH</div>
+            <div style="font-weight:700;font-size:15px;margin:6px 0;">Ready for Live Enterprise Multi-Turn Execution</div>
+            <p style="font-size:12.5px;color:var(--text-secondary);">
+              Click <strong>+ New Session</strong> on the left or send a message below. Every turn executes live against Google Cloud Discovery Engine (<code>545964020693 / gemini-enterprise</code>), persists to SQLite, and tracks all 3 memory tiers in real time.
+            </p>
+          </div>
+        </div>
+
+        <div class="chat-composer">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+            <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+              <span style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);">DATASTORE SCOPES:</span>
+              <span class="scope-chip active" data-scope="sharepoint" onclick="toggleScope(this)">SharePoint (5 Entities)</span>
+              <span class="scope-chip active" data-scope="outlook" onclick="toggleScope(this)">Outlook (4 Entities)</span>
+              <span class="scope-chip active" data-scope="servicenow" onclick="toggleScope(this)">ServiceNow (5 Entities)</span>
+              <span class="scope-chip active" data-scope="web" onclick="toggleScope(this)">Google Web Grounding</span>
+            </div>
+            <div style="display:flex;gap:6px;">
+              <button class="btn" style="padding:3px 7px;font-size:10px;" onclick="fillPrompt('Summarize our enterprise contracting rules and note that I prefer concise bulleted executive summaries.')">Sample Prompt 1 (Pref + Grounding)</button>
+              <button class="btn" style="padding:3px 7px;font-size:10px;" onclick="fillPrompt('Based on our earlier discussion, what follow-up actions should we prioritize?')">Sample Prompt 2 (Post-Idle Recall)</button>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <input type="text" id="chat-input" placeholder="Ask StreamAssist + ADK orchestrator (SharePoint, Outlook, ServiceNow, Web)..." onkeydown="if(event.key==='Enter') sendChatMessage()" />
+            <button class="btn btn-primary" onclick="sendChatMessage()" style="padding:9px 20px;">Send Turn &rarr;</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT PANE: LIVE 3-TIER MEMORY & TELEMETRY INSPECTOR -->
+      <aside class="pane">
+        <div class="pane-header">
+          <span class="pane-header-title">03 // Live 3-Tier Memory Inspector</span>
+          <div style="display:flex;gap:4px;">
+            <button class="btn" id="insp-btn-tier1" onclick="switchInspector('tier1')" style="padding:4px 7px;font-size:10px;">Tier 1: RAM</button>
+            <button class="btn" id="insp-btn-tier2" onclick="switchInspector('tier2')" style="padding:4px 7px;font-size:10px;">Tier 2: GE</button>
+            <button class="btn" id="insp-btn-tier3" onclick="switchInspector('tier3')" style="padding:4px 7px;font-size:10px;">Tier 3: Bank</button>
+            <button class="btn" id="insp-btn-curl" onclick="switchInspector('curl')" style="padding:4px 7px;font-size:10px;">cURL</button>
+          </div>
+        </div>
+
+        <div class="pane-body" id="inspector-body">
+          <!-- Dynamically populated with Tier 1 / Tier 2 / Tier 3 / cURL live state -->
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  <script>
+    // =========================================================================
+    // STATE & CONFIGURATION
+    // =========================================================================
+    let APP_CONFIG = {};
+    let ACTIVE_SESSION_ID = null;
+    let ACTIVE_SESSION_DATA = null;
+    let LAST_CURL_TELEMETRY = null;
+    let CURRENT_INSPECTOR_TAB = 'tier1';
+    let IDLE_SECONDS_REMAINING = 300;
+    let ENTRA_JWT_TOKEN = '';
+    let MSAL_INSTANCE = null;
+
+    const PLANE_DETAILS = {
+      1: {
+        title: "PLANE 01 // CLIENT MSAL.JS & WORKFORCE IDENTITY FEDERATION (WIF / STS)",
+        code: `POST https://sts.googleapis.com/v1/token
+{
+  "audience": "//iam.googleapis.com/locations/global/workforcePools/sp-wif-pool-v2/providers/entra-provider",
+  "grantType": "urn:ietf:params:oauth:grant-type:token-exchange",
+  "requestedTokenType": "urn:ietf:params:oauth:token-type:access_token",
+  "scope": "https://www.googleapis.com/auth/cloud-platform",
+  "subjectToken": "<Entra ID OIDC JWT (aud: api://7868d053-cf9c-4848-be5a-f9bbf8279234)>",
+  "subjectTokenType": "urn:ietf:params:oauth:token-type:jwt"
+}`,
+        bullets: [
+          "Two distinct Microsoft Entra ID App Registrations enforce least privilege: Portal App (7868d053-cf9c-4848-be5a-f9bbf8279234) authenticates the user and issues the JWT for WIF STS exchange; Connector App (22c127d8-f3e5-4bbe-8b06-c37da3159068) holds delegated Microsoft Graph scopes (Sites.Search.All, AllSites.Read, Mail.Read, Calendars.Read).",
+          "Google Cloud STS validates the Entra JWT signature against Microsoft's OIDC JWKS endpoint and mints a short-lived (1h) GCP principalSet access token — zero static service account keys.",
+          "In Agentspace / ADK runtime, this token is passed inside session state under `temp:sharepointauth2` so it is automatically stripped from database persistence at the end of every turn."
+        ]
+      },
+      2: {
+        title: "PLANE 02 // ADK ORCHESTRATOR (`DatabaseSessionService` + `MemoryService`)",
+        code: `# //depot/google3/third_party/py/google/adk/sessions/base_session_service.py
+async def append_event(self, session: Session, event: Event) -> Event:
+    # 1. Applies temp:* keys to in-memory session for active tool calls
+    self._apply_temp_state(session, event)
+    # 2. Strips all temp:* keys from state_delta before committing to SQLite/Spanner
+    event = self._trim_temp_delta_state(event)
+    return await self._persist_event(session, event)`,
+        bullets: [
+          "ADK owns the canonical Master Session ID (`adk_session_id`) and maps 1:1 to Discovery Engine's `stream_assist_session_id`.",
+          "State Prefix Isolation: `temp:*` keys live strictly in process RAM for the active turn; unprefixed keys (`session.state['referenced_entities']`, `compacted_summary`) persist per session; `user:*` keys persist across sessions.",
+          "When Idle Timeout or User Log-Off triggers, ADK purges all `temp:*` buffers, runs Gemini 2.5 Flash compaction to summarize dialogue history, and extracts sanitized user preferences to Tier 3 Memory Bank."
+        ]
+      },
+      3: {
+        title: "PLANE 03 // DISCOVERY ENGINE `AssistantService.StreamAssist` & DOLPHIN RUNTIME",
+        code: `POST https://discoveryengine.googleapis.com/v1alpha/projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/assistants/default_assistant:streamAssist
+{
+  "query": { "parts": [{ "text": "..." }] },
+  "session": "projects/545964020693/locations/global/collections/default_collection/engines/gemini-enterprise/sessions/{id}",
+  "assistSkippingMode": "REQUEST_ASSIST",
+  "toolsSpec": {
+    "vertexAiSearchSpec": { "dataStoreSpecs": [ ...14 child entity datastores... ] },
+    "toolRegistry": "default_tool_registry"
+  }
+}`,
+        bullets: [
+          "CRITICAL GOTCHA VERIFIED IN SOURCE: Sending `{\"query\":{\"text\":\"...\"}}` without `query.parts[]`, `assistSkippingMode: \"REQUEST_ASSIST\"`, and explicit `toolsSpec.vertexAiSearchSpec.dataStoreSpecs` silently skips federated connectors and returns zero grounding citations!",
+          "Long-Context Pipeline (`stream_assist_handler.cc` & `query_rewrite_agent.py`): (1) DRIP Query Rewriter synthesizes standalone search queries; (2) Spanner interleaved `SessionCompactions` summarizes old turns beyond `protection_window`; (3) `truncate_past_events()` enforces char budget while preserving `function_call`/`function_response` pair integrity.",
+          "Ephemeral Document Cache (`session_content_cache.py`): Full fetched documents are cached under `temp:w1_document_cache` (64 MB max / 10 MB per doc) and garbage-collected immediately when the turn finishes."
+        ]
+      },
+      4: {
+        title: "PLANE 04 // MICROSOFT GRAPH FEDERATED SEARCH & BAP ACTION CONNECTORS",
+        code: `# Live Verified Connector Configuration in GCP Project 545964020693:
+{
+  "name": "projects/545964020693/locations/global/collections/sharepoint-data-def-connector/dataConnector",
+  "connectorType": "THIRD_PARTY_FEDERATED",
+  "connectorModes": ["FEDERATED", "ACTIONS"],
+  "bapConfig": {
+    "enabledActions": [
+      "create_folder", "add_page", "upload_document", "download_document",
+      "add_list", "check_in_document", "check_out_document"
+    ]
+  }
+}`,
+        bullets: [
+          "Every SharePoint and Outlook connector in engine `gemini-enterprise` operates in dual `FEDERATED` + `ACTIONS` mode.",
+          "During setup, `POST .../dataConnector:acquireAndStoreRefreshToken` encrypts (Tink AEAD) and stores the user's Microsoft refresh token in Spanner bound to their WIF identity.",
+          "At query time, `GetDolphinDataConnectorsWithAuth()` calls `ConnectorService::AcquireAccessToken()`, mints a live Microsoft Graph token, encrypts it for Agent Cloud Egress (`EncryptConnectorTokens`), and executes live ACL-enforced queries."
+        ]
+      }
+    };
+
+    // =========================================================================
+    // THEME TOGGLE (MANDATORY VERCEL MONOCHROME UI STANDARD)
+    // =========================================================================
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      document.getElementById('theme-toggle-btn').textContent = next === 'light' ? '🌙 Dark Mode' : '☀️ Light Mode';
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-view').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      document.getElementById(`view-${tab}`).classList.add('active');
+      document.getElementById(`tab-btn-${tab}`).classList.add('active');
+    }
+
+    function selectPlane(num) {
+      document.querySelectorAll('.svg-node').forEach(el => el.classList.remove('active-node'));
+      const activeSvg = document.getElementById(`svg-plane-${num}`);
+      if (activeSvg) activeSvg.classList.add('active-node');
+      const d = PLANE_DETAILS[num];
+      const ul = d.bullets.map(b => `<li>${b}</li>`).join('');
+      document.getElementById('plane-inspector-detail').innerHTML = `
+        <div class="subcard-title"><span>${d.title}</span><span class="pill">VERIFIED CONTRACT</span></div>
+        <pre style="margin:10px 0;">${escapeHtml(d.code)}</pre>
+        <ul>${ul}</ul>
+      `;
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // =========================================================================
+    // API HELPERS
+    // =========================================================================
+    function apiHeaders() {
+      const h = { 'Content-Type': 'application/json' };
+      if (ENTRA_JWT_TOKEN) h['X-Entra-Id-Token'] = ENTRA_JWT_TOKEN;
+      return h;
+    }
+
+    function syncManualJwt() {
+      ENTRA_JWT_TOKEN = document.getElementById('manual-entra-jwt').value.trim();
+      document.getElementById('auth-bridge-pill').textContent = ENTRA_JWT_TOKEN ? 'ENTRA_JWT_SET' : 'GCLOUD_ADC';
+    }
+
+    async function loadConfig() {
+      const res = await fetch('/api/config', { headers: apiHeaders() });
+      const data = await res.json();
+      APP_CONFIG = data.env || {};
+      document.getElementById('tel-auth-mode').textContent = data.auth_mode || 'UNKNOWN';
+      document.getElementById('auth-bridge-pill').textContent = data.auth_mode || 'GCLOUD_ADC';
+      if (APP_CONFIG.PORTAL_CLIENT_ID && APP_CONFIG.TENANT_ID && window.msal) {
+        MSAL_INSTANCE = new msal.PublicClientApplication({
+          auth: {
+            clientId: APP_CONFIG.PORTAL_CLIENT_ID,
+            authority: `https://login.microsoftonline.com/${APP_CONFIG.TENANT_ID}`,
+            redirectUri: window.location.origin
+          }
+        });
+      }
+    }
+
+    async function triggerMsalLogin() {
+      if (!MSAL_INSTANCE) {
+        alert('MSAL browser instance initializing — check network access to alcdn.msauth.net or paste an Entra JWT directly in the left pane.');
+        return;
+      }
+      try {
+        const loginResp = await MSAL_INSTANCE.loginPopup({
+          scopes: [`api://${APP_CONFIG.PORTAL_CLIENT_ID}/user_impersonation`, 'openid', 'profile', 'email']
+        });
+        ENTRA_JWT_TOKEN = loginResp.idToken;
+        document.getElementById('manual-entra-jwt').value = ENTRA_JWT_TOKEN;
+        document.getElementById('btn-msal-login').textContent = `✓ ${loginResp.account.username}`;
+        await loadConfig();
+        await loadConnectorsStatus();
+      } catch (err) {
+        alert(`Entra ID MSAL Login Notice: ${err.message}\n\nTip: Make sure your browser origin (${window.location.origin}) is listed under SPA Redirect URIs in Entra App ${APP_CONFIG.PORTAL_CLIENT_ID}, or paste a JWT directly in the Entra ID / WIF Token Bridge box.`);
+      }
+    }
+
+    async function testWifExchange() {
+      const out = document.getElementById('wif-test-output');
+      out.innerHTML = `<span class="shrinking-shining-ink" style="width:12px;height:12px;"></span> <span class="sweep-text">Exchanging token with sts.googleapis.com...</span>`;
+      const res = await fetch('/api/auth/wif-exchange', {
+        method: 'POST',
+        headers: apiHeaders(),
+        body: JSON.stringify({ entra_jwt: ENTRA_JWT_TOKEN })
+      });
+      const data = await res.json();
+      out.textContent = JSON.stringify(data, null, 2);
+    }
+
+    async function openConnectorConsent(connector) {
+      const res = await fetch('/api/connectors/oauth-url', {
+        method: 'POST',
+        headers: apiHeaders(),
+        body: JSON.stringify({ connector, origin: window.location.origin })
+      });
+      const data = await res.json();
+      if (data.auth_url) {
+        window.open(data.auth_url, '_blank', 'width=600,height=720');
+      }
+    }
+
+    async function loadConnectorsStatus() {
+      const container = document.getElementById('arch-connectors-table');
+      container.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:12px;"><span class="shrinking-shining-ink"></span><span class="sweep-text">Querying live Google Cloud Discovery Engine DataConnectors...</span></div>`;
+      const res = await fetch('/api/connectors/status', { headers: apiHeaders() });
+      const data = await res.json();
+      const rows = (data.connectors || []).map(c => `
+        <tr>
+          <td><strong>${escapeHtml(c.label)}</strong><br><code>${escapeHtml(c.id)}</code></td>
+          <td><span class="pill">${escapeHtml(c.state)}</span></td>
+          <td><code>${escapeHtml((c.connectorModes || []).join(' + '))}</code></td>
+          <td>${(c.entities || []).map(e => `<code>${escapeHtml(e)}</code>`).join(' ')}</td>
+          <td>${(c.enabledActions || []).map(a => `<code>${escapeHtml(a)}</code>`).join(' ')}</td>
+          <td>
+            <span class="pill">${c.userTokenBound ? 'USER TOKEN BOUND' : 'AWAITING 3LO CONSENT'}</span>
+            <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);margin-top:4px;">HTTP ${c.tokenCheckStatus} · ${c.latencyMs}ms</div>
+          </td>
+        </tr>
+      `).join('');
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Connector & Collection ID</th>
+              <th>State</th>
+              <th>Modes</th>
+              <th>Federated Search Entities</th>
+              <th>Enabled BAP Write Actions</th>
+              <th>Live Token Status</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    // =========================================================================
+    // SESSION & WORKBENCH OPERATIONS
+    // =========================================================================
+    async function loadSessionsList() {
+      const res = await fetch('/api/sessions', { headers: apiHeaders() });
+      const data = await res.json();
+      const list = document.getElementById('session-list-container');
+      const sessions = data.sessions || [];
+      if (!sessions.length) {
+        list.innerHTML = `<div style="font-size:12px;color:var(--text-secondary);padding:8px;">No ADK sessions yet. Click <strong>+ New Session</strong> above.</div>`;
+        return;
+      }
+      list.innerHTML = sessions.map(s => `
+        <div class="session-item ${s.adk_session_id === ACTIVE_SESSION_ID ? 'active' : ''}" onclick="selectSession('${s.adk_session_id}')">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+            <strong style="font-size:12.5px;">${escapeHtml(s.display_name)}</strong>
+            <span class="pill">${escapeHtml(s.lifecycle_state)}</span>
+          </div>
+          <div style="font-family:var(--font-mono);font-size:10.5px;color:var(--text-secondary);margin-top:4px;">
+            ID: ${escapeHtml(s.adk_session_id)} · Events: ${s.event_count} · RAM: ${s.temp_state_bytes}B
+          </div>
+          ${s.stream_assist_session_id ? `<div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);margin-top:2px;overflow:hidden;text-overflow:ellipsis;">GE: .../${escapeHtml(s.stream_assist_session_id.split('/').pop())}</div>` : ''}
+        </div>
+      `).join('');
+      if (!ACTIVE_SESSION_ID && sessions.length > 0) {
+        await selectSession(sessions[0].adk_session_id);
+      }
+    }
+
+    async function createNewSession(linkedGeSession = '') {
+      const name = prompt('Enter session display name:', `Enterprise Session ${new Date().toLocaleTimeString()}`);
+      if (!name) return;
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: apiHeaders(),
+        body: JSON.stringify({
+          display_name: name,
+          user_id: 'admin@sockcop.onmicrosoft.com',
+          stream_assist_session_id: linkedGeSession
+        })
+      });
+      const data = await res.json();
+      ACTIVE_SESSION_ID = data.adk_session_id;
+      await loadSessionsList();
+      await selectSession(ACTIVE_SESSION_ID);
+    }
+
+    async function loadDiscoverySessions() {
+      const sel = document.getElementById('de-session-select');
+      sel.innerHTML = `<option value="">Loading live sessions from GCP 545964020693...</option>`;
+      const res = await fetch('/api/discovery-sessions', { headers: apiHeaders() });
+      const data = await res.json();
+      const sessions = (data.data && data.data.sessions) || [];
+      sel.innerHTML = `<option value="">-- Select from ${sessions.length} live GE sessions --</option>` +
+        sessions.map(s => `<option value="${escapeHtml(s.name)}">${escapeHtml(s.displayName || 'Untitled')} (${escapeHtml(s.name.split('/').pop())})</option>`).join('');
+    }
+
+    async function bindSelectedDiscoverySession() {
+      const val = document.getElementById('de-session-select').value;
+      if (!val) {
+        alert('First click "Fetch Live" and select a Discovery Engine session from the dropdown.');
+        return;
+      }
+      await createNewSession(val);
+    }
+
+    async function selectSession(sid) {
+      ACTIVE_SESSION_ID = sid;
+      IDLE_SECONDS_REMAINING = APP_CONFIG.IDLE_TIMEOUT_SECONDS || 300;
+      const res = await fetch(`/api/sessions/${sid}`, { headers: apiHeaders() });
+      const data = await res.json();
+      ACTIVE_SESSION_DATA = data;
+      renderActiveSession();
+      renderInspector();
+      loadSessionsList();
+    }
+
+    function renderActiveSession() {
+      if (!ACTIVE_SESSION_DATA) return;
+      const s = ACTIVE_SESSION_DATA.session;
+      document.getElementById('active-chat-title').textContent = s.display_name;
+      document.getElementById('active-chat-subtitle').textContent =
+        `ADK Master ID: ${s.adk_session_id} | StreamAssist Session: ${s.stream_assist_session_id || '(auto-created on first turn)'}`;
+      document.getElementById('tel-lifecycle').textContent = s.lifecycle_state;
+      document.getElementById('ctrl-state-badge').textContent = s.lifecycle_state;
+
+      const box = document.getElementById('chat-messages-container');
+      const events = ACTIVE_SESSION_DATA.tier2_events || [];
+      if (!events.length) {
+        box.innerHTML = `
+          <div class="subcard" style="margin:auto;max-width:520px;text-align:center;">
+            <div class="section-tag">SESSION READY (${escapeHtml(s.lifecycle_state)})</div>
+            <div style="font-weight:700;font-size:15px;margin:6px 0;">${escapeHtml(s.display_name)}</div>
+            <p style="font-size:12.5px;color:var(--text-secondary);">
+              Send a message below to execute a live turn through ADK &rarr; Discovery Engine <code>StreamAssist</code>. Then use the Lifecycle Controller on the left to test Idle Compaction, Log-Off, and Re-Hydration.
+            </p>
+          </div>`;
+        return;
+      }
+
+      box.innerHTML = events.map(ev => {
+        if (ev.role === 'system') {
+          return `
+            <div class="msg system">
+              <div class="msg-meta">
+                <span>LIFECYCLE AUDIT EVENT // ${escapeHtml(ev.event_type)}</span>
+                <span>${escapeHtml(ev.created_at)}</span>
+              </div>
+              <div class="msg-body" style="font-family:var(--font-mono);font-size:12px;">${escapeHtml(ev.content)}</div>
+              <details>
+                <summary>Inspect Lifecycle State Transition Metadata</summary>
+                <pre style="margin-top:8px;">${escapeHtml(JSON.stringify(ev.metadata, null, 2))}</pre>
+              </details>
+            </div>`;
+        }
+
+        const thoughtsHtml = (ev.thoughts && ev.thoughts.length)
+          ? `<details><summary>Chain-of-Thought Reasoning Trace (${ev.thoughts.length} step(s))</summary><pre style="margin-top:8px;">${escapeHtml(ev.thoughts.join('\n---\n'))}</pre></details>`
+          : '';
+
+        const citesHtml = (ev.citations && ev.citations.length)
+          ? `<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+              <div class="section-tag">RETAINED GROUNDING CITATIONS (FULL DOC STREAM DROPPED FROM RAM)</div>
+              ${ev.citations.map(c => `
+                <div class="subcard" style="padding:8px 10px;">
+                  <div style="font-weight:600;font-size:12px;"><a href="${escapeHtml(c.uri)}" target="_blank" style="color:var(--text-primary);">${escapeHtml(c.title)}</a></div>
+                  <div style="font-size:11.5px;color:var(--text-secondary);margin-top:2px;">${escapeHtml(c.snippet)}</div>
+                </div>`).join('')}
+            </div>`
+          : '';
+
+        const metaInfo = ev.metadata || {};
+        return `
+          <div class="msg ${ev.role}">
+            <div class="msg-meta">
+              <span>${ev.role === 'user' ? 'USER TURN' : 'STREAMASSIST + ADK MODEL REPLY'} (#${ev.turn_index})</span>
+              <span>${metaInfo.latency_ms ? `${metaInfo.latency_ms}ms · HTTP ${metaInfo.http_status}` : escapeHtml(ev.created_at)}</span>
+            </div>
+            <div class="msg-body">${escapeHtml(ev.content)}</div>
+            ${thoughtsHtml}
+            ${citesHtml}
+          </div>`;
+      }).join('');
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function toggleScope(el) {
+      el.classList.toggle('active');
+    }
+
+    function getActiveScopes() {
+      return Array.from(document.querySelectorAll('.scope-chip.active')).map(el => el.getAttribute('data-scope'));
+    }
+
+    function fillPrompt(text) {
+      document.getElementById('chat-input').value = text;
+      document.getElementById('chat-input').focus();
+    }
+
+    async function sendChatMessage() {
+      const input = document.getElementById('chat-input');
+      const query = input.value.trim();
+      if (!query) return;
+
+      if (!ACTIVE_SESSION_ID) {
+        const createRes = await fetch('/api/sessions', {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({ display_name: query.slice(0, 42), user_id: 'admin@sockcop.onmicrosoft.com' })
+        });
+        const created = await createRes.json();
+        ACTIVE_SESSION_ID = created.adk_session_id;
+      }
+
+      input.value = '';
+      const loader = document.getElementById('chat-loader-indicator');
+      loader.style.display = 'flex';
+      document.getElementById('chat-loader-text').textContent = 'Streaming Discovery Engine StreamAssist + Updating ADK Memory Tiers...';
+
+      try {
+        const res = await fetch(`/api/sessions/${ACTIVE_SESSION_ID}/chat`, {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({ query, scopes: getActiveScopes() })
+        });
+        const data = await res.json();
+        if (res.status === 403 && data.error === 'SESSION_DORMANT_LOGGED_OUT') {
+          alert(data.message);
+        } else {
+          LAST_CURL_TELEMETRY = data;
+        }
+        await selectSession(ACTIVE_SESSION_ID);
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+
+    async function triggerLifecycle(transition) {
+      if (!ACTIVE_SESSION_ID) {
+        alert('Select or create a session first.');
+        return;
+      }
+      const loader = document.getElementById('chat-loader-indicator');
+      loader.style.display = 'flex';
+      document.getElementById('chat-loader-text').textContent =
+        transition === 'idle'
+          ? 'Purging temp:* RAM, compacting turns via Gemini 2.5 Flash & filtering ACL memories...'
+          : transition === 'logoff'
+            ? 'Revoking active session tokens, checkpointing SQLite state & locking session...'
+            : 'Re-hydrating durable session checkpoint, preloading Tier 3 Memory Bank & re-binding GE session...';
+
+      try {
+        await fetch(`/api/sessions/${ACTIVE_SESSION_ID}/lifecycle/${transition}`, {
+          method: 'POST',
+          headers: apiHeaders(),
+          body: JSON.stringify({})
+        });
+        await selectSession(ACTIVE_SESSION_ID);
+      } finally {
+        loader.style.display = 'none';
+      }
+    }
+
+    function switchInspector(tab) {
+      CURRENT_INSPECTOR_TAB = tab;
+      renderInspector();
+    }
+
+    function renderInspector() {
+      const body = document.getElementById('inspector-body');
+      if (!ACTIVE_SESSION_DATA) {
+        body.innerHTML = `<div style="font-size:12px;color:var(--text-secondary);">Select a session to inspect its 3-tier memory state.</div>`;
+        return;
+      }
+
+      if (CURRENT_INSPECTOR_TAB === 'tier1') {
+        const t1 = ACTIVE_SESSION_DATA.tier1_working_ram || {};
+        body.innerHTML = `
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>EPHEMERAL INVOCATION RAM (temp:*)</span>
+              <span class="pill">${t1.temp_bytes || 0} BYTES IN RAM</span>
+            </div>
+            <p style="font-size:11.5px;margin-bottom:8px;">
+              Lives only in process memory (<code>State.TEMP_PREFIX</code>). Automatically purged to <strong>0 bytes</strong> on Idle Compaction or User Log-Off.
+            </p>
+            <pre>${escapeHtml(JSON.stringify(t1.temp_state || {}, null, 2))}</pre>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>ROLLING COMPACTION SUMMARY</span>
+              <span class="pill">UP TO TURN #${t1.compacted_up_to_turn || 0}</span>
+            </div>
+            <pre>${escapeHtml(t1.compacted_summary || '(Not compacted yet — click "1. Trigger Idle Compaction" to generate live via Gemini 2.5 Flash)')}</pre>
+          </div>
+          <div class="subcard">
+            <div class="subcard-title"><span>PERSISTENT ADK SESSION STATE (session.state)</span></div>
+            <pre>${escapeHtml(JSON.stringify(t1.persistent_session_state || {}, null, 2))}</pre>
+          </div>`;
+        return;
+      }
+
+      if (CURRENT_INSPECTOR_TAB === 'tier2') {
+        const ge = ACTIVE_SESSION_DATA.tier2_discovery_engine_session;
+        body.innerHTML = `
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>LIVE DISCOVERY ENGINE SPANNER SESSION</span>
+              <span class="pill">GetSession?includeAnswerDetails=true</span>
+            </div>
+            <p style="font-size:11.5px;margin-bottom:8px;">
+              Live payload fetched directly from Google Cloud Discovery Engine Spanner showing persisted turns, <code>assistAnswer</code> resource names, and retained citation snippets (with raw document streams dropped).
+            </p>
+            <pre>${escapeHtml(JSON.stringify(ge || { note: 'Send at least one chat turn to create and link the server-side Discovery Engine session.' }, null, 2))}</pre>
+          </div>`;
+        return;
+      }
+
+      if (CURRENT_INSPECTOR_TAB === 'tier3') {
+        const mems = ACTIVE_SESSION_DATA.tier3_memory_bank || [];
+        body.innerHTML = `
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>TIER 3 CROSS-SESSION MEMORY BANK</span>
+              <span class="pill">${mems.length} ENTRIES</span>
+            </div>
+            <p style="font-size:11.5px;margin-bottom:8px;">
+              Distilled during Idle / Log-Off compaction. <strong>PERSISTED_USER_PREF</strong> entries preload into future sessions; <strong>BLOCKED_ACL_DOCUMENT_FACT</strong> entries are blocked so Microsoft Graph ACLs remain authoritative.
+            </p>
+            ${mems.map(m => `
+              <div class="subcard" style="margin-top:8px;padding:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <code>${escapeHtml(m.memory_key)}</code>
+                  <span class="pill">${escapeHtml(m.acl_classification)}</span>
+                </div>
+                <div style="font-size:12px;margin-top:6px;">${escapeHtml(m.memory_value)}</div>
+                <div style="font-family:var(--font-mono);font-size:10px;color:var(--text-secondary);margin-top:4px;">
+                  AUDIT: ${escapeHtml(m.provenance_note)}
+                </div>
+              </div>`).join('') || '<div style="font-size:12px;color:var(--text-secondary);">No distilled memories yet. Chat in a session and click "1. Trigger Idle Compaction".</div>'}
+          </div>`;
+        return;
+      }
+
+      if (CURRENT_INSPECTOR_TAB === 'curl') {
+        const c = LAST_CURL_TELEMETRY || {};
+        const deCurl = ACTIVE_SESSION_DATA.tier2_discovery_engine_curl || '';
+        body.innerHTML = `
+          <div class="subcard">
+            <div class="subcard-title">
+              <span>LAST STREAMASSIST TURN cURL & TELEMETRY</span>
+              <span class="pill">${c.latency_ms ? `${c.latency_ms}ms · HTTP ${c.http_status}` : 'READY'}</span>
+            </div>
+            <pre>${escapeHtml(c.curl || deCurl || '# Send a chat turn to capture the exact live StreamAssist cURL command.')}</pre>
+          </div>`;
+      }
+    }
+
+    // Idle Countdown Ticker
+    setInterval(() => {
+      if (ACTIVE_SESSION_DATA && ACTIVE_SESSION_DATA.session.lifecycle_state === 'ACTIVE') {
+        IDLE_SECONDS_REMAINING = Math.max(0, IDLE_SECONDS_REMAINING - 1);
+        const mm = String(Math.floor(IDLE_SECONDS_REMAINING / 60)).padStart(2, '0');
+        const ss = String(IDLE_SECONDS_REMAINING % 60).padStart(2, '0');
+        document.getElementById('tel-idle-timer').textContent = `${mm}:${ss}`;
+        if (IDLE_SECONDS_REMAINING === 0 && ACTIVE_SESSION_ID) {
+          IDLE_SECONDS_REMAINING = 300;
+          triggerLifecycle('idle');
+        }
+      }
+    }, 1000);
+
+    async function refreshAll() {
+      await loadConfig();
+      await loadConnectorsStatus();
+      await loadSessionsList();
+    }
+
+    // Initialize application on page load
+    selectPlane(1);
+    refreshAll();
+  </script>
+</body>
+</html>

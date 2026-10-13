@@ -32,7 +32,7 @@
       "net_borrower_down_payment": "$9,750.00 Out-of-Pocket (5% Down $19,750 minus $10,000 Rocket Homebuyer Grant!)",
       "computed_monthly_pi": "$2,280.06/mo P&I @ 6.125% Note Rate (6.342% APR \u2014 TILA Reg Z Compliant Footer Auto-Injected)"
     },
-    "execution_ms": 0.02
+    "execution_ms": 0.01
   },
   "bespoke_visual_artifact": {
     "archetype": "imagen_virtual_staging_comparator",

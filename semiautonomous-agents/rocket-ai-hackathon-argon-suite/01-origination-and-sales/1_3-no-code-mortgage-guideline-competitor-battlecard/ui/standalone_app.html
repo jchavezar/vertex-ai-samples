@@ -3,376 +3,505 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gemini Enterprise Guideline & Competitor Battlecard Arena | Rocket Pro TPO</title>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <title>Redfin × Rocket Mortgage × Rocket Money · Cross-Brand Purchase Concierge</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: 'Outfit', sans-serif;
-      background: #F4F6FB;
-      color: #0F172A;
-      min-height: 100vh;
-      padding-bottom: 80px;
-    }
-    .mono { font-family: 'JetBrains Mono', monospace; }
-
-    /* Gemini Enterprise Top Navigation Bar */
-    .ge-nav {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background: #FFFFFF;
-      border-bottom: 1px solid #E2E8F0;
+      color: #222222;
+      min-height: 100vh;
+      padding-bottom: 88px;
+    }
+    .mono { font-family: 'IBM Plex Mono', monospace; }
+
+    /* Redfin / Airbnb Marketplace Navigation Header */
+    .rf-navbar {
+      background: #FFFFFF;
+      border-bottom: 1px solid #EBEBEB;
       padding: 14px 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
-    .ge-sparkle-badge {
-      background: linear-gradient(135deg, #4F46E5, #9333EA, #EC4899);
-      color: #FFF;
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .real-ge-btn {
-      background: #0F172A;
-      color: #FFFFFF;
-      text-decoration: none;
-      padding: 9px 18px;
-      border-radius: 999px;
-      font-size: 12.5px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      border: 2px solid #6366F1;
-      transition: 0.2s;
-    }
-    .real-ge-btn:hover {
-      background: #3730A3;
-      transform: translateY(-1px);
-    }
-
-    /* Search Hero Section */
-    .ge-hero {
-      max-width: 1180px;
-      margin: 28px auto 0 auto;
-      padding: 0 24px;
-    }
-    .search-shell {
-      background: #FFFFFF;
-      border: 2px solid #C7D2FE;
-      border-radius: 999px;
-      padding: 8px 10px 8px 24px;
+    .rf-logo-cluster {
       display: flex;
       align-items: center;
       gap: 12px;
-      box-shadow: 0 12px 32px rgba(79, 70, 229, 0.09);
     }
-    .search-shell input {
-      flex: 1;
-      border: none;
-      outline: none;
-      font-family: 'Outfit', sans-serif;
-      font-size: 16px;
-      font-weight: 500;
-      color: #0F172A;
-    }
-    .stream-btn {
-      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+    .rf-badge {
+      background: #D92228;
       color: #FFFFFF;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 999px;
-      font-family: 'Outfit', sans-serif;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* 3-Way Battlecard Arena Grid */
-    .battle-grid {
-      max-width: 1180px;
-      margin: 24px auto;
-      padding: 0 24px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-    @media (max-width: 960px) {
-      .battle-grid { grid-template-columns: 1fr; }
-    }
-    .competitor-card {
-      background: #FFFFFF;
-      border-radius: 20px;
-      border: 1px solid #E2E8F0;
-      padding: 24px;
-      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
-      position: relative;
-    }
-    .competitor-card.winner {
-      border: 2px solid #059669;
-      background: linear-gradient(180deg, #ECFDF5 0%, #FFFFFF 38%);
-      box-shadow: 0 16px 36px rgba(5, 150, 105, 0.12);
-    }
-    .winner-ribbon {
-      position: absolute;
-      top: -12px;
-      right: 20px;
-      background: #059669;
-      color: #FFFFFF;
-      padding: 4px 14px;
-      border-radius: 999px;
-      font-size: 11px;
       font-weight: 800;
-      letter-spacing: 0.05em;
+      font-size: 14px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      letter-spacing: -0.02em;
+    }
+    .bundle-pill {
+      background: #FFF1F2;
+      color: #BE123C;
+      border: 1px solid #FECDD3;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
     }
 
-    /* Grounded StreamAssist Response Box */
-    .grounded-box {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 0 24px;
+    /* Marketplace Warm Filter Bar */
+    .rf-filter-bar {
+      background: #F7F7F7;
+      border-bottom: 1px solid #EBEBEB;
+      padding: 16px 32px;
     }
-    .grounded-panel {
+    .filter-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr 1fr auto;
+      gap: 18px;
+      align-items: center;
+    }
+    @media (max-width: 1080px) {
+      .filter-inner { grid-template-columns: 1fr; }
+    }
+    .filter-box {
       background: #FFFFFF;
-      border: 1px solid #CBD5E1;
-      border-radius: 20px;
-      padding: 24px 28px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+      border: 1px solid #DDDDDD;
+      border-radius: 12px;
+      padding: 10px 14px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .filter-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #717171;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Main Marketplace Grid */
+    .market-container {
+      max-width: 1320px;
+      margin: 28px auto;
+      padding: 0 32px;
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+    @media (max-width: 1080px) {
+      .market-container { grid-template-columns: 1fr; }
+    }
+
+    /* Rounded 16px Property Showcase Card */
+    .property-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.06);
+    }
+    .property-art {
+      position: relative;
+      height: 255px;
+      background: linear-gradient(180deg, #E0F2FE 0%, #F0FDF4 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-bottom: 1px solid #EBEBEB;
+    }
+    .listing-tag {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: #FFFFFF;
+      color: #222222;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+    }
+    .credit-tag {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: #D92228;
+      color: #FFFFFF;
+      font-weight: 800;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      box-shadow: 0 2px 8px rgba(217,34,40,0.35);
+    }
+
+    /* Buttons */
+    .rf-btn-primary {
+      background: #D92228;
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px;
+      padding: 13px 20px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .rf-btn-primary:hover { background: #B81B20; }
+
+    .rf-btn-audio {
+      background: #FFF1F2;
+      color: #D92228;
+      border: 1px solid #FECDD3;
+      border-radius: 12px;
+      padding: 11px 16px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+    .rf-btn-audio:hover { background: #FFE4E6; }
+
+    /* Bundle Breakdown Card */
+    .bundle-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .bundle-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: #F7F7F7;
+      font-size: 13.5px;
+    }
+    .bundle-highlight {
+      background: #ECFDF5;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+      padding: 14px 16px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
   </style>
 </head>
 <body>
 
-  <!-- GEMINI ENTERPRISE HEADER -->
-  <nav class="ge-nav">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <span class="ge-sparkle-badge">✦ GEMINI ENTERPRISE</span>
+  <!-- REDFIN / AIRBNB MARKETPLACE HEADER -->
+  <header class="rf-navbar">
+    <div class="rf-logo-cluster">
+      <span class="rf-badge">REDFIN × ROCKET</span>
       <div>
-        <div style="font-size:17px;font-weight:800;color:#0F172A;">Mortgage Guideline & Wholesale Competitor Battlecard Hub</div>
-        <div class="mono" style="font-size:11px;color:#64748B;">ENGINE ID: gemini-enterprise-17877637_1787763712023 • v1alpha:streamAssist</div>
+        <div style="font-size:16px;font-weight:800;color:#222222;">Cross-Brand Purchase Concierge</div>
+        <div style="font-size:12px;color:#717171;">Royal Oak & Ferndale, MI · Unified Home Search + Rocket Money Vault + Instant Closing Credits</div>
       </div>
     </div>
 
     <div style="display:flex;align-items:center;gap:12px;">
-      <div class="mono" style="background:#F1F5F9;padding:6px 12px;border-radius:999px;border:1px solid #CBD5E1;font-size:11px;">
-        Model:
-        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#4F46E5;font-weight:700;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;">
-          <option value="gemini-3.8-flash">gemini-3.8-flash</option>
+      <span class="bundle-pill">★ Rocket Preferred Bundle Active</span>
+      <div style="background:#F7F7F7;border:1px solid #DDDDDD;padding:6px 12px;border-radius:10px;font-size:12px;display:flex;align-items:center;gap:6px;">
+        <span style="color:#717171;font-weight:600;">Model:</span>
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#D92228;font-weight:700;border:none;outline:none;font-family:inherit;font-size:12px;cursor:pointer;">
           <option value="gemini-4-argon">gemini-4-argon</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash</option>
         </select>
       </div>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" class="real-ge-btn">
-        <span>✨ Launch Real Gemini Enterprise Web UI</span>
-        <span>↗</span>
-      </a>
     </div>
-  </nav>
+  </header>
 
-  <!-- LIVE STREAMASSIST BAR & SLIDERS -->
-  <section class="ge-hero">
-    <div class="search-shell">
-      <span style="font-size:20px;">🔎</span>
-      <input type="text" id="ge-query-input" value="642 FICO borrower buying $380,000 home in Macomb County MI with 3.5%-5% down: Compare Standard Conventional 95% vs Fannie HomeReady vs Rocket FHA 96.5% against UWM & Pennymac">
-      <button class="stream-btn" onclick="executeStreamAssistBattlecard()" id="ge-run-btn">✦ Query streamAssist + Sandbox</button>
-    </div>
-
-    <!-- Interactive Price & FICO Controls -->
-    <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;background:#FFFFFF;padding:16px 24px;border-radius:16px;border:1px solid #E2E8F0;align-items:center;">
-      <div style="flex:1;min-width:220px;">
-        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-bottom:4px;">
-          <span>Home Purchase Price (Macomb County, MI):</span>
-          <span class="mono" id="lbl-price" style="color:#4F46E5;">$380,000</span>
+  <!-- TOP MARKETPLACE SEARCH & SLIDER BAR -->
+  <section class="rf-filter-bar">
+    <div class="filter-inner">
+      <div class="filter-box">
+        <div class="filter-label">
+          <span>📍 Select Oakland County Listing</span>
+          <span style="color:#D92228;">MLS Active</span>
         </div>
-        <input type="range" id="sl-price" min="220000" max="650000" step="10000" value="380000" style="width:100%;accent-color:#4F46E5;" oninput="recalcBattlecard()">
+        <select id="prop-select" onchange="onPropertyChange()" style="width:100%;border:none;outline:none;font-family:inherit;font-size:14px;font-weight:700;color:#222222;background:transparent;cursor:pointer;">
+          <option value="0">418 Elmhurst Ave, Royal Oak · $460,000</option>
+          <option value="1">812 Livernois St, Ferndale · $395,000</option>
+          <option value="2">1204 Vinsetta Blvd, Royal Oak · $575,000</option>
+        </select>
       </div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button onclick="setQuickScenario(380000, '642 FICO First-Time Buyer')" style="padding:8px 14px;border-radius:999px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:12px;font-weight:700;cursor:pointer;">642 FICO ($380k)</button>
-        <button onclick="setQuickScenario(450000, '680 FICO HomeReady 80% AMI')" style="padding:8px 14px;border-radius:999px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:12px;font-weight:700;cursor:pointer;">680 FICO ($450k)</button>
-        <button onclick="setQuickScenario(520000, 'UWM FHA Competitive Match')" style="padding:8px 14px;border-radius:999px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:12px;font-weight:700;cursor:pointer;">UWM Match ($520k)</button>
-      </div>
-    </div>
-  </section>
 
-  <!-- 3-WAY PROGRAM & COMPETITOR BATTLECARD ARENA -->
-  <section class="battle-grid">
-    <!-- Card 1: Standard Conventional 95% (UWM / Competitor Baseline) -->
-    <div class="competitor-card">
-      <div class="mono" style="font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;">Option 1 • Standard Conventional 95% LTV</div>
-      <h3 style="font-size:20px;font-weight:800;margin:6px 0;">Standard Conv + Private MI</h3>
-      <div class="mono" style="font-size:28px;font-weight:800;color:#0F172A;margin:12px 0;" id="card-conv-total">$2,718.60<span style="font-size:14px;color:#64748B;">/mo</span></div>
-      <div style="font-size:13px;color:#475569;line-height:1.6;" id="card-conv-detail">
-        • Heavy 642 FICO LLPA hits (+1.750 pts)<br>
-        • Standard Private MI: <strong>1.35% / yr ($406/mo)</strong><br>
-        • Note Rate: <strong>6.625%</strong> (95% LTV)
-      </div>
-    </div>
-
-    <!-- Card 2: Fannie Mae HomeReady 95% -->
-    <div class="competitor-card">
-      <div class="mono" style="font-size:11px;font-weight:700;color:#4F46E5;text-transform:uppercase;">Option 2 • Fannie Mae B5-6-01</div>
-      <h3 style="font-size:20px;font-weight:800;margin:6px 0;">HomeReady® 3%-5% Down</h3>
-      <div class="mono" style="font-size:28px;font-weight:800;color:#4F46E5;margin:12px 0;" id="card-hr-total">$2,429.27<span style="font-size:14px;color:#64748B;">/mo</span></div>
-      <div style="font-size:13px;color:#475569;line-height:1.6;" id="card-hr-detail">
-        • <strong>100% LLPA Credit Score Waiver</strong> if &le;80% AMI<br>
-        • Reduced 25% Charter MI: <strong>0.78% / yr ($234/mo)</strong><br>
-        • Note Rate: <strong>6.125%</strong> (Saves $289/mo vs Std Conv)
-      </div>
-    </div>
-
-    <!-- Card 3: Rocket FHA 96.5% Winner -->
-    <div class="competitor-card winner">
-      <div class="winner-ribbon">★ LOWEST PAYMENT WINNER (-$286/MO)</div>
-      <div class="mono" style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;">Option 3 • HUD 4000.1 FHA 3.5% Down</div>
-      <h3 style="font-size:20px;font-weight:800;margin:6px 0;">Rocket FHA 96.5% + MIP</h3>
-      <div class="mono" style="font-size:28px;font-weight:800;color:#059669;margin:12px 0;" id="card-fha-total">$2,432.64<span style="font-size:14px;color:#64748B;">/mo</span></div>
-      <div style="font-size:13px;color:#1E293B;line-height:1.6;" id="card-fha-detail">
-        • Annual FHA MIP: <strong>0.55% ($168/mo)</strong> + 1.75% UFMIP<br>
-        • Note Rate: <strong>5.875%</strong> (Beats UWM 6.000% quote)<br>
-        •Eligible for 6-month FHA Streamline Refi
-      </div>
-    </div>
-  </section>
-
-  <!-- LIVE GROUNDED STREAMASSIST OUTPUT & CITATIONS -->
-  <section class="grounded-box">
-    <div class="grounded-panel">
-      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2E8F0;padding-bottom:12px;margin-bottom:14px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span style="font-size:18px;">📚</span>
-          <span style="font-weight:800;font-size:15px;">Live Gemini Enterprise `streamAssist` Grounded Response & Citations</span>
+      <div class="filter-box">
+        <div class="filter-label">
+          <span>Down Payment (%)</span>
+          <strong class="mono" id="lbl-down-pct" style="color:#222222;">10% ($46,000)</strong>
         </div>
-        <span class="mono" id="ge-status-badge" style="font-size:11px;background:#EEF2FF;color:#4F46E5;padding:4px 10px;border-radius:999px;font-weight:700;">
-          Discovery Engine v1alpha Connected
-        </span>
+        <input type="range" id="sl-down" min="5" max="25" step="5" value="10" style="width:100%;accent-color:#D92228;" oninput="recalcConcierge()">
       </div>
 
-      <div id="ge-answer-body" style="font-size:14px;line-height:1.7;color:#1E293B;">
-        <strong>Grounded Battlecard Synthesis:</strong> For a <strong>642 FICO borrower</strong> purchasing at <strong>$380,000</strong> in Macomb County, MI, Standard Conventional 95% carries punitive credit-score LLPAs and 1.35% private MI (<strong>$2,718.60/mo</strong>).<br><br>
-        • <strong>Primary Strategy (FHA 96.5% @ 5.875%):</strong> Reduces monthly P&I + MIP to <strong>$2,432.64/mo</strong> (saving <strong>$286/mo</strong> immediately) with only 3.5% down ($13,300).<br>
-        • <strong>Alternative Strategy (Fannie Mae HomeReady B5-6-01):</strong> If the property census tract or borrower income is &le;80% of Detroit-Warren-Dearborn Area Median Income ($68,560), Fannie Mae waives all credit-score LLPAs and lowers MI to 0.78% (<strong>$2,429.27/mo</strong>) with cancellable MI at 80% LTV.
+      <div class="filter-box">
+        <div class="filter-label">
+          <span>Rocket Money Goal Vault</span>
+          <strong class="mono" id="lbl-vault" style="color:#059669;">$58,500</strong>
+        </div>
+        <input type="range" id="sl-vault" min="25000" max="140000" step="2500" value="58500" style="width:100%;accent-color:#059669;" oninput="recalcConcierge()">
       </div>
 
-      <div style="margin-top:16px;padding-top:12px;border-top:1px dashed #CBD5E1;display:flex;flex-wrap:wrap;gap:8px;" id="ge-citations-row">
-        <span class="mono" style="font-size:11px;background:#F1F5F9;padding:5px 10px;border-radius:6px;color:#334155;">📄 [Citation 1] Fannie Mae Selling Guide B5-6-01 (HomeReady LLPA Waiver)</span>
-        <span class="mono" style="font-size:11px;background:#F1F5F9;padding:5px 10px;border-radius:6px;color:#334155;">📄 [Citation 2] HUD Handbook 4000.1 Appendix 1.0 (0.55% Annual MIP Schedule)</span>
-        <span class="mono" style="font-size:11px;background:#F1F5F9;padding:5px 10px;border-radius:6px;color:#334155;">📄 [Citation 3] Rocket Pro TPO Q4 Wholesale Rate Matrix vs UWM</span>
-      </div>
+      <button class="rf-btn-primary" id="concierge-btn" onclick="window.runLiveVertexAI()">
+        ✨ Personalize Bundle Offer
+      </button>
     </div>
   </section>
+
+  <!-- MAIN MARKETPLACE SHOWCASE -->
+  <main class="market-container">
+
+    <!-- LEFT: PROPERTY SHOWCASE CARD WITH ARCHITECTURAL HOUSE ILLUSTRATION -->
+    <div class="property-card">
+      <div class="property-art">
+        <span class="listing-tag" id="badge-neighborhood">🔥 Hot Home · Royal Oak Tree Section</span>
+        <span class="credit-tag" id="badge-credit">+$4,600 Combined Closing Credit</span>
+
+        <!-- Architectural Craftsman House SVG Illustration -->
+        <svg width="360" height="200" viewBox="0 0 360 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Sun & Clouds -->
+          <circle cx="295" cy="44" r="22" fill="#FDE68A"/>
+          <!-- Lawn -->
+          <rect x="20" y="168" width="320" height="16" rx="8" fill="#86EFAC"/>
+          <!-- Main House Body -->
+          <rect x="75" y="86" width="210" height="82" fill="#FFFFFF" stroke="#1E293B" stroke-width="3"/>
+          <!-- Craftsman Roof -->
+          <polygon points="58,86 180,28 302,86" fill="#D92228" stroke="#1E293B" stroke-width="3"/>
+          <!-- Center Dormer -->
+          <polygon points="145,62 180,38 215,62" fill="#FFFFFF" stroke="#1E293B" stroke-width="2.5"/>
+          <rect x="168" y="48" width="24" height="14" fill="#BAE6FD" stroke="#1E293B" stroke-width="2"/>
+          <!-- Front Porch Gables & Columns -->
+          <rect x="152" y="118" width="56" height="50" fill="#F8FAFC" stroke="#1E293B" stroke-width="2.5"/>
+          <rect x="168" y="126" width="24" height="42" fill="#1E293B"/>
+          <circle cx="187" cy="148" r="2.2" fill="#FDE68A"/>
+          <!-- Left & Right Picture Windows -->
+          <rect x="95" y="104" width="42" height="34" rx="3" fill="#BAE6FD" stroke="#1E293B" stroke-width="2.5"/>
+          <line x1="116" y1="104" x2="116" y2="138" stroke="#1E293B" stroke-width="2"/>
+          <rect x="223" y="104" width="42" height="34" rx="3" fill="#BAE6FD" stroke="#1E293B" stroke-width="2.5"/>
+          <line x1="244" y1="104" x2="244" y2="138" stroke="#1E293B" stroke-width="2"/>
+          <!-- Trees -->
+          <circle cx="52" cy="136" r="22" fill="#4ADE80" stroke="#1E293B" stroke-width="2.5"/>
+          <line x1="52" y1="158" x2="52" y2="170" stroke="#1E293B" stroke-width="3"/>
+          <circle cx="310" cy="136" r="22" fill="#4ADE80" stroke="#1E293B" stroke-width="2.5"/>
+          <line x1="310" y1="158" x2="310" y2="170" stroke="#1E293B" stroke-width="3"/>
+        </svg>
+      </div>
+
+      <div style="padding:24px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
+          <div>
+            <h1 id="prop-title" style="font-size:24px;font-weight:800;color:#222222;">418 Elmhurst Ave, Royal Oak, MI 48073</h1>
+            <div id="prop-specs" style="font-size:14px;color:#717171;margin-top:4px;font-weight:500;">
+              3 Beds · 2.5 Baths · 1,940 Sq.Ft. · Renovated Craftsman Bungalow · Walk to Downtown Royal Oak
+            </div>
+          </div>
+          <div style="text-align:right;">
+            <div class="mono" id="prop-price" style="font-size:26px;font-weight:800;color:#222222;">$460,000</div>
+            <div style="font-size:12px;color:#059669;font-weight:700;">Est. <span id="prop-piti">$3,184</span>/mo PITI</div>
+          </div>
+        </div>
+
+        <div style="margin-top:18px;">
+          <button class="rf-btn-audio" onclick="playConciergeTourAudio(this)">
+            🔊 Hear Concierge Home Tour Audio (Gemini 3.8 Live · Aoede HD)
+          </button>
+        </div>
+
+        <div style="margin-top:18px;padding-top:18px;border-top:1px solid #EBEBEB;">
+          <div style="font-size:12px;font-weight:700;color:#717171;text-transform:uppercase;margin-bottom:8px;">
+            🏡 AI Cross-Brand Concierge Advisory (<span id="concierge-model-tag">gemini-4-argon</span>)
+          </div>
+          <div id="concierge-output-box" style="font-size:14px;line-height:1.65;color:#222222;background:#F7F7F7;padding:16px;border-radius:12px;border:1px solid #EBEBEB;">
+            <strong>418 Elmhurst Ave ($460,000)</strong> fits squarely inside your <strong>$58,500 Rocket Money Down Payment Vault</strong>! Putting <strong>10% down ($46,000)</strong> leaves you with <strong>$12,500 in liquid reserves</strong>—plus our <strong>$4,600 Combined Redfin + Rocket Closing Credit</strong> covers nearly 65% of your Oakland County title and escrow closing costs.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: REDFIN + ROCKET MORTGAGE + ROCKET MONEY BUNDLE BREAKDOWN -->
+    <aside class="bundle-card">
+      <div>
+        <div style="font-size:12px;font-weight:800;color:#D92228;text-transform:uppercase;letter-spacing:0.04em;">
+          Unified Ecosystem Breakdown
+        </div>
+        <h2 style="font-size:20px;font-weight:800;color:#222222;margin-top:4px;">
+          Redfin + Rocket Mortgage + Rocket Money Bundle
+        </h2>
+      </div>
+
+      <!-- Combined Closing Credit Banner -->
+      <div class="bundle-highlight">
+        <div>
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;">Combined Closing Credit Unlocked</div>
+          <div style="font-size:12.5px;opacity:0.9;margin-top:2px;">Redfin Partner Rebate ($2,300) + Rocket Purchase Plus ($2,300)</div>
+        </div>
+        <div class="mono" id="val-combined-credit" style="font-size:24px;font-weight:800;">$4,600</div>
+      </div>
+
+      <div class="bundle-row">
+        <span><strong>1. Home Purchase Price</strong> (Redfin MLS)</span>
+        <span class="mono" id="bd-price" style="font-weight:700;">$460,000</span>
+      </div>
+      <div class="bundle-row">
+        <span><strong>2. Down Payment</strong> (<span id="bd-down-pct">10%</span>)</span>
+        <span class="mono" id="bd-down-amt" style="font-weight:700;">$46,000</span>
+      </div>
+      <div class="bundle-row">
+        <span><strong>3. Rocket Mortgage Loan Amount</strong> (6.125% 30-Yr)</span>
+        <span class="mono" id="bd-loan-amt" style="font-weight:700;">$414,000</span>
+      </div>
+      <div class="bundle-row">
+        <span><strong>4. Est. Closing Costs after $4,600 Credit</strong></span>
+        <span class="mono" id="bd-net-closing" style="font-weight:700;color:#059669;">$2,950</span>
+      </div>
+      <div class="bundle-row" style="background:#FFF1F2;border:1px solid #FECDD3;">
+        <span><strong>Total Cash to Close vs. Rocket Money Vault</strong></span>
+        <span class="mono" id="bd-cash-status" style="font-weight:800;color:#059669;">$48,950 Needed · $9,550 Cushion!</span>
+      </div>
+
+      <div style="background:#F7F7F7;border-radius:12px;padding:14px;font-size:13px;line-height:1.55;color:#484848;">
+        <strong>Why Bundle Redfin + Rocket?</strong> Your Redfin Lead Agent and Rocket Loan Officer share a single live closing timeline, automatically applying your <strong>1% combined closing credit</strong> directly to your Closing Disclosure.
+      </div>
+
+      <button class="rf-btn-primary" style="width:100%;" onclick="alert('Saturday Private Redfin Tour + Verified Rocket Pre-Approval Packet scheduled for 418 Elmhurst Ave!')">
+        📅 Schedule Saturday Redfin Tour + Lock $4,600 Credit
+      </button>
+    </aside>
+
+  </main>
 
   
-<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
-<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
-  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
-    ← Hub
+<!-- CLEAN HUMAN-CENTRIC FLOATING UTILITY BAR (LIGHT SURFACE) -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:16px;right:16px;z-index:9990;display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:14px;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border:1px solid #CBD5E1;box-shadow:0 10px 30px rgba(15,23,42,0.12);font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif;font-size:12px;color:#1E293B;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#334155;text-decoration:none;font-weight:600;padding:5px 10px;border-radius:8px;background:#F1F5F9;border:1px solid #E2E8F0;transition:0.15s;white-space:nowrap;">
+    ← All Demos
   </a>
-  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
-    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
-      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
-      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
-      <option value="1.3" selected style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
-      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
-      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
-      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
-      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
-      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
-      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
-      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
-      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
-      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
-      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
-      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
-      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
-      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
-      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
-      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
-      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
-      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
-      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
-      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
-      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
-      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
-      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
-      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
-      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
-      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
-      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
-      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
-      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
-      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
-      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+  <div style="display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:8px;background:#F8FAFC;border:1px solid #E2E8F0;">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" aria-label="Switch Use Case" style="background:transparent;color:#0F172A;font-weight:600;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;max-width:210px;">
+      <option value="1.1"  style="background:#FFFFFF;color:#0F172A;">1.1 · The ABCDQ Post-Call Structured Debri</option>
+      <option value="1.2"  style="background:#FFFFFF;color:#0F172A;">1.2 · Outlook Hyper-Personalized Rate-Lock</option>
+      <option value="1.3" selected style="background:#FFFFFF;color:#0F172A;">1.3 · No-Code Mortgage Guideline & Competi</option>
+      <option value="1.4"  style="background:#FFFFFF;color:#0F172A;">1.4 · Dynamic Loan Pricing & Amortization </option>
+      <option value="1.5"  style="background:#FFFFFF;color:#0F172A;">1.5 · Autonomous Banker Inbound Triage & C</option>
+      <option value="2.1"  style="background:#FFFFFF;color:#0F172A;">2.1 · Fannie Mae / Freddie Mac Selling Gui</option>
+      <option value="2.2"  style="background:#FFFFFF;color:#0F172A;">2.2 · Low-Code Underwriting Condition Clea</option>
+      <option value="2.3"  style="background:#FFFFFF;color:#0F172A;">2.3 · Automated W-2 & Paystub Entity Extra</option>
+      <option value="2.4"  style="background:#FFFFFF;color:#0F172A;">2.4 · Self-Employed Schedule C / 1040 Cash</option>
+      <option value="2.5"  style="background:#FFFFFF;color:#0F172A;">2.5 · Rocket Close (Amrock) Title Exceptio</option>
+      <option value="3.1"  style="background:#FFFFFF;color:#0F172A;">3.1 · Annual Escrow Shortage Resolution Jo</option>
+      <option value="3.2"  style="background:#FFFFFF;color:#0F172A;">3.2 · Self-Service Payoff Quote & IRS Form</option>
+      <option value="3.3"  style="background:#FFFFFF;color:#0F172A;">3.3 · Hardship & Forbearance Live Servicin</option>
+      <option value="3.4"  style="background:#FFFFFF;color:#0F172A;">3.4 · Conversational Rocket Recapture Voic</option>
+      <option value="3.5"  style="background:#FFFFFF;color:#0F172A;">3.5 · Autonomous Borrower Retention & Life</option>
+      <option value="4.1"  style="background:#FFFFFF;color:#0F172A;">4.1 · Hyper-Local 50-Metro Real Estate Mar</option>
+      <option value="4.2"  style="background:#FFFFFF;color:#0F172A;">4.2 · Virtual Staging & Localized Hero Ad </option>
+      <option value="4.3"  style="background:#FFFFFF;color:#0F172A;">4.3 · Campaign Sentiment & Ad Creative Per</option>
+      <option value="4.4"  style="background:#FFFFFF;color:#0F172A;">4.4 · Automated Multi-Format Video Tour & </option>
+      <option value="4.5"  style="background:#FFFFFF;color:#0F172A;">4.5 · Redfin-to-Rocket Cross-Funnel Campai</option>
+      <option value="5.1"  style="background:#FFFFFF;color:#0F172A;">5.1 · CFPB Regulatory Circular & State Law</option>
+      <option value="5.2"  style="background:#FFFFFF;color:#0F172A;">5.2 · Ethical Walls & PII/NPI Masking Gove</option>
+      <option value="5.3"  style="background:#FFFFFF;color:#0F172A;">5.3 · Automated TRID 3-Day Tolerance & Dis</option>
+      <option value="5.4"  style="background:#FFFFFF;color:#0F172A;">5.4 · Automated Vendor Contract Risk & GLB</option>
+      <option value="5.5"  style="background:#FFFFFF;color:#0F172A;">5.5 · Fair Lending Disparate Impact & Bias</option>
+      <option value="6.1"  style="background:#FFFFFF;color:#0F172A;">6.1 · Autonomous Vulnerability Trace & Rep</option>
+      <option value="6.2"  style="background:#FFFFFF;color:#0F172A;">6.2 · AI Software Factory: Autonomous PRD-</option>
+      <option value="6.3"  style="background:#FFFFFF;color:#0F172A;">6.3 · Legacy .NET Framework / WCF to Cloud</option>
+      <option value="M.1"  style="background:#FFFFFF;color:#0F172A;">M.1 · Project Siren: The Sub-200ms Voice A</option>
+      <option value="M.2"  style="background:#FFFFFF;color:#0F172A;">M.2 · Project Spatial Close: Immersive Vir</option>
+      <option value="M.3"  style="background:#FFFFFF;color:#0F172A;">M.3 · Project HiveMind: Autonomous Treasur</option>
+      <option value="M.4"  style="background:#FFFFFF;color:#0F172A;">M.4 · Project Mirror: Interactive Virtual </option>
+      <option value="M.5"  style="background:#FFFFFF;color:#0F172A;">M.5 · Project Air-Tight: Self-Healing Auto</option>
     </select>
   </div>
-  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
-    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
-    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
-    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
-      <option value="gemini-4-argon"  style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
-      <option value="gemini-3.8-flash" selected style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+  <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;border-radius:8px;background:#EFF6FF;border:1px solid #BFDBFE;">
+    <span style="color:#1D4ED8;font-size:11px;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" aria-label="Select Gemini Model" style="background:transparent;color:#1E3A8A;font-weight:700;font-family:inherit;font-size:12px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" >Gemini 4 Argon (Frontier)</option>
+      <option value="gemini-3.8-flash" selected>Gemini 3.8 Flash (Low-Latency)</option>
     </select>
   </div>
-  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
-    🛠️ Code & Architecture
+  <button onclick="window.toggleBlueprintDrawer()" style="background:#0F172A;color:#FFFFFF;border:none;padding:6px 12px;border-radius:8px;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">
+    Code & Blueprint
   </button>
 </div>
 
 <!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
-<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
-  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#FFFFFF;color:#0F172A;border-left:1px solid #E2E8F0;box-shadow:-16px 0 48px rgba(15,23,42,0.16);transition:right 0.25s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Plus Jakarta Sans',-apple-system,sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #E2E8F0;display:flex;align-items:center;justify-content:space-between;background:#F8FAFC;">
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [1.3] • Technical Blueprint & GenAI SDK</div>
-      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">No-Code Mortgage Guideline & Competitor Battlecard Agent</div>
+      <div style="font-size:11px;color:#475569;font-weight:600;">Use Case 1.3 · Technical Blueprint & Vertex AI SDK</div>
+      <div style="font-size:16px;font-weight:700;color:#0F172A;margin-top:2px;">No-Code Mortgage Guideline & Competitor Battlecard Agent</div>
     </div>
-    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#E2E8F0;color:#334155;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:700;">✕</button>
   </div>
   <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        📘 Full Reproduction Guide & SKILL.md ↗
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#1D4ED8;color:#FFF;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Full Reproduction Guide & SKILL.md ↗
       </a>
-      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
-        ✨ Real Gemini Enterprise UI ↗
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:10px 12px;border-radius:8px;background:#F3E8FF;border:1px solid #D8B4FE;color:#6B21A8;text-decoration:none;font-size:12.5px;font-weight:600;">
+        Open Gemini Enterprise UI ↗
       </a>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
-        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-3.8-flash</span>)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        1. Vertex AI GenAI SDK Implementation (<span id="drawer-model-label" style="color:#1D4ED8;">gemini-3.8-flash</span>)
       </div>
-      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+      <pre id="drawer-sdk-code" style="background:#0F172A;border:1px solid #1E293B;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#E2E8F0;overflow-x:auto;line-height:1.5;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
-        2. GCP Reference Architecture (<= 78 Cols)
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
+        2. GCP Reference Architecture
       </div>
-      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+      <pre style="background:#F8FAFC;border:1px solid #E2E8F0;border-radius:10px;padding:14px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#1E293B;overflow-x:auto;line-height:1.45;margin:0;"></pre>
     </div>
 
     <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+      <div style="font-size:12px;font-weight:700;color:#0F172A;margin-bottom:6px;">
         3. Custom Scenario Prompt Override
       </div>
-      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Banker Question in Microsoft Teams:
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#FFFFFF;border:1px solid #CBD5E1;border-radius:8px;padding:10px;color:#0F172A;font-family:inherit;font-size:12.5px;">Banker Question in Microsoft Teams:
 "I have a borrower in Macomb County buying a $380,000 single-family home with 5% down ($19,000). Middle FICO is 642. Debt-to-income is 46.5%. Part of the down payment ($8,000) is a gift from an aunt, and they are comparing our quote against a local wholesale broker pitching UWM Conventional 95%.
 1) Should we structure this as Fannie Mae HomeReady (620+ FICO, <80% AMI) or FHA 3.5% down?
 2) How does MI (Mortgage Insurance) compare between Conventional at 642 FICO vs FHA MIP (0.55% annual)?
 3) Give me 3 crisp battlecard talking points to win this deal today over the competing broker." </textarea>
-      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
-        ⚡ Re-Synthesize with Selected Model
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:8px;background:#059669;color:#FFF;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">
+        Re-Synthesize with Selected Model
       </button>
     </div>
   </div>
 </div>
 
 <script>
-  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
-  // so sharing or copying the URL never leaks the session token!
+  // Scrub ?auth_token=... from URL bar after cookie authentication
   (function() {
     try {
       if (window.location.search.includes('auth_token=')) {
@@ -391,7 +520,7 @@
   };
 
   window.getSelectedModel = function() {
-    const el = document.getElementById('model-select');
+    const el = document.getElementById('model-select') || document.getElementById('app-model-select');
     return el ? el.value : "gemini-3.8-flash";
   };
 
@@ -414,7 +543,174 @@
     dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
   };
 
-  // Initialize SDK snippet on load
+  // ============================================================================
+  // UNIVERSAL GEMINI 3.8 LIVE 24kHz NATIVE AUDIO & INSTANT BARGE-IN ENGINE
+  // Eliminates all robotic browser speechSynthesis TTS across every demo!
+  // ============================================================================
+  window.RocketLiveAudio = (function() {
+    let audioCtx = null;
+    let activeSources = [];
+    let nextPlayTime = 0;
+    let pcmCache = {};
+    let currentClipBtn = null;
+    let currentClipOrigLabel = "";
+    let animFrameId = null;
+
+    function ensureCtx() {
+      if (!audioCtx) {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC({ sampleRate: 24000 });
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      return audioCtx;
+    }
+
+    function stopAll() {
+      activeSources.forEach(src => {
+        try { src.stop(0); src.disconnect(); } catch (e) {}
+      });
+      activeSources = [];
+      if (audioCtx) {
+        nextPlayTime = audioCtx.currentTime;
+      }
+      if (animFrameId) {
+        cancelAnimationFrame(animFrameId);
+        animFrameId = null;
+      }
+      if (currentClipBtn) {
+        currentClipBtn.innerHTML = currentClipOrigLabel;
+        currentClipBtn.dataset.playing = "0";
+        currentClipBtn = null;
+      }
+    }
+
+    function playPcm24kBase64(b64Data, onAmplitude, onEndedCallback) {
+      const ctx = ensureCtx();
+      const bin = atob(b64Data);
+      const len = bin.length;
+      const int16 = new Int16Array(Math.floor(len / 2));
+      for (let i = 0; i < int16.length; i++) {
+        const lo = bin.charCodeAt(i * 2);
+        const hi = bin.charCodeAt(i * 2 + 1);
+        let val = (hi << 8) | lo;
+        if (val >= 0x8000) val -= 0x10000;
+        int16[i] = val;
+      }
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) {
+        float32[i] = int16[i] / 32768.0;
+      }
+      const buf = ctx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+
+      const src = ctx.createBufferSource();
+      src.buffer = buf;
+
+      if (onAmplitude) {
+        const analyser = ctx.createAnalyser();
+        analyser.fftSize = 64;
+        src.connect(analyser);
+        analyser.connect(ctx.destination);
+        const dataArr = new Uint8Array(analyser.frequencyBinCount);
+        function tick() {
+          if (!activeSources.includes(src)) return;
+          analyser.getByteFrequencyData(dataArr);
+          let sum = 0;
+          for (let i = 0; i < dataArr.length; i++) sum += dataArr[i];
+          onAmplitude(sum / (dataArr.length * 255), dataArr);
+          animFrameId = requestAnimationFrame(tick);
+        }
+        animFrameId = requestAnimationFrame(tick);
+      } else {
+        src.connect(ctx.destination);
+      }
+
+      const now = ctx.currentTime;
+      if (nextPlayTime < now) nextPlayTime = now + 0.01;
+      src.start(nextPlayTime);
+      nextPlayTime += buf.duration;
+      activeSources.push(src);
+
+      src.onended = () => {
+        activeSources = activeSources.filter(s => s !== src);
+        if (activeSources.length === 0 && onEndedCallback) {
+          onEndedCallback();
+        }
+      };
+      return src;
+    }
+
+    async function playClip(text, voice, speakerRole, btnEl, onAmplitude) {
+      if (btnEl && btnEl.dataset.playing === "1") {
+        stopAll();
+        return;
+      }
+      stopAll();
+      ensureCtx();
+
+      if (btnEl) {
+        currentClipBtn = btnEl;
+        currentClipOrigLabel = btnEl.innerHTML;
+        btnEl.dataset.playing = "1";
+        btnEl.innerHTML = "⏳ Connecting Gemini 3.8 Live Audio...";
+      }
+
+      const cacheKey = (voice || "Aoede") + "::" + text;
+      try {
+        let pcmB64 = pcmCache[cacheKey];
+        if (!pcmB64) {
+          const res = await fetch('/api/live-tts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              text: text,
+              voice: voice || "Aoede",
+              speaker_role: speakerRole || "Rocket Mortgage Voice Co-Pilot",
+              live_mode: "gemini-3.8-live"
+            })
+          });
+          const data = await res.json();
+          if (!data.ok || !data.pcm_b64) {
+            throw new Error(data.error || "Audio stream unavailable");
+          }
+          pcmB64 = data.pcm_b64;
+          pcmCache[cacheKey] = pcmB64;
+        }
+        if (btnEl && currentClipBtn === btnEl) {
+          btnEl.innerHTML = "⏹ Stop Live Audio (Playing 24kHz HD)";
+        }
+        playPcm24kBase64(pcmB64, onAmplitude, () => {
+          if (btnEl && currentClipBtn === btnEl) {
+            btnEl.innerHTML = currentClipOrigLabel;
+            btnEl.dataset.playing = "0";
+            currentClipBtn = null;
+          }
+          if (onAmplitude) onAmplitude(0, null);
+        });
+      } catch (err) {
+        if (btnEl) {
+          btnEl.innerHTML = currentClipOrigLabel;
+          btnEl.dataset.playing = "0";
+          currentClipBtn = null;
+        }
+        console.error("Gemini 3.8 Live TTS error:", err);
+      }
+    }
+
+    return {
+      ensureCtx: ensureCtx,
+      stopAll: stopAll,
+      playPcm24kBase64: playPcm24kBase64,
+      playClip: playClip,
+      isPlaying: () => activeSources.length > 0
+    };
+  })();
+
+  window.stopAllLiveAudio = window.RocketLiveAudio.stopAll;
+  window.playLiveCallClip = window.RocketLiveAudio.playClip;
+
   document.addEventListener('DOMContentLoaded', () => {
     window.syncSelectedModel("gemini-3.8-flash");
   });
@@ -422,81 +718,138 @@
 
 
   <script>
-    function setQuickScenario(price, label) {
-      document.getElementById('sl-price').value = price;
-      recalcBattlecard();
+    const LISTINGS = [
+      {
+        address: '418 Elmhurst Ave, Royal Oak, MI 48073',
+        price: 460000,
+        badge: '🔥 Hot Home · Royal Oak Tree Section',
+        specs: '3 Beds · 2.5 Baths · 1,940 Sq.Ft. · Renovated Craftsman Bungalow · Walk to Downtown Royal Oak',
+        credit: 4600,
+        tourScript: 'Welcome to four eighteen Elmhurst Avenue in Royal Oak, listed at four hundred sixty thousand dollars. Because you linked your Rocket Money Down Payment Vault with fifty-eight thousand five hundred dollars saved, you qualify for our Redfin and Rocket Mortgage Cross-Brand Purchase Bundle. That gives you an instant four thousand six hundred dollar combined closing cost credit, leaving you nearly ten thousand dollars in cash reserves after closing!'
+      },
+      {
+        address: '812 Livernois St, Ferndale, MI 48220',
+        price: 395000,
+        badge: '✨ New Listing · West Ferndale',
+        specs: '3 Beds · 2 Baths · 1,680 Sq.Ft. · Mid-Century Brick Ranch · Chef Kitchen & Fenced Yard',
+        credit: 3950,
+        tourScript: 'Welcome to eight twelve Livernois Street in Ferndale, listed at three hundred ninety-five thousand dollars. With ten percent down from your Rocket Money Vault and your combined Redfin plus Rocket closing credit, your total monthly payment drops well below your target budget while keeping over sixteen thousand dollars in post-closing liquidity.'
+      },
+      {
+        address: '1204 Vinsetta Blvd, Royal Oak, MI 48067',
+        price: 575000,
+        badge: '🌳 Premier Boulevard · Vinsetta Historic',
+        specs: '4 Beds · 3.5 Baths · 2,620 Sq.Ft. · Classic Tudor Revival on Tree-Lined Vinsetta Blvd',
+        credit: 5750,
+        tourScript: 'Welcome to twelve oh four Vinsetta Boulevard in Royal Oak, listed at five hundred seventy-five thousand dollars. By bundling Redfin and Rocket Mortgage, you unlock a five thousand seven hundred fifty dollar closing credit that offsets your Oakland County escrow setup.'
+      }
+    ];
+
+    function calcMonthlyPI(principal, annualRate) {
+      const r = (annualRate / 100) / 12;
+      return principal * (r * Math.pow(1 + r, 360)) / (Math.pow(1 + r, 360) - 1);
     }
 
-    async function recalcBattlecard() {
-      const price = parseFloat(document.getElementById('sl-price').value);
-      document.getElementById('lbl-price').innerText = '$' + price.toLocaleString();
-      const res = await fetch('/api/sandbox', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({code: '1.3', action: 'calc_fha_vs_conv', params: {price: price}})
-      });
-      const data = await res.json();
-      if (data.ok && data.metrics) {
-        const m = data.metrics;
-        const convTot = ((m.std_conventional_95 || '').split('=')[1] || '').split('(')[0].trim();
-        const hrTot = ((m.fannie_homeready_95 || '').split('=')[1] || '').split('(')[0].trim();
-        const fhaTot = ((m.fha_96_5_program || '').split('=')[1] || '').split('(')[0].trim();
-        if (convTot) document.getElementById('card-conv-total').innerText = convTot;
-        if (hrTot) document.getElementById('card-hr-total').innerText = hrTot;
-        if (fhaTot) document.getElementById('card-fha-total').innerText = fhaTot;
-        document.getElementById('card-conv-detail').innerText = m.std_conventional_95 || '';
-        document.getElementById('card-hr-detail').innerText = m.fannie_homeready_95 || '';
-        document.getElementById('card-fha-detail').innerText = m.fha_96_5_program || '';
+    function onPropertyChange() {
+      recalcConcierge();
+    }
+
+    function recalcConcierge() {
+      const idx = parseInt(document.getElementById('prop-select').value, 10) || 0;
+      const item = LISTINGS[idx];
+      const downPct = parseFloat(document.getElementById('sl-down').value);
+      const vault = parseFloat(document.getElementById('sl-vault').value);
+
+      const downAmt = Math.round(item.price * (downPct / 100));
+      const loanAmt = item.price - downAmt;
+      const credit = (idx === 0 && downPct === 10) ? 4600 : Math.round(item.price * 0.01);
+      const baseClosing = 7550;
+      const netClosing = Math.max(950, baseClosing - credit);
+      const cashNeeded = downAmt + netClosing;
+      const cushion = vault - cashNeeded;
+
+      const pi = Math.round(calcMonthlyPI(loanAmt, 6.125));
+      const taxesIns = Math.round(item.price * 0.0165 / 12);
+      const piti = pi + taxesIns;
+
+      document.getElementById('lbl-down-pct').innerText = downPct + '% ($' + downAmt.toLocaleString() + ')';
+      document.getElementById('lbl-vault').innerText = '$' + vault.toLocaleString();
+
+      document.getElementById('badge-neighborhood').innerText = item.badge;
+      document.getElementById('badge-credit').innerText = '+$' + credit.toLocaleString() + ' Combined Closing Credit';
+      document.getElementById('prop-title').innerText = item.address;
+      document.getElementById('prop-specs').innerText = item.specs;
+      document.getElementById('prop-price').innerText = '$' + item.price.toLocaleString();
+      document.getElementById('prop-piti').innerText = '$' + piti.toLocaleString();
+
+      document.getElementById('val-combined-credit').innerText = '$' + credit.toLocaleString();
+      document.getElementById('bd-price').innerText = '$' + item.price.toLocaleString();
+      document.getElementById('bd-down-pct').innerText = downPct + '%';
+      document.getElementById('bd-down-amt').innerText = '$' + downAmt.toLocaleString();
+      document.getElementById('bd-loan-amt').innerText = '$' + loanAmt.toLocaleString();
+      document.getElementById('bd-net-closing').innerText = '$' + netClosing.toLocaleString();
+
+      const statusEl = document.getElementById('bd-cash-status');
+      if (cushion >= 0) {
+        statusEl.style.color = '#059669';
+        statusEl.innerText = '$' + cashNeeded.toLocaleString() + ' Needed · $' + cushion.toLocaleString() + ' Cushion!';
+      } else {
+        statusEl.style.color = '#D92228';
+        statusEl.innerText = '$' + cashNeeded.toLocaleString() + ' Needed · Short $' + Math.abs(cushion).toLocaleString();
       }
     }
 
-    async function executeStreamAssistBattlecard() {
-      const btn = document.getElementById('ge-run-btn');
-      const query = document.getElementById('ge-query-input').value;
+    function playConciergeTourAudio(btnEl) {
+      const idx = parseInt(document.getElementById('prop-select').value, 10) || 0;
+      window.playLiveCallClip(
+        LISTINGS[idx].tourScript,
+        'Aoede',
+        'Redfin × Rocket Purchase Concierge',
+        btnEl
+      );
+    }
+
+    window.runLiveVertexAI = async function() {
+      const btn = document.getElementById('concierge-btn');
       const model = window.getSelectedModel();
-      btn.innerText = '⏳ Querying streamAssist + ' + model + '...';
-      document.getElementById('ge-status-badge').innerText = 'Executing streamAssist API...';
+      btn.innerText = '⏳ Personalizing (' + model + ')...';
+      document.getElementById('concierge-model-tag').innerText = model;
+
+      const idx = parseInt(document.getElementById('prop-select').value, 10) || 0;
+      const item = LISTINGS[idx];
+      const downPct = parseFloat(document.getElementById('sl-down').value);
+      const vault = parseFloat(document.getElementById('sl-vault').value);
 
       try {
-        const [geRes, vtxRes] = await Promise.all([
-          fetch('/api/stream-assist', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({code: '1.3', query: query})
-          }).then(r => r.json()),
-          fetch('/api/run-demo', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-              code: '1.3',
-              model: model,
-              user_input: query,
-              params: {price: parseFloat(document.getElementById('sl-price').value)}
-            })
-          }).then(r => r.json())
-        ]);
-
-        document.getElementById('ge-status-badge').innerText =
-          `Engine: ${geRes.engine_id || 'gemini-enterprise'} • Model: ${vtxRes.model_used || model} • ${geRes.latency_ms || 420}ms`;
-
-        let combinedHtml = '';
-        if (geRes.answer_markdown) {
-          combinedHtml += `<div style="margin-bottom:10px;"><strong>✦ Gemini Enterprise streamAssist:</strong> ${geRes.answer_markdown}</div>`;
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '1.3',
+            model: model,
+            params: {
+              property_address: item.address,
+              price: item.price,
+              down_pct: downPct,
+              rocket_money_vault: vault,
+              combined_closing_credit: 4600
+            }
+          })
+        });
+        const data = await res.json();
+        document.getElementById('concierge-model-tag').innerText = data.model_used || model;
+        if (data.structured_data && (data.structured_data.executive_summary || data.structured_data.banker_objection_script)) {
+          document.getElementById('concierge-output-box').innerHTML =
+            data.structured_data.executive_summary || data.structured_data.banker_objection_script;
+        } else if (data.output) {
+          document.getElementById('concierge-output-box').innerHTML = data.output.replace(/\n/g, '<br>');
         }
-        if (vtxRes.structured_data && (vtxRes.structured_data.banker_objection_script || vtxRes.structured_data.executive_summary)) {
-          combinedHtml += `<div><strong>🎯 Banker Objection Script (${vtxRes.model_used || model}):</strong> ${vtxRes.structured_data.banker_objection_script || vtxRes.structured_data.executive_summary}</div>`;
-        } else if (vtxRes.output) {
-          combinedHtml += `<div>${vtxRes.output}</div>`;
-        }
-        if (combinedHtml) document.getElementById('ge-answer-body').innerHTML = combinedHtml;
       } catch (e) {
-        document.getElementById('ge-status-badge').innerText = 'streamAssist Grounded';
+        console.error(e);
       } finally {
-        btn.innerText = '✦ Query streamAssist + Sandbox';
+        btn.innerText = '✨ Personalize Bundle Offer';
       }
-    }
-
-    window.runLiveVertexAI = executeStreamAssistBattlecard;
+    };
   </script>
 </body>
 </html>
