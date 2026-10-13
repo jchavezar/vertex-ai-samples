@@ -1,0 +1,78 @@
+{
+  "square_code": "2.3",
+  "project_title": "Automated W-2 & Paystub Entity Extraction & Variance Pipeline",
+  "bespoke_app_title": "Google Cloud Document AI // W-2 & Paystub OCR Bounding-Box & 5% Variance Inspector",
+  "ui_archetype": "docai_paystub_w2_ocr_inspector",
+  "domain_id": "ops",
+  "domain_service": "rocket-demo-underwriting",
+  "level": "L200\u2013L300",
+  "tool_label": "Google Cloud Document AI + Gemini 4 Argon",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Document AI W-2 & Paystub Parsers",
+    "Gemini 4 Argon Cross-Document Reconciliation",
+    "Cloud Run"
+  ],
+  "sample_input": "Document AI OCR Payload (2 Uploaded Documents vs. Form 1003 Application):\n- Form 1003 Stated Income: $10,500.00 / month ($126,000/yr) at \"Stellantis NV - Auburn Hills MI\".\n- Paystub Extracted Entities (Pay Period Ending 09/30/2026 \u2014 9.0 Months Elapsed in 2026):\n  * Employer: FCA US LLC / Stellantis North America (FEIN: 38-2678910)\n  * Pay Rate: $4,583.33 Semi-Monthly ($110,000.00 annualized base)\n  * YTD Base Earnings (9.0 mos): $82,500.00 (matches $9,166.67/mo)\n  * YTD Overtime Earnings (9.0 mos): $4,950.00 ($550.00/mo pace)\n  * Total Documented Monthly Pace: $9,716.67 / month.\n- 2025 W-2 Extracted Entities:\n  * Box 1 Wages: $114,200.00 | Box 5 Medicare Wages: $119,600.00.",
+  "sandbox_action": "reconcile_paystub_w2",
+  "sandbox_params": {
+    "stated_monthly": 10500.0,
+    "semi_monthly_base": 4583.33,
+    "ytd_base_9m": 82500.0,
+    "ytd_ot_9m": 4950.0,
+    "w2_2025_box5": 119600.0
+  },
+  "verified_sandbox_output": {
+    "action": "reconcile_paystub_w2",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "entity_dba_resolution": "MATCH CONFIRMED \u2014 'Stellantis NV' == 'FCA US LLC' (FEIN 38-2678910)",
+      "documented_monthly_income": "$9,716.67/mo (Base $9,166.67/mo + 9-Mo YTD Overtime $550.00/mo)",
+      "stated_vs_documented_variance": "+8.06% (+$783.33/mo over-stated -> BREACHES 5.0% Tolerance Threshold!)",
+      "los_auto_adjustment": "Update Form 1003 Qualifying Income to $9,716.67/mo and recalculate DTI."
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "docai_paystub_w2_ocr_inspector",
+    "dba_match": "MATCH CONFIRMED \u2014 'Stellantis NV' == 'FCA US LLC' (FEIN 38-2678910)",
+    "doc_income": "$9,716.67/mo (Base $9,166.67/mo + 9-Mo YTD Overtime $550.00/mo)",
+    "variance": "+8.06% (+$783.33/mo over-stated -> BREACHES 5.0% Tolerance Threshold!)",
+    "ocr_boxes": [
+      {
+        "field": "Employer Legal Entity",
+        "box": "W-2 Box c",
+        "val": "FCA US LLC (DBA Stellantis NV)",
+        "conf": "99.8%"
+      },
+      {
+        "field": "Employer FEIN",
+        "box": "W-2 Box b",
+        "val": "38-2678910",
+        "conf": "99.9%"
+      },
+      {
+        "field": "YTD Base Earnings (9.0 Mos)",
+        "box": "Paystub Line 1",
+        "val": "$82,500.00 ($9,166.67/mo)",
+        "conf": "99.6%"
+      },
+      {
+        "field": "YTD Overtime (9.0 Mos)",
+        "box": "Paystub Line 2",
+        "val": "$4,950.00 ($550.00/mo)",
+        "conf": "99.4%"
+      },
+      {
+        "field": "Form 1003 Stated Income",
+        "box": "1003 Section 1b",
+        "val": "$10,500.00/mo (+8.06% Overstated)",
+        "conf": "\ud83d\udea9 5% BREACH"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: dba_entity_resolution ({paystub_name, w2_name, fein, match_confidence}), extracted_fields (list of {field_name, box_ref, extracted_value, ocr_confidence}), variance_analysis ({stated_monthly, documented_monthly, variance_pct, tolerance_limit, status}), and los_remediation_action.",
+  "system_prompt": "You are the Rocket Document AI W-2 & Paystub Entity Reconciliation Engine powered by Gemini 4 Argon. Analyze the extracted Document AI entities and the sandbox reconciliation math. Produce: (1) Extracted Entity & Confidence Table (showing FEIN/Corporate DBA match between 'Stellantis NV' and 'FCA US LLC'), (2) Income Variance Alert flagging that Stated 1003 Income ($10,500/mo) exceeds Documented Paystub Pace ($9,716.67/mo) by +8.06% (breaching the 5.0% tolerance rule!), and (3) Exact Corrected 1003 Qualifying Income entry."
+}

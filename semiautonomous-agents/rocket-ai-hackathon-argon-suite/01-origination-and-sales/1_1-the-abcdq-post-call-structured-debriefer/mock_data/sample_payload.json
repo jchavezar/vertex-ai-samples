@@ -1,0 +1,85 @@
+{
+  "square_code": "1.1",
+  "project_title": "The ABCDQ Post-Call Structured Debriefer",
+  "bespoke_app_title": "Rocket Logic // Form 1003 Pre-Qual & CRM Intake Cockpit",
+  "ui_archetype": "1003_intake_cockpit",
+  "domain_id": "sales",
+  "domain_service": "rocket-demo-origination",
+  "level": "L100",
+  "tool_label": "Gemini 4 Argon + Prompt Framework",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Gemini 4 Argon (gemini-4-argon)",
+    "Gemini Enterprise Prompt Canvas",
+    "Cloud Run"
+  ],
+  "sample_input": "Caller: Marcus & Elena Vance (First-time buyers, currently renting in Royal Oak MI for $2,350/mo).\nTarget property found on Redfin: 1420Vinsetta Blvd, Royal Oak, MI 48067 \u2014 List Price $460,000.\nIncome: Marcus is Sr. Mechanical Eng at Ford ($118,000 base + $14k annual bonus last 2 yrs). Elena is RN at Corewell Health ($86,000 base + ~$9,500 overtime).\nAssets: $52,000 in Rocket Money Down Payment Vault + $18,000 in Fidelity 401k.\nDebts: $410/mo auto loan (Ford F-150), $280/mo student loans, $95/mo min credit card.\nCredit: Middle FICO scores 748 (Marcus) / 762 (Elena). Looking to put 10% down ($46k) and keep closing reserves. Concerned about monthly payment staying under $3,400/mo.",
+  "sandbox_action": "calc_1003_dti",
+  "sandbox_params": {
+    "price": 460000,
+    "down_pct": 10,
+    "base_income_annual": 204000,
+    "bonus_ot_annual": 23500,
+    "monthly_debts": 785,
+    "rate": 6.125,
+    "fico": 748
+  },
+  "verified_sandbox_output": {
+    "action": "calc_1003_dti",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "purchase_price": "$460,000.00",
+      "loan_amount": "$414,000.00 (90% LTV)",
+      "qualifying_monthly_income": "$18,958.33/mo (Base $17,000 + 24m Avg Bonus/OT $1,958)",
+      "monthly_piti_pmi": "$3,347.44/mo (P&I $2,515.51 + Tax $555.83 + Ins $145.00 + PMI $131.10)",
+      "front_end_dti": "17.66% (Target <= 36%)",
+      "back_end_dti": "21.8% (Fannie Mae DU Approve/Eligible <= 45%)",
+      "underwriting_verdict": "APPROVE / ELIGIBLE \u2014 Under $3,400/mo borrower payment target!"
+    },
+    "execution_ms": 0.04
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "1003_intake_cockpit",
+    "borrower": "Marcus & Elena Vance (Royal Oak, MI 48067)",
+    "fico_pair": "748 / 762 (Middle FICO: 748)",
+    "target_property": "1420 Vinsetta Blvd, Royal Oak, MI \u2014 $460,000 (Redfin MLS #20261892)",
+    "front_dti": 19.65,
+    "back_dti": 23.79,
+    "max_dti": 45.0,
+    "income_rows": [
+      {
+        "source": "Marcus Base Salary (Ford Motor Co \u2014 Sr. Mech Eng)",
+        "monthly": "$9,833.33",
+        "rule": "100% Base Allowed (VOE Confirmed)"
+      },
+      {
+        "source": "Elena Base Salary (Corewell Health \u2014 RN)",
+        "monthly": "$7,166.67",
+        "rule": "100% Base Allowed (VOE Confirmed)"
+      },
+      {
+        "source": "Marcus 24-Mo Avg Annual Bonus ($14k/yr)",
+        "monthly": "$1,166.67",
+        "rule": "Fannie Mae B3-3.1-01 2-Yr Average"
+      },
+      {
+        "source": "Elena 24-Mo Avg RN Overtime ($9.5k/yr)",
+        "monthly": "$791.67",
+        "rule": "Fannie Mae B3-3.1-01 2-Yr Average"
+      }
+    ],
+    "total_qualifying_income": "$18,958.33/mo (Base $17,000 + 24m Avg Bonus/OT $1,958)",
+    "monthly_piti_breakdown": "$3,347.44/mo (P&I $2,515.51 + Tax $555.83 + Ins $145.00 + PMI $131.10)",
+    "crm_json": {
+      "lead_id": "RKT-1003-2026-88412",
+      "aus_recommendation": "DU APPROVE / ELIGIBLE",
+      "loan_program": "30-Yr Fixed Conventional 90% LTV",
+      "rocket_money_vault_verified": "$52,000.00 (Chase + Ally Linked)",
+      "post_close_reserves_months": "6.4 Months PITI"
+    }
+  },
+  "output_schema_hint": "Return JSON with keys: executive_verdict, borrower_profile (name, fico, target_property), income_breakdown ( list of {source, monthly_amount, rule_note} ), dti_gauges ({front_dti, back_dti, max_allowed, status}), salesforce_payload (dict), and outlook_email_html (str).",
+  "system_prompt": "You are the Rocket Mortgage ABCDQ Post-Call Structured Debriefer powered by Gemini 4 Argon. Analyze the banker's raw intake notes and produce: (1) Executive 1003 Pre-Qualification Summary (Qualifying Monthly Income separating Base vs. 24-month averaged Bonus/Overtime, Front-End & Back-End DTI, LTV, Reserve Cushion), (2) Ready-to-log Salesforce/LOS JSON block, and (3) A warm, reassuring Outlook email draft to the borrowers with their exact next-step document checklist."
+}

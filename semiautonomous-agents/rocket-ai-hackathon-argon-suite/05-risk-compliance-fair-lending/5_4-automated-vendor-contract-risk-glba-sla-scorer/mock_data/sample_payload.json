@@ -1,0 +1,59 @@
+{
+  "square_code": "5.4",
+  "project_title": "Automated Vendor Contract Risk & GLBA SLA Scorer",
+  "bespoke_app_title": "Rocket Procurement & Legal // Third-Party Vendor MSA & GLBA Safeguards Redliner",
+  "ui_archetype": "vendor_glba_contract_redliner",
+  "domain_id": "risk",
+  "domain_service": "rocket-demo-compliance",
+  "level": "L300",
+  "tool_label": "Gemini 4 Argon: Structured JSON Outputs",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
+  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "gcp_stack": [
+    "Gemini 4 Argon (2M Context + response_schema)",
+    "Pydantic Risk Matrix",
+    "Cloud Run Legal API"
+  ],
+  "sample_input": "Vendor MSA Draft under Review: \"Acme Cloud Valuation Analytics Inc. \u2014 Master SaaS Agreement (2026)\"\nExtracted Clauses:\n- Section 8.2 (Limitation of Liability): \"Vendor's aggregate liability for all claims, including Data Security Breaches involving NPI, shall not exceed three (3) months of fees paid ($45,000).\" [Rocket Policy Standard: Minimum 3x Annual Contract Value or $5,000,000 super-cap for GLBA NPI breaches].\n- Section 11.4 (Security Incident Notification): \"Vendor shall notify Rocket within seventy-two (72) hours of confirming a breach.\" [Rocket Policy Standard: <= 24 hours to comply with NYDFS 23 NYCRR 500 & FTC GLBA Safeguards Rule].\n- Section 14.1 (AI Model Training): \"Vendor may use anonymized or aggregated Customer Data to train and improve Vendor's foundation models.\" [Rocket Policy Standard: Strictly PROHIBITED].",
+  "sandbox_action": "score_vendor_contract",
+  "sandbox_params": {
+    "liability_cap_months": 3,
+    "breach_window_hours": 72,
+    "allows_ai_training": true
+  },
+  "verified_sandbox_output": {
+    "action": "score_vendor_contract",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "overall_tprm_risk_score": "92 / 100 \u2014 CRITICAL BLOCKER (DO NOT SIGN AS DRAFTED)",
+      "violation_1_sec_8_2_liability": "3-Month Fee Cap ($45k) violates Rocket $5,000,000 GLBA NPI Data Breach Super-Cap Policy",
+      "violation_2_sec_11_4_breach_sla": "72-Hour Notice violates Rocket 24-Hour NYDFS 23 NYCRR 500.17 / FTC GLBA Safeguards requirement",
+      "violation_3_sec_14_1_ai_training": "Vendor Foundation Model Training Clause violates Rocket Zero-Training Data Sovereignty Policy"
+    },
+    "execution_ms": 0.0
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "vendor_glba_contract_redliner",
+    "risk_score": "HIGH RISK (3 Critical GLBA / OCC Deficiencies Caught)",
+    "redlines": [
+      {
+        "clause": "\u00a7 4.2 AI Model Training Rights",
+        "vendor_text": "Vendor may use anonymized Customer mortgage documents to train foundation models.",
+        "rocket_fix": "STRIKE & REPLACE: Strict Zero-Retention & Zero-Training Covenant under GLBA 16 CFR Part 314."
+      },
+      {
+        "clause": "\u00a7 7.1 Breach Notification SLA",
+        "vendor_text": "Vendor shall notify Rocket within 10 business days of a confirmed breach.",
+        "rocket_fix": "STRIKE & REPLACE: Mandatory < 24-Hour Incident Notification per OCC/CFPB & NYDFS 23 NYCRR 500."
+      },
+      {
+        "clause": "\u00a7 9.3 Sub-Processor Residency",
+        "vendor_text": "Vendor may utilize global offshore sub-processors upon 30 days notice.",
+        "rocket_fix": "STRIKE & REPLACE: Strict US-Only (`us-central1` / `us-east4`) Sovereign Data Residency & Prior Written CISO Consent."
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: vendor_risk_rating, clause_redlines (list of {section, vendor_original_text, policy_violation, rocket_replacement_clause}), and ciso_signoff_checklist.",
+  "system_prompt": "You are the Rocket Legal & Third-Party Risk Management (TPRM) Automated Contract Scorer powered by Gemini 4 Argon Structured JSON Outputs. Produce: (1) Deterministic JSON Risk Scorecard (`CRITICAL_BLOCKER` score 92/100), (2) Clause-by-Clause Policy Gap Table across Section 8.2 (GLBA Super-Cap violation), Section 11.4 (72h vs 24h Breach Notice violation), and Section 14.1 (Unauthorized AI Model Training violation), and (3) Exact Redline Replacement Language ready to paste into Word."
+}

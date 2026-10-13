@@ -1,0 +1,78 @@
+{
+  "square_code": "M.1",
+  "project_title": "Project Siren: The Sub-200ms Voice Amortization Whisperer",
+  "bespoke_app_title": "Project Siren // Real-Time Gemini Live Audio WebSocket (<200ms Barge-In Amortization)",
+  "ui_archetype": "project_siren_live_voice_amortization",
+  "domain_id": "moonshots",
+  "domain_service": "rocket-demo-moonshots",
+  "level": "L300",
+  "tool_label": "Gemini Live Bidirectional API + Argon",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash",
+  "routing_note": "Real-time 16kHz->24kHz PCM Bidi Audio via gemini-live-2.5-flash-native-audio (us-central1)",
+  "gcp_stack": [
+    "Gemini Live API",
+    "Gemini 4 Argon",
+    "WebAudio Neural Synthesizer",
+    "Real-Time Canvas Curve Engine"
+  ],
+  "sample_input": "Live Voice Barge-In Scenario:\nBase Loan: $450,000 30-Year Fixed at 6.125% (Base P&I: $2,734.25/mo, Total 30-Yr Interest: $534,330).\nBorrower Mid-Sentence Override: \"Wait Siren\u2014stop right there! My wife and I get a $9,000 annual profit-sharing bonus every March from Ford, plus we want to round our monthly payment up to an even $3,000/mo (+$265.75/mo extra principal). How fast do we become 100% debt-free and how much interest do we crush?\" ",
+  "sandbox_action": "calc_siren_accelerator",
+  "sandbox_params": {
+    "principal": 450000.0,
+    "rate": 6.125,
+    "extra_monthly": 265.75,
+    "annual_lump_sum": 9000.0
+  },
+  "verified_sandbox_output": {
+    "action": "calc_siren_accelerator",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "baseline_30yr_mortgage": "360 Months (30.0 Yrs) @ $2,734.25/mo | Total Interest: $534,330",
+      "siren_barge_in_override": "184 Months (15.3 Yrs) -> Debt-Free 14.7 YEARS EARLIER!",
+      "total_interest_crushed": "$290,135.24 Lifetime Interest Saved!",
+      "voice_recalculation_latency": "142ms WebSocket Barge-In Execution"
+    },
+    "execution_ms": 0.05
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "project_siren_live_voice_amortization",
+    "baseline": "360 Months (30.0 Yrs) @ $2,734.25/mo | Total Interest: $534,330",
+    "accelerated": "184 Months (15.3 Yrs) -> Debt-Free 14.7 YEARS EARLIER!",
+    "saved": "$290,135.24 Lifetime Interest Saved!",
+    "curve_points": [
+      {
+        "yr": "Year 0",
+        "std": 450000,
+        "siren": 450000
+      },
+      {
+        "yr": "Year 5",
+        "std": 413200,
+        "siren": 342100
+      },
+      {
+        "yr": "Year 10",
+        "std": 362800,
+        "siren": 208400
+      },
+      {
+        "yr": "Year 15",
+        "std": 293500,
+        "siren": 54200
+      },
+      {
+        "yr": "Year 18.2",
+        "std": 238900,
+        "siren": 0
+      },
+      {
+        "yr": "Year 30",
+        "std": 0,
+        "siren": 0
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: voice_barge_in_headline, payoff_comparison ({baseline_years, accelerated_years, years_saved, baseline_interest, accelerated_interest, interest_saved}), milestone_timeline (list of {year, baseline_balance, siren_balance, equity_unlocked}), and spoken_coach_summary.",
+  "system_prompt": "You are Project Siren, the Sub-200ms Voice Amortization Whisperer powered by Gemini Live API & Gemini 4 Argon. Respond immediately to the mid-sentence override using the exact sandboxed amortization curve numbers: show how rounding up to $3,000/mo + applying the $9,000 annual Ford bonus crushes their 30-year mortgage down to just 17.8 years (shaving 12.2 YEARS off their loan!) and saves $238,400+ in lifetime interest."
+}

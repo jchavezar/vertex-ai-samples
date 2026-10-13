@@ -1,0 +1,70 @@
+{
+  "square_code": "4.5",
+  "project_title": "Redfin-to-Rocket Cross-Funnel Campaign Bot",
+  "bespoke_app_title": "Antigravity Cross-Brand Flywheel // Rocket Money Vault -> Redfin Tour -> Mortgage Close",
+  "ui_archetype": "redfin_rocketmoney_flywheel_journey",
+  "domain_id": "marketing",
+  "domain_service": "rocket-demo-marketing",
+  "level": "L300",
+  "tool_label": "Google Antigravity: Subagents & MCP Integrations",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Google Antigravity Subagents",
+    "Redfin Telemetry MCP",
+    "Rocket Money Vault MCP",
+    "Gemini 4 Argon"
+  ],
+  "sample_input": "Cross-Funnel MCP Event:\n- User: Maya Lin (Ferndale, MI) \u2014 Active Rocket Money Premium Member + Redfin App User.\n- MCP Tool 1 (`redfin_tour_mcp`): Just booked an in-person tour for Saturday at 11:00 AM at `612 W Saratoga St, Ferndale, MI 48220` (List Price: $365,000, Property Tax: $4,680/yr).\n- MCP Tool 2 (`rocket_money_vault_mcp`): Down Payment Goal Vault balance = $31,200 (8.5% of purchase price); Monthly Recurring Subscription Audit found $215/mo in cancellable duplicate streaming/gym subscriptions; Net Monthly Income = $7,800; Monthly Debt = $490.\n- Bundle Offer: Redfin Buyer + Rocket Mortgage clients qualify for the Rocket 'Buy+Borrow' $3,500 Closing Cost Credit!",
+  "sandbox_action": "calc_cross_funnel_bundle",
+  "sandbox_params": {
+    "list_price": 365000,
+    "vault_balance": 31200,
+    "bundle_credit": 3500,
+    "monthly_income": 7800,
+    "monthly_debt": 490,
+    "sub_savings": 215,
+    "rate": 6.0
+  },
+  "verified_sandbox_output": {
+    "action": "calc_cross_funnel_bundle",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "redfin_tour_matched": "612 W Saratoga St, Ferndale, MI 48220 ($365,000 \u2022 Tour: Sat 11:00 AM)",
+      "cash_to_close_vs_vault": "$23,400.00 Total Cash Needed (5% Down $18,250 + Net Closing $5,150 after $3,500 Buy+Borrow Credit)",
+      "post_closing_reserve_cushion": "$7,800.00 Left in Rocket Money Emergency Vault!",
+      "subscription_offset_impact": "Base P&I $2,078.94/mo minus $215/mo Cancelled Duplicate Subscriptions = $1,863.94/mo Effective Housing Cost"
+    },
+    "execution_ms": 0.03
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "redfin_rocketmoney_flywheel_journey",
+    "readiness": "96/100 \u2014 Vault Target Reached + 4 Redfin Favorites in 48067",
+    "bundle_savings": "$6,250 Total Ecosystem Savings ($2,500 Redfin Rebate + $3,750 Rocket Closing Credit)",
+    "stages": [
+      {
+        "brand": "1. Rocket Money",
+        "signal": "Down-Payment Goal Vault Hit 100% ($48,000 Saved)",
+        "status": "COMPLETED"
+      },
+      {
+        "brand": "2. Redfin Search",
+        "signal": "Saved 4 Homes in Royal Oak MI ($425k\u2013$465k) & Booked Saturday Tour",
+        "status": "ACTIVE SIGNAL"
+      },
+      {
+        "brand": "3. Rocket Mortgage",
+        "signal": "Auto-Generated $465k Verified Approval Letter in 1.2s",
+        "status": "PRE-APPROVED"
+      },
+      {
+        "brand": "4. Rocket Close & Mr. Cooper",
+        "signal": "$6,250 Combined Rebate + Lifetime 0-Cost Refi Recapture Enrolled",
+        "status": "LOCKED"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: household_readiness_score, flywheel_stages (list of 4 stages {brand, event_detected, financial_metric, next_automated_trigger}), and bundled_incentive_offer ({rocket_money_perk, redfin_rebate, mortgage_credit, total_household_savings}).",
+  "system_prompt": "You are the Antigravity Redfin-to-Rocket Cross-Funnel Campaign Bot powered by Gemini 4 Argon. Show the MCP Subagent tool trace (`redfin_tour_mcp` + `rocket_money_vault_mcp` + `rocket_pricing_mcp`) and produce: (1) Personalized 'Saturday 11 AM Ferndale Tour Affordability Dossier' showing how Maya's $31,200 Rocket Money Vault + $3,500 Redfin/Rocket Buy+Borrow Credit covers her entire 5% down payment ($18,250) AND all closing costs with $7,800 left in emergency reserves, (2) How cancelling the $215/mo flagged subscriptions in Rocket Money effectively drops her net housing cost to $2,180/mo, and (3) The automated Push Notification + O365 Banker Handoff."
+}

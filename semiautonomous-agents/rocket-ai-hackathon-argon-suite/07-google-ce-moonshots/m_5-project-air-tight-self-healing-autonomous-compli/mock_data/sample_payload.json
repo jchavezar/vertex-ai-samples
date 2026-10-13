@@ -1,0 +1,46 @@
+{
+  "square_code": "M.5",
+  "project_title": "Project Air-Tight: Self-Healing Autonomous Compliance Swarm",
+  "bespoke_app_title": "Project Air-Tight // Autonomous 4-Stage Self-Healing Closing Disclosure Pipeline",
+  "ui_archetype": "project_airtight_self_healing_pipeline",
+  "domain_id": "moonshots",
+  "domain_service": "rocket-demo-moonshots",
+  "level": "L300",
+  "tool_label": "Document AI + Antigravity Self-Healing Browser Swarm",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
+  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "gcp_stack": [
+    "Document AI",
+    "Gemini 4 Argon",
+    "Google Antigravity Headless Browser Subagent",
+    "Cloud Run"
+  ],
+  "sample_input": "Autonomous Pre-Closing Gate Trigger #AIRTIGHT-904:\n- Loan #RKT-2026-99418 scheduled for closing in 72 hours (Wayne County, MI \u2014 $410,000 Purchase).\n- Document AI scan of Draft Closing Disclosure v1 detected:\n  1) Appraisal Rush Fee ($250.00) added to Section A/B (0% Tolerance Bucket) without a timely Changed Circumstance (COC) within 3 business days of the event.\n  2) Recording Fee + Transfer Tax in Section E increased by $235.00 over the 10% cumulative cap.\n  3) Borrower's middle initial on CD Page 1 ('Marcus J. Vance') does not match Warranty Deed ('Marcus A. Vance').",
+  "sandbox_action": "run_airtight_healing",
+  "sandbox_params": {
+    "zero_bucket_breach": 250.0,
+    "ten_pct_breach": 235.0,
+    "name_mismatch": true
+  },
+  "verified_sandbox_output": {
+    "action": "run_airtight_healing",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "stage_1_docai_anomalies": "3 Blocking Defects Caught: $250 Appraisal Rush (0% Bucket), $235 Recording Overage (10% Bucket), Middle Initial Vesting Mismatch",
+      "stage_2_argon_remediation": "Computed $485.00 Mandatory Section J Lender Tolerance Cure + Reconciled 'Marcus A. Vance' to Michigan Driver's License OCR",
+      "stage_3_antigravity_browser_patch": "Headless Playwright Subagent applied $485.00 Section J credit in LOS & regenerated Closing Disclosure v2 PDF",
+      "stage_4_post_patch_verification": "0 Violations Remaining \u2014 CERTIFIED CLEAR TO CLOSE (71 Hours Prior to Signing)"
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "project_airtight_self_healing_pipeline",
+    "stage1": "3 Blocking Defects Caught: $250 Appraisal Rush (0% Bucket), $235 Recording Overage (10% Bucket), Middle Initial Vesting Mismatch",
+    "stage2": "Computed $485.00 Mandatory Section J Lender Tolerance Cure + Reconciled 'Marcus A. Vance' to Michigan Driver's License OCR",
+    "stage3": "Headless Playwright Subagent applied $485.00 Section J credit in LOS & regenerated Closing Disclosure v2 PDF",
+    "stage4": "0 Violations Remaining \u2014 CERTIFIED CLEAR TO CLOSE (71 Hours Prior to Signing)"
+  },
+  "output_schema_hint": "Return JSON with keys: final_clearance_status, total_cure_applied, pipeline_stages (list of 4 stages {stage_num, agent_name, status, defect_detected, autonomous_patch_applied, verification_hash}), and patched_closing_disclosure_diff (list of {line_item, before_value, after_value, compliance_rule}).",
+  "system_prompt": "You are Project Air-Tight, the Self-Healing Autonomous Compliance Swarm powered by Document AI, Gemini 4 Argon, and Google Antigravity Browser Agents. Output: (1) Multi-Stage Self-Healing Execution Trace (`[Stage 1: Document AI Anomaly Detection] -> [Stage 2: Argon Cure & Deed Reconciliation] -> [Stage 3: Antigravity Headless Browser LOS Patch] -> [Stage 4: Post-Patch CD v2 Re-Verification = PASS]`), (2) Exact Cure Calculation ($250 + $235 = $485.00 Lender Tolerance Cure applied to Section J + Vesting Name corrected to 'Marcus A. Vance' per birth/driver license OCR), and (3) Final Certified Clear-to-Close Seal."
+}

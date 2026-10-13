@@ -1,0 +1,46 @@
+{
+  "square_code": "3.5",
+  "project_title": "Autonomous Borrower Retention & Life-Event Orchestrator",
+  "bespoke_app_title": "Mr. Cooper + Redfin + Rocket // Autonomous Move-Up & Home Equity Bridge Planner",
+  "ui_archetype": "life_event_equity_moveup_planner",
+  "domain_id": "servicing",
+  "domain_service": "rocket-demo-servicing",
+  "level": "L300",
+  "tool_label": "GEAP Multi-Agent Orchestration & Agent Registry",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
+  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "gcp_stack": [
+    "GEAP Multi-Agent Orchestrator",
+    "Google Cloud Agent Registry (A2A)",
+    "Gemini 4 Argon",
+    "BigQuery Cross-Brand Event Hub"
+  ],
+  "sample_input": "Cross-Ecosystem Event Trigger #EVT-99402:\n1) [Mr. Cooper Servicing Signal]: Borrower Alex & Rachel Kim (Royal Oak, MI) have $210,000 UPB at 3.25% rate; current automated home valuation (AVM) is $495,000 ($285,000 gross home equity).\n2) [Redfin Behavioral Signal]: Same household email just saved 4 Redfin listings in Northville, MI ($725,000\u2013$780,000 4-bed colonials) and clicked \"What is my Royal Oak home worth?\"\n3) [Rocket Money Signal]: Monthly free cash flow surplus is $3,900/mo; child care expenses dropping by $1,600/mo in September.\nGoal: Prevent competitor purchase mortgage runoff and structure an irresistible Move-Up Purchase vs. Keep-Current-Home-as-Rental (at 3.25%!) comparison package.",
+  "sandbox_action": "calc_retention_moveup",
+  "sandbox_params": {
+    "current_upb": 210000.0,
+    "current_rate": 3.25,
+    "current_home_val": 495000.0,
+    "target_purchase": 750000.0,
+    "rate_new_purchase": 6.125
+  },
+  "verified_sandbox_output": {
+    "action": "calc_retention_moveup",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "cross_brand_intent_signal": "HIGH \u2014 Mr. Cooper ($285k Equity @ 3.25%) + Redfin (4 Saved Homes in Northville MI) + Rocket Money ($3.9k/mo Surplus)",
+      "scenario_a_sell_with_redfin_1pct": "Net $260,250 Equity (Saves $9,900 w/ Redfin 1% Listing Fee) -> $489,750 New Loan ($2,975.77/mo P&I)",
+      "scenario_b_keep_3_25_as_rental": "Keep Royal Oak Home @ 3.25% ($1,420 PITI vs $2,650 Market Rent = +$1,230/mo Net Rental Cash Flow) + Rocket Closed-End Second for Down Payment"
+    },
+    "execution_ms": 0.03
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "life_event_equity_moveup_planner",
+    "usable_equity": "$184,000.00 Net Equity",
+    "option_a": "Keep 3.25% 1st Mtg + $95k Rocket Closed-End 2nd Lien (Blended 4.48% Rate)",
+    "option_b": "Sell & Buy $620k Troy 4-Bed on Redfin w/ $155k Down + $4,500 Rocket Loyalty Credit"
+  },
+  "output_schema_hint": "Return JSON with keys: current_home_equity_summary ({avm_value, current_loan_balance, current_rate, net_usable_equity}), option_a_keep_and_second_lien ({program, blended_rate, combined_payment}), option_b_sell_and_redfin_buy ({target_redfin_home, down_payment_from_equity, new_loan_amount, new_monthly_pi, rocket_closing_credit}), and recommended_path.",
+  "system_prompt": "You are the GEAP Autonomous Borrower Retention & Life-Event Orchestrator powered by Gemini 4 Argon. Show the stateful 3-Agent execution trace (`[Agent 1: Ecosystem Listener] -> [Agent 2: Equity & Move-Up Strategist] -> [Agent 3: Omnichannel Dispatcher]`) and output: (1) Cross-Brand Signal Correlation Summary, (2) Two Wealth-Building Move-Up Scenarios (Scenario A: Sell Royal Oak home, net ~$255k equity after Redfin 1% listing fee savings, put 34% down on $750k Northville home; Scenario B: Keep the 3.25% Royal Oak mortgage as a cash-flowing rental yielding +$1,150/mo net rent + use a Rocket Home Equity Loan / Bridge for the Northville down payment), and (3) Coordinated Redfin Premier Agent + Rocket Executive Banker outreach payload."
+}

@@ -1,0 +1,76 @@
+{
+  "square_code": "1.3",
+  "project_title": "No-Code Mortgage Guideline & Competitor Battlecard Agent",
+  "bespoke_app_title": "Gemini Enterprise (Sobi / Spark) // GSE Guideline & Competitor Battlecard Hub",
+  "ui_archetype": "gemini_enterprise_streamassist_hub",
+  "domain_id": "sales",
+  "domain_service": "rocket-demo-origination",
+  "level": "L100\u2013L200",
+  "tool_label": "Gemini Enterprise (Sobi Spark) Workplace Agent",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Gemini Enterprise streamAssist API (v1alpha) + Vertex AI",
+  "routing_note": "Executed against live Discovery Engine v1alpha streamAssist endpoint (gemini-enterprise-17877637_1787763712023)",
+  "gcp_stack": [
+    "Gemini Enterprise (global-gemini-enterprise)",
+    "SharePoint / OneDrive 3LO Connector",
+    "Gemini 4 Argon"
+  ],
+  "sample_input": "Banker Question in Microsoft Teams:\n\"I have a borrower in Macomb County buying a $380,000 single-family home with 5% down ($19,000). Middle FICO is 642. Debt-to-income is 46.5%. Part of the down payment ($8,000) is a gift from an aunt, and they are comparing our quote against a local wholesale broker pitching UWM Conventional 95%.\n1) Should we structure this as Fannie Mae HomeReady (620+ FICO, <80% AMI) or FHA 3.5% down?\n2) How does MI (Mortgage Insurance) compare between Conventional at 642 FICO vs FHA MIP (0.55% annual)?\n3) Give me 3 crisp battlecard talking points to win this deal today over the competing broker.\" ",
+  "sandbox_action": "calc_fha_vs_conv",
+  "sandbox_params": {
+    "price": 380000,
+    "fico": 642,
+    "dti": 46.5,
+    "down_pct_conv": 5.0,
+    "down_pct_fha": 3.5
+  },
+  "verified_sandbox_output": {
+    "action": "calc_fha_vs_conv",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "std_conventional_95": "P&I $2,311.52 + Private MI $406.12 = $2,717.64/mo (Heavy 642 FICO LLPA)",
+      "fannie_homeready_95": "P&I $2,193.47 + Reduced MI $234.65 = $2,428.12/mo (LLPA Waived if <=80% AMI)",
+      "fha_96_5_program": "P&I $2,207.13 + FHA MIP $168.07 = $2,375.20/mo (Lowest Monthly Payment by $286/mo!)",
+      "recommended_winner": "FHA 3.5% Down (or HomeReady if Census Tract <= 80% AMI)"
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "gemini_enterprise_streamassist_hub",
+    "winner_banner": "FHA 3.5% Down (or HomeReady if Census Tract <= 80% AMI)",
+    "battlecard_rows": [
+      {
+        "metric": "Guideline Citation",
+        "broker_conv": "Fannie Mae B3-5.1-01 (Std Conv)",
+        "homeready": "Fannie Mae B5-6-01 (HomeReady)",
+        "fha": "HUD Handbook 4000.1 II.A.4"
+      },
+      {
+        "metric": "Credit Score Impact (642 FICO)",
+        "broker_conv": "-1.75% LLPA Penalty Hit",
+        "homeready": "100% LLPA Waived (<=80% AMI)",
+        "fha": "No Credit-Tiered LLPA"
+      },
+      {
+        "metric": "Monthly Mortgage Insurance",
+        "broker_conv": "$406.12/mo (1.35% Charter MI)",
+        "homeready": "$234.65/mo (Reduced 25% Cov)",
+        "fha": "$168.07/mo (0.55% Annual MIP)"
+      },
+      {
+        "metric": "Total P&I + MI Payment",
+        "broker_conv": "P&I $2,311.52 + Private MI $406.12 = $2,717.64/mo (Heavy 642 FICO LLPA)",
+        "homeready": "P&I $2,193.47 + Reduced MI $234.65 = $2,428.12/mo (LLPA Waived if <=80% AMI)",
+        "fha": "P&I $2,207.13 + FHA MIP $168.07 = $2,375.20/mo (Lowest Monthly Payment by $286/mo!)"
+      },
+      {
+        "metric": "Aunt's $8,000 Gift Funds",
+        "broker_conv": "Allowed (B3-4.3-04)",
+        "homeready": "Allowed (100% Gift OK)",
+        "fha": "Allowed w/ Donor Bank Stmt"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: winning_recommendation, monthly_savings_vs_broker, program_matrix (list of 3 programs {program, min_fico, down_pct, monthly_pi, monthly_mi, total_payment, llpa_impact}), and banker_objection_script (list of {broker_claim, rocket_counter}).",
+  "system_prompt": "You are the Gemini Enterprise (Sobi Spark) Mortgage Guideline & Battlecard Agent for Rocket Mortgage. Ground your answer in Fannie Mae Selling Guide (B3-5.1-01, HomeReady B5-6-01), HUD 4000.1 FHA Handbook, and Rocket's Competitive Battlecard vs. Wholesale Brokers. Provide: (1) Exact Side-by-Side Eligibility & Monthly Payment/MI comparison (Fannie HomeReady vs. Standard Conv vs. FHA), (2) Gift Fund documentation rules (Donor ability + Wire transfer trail), and (3) 3 High-Impact Banker Battlecard talking points (Rocket Money integration, Mr. Cooper/Rocket retained servicing vs. broker servicing flip, and Rocket Close certainty)."
+}

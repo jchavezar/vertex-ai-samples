@@ -1,0 +1,48 @@
+{
+  "square_code": "3.4",
+  "project_title": "Conversational Rocket Recapture Voice Concierge",
+  "bespoke_app_title": "Gemini Multimodal Live API // Real-Time Bidi Voice Portfolio Recapture Studio",
+  "ui_archetype": "gemini_live_bidi_voice_studio",
+  "domain_id": "servicing",
+  "domain_service": "rocket-demo-servicing",
+  "level": "L300",
+  "tool_label": "Gemini Multimodal Live API (WebSockets)",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash",
+  "routing_note": "Real-time 16kHz->24kHz PCM Bidi Audio via gemini-live-2.5-flash-native-audio (us-central1)",
+  "gcp_stack": [
+    "Gemini Live API (BidiGenerateContent WebSocket)",
+    "Gemini 4 Argon",
+    "Cloud Run Recapture Math Engine"
+  ],
+  "sample_input": "Mr. Cooper Servicing Recapture Campaign Target #MRC-REFI-55109:\n- Borrower: Samantha & Kevin Ortiz (Austin, TX \u2014 originated Oct 2023 at 7.375% 30-Yr Fixed).\n- Current UPB: $418,000 | Current Monthly P&I: $2,887.02/mo | Remaining Term: 324 months.\n- Today's Rocket VIP Streamline Refi Offer: 5.875% 30-Yr Fixed (zero appraisal waiver eligible via Fannie Mae Value Acceptance, $0 out-of-pocket closing costs rolled in = $421,200 new loan).\n- Borrower Mid-Call Interruption: \"Wait\u2014hold on! If we don't want to reset our loan clock back to 30 years, what would our payment be if we refinance into a 20-year fixed at 5.625% instead?\" ",
+  "sandbox_action": "calc_refi_recapture",
+  "sandbox_params": {
+    "current_upb": 418000.0,
+    "current_rate": 7.375,
+    "current_pi": 2887.02,
+    "new_loan": 421200.0,
+    "rate_30yr": 5.875,
+    "rate_20yr": 5.625
+  },
+  "verified_sandbox_output": {
+    "action": "calc_refi_recapture",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "current_7_375_loan": "$2,887.02/mo P&I | 27 Years (324 mos) left | $517,394 remaining interest",
+      "option_1_30yr_streamline_5_875": "$2,491.56/mo P&I -> SAVES $395.46/month ($4,740/yr immediate cash-flow boost!)",
+      "option_2_20yr_wealth_builder_5_625": "$2,927.20/mo P&I (+$40.18/mo) -> Cuts 7 FULL YEARS off mortgage & SAVES $236,066 in lifetime interest!",
+      "live_api_latency": "168ms Barge-In Tool Execution \u2022 Warm Transfer Ready for Texas Banker"
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "gemini_live_bidi_voice_studio",
+    "monthly_savings": "$298.44/month ($3,581.28/yr)",
+    "breakeven": "13.1 Months",
+    "lifetime_saved": "$89,412.00",
+    "voice_model": "gemini-live-2.5-flash-native-audio (Real Bidi WebSocket)"
+  },
+  "output_schema_hint": "Return JSON with keys: recapture_offer_headline, monthly_savings, breakeven_months, comparison_cards (list of {label, current_loan, new_rocket_refi}), and spoken_barge_in_rebuttals (list of {borrower_objection, live_voice_response}).",
+  "system_prompt": "You are the Conversational Rocket Recapture Voice Concierge powered by Gemini Multimodal Live API & Gemini 4 Argon. Respond naturally to the borrower's mid-sentence interruption ('What if we do a 20-year fixed instead of resetting to 30 years?'). Present: (1) Spoken Natural Voice Script (warm, conversational, <180ms barge-in style), (2) Exact Side-by-Side Comparison Table (Current 7.375% Loan vs. 30-Yr Fixed at 5.875% saving $395/mo vs. 20-Yr Fixed at 5.625% at $2,927/mo which keeps payment virtually identical (+$40/mo) while shaving 7 FULL YEARS off their mortgage and saving $184,000+ in lifetime interest!), and (3) Warm-Transfer Whisper Packet to the licensed Texas NMLS Banker."
+}

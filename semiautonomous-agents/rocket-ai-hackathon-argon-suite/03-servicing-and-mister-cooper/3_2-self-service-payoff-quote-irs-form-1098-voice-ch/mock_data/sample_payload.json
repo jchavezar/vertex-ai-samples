@@ -1,0 +1,69 @@
+{
+  "square_code": "3.2",
+  "project_title": "Self-Service Payoff Quote & IRS Form 1098 Voice/Chat Bot",
+  "bespoke_app_title": "Mr. Cooper Self-Service // Official Per-Diem Payoff Quote & IRS Form 1098 Generator",
+  "ui_archetype": "payoff_1098_document_generator",
+  "domain_id": "servicing",
+  "domain_service": "rocket-demo-servicing",
+  "level": "L200",
+  "tool_label": "Dialogflow CX Deterministic Flows",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
+  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "gcp_stack": [
+    "Dialogflow CX State Machine",
+    "Gemini 3.8 Flash",
+    "Cloud Run Payoff Per-Diem Calculator"
+  ],
+  "sample_input": "Authenticated Borrower: Jordan Taylor | Loan #RKT-7712098 | SSN Last 4: 8821 (Verified) | Property ZIP: 48226 (Verified).\nRequest: \"I'm selling my condo and closing on November 12, 2026. Please generate my official Payoff Quote good through 11/12/2026 and also email my prior-year IRS Form 1098 Mortgage Interest Statement to my CPA.\"\nLoan Ledger:\n- Unpaid Principal Balance (UPB as of Oct 1, 2026): $284,500.00\n- Note Interest Rate: 6.000% (365-day per diem basis -> $46.77/day)\n- Accrued Interest (Oct 1 to Nov 12 = 42 days): $1,964.34\n- Recording / Discharge Fee (Wayne County MI): $30.00\n- Escrow Credit Balance to Net / Refund: $1,120.00",
+  "sandbox_action": "calc_payoff_quote",
+  "sandbox_params": {
+    "upb": 284500.0,
+    "rate": 6.0,
+    "days_accrued": 42,
+    "recording_fee": 30.0,
+    "escrow_balance": 1120.0
+  },
+  "verified_sandbox_output": {
+    "action": "calc_payoff_quote",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "unpaid_principal_balance": "$284,500.00",
+      "daily_per_diem_interest": "$46.77/day (at 6.000% Note Rate)",
+      "accrued_interest_42_days": "$1,964.34 (Good Through Nov 12, 2026)",
+      "official_total_payoff_wire": "$286,494.34 (Includes $30.00 Wayne County Discharge Fee)",
+      "escrow_surplus_refund": "$1,120.00 (Auto-refunded via ACH within 10 business days of payoff)"
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "payoff_1098_document_generator",
+    "payoff_total": "$314,289.45",
+    "per_diem": "$46.77/day (at 6.000% Note Rate)",
+    "form_1098_box1": "$19,420.18",
+    "certificate_fields": [
+      {
+        "label": "Loan Account",
+        "val": "Mr. Cooper #0649821140 (Marcus Vance)"
+      },
+      {
+        "label": "Unpaid Principal Balance",
+        "val": "$312,450.00"
+      },
+      {
+        "label": "Accrued Interest (Good Thru Nov 15)",
+        "val": "$1,784.45 ($52.68/day Per Diem)"
+      },
+      {
+        "label": "County Lien Release Recording",
+        "val": "$55.00 (Oakland County Register of Deeds)"
+      },
+      {
+        "label": "Total Certified Payoff Wire Due",
+        "val": "$314,289.45 (ABA #021000021)"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: payoff_letter ({loan_number, good_through_date, unpaid_principal, accrued_interest, per_diem_rate, recording_release_fee, total_payoff_due, wire_aba, wire_account}), and irs_form_1098 ({tax_year, box1_mortgage_interest, box5_mip, box6_points, property_address}).",
+  "system_prompt": "You are the Dialogflow CX Official Payoff Quote & Form 1098 Fulfillment Bot. Confirm the state-machine authentication path (`START -> AUTH_SSN_ZIP -> INTENT_PAYOFF_AND_1098 -> FULFILLMENT_COMPLETE`), present the exact official Payoff Statement table (UPB, 42-day Accrued Interest at $46.77/day Per Diem, Wayne County $30 Discharge Fee, Total Payoff Wire Amount, and Escrow Refund notice), and confirm encrypted dispatch of IRS Form 1098."
+}

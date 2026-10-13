@@ -1,0 +1,47 @@
+{
+  "square_code": "M.2",
+  "project_title": "Project Spatial Close: Immersive Virtual Staging & 3D Neighborhood Hub",
+  "bespoke_app_title": "Project Spatial Close // 3D Royal Oak Neighborhood Solar & Fannie HomeStyle Renovation Hub",
+  "ui_archetype": "project_spatial_close_3d_homestyle",
+  "domain_id": "moonshots",
+  "domain_service": "rocket-demo-moonshots",
+  "level": "L300",
+  "tool_label": "Gemini Omni + Imagen 3 + Google Maps 3D Tiles",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "Gemini Omni",
+    "Imagen 3",
+    "Google Maps Photorealistic 3D Tiles API",
+    "Gemini 4 Argon Renovation ROI Engine"
+  ],
+  "sample_input": "Redfin Fixer-Upper Listing: 1128 Kensington Rd, Grosse Pointe Park, MI 48230.\n- As-Is Purchase Price: $385,000 (Built 1954, outdated galley kitchen & uninsulated sunroom).\n- Conversational Remodel Request: \"Show us a modern open-concept chef's kitchen + 4-season sunroom addition ($55,000 renovation budget) financed inside a single Fannie Mae HomeStyle Renovation Loan at 95% LTV of After-Improved Value (AIV).\"\n- Appraiser Comparable AIV Estimate: $485,000 (creating $45,000 in instant sweat/renovation equity!).",
+  "sandbox_action": "calc_homestyle_renovation",
+  "sandbox_params": {
+    "purchase_price": 385000.0,
+    "renovation_cost": 55000.0,
+    "after_improved_value": 485000.0,
+    "down_pct": 5.0,
+    "rate": 6.25
+  },
+  "verified_sandbox_output": {
+    "action": "calc_homestyle_renovation",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "total_acquisition_plus_remodel": "$440,000.00 ($385,000 Purchase + $55,000 Escrowed Kitchen/Sunroom Renovation)",
+      "after_improved_appraised_value": "$485,000.00 -> Creates +$45,000.00 in Instant Day-1 Renovation Equity!",
+      "single_close_homestyle_payment": "$2,573.70/mo P&I on $418,000 Loan (Saves ~$485/mo vs separate 9.75% Second-Lien HELOC)"
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "project_spatial_close_3d_homestyle",
+    "kitchen_img": "/static/images/rocket_kitchen_homestyle.jpg",
+    "acq_total": "$440,000.00 ($385,000 Purchase + $55,000 Escrowed Kitchen/Sunroom Renovation)",
+    "aiv_equity": "$485,000.00 -> Creates +$45,000.00 in Instant Day-1 Renovation Equity!",
+    "payment": "$2,573.70/mo P&I on $418,000 Loan (Saves ~$485/mo vs separate 9.75% Second-Lien HELOC)"
+  },
+  "output_schema_hint": "Return JSON with keys: instant_equity_created, homestyle_vs_heloc ({homestyle_single_pi, separate_heloc_combined_pi, monthly_savings}), renovation_line_items (list of {scope_item, contractor_budget, appraised_value_add, roi_multiple}), and neighborhood_3d_telemetry ({solar_exposure, commute_to_detroit_mins, school_district}).",
+  "system_prompt": "You are Project Spatial Close, the Immersive Virtual Staging & Fannie Mae HomeStyle Renovation Architect powered by Gemini 4 Argon, Imagen 3, and Google Maps 3D. Present: (1) Spatial Renovation & Staging Blueprint (Open-Concept Kitchen + 4-Season Sunroom), (2) Fannie Mae HomeStyle Renovation (B5-3.2-01) Math showing how Total Acquisition Cost ($385k + $55k = $440k) vs. After-Improved Value ($485k) creates +$45,000 in Day-1 Instant Equity while rolling the entire remodel into one 6.25% first mortgage (saving $480/mo vs a high-rate HELOC), and (3) Google Maps 3D & Solar API Neighborhood Telemetry for Grosse Pointe Park."
+}

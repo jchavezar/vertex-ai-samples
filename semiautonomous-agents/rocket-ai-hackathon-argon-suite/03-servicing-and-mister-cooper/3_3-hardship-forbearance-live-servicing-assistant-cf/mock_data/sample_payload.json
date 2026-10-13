@@ -1,0 +1,66 @@
+{
+  "square_code": "3.3",
+  "project_title": "Hardship & Forbearance Live Servicing Assistant (CFPB Reg X)",
+  "bespoke_app_title": "Rocket Logic Synopsis Next-Gen // Real-Time CCAI Agent Assist & Reg X Loss-Mitigation HUD",
+  "ui_archetype": "ccai_synopsis_agent_assist",
+  "domain_id": "servicing",
+  "domain_service": "rocket-demo-servicing",
+  "level": "L200\u2013L300",
+  "tool_label": "Contact Center AI: Agent Assist (Synopsis Next-Gen)",
+  "routed_model": "gemini-4-argon",
+  "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
+  "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
+  "gcp_stack": [
+    "CCAI Agent Assist",
+    "Chirp 3 Streaming STT",
+    "Gemini 4 Argon",
+    "Vertex AI Policy Grounding"
+  ],
+  "sample_input": "Live Servicing Call Transcript Stream (Loan #MRC-901244 \u2014 Fannie Mae Conforming, Current UPB $312,000, PITI $2,180/mo, 30 Days Delinquent):\n[00:12] Borrower (David Miller): \"Hi, I'm calling because I missed October's payment and I'm really panicking. My plant in Sterling Heights just had a 60-day retooling layoff, and my wife had emergency gallbladder surgery last month.\"\n[00:28] Borrower: \"I'm going back to work full-time on December 1st with my recall letter in hand, so I can afford my normal $2,180 payment starting December, but I can't pay October and November right now. Are you guys going to foreclose on my house?\"\n[00:44] Servicing Specialist: \"Mr. Miller, take a deep breath\u2014you are safe, and we are here to help you keep your home. Let me pull up your Fannie Mae relief options right now...\" ",
+  "sandbox_action": "eval_loss_mitigation",
+  "sandbox_params": {
+    "investor": "Fannie Mae",
+    "delinquent_months": 2,
+    "piti": 2180.0,
+    "hardship_type": "Temporary Layoff + Medical (Resolved by Dec 1)",
+    "can_resume_full_payment": true
+  },
+  "verified_sandbox_output": {
+    "action": "eval_loss_mitigation",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "cfpb_reg_x_shield": "12 CFR \u00a7 1024.41 ACTIVE \u2014 Borrower is at Day 30 (<120 Days). Foreclosure referral strictly PROHIBITED.",
+      "fannie_mae_waterfall_match": "Fannie Mae Payment Deferral (D2-3.2-04) \u2014 Resolved Temporary Hardship (Dec 1 Recall Letter)",
+      "deferred_non_interest_balance": "$4,360.00 (Oct + Nov payments moved to non-interest-bearing balance due at maturity/payoff)",
+      "december_1_resumed_payment": "$2,180.00/mo (0% payment shock \u2014 resumes normal PITI on Dec 1, 2026!)"
+    },
+    "execution_ms": 0.01
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "ccai_synopsis_agent_assist",
+    "sentiment": "Distressed -> Reassured (+64 Sentiment Shift)",
+    "reg_x_gate": "100% COMPLIANT \u2014 Dual-Tracking Foreclosure Freeze Armed",
+    "waterfall": [
+      {
+        "rank": "1st Priority",
+        "program": "Fannie Mae Payment Deferral",
+        "detail": "Defer 2 Missed Payments ($4,980) to Non-Interest Balance at Maturity",
+        "status": "ELIGIBLE NOW"
+      },
+      {
+        "rank": "2nd Priority",
+        "program": "3-Month Unemployment Forbearance",
+        "detail": "Temporary pause while starting new GM engineering role next month",
+        "status": "AVAILABLE"
+      },
+      {
+        "rank": "3rd Priority",
+        "program": "Fannie Mae Flex Modification (D2-3.2-06)",
+        "detail": "Extend term to 480 months targeting 20% P&I reduction if hardship persists",
+        "status": "BACKUP"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: caller_sentiment_score, reg_x_compliance_status, live_coaching_cards (list of {title, urgency, script_to_read, policy_citation}), workout_waterfall (list of {rank, program_name, eligibility, monthly_payment_effect}), and auto_crm_disposition.",
+  "system_prompt": "You are the CCAI Agent Assist Live Hardship & Loss Mitigation Co-Pilot for Rocket / Mr. Cooper Servicing powered by Gemini 4 Argon. Analyze the live call transcript and output: (1) Real-Time Distress & Sentiment Alert + Mandatory CFPB Regulation X Anti-Dual-Tracking Guardrail (12 CFR \u00a7 1024.41 \u2014 Foreclosure referral strictly prohibited under 120 days), (2) Fannie Mae Loss Mitigation Waterfall Recommendation Card (Temporary 2-Month Forbearance transitioning into a Fannie Mae Payment Deferral putting the $4,360 missed payments into a non-interest-bearing balance due at maturity/refi, keeping his Dec 1 payment at $2,180/mo!), and (3) One-Click Rocket Logic Synopsis Post-Call CRM Wrap-Up Note."
+}

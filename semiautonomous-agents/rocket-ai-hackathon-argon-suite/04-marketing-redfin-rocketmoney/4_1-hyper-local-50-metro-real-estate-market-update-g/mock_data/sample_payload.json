@@ -1,0 +1,71 @@
+{
+  "square_code": "4.1",
+  "project_title": "Hyper-Local 50-Metro Real Estate Market Update Generator",
+  "bespoke_app_title": "Redfin x Rocket // 50-Metro Real Estate Inventory, Price-Drop & Rate Pulse Grid",
+  "ui_archetype": "metro_50_market_pulse_heatmap",
+  "domain_id": "marketing",
+  "domain_service": "rocket-demo-marketing",
+  "level": "L100\u2013L200",
+  "tool_label": "Google AI Studio & Gemini 4 Argon",
+  "routed_model": "gemini-3.8-flash",
+  "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
+  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "gcp_stack": [
+    "Google AI Studio",
+    "Gemini 4 Argon",
+    "BigQuery Redfin MLS Feed"
+  ],
+  "sample_input": "Redfin MLS October 2026 Metro Telemetry Snapshot:\n1) Metro Detroit, MI (Oakland / Wayne / Macomb): Median Sale Price $312,000 (+4.8% YoY) | Avg Days on Market: 24 days | Active Inventory: +11% YoY | Share of Homes Selling Above List: 38% | Avg 30-Yr Fixed Rate: 6.125%.\n2) Austin-Round Rock, TX: Median Sale Price $445,000 (-2.1% YoY) | Avg Days on Market: 58 days | Active Inventory: +19% YoY | Seller Concessions Offered on 46% of closings (ideal for Rocket 2-1 Rate Buydown!).\nTarget Audience: Renters in Rocket Money paying >$2,200/mo rent with $15k+ saved.",
+  "sandbox_action": "calc_rent_vs_buy_metro",
+  "sandbox_params": {
+    "detroit_price": 312000,
+    "austin_price": 445000,
+    "current_rent": 2250,
+    "rate": 6.125
+  },
+  "verified_sandbox_output": {
+    "action": "calc_rent_vs_buy_metro",
+    "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
+    "metrics": {
+      "metro_detroit_5yr_wealth_gain": "Purchase $312,000 (P&I $1,800.96/mo) -> Builds $84,600 in 5-Yr Equity + Appreciation vs $0 Renting at $2,250/mo",
+      "austin_2_1_seller_buydown_play": "Purchase $445,000 w/ Seller-Funded 2-1 Buydown -> Year 1 P&I drops to $1,941.02/mo (4.125% effective rate!)",
+      "targeted_rocket_money_cohort": "14,820 Rocket Money Renters in Detroit & Austin with >= $15,000 in Savings Vaults"
+    },
+    "execution_ms": 0.02
+  },
+  "bespoke_visual_artifact": {
+    "archetype": "metro_50_market_pulse_heatmap",
+    "metros": [
+      {
+        "city": "Detroit-Warren-Dearborn, MI",
+        "median": "$268,000",
+        "inv": "+14.2% YoY",
+        "concessions": "38% of Listings",
+        "hook": "Lock 5.875% w/ Seller-Paid 2-1 Buydown on Royal Oak & Ferndale Craftsmans"
+      },
+      {
+        "city": "Austin-Round Rock, TX",
+        "median": "$445,000",
+        "inv": "+22.8% YoY",
+        "concessions": "54% of Listings",
+        "hook": "Buyers Rule Austin: Average $12,400 Seller Credit Covers Full Rocket Rate Buydown"
+      },
+      {
+        "city": "Charlotte-Concord, NC",
+        "median": "$392,000",
+        "inv": "+11.5% YoY",
+        "concessions": "41% of Listings",
+        "hook": "Move Up in South End with $0 Appraisal Waiver for Mr. Cooper Homeowners"
+      },
+      {
+        "city": "Phoenix-Mesa-Chandler, AZ",
+        "median": "$438,000",
+        "inv": "+19.4% YoY",
+        "concessions": "49% of Listings",
+        "hook": "Beat Arizona Rent: $0 Down VA & 3% Down Rocket HomeReady Options"
+      }
+    ]
+  },
+  "output_schema_hint": "Return JSON with keys: national_headline, metro_cards (list of 4 metros {metro_name, median_price, yoy_change, active_inventory_delta, seller_concession_pct, buying_power_headline, local_ad_hook}), and seo_newsletter_blurb.",
+  "system_prompt": "You are the Redfin x Rocket Mortgage Hyper-Local Market Update Generator powered by Gemini 4 Argon. Using the MLS telemetry and Rent-vs-Buy sandbox math, output: (1) Metro Detroit 'Fast-Moving Inventory' Email Newsletter & Rent-vs-Buy Wealth Comparison, (2) Austin 'Buyer's Market Seller-Concession 2-1 Buydown' Campaign Playbook, and (3) 3 High-CTR Social Ad Hooks for Instagram/TikTok/LinkedIn."
+}
