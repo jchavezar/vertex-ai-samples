@@ -15,7 +15,7 @@ description: Blueprint skill to build and reproduce Rocket AI Hackathon Square [
 ## 2. Model & Runtime Routing Policy
 - **Assigned Model:** `gemini-3.8-flash`
 - **Runtime Badge:** `Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)`
-- **Routing Rationale:** Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)
+- **Routing Rationale:** Active Model: gemini-3.8-flash on Global Endpoint (ADK default: gemini-3.8-flash)
 - **Real Gemini Enterprise Engine (for Grounding / streamAssist):** `projects/254356041555/locations/global/collections/default_collection/engines/gemini-enterprise-17877637_1787763712023` ([Open Real Web UI](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023))
 
 ## 3. Structured Output Schema Contract

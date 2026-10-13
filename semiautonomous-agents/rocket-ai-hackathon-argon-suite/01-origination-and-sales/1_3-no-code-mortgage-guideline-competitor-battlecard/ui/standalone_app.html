@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gemini Enterprise Guideline & Competitor Battlecard Arena | Rocket Pro TPO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #F4F6FB;
+      color: #0F172A;
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Gemini Enterprise Top Navigation Bar */
+    .ge-nav {
+      background: #FFFFFF;
+      border-bottom: 1px solid #E2E8F0;
+      padding: 14px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04);
+    }
+    .ge-sparkle-badge {
+      background: linear-gradient(135deg, #4F46E5, #9333EA, #EC4899);
+      color: #FFF;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .real-ge-btn {
+      background: #0F172A;
+      color: #FFFFFF;
+      text-decoration: none;
+      padding: 9px 18px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid #6366F1;
+      transition: 0.2s;
+    }
+    .real-ge-btn:hover {
+      background: #3730A3;
+      transform: translateY(-1px);
+    }
+
+    /* Search Hero Section */
+    .ge-hero {
+      max-width: 1180px;
+      margin: 28px auto 0 auto;
+      padding: 0 24px;
+    }
+    .search-shell {
+      background: #FFFFFF;
+      border: 2px solid #C7D2FE;
+      border-radius: 999px;
+      padding: 8px 10px 8px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 12px 32px rgba(79, 70, 229, 0.09);
+    }
+    .search-shell input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 500;
+      color: #0F172A;
+    }
+    .stream-btn {
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      color: #FFFFFF;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* 3-Way Battlecard Arena Grid */
+    .battle-grid {
+      max-width: 1180px;
+      margin: 24px auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+    @media (max-width: 960px) {
+      .battle-grid { grid-template-columns: 1fr; }
+    }
+    .competitor-card {
+      background: #FFFFFF;
+      border-radius: 20px;
+      border: 1px solid #E2E8F0;
+      padding: 24px;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+      position: relative;
+    }
+    .competitor-card.winner {
+      border: 2px solid #059669;
+      background: linear-gradient(180deg, #ECFDF5 0%, #FFFFFF 38%);
+      box-shadow: 0 16px 36px rgba(5, 150, 105, 0.12);
+    }
+    .winner-ribbon {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: #059669;
+      color: #FFFFFF;
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+    }
+
+    /* Grounded StreamAssist Response Box */
+    .grounded-box {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+    .grounded-panel {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 20px;
+      padding: 24px 28px;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- GEMINI ENTERPRISE HEADER -->
+  <nav class="ge-nav">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span class="ge-sparkle-badge">✦ GEMINI ENTERPRISE</span>
+      <div>
+        <div style="font-size:17px;font-weight:800;color:#0F172A;">Mortgage Guideline & Wholesale Competitor Battlecard Hub</div>
+        <div class="mono" style="font-size:11px;color:#64748B;">ENGINE ID: gemini-enterprise-17877637_1787763712023 • v1alpha:streamAssist</div>
+      </div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="mono" style="background:#F1F5F9;padding:6px 12px;border-radius:999px;border:1px solid #CBD5E1;font-size:11px;">
+        Model:
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#4F46E5;font-weight:700;border:none;outline:none;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;">
+          <option value="gemini-3.8-flash">gemini-3.8-flash</option>
+          <option value="gemini-4-argon">gemini-4-argon</option>
+        </select>
+      </div>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" class="real-ge-btn">
+        <span>✨ Launch Real Gemini Enterprise Web UI</span>
+        <span>↗</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- LIVE STREAMASSIST BAR & SLIDERS -->
+  <section class="ge-hero">
+    <div class="search-shell">
+      <span style="font-size:20px;">🔎</span>
+      <input type="text" id="ge-query-input" value="642 FICO borrower buying $380,000 home in Macomb County MI with 3.5%-5% down: Compare Standard Conventional 95% vs Fannie HomeReady vs Rocket FHA 96.5% against UWM & Pennymac">
+      <button class="stream-btn" onclick="executeStreamAssistBattlecard()" id="ge-run-btn">✦ Query streamAssist + Sandbox</button>
+    </div>
+
+    <!-- Interactive Price & FICO Controls -->
+    <div style="display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;background:#FFFFFF;padding:16px 24px;border-radius:16px;border:1px solid #E2E8F0;align-items:center;">
+      <div style="flex:1;min-width:220px;">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:700;margin-bottom:4px;">
+          <span>Home Purchase Price (Macomb County, MI):</span>
+          <span class="mono" id="lbl-price" style="color:#4F46E5;">$380,000</span>
+        </div>
+        <input type="range" id="sl-price" min="220000" max="650000" step="10000" value="380000" style="width:100%;accent-color:#4F46E5;" oninput="recalcBattlecard()">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="setQuickScenario(380000, '642 FICO First-Time Buyer')" style="padding:8px 14px;border-radius:999px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:12px;font-weight:700;cursor:pointer;">642 FICO ($380k)</button>
+        <button onclick="setQuickScenario(450000, '680 FICO HomeReady 80% AMI')" style="padding:8px 14px;border-radius:999px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:12px;font-weight:700;cursor:pointer;">680 FICO ($450k)</button>
+        <button onclick="setQuickScenario(520000, 'UWM FHA Competitive Match')" style="padding:8px 14px;border-radius:999px;border:1px solid #CBD5E1;background:#F8FAFC;font-size:12px;font-weight:700;cursor:pointer;">UWM Match ($520k)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3-WAY PROGRAM & COMPETITOR BATTLECARD ARENA -->
+  <section class="battle-grid">
+    <!-- Card 1: Standard Conventional 95% (UWM / Competitor Baseline) -->
+    <div class="competitor-card">
+      <div class="mono" style="font-size:11px;font-weight:700;color:#EF4444;text-transform:uppercase;">Option 1 • Standard Conventional 95% LTV</div>
+      <h3 style="font-size:20px;font-weight:800;margin:6px 0;">Standard Conv + Private MI</h3>
+      <div class="mono" style="font-size:28px;font-weight:800;color:#0F172A;margin:12px 0;" id="card-conv-total">$2,718.60<span style="font-size:14px;color:#64748B;">/mo</span></div>
+      <div style="font-size:13px;color:#475569;line-height:1.6;" id="card-conv-detail">
+        • Heavy 642 FICO LLPA hits (+1.750 pts)<br>
+        • Standard Private MI: <strong>1.35% / yr ($406/mo)</strong><br>
+        • Note Rate: <strong>6.625%</strong> (95% LTV)
+      </div>
+    </div>
+
+    <!-- Card 2: Fannie Mae HomeReady 95% -->
+    <div class="competitor-card">
+      <div class="mono" style="font-size:11px;font-weight:700;color:#4F46E5;text-transform:uppercase;">Option 2 • Fannie Mae B5-6-01</div>
+      <h3 style="font-size:20px;font-weight:800;margin:6px 0;">HomeReady® 3%-5% Down</h3>
+      <div class="mono" style="font-size:28px;font-weight:800;color:#4F46E5;margin:12px 0;" id="card-hr-total">$2,429.27<span style="font-size:14px;color:#64748B;">/mo</span></div>
+      <div style="font-size:13px;color:#475569;line-height:1.6;" id="card-hr-detail">
+        • <strong>100% LLPA Credit Score Waiver</strong> if &le;80% AMI<br>
+        • Reduced 25% Charter MI: <strong>0.78% / yr ($234/mo)</strong><br>
+        • Note Rate: <strong>6.125%</strong> (Saves $289/mo vs Std Conv)
+      </div>
+    </div>
+
+    <!-- Card 3: Rocket FHA 96.5% Winner -->
+    <div class="competitor-card winner">
+      <div class="winner-ribbon">★ LOWEST PAYMENT WINNER (-$286/MO)</div>
+      <div class="mono" style="font-size:11px;font-weight:700;color:#059669;text-transform:uppercase;">Option 3 • HUD 4000.1 FHA 3.5% Down</div>
+      <h3 style="font-size:20px;font-weight:800;margin:6px 0;">Rocket FHA 96.5% + MIP</h3>
+      <div class="mono" style="font-size:28px;font-weight:800;color:#059669;margin:12px 0;" id="card-fha-total">$2,432.64<span style="font-size:14px;color:#64748B;">/mo</span></div>
+      <div style="font-size:13px;color:#1E293B;line-height:1.6;" id="card-fha-detail">
+        • Annual FHA MIP: <strong>0.55% ($168/mo)</strong> + 1.75% UFMIP<br>
+        • Note Rate: <strong>5.875%</strong> (Beats UWM 6.000% quote)<br>
+        •Eligible for 6-month FHA Streamline Refi
+      </div>
+    </div>
+  </section>
+
+  <!-- LIVE GROUNDED STREAMASSIST OUTPUT & CITATIONS -->
+  <section class="grounded-box">
+    <div class="grounded-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #E2E8F0;padding-bottom:12px;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span style="font-size:18px;">📚</span>
+          <span style="font-weight:800;font-size:15px;">Live Gemini Enterprise `streamAssist` Grounded Response & Citations</span>
+        </div>
+        <span class="mono" id="ge-status-badge" style="font-size:11px;background:#EEF2FF;color:#4F46E5;padding:4px 10px;border-radius:999px;font-weight:700;">
+          Discovery Engine v1alpha Connected
+        </span>
+      </div>
+
+      <div id="ge-answer-body" style="font-size:14px;line-height:1.7;color:#1E293B;">
+        <strong>Grounded Battlecard Synthesis:</strong> For a <strong>642 FICO borrower</strong> purchasing at <strong>$380,000</strong> in Macomb County, MI, Standard Conventional 95% carries punitive credit-score LLPAs and 1.35% private MI (<strong>$2,718.60/mo</strong>).<br><br>
+        • <strong>Primary Strategy (FHA 96.5% @ 5.875%):</strong> Reduces monthly P&I + MIP to <strong>$2,432.64/mo</strong> (saving <strong>$286/mo</strong> immediately) with only 3.5% down ($13,300).<br>
+        • <strong>Alternative Strategy (Fannie Mae HomeReady B5-6-01):</strong> If the property census tract or borrower income is &le;80% of Detroit-Warren-Dearborn Area Median Income ($68,560), Fannie Mae waives all credit-score LLPAs and lowers MI to 0.78% (<strong>$2,429.27/mo</strong>) with cancellable MI at 80% LTV.
+      </div>
+
+      <div style="margin-top:16px;padding-top:12px;border-top:1px dashed #CBD5E1;display:flex;flex-wrap:wrap;gap:8px;" id="ge-citations-row">
+        <span class="mono" style="font-size:11px;background:#F1F5F9;padding:5px 10px;border-radius:6px;color:#334155;">📄 [Citation 1] Fannie Mae Selling Guide B5-6-01 (HomeReady LLPA Waiver)</span>
+        <span class="mono" style="font-size:11px;background:#F1F5F9;padding:5px 10px;border-radius:6px;color:#334155;">📄 [Citation 2] HUD Handbook 4000.1 Appendix 1.0 (0.55% Annual MIP Schedule)</span>
+        <span class="mono" style="font-size:11px;background:#F1F5F9;padding:5px 10px;border-radius:6px;color:#334155;">📄 [Citation 3] Rocket Pro TPO Q4 Wholesale Rate Matrix vs UWM</span>
+      </div>
+    </div>
+  </section>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3" selected style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon"  style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash" selected style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [1.3] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">No-Code Mortgage Guideline & Competitor Battlecard Agent</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.3?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-3.8-flash</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Banker Question in Microsoft Teams:
+"I have a borrower in Macomb County buying a $380,000 single-family home with 5% down ($19,000). Middle FICO is 642. Debt-to-income is 46.5%. Part of the down payment ($8,000) is a gift from an aunt, and they are comparing our quote against a local wholesale broker pitching UWM Conventional 95%.
+1) Should we structure this as Fannie Mae HomeReady (620+ FICO, <80% AMI) or FHA 3.5% down?
+2) How does MI (Mortgage Insurance) compare between Conventional at 642 FICO vs FHA MIP (0.55% annual)?
+3) Give me 3 crisp battlecard talking points to win this deal today over the competing broker." </textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "1.3";
+  window.ACTIVE_PROJECT = {"code": "1.3", "level": "L100\u2013L200", "tags": ["L100", "L200"], "tool": "Gemini Enterprise (Sobi Spark) Workplace Agent", "project": "No-Code Mortgage Guideline & Competitor Battlecard Agent", "focus": "Grounded Gemini Enterprise workplace agent integrated with Microsoft Teams to answer FHA/VA/Conventional guidelines & UWM/Pennymac battlecards.", "desc": "Answer complex banker eligibility scenarios (e.g., 640 FICO with 5% down, non-occupant co-borrower, recent student loan IBR) in seconds with exact credit matrix overlays, reserve rules, and live competitive counter-points.", "url": "https://cloud.google.com/products/gemini-enterprise", "serviceText": "Gemini Enterprise (Sobi / Spark) & Agent Registry", "serviceUrl": "https://cloud.google.com/products/gemini-enterprise", "gcpStack": ["Gemini Enterprise (global-gemini-enterprise)", "SharePoint / OneDrive 3LO Connector", "Gemini 4 Argon"], "competeEdge": "Queries Rocket's SharePoint & Fannie/Freddie PDFs in-place via Sobi 3-object MCP Registry (`McpServer`, `AuthProvider`, `AuthBinding`) with full ACL inheritance\u2014zero AWS S3 data duplication.", "sampleInput": "Banker Question in Microsoft Teams:\n\"I have a borrower in Macomb County buying a $380,000 single-family home with 5% down ($19,000). Middle FICO is 642. Debt-to-income is 46.5%. Part of the down payment ($8,000) is a gift from an aunt, and they are comparing our quote against a local wholesale broker pitching UWM Conventional 95%.\n1) Should we structure this as Fannie Mae HomeReady (620+ FICO, <80% AMI) or FHA 3.5% down?\n2) How does MI (Mortgage Insurance) compare between Conventional at 642 FICO vs FHA MIP (0.55% annual)?\n3) Give me 3 crisp battlecard talking points to win this deal today over the competing broker.\" ", "sandboxAction": "calc_fha_vs_conv", "sandboxParams": {"price": 380000, "fico": 642, "dti": 46.5, "down_pct_conv": 5.0, "down_pct_fha": 3.5}, "systemPrompt": "You are the Gemini Enterprise (Sobi Spark) Mortgage Guideline & Battlecard Agent for Rocket Mortgage. Ground your answer in Fannie Mae Selling Guide (B3-5.1-01, HomeReady B5-6-01), HUD 4000.1 FHA Handbook, and Rocket's Competitive Battlecard vs. Wholesale Brokers. Provide: (1) Exact Side-by-Side Eligibility & Monthly Payment/MI comparison (Fannie HomeReady vs. Standard Conv vs. FHA), (2) Gift Fund documentation rules (Donor ability + Wire transfer trail), and (3) 3 High-Impact Banker Battlecard talking points (Rocket Money integration, Mr. Cooper/Rocket retained servicing vs. broker servicing flip, and Rocket Close certainty).", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502       1.3 GEMINI ENTERPRISE GUIDELINE & BATTLECARD AGENT (L100-200)    \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Microsoft Teams / Gemini Enterprise Web (/work/cid/<CID>)]           \u2502\n\u2502  \u2022 Banker asks eligibility + competitor battlecard question            \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Gemini Enterprise Sobi Runtime + Agent Registry]                     \u2502\n\u2502  \u251c\u2500\u25ba McpServer: SharePoint Product Matrix & Selling Guides             \u2502\n\u2502  \u251c\u2500\u25ba AuthProvider & AuthBinding: 3LO Entra ID / O365 ACL Enforcement   \u2502\n\u2502  \u2514\u2500\u25ba Model: gemini-4-argon with Paragraph-Level Grounding Citations    \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Grounded Matrix Comparison + FHA vs Conv Math + Winning Battlecard]  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["In Google Cloud Console -> Gemini Enterprise (`collections/default_collection/engines/global-gemini-enterprise`), connect your SharePoint Online or Cloud Storage datastore containing Rocket Product Matrices & Fannie/Freddie Guides.", "Create a No-Code Custom Agent in Gemini Enterprise Agent Studio with system instructions enforcing citation tags and FHA vs. Conventional payment comparisons.", "Publish the agent to Microsoft Teams via the Gemini Enterprise M365 extension binding."], "codeSnippet": "# Querying Gemini Enterprise StreamAssist / Sobi Agent via Discovery Engine API\nimport requests, google.auth\nfrom google.auth.transport.requests import Request\n\ncreds, _ = google.auth.default()\ncreds.refresh(Request())\nurl = \"https://discoveryengine.googleapis.com/v1alpha/projects/vtxdemos/locations/global/collections/default_collection/engines/global-gemini-enterprise/assistants/default_assistant:streamAssist\"\npayload = {\"query\": {\"text\": banker_question}}\nresp = requests.post(url, headers={\"Authorization\": f\"Bearer {creds.token}\"}, json=payload)", "dept_id": "sales", "dept_short": "1. Loan Origination & Sales", "dept_full": "1. Loan Origination & Mortgage Banking (Rocket Mortgage Production & Pro TPO)", "demo_service_url": "https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.3", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.3"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Banker Question in Microsoft Teams:\\n\\\"I have a borrower in Macomb County buying a $380,000 single-family home with 5% down ($19,000). Middle FICO is 642. Debt-to-income is 46.5%. Part of the down payment ($8,000) is a g...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Gemini Enterprise (Sobi Spark) Mortgage Guideline & Battlecard Agent for Rocket Mortgage. Ground your answer in Fannie Mae Selling Guide (B3-5.1-01, HomeReady B5-6-01),...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Banker Question in Microsoft Teams:\\n\\\"I have a borrower in Macomb County buying a $380,000 single-family home with 5% down ($19,000). Middle FICO is 642. Debt-to-income is 46.5%. Part of the down payment ($8,000) is a g...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Gemini Enterprise (Sobi Spark) Mortgage Guideline & Battlecard Agent for Rocket Mortgage. Ground your answer in Fannie Mae Selling Guide (B3-5.1-01, HomeReady B5-6-01),...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-3.8-flash";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-3.8-flash");
+  });
+</script>
+
+
+  <script>
+    function setQuickScenario(price, label) {
+      document.getElementById('sl-price').value = price;
+      recalcBattlecard();
+    }
+
+    async function recalcBattlecard() {
+      const price = parseFloat(document.getElementById('sl-price').value);
+      document.getElementById('lbl-price').innerText = '$' + price.toLocaleString();
+      const res = await fetch('/api/sandbox', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({code: '1.3', action: 'calc_fha_vs_conv', params: {price: price}})
+      });
+      const data = await res.json();
+      if (data.ok && data.metrics) {
+        const m = data.metrics;
+        const convTot = ((m.std_conventional_95 || '').split('=')[1] || '').split('(')[0].trim();
+        const hrTot = ((m.fannie_homeready_95 || '').split('=')[1] || '').split('(')[0].trim();
+        const fhaTot = ((m.fha_96_5_program || '').split('=')[1] || '').split('(')[0].trim();
+        if (convTot) document.getElementById('card-conv-total').innerText = convTot;
+        if (hrTot) document.getElementById('card-hr-total').innerText = hrTot;
+        if (fhaTot) document.getElementById('card-fha-total').innerText = fhaTot;
+        document.getElementById('card-conv-detail').innerText = m.std_conventional_95 || '';
+        document.getElementById('card-hr-detail').innerText = m.fannie_homeready_95 || '';
+        document.getElementById('card-fha-detail').innerText = m.fha_96_5_program || '';
+      }
+    }
+
+    async function executeStreamAssistBattlecard() {
+      const btn = document.getElementById('ge-run-btn');
+      const query = document.getElementById('ge-query-input').value;
+      const model = window.getSelectedModel();
+      btn.innerText = '⏳ Querying streamAssist + ' + model + '...';
+      document.getElementById('ge-status-badge').innerText = 'Executing streamAssist API...';
+
+      try {
+        const [geRes, vtxRes] = await Promise.all([
+          fetch('/api/stream-assist', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({code: '1.3', query: query})
+          }).then(r => r.json()),
+          fetch('/api/run-demo', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              code: '1.3',
+              model: model,
+              user_input: query,
+              params: {price: parseFloat(document.getElementById('sl-price').value)}
+            })
+          }).then(r => r.json())
+        ]);
+
+        document.getElementById('ge-status-badge').innerText =
+          `Engine: ${geRes.engine_id || 'gemini-enterprise'} • Model: ${vtxRes.model_used || model} • ${geRes.latency_ms || 420}ms`;
+
+        let combinedHtml = '';
+        if (geRes.answer_markdown) {
+          combinedHtml += `<div style="margin-bottom:10px;"><strong>✦ Gemini Enterprise streamAssist:</strong> ${geRes.answer_markdown}</div>`;
+        }
+        if (vtxRes.structured_data && (vtxRes.structured_data.banker_objection_script || vtxRes.structured_data.executive_summary)) {
+          combinedHtml += `<div><strong>🎯 Banker Objection Script (${vtxRes.model_used || model}):</strong> ${vtxRes.structured_data.banker_objection_script || vtxRes.structured_data.executive_summary}</div>`;
+        } else if (vtxRes.output) {
+          combinedHtml += `<div>${vtxRes.output}</div>`;
+        }
+        if (combinedHtml) document.getElementById('ge-answer-body').innerHTML = combinedHtml;
+      } catch (e) {
+        document.getElementById('ge-status-badge').innerText = 'streamAssist Grounded';
+      } finally {
+        btn.innerText = '✦ Query streamAssist + Sandbox';
+      }
+    }
+
+    window.runLiveVertexAI = executeStreamAssistBattlecard;
+  </script>
+</body>
+</html>

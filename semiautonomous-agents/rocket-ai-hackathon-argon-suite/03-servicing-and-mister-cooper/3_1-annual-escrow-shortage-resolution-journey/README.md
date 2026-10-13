@@ -1,7 +1,7 @@
 # `[3.1]` Annual Escrow Shortage Resolution Journey
 
 > **Bespoke App:** **Mr. Cooper x GECX // Interactive Annual Escrow Shortage Waterfall & Payment Slider** (`escrow_waterfall_interactive`)  
-> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + Vertex AI`  
+> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash`  
 > **Shared Login:** Username `rocket` | Password `Argon2026!`
 
 - **🚀 Launch Live Bespoke Demo (Cloud Run):** [https://rocket-demo-servicing-254356041555.us-central1.run.app/?case=3.1](https://rocket-demo-servicing-254356041555.us-central1.run.app/?case=3.1)

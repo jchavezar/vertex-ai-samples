@@ -2,7 +2,7 @@
 """
 Rocket Companies AI Hackathon (Oct 2026) — Square [3.1]: Annual Escrow Shortage Resolution Journey
 Bespoke App Archetype: escrow_waterfall_interactive (Mr. Cooper x GECX // Interactive Annual Escrow Shortage Waterfall & Payment Slider)
-Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + Vertex AI)
+Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash)
 """
 import json
 import os

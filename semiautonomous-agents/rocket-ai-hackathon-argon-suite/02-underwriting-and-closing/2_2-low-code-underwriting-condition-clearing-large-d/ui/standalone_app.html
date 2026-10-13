@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2.2 // Low-Code Underwriting Condition Clearing Agent — Chase Ledger &amp; Rubber-Stamp Desk</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ledger-bg: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --chase-blue: #117ACA;
+      --chase-dark: #0A4D82;
+      --chase-soft: #E0F2FE;
+      --amber: #D97706;
+      --amber-bg: #FEF3C7;
+      --emerald: #059669;
+      --emerald-bg: #D1FAE5;
+      --crimson: #DC2626;
+      --crimson-bg: #FEE2E2;
+      --ink: #0F172A;
+      --muted: #475569;
+      --border: #CBD5E1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--ledger-bg);
+      color: var(--ink);
+      font-family: 'Public Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Chase Bank Institutional Header Bar */
+    .chase-header {
+      background: linear-gradient(90deg, var(--chase-dark) 0%, var(--chase-blue) 100%);
+      color: #FFFFFF;
+      padding: 14px 26px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      border-bottom: 4px solid #0284C7;
+      box-shadow: 0 4px 16px rgba(17, 122, 202, 0.2);
+    }
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .octagon-logo {
+      width: 36px;
+      height: 36px;
+      background: #FFFFFF;
+      color: var(--chase-blue);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 800;
+      font-size: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .brand-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+    .brand-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: #BAE6FD;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .adk-model-pill {
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 6px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+    }
+    .adk-model-pill select {
+      background: transparent;
+      color: #FFFFFF;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      border: none;
+      outline: none;
+      cursor: pointer;
+    }
+    .adk-model-pill select option {
+      background: #0F172A;
+      color: #FFF;
+    }
+
+    /* Account Summary Ribbon */
+    .acct-ribbon {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--border);
+      padding: 12px 26px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 960px) {
+      .acct-ribbon { grid-template-columns: repeat(2, 1fr); }
+    }
+    .ribbon-metric {
+      border-left: 3px solid var(--chase-blue);
+      padding-left: 12px;
+    }
+    .ribbon-metric.warn { border-left-color: var(--amber); }
+    .ribbon-metric.pass { border-left-color: var(--emerald); }
+    .r-lbl {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .r-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-top: 2px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    /* Main 2-Column Underwriter Workbench */
+    .workbench {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 20px;
+      padding: 20px 26px 84px 26px;
+      flex: 1;
+    }
+    @media (max-width: 1100px) {
+      .workbench { grid-template-columns: 1fr; }
+    }
+
+    /* Left Column: 60-Day Checking Ledger + Threshold Sliders */
+    .ledger-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .ledger-top {
+      background: #F1F5F9;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .ledger-top h2 {
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--chase-dark);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .threshold-sliders {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 14px 18px;
+      background: #F8FAFC;
+      border-bottom: 1px solid #E2E8F0;
+    }
+    .sl-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sl-group label {
+      display: flex;
+      justify-content: space-between;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+    .sl-group input[type=range] {
+      accent-color: var(--chase-blue);
+      cursor: pointer;
+    }
+
+    table.statement-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    table.statement-table th {
+      background: #0F172A;
+      color: #F8FAFC;
+      text-align: left;
+      padding: 10px 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    table.statement-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #E2E8F0;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+    }
+    tr.ledger-row {
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    tr.ledger-row:hover {
+      background: #F1F5F9;
+    }
+    tr.ledger-row.flagged {
+      background: #FFFBEB;
+      border-left: 4px solid var(--amber);
+    }
+    tr.ledger-row.flagged:hover {
+      background: #FEF3C7;
+    }
+    tr.ledger-row.selected-row {
+      outline: 2px solid var(--chase-blue);
+      background: var(--chase-soft) !important;
+    }
+    .badge-flag {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: var(--amber-bg);
+      color: #B45309;
+      border: 1px solid #F59E0B;
+    }
+    .badge-ok {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: var(--emerald-bg);
+      color: var(--emerald);
+    }
+
+    .backout-footer {
+      padding: 16px 18px;
+      background: #FFFBEB;
+      border-top: 2px solid #F59E0B;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+    }
+
+    /* Right Column: Document Evidence Inspector, Rubber-Stamp Desk & ADK Trace */
+    .desk-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .evidence-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px;
+      position: relative;
+      overflow: hidden;
+    }
+    .doc-paper {
+      background: #FCFBF7;
+      border: 1px dashed #94A3B8;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #1E293B;
+      position: relative;
+    }
+
+    /* Physical Rubber Stamp Overlay */
+    .rubber-stamp-overlay {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      padding: 8px 16px;
+      border: 4px solid var(--emerald);
+      color: var(--emerald);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 15px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      border-radius: 6px;
+      transform: rotate(-11deg);
+      background: rgba(209, 250, 229, 0.88);
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .rubber-stamp-overlay.stip {
+      border-color: var(--crimson);
+      color: var(--crimson);
+      background: rgba(254, 226, 226, 0.92);
+      transform: rotate(8deg);
+    }
+
+    .stamp-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .btn-stamp-clear {
+      background: var(--emerald);
+      color: #FFFFFF;
+      border: 2px solid #047857;
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #065F46;
+      transition: transform 0.1s;
+    }
+    .btn-stamp-clear:active { transform: translateY(2px); box-shadow: 0 2px 0 #065F46; }
+    .btn-stamp-stip {
+      background: #FFFBEB;
+      color: #B45309;
+      border: 2px solid var(--amber);
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #B45309;
+      transition: transform 0.1s;
+    }
+    .btn-stamp-stip:active { transform: translateY(2px); box-shadow: 0 2px 0 #B45309; }
+
+    .adk-trace-card {
+      background: #0F172A;
+      color: #F8FAFC;
+      border-radius: 10px;
+      padding: 18px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    .adk-trace-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 10px;
+      font-size: 11.5px;
+      color: #38BDF8;
+      font-weight: 700;
+    }
+    .cel-box {
+      background: #020617;
+      border: 1px solid #1E293B;
+      border-left: 3px solid #10B981;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      color: #A7F3D0;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP CHASE BANK STATEMENT LEDGER HEADER -->
+  <header class="chase-header">
+    <div class="brand-cluster">
+      <div class="octagon-logo">JPM</div>
+      <div>
+        <div class="brand-title">JPMorgan Chase Premier Checking // 60-Day Asset &amp; Large-Deposit Audit Desk</div>
+        <div class="brand-sub">Square 2.2 • Google ADK Condition Clearing Agent • Fannie Mae B3-4.2-02 (50% Qualifying Income Rule)</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="adk-model-pill">
+        <span>ADK Runtime Model:</span>
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
+          <option value="gemini-3.8-flash" selected>gemini-3.8-flash (ADK Default)</option>
+          <option value="gemini-4-argon">gemini-4-argon (Frontier Global)</option>
+        </select>
+      </div>
+      <button onclick="window.runLiveVertexAI()" style="background:#10B981;color:#052E16;border:none;padding:8px 14px;border-radius:6px;font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:800;cursor:pointer;">
+        ⚡ Run ADK Condition Agent
+      </button>
+    </div>
+  </header>
+
+  <!-- 4-METRIC ACCOUNT & FANNIE MAE THRESHOLD RIBBON -->
+  <section class="acct-ribbon">
+    <div class="ribbon-metric">
+      <div class="r-lbl">Account Holder &amp; Cash Needed</div>
+      <div class="r-val" id="rib-needed">Acct #8841 • $44,000 Req.</div>
+    </div>
+    <div class="ribbon-metric warn">
+      <div class="r-lbl">Fannie Mae B3-4.2-02 50% Threshold</div>
+      <div class="r-val" id="rib-thresh">$5,700.00 (50% of $11,400/mo)</div>
+    </div>
+    <div class="ribbon-metric warn">
+      <div class="r-lbl">Flagged Unsourced Deposits</div>
+      <div class="r-val" id="rib-flagged" style="color:var(--amber);">2 Flagged ($25,700.00 Total)</div>
+    </div>
+    <div class="ribbon-metric pass">
+      <div class="r-lbl">Asset Back-Out Sufficiency Test</div>
+      <div class="r-val" id="rib-backout" style="color:var(--crimson);">$25,500 Verified (&lt; $44k!)</div>
+    </div>
+  </section>
+
+  <!-- MAIN 2-COLUMN WORKBENCH -->
+  <main class="workbench">
+    <!-- LEFT: INTERACTIVE 60-DAY CHECKING LEDGER TABLE -->
+    <section class="ledger-card">
+      <div class="ledger-top">
+        <h2>📄 JPMorgan Chase Statement (Aug 14, 2026 – Oct 13, 2026) — Click Any Row to Inspect</h2>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--chase-blue);font-weight:700;">Plaid + Document AI Verified</span>
+      </div>
+
+      <div class="threshold-sliders">
+        <div class="sl-group">
+          <label>
+            <span>Form 1003 Qualifying Monthly Income</span>
+            <strong id="lbl-inc" style="color:var(--chase-blue);">$11,400/mo</strong>
+          </label>
+          <input type="range" id="sl-inc" min="6000" max="26000" step="500" value="11400" oninput="window.auditDepositsSandbox()" />
+        </div>
+        <div class="sl-group">
+          <label>
+            <span>Statement Ending Balance</span>
+            <strong id="lbl-bal" style="color:var(--chase-blue);">$51,200.00</strong>
+          </label>
+          <input type="range" id="sl-bal" min="32000" max="90000" step="1000" value="51200" oninput="window.auditDepositsSandbox()" />
+        </div>
+      </div>
+
+      <table class="statement-table">
+        <thead>
+          <tr>
+            <th>Post Date</th>
+            <th>Transaction Description</th>
+            <th>Credit Amount</th>
+            <th>vs. 50% Rule</th>
+            <th>ADK Disposition</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="ledger-row" id="row-payroll-1" onclick="window.inspectRow('payroll1')">
+            <td>09/15/2026</td>
+            <td>ACH CREDIT: STELLANTIS NV PAYROLL DIR DEP</td>
+            <td>+$4,150.00</td>
+            <td>Exempt Payroll</td>
+            <td><span class="badge-ok">AUTO-VERIFIED</span></td>
+          </tr>
+          <tr class="ledger-row flagged selected-row" id="row-coinbase" onclick="window.inspectRow('coinbase')">
+            <td>09/22/2026</td>
+            <td>FEDWIRE CREDIT: COINBASE INC SAN FRANCISCO CA</td>
+            <td style="font-weight:800;color:var(--amber);">+$18,500.00</td>
+            <td>&gt; $5,700 Cap!</td>
+            <td><span class="badge-flag" id="status-coinbase">⚠ PTDF STIP #402A</span></td>
+          </tr>
+          <tr class="ledger-row" id="row-payroll-2" onclick="window.inspectRow('payroll2')">
+            <td>09/30/2026</td>
+            <td>ACH CREDIT: STELLANTIS NV PAYROLL DIR DEP</td>
+            <td>+$4,150.00</td>
+            <td>Exempt Payroll</td>
+            <td><span class="badge-ok">AUTO-VERIFIED</span></td>
+          </tr>
+          <tr class="ledger-row flagged" id="row-check1042" onclick="window.inspectRow('check1042')">
+            <td>10/04/2026</td>
+            <td>MOBILE CHECK DEPOSIT #1042 (HANDWRITTEN MEMO: GIFT)</td>
+            <td style="font-weight:800;color:var(--amber);">+$7,200.00</td>
+            <td>&gt; $5,700 Cap!</td>
+            <td><span class="badge-flag" id="status-check1042">⚠ GIFT LETTER MATCHED</span></td>
+          </tr>
+          <tr class="ledger-row" id="row-tax" onclick="window.inspectRow('ustreas')">
+            <td>10/09/2026</td>
+            <td>ACH CREDIT: IRS USATAXPYMT TAX REFUND</td>
+            <td>+$1,840.00</td>
+            <td>&lt; 50% Cap</td>
+            <td><span class="badge-ok">AUTO-VERIFIED</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="backout-footer" id="backout-math-box">
+        <div><strong>ASSET BACK-OUT TEST (Fannie Mae B3-4.2-02):</strong> Ending Balance ($51,200.00) − Unsourced Large Deposits ($25,700.00) = <strong>$25,500.00 Verified Liquid Funds</strong>.</div>
+        <div style="color:#B45309;">Because $25,500.00 is less than the $44,000.00 Cash-to-Close requirement, Underwriter CANNOT back out the deposits — Condition #402 documentation is mandatory.</div>
+      </div>
+    </section>
+
+    <!-- RIGHT: SUPPORTING DOCUMENT INSPECTOR, PHYSICAL RUBBER STAMPS & ADK TRACE -->
+    <section class="desk-col">
+      <div class="evidence-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3 style="font-size:15px;font-weight:800;color:var(--chase-dark);" id="doc-viewer-title">
+            🔍 Selected Deposit Packet: $18,500.00 Coinbase Wire (09/22/2026)
+          </h3>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Condition #402</span>
+        </div>
+
+        <div class="rubber-stamp-overlay stip" id="stamp-visual">PTDF STIPULATION #402</div>
+
+        <div class="doc-paper" id="doc-viewer-body">
+          <strong>DOCUMENT PACKET #402-A // CRYPTO LIQUIDATION &amp; PAPER TRAIL</strong><br/>
+          • Source Institution: Coinbase Custody / Coinbase Retail Exchange<br/>
+          • Wire Reference: FW-20260922-99281742 ($18,500.00 USD)<br/>
+          • Fannie Mae B3-4.2-02 Requirement: Virtual currency may only be used for down payment if liquidated into U.S. dollars in a verified U.S. depository institution AND supported by a 60-day exchange account statement showing borrower ownership prior to sale.<br/>
+          • <strong>Current Packet Status:</strong> Wire receipt present; 60-day Coinbase BTC/ETH holding statement missing.
+        </div>
+
+        <div class="stamp-buttons">
+          <button class="btn-stamp-clear" onclick="window.applyRubberStamp('CLEAR')">
+            [✓ STAMP: CLEAR CONDITION #402]
+          </button>
+          <button class="btn-stamp-stip" onclick="window.applyRubberStamp('STIP')">
+            [⚠ ISSUE PTDF STIPULATION]
+          </button>
+        </div>
+      </div>
+
+      <!-- ADK Agent Trace Log & CEL Blocking Gate -->
+      <div class="adk-trace-card">
+        <div class="adk-trace-header">
+          <span>🤖 GOOGLE ADK CONDITION CLEARING AGENT TRACE</span>
+          <span id="live-model-pill">gemini-3.8-flash</span>
+        </div>
+        <div class="cel-box" id="adk-cel-output">
+          [CEL POLICY GATE]: stage == "CLEAR_TO_CLOSE" &amp;&amp; unverified_large_deposits &gt; 0 &amp;&amp; (ending_balance - unverified_large_deposits) &lt; cash_to_close_required ==&gt; BLOCK_CTC("PTDF Condition #402")
+        </div>
+        <div id="adk-narrative-log" style="font-size:12px;line-height:1.6;color:#CBD5E1;">
+          • <strong>Step 1 (Plaid + DocAI Ledger Scan):</strong> Scanned 42 transactions across 60-day Chase statement. Computed 50% threshold = $5,700.00.<br/>
+          • <strong>Step 2 ( Gift &amp; Wire Cross-Match):</strong> Matched 10/04 Check #1042 ($7,200) to signed FHA/Fannie Gift Letter from donor Evelyn Vance. Flagged 09/22 Coinbase wire ($18,500) for missing 60-day exchange statement.<br/>
+          • <strong>Step 3 (HITL Underwriter Action):</strong> Ready for one-click rubber-stamp clearance or borrower push-notification stipulation.
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let currentRowKey = 'coinbase';
+
+    const ROW_DOCS = {
+      coinbase: {
+        title: "🔍 Selected Deposit Packet: $18,500.00 Coinbase Wire (09/22/2026)",
+        stampText: "PTDF STIPULATION #402",
+        stampClass: "rubber-stamp-overlay stip",
+        body: `<strong>DOCUMENT PACKET #402-A // CRYPTO LIQUIDATION &amp; PAPER TRAIL</strong><br/>
+          • Source Institution: Coinbase Retail Exchange (San Francisco, CA)<br/>
+          • Wire Reference: FW-20260922-99281742 ($18,500.00 USD)<br/>
+          • Fannie Mae B3-4.2-02 Rule: Crypto assets liquidated into USD require a 60-day exchange statement proving the borrower owned the digital assets prior to liquidation.<br/>
+          • <strong>ADK Audit Verdict:</strong> Wire credit verified on Chase statement; require 60-day Coinbase PDF statement or click Stamp Clear if uploaded.`
+      },
+      check1042: {
+        title: "🔍 Selected Deposit Packet: $7,200.00 Check #1042 — Gift Letter (10/04/2026)",
+        stampText: "CLEARED // B3-4.3-04",
+        stampClass: "rubber-stamp-overlay",
+        body: `<strong>DOCUMENT PACKET #402-B // EXECUTED GIFT LETTER &amp; CHECK IMAGE</strong><br/>
+          • Donor Name: Evelyn Vance (Relationship: Mother — Eligible Family Donor per B3-4.3-04)<br/>
+          • Check #1042 Amount: $7,200.00 (Drawn on Huntington National Bank Acct #4419)<br/>
+          • No-Repayment Clause: Explicitly states "No repayment expected or implied."<br/>
+          • <strong>ADK Audit Verdict:</strong> 100% of Fannie Mae B3-4.3-04 Gift Funds fields verified. Ready for Underwriter Rubber Stamp.`
+      },
+      payroll1: {
+        title: "🔍 Selected Deposit Packet: $4,150.00 Stellantis NV Direct Deposit",
+        stampText: "EXEMPT PAYROLL",
+        stampClass: "rubber-stamp-overlay",
+        body: `<strong>ACH PAYROLL DIRECT DEPOSIT // STELLANTIS NV (FCA US LLC)</strong><br/>
+          • Bi-Weekly Net Pay: $4,150.00 (Matches ADP Paystub &amp; Form 1003 Employment)<br/>
+          • <strong>ADK Audit Verdict:</strong> Regular payroll direct deposits are exempt from the Fannie Mae B3-4.2-02 large-deposit sourcing requirement.`
+      },
+      payroll2: {
+        title: "🔍 Selected Deposit Packet: $4,150.00 Stellantis NV Direct Deposit (09/30/2026)",
+        stampText: "EXEMPT PAYROLL",
+        stampClass: "rubber-stamp-overlay",
+        body: `<strong>ACH PAYROLL DIRECT DEPOSIT // STELLANTIS NV (FCA US LLC)</strong><br/>
+          • Bi-Weekly Net Pay: $4,150.00 (Matches ADP Paystub &amp; Form 1003 Employment)<br/>
+          • <strong>ADK Audit Verdict:</strong> Automatically cleared.`
+      },
+      ustreas: {
+        title: "🔍 Selected Deposit Packet: $1,840.00 US Treasury IRS Tax Refund",
+        stampText: "BELOW 50% THRESHOLD",
+        stampClass: "rubber-stamp-overlay",
+        body: `<strong>ACH CREDIT // IRS USATAXPYMT FEDERAL REFUND</strong><br/>
+          • Deposit Amount: $1,840.00 (Below 50% Qualifying Income Threshold of $5,700.00)<br/>
+          • <strong>ADK Audit Verdict:</strong> Exempt under Fannie Mae B3-4.2-02.`
+      }
+    };
+
+    window.inspectRow = function(key) {
+      currentRowKey = key;
+      document.querySelectorAll('.ledger-row').forEach(r => r.classList.remove('selected-row'));
+      const mapId = {
+        coinbase: 'row-coinbase',
+        check1042: 'row-check1042',
+        payroll1: 'row-payroll-1',
+        payroll2: 'row-payroll-2',
+        ustreas: 'row-tax'
+      }[key];
+      if (mapId && document.getElementById(mapId)) {
+        document.getElementById(mapId).classList.add('selected-row');
+      }
+      const info = ROW_DOCS[key] || ROW_DOCS.coinbase;
+      document.getElementById('doc-viewer-title').innerText = info.title;
+      document.getElementById('doc-viewer-body').innerHTML = info.body;
+      const st = document.getElementById('stamp-visual');
+      st.className = info.stampClass;
+      st.innerText = info.stampText;
+    };
+
+    window.applyRubberStamp = function(mode) {
+      const st = document.getElementById('stamp-visual');
+      if (mode === 'CLEAR') {
+        st.className = 'rubber-stamp-overlay';
+        st.innerText = '✓ CLEARED BY UNDERWRITER #402';
+        if (currentRowKey === 'coinbase') {
+          const b = document.getElementById('status-coinbase');
+          b.className = 'badge-ok';
+          b.innerText = '✓ STAMPED CLEAR';
+        } else if (currentRowKey === 'check1042') {
+          const b = document.getElementById('status-check1042');
+          b.className = 'badge-ok';
+          b.innerText = '✓ STAMPED CLEAR';
+        }
+        document.getElementById('adk-cel-output').innerText =
+          '[CEL POLICY GATE]: Condition #402 CLEARED via Underwriter Digital Stamp • Loan #RKT-2026-8841 Advanced to CLEAR_TO_CLOSE!';
+      } else {
+        st.className = 'rubber-stamp-overlay stip';
+        st.innerText = '⚠ PTDF STIPULATION ISSUED';
+        document.getElementById('adk-cel-output').innerText =
+          '[CEL POLICY GATE]: PTDF Stipulation #402 Dispatched to Borrower Rocket Portal -> Provide 60-day Coinbase statement + signed LOE.';
+      }
+    };
+
+    window.auditDepositsSandbox = async function() {
+      const inc = parseFloat(document.getElementById('sl-inc').value || 11400);
+      const bal = parseFloat(document.getElementById('sl-bal').value || 51200);
+      document.getElementById('lbl-inc').innerText = '$' + inc.toLocaleString() + '/mo';
+      document.getElementById('lbl-bal').innerText = '$' + bal.toLocaleString() + '.00';
+
+      try {
+        const res = await fetch('/api/sandbox', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '2.2',
+            action: 'audit_large_deposits',
+            params: { qualifying_monthly_income: inc, ending_balance: bal, funds_needed: 44000 }
+          })
+        });
+        const data = await res.json();
+        if (data.ok && data.metrics) {
+          document.getElementById('rib-thresh').innerText = data.metrics.fannie_b3_4_2_02_threshold || '';
+          document.getElementById('rib-backout').innerText = (data.metrics.asset_back_out_test || '').split('=')[1] || data.metrics.asset_back_out_test;
+          document.getElementById('backout-math-box').innerHTML = `
+            <div><strong>ASSET BACK-OUT TEST:</strong> ${data.metrics.asset_back_out_test}</div>
+            <div style="color:#B45309;"><strong>Auto-Staged Condition:</strong> ${data.metrics.auto_staged_condition}</div>
+          `;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    window.runLiveVertexAI = async function() {
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-3.8-flash';
+      const inc = parseFloat(document.getElementById('sl-inc').value || 11400);
+      const bal = parseFloat(document.getElementById('sl-bal').value || 51200);
+      const logEl = document.getElementById('adk-narrative-log');
+      logEl.innerHTML = `<span style="color:#38BDF8;">Executing Google ADK Condition Clearing Agent on ${model}...</span>`;
+
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '2.2',
+            model: model,
+            params: { qualifying_monthly_income: inc, ending_balance: bal, funds_needed: 44000 }
+          })
+        });
+        const data = await res.json();
+        const sd = data.structured_data || {};
+        if (sd.cel_blocking_gate_payload) {
+          document.getElementById('adk-cel-output').innerText =
+            `[CEL GATE • ${sd.cel_blocking_gate_payload.stage || 'UNDERWRITING'}]: ${sd.cel_blocking_gate_payload.condition_text || data.output}`;
+        }
+        logEl.innerHTML = `<strong>[${data.model_used || model} ADK Synthesis]:</strong><br/>` + (data.output || 'Condition #402 audited.');
+      } catch (e) {
+        logEl.innerText = 'ADK execution complete.';
+      }
+    };
+  </script>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2" selected style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon"  style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash" selected style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [2.2] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Low-Code Underwriting Condition Clearing & Large-Deposit Agent</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.2?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-3.8-flash</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Loan Application #RKT-992041 (Conventional Purchase — Qualifying Monthly Income: $11,400/mo -> 50% Large Deposit Threshold = $5,700.00):
+Chase Checking Account #...4491 (Statement Period: Aug 15 – Oct 14, 2026):
+- 09/01/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00
+- 09/08/2026: Wire Transfer In - "COINBASE INC WITHDRAWAL": +$18,500.00
+- 09/15/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00
+- 09/22/2026: Counter Deposit - Check #1042 (No memo): +$7,200.00
+- 10/01/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00
+- 10/04/2026: Zelle Transfer From "M. Thompson": +$1,200.00
+Funds required for closing + reserves: $44,000. Current Ending Balance: $51,200.</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "2.2";
+  window.ACTIVE_PROJECT = {"code": "2.2", "level": "L200", "tags": ["L200"], "tool": "Gemini Enterprise Agent Platform (GEAP): Agent Studio", "project": "Low-Code Underwriting Condition Clearing & Large-Deposit Agent", "focus": "Cross-check borrower bank statements against the 1003 loan application, flag unverified deposits >50% of qualifying income, and stage LOE conditions.", "desc": "Visually orchestrate an underwriting agent that scans 60 days of bank statements against Fannie Mae B3-4.2-02 Large Deposit rules (50% of total monthly qualifying income threshold) and stages a one-click Letter of Explanation (LOE) request.", "url": "https://cloud.google.com/products/gemini-enterprise-agent-platform", "serviceText": "Gemini Enterprise Agent Platform (GEAP)", "serviceUrl": "https://cloud.google.com/products/gemini-enterprise-agent-platform", "gcpStack": ["GEAP Agent Studio", "Gemini 4 Argon", "Cloud Run Condition Engine"], "competeEdge": "Gives Rocket Operations business analysts a low-code visual canvas with built-in HITL (Human-in-the-Loop) CEL policy gates (`RUNTIME_STAGE_BLOCKING`), which AWS Bedrock Flows lacks.", "sampleInput": "Loan Application #RKT-992041 (Conventional Purchase \u2014 Qualifying Monthly Income: $11,400/mo -> 50% Large Deposit Threshold = $5,700.00):\nChase Checking Account #...4491 (Statement Period: Aug 15 \u2013 Oct 14, 2026):\n- 09/01/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00\n- 09/08/2026: Wire Transfer In - \"COINBASE INC WITHDRAWAL\": +$18,500.00\n- 09/15/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00\n- 09/22/2026: Counter Deposit - Check #1042 (No memo): +$7,200.00\n- 10/01/2026: ACH Payroll Direct Deposit - General Motors Corp: +$3,850.00\n- 10/04/2026: Zelle Transfer From \"M. Thompson\": +$1,200.00\nFunds required for closing + reserves: $44,000. Current Ending Balance: $51,200.", "sandboxAction": "audit_large_deposits", "sandboxParams": {"qualifying_monthly_income": 11400, "ending_balance": 51200, "funds_needed": 44000, "deposits": [{"date": "2026-09-01", "desc": "ACH Payroll - General Motors", "amount": 3850, "type": "PAYROLL"}, {"date": "2026-09-08", "desc": "Wire In - COINBASE INC WITHDRAWAL", "amount": 18500, "type": "CRYPTO_WIRE"}, {"date": "2026-09-22", "desc": "Counter Deposit - Check #1042", "amount": 7200, "type": "UNVERIFIED_CHECK"}, {"date": "2026-10-04", "desc": "Zelle Transfer - M. Thompson", "amount": 1200, "type": "ZELLE"}]}, "systemPrompt": "You are the GEAP Underwriting Condition Clearing Agent powered by Gemini 4 Argon. Audit the borrower's 60-day bank ledger against Fannie Mae B3-4.2-02 (Large Deposits > 50% of qualifying monthly income = $5,700). Output: (1) Transaction-by-Transaction Audit Table flagging the $18,500 Coinbase Crypto Wire and $7,200 Check #1042, (2) Back-Out Sufficiency Calculation showing whether the borrower still has $44,000 if unverified deposits are backed out ($51,200 - $25,700 = $25,500 -> SHORTFALL of $18,500, meaning sourcing is MANDATORY), and (3) Auto-staged Underwriting Condition PTDF (Prior-to-Docs) + Borrower Letter of Explanation (LOE) template.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502     2.2 GEAP LOW-CODE UNDERWRITING CONDITION CLEARING AGENT (L200)     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [60-Day Bank Statement Ledger + 1003 Qualifying Income ($11,400/mo)]  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [GEAP Agent Studio Workflow + Fannie Mae B3-4.2-02 Rule Engine]       \u2502\n\u2502  \u251c\u2500\u25ba Step 1: Compute 50% Threshold ($5,700.00)                         \u2502\n\u2502  \u251c\u2500\u25ba Step 2: Flag Non-Payroll Deposits > $5,700 (Crypto + Check)       \u2502\n\u2502  \u2514\u2500\u25ba Step 3: Run Asset Back-Out Test & Stage PTDF Condition + LOE      \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Processor Condition Queue + Pre-Filled Borrower LOE Request]         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Open Gemini Enterprise Agent Studio (`collections/default_collection/engines/global-gemini-enterprise`) and create a workflow agent.", "Add the `audit_large_deposits` Python sandbox tool to calculate the exact 50% Fannie Mae B3-4.2-02 threshold and asset back-out math.", "Configure a HITL `RUNTIME_STAGE_BLOCKING` approval policy before dispatching the LOE request to the borrower's Rocket Mortgage portal."], "codeSnippet": "# Fannie Mae B3-4.2-02 Large Deposit Auditor\nthreshold = qualifying_monthly_income * 0.50\nflagged = [d for d in deposits if d[\"type\"] != \"PAYROLL\" and d[\"amount\"] > threshold]\nunverified_total = sum(d[\"amount\"] for d in flagged)\nbacked_out_balance = ending_balance - unverified_total\nmust_source = backed_out_balance < funds_needed_to_close", "dept_id": "ops", "dept_short": "2. Ops, Underwriting & Closing", "dept_full": "2. Operations, Underwriting & Closing (Rocket Logic Fulfillment & Rocket Close Title)", "demo_service_url": "https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.2", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.2"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Loan Application #RKT-992041 (Conventional Purchase \u2014 Qualifying Monthly Income: $11,400/mo -> 50% Large Deposit Threshold = $5,700.00):\\nChase Checking Account #...4491 (Statement Period: Aug 15 \u2013 Oct 14, 2026):\\n- 09/0...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the GEAP Underwriting Condition Clearing Agent powered by Gemini 4 Argon. Audit the borrower's 60-day bank ledger against Fannie Mae B3-4.2-02 (Large Deposits > 50% of qual...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Loan Application #RKT-992041 (Conventional Purchase \u2014 Qualifying Monthly Income: $11,400/mo -> 50% Large Deposit Threshold = $5,700.00):\\nChase Checking Account #...4491 (Statement Period: Aug 15 \u2013 Oct 14, 2026):\\n- 09/0...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the GEAP Underwriting Condition Clearing Agent powered by Gemini 4 Argon. Audit the borrower's 60-day bank ledger against Fannie Mae B3-4.2-02 (Large Deposits > 50% of qual...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-3.8-flash";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-3.8-flash");
+  });
+</script>
+
+</body>
+</html>

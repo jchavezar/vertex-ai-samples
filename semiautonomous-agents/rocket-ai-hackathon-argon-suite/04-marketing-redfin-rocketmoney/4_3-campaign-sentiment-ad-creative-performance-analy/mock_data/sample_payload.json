@@ -9,7 +9,7 @@
   "tool_label": "Gemini Code Assist & Sheets/Excel Analytics",
   "routed_model": "gemini-3.8-flash",
   "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
-  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "routing_note": "Active Model: gemini-3.8-flash on Global Endpoint (ADK default: gemini-3.8-flash)",
   "gcp_stack": [
     "Gemini 4 Argon",
     "Gemini Code Assist",

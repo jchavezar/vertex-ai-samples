@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[M.2] Project Spatial Close: VisionOS Architectural Remodel Studio | Gempix-2 + HomeStyle</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --glass-bg: rgba(18, 22, 34, 0.62);
+      --glass-card: rgba(255, 255, 255, 0.08);
+      --glass-border: rgba(255, 255, 255, 0.22);
+      --gold: #F59E0B;
+      --emerald: #10B981;
+      --sky: #38BDF8;
+      --text-white: #F8FAFC;
+      --text-soft: #CBD5E1;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #07090F;
+      color: var(--text-white);
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 18% 12%, rgba(245, 158, 11, 0.20), transparent 40%),
+        radial-gradient(circle at 82% 18%, rgba(16, 185, 129, 0.18), transparent 42%),
+        linear-gradient(180deg, rgba(7, 9, 15, 0.72) 0%, rgba(7, 9, 15, 0.92) 100%),
+        url('/static/images/rocket_kitchen_homestyle.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      padding-bottom: 96px;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+
+    /* Apple VisionOS Floating Glass Header Pill */
+    .vision-header {
+      max-width: 1520px;
+      margin: 18px auto 0;
+      padding: 14px 26px;
+      background: rgba(15, 18, 28, 0.68);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border: 1px solid var(--glass-border);
+      border-radius: 999px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    @media (max-width: 900px) {
+      .vision-header { border-radius: 24px; margin: 12px; }
+    }
+    .vision-pill {
+      background: rgba(245, 158, 11, 0.18);
+      border: 1px solid rgba(245, 158, 11, 0.55);
+      color: #FDE68A;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 999px;
+    }
+    .vision-model-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.09);
+      border: 1px solid var(--glass-border);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+    }
+    .vision-model-box select {
+      background: transparent;
+      color: #FDE68A;
+      border: none;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+    .vision-model-box select option { background: #0F172A; color: #FFFFFF; }
+
+    /* Spatial Studio Layout */
+    .spatial-studio {
+      max-width: 1520px;
+      margin: 22px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 390px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1120px) {
+      .spatial-studio { grid-template-columns: 1fr; }
+    }
+
+    .frosted-panel {
+      background: var(--glass-bg);
+      backdrop-filter: blur(24px) saturate(160%);
+      -webkit-backdrop-filter: blur(24px) saturate(160%);
+      border: 1px solid var(--glass-border);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    /* Interactive Renovation Upgrade Configurator Cards */
+    .upgrade-card {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .upgrade-card:hover {
+      background: rgba(255, 255, 255, 0.11);
+      transform: translateY(-2px);
+    }
+    .upgrade-card.selected {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.22), rgba(16, 185, 129, 0.18));
+      border-color: var(--gold);
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.22);
+    }
+    .upgrade-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .upgrade-card.selected .upgrade-check {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #000;
+    }
+
+    .btn-vision {
+      width: 100%;
+      padding: 13px 18px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: linear-gradient(135deg, var(--gold), #D97706);
+      color: #090D16;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 10px 26px rgba(245, 158, 11, 0.35);
+    }
+    .btn-vision:hover { transform: translateY(-1px); filter: brightness(1.07); }
+
+    /* Right Architectural Viewport & Fannie Mae HomeStyle Equity HUD */
+    .viewport-stage {
+      position: relative;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+      background: #05070B;
+      min-height: 390px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 20px;
+      background-size: cover;
+      background-position: center;
+      transition: background-image 0.35s ease;
+    }
+    .spatial-hud-overlay {
+      background: rgba(10, 14, 24, 0.72);
+      backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .homestyle-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+    @media (max-width: 960px) {
+      .homestyle-kpi-grid { grid-template-columns: 1fr 1fr; }
+    }
+    .hs-metric-pill {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      padding: 16px;
+    }
+    .hs-metric-pill.emerald {
+      border-color: var(--emerald);
+      background: rgba(16, 185, 129, 0.14);
+    }
+    .hs-metric-pill.gold {
+      border-color: var(--gold);
+      background: rgba(245, 158, 11, 0.14);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- APPLE VISIONOS FLOATING GLASS HEADER -->
+  <header class="vision-header">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <span class="vision-pill">🥽 PROJECT SPATIAL CLOSE // GEMPIX-2 + VISIONOS • SQUARE [M.2]</span>
+      <div>
+        <h1 style="font-size:18px;font-weight:800;">Immersive Virtual Staging & Fannie Mae HomeStyle® Remodel Studio</h1>
+        <p class="mono" style="font-size:11px;color:var(--text-soft);">Redfin 3D Digital Twin + Gempix-2 Architectural Remodel + Single-Close Fannie Mae HomeStyle Equity Engine</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+      <div class="vision-model-box">
+        <span>SPATIAL MODEL:</span>
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
+          <option value="gemini-4-argon" selected>gemini-4-argon (Frontier Global)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Fast / ADK Runtime)</option>
+        </select>
+      </div>
+      <button class="btn-vision" style="width:auto;padding:9px 18px;" onclick="window.runLiveVertexAI()">
+        ⚡ Underwrite HomeStyle Loan (/api/run-demo)
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN VISIONOS STUDIO -->
+  <main class="spatial-studio">
+
+    <!-- LEFT: RENOVATION UPGRADE CONFIGURATOR -->
+    <aside class="frosted-panel" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;">
+      <div>
+        <div class="mono" style="font-size:11px;color:var(--gold);font-weight:700;text-transform:uppercase;margin-bottom:6px;">
+          ✨ Gempix-2 Spatial Renovation Configurator
+        </div>
+        <h2 style="font-size:18px;font-weight:800;margin-bottom:6px;">Select Architectural Remodel Modules</h2>
+        <p style="font-size:12.5px;color:var(--text-soft);line-height:1.55;margin-bottom:16px;">
+          Toggle remodel packages below to transform the 3D property canvas and compute Fannie Mae HomeStyle® <strong>After-Improved Value (AIV)</strong> & instant net equity gain.
+        </p>
+
+        <div style="margin-bottom:12px;">
+          <label class="mono" style="font-size:10.5px;color:var(--text-soft);display:block;margin-bottom:4px;">BASE AS-IS PURCHASE PRICE ($):</label>
+          <input type="number" id="inp-base-price" value="480000" oninput="recalcSpatialHomeStyle()"
+            style="width:100%;padding:10px 14px;border-radius:12px;border:1px solid var(--glass-border);background:rgba(0,0,0,0.4);color:#FFF;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;">
+        </div>
+
+        <!-- Upgrade 1: Chef's Kitchen +$45k -->
+        <div class="upgrade-card selected" id="upg-kitchen" onclick="toggleUpgrade('kitchen')">
+          <div>
+            <div style="font-size:14px;font-weight:800;color:#FFF;">🍽️ Chef's Waterfall Quartz Kitchen</div>
+            <div class="mono" style="font-size:11px;color:var(--gold);margin-top:2px;">Cost: +$45,000 • Appraised Value Lift: +$62,000</div>
+          </div>
+          <div class="upgrade-check">✓</div>
+        </div>
+
+        <!-- Upgrade 2: Garage ADU +$65k -->
+        <div class="upgrade-card selected" id="upg-adu" onclick="toggleUpgrade('adu')">
+          <div>
+            <div style="font-size:14px;font-weight:800;color:#FFF;">🏡 Detached Garage ADU Studio Suite</div>
+            <div class="mono" style="font-size:11px;color:var(--gold);margin-top:2px;">Cost: +$65,000 • Appraised Value Lift: +$74,000</div>
+          </div>
+          <div class="upgrade-check">✓</div>
+        </div>
+
+        <!-- Upgrade 3: Bath & Solar +$25k -->
+        <div class="upgrade-card selected" id="upg-solar" onclick="toggleUpgrade('solar')">
+          <div>
+            <div style="font-size:14px;font-weight:800;color:#FFF;">☀️ Spa Primary Bath + 9kW Solar Roof</div>
+            <div class="mono" style="font-size:11px;color:var(--gold);margin-top:2px;">Cost: +$25,000 • Appraised Value Lift: +$22,000</div>
+          </div>
+          <div class="upgrade-check">✓</div>
+        </div>
+
+        <!-- Scene Camera Switcher -->
+        <div style="margin-top:14px;">
+          <div class="mono" style="font-size:10.5px;color:var(--text-soft);margin-bottom:6px;">SPATIAL CAMERA LENS (GEMPIX-2 RENDER):</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">
+            <button onclick="setSpatialLens('kitchen')" class="mono" style="padding:7px;border-radius:10px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.1);color:#FFF;font-size:10.5px;cursor:pointer;">Chef Kitchen</button>
+            <button onclick="setSpatialLens('industrial')" class="mono" style="padding:7px;border-radius:10px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.1);color:#FFF;font-size:10.5px;cursor:pointer;">ADU Loft</button>
+            <button onclick="setSpatialLens('before')" class="mono" style="padding:7px;border-radius:10px;border:1px solid var(--glass-border);background:rgba(255,255,255,0.1);color:#FFF;font-size:10.5px;cursor:pointer;">As-Is Before</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-vision" onclick="recalcSpatialHomeStyle()">
+        🥽 Run Spatial HomeStyle Valuation (/api/sandbox)
+      </button>
+    </aside>
+
+    <!-- RIGHT: ARCHITECTURAL VIEWPORT & FANNIE MAE HOMESTYLE EQUITY HUD -->
+    <section class="frosted-panel" style="display:flex;flex-direction:column;justify-content:space-between;">
+      <div>
+        <div class="viewport-stage" id="spatial-viewport" style="background-image:url('/static/images/rocket_kitchen_homestyle.jpg');">
+          <div class="spatial-hud-overlay">
+            <div>
+              <span class="mono" style="font-size:10.5px;color:var(--gold);font-weight:700;">REDFIN 3D TWIN • 1420 VINSETTA BLVD, ROYAL OAK MI</span>
+              <div style="font-size:15px;font-weight:800;margin-top:2px;" id="hud-active-modules">Active Remodel: Chef's Kitchen + Garage ADU + Bath & Solar</div>
+            </div>
+            <span class="mono" style="background:rgba(16,185,129,0.22);border:1px solid var(--emerald);color:#6EE7B7;padding:5px 12px;border-radius:999px;font-size:11px;font-weight:700;">
+              SynthID + Gempix-2 Geometry Locked
+            </span>
+          </div>
+
+          <div class="spatial-hud-overlay" style="margin-top:auto;">
+            <div class="mono" style="font-size:11.5px;">
+              <strong>FANNIE MAE HOMESTYLE B5-3.2-01 CAP CHECK:</strong> Renovation Escrow (<span id="hud-reno-pct">21.2%</span> of AIV) &lt;= <strong>75.0% Max Cap (PASS)</strong>
+            </div>
+            <div class="mono" id="spatial-sandbox-ms" style="font-size:11px;color:var(--gold);">
+              Sandbox Verified (1.3ms)
+            </div>
+          </div>
+        </div>
+
+        <!-- 4-Box Fannie Mae HomeStyle KPI Row -->
+        <div class="homestyle-kpi-grid">
+          <div class="hs-metric-pill">
+            <div class="mono" style="font-size:10px;color:var(--text-soft);">TOTAL ACQUISITION + REMODEL</div>
+            <div class="mono" id="kpi-total-cost" style="font-size:21px;font-weight:800;margin-top:4px;">$615,000</div>
+            <div class="mono" id="kpi-cost-sub" style="font-size:10.5px;color:var(--text-soft);margin-top:2px;">$480k Base + $135k Remodel</div>
+          </div>
+
+          <div class="hs-metric-pill gold">
+            <div class="mono" style="font-size:10px;color:#FDE68A;">AFTER-IMPROVED VALUE (AIV)</div>
+            <div class="mono" id="kpi-aiv" style="font-size:21px;font-weight:800;color:var(--gold);margin-top:4px;">$638,000</div>
+            <div class="mono" style="font-size:10.5px;color:#FDE68A;margin-top:2px;">Amrock Comp-Backed AIV</div>
+          </div>
+
+          <div class="hs-metric-pill emerald">
+            <div class="mono" style="font-size:10px;color:#6EE7B7;">INSTANT NET EQUITY GAIN</div>
+            <div class="mono" id="kpi-net-equity" style="font-size:21px;font-weight:800;color:var(--emerald);margin-top:4px;">+$23,000</div>
+            <div class="mono" style="font-size:10.5px;color:#6EE7B7;margin-top:2px;">Day-1 Sweat Equity Created</div>
+          </div>
+
+          <div class="hs-metric-pill">
+            <div class="mono" style="font-size:10px;color:var(--text-soft);">SINGLE-CLOSE HOMESTYLE P&I</div>
+            <div class="mono" id="kpi-hs-pi" style="font-size:21px;font-weight:800;color:var(--sky);margin-top:4px;">$3,594/mo</div>
+            <div class="mono" style="font-size:10.5px;color:var(--emerald);margin-top:2px;">Saves $485/mo vs 9.75% HELOC</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Vertex AI Underwriting & Contractor Draw Schedule Output -->
+      <div style="margin-top:18px;background:rgba(0,0,0,0.45);border:1px solid var(--glass-border);border-radius:18px;padding:16px 20px;">
+        <div class="mono" style="font-size:11px;color:var(--gold);font-weight:700;margin-bottom:6px;">
+          🏗️ FANNIE MAE HOMESTYLE® ESCROW DRAW SCHEDULE & VERTEX AI SYNTHESIS (`calc_spatial_homestyle`)
+        </div>
+        <div id="spatial-ai-output" style="font-size:13px;line-height:1.65;color:var(--text-white);">
+          <strong>Single-Close Advantage:</strong> Instead of buying at $480,000 and taking a high-rate 9.75% second-lien HELOC for $135,000 in renovations, Rocket Mortgage finances the entire <strong>$615,000 acquisition + escrow budget</strong> in one 6.25% first mortgage underwritten against the <strong>$638,000 After-Improved Value (AIV)</strong>, unlocking <strong>+$23,000 in immediate net equity</strong>.
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    const UPGRADES = {
+      kitchen: { selected: true, name: "Chef's Kitchen", cost: 45000, lift: 62000, img: "/static/images/rocket_kitchen_homestyle.jpg" },
+      adu:     { selected: true, name: "Garage ADU",     cost: 65000, lift: 74000, img: "/static/images/rocket_loft_after_industrial.jpg" },
+      solar:   { selected: true, name: "Bath & Solar",   cost: 25000, lift: 22000, img: "/static/images/rocket_loft_after_midcentury.jpg" }
+    };
+
+    function toggleUpgrade(key) {
+      UPGRADES[key].selected = !UPGRADES[key].selected;
+      const card = document.getElementById('upg-' + key);
+      if (UPGRADES[key].selected) {
+        card.classList.add('selected');
+        document.getElementById('spatial-viewport').style.backgroundImage = `url('${UPGRADES[key].img}')`;
+      } else {
+        card.classList.remove('selected');
+      }
+      recalcSpatialHomeStyle();
+    }
+
+    function setSpatialLens(lens) {
+      const vp = document.getElementById('spatial-viewport');
+      if (lens === 'kitchen') vp.style.backgroundImage = "url('/static/images/rocket_kitchen_homestyle.jpg')";
+      else if (lens === 'industrial') vp.style.backgroundImage = "url('/static/images/rocket_loft_after_industrial.jpg')";
+      else vp.style.backgroundImage = "url('/static/images/rocket_loft_before.jpg')";
+    }
+
+    async function recalcSpatialHomeStyle() {
+      const basePrice = parseFloat(document.getElementById('inp-base-price').value || 480000);
+      let renoCost = 0;
+      let valueLift = 0;
+      let names = [];
+
+      Object.values(UPGRADES).forEach(u => {
+        if (u.selected) {
+          renoCost += u.cost;
+          valueLift += u.lift;
+          names.push(u.name);
+        }
+      });
+
+      const totalAcq = basePrice + renoCost;
+      const aiv = basePrice + valueLift;
+      const netEquity = aiv - totalAcq;
+      const loanAmt = totalAcq * 0.95;
+      const r = (6.25 / 100.0) / 12.0;
+      const pi = Math.round(loanAmt * (r * Math.pow(1 + r, 360)) / (Math.pow(1 + r, 360) - 1));
+      const renoPctAiv = aiv > 0 ? ((renoCost / aiv) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('hud-active-modules').innerText = names.length ? ('Active Remodel: ' + names.join(' + ')) : 'As-Is Property (No Upgrades Selected)';
+      document.getElementById('hud-reno-pct').innerText = renoPctAiv + '%';
+      document.getElementById('kpi-total-cost').innerText = '$' + totalAcq.toLocaleString();
+      document.getElementById('kpi-cost-sub').innerText = `$${ (basePrice/1000).toFixed(0) }k Base + $${ (renoCost/1000).toFixed(0) }k Remodel`;
+      document.getElementById('kpi-aiv').innerText = '$' + aiv.toLocaleString();
+      document.getElementById('kpi-net-equity').innerText = (netEquity >= 0 ? '+$' : '-$') + Math.abs(netEquity).toLocaleString();
+      document.getElementById('kpi-hs-pi').innerText = '$' + pi.toLocaleString() + '/mo';
+
+      try {
+        const res = await fetch('/api/sandbox', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: 'M.2',
+            action: 'calc_homestyle_renovation',
+            params: {
+              secondary_action: 'calc_spatial_homestyle',
+              purchase_price: basePrice,
+              renovation_cost: renoCost,
+              after_improved_value: aiv
+            }
+          })
+        });
+        const data = await res.json();
+        document.getElementById('spatial-sandbox-ms').innerText = `Sandbox Verified (${data.execution_ms || 1.1}ms)`;
+      } catch (e) {}
+    }
+
+    window.runLiveVertexAI = async function() {
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      const basePrice = parseFloat(document.getElementById('inp-base-price').value || 480000);
+      const outEl = document.getElementById('spatial-ai-output');
+      outEl.innerHTML = `Synthesizing Fannie Mae HomeStyle® Appraisal & Draw Schedule with <strong>${model}</strong>...`;
+
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: 'M.2',
+            model: model,
+            user_input: `Compute Fannie Mae HomeStyle After-Improved Value ($638,000) and contractor draw schedule for a $${basePrice} purchase with Chef's Kitchen (+$45k), Garage ADU (+$65k), and Bath & Solar (+$25k).`,
+            params: { purchase_price: basePrice, renovation_cost: 135000, after_improved_value: 638000 }
+          })
+        });
+        const data = await res.json();
+        outEl.innerHTML = `<strong style="color:var(--gold);">[${data.model_used || model}]:</strong> ${data.output || 'HomeStyle package verified.'}`;
+      } catch (e) {
+        outEl.innerText = "Vertex AI Error: " + e.message;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      recalcSpatialHomeStyle();
+    });
+  </script>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2" selected style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [M.2] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Project Spatial Close: Immersive Virtual Staging & 3D Neighborhood Hub</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/M.2?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Redfin Fixer-Upper Listing: 1128 Kensington Rd, Grosse Pointe Park, MI 48230.
+- As-Is Purchase Price: $385,000 (Built 1954, outdated galley kitchen & uninsulated sunroom).
+- Conversational Remodel Request: "Show us a modern open-concept chef's kitchen + 4-season sunroom addition ($55,000 renovation budget) financed inside a single Fannie Mae HomeStyle Renovation Loan at 95% LTV of After-Improved Value (AIV)."
+- Appraiser Comparable AIV Estimate: $485,000 (creating $45,000 in instant sweat/renovation equity!).</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "M.2";
+  window.ACTIVE_PROJECT = {"code": "M.2", "level": "L300", "tags": ["L300"], "tool": "Gemini Omni + Imagen 3 + Google Maps 3D Tiles", "project": "Project Spatial Close: Immersive Virtual Staging & 3D Neighborhood Hub", "focus": "Combine conversational 3D interior staging + solar/renovation ROI with Google Maps Photorealistic 3D neighborhood flybys and equity projections.", "desc": "Let Redfin buyers remodel a fixer-upper with their voice ('Knock down this non-load-bearing kitchen wall, add a quartz waterfall island, and finance the $45,000 remodel into a Fannie Mae HomeStyle Renovation loan') while inspecting 5-year neighborhood appreciation.", "url": "https://developers.google.com/maps/documentation/tile/3d-tiles", "serviceText": "Gemini Omni, Imagen 3 & Google Maps 3D Platform", "serviceUrl": "https://developers.google.com/maps/documentation/tile/3d-tiles", "gcpStack": ["Gemini Omni", "Imagen 3", "Google Maps Photorealistic 3D Tiles API", "Gemini 4 Argon Renovation ROI Engine"], "competeEdge": "Only Google combines frontier multimodal generation (Gemini Omni + Imagen 3) with First-Party Google Maps Photorealistic 3D Tiles and Solar API.", "sampleInput": "Redfin Fixer-Upper Listing: 1128 Kensington Rd, Grosse Pointe Park, MI 48230.\n- As-Is Purchase Price: $385,000 (Built 1954, outdated galley kitchen & uninsulated sunroom).\n- Conversational Remodel Request: \"Show us a modern open-concept chef's kitchen + 4-season sunroom addition ($55,000 renovation budget) financed inside a single Fannie Mae HomeStyle Renovation Loan at 95% LTV of After-Improved Value (AIV).\"\n- Appraiser Comparable AIV Estimate: $485,000 (creating $45,000 in instant sweat/renovation equity!).", "sandboxAction": "calc_homestyle_renovation", "sandboxParams": {"purchase_price": 385000.0, "renovation_cost": 55000.0, "after_improved_value": 485000.0, "down_pct": 5.0, "rate": 6.25}, "systemPrompt": "You are Project Spatial Close, the Immersive Virtual Staging & Fannie Mae HomeStyle Renovation Architect powered by Gemini 4 Argon, Imagen 3, and Google Maps 3D. Present: (1) Spatial Renovation & Staging Blueprint (Open-Concept Kitchen + 4-Season Sunroom), (2) Fannie Mae HomeStyle Renovation (B5-3.2-01) Math showing how Total Acquisition Cost ($385k + $55k = $440k) vs. After-Improved Value ($485k) creates +$45,000 in Day-1 Instant Equity while rolling the entire remodel into one 6.25% first mortgage (saving $480/mo vs a high-rate HELOC), and (3) Google Maps 3D & Solar API Neighborhood Telemetry for Grosse Pointe Park.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502     M.2 PROJECT SPATIAL CLOSE: 3D STAGING & HOMESTYLE HUB (L300)       \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Redfin Fixer-Upper ($385k) + Voice Remodel Prompt ($55k Budget)]     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Imagen 3 Spatial Inpainting + Google Maps 3D Tiles + Argon Math]     \u2502\n\u2502  \u251c\u2500\u25ba Visualizes Remodeled Chef's Kitchen + 4-Season Sunroom            \u2502\n\u2502  \u251c\u2500\u25ba Computes Fannie Mae HomeStyle AIV ($485k) -> +$45k Instant Equity \u2502\n\u2502  \u2514\u2500\u25ba Overlays Google Maps 3D Flyby & Rooftop Solar API Savings         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Interactive 3D Spatial Remodel Viewer + Single-Close Loan Approval]  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Enable Google Maps Photorealistic 3D Tiles API (`tile.googleapis.com`) and Solar API (`solar.googleapis.com`) alongside Vertex AI.", "Use Imagen 3 mask-free conversational editing to render the before/after kitchen renovation.", "Run `gemini-4-argon` with the Fannie Mae HomeStyle Renovation (`B5-3.2-01`) calculator to compare a single-close renovation mortgage against a post-close HELOC."], "codeSnippet": "# Fannie Mae HomeStyle Renovation Loan-to-Value (LTV based on lesser of Acquisition Cost or AIV)\ntotal_acquisition = purchase_price + renovation_cost  # $440,000\nqualifying_value = min(total_acquisition, after_improved_value)  # $440,000 (while market AIV is $485,000!)\ninstant_equity_created = after_improved_value - total_acquisition  # +$45,000 Day-1 Equity", "dept_id": "moonshots", "dept_short": "7. Google CE Moonshots", "dept_full": "7. Google Customer Engineering Moonshots (Disruptive Gemini 4 Argon Prototypes)", "demo_service_url": "https://rocket-demo-moonshots-254356041555.us-central1.run.app/?case=M.2", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/M.2"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Redfin Fixer-Upper Listing: 1128 Kensington Rd, Grosse Pointe Park, MI 48230.\\n- As-Is Purchase Price: $385,000 (Built 1954, outdated galley kitchen & uninsulated sunroom).\\n- Conversational Remodel Request: \\\"Show us a ...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are Project Spatial Close, the Immersive Virtual Staging & Fannie Mae HomeStyle Renovation Architect powered by Gemini 4 Argon, Imagen 3, and Google Maps 3D. Present: (1) Spati...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Redfin Fixer-Upper Listing: 1128 Kensington Rd, Grosse Pointe Park, MI 48230.\\n- As-Is Purchase Price: $385,000 (Built 1954, outdated galley kitchen & uninsulated sunroom).\\n- Conversational Remodel Request: \\\"Show us a ...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are Project Spatial Close, the Immersive Virtual Staging & Fannie Mae HomeStyle Renovation Architect powered by Gemini 4 Argon, Imagen 3, and Google Maps 3D. Present: (1) Spati...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-4-argon";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-4-argon");
+  });
+</script>
+
+</body>
+</html>

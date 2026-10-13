@@ -1,7 +1,7 @@
 # `[2.5]` Rocket Close (Amrock) Title Exception & Municipal Lien Matcher
 
 > **Bespoke App:** **Rocket Close (Amrock) // Schedule B-II Title Exception & ALTA Endorsement Clearer** (`amrock_title_curative_map`)  
-> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + Vertex AI`  
+> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash`  
 > **Shared Login:** Username `rocket` | Password `Argon2026!`
 
 - **🚀 Launch Live Bespoke Demo (Cloud Run):** [https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.5](https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.5)

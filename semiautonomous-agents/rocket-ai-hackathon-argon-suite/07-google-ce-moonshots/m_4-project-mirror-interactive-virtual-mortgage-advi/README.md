@@ -1,7 +1,7 @@
 # `[M.4]` Project Mirror: Interactive Virtual Mortgage Advisor ('Astra Pro')
 
 > **Bespoke App:** **Project Mirror ('Astra Pro') // Interactive Live Voice & Dynamic Closing-Table Whiteboard** (`project_mirror_live_whiteboard_advisor`)  
-> **Runtime & Model:** `Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash`  
+> **Runtime & Model:** `Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash`  
 > **Shared Login:** Username `rocket` | Password `Argon2026!`
 
 - **🚀 Launch Live Bespoke Demo (Cloud Run):** [https://rocket-demo-moonshots-254356041555.us-central1.run.app/?case=M.4](https://rocket-demo-moonshots-254356041555.us-central1.run.app/?case=M.4)

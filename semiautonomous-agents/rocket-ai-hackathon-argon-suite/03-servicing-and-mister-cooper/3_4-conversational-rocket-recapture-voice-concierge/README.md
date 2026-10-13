@@ -1,7 +1,7 @@
 # `[3.4]` Conversational Rocket Recapture Voice Concierge
 
 > **Bespoke App:** **Gemini Multimodal Live API // Real-Time Bidi Voice Portfolio Recapture Studio** (`gemini_live_bidi_voice_studio`)  
-> **Runtime & Model:** `Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash`  
+> **Runtime & Model:** `Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash`  
 > **Shared Login:** Username `rocket` | Password `Argon2026!`
 
 - **🚀 Launch Live Bespoke Demo (Cloud Run):** [https://rocket-demo-servicing-254356041555.us-central1.run.app/?case=3.4](https://rocket-demo-servicing-254356041555.us-central1.run.app/?case=3.4)

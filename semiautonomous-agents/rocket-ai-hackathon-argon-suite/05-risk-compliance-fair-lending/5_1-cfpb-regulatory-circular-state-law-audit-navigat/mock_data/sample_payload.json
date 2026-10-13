@@ -8,8 +8,8 @@
   "level": "L100\u2013L200",
   "tool_label": "NotebookLM Enterprise & Statutory Grounding",
   "routed_model": "gemini-3.8-flash",
-  "runtime_badge": "Gemini Enterprise streamAssist API (v1alpha) + Vertex AI",
-  "routing_note": "Executed against live Discovery Engine v1alpha streamAssist endpoint (gemini-enterprise-17877637_1787763712023)",
+  "runtime_badge": "Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash",
+  "routing_note": "Discovery Engine streamAssist (gemini-enterprise-17877637_1787763712023) + gemini-3.8-flash",
   "gcp_stack": [
     "NotebookLM Enterprise",
     "Vertex AI Grounding",

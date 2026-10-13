@@ -8,8 +8,8 @@
   "level": "L300",
   "tool_label": "Gemini Live API + Neural Lip-Sync Vectors",
   "routed_model": "gemini-3.8-flash",
-  "runtime_badge": "Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash",
-  "routing_note": "Real-time 16kHz->24kHz PCM Bidi Audio via gemini-live-2.5-flash-native-audio (us-central1)",
+  "runtime_badge": "Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash",
+  "routing_note": "Real-time Bidi Audio via gemini-live-2.5-flash-native-audio + Reasoning via gemini-3.8-flash",
   "gcp_stack": [
     "Gemini Live API",
     "Gemini 4 Argon",
@@ -32,7 +32,7 @@
       "monthly_payment_breakdown": "P&I $2,020.31 + Royal Oak Tax/Ins $495 + PMI $118 = $2,633.31/mo",
       "hpa_78_ltv_auto_pmi_drop": "Month 84 (Year 7.0) \u2014 PMI ($118/mo) automatically terminates under Homeowners Protection Act (or earlier via Redfin AVM appreciation!)"
     },
-    "execution_ms": 0.01
+    "execution_ms": 0.02
   },
   "bespoke_visual_artifact": {
     "archetype": "project_mirror_live_whiteboard_advisor",

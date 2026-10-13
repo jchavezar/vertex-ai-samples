@@ -2,7 +2,7 @@
 """
 Rocket Companies AI Hackathon (Oct 2026) — Square [1.3]: No-Code Mortgage Guideline & Competitor Battlecard Agent
 Bespoke App Archetype: gemini_enterprise_streamassist_hub (Gemini Enterprise (Sobi / Spark) // GSE Guideline & Competitor Battlecard Hub)
-Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + Vertex AI)
+Routed Model: gemini-3.8-flash (Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash)
 """
 import json
 import os

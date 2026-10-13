@@ -2,7 +2,7 @@
 """
 Rocket Companies AI Hackathon (Oct 2026) — Square [M.1]: Project Siren: The Sub-200ms Voice Amortization Whisperer
 Bespoke App Archetype: project_siren_live_voice_amortization (Project Siren // Real-Time Gemini Live Audio WebSocket (<200ms Barge-In Amortization))
-Routed Model: gemini-3.8-flash (Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash)
+Routed Model: gemini-3.8-flash (Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash)
 """
 import json
 import os

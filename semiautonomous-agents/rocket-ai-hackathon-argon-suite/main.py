@@ -41,8 +41,9 @@ from shared.auth_and_vertex import (
 )
 from shared.bespoke_apps import get_bespoke_config, get_rich_structured_artifact
 from shared.catalog_data import DOMAINS_BY_ID, PROJECTS_BY_CODE
-from shared.domain_uis import DOMAIN_THEME_STYLES, render_domain_service_html
+from shared.domain_uis import DOMAIN_THEME_STYLES
 from shared.portal_ui import render_docs_page_html, render_portal_html
+from shared.standalone_uis import render_standalone_square_ui
 
 SERVICE_MODE = os.environ.get("SERVICE_MODE", "portal").strip().lower()
 
@@ -129,13 +130,25 @@ async def index(request: Request, case: str = "", square: str = ""):
             next_url += f"?{request.url.query}"
         return HTMLResponse(render_login_html(title, sub, accent, next_url=next_url), status_code=401)
 
-    selected_case = case or square
-    if SERVICE_MODE == "portal":
+    selected_case = (case or square or "").strip()
+    if SERVICE_MODE == "portal" and not selected_case:
         html = render_portal_html(token)
     else:
-        html = render_domain_service_html(SERVICE_MODE, selected_case, token)
+        html = render_standalone_square_ui(selected_case, token, SERVICE_MODE)
 
     resp = HTMLResponse(html)
+    if request.cookies.get(COOKIE_NAME) != token:
+        resp.set_cookie(key=COOKIE_NAME, value=token, httponly=True, max_age=86400 * 7, samesite="lax")
+    return resp
+
+
+@app.get("/square/{code}", response_class=HTMLResponse)
+async def standalone_square(request: Request, code: str):
+    token = _is_authenticated(request)
+    if not token:
+        title, sub, accent = _get_service_branding(SERVICE_MODE)
+        return HTMLResponse(render_login_html(title, sub, accent, next_url=f"/square/{code}"), status_code=401)
+    resp = HTMLResponse(render_standalone_square_ui(code, token, SERVICE_MODE))
     if request.cookies.get(COOKIE_NAME) != token:
         resp.set_cookie(key=COOKIE_NAME, value=token, httponly=True, max_age=86400 * 7, samesite="lax")
     return resp
@@ -148,7 +161,7 @@ async def domain_preview(request: Request, dept_id: str, case: str = "", square:
     if not token:
         title, sub, accent = _get_service_branding(dept_id)
         return HTMLResponse(render_login_html(title, sub, accent, next_url=f"/domain/{dept_id}?case={selected_case}"), status_code=401)
-    resp = HTMLResponse(render_domain_service_html(dept_id, selected_case, token))
+    resp = HTMLResponse(render_standalone_square_ui(selected_case, token, dept_id))
     if request.cookies.get(COOKIE_NAME) != token:
         resp.set_cookie(key=COOKIE_NAME, value=token, httponly=True, max_age=86400 * 7, samesite="lax")
     return resp
@@ -253,6 +266,12 @@ async def api_run_demo(request: Request):
 async def ws_live_voice(websocket: WebSocket, code: str):
     """Real Bidirectional WebSocket connected to Vertex AI Live API (`gemini-live-2.5-flash-native-audio` in `us-central1`).
     Accepts 16kHz PCM audio chunks or text barge-in turns from the browser and streams back 24kHz native audio + live transcripts."""
+    c_token = websocket.cookies.get(COOKIE_NAME)
+    q_token = websocket.query_params.get("auth_token")
+    if not (verify_auth_token(c_token) or verify_auth_token(q_token)):
+        await websocket.close(code=1008, reason="Unauthorized: Private Rocket Hackathon Access Required")
+        return
+
     await websocket.accept()
     proj = PROJECTS_BY_CODE.get(code, PROJECTS_BY_CODE.get("M.1"))
     cfg = get_bespoke_config(code)

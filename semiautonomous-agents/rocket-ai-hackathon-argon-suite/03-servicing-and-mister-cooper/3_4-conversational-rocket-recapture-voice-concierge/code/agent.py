@@ -2,7 +2,7 @@
 """
 Rocket Companies AI Hackathon (Oct 2026) — Square [3.4]: Conversational Rocket Recapture Voice Concierge
 Bespoke App Archetype: gemini_live_bidi_voice_studio (Gemini Multimodal Live API // Real-Time Bidi Voice Portfolio Recapture Studio)
-Routed Model: gemini-3.8-flash (Vertex AI Live API WebSocket (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash)
+Routed Model: gemini-3.8-flash (Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash)
 """
 import json
 import os

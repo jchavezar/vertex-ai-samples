@@ -1,7 +1,7 @@
 # `[2.1]` Fannie Mae / Freddie Mac Selling Guide Citation Assistant
 
 > **Bespoke App:** **NotebookLM Enterprise & StreamAssist // Fannie B3-3.1 & Freddie 5303 Citation Desk** (`notebooklm_gse_citation_desk`)  
-> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + Vertex AI`  
+> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash`  
 > **Shared Login:** Username `rocket` | Password `Argon2026!`
 
 - **🚀 Launch Live Bespoke Demo (Cloud Run):** [https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.1](https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.1)

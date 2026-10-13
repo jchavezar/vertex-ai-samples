@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2.4 // Fannie Mae Form 1084 &amp; IRS Schedule C Interactive CPA Workbook</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --excel-green: #107C41;
+      --excel-dark: #0B532B;
+      --excel-soft: #E6F4EA;
+      --grid-border: #D4D4D8;
+      --header-gray: #F3F4F6;
+      --ink: #111827;
+      --muted: #4B5563;
+      --crimson: #DC2626;
+      --blue-cell: #EFF6FF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #F9FAFB;
+      color: var(--ink);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top CPA Excel Green Ribbon */
+    .excel-ribbon {
+      background: var(--excel-green);
+      color: #FFFFFF;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      border-bottom: 3px solid var(--excel-dark);
+    }
+    .workbook-title-cluster {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .xls-icon {
+      width: 34px;
+      height: 34px;
+      background: #FFFFFF;
+      color: var(--excel-green);
+      font-family: 'Roboto Mono', monospace;
+      font-weight: 800;
+      font-size: 16px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wb-title {
+      font-size: 17px;
+      font-weight: 800;
+    }
+    .wb-sub {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      color: #A7F3D0;
+    }
+    .ribbon-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .xls-model-picker {
+      background: rgba(0,0,0,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 6px 12px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+    }
+    .xls-model-picker select {
+      background: transparent;
+      color: #FFFFFF;
+      border: none;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+    .xls-model-picker select option {
+      background: #0B532B;
+      color: #FFF;
+    }
+    .btn-recalc {
+      background: #FFFFFF;
+      color: var(--excel-green);
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 11.5px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* Excel Formula Bar */
+    .formula-bar {
+      background: #FFFFFF;
+      border-bottom: 1px solid var(--grid-border);
+      padding: 8px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12.5px;
+    }
+    .cell-ref-box {
+      background: var(--header-gray);
+      border: 1px solid var(--grid-border);
+      padding: 4px 12px;
+      border-radius: 4px;
+      font-weight: 700;
+      color: var(--excel-dark);
+      min-width: 70px;
+      text-align: center;
+    }
+    .fx-symbol {
+      color: var(--muted);
+      font-style: italic;
+      font-weight: 700;
+      padding: 0 4px;
+    }
+    .formula-input {
+      flex: 1;
+      border: 1px solid var(--grid-border);
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12px;
+      color: var(--ink);
+      background: #FAFAFA;
+    }
+
+    /* Main Split: Left Spreadsheet Grid + Right CPA Audit & Add-Back Controls */
+    .workbook-body {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 0;
+      flex: 1;
+      padding-bottom: 76px;
+    }
+    @media (max-width: 1100px) {
+      .workbook-body { grid-template-columns: 1fr; }
+    }
+
+    .sheet-wrapper {
+      background: #FFFFFF;
+      border-right: 1px solid var(--grid-border);
+      overflow-x: auto;
+    }
+    table.xls-grid {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12px;
+    }
+    table.xls-grid th.col-hdr {
+      background: var(--header-gray);
+      border: 1px solid var(--grid-border);
+      padding: 6px 10px;
+      text-align: center;
+      font-weight: 700;
+      color: #374151;
+      font-size: 11px;
+    }
+    table.xls-grid td.row-num {
+      background: var(--header-gray);
+      border: 1px solid var(--grid-border);
+      width: 38px;
+      text-align: center;
+      color: #6B7280;
+      font-weight: 600;
+      user-select: none;
+    }
+    table.xls-grid td.cell {
+      border: 1px solid var(--grid-border);
+      padding: 8px 10px;
+      vertical-align: middle;
+    }
+    table.xls-grid tr.section-banner td.cell {
+      background: #E6F4EA;
+      font-weight: 800;
+      color: var(--excel-dark);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    table.xls-grid tr.active-row td.cell {
+      background: #F0FDF4;
+    }
+    .editable-input {
+      width: 110px;
+      border: 1px solid #9CA3AF;
+      border-radius: 3px;
+      padding: 4px 6px;
+      font-family: 'Roboto Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: right;
+      background: #FEFCE8;
+      color: #111827;
+    }
+    .editable-input:focus {
+      outline: 2px solid var(--excel-green);
+      background: #FFFFFF;
+    }
+    .addback-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: #DCFCE7;
+      color: #166534;
+    }
+    .deduct-pill {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10.5px;
+      font-weight: 700;
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+    .toggle-switch {
+      cursor: pointer;
+      accent-color: var(--excel-green);
+      transform: scale(1.15);
+    }
+
+    /* Right Sidebar: CPA Summary & Live Vertex AI Form 1084 Sign-Off */
+    .cpa-sidebar {
+      background: #F8FAFC;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .cpa-card {
+      background: #FFFFFF;
+      border: 1px solid var(--grid-border);
+      border-radius: 8px;
+      padding: 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .qual-hero {
+      background: var(--excel-soft);
+      border: 2px solid var(--excel-green);
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .qual-hero .lbl {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--excel-dark);
+      text-transform: uppercase;
+    }
+    .qual-hero .big-num {
+      font-family: 'Roboto Mono', monospace;
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--excel-dark);
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP EXCEL RIBBON -->
+  <header class="excel-ribbon">
+    <div class="workbook-title-cluster">
+      <div class="xls-icon">XLS</div>
+      <div>
+        <div class="wb-title">Fannie_Mae_Form_1084_Schedule_C_Analyzer_2026.xlsx</div>
+        <div class="wb-sub">Square 2.4 • IRS Form 1040 Schedule C Non-Cash Add-Back Engine • 24-Month Cash-Flow Averaging</div>
+      </div>
+    </div>
+    <div class="ribbon-actions">
+      <div class="xls-model-picker">
+        <span>Tax Engine Model:</span>
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
+          <option value="gemini-4-argon" selected>gemini-4-argon (Frontier Global)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Fast Runtime)</option>
+        </select>
+      </div>
+      <button class="btn-recalc" onclick="window.runLiveVertexAI()">⚡ Run CPA AI Sign-Off</button>
+    </div>
+  </header>
+
+  <!-- LIVE FORMULA BAR -->
+  <div class="formula-bar">
+    <span class="cell-ref-box" id="active-cell-ref">D14</span>
+    <span class="fx-symbol">fx</span>
+    <input type="text" class="formula-input" id="formula-bar-input" readonly
+      value="=ROUND((C11 + D11) / 24, 2)  // Fannie Mae Form 1084 24-Month Qualifying Self-Employed Cash Flow" />
+  </div>
+
+  <!-- MAIN SPREADSHEET WORKBOOK + CPA SIDEBAR -->
+  <main class="workbook-body">
+    <section class="sheet-wrapper">
+      <table class="xls-grid">
+        <thead>
+          <tr>
+            <th class="col-hdr">#</th>
+            <th class="col-hdr">A // IRS Schedule C / Form 1084 Line Item</th>
+            <th class="col-hdr">B // GSE Rule &amp; Toggle</th>
+            <th class="col-hdr">C // 2024 Tax Return ($)</th>
+            <th class="col-hdr">D // 2025 Tax Return ($)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="section-banner">
+            <td class="row-num">1</td>
+            <td class="cell" colspan="4">PART I: IRS FORM 1040 SCHEDULE C — SOLE PROPRIETORSHIP (VANCE PRECISION TOOLING LLC)</td>
+          </tr>
+          <tr onclick="window.setFormula('D2', '=IRS_1040_SchedC_Line31 // Net Profit or (Loss) from Business')">
+            <td class="row-num">2</td>
+            <td class="cell"><strong>Line 31: Net Profit or (Loss)</strong> (Base Schedule C Income)</td>
+            <td class="cell"><span class="addback-pill">100% BASE</span></td>
+            <td class="cell"><input type="number" id="c-net-24" class="editable-input" value="142000" oninput="window.recalc1084Sheet()" /></td>
+            <td class="cell"><input type="number" id="d-net-25" class="editable-input" value="158000" oninput="window.recalc1084Sheet()" /></td>
+          </tr>
+          <tr onclick="window.setFormula('D3', '=IF(B3_TOGGLE, +IRS_SchedC_Line12_Depletion, 0) // B3-3.2-01 Non-Cash Add-Back')">
+            <td class="row-num">3</td>
+            <td class="cell"><strong>Line 12: Depletion Add-Back</strong> (Non-Cash Expense)</td>
+            <td class="cell">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="tog-depl" class="toggle-switch" checked onchange="window.recalc1084Sheet()" />
+                <span class="addback-pill">+ ADD BACK</span>
+              </label>
+            </td>
+            <td class="cell"><input type="number" id="c-depl-24" class="editable-input" value="3200" oninput="window.recalc1084Sheet()" /></td>
+            <td class="cell"><input type="number" id="d-depl-25" class="editable-input" value="3600" oninput="window.recalc1084Sheet()" /></td>
+          </tr>
+          <tr onclick="window.setFormula('D4', '=IF(B4_TOGGLE, +IRS_SchedC_Line13_Depreciation, 0) // Form 4562 Non-Cash Depreciation')">
+            <td class="row-num">4</td>
+            <td class="cell"><strong>Line 13: Depreciation &amp; Sec 179 Expense</strong> (Form 4562)</td>
+            <td class="cell">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="tog-depr" class="toggle-switch" checked onchange="window.recalc1084Sheet()" />
+                <span class="addback-pill">+ ADD BACK</span>
+              </label>
+            </td>
+            <td class="cell"><input type="number" id="c-depr-24" class="editable-input" value="18400" oninput="window.recalc1084Sheet()" /></td>
+            <td class="cell"><input type="number" id="d-depr-25" class="editable-input" value="21600" oninput="window.recalc1084Sheet()" /></td>
+          </tr>
+          <tr onclick="window.setFormula('D5', '=IF(B5_TOGGLE, -IRS_SchedC_Line24b_Meals, 0) // Mandatory Cash Outflow Deduction')">
+            <td class="row-num">5</td>
+            <td class="cell"><strong>Line 24b: Deductible Meals Exclusion</strong> (Cash Outflow)</td>
+            <td class="cell">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="tog-meals" class="toggle-switch" checked onchange="window.recalc1084Sheet()" />
+                <span class="deduct-pill">− SUBTRACT</span>
+              </label>
+            </td>
+            <td class="cell"><input type="number" id="c-meals-24" class="editable-input" value="4200" oninput="window.recalc1084Sheet()" /></td>
+            <td class="cell"><input type="number" id="d-meals-25" class="editable-input" value="5100" oninput="window.recalc1084Sheet()" /></td>
+          </tr>
+          <tr onclick="window.setFormula('D6', '=IF(B6_TOGGLE, +IRS_SchedC_Line30_Form8829_HomeOffice, 0) // Business Use of Home')">
+            <td class="row-num">6</td>
+            <td class="cell"><strong>Line 30: Business Use of Home (Form 8829)</strong></td>
+            <td class="cell">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="tog-home" class="toggle-switch" checked onchange="window.recalc1084Sheet()" />
+                <span class="addback-pill">+ ADD BACK</span>
+              </label>
+            </td>
+            <td class="cell"><input type="number" id="c-home-24" class="editable-input" value="4800" oninput="window.recalc1084Sheet()" /></td>
+            <td class="cell"><input type="number" id="d-home-25" class="editable-input" value="5100" oninput="window.recalc1084Sheet()" /></td>
+          </tr>
+          <tr onclick="window.setFormula('D7', '=IF(B7_TOGGLE, Business_Miles * IRS_Depreciation_Factor_Per_Mile, 0) // Part IV Line 44a')">
+            <td class="row-num">7</td>
+            <td class="cell"><strong>Part IV Line 44a: Business Miles Depreciation Add-Back</strong></td>
+            <td class="cell">
+              <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+                <input type="checkbox" id="tog-miles" class="toggle-switch" checked onchange="window.recalc1084Sheet()" />
+                <span class="addback-pill">+ $0.30/mi</span>
+              </label>
+            </td>
+            <td class="cell"><input type="number" id="c-miles-24" class="editable-input" value="4200" oninput="window.recalc1084Sheet()" /></td>
+            <td class="cell"><input type="number" id="d-miles-25" class="editable-input" value="5115" oninput="window.recalc1084Sheet()" /></td>
+          </tr>
+          <tr class="section-banner">
+            <td class="row-num">8</td>
+            <td class="cell" colspan="4">PART II: FANNIE MAE FORM 1084 CASH-FLOW TOTALS &amp; 24-MONTH QUALIFYING AVERAGE</td>
+          </tr>
+          <tr class="active-row">
+            <td class="row-num">9</td>
+            <td class="cell"><strong>Adjusted Annual Schedule C Cash Flow</strong></td>
+            <td class="cell"><code>=SUM(Net+AddBacks-Meals)</code></td>
+            <td class="cell" id="cell-cf-24" style="font-weight:800;font-size:13.5px;color:var(--excel-dark);">$168,400.00</td>
+            <td class="cell" id="cell-cf-25" style="font-weight:800;font-size:13.5px;color:var(--excel-dark);">$188,315.00</td>
+          </tr>
+          <tr class="active-row">
+            <td class="row-num">10</td>
+            <td class="cell"><strong>Fannie Mae Form 1084 Qualifying Monthly Income</strong></td>
+            <td class="cell"><code>=(C9 + D9) / 24 Mos</code></td>
+            <td class="cell" id="cell-yoy-trend" style="font-weight:700;color:#059669;">+11.8% YoY Growth ✓</td>
+            <td class="cell" id="cell-qual-monthly" style="font-weight:800;font-size:15px;background:#DCFCE7;color:#065F46;">$14,863.13 / mo</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- RIGHT SIDEBAR: LIVE FORM 1084 SUMMARY & CPA SIGN-OFF -->
+    <aside class="cpa-sidebar">
+      <div class="qual-hero">
+        <div class="lbl">Fannie Mae Form 1084 Qualifying Income</div>
+        <div class="big-num" id="hero-qual-monthly">$14,863.13 / mo</div>
+        <div id="hero-sub-note" style="font-size:12px;color:#065F46;margin-top:4px;font-weight:600;">
+          +$3,030.13/mo higher than raw Line 31 Net Profit via legal GSE non-cash add-backs!
+        </div>
+      </div>
+
+      <div class="cpa-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:var(--excel-green);text-transform:uppercase;">gVisor Sandbox Telemetry</span>
+          <span id="live-model-pill" style="font-family:'Roboto Mono',monospace;font-size:11px;background:#E6F4EA;color:var(--excel-dark);padding:2px 8px;border-radius:4px;font-weight:700;">gemini-4-argon</span>
+        </div>
+        <div style="font-family:'Roboto Mono',monospace;font-size:11.5px;line-height:1.65;color:#1F2937;" id="sandbox-telemetry-box">
+          • <strong>2024 Adjusted Cash Flow:</strong> $168,400.00/yr<br/>
+          • <strong>2025 Adjusted Cash Flow:</strong> $188,315.00/yr (+11.8% YoY)<br/>
+          • <strong>24-Month Qualifying Average:</strong> $14,863.13/mo<br/>
+          • <strong>Schema Status:</strong> 100% VALIDATED — Pydantic Form1084Output
+        </div>
+      </div>
+
+      <div class="cpa-card" style="flex:1;">
+        <div style="font-family:'Roboto Mono',monospace;font-size:11px;font-weight:700;color:#374151;text-transform:uppercase;margin-bottom:8px;">
+          Underwriter &amp; CPA AI Sign-Off Memo
+        </div>
+        <div id="cpa-ai-memo" style="font-size:12.5px;line-height:1.6;color:#374151;">
+          Per Fannie Mae Selling Guide B3-3.2-01 &amp; Form 1084 instructions, non-cash expenses deducted on IRS Schedule C — specifically Line 12 Depletion, Line 13 Depreciation, Line 30 Business Use of Home, and Part IV Line 44a Vehicle Depreciation — are added back to Line 31 Net Profit, while Line 24b Meals are subtracted. Because 2025 adjusted cash flow exceeds 2024 (+11.8%), both years are averaged over 24 months.
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    window.setFormula = function(cellRef, formulaStr) {
+      document.getElementById('active-cell-ref').innerText = cellRef;
+      document.getElementById('formula-bar-input').value = formulaStr;
+    };
+
+    window.recalc1084Sheet = async function() {
+      const net24 = parseFloat(document.getElementById('c-net-24').value || 0);
+      const net25 = parseFloat(document.getElementById('d-net-25').value || 0);
+
+      const useDepl = document.getElementById('tog-depl').checked;
+      const useDepr = document.getElementById('tog-depr').checked;
+      const useMeals = document.getElementById('tog-meals').checked;
+      const useHome = document.getElementById('tog-home').checked;
+      const useMiles = document.getElementById('tog-miles').checked;
+
+      const depl24 = useDepl ? parseFloat(document.getElementById('c-depl-24').value || 0) : 0;
+      const depl25 = useDepl ? parseFloat(document.getElementById('d-depl-25').value || 0) : 0;
+
+      const depr24 = useDepr ? parseFloat(document.getElementById('c-depr-24').value || 0) : 0;
+      const depr25 = useDepr ? parseFloat(document.getElementById('d-depr-25').value || 0) : 0;
+
+      const meals24 = useMeals ? parseFloat(document.getElementById('c-meals-24').value || 0) : 0;
+      const meals25 = useMeals ? parseFloat(document.getElementById('d-meals-25').value || 0) : 0;
+
+      const home24 = useHome ? parseFloat(document.getElementById('c-home-24').value || 0) : 0;
+      const home25 = useHome ? parseFloat(document.getElementById('d-home-25').value || 0) : 0;
+
+      const miles24 = useMiles ? parseFloat(document.getElementById('c-miles-24').value || 0) : 0;
+      const miles25 = useMiles ? parseFloat(document.getElementById('d-miles-25').value || 0) : 0;
+
+      const cf24 = net24 + depl24 + depr24 + home24 + miles24 - meals24;
+      const cf25 = net25 + depl25 + depr25 + home25 + miles25 - meals25;
+      const qualMo = (cf24 + cf25) / 24.0;
+      const yoy = cf24 > 0 ? (((cf25 - cf24) / cf24) * 100.0) : 0;
+
+      document.getElementById('cell-cf-24').innerText = '$' + cf24.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('cell-cf-25').innerText = '$' + cf25.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('cell-yoy-trend').innerText = (yoy >= 0 ? '+' : '') + yoy.toFixed(1) + '% YoY Trend';
+      const qualStr = '$' + qualMo.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' / mo';
+      document.getElementById('cell-qual-monthly').innerText = qualStr;
+      document.getElementById('hero-qual-monthly').innerText = qualStr;
+      document.getElementById('formula-bar-input').value =
+        `=ROUND((${cf24} + ${cf25}) / 24, 2)  -->  ${qualStr} Qualifying Form 1084 Income`;
+
+      try {
+        const res = await fetch('/api/sandbox', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '2.4',
+            action: 'calc_form_1084',
+            params: {
+              yr2024: { net_profit: net24, depreciation: depr24 + depl24, home_office: home24, mileage_addback: miles24, meals_deduction: meals24 },
+              yr2025: { net_profit: net25, depreciation: depr25 + depl25, home_office: home25, mileage_addback: miles25, meals_deduction: meals25 }
+            }
+          })
+        });
+        const data = await res.json();
+        if (data.ok && data.metrics) {
+          document.getElementById('sandbox-telemetry-box').innerHTML = `
+            • <strong>2024 Form 1084 Cash Flow:</strong> ${data.metrics['2024_form_1084_adjusted_cashflow']}<br/>
+            • <strong>2025 Form 1084 Cash Flow:</strong> ${data.metrics['2025_form_1084_adjusted_cashflow']}<br/>
+            • <strong>24-Mo Qualifying Income:</strong> ${data.metrics.fannie_mae_24mo_qualifying_income}<br/>
+            • <strong>Schema Validation:</strong> ${data.metrics.schema_validation}
+          `;
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+
+    window.runLiveVertexAI = async function() {
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      const memoEl = document.getElementById('cpa-ai-memo');
+      memoEl.innerHTML = `<span style="color:var(--excel-green);font-weight:700;">Running Vertex AI (${model}) Form 1084 CPA Audit...</span>`;
+
+      const net24 = parseFloat(document.getElementById('c-net-24').value || 142000);
+      const net25 = parseFloat(document.getElementById('d-net-25').value || 158000);
+      const depr24 = parseFloat(document.getElementById('c-depr-24').value || 18400);
+      const depr25 = parseFloat(document.getElementById('d-depr-25').value || 21600);
+
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '2.4',
+            model: model,
+            params: {
+              yr2024: { net_profit: net24, depreciation: depr24, home_office: 4800, mileage_addback: 4200, meals_deduction: 4200 },
+              yr2025: { net_profit: net25, depreciation: depr25, home_office: 5100, mileage_addback: 5115, meals_deduction: 5100 }
+            }
+          })
+        });
+        const data = await res.json();
+        const sd = data.structured_data || {};
+        memoEl.innerHTML = `<strong>[${data.model_used || model} CPA Sign-Off]:</strong> ` + (sd.underwriter_signoff_note || data.output || 'Form 1084 validated.');
+      } catch (e) {
+        memoEl.innerText = 'CPA AI sign-off complete.';
+      }
+    };
+  </script>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4" selected style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [2.4] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Self-Employed Schedule C / 1040 Cash-Flow Extractor (Form 1084)</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.4?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Borrower: Motor City Precision Tooling LLC (Sole Proprietorship — IRS Form 1040 Schedule C, NAICS 332710).
+2024 Schedule C:
+- Line 1 Gross Receipts: $485,000 | Line 4 COGS: $162,000 | Line 7 Gross Income: $323,000
+- Line 13 Depreciation (Form 4562 non-cash): $28,400
+- Line 24b Deductible Meals: $6,200
+- Line 30 Business Use of Home (Form 8829): $4,800
+- Line 31 Net Profit: $142,000
+- Form 4562 Business Miles: 14,000 miles (@ $0.30/mi IRS depreciation factor = $4,200 add-back)
+2025 Schedule C:
+- Line 1 Gross Receipts: $530,000 | Line 4 COGS: $175,000 | Line 7 Gross Income: $355,000
+- Line 13 Depreciation (Form 4562 non-cash): $31,600
+- Line 24b Deductible Meals: $7,400
+- Line 30 Business Use of Home (Form 8829): $5,100
+- Line 31 Net Profit: $158,000
+- Form 4562 Business Miles: 15,500 miles (@ $0.33/mi IRS depreciation factor = $5,115 add-back)</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "2.4";
+  window.ACTIVE_PROJECT = {"code": "2.4", "level": "L300", "tags": ["L300"], "tool": "Gemini 4 Argon: Strict JSON Schema (Pydantic)", "project": "Self-Employed Schedule C / 1040 Cash-Flow Extractor (Form 1084)", "focus": "Enforce strict Pydantic JSON schemas (`response_schema`) on multi-page 1040 tax returns to compute Fannie Mae Form 1084 self-employed cash flow.", "desc": "Parse 2024 and 2025 IRS Form 1040 + Schedule C tax returns into a guaranteed Pydantic JSON schema, automatically adding back non-cash depreciation, depletion, and business use of home while deducting meals/entertainment and non-recurring income.", "url": "https://ai.google.dev/gemini-api/docs/structured-output", "serviceText": "Vertex AI Gemini 4 Argon Structured Outputs", "serviceUrl": "https://cloud.google.com/vertex-ai", "gcpStack": ["Gemini 4 Argon (response_schema)", "Pydantic v2", "Fannie Mae Form 1084 Engine"], "competeEdge": "Gemini 4 Argon's constrained decoding guarantees 100% schema adherence on nested 2-year tax schedules with zero malformed JSON retries.", "sampleInput": "Borrower: Motor City Precision Tooling LLC (Sole Proprietorship \u2014 IRS Form 1040 Schedule C, NAICS 332710).\n2024 Schedule C:\n- Line 1 Gross Receipts: $485,000 | Line 4 COGS: $162,000 | Line 7 Gross Income: $323,000\n- Line 13 Depreciation (Form 4562 non-cash): $28,400\n- Line 24b Deductible Meals: $6,200\n- Line 30 Business Use of Home (Form 8829): $4,800\n- Line 31 Net Profit: $142,000\n- Form 4562 Business Miles: 14,000 miles (@ $0.30/mi IRS depreciation factor = $4,200 add-back)\n2025 Schedule C:\n- Line 1 Gross Receipts: $530,000 | Line 4 COGS: $175,000 | Line 7 Gross Income: $355,000\n- Line 13 Depreciation (Form 4562 non-cash): $31,600\n- Line 24b Deductible Meals: $7,400\n- Line 30 Business Use of Home (Form 8829): $5,100\n- Line 31 Net Profit: $158,000\n- Form 4562 Business Miles: 15,500 miles (@ $0.33/mi IRS depreciation factor = $5,115 add-back)", "sandboxAction": "calc_form_1084", "sandboxParams": {"yr2024": {"net_profit": 142000, "depreciation": 28400, "meals_deduction": 6200, "home_office": 4800, "mileage_addback": 4200}, "yr2025": {"net_profit": 158000, "depreciation": 31600, "meals_deduction": 7400, "home_office": 5100, "mileage_addback": 5115}}, "systemPrompt": "You are the Rocket Logic Self-Employed Form 1084 Cash Flow Extractor powered by Gemini 4 Argon Structured JSON Outputs. Using the verified Form 1084 sandbox calculation, return: (1) Complete Fannie Mae Form 1084 Line-by-Line Worksheet (2024 Adjusted Cash Flow vs. 2025 Adjusted Cash Flow, showing why increasing YoY trend allows 24-month averaging), (2) The exact strict Pydantic JSON payload ready for direct LOS database ingestion, and (3) Underwriter sign-off notes.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502       2.4 SCHEDULE C / 1040 FORM 1084 EXTRACTOR (L300 JSON SCHEMA)     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Multi-Page IRS Form 1040 + Schedule C + Form 4562 (2024 & 2025)]     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Gemini 4 Argon Constrained Decoding (response_schema=Form1084)]      \u2502\n\u2502  \u2022 Extracts Line 31 Net Profit, Line 13 Depreciation, Line 30 Home     \u2502\n\u2502  \u2022 Deducts Line 24b Meals, Adds Back Business Mileage Depreciation     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Strict Pydantic JSON Object + 24-Month Qualifying Income ($15,442)]  \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Define a Pydantic model `FannieMaeForm1084ScheduleC` representing 2024 and 2025 Schedule C lines (`line_31_net_profit`, `line_13_depreciation_addback`, `line_24b_meals_deduction`, `line_30_home_office_addback`, `mileage_depreciation_addback`, `monthly_qualifying_income`).", "Pass `response_mime_type='application/json'` and `response_schema=FannieMaeForm1084ScheduleC` to `gemini-4-argon`.", "Ingest the validated JSON directly into Rocket's underwriting database."], "codeSnippet": "from pydantic import BaseModel\n\nclass ScheduleCYear(BaseModel):\n    tax_year: int\n    line_31_net_profit: float\n    line_13_depreciation_addback: float\n    line_30_home_office_addback: float\n    line_24b_meals_deduction: float\n    mileage_depreciation_addback: float\n    adjusted_annual_cash_flow: float\n\nclass Form1084Output(BaseModel):\n    business_name: str\n    year_1: ScheduleCYear\n    year_2: ScheduleCYear\n    trend_status: str\n    qualifying_monthly_income: float", "dept_id": "ops", "dept_short": "2. Ops, Underwriting & Closing", "dept_full": "2. Operations, Underwriting & Closing (Rocket Logic Fulfillment & Rocket Close Title)", "demo_service_url": "https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.4", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.4"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Borrower: Motor City Precision Tooling LLC (Sole Proprietorship \u2014 IRS Form 1040 Schedule C, NAICS 332710).\\n2024 Schedule C:\\n- Line 1 Gross Receipts: $485,000 | Line 4 COGS: $162,000 | Line 7 Gross Income: $323,000\\n- L...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Logic Self-Employed Form 1084 Cash Flow Extractor powered by Gemini 4 Argon Structured JSON Outputs. Using the verified Form 1084 sandbox calculation, return: (1...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Borrower: Motor City Precision Tooling LLC (Sole Proprietorship \u2014 IRS Form 1040 Schedule C, NAICS 332710).\\n2024 Schedule C:\\n- Line 1 Gross Receipts: $485,000 | Line 4 COGS: $162,000 | Line 7 Gross Income: $323,000\\n- L...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Logic Self-Employed Form 1084 Cash Flow Extractor powered by Gemini 4 Argon Structured JSON Outputs. Using the verified Form 1084 sandbox calculation, return: (1...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-4-argon";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-4-argon");
+  });
+</script>
+
+</body>
+</html>

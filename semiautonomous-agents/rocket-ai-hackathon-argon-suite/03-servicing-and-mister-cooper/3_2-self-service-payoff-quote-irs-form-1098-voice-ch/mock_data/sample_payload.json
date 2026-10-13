@@ -9,7 +9,7 @@
   "tool_label": "Dialogflow CX Deterministic Flows",
   "routed_model": "gemini-3.8-flash",
   "runtime_badge": "Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash)",
-  "routing_note": "Routed to gemini-3.8-flash (Official ADK & Agent Engine Runtime production model)",
+  "routing_note": "Active Model: gemini-3.8-flash on Global Endpoint (ADK default: gemini-3.8-flash)",
   "gcp_stack": [
     "Dialogflow CX State Machine",
     "Gemini 3.8 Flash",
@@ -34,7 +34,7 @@
       "official_total_payoff_wire": "$286,494.34 (Includes $30.00 Wayne County Discharge Fee)",
       "escrow_surplus_refund": "$1,120.00 (Auto-refunded via ACH within 10 business days of payoff)"
     },
-    "execution_ms": 0.01
+    "execution_ms": 0.02
   },
   "bespoke_visual_artifact": {
     "archetype": "payoff_1098_document_generator",

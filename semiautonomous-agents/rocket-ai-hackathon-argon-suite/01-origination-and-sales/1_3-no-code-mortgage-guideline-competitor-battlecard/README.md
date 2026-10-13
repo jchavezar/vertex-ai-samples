@@ -1,7 +1,7 @@
 # `[1.3]` No-Code Mortgage Guideline & Competitor Battlecard Agent
 
 > **Bespoke App:** **Gemini Enterprise (Sobi / Spark) // GSE Guideline & Competitor Battlecard Hub** (`gemini_enterprise_streamassist_hub`)  
-> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + Vertex AI`  
+> **Runtime & Model:** `Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash`  
 > **Shared Login:** Username `rocket` | Password `Argon2026!`
 
 - **🚀 Launch Live Bespoke Demo (Cloud Run):** [https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.3](https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.3)

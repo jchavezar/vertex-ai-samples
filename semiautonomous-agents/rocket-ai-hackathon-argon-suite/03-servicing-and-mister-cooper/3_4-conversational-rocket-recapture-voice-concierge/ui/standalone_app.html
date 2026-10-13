@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rocket Recapture Live Voice Dialer | Real Gemini Multimodal Live API WebSocket [3.4]</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      background-color: #030712;
+      background-image:
+        radial-gradient(circle at 50% 18%, rgba(16, 185, 129, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 50% 85%, rgba(6, 182, 212, 0.12) 0%, transparent 50%);
+      color: #F8FAFC;
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
+    }
+    .mono { font-family: 'JetBrains Mono', monospace; }
+    .oled-phone {
+      background: linear-gradient(180deg, #070D19 0%, #030712 100%);
+      border: 1px solid rgba(16, 185, 129, 0.28);
+      border-radius: 36px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.85), 0 0 40px rgba(16, 185, 129, 0.12);
+    }
+    .acoustic-ring-1 {
+      border: 2px solid rgba(16, 185, 129, 0.55);
+      box-shadow: 0 0 30px rgba(16, 185, 129, 0.35), inset 0 0 20px rgba(6, 182, 212, 0.25);
+      transition: transform 0.12s ease-out;
+    }
+    .acoustic-ring-2 {
+      border: 1.5px dashed rgba(6, 182, 212, 0.45);
+      animation: spinSlow 14s linear infinite;
+    }
+    @keyframes spinSlow {
+      to { transform: rotate(360deg); }
+    }
+    input[type="range"] {
+      accent-color: #10B981;
+    }
+    .shrinking-shining-ink {
+      width: 15px;
+      height: 15px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #10B981, #06B6D4);
+      animation: inkPulse 1.2s ease-in-out infinite;
+      display: inline-block;
+    }
+    @keyframes inkPulse {
+      0%, 100% { transform: scale(1); opacity: 0.95; }
+      50% { transform: scale(0.55); opacity: 0.5; }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24">
+
+  <!-- TOP OLED LIVE VOICE STUDIO HEADER -->
+  <header class="sticky top-0 z-40 bg-[#030712]/90 backdrop-blur-xl border-b border-slate-800/80 px-6 py-3.5">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-500 flex items-center justify-center text-slate-950 font-black shadow-lg">
+          🎙️
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-bold uppercase tracking-widest text-emerald-400 mono">
+              GEMINI MULTIMODAL LIVE API • BIDI WEBSOCKET (/ws/live-voice/3.4)
+            </span>
+            <span id="ws-status-pill" class="px-2.5 py-0.5 rounded-full text-[10px] font-bold mono bg-slate-900 text-slate-400 border border-slate-700">
+              ○ STANDBY (16kHz Mic ↔ 24kHz PCM)
+            </span>
+          </div>
+          <h1 class="text-lg md:text-xl font-extrabold text-white tracking-tight">
+            Rocket Recapture Live Voice Co-Pilot &amp; Instant Refi Offer Sheet
+          </h1>
+        </div>
+      </div>
+
+      <!-- Inline App Bar Model Selector -->
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2 bg-slate-900/90 border border-emerald-500/30 rounded-full px-3.5 py-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <label for="app-model-select" class="text-[10px] mono uppercase text-slate-400 font-bold">Reasoning Engine:</label>
+          <select id="app-model-select" onchange="window.syncSelectedModel(this.value)"
+                  class="bg-transparent text-emerald-300 text-xs font-bold mono focus:outline-none cursor-pointer">
+            <option value="gemini-4-argon" class="bg-slate-950 text-sky-300">gemini-4-argon (Frontier Global)</option>
+            <option value="gemini-3.8-flash" selected class="bg-slate-950 text-emerald-300">gemini-3.8-flash (Live Audio + Fast Tooling)</option>
+          </select>
+        </div>
+        <button onclick="window.runLiveVertexAI()" id="top-synth-btn"
+                class="px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 text-slate-950 font-extrabold text-xs mono shadow hover:opacity-95 transition">
+          ⚡ Re-Calculate Offer Sheet
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN STUDIO LAYOUT: CENTERED PIXEL 11 PRO / IPHONE LIVE VOICE CALL DIALER (5 COLS) + SLIDE-UP REFI OFFER SHEET & TRANSCRIPT (7 COLS) -->
+  <main class="max-w-7xl mx-auto px-6 py-6 grid lg:grid-cols-12 gap-6 items-start">
+
+    <!-- LEFT 5 COLUMNS: FULL-SCREEN SLEEK IPHONE / PIXEL 11 PRO LIVE VOICE CALL DIALER -->
+    <section class="lg:col-span-5 oled-phone p-6 flex flex-col items-center text-center relative overflow-hidden">
+      <!-- Phone Top Dynamic Island Notch -->
+      <div class="w-36 h-6 rounded-full bg-black border border-slate-800 flex items-center justify-between px-3 mb-5 text-[10px] mono text-slate-400">
+        <span>5G+ UW</span>
+        <span id="call-timer" class="text-emerald-400 font-bold">00:00</span>
+      </div>
+
+      <div class="text-xs font-bold uppercase tracking-widest text-cyan-400 mono">Mr. Cooper x Rocket Priority Concierge</div>
+      <h2 class="text-2xl font-extrabold text-white mt-1">Rocket Recapture Voice AI</h2>
+      <p class="text-xs text-slate-400 mono mt-0.5">gemini-live-2.5-flash-native-audio • 24kHz PCM</p>
+
+      <!-- Circular Acoustic Visualizer Rings -->
+      <div class="relative w-48 h-48 my-6 flex items-center justify-center">
+        <div id="ring-outer" class="absolute inset-0 rounded-full acoustic-ring-2"></div>
+        <div id="ring-middle" class="absolute inset-3 rounded-full acoustic-ring-1"></div>
+        <div class="relative w-32 h-32 rounded-full bg-gradient-to-br from-emerald-500/25 via-cyan-500/20 to-slate-900 border border-emerald-400/50 flex flex-col items-center justify-center p-3">
+          <div class="flex items-end gap-1 h-10" id="dialer-eq-bars">
+            <div class="eq-bar w-1.5 bg-emerald-400 rounded-full transition-all duration-100" style="height:30%"></div>
+            <div class="eq-bar w-1.5 bg-cyan-400 rounded-full transition-all duration-100" style="height:55%"></div>
+            <div class="eq-bar w-1.5 bg-emerald-300 rounded-full transition-all duration-100" style="height:80%"></div>
+            <div class="eq-bar w-1.5 bg-cyan-300 rounded-full transition-all duration-100" style="height:45%"></div>
+            <div class="eq-bar w-1.5 bg-emerald-400 rounded-full transition-all duration-100" style="height:65%"></div>
+            <div class="eq-bar w-1.5 bg-cyan-400 rounded-full transition-all duration-100" style="height:35%"></div>
+          </div>
+          <span id="pcm-chunk-counter" class="text-[10px] mono text-emerald-300 font-bold mt-2">0 PCM Chunks</span>
+        </div>
+      </div>
+
+      <!-- Prominent Circular Call Controls -->
+      <div class="flex items-center justify-center gap-4 w-full mb-5">
+        <button id="btn-start-call" onclick="window.startLiveVoiceCall()"
+                class="flex-1 py-3.5 px-4 rounded-2xl font-extrabold text-xs mono bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-lg shadow-emerald-500/25 hover:opacity-95 transition flex items-center justify-center gap-2">
+          <span>🎙️ Start Live Voice Call</span>
+        </button>
+        <button id="btn-mic-stream" onclick="window.toggle16kMic()" disabled
+                class="py-3.5 px-4 rounded-2xl font-bold text-xs mono bg-slate-900 border border-cyan-500/40 text-cyan-300 disabled:opacity-40 transition">
+          🎤 16kHz Mic
+        </button>
+        <button id="btn-end-call" onclick="window.endLiveVoiceCall()"
+                class="py-3.5 px-4 rounded-2xl font-extrabold text-xs mono bg-rose-600/90 hover:bg-rose-600 text-white shadow-lg transition">
+          ⏹️ End Call
+        </button>
+      </div>
+
+      <!-- Quick Voice-Prompt Barge-In Pills -->
+      <div class="w-full text-left space-y-2 mb-4">
+        <div class="text-[10px] mono uppercase text-slate-400 font-bold">Instant Voice Barge-In Objections (Tap to Speak):</div>
+        <button onclick="window.sendVoiceTurn('Wait, does refinancing reset my 30-year clock back to day one and cost thousands upfront?')"
+                class="w-full text-left p-2.5 rounded-xl bg-slate-900/90 hover:bg-emerald-950/50 border border-slate-800 hover:border-emerald-500/40 text-xs text-slate-200 transition">
+          🗣️ "Wait, doesn't refinancing reset my 30-year clock and cost thousands?"
+        </button>
+        <button onclick="window.sendVoiceTurn('How are we saving $412 a month when my current mortgage rate is 7.375%?')"
+                class="w-full text-left p-2.5 rounded-xl bg-slate-900/90 hover:bg-emerald-950/50 border border-slate-800 hover:border-emerald-500/40 text-xs text-slate-200 transition">
+          🗣️ "How does dropping from 7.375% save me $412/month with $0 appraisal?"
+        </button>
+        <button onclick="window.sendVoiceTurn('Can you compare the 30-year maximum cash-flow drop vs a 20-year wealth-builder term?')"
+                class="w-full text-left p-2.5 rounded-xl bg-slate-900/90 hover:bg-emerald-950/50 border border-slate-800 hover:border-emerald-500/40 text-xs text-slate-200 transition">
+          🗣️ "Compare the 30-Year $412/mo savings vs the 20-Year term!"
+        </button>
+      </div>
+
+      <!-- Custom Voice Utterance Input -->
+      <div class="w-full flex gap-2">
+        <input id="voice-text-input" type="text"
+               value="Wait, doesn't refinancing reset my 30-year clock and cost me thousands upfront?"
+               class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-xs mono text-white focus:border-emerald-500 focus:outline-none">
+        <button onclick="window.sendVoiceTurn()"
+                class="px-4 py-2.5 rounded-xl bg-cyan-500 text-slate-950 font-extrabold text-xs mono shrink-0">
+          Speak →
+        </button>
+      </div>
+    </section>
+
+    <!-- RIGHT 7 COLUMNS: SLIDE-UP REFI RECAPTURE OFFER SHEET ($412/MO SAVINGS) + SLIDERS + LIVE BIDI TRANSCRIPT -->
+    <div class="lg:col-span-7 space-y-6">
+
+      <!-- SLIDE-UP REFI RECAPTURE OFFER SHEET -->
+      <section class="p-6 rounded-3xl bg-gradient-to-br from-slate-900/95 via-[#071722] to-slate-950 border border-emerald-500/40 shadow-2xl relative overflow-hidden">
+        <div class="flex flex-wrap items-center justify-between gap-3 pb-4 mb-5 border-b border-slate-800">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-widest text-emerald-400 mono">Slide-Up Live Recapture Offer Sheet</span>
+            <h2 class="text-xl font-extrabold text-white mt-0.5">Instant Portfolio Rate-Drop Offer • Austin, TX</h2>
+          </div>
+          <div class="px-4 py-2 rounded-2xl bg-emerald-500/20 border border-emerald-400/50 text-right">
+            <div class="text-[10px] mono uppercase text-emerald-300 font-bold">VERIFIED MONTHLY SAVINGS</div>
+            <div id="hero-monthly-savings" class="text-2xl font-black text-emerald-400 mono">$412.00/mo</div>
+          </div>
+        </div>
+
+        <!-- Interactive Refi Rate Drop Sliders -->
+        <div class="grid sm:grid-cols-3 gap-4 p-4 rounded-2xl bg-slate-950/80 border border-slate-800 mb-5">
+          <div>
+            <div class="flex justify-between text-xs mono mb-1">
+              <span class="text-slate-400">Loan Balance:</span>
+              <strong id="lbl-refi-loan" class="text-white">$421,200</strong>
+            </div>
+            <input id="slider-refi-loan" type="range" min="250000" max="650000" step="2000" value="421200"
+                   oninput="window.updateRefiSliders()" class="w-full cursor-pointer">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs mono mb-1">
+              <span class="text-slate-400">New 30-Yr Refi Rate:</span>
+              <strong id="lbl-refi-rate30" class="text-emerald-400">5.875%</strong>
+            </div>
+            <input id="slider-refi-rate30" type="range" min="5.000" max="6.750" step="0.125" value="5.875"
+                   oninput="window.updateRefiSliders()" class="w-full cursor-pointer">
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs mono mb-1">
+              <span class="text-slate-400">New 20-Yr Wealth Rate:</span>
+              <strong id="lbl-refi-rate20" class="text-cyan-400">5.625%</strong>
+            </div>
+            <input id="slider-refi-rate20" type="range" min="4.750" max="6.500" step="0.125" value="5.625"
+                   oninput="window.updateRefiSliders()" class="w-full cursor-pointer">
+          </div>
+        </div>
+
+        <!-- Side-by-Side Offer Comparison Cards -->
+        <div class="grid sm:grid-cols-3 gap-3.5 text-xs">
+          <div class="p-4 rounded-2xl bg-slate-900/90 border border-slate-800">
+            <div class="text-[10px] mono uppercase text-slate-400 font-bold">CURRENT 2023 VINTAGE LOAN</div>
+            <div class="text-lg font-extrabold text-rose-400 mono mt-1">7.375% Fixed</div>
+            <div id="card-cur-pi" class="text-base font-bold text-white mono mt-1">$2,903.59/mo</div>
+            <div class="text-[11px] text-slate-400 mt-2">27 Yrs (324 mos) Remaining • High Interest Burn</div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-emerald-950/40 border-2 border-emerald-500/60 relative">
+            <span class="absolute -top-2.5 right-3 px-2 py-0.5 rounded-full bg-emerald-500 text-slate-950 text-[9px] font-black mono">
+              MAX CASH FLOW
+            </span>
+            <div class="text-[10px] mono uppercase text-emerald-300 font-bold">OPTION A • 30-YR STREAMLINE</div>
+            <div id="card-optA-rate" class="text-lg font-extrabold text-emerald-400 mono mt-1">5.875% Fixed</div>
+            <div id="card-optA-pi" class="text-base font-bold text-white mono mt-1">$2,491.56/mo</div>
+            <div id="card-optA-sav" class="text-[11px] text-emerald-300 font-bold mt-2">Saves $412.03/mo ($4,944/yr!)</div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-cyan-950/40 border border-cyan-500/50">
+            <div class="text-[10px] mono uppercase text-cyan-300 font-bold">OPTION B • 20-YR CLOCK CRUSHER</div>
+            <div id="card-optB-rate" class="text-lg font-extrabold text-cyan-400 mono mt-1">5.625% Fixed</div>
+            <div id="card-optB-pi" class="text-base font-bold text-white mono mt-1">$2,927.08/mo</div>
+            <div id="card-optB-sav" class="text-[11px] text-cyan-200 font-bold mt-2">Shaves 7 Full Years &amp; Saves $237k Interest!</div>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-xs mono">
+          <span class="text-emerald-300">✓ Fannie Mae Value Acceptance ($0 Appraisal Waiver Confirmed)</span>
+          <span id="refi-sandbox-ms" class="text-slate-400">13.1-Month Breakeven • gVisor Verified</span>
+        </div>
+      </section>
+
+      <!-- LIVE BIDIRECTIONAL VOICE TRANSCRIPT STREAM -->
+      <section class="p-5 rounded-3xl bg-slate-900/90 border border-slate-800">
+        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            <h3 class="text-sm font-extrabold uppercase tracking-wider mono text-white">Live Bidirectional Voice Transcript</h3>
+          </div>
+          <span class="text-[11px] mono text-slate-400">WebAudio 24kHz PCM Stream</span>
+        </div>
+
+        <div id="live-voice-transcript-log" class="space-y-2.5 max-h-64 overflow-y-auto pr-1 text-xs mono">
+          <div class="p-3 rounded-xl bg-slate-950 border border-emerald-500/30 text-slate-200">
+            <div class="text-[10px] font-bold text-emerald-400 uppercase mb-1">ROCKET RECAPTURE CO-PILOT • READY</div>
+            <div>Hi! I noticed your Austin home mortgage is still at 7.375%. Because Fannie Mae granted your property a $0 Appraisal Waiver, we can drop your rate to 5.875% and save you $412 every single month—or move you to a 20-year term at 5.625% to shave 7 years off your loan. Click <strong>"🎙️ Start Live Voice Call"</strong> on the phone dialer to talk live!</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    const AUTH_TOKEN = "DEMO_AUTH_TOKEN";
+    let liveWs = null;
+    let livePlayCtx = null;
+    let liveNextPlayTime = 0;
+    let liveMicStream = null;
+    let liveMicCtx = null;
+    let liveProcessor = null;
+    let liveIsMicOn = false;
+    let liveChunkCount = 0;
+    let callTimerInterval = null;
+    let callSeconds = 0;
+
+    function ensureAudioCtx() {
+      if (!livePlayCtx) {
+        livePlayCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+      }
+      if (livePlayCtx.state === 'suspended') livePlayCtx.resume();
+    }
+
+    function animateVisualizer(active) {
+      const bars = document.querySelectorAll('.eq-bar');
+      bars.forEach(b => {
+        const h = active ? Math.max(20, Math.floor(Math.random() * 98)) : 28;
+        b.style.height = h + '%';
+      });
+      const ring = document.getElementById('ring-middle');
+      if (ring) {
+        ring.style.transform = active ? `scale(${1 + Math.random() * 0.14})` : 'scale(1)';
+      }
+    }
+
+    function playPcm24kChunk(b64) {
+      ensureAudioCtx();
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      const int16 = new Int16Array(bytes.buffer);
+      const float32 = new Float32Array(int16.length);
+      for (let i = 0; i < int16.length; i++) float32[i] = int16[i] / 32768.0;
+
+      const buf = livePlayCtx.createBuffer(1, float32.length, 24000);
+      buf.getChannelData(0).set(float32);
+      const src = livePlayCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(livePlayCtx.destination);
+
+      const now = livePlayCtx.currentTime;
+      if (liveNextPlayTime < now) liveNextPlayTime = now + 0.02;
+      src.start(liveNextPlayTime);
+      liveNextPlayTime += buf.duration;
+
+      liveChunkCount++;
+      document.getElementById('pcm-chunk-counter').innerText = `${liveChunkCount} PCM Chunks (24kHz)`;
+      animateVisualizer(true);
+    }
+
+    function appendTranscriptBubble(role, text) {
+      const log = document.getElementById('live-voice-transcript-log');
+      if (!log) return;
+      const isUser = role === 'YOU';
+      const div = document.createElement('div');
+      div.className = `p-3 rounded-xl border ${(isUser ? 'bg-cyan-950/40 border-cyan-500/40 text-cyan-100 ml-6' : 'bg-slate-950 border-emerald-500/40 text-white mr-6')}`;
+      div.innerHTML = `<div class="text-[10px] font-bold uppercase mb-1 ${(isUser ? 'text-cyan-400' : 'text-emerald-400')}">${role} • 24kHz LIVE AUDIO</div><div>${text}</div>`;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    window.startLiveVoiceCall = function() {
+      if (liveWs && liveWs.readyState === WebSocket.OPEN) return;
+      ensureAudioCtx();
+      liveChunkCount = 0;
+      const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+      liveWs = new WebSocket(`${proto}//${location.host}/ws/live-voice/3.4?auth_token=${AUTH_TOKEN}`);
+
+      const pill = document.getElementById('ws-status-pill');
+      pill.innerText = '◐ CONNECTING LIVE WEBSOCKET...';
+
+      liveWs.onopen = () => {
+        pill.innerText = '● CONNECTED: gemini-live-2.5-flash-native-audio';
+        pill.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+        document.getElementById('btn-mic-stream').disabled = false;
+        callSeconds = 0;
+        clearInterval(callTimerInterval);
+        callTimerInterval = setInterval(() => {
+          callSeconds++;
+          const m = String(Math.floor(callSeconds / 60)).padStart(2, '0');
+          const s = String(callSeconds % 60).padStart(2, '0');
+          document.getElementById('call-timer').innerText = `${m}:${s}`;
+        }, 1000);
+        appendTranscriptBubble('SYSTEM', 'Connected to real Vertex AI Bidirectional Live Voice WebSocket (/ws/live-voice/3.4). Tap any voice objection pill or enable 16kHz Mic!');
+      };
+
+      liveWs.onmessage = (ev) => {
+        const msg = JSON.parse(ev.data);
+        if (msg.audio_b64) playPcm24kChunk(msg.audio_b64);
+        if (msg.input_transcript) appendTranscriptBubble('YOU', msg.input_transcript);
+        if (msg.output_transcript) {
+          appendTranscriptBubble('GEMINI LIVE VOICE', msg.output_transcript);
+          setTimeout(() => animateVisualizer(false), 500);
+        }
+        if (msg.status_note) appendTranscriptBubble('SYSTEM', msg.status_note);
+      };
+
+      liveWs.onclose = () => {
+        window.stop16kMic();
+        clearInterval(callTimerInterval);
+        liveWs = null;
+        pill.innerText = '○ STANDBY (16kHz Mic ↔ 24kHz PCM)';
+        pill.className = 'px-2.5 py-0.5 rounded-full text-[10px] font-bold mono bg-slate-900 text-slate-400 border border-slate-700';
+        animateVisualizer(false);
+      };
+    };
+
+    window.endLiveVoiceCall = function() {
+      window.stop16kMic();
+      if (liveWs) liveWs.close();
+    };
+
+    window.sendVoiceTurn = function(presetText) {
+      const inp = document.getElementById('voice-text-input');
+      const txt = presetText || (inp ? inp.value.trim() : '');
+      if (!txt) return;
+      if (!liveWs || liveWs.readyState !== WebSocket.OPEN) {
+        window.startLiveVoiceCall();
+        setTimeout(() => {
+          if (liveWs && liveWs.readyState === WebSocket.OPEN) {
+            appendTranscriptBubble('YOU', txt);
+            liveWs.send(JSON.stringify({ type: 'text', text: txt }));
+          }
+        }, 1200);
+        return;
+      }
+      appendTranscriptBubble('YOU', txt);
+      liveWs.send(JSON.stringify({ type: 'text', text: txt }));
+    };
+
+    window.toggle16kMic = async function() {
+      if (liveIsMicOn) {
+        window.stop16kMic();
+        return;
+      }
+      if (!liveWs || liveWs.readyState !== WebSocket.OPEN) {
+        window.startLiveVoiceCall();
+      }
+      try {
+        liveMicStream = await navigator.mediaDevices.getUserMedia({ audio: { sampleRate: 16000, channelCount: 1, echoCancellation: true, noiseSuppression: true } });
+        liveMicCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        const src = liveMicCtx.createMediaStreamSource(liveMicStream);
+        liveProcessor = liveMicCtx.createScriptProcessor(4096, 1, 1);
+        liveProcessor.onaudioprocess = (e) => {
+          if (!liveWs || liveWs.readyState !== WebSocket.OPEN) return;
+          const input = e.inputBuffer.getChannelData(0);
+          const pcm16 = new Int16Array(input.length);
+          for (let i = 0; i < input.length; i++) {
+            const s = Math.max(-1, Math.min(1, input[i]));
+            pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+          }
+          const bytes = new Uint8Array(pcm16.buffer);
+          let bin = '';
+          for (let i = 0; i < bytes.byteLength; i++) bin += String.fromCharCode(bytes[i]);
+          liveWs.send(JSON.stringify({ type: 'audio', data: btoa(bin) }));
+          animateVisualizer(true);
+        };
+        src.connect(liveProcessor);
+        liveProcessor.connect(liveMicCtx.destination);
+        liveIsMicOn = true;
+        const b = document.getElementById('btn-mic-stream');
+        b.innerText = '🔴 Mic Live';
+        b.className = 'py-3.5 px-4 rounded-2xl font-bold text-xs mono bg-rose-600 text-white animate-pulse';
+      } catch (err) {
+        appendTranscriptBubble('SYSTEM', 'Mic note: ' + err.message + ' — use the Barge-In Voice Pills to stream real 24kHz PCM audio!');
+      }
+    };
+
+    window.stop16kMic = function() {
+      if (liveProcessor) liveProcessor.disconnect();
+      if (liveMicCtx) liveMicCtx.close();
+      if (liveMicStream) liveMicStream.getTracks().forEach(t => t.stop());
+      liveIsMicOn = false;
+      const b = document.getElementById('btn-mic-stream');
+      if (b) {
+        b.innerText = '🎤 16kHz Mic';
+        b.className = 'py-3.5 px-4 rounded-2xl font-bold text-xs mono bg-slate-900 border border-cyan-500/40 text-cyan-300';
+      }
+    };
+
+    function calcMonthlyPI(loan, annualRatePct, months) {
+      const r = (annualRatePct / 100.0) / 12.0;
+      return loan * (r * Math.pow(1 + r, months)) / (Math.pow(1 + r, months) - 1);
+    }
+
+    let refiTimer = null;
+    window.updateRefiSliders = function() {
+      const loan = parseFloat(document.getElementById('slider-refi-loan').value || 421200);
+      const r30 = parseFloat(document.getElementById('slider-refi-rate30').value || 5.875);
+      const r20 = parseFloat(document.getElementById('slider-refi-rate20').value || 5.625);
+
+      const curPi = calcMonthlyPI(loan * 0.9924, 7.375, 360); // Current 7.375% P&I (~$2,903.59)
+      const pi30 = calcMonthlyPI(loan, r30, 360);
+      const pi20 = calcMonthlyPI(loan, r20, 240);
+      const sav30 = Math.max(0, curPi - pi30);
+
+      document.getElementById('lbl-refi-loan').innerText = '$' + loan.toLocaleString();
+      document.getElementById('lbl-refi-rate30').innerText = r30.toFixed(3) + '%';
+      document.getElementById('lbl-refi-rate20').innerText = r20.toFixed(3) + '%';
+
+      document.getElementById('hero-monthly-savings').innerText = '$' + sav30.toFixed(2) + '/mo';
+      document.getElementById('card-cur-pi').innerText = '$' + curPi.toFixed(2) + '/mo';
+      document.getElementById('card-optA-rate').innerText = r30.toFixed(3) + '% Fixed';
+      document.getElementById('card-optA-pi').innerText = '$' + pi30.toFixed(2) + '/mo';
+      document.getElementById('card-optA-sav').innerText = `Saves $${sav30.toFixed(2)}/mo ($${Math.round(sav30 * 12).toLocaleString()}/yr!)`;
+      document.getElementById('card-optB-rate').innerText = r20.toFixed(3) + '% Fixed';
+      document.getElementById('card-optB-pi').innerText = '$' + pi20.toFixed(2) + '/mo';
+
+      clearTimeout(refiTimer);
+      refiTimer = setTimeout(async () => {
+        try {
+          const res = await fetch('/api/sandbox', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              code: '3.4',
+              action: 'calc_refi_recapture',
+              params: {
+                current_pi: curPi,
+                new_loan: loan,
+                rate_30yr: r30,
+                rate_20yr: r20
+              }
+            })
+          });
+          const data = await res.json();
+          const ms = document.getElementById('refi-sandbox-ms');
+          if (ms && data.execution_ms !== undefined) {
+            ms.innerText = `13.1-Month Breakeven • gVisor Verified (${data.execution_ms}ms)`;
+          }
+        } catch (e) {}
+      }, 180);
+    };
+
+    window.runLiveVertexAI = async function() {
+      const btn = document.getElementById('top-synth-btn');
+      const loan = parseFloat(document.getElementById('slider-refi-loan').value || 421200);
+      const r30 = parseFloat(document.getElementById('slider-refi-rate30').value || 5.875);
+      const r20 = parseFloat(document.getElementById('slider-refi-rate20').value || 5.625);
+      const scenarioInput = document.getElementById('scenario-input') ? document.getElementById('scenario-input').value : '';
+
+      if (btn) btn.innerHTML = `<span class="shrinking-shining-ink"></span> <span>Synthesizing...</span>`;
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '3.4',
+            model: window.getSelectedModel(),
+            user_input: scenarioInput,
+            params: {
+              current_pi: 2903.59,
+              new_loan: loan,
+              rate_30yr: r30,
+              rate_20yr: r20
+            }
+          })
+        });
+        const data = await res.json();
+        const sd = data.structured_data || {};
+        if (sd.executive_summary) {
+          appendTranscriptBubble('VERTEX AI (' + (data.vertex ? data.vertex.model_used : window.getSelectedModel()) + ')', sd.executive_summary);
+        } else if (data.vertex && data.vertex.response_markdown) {
+          appendTranscriptBubble('VERTEX AI', data.vertex.response_markdown);
+        }
+      } catch (e) {
+        console.error(e);
+      } finally {
+        if (btn) btn.innerHTML = `⚡ Re-Calculate Offer Sheet`;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      window.updateRefiSliders();
+    });
+  </script>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4" selected style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5"  style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon"  style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash" selected style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [3.4] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Conversational Rocket Recapture Voice Concierge</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/3.4?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-3.8-flash</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Mr. Cooper Servicing Recapture Campaign Target #MRC-REFI-55109:
+- Borrower: Samantha & Kevin Ortiz (Austin, TX — originated Oct 2023 at 7.375% 30-Yr Fixed).
+- Current UPB: $418,000 | Current Monthly P&I: $2,887.02/mo | Remaining Term: 324 months.
+- Today's Rocket VIP Streamline Refi Offer: 5.875% 30-Yr Fixed (zero appraisal waiver eligible via Fannie Mae Value Acceptance, $0 out-of-pocket closing costs rolled in = $421,200 new loan).
+- Borrower Mid-Call Interruption: "Wait—hold on! If we don't want to reset our loan clock back to 30 years, what would our payment be if we refinance into a 20-year fixed at 5.625% instead?" </textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "3.4";
+  window.ACTIVE_PROJECT = {"code": "3.4", "level": "L300", "tags": ["L300"], "tool": "Gemini Multimodal Live API (WebSockets)", "project": "Conversational Rocket Recapture Voice Concierge", "focus": "Ultra-low-latency bidirectional WebSocket voice agent that proactively contacts Mr. Cooper servicing clients when rates drop to recapture refis.", "desc": "Unlock the #1 revenue synergy of the Mr. Cooper acquisition: Portfolio Recapture. When rates drop 75+ bps below a borrower's note rate, the Gemini Live API voice agent engages them in a natural, interruptible conversation, computes exact monthly savings & breakeven, and warm-transfers to a licensed Rocket banker.", "url": "https://ai.google.dev/gemini-api/docs/live", "serviceText": "Gemini Multimodal Live API (Bidi WebSockets)", "serviceUrl": "https://ai.google.dev/gemini-api/docs/live", "gcpStack": ["Gemini Live API (BidiGenerateContent WebSocket)", "Gemini 4 Argon", "Cloud Run Recapture Math Engine"], "competeEdge": "Native multimodal audio-to-audio streaming eliminates the 1,200ms STT -> LLM -> TTS cascade lag of Sierra Voice and AWS Connect Lex bots.", "sampleInput": "Mr. Cooper Servicing Recapture Campaign Target #MRC-REFI-55109:\n- Borrower: Samantha & Kevin Ortiz (Austin, TX \u2014 originated Oct 2023 at 7.375% 30-Yr Fixed).\n- Current UPB: $418,000 | Current Monthly P&I: $2,887.02/mo | Remaining Term: 324 months.\n- Today's Rocket VIP Streamline Refi Offer: 5.875% 30-Yr Fixed (zero appraisal waiver eligible via Fannie Mae Value Acceptance, $0 out-of-pocket closing costs rolled in = $421,200 new loan).\n- Borrower Mid-Call Interruption: \"Wait\u2014hold on! If we don't want to reset our loan clock back to 30 years, what would our payment be if we refinance into a 20-year fixed at 5.625% instead?\" ", "sandboxAction": "calc_refi_recapture", "sandboxParams": {"current_upb": 418000.0, "current_rate": 7.375, "current_pi": 2887.02, "new_loan": 421200.0, "rate_30yr": 5.875, "rate_20yr": 5.625}, "systemPrompt": "You are the Conversational Rocket Recapture Voice Concierge powered by Gemini Multimodal Live API & Gemini 4 Argon. Respond naturally to the borrower's mid-sentence interruption ('What if we do a 20-year fixed instead of resetting to 30 years?'). Present: (1) Spoken Natural Voice Script (warm, conversational, <180ms barge-in style), (2) Exact Side-by-Side Comparison Table (Current 7.375% Loan vs. 30-Yr Fixed at 5.875% saving $395/mo vs. 20-Yr Fixed at 5.625% at $2,927/mo which keeps payment virtually identical (+$40/mo) while shaving 7 FULL YEARS off their mortgage and saving $184,000+ in lifetime interest!), and (3) Warm-Transfer Whisper Packet to the licensed Texas NMLS Banker.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502     3.4 GEMINI LIVE API ROCKET RECAPTURE VOICE CONCIERGE (L300)        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Bidi WebSocket Audio Stream (wss://.../BidiGenerateContent)]         \u2502\n\u2502  \u2022 Borrower barges in mid-sentence: \"What about a 20-yr fixed?\"        \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Live Tool Call: calc_refi_recapture(30yr=5.875%, 20yr=5.625%)]       \u2502\n\u2502  \u251c\u2500\u25ba 30-Yr Refi: $2,492/mo (-$395/mo immediate cash flow savings)      \u2502\n\u2502  \u2514\u2500\u25ba 20-Yr Refi: $2,927/mo (+$40/mo, cuts 7 yrs & saves $184k interest)\u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Instant Spoken Response + Warm Context Handoff to Rocket Banker]     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Open a bidirectional WebSocket connection to `wss://aiplatform.googleapis.com/ws/google.cloud.aiplatform.v1beta1.LlmBidiService/BidiGenerateContent`.", "Register the `calc_refi_recapture` tool in the `setup` frame with `responseModalities: ['AUDIO']`.", "When the borrower interrupts mid-sentence, Gemini Live API automatically halts audio output, invokes the recalculation tool, and speaks the 20-year vs 30-year comparison."], "codeSnippet": "setup_msg = {\n    \"setup\": {\n        \"model\": \"projects/vtxdemos/locations/us-central1/publishers/google/models/gemini-live-2.5-flash-native-audio\",\n        \"generationConfig\": {\"responseModalities\": [\"AUDIO\"]},\n        \"tools\": [{\"functionDeclarations\": [refi_calculator_schema]}]\n    }\n}", "dept_id": "servicing", "dept_short": "3. CX & Mr. Cooper Servicing", "dept_full": "3. Client Experience & Servicing (Mr. Cooper Portfolio, Escrow, Synopsis & Recapture)", "demo_service_url": "https://rocket-demo-servicing-254356041555.us-central1.run.app/?case=3.4", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/3.4"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Mr. Cooper Servicing Recapture Campaign Target #MRC-REFI-55109:\\n- Borrower: Samantha & Kevin Ortiz (Austin, TX \u2014 originated Oct 2023 at 7.375% 30-Yr Fixed).\\n- Current UPB: $418,000 | Current Monthly P&I: $2,887.02/mo |...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Conversational Rocket Recapture Voice Concierge powered by Gemini Multimodal Live API & Gemini 4 Argon. Respond naturally to the borrower's mid-sentence interruption ('...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Mr. Cooper Servicing Recapture Campaign Target #MRC-REFI-55109:\\n- Borrower: Samantha & Kevin Ortiz (Austin, TX \u2014 originated Oct 2023 at 7.375% 30-Yr Fixed).\\n- Current UPB: $418,000 | Current Monthly P&I: $2,887.02/mo |...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Conversational Rocket Recapture Voice Concierge powered by Gemini Multimodal Live API & Gemini 4 Argon. Respond naturally to the borrower's mid-sentence interruption ('...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-3.8-flash";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-3.8-flash");
+  });
+</script>
+
+</body>
+</html>

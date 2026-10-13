@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[5.5] Fair Lending Disparate Impact & Counterfactual Twin Lab | ECOA Reg B</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Fira+Code:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --slate-bg: #0B132B;
+      --slate-card: #121E42;
+      --slate-panel: #1C2B59;
+      --cyan: #00BBF9;
+      --violet: #9B5DE5;
+      --emerald: #00F5D4;
+      --rose: #F15BB5;
+      --amber: #FEE440;
+      --text-light: #F1F5F9;
+      --text-muted: #94A3B8;
+      --border: #2A3F7A;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--slate-bg);
+      color: var(--text-light);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      background-image:
+        radial-gradient(circle at 15% 15%, rgba(0, 187, 249, 0.12), transparent 35%),
+        radial-gradient(circle at 85% 20%, rgba(155, 93, 229, 0.14), transparent 40%);
+      padding-bottom: 96px;
+    }
+    .mono { font-family: 'Fira Code', monospace; }
+
+    /* Top Quant Header */
+    .quant-header {
+      background: rgba(18, 30, 66, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+    .ecoa-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0, 187, 249, 0.14);
+      border: 1px solid var(--cyan);
+      color: var(--cyan);
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+    .quant-model-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--slate-bg);
+      border: 1px solid var(--violet);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+    }
+    .quant-model-box select {
+      background: transparent;
+      color: var(--emerald);
+      border: none;
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      outline: none;
+      cursor: pointer;
+    }
+    .quant-model-box select option { background: #0B132B; color: #FFFFFF; }
+
+    /* Main Lab Grid */
+    .lab-container {
+      max-width: 1520px;
+      margin: 24px auto;
+      padding: 0 28px;
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+    }
+    @media (max-width: 1100px) {
+      .lab-container { grid-template-columns: 1fr; }
+    }
+
+    .lab-card {
+      background: var(--slate-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px 22px;
+      box-shadow: 0 12px 32px rgba(5, 10, 24, 0.45);
+    }
+
+    .slider-group {
+      margin-bottom: 18px;
+    }
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .quant-slider {
+      width: 100%;
+      accent-color: var(--cyan);
+      cursor: pointer;
+    }
+
+    .air-gauge-box {
+      background: var(--slate-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      margin: 14px 0;
+    }
+    .air-big-num {
+      font-family: 'Fira Code', monospace;
+      font-size: 38px;
+      font-weight: 700;
+      color: var(--emerald);
+      line-height: 1.1;
+    }
+    .threshold-bar {
+      height: 12px;
+      background: #1E293B;
+      border-radius: 999px;
+      margin-top: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .threshold-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--violet), var(--cyan), var(--emerald));
+      border-radius: 999px;
+      transition: width 0.25s ease;
+    }
+    .threshold-marker {
+      position: absolute;
+      left: 80%;
+      top: -2px;
+      bottom: -2px;
+      width: 2px;
+      background: var(--amber);
+    }
+
+    .btn-quant {
+      width: 100%;
+      padding: 11px 16px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(135deg, var(--cyan), var(--violet));
+      color: #FFFFFF;
+      font-family: 'Fira Code', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 6px 20px rgba(0, 187, 249, 0.28);
+    }
+    .btn-quant:hover { transform: translateY(-1px); filter: brightness(1.08); }
+
+    /* Right Workspace */
+    .right-col {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .plot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .svg-plot-wrap {
+      background: #070D1F;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      position: relative;
+    }
+
+    .cohort-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      margin-top: 8px;
+    }
+    .cohort-table th {
+      text-align: left;
+      padding: 10px 12px;
+      background: var(--slate-panel);
+      color: var(--cyan);
+      font-family: 'Fira Code', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+    .cohort-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .cert-box {
+      background: linear-gradient(135deg, rgba(18, 30, 66, 0.95), rgba(28, 43, 89, 0.9));
+      border: 2px solid var(--emerald);
+      border-radius: 14px;
+      padding: 20px 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- QUANT LAB HEADER -->
+  <header class="quant-header">
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <span class="ecoa-badge">🔬 QUANT FAIR LENDING LAB • SQUARE [5.5]</span>
+      <div>
+        <h1 style="font-size:19px;font-weight:700;">Counterfactual Twin Disparate Impact & Bias Auditor (ECOA Reg B)</h1>
+        <p class="mono" style="font-size:11px;color:var(--text-muted);">12 CFR Part 1002 (ECOA Regulation B) • Fair Housing Act (42 U.S.C. § 3605) • EEOC 4/5ths (0.800) Adverse Impact Ratio</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div class="quant-model-box">
+        <span>MODEL:</span>
+        <select id="app-model-select" onchange="window.syncSelectedModel(this.value)">
+          <option value="gemini-4-argon" selected>gemini-4-argon (Frontier Global)</option>
+          <option value="gemini-3.8-flash">gemini-3.8-flash (Fast / ADK Runtime)</option>
+        </select>
+      </div>
+      <button class="btn-quant" style="width:auto;" onclick="window.runLiveVertexAI()">
+        ⚡ Issue ECOA Reg B Certification (/api/run-demo)
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN LAB GRID -->
+  <main class="lab-container">
+    <!-- Left Column: Controls & AIR Gauge -->
+    <aside class="lab-card" style="display:flex;flex-direction:column;gap:14px;">
+      <div class="mono" style="font-size:11px;font-weight:700;color:var(--cyan);text-transform:uppercase;">
+        🎛️ Counterfactual Twin Parameters
+      </div>
+      <p style="font-size:12.5px;color:var(--text-muted);line-height:1.55;">
+        Holds creditworthiness strictly constant (715 FICO, 90% LTV, 39% DTI, $142k Income) while perturbing demographic surname & census-tract proxies across matched borrower twins.
+      </p>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Matched Twin Sample Size (N)</span>
+          <strong class="mono" id="lbl-sample" style="color:var(--cyan);">500 Pairs</strong>
+        </div>
+        <input type="range" id="sld-sample" class="quant-slider" min="100" max="1000" step="50" value="500" oninput="updateFairLendingLab()">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Control Group Approval Rate</span>
+          <strong class="mono" id="lbl-ctrl" style="color:var(--cyan);">96.4%</strong>
+        </div>
+        <input type="range" id="sld-ctrl" class="quant-slider" min="80" max="99.5" step="0.2" value="96.4" oninput="updateFairLendingLab()">
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-header">
+          <span>Protected Twin Cohort Approval Rate</span>
+          <strong class="mono" id="lbl-prot" style="color:var(--violet);">96.0%</strong>
+        </div>
+        <input type="range" id="sld-prot" class="quant-slider" min="65" max="99.5" step="0.2" value="96.0" oninput="updateFairLendingLab()">
+      </div>
+
+      <!-- EEOC 4/5ths Adverse Impact Ratio Gauge -->
+      <div class="air-gauge-box">
+        <div class="mono" style="font-size:10.5px;color:var(--text-muted);text-transform:uppercase;">Adverse Impact Ratio (AIR = Protected / Control)</div>
+        <div class="air-big-num" id="air-readout">0.9959</div>
+        <div class="mono" id="air-verdict-badge" style="font-size:11px;color:var(--emerald);margin-top:4px;font-weight:700;">
+          ✅ PASSES EEOC 0.8000 FOUR-FIFTHS RULE
+        </div>
+        <div class="threshold-bar">
+          <div class="threshold-fill" id="air-bar-fill" style="width:99.6%;"></div>
+          <div class="threshold-marker" title="0.800 Minimum Threshold"></div>
+        </div>
+        <div class="mono" style="display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-muted);margin-top:5px;">
+          <span>0.00</span>
+          <span style="color:var(--amber);">▲ 0.800 EEOC Min</span>
+          <span>1.00 Parity</span>
+        </div>
+      </div>
+
+      <button class="btn-quant" onclick="runFairLendingSandbox()">
+        🔬 Run 500-Twin Statistical Audit (/api/sandbox)
+      </button>
+
+      <div class="mono" id="sandbox-status-line" style="font-size:10.5px;color:var(--text-muted);text-align:center;">
+        Action: <code>audit_fair_lending</code> / <code>calc_fair_lending_air</code>
+      </div>
+    </aside>
+
+    <!-- Right Column: 500-Pair Twin Distribution Plot & ECOA Certificate -->
+    <section class="right-col">
+
+      <!-- Interactive Counterfactual Twin Scatter & Density Plot -->
+      <div class="lab-card">
+        <div class="plot-header">
+          <div>
+            <div class="mono" style="font-size:10.5px;color:var(--cyan);text-transform:uppercase;">COUNTERFACTUAL TWIN DISTRIBUTION PLOT (FICO vs. QUOTED NOTE RATE / AUS SCORE)</div>
+            <h2 style="font-size:17px;font-weight:700;margin-top:2px;">Matched Borrower Twin Parity Visualization (<span id="plot-n-label">500</span> Pairs)</h2>
+          </div>
+          <div class="mono" style="display:flex;gap:14px;font-size:11px;">
+            <span><span style="color:#00BBF9;">●</span> Control Twin Cohort</span>
+            <span><span style="color:#9B5DE5;">◆</span> Protected Twin Cohort</span>
+            <span><span style="color:#00F5D4;">━</span> Iso-Rate Parity Line (0.00 bps Spread)</span>
+          </div>
+        </div>
+
+        <div class="svg-plot-wrap">
+          <svg id="twin-scatter-svg" viewBox="0 0 860 270" style="width:100%;height:auto;display:block;"></svg>
+        </div>
+
+        <table class="cohort-table">
+          <thead>
+            <tr>
+              <th>Counterfactual Twin Dimension</th>
+              <th>Control Twin Metric</th>
+              <th>Protected Twin Metric</th>
+              <th>Parity Ratio / Variance</th>
+              <th>ECOA Reg B Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Wayne County (Detroit) vs. Oakland County Twin</strong></td>
+              <td class="mono" id="row-ctrl-rate">96.4% Approved</td>
+              <td class="mono" id="row-prot-rate">96.0% Approved</td>
+              <td class="mono" id="row-air-val" style="color:var(--emerald);font-weight:700;">0.9959 AIR</td>
+              <td><span class="mono" id="row-air-badge" style="color:var(--emerald);font-weight:700;">✅ COMPLIANT (>= 0.800)</span></td>
+            </tr>
+            <tr>
+              <td><strong>Minority Surname Twin vs. Control Surname Twin</strong></td>
+              <td class="mono">6.125% Par Note Rate</td>
+              <td class="mono">6.125% Par Note Rate</td>
+              <td class="mono" style="color:var(--emerald);font-weight:700;">0.00 bps Spread</td>
+              <td><span class="mono" style="color:var(--emerald);font-weight:700;">✅ ZERO PRICING STEERING</span></td>
+            </tr>
+            <tr>
+              <td><strong>Female Head-of-Household vs. Male Control (FHA 96.5%)</strong></td>
+              <td class="mono">$450 Underwriting Waiver</td>
+              <td class="mono">$450 Underwriting Waiver</td>
+              <td class="mono" style="color:var(--emerald);font-weight:700;">0.9920 Parity</td>
+              <td><span class="mono" style="color:var(--emerald);font-weight:700;">✅ COMPLIANT</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ECOA Reg B Certificate Generator -->
+      <div class="cert-box" id="ecoa-cert-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border);padding-bottom:10px;margin-bottom:12px;flex-wrap:wrap;gap:8px;">
+          <div>
+            <div class="mono" style="font-size:10.5px;color:var(--emerald);font-weight:700;">OFFICIAL ALGORITHMIC FAIR LENDING ATTESTATION • 12 CFR § 1002.6</div>
+            <h3 style="font-size:16px;font-weight:700;">ECOA Regulation B & Fair Housing Act Compliance Certificate</h3>
+          </div>
+          <span class="mono" id="cert-stamp" style="background:rgba(0,245,212,0.15);border:1px solid var(--emerald);color:var(--emerald);padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700;">
+            CERTIFIED PROD-READY
+          </span>
+        </div>
+        <div id="ecoa-cert-body" style="font-size:13px;line-height:1.7;color:var(--text-light);">
+          <strong>Statistical Certification Summary:</strong> Across <strong>500 matched counterfactual borrower pairs</strong> (identical 715 FICO, 90% LTV, 39% DTI), the Rocket Mortgage AI Underwriting & Pricing Co-Pilot achieved an <strong>Adverse Impact Ratio (AIR) of 0.9959</strong> (exceeding the CFPB/EEOC 0.8000 Four-Fifths threshold by +24.5%) with a <strong>0.00 bps note-rate disparity</strong>. Zero geographic redlining or surname proxy bias detected.
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    function renderTwinScatterPlot(sampleN, ctrlRate, protRate) {
+      const svg = document.getElementById('twin-scatter-svg');
+      const count = Math.min(85, Math.floor(sampleN / 6));
+      let html = `
+        <line x1="55" y1="235" x2="830" y2="235" stroke="#2A3F7A" stroke-width="1.5"/>
+        <line x1="55" y1="20" x2="55" y2="235" stroke="#2A3F7A" stroke-width="1.5"/>
+        <line x1="65" y1="210" x2="815" y2="40" stroke="#00F5D4" stroke-width="2" stroke-dasharray="6,4" opacity="0.7"/>
+        <text x="440" y="260" fill="#94A3B8" font-family="Fira Code" font-size="10" text-anchor="middle">Creditworthiness Index (FICO 640 → 800 + DTI/LTV Composite)</text>
+        <text x="16" y="130" fill="#94A3B8" font-family="Fira Code" font-size="10" transform="rotate(-90 16,130)" text-anchor="middle">AUS Approval Probability</text>
+      `;
+      const biasPenalty = Math.max(0, (ctrlRate - protRate) * 2.2);
+      for (let i = 0; i < count; i++) {
+        const t = i / count;
+        const x = 75 + t * 730;
+        const baseY = 205 - t * 165;
+        const jitter1 = Math.sin(i * 7.3) * 14;
+        const jitter2 = Math.cos(i * 5.1) * 14 + biasPenalty;
+        const yCtrl = Math.max(25, Math.min(225, baseY + jitter1));
+        const yProt = Math.max(25, Math.min(225, baseY + jitter2));
+
+        html += `<line x1="${x}" y1="${yCtrl}" x2="${x+4}" y2="${yProt}" stroke="rgba(148,163,184,0.28)" stroke-width="1"/>`;
+        html += `<circle cx="${x}" cy="${yCtrl}" r="4" fill="#00BBF9" opacity="0.88"/>`;
+        html += `<circle cx="${x+4}" cy="${yProt}" r="4" fill="#9B5DE5" opacity="0.88"/>`;
+      }
+      svg.innerHTML = html;
+    }
+
+    function updateFairLendingLab() {
+      const sampleN = parseInt(document.getElementById('sld-sample').value || 500);
+      const ctrl = parseFloat(document.getElementById('sld-ctrl').value || 96.4);
+      const prot = parseFloat(document.getElementById('sld-prot').value || 96.0);
+      const air = prot / ctrl;
+
+      document.getElementById('lbl-sample').innerText = sampleN + " Pairs";
+      document.getElementById('plot-n-label').innerText = sampleN;
+      document.getElementById('lbl-ctrl').innerText = ctrl.toFixed(1) + "%";
+      document.getElementById('lbl-prot').innerText = prot.toFixed(1) + "%";
+
+      const airReadout = document.getElementById('air-readout');
+      const airBadge = document.getElementById('air-verdict-badge');
+      const barFill = document.getElementById('air-bar-fill');
+      airReadout.innerText = air.toFixed(4);
+      barFill.style.width = Math.min(100, Math.max(5, air * 100)).toFixed(1) + "%";
+
+      document.getElementById('row-ctrl-rate').innerText = ctrl.toFixed(1) + "% Approved";
+      document.getElementById('row-prot-rate').innerText = prot.toFixed(1) + "% Approved";
+      document.getElementById('row-air-val').innerText = air.toFixed(4) + " AIR";
+
+      const certCard = document.getElementById('ecoa-cert-card');
+      const certStamp = document.getElementById('cert-stamp');
+
+      if (air >= 0.800) {
+        airReadout.style.color = '#00F5D4';
+        airBadge.innerText = '✅ PASSES EEOC 0.8000 FOUR-FIFTHS RULE';
+        airBadge.style.color = '#00F5D4';
+        document.getElementById('row-air-badge').innerText = '✅ COMPLIANT (>= 0.800)';
+        document.getElementById('row-air-badge').style.color = '#00F5D4';
+        certCard.style.borderColor = '#00F5D4';
+        certStamp.innerText = 'CERTIFIED PROD-READY';
+      } else {
+        airReadout.style.color = '#F15BB5';
+        airBadge.innerText = '🚨 DISPARATE IMPACT ALERT (< 0.8000 THRESHOLD)';
+        airBadge.style.color = '#F15BB5';
+        document.getElementById('row-air-badge').innerText = '🚩 BREACH (< 0.800)';
+        document.getElementById('row-air-badge').style.color = '#F15BB5';
+        certCard.style.borderColor = '#F15BB5';
+        certStamp.innerText = 'DEPLOYMENT BLOCKED';
+      }
+
+      renderTwinScatterPlot(sampleN, ctrl, prot);
+    }
+
+    async function runFairLendingSandbox() {
+      const ctrl = parseFloat(document.getElementById('sld-ctrl').value || 96.4) / 100.0;
+      const prot = parseFloat(document.getElementById('sld-prot').value || 96.0) / 100.0;
+      const statusEl = document.getElementById('sandbox-status-line');
+      statusEl.innerText = "Running gVisor Counterfactual Twin Audit...";
+
+      try {
+        const res = await fetch('/api/sandbox', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '5.5',
+            action: 'calc_fair_lending_air',
+            params: {
+              secondary_action: 'audit_fair_lending',
+              control_approval_rate: ctrl,
+              protected_approval_rate: prot
+            }
+          })
+        });
+        const data = await res.json();
+        const m = data.metrics || {};
+        statusEl.innerText = `Verified in ${data.execution_ms || 1.1}ms • AIR: ${m.adverse_impact_ratio_air || ''}`;
+        document.getElementById('ecoa-cert-body').innerHTML = `
+          <div><strong>Sample Audited:</strong> ${m.sample_size_audited || ''}</div>
+          <div><strong>Adverse Impact Ratio (AIR):</strong> ${m.adverse_impact_ratio_air || ''}</div>
+          <div><strong>Rate Spread Disparity:</strong> ${m.rate_spread_disparity_bps || ''}</div>
+          <div><strong>ECOA Reg B Verdict:</strong> <span style="color:var(--emerald);font-weight:700;">${m.ecoa_reg_b_certification || ''}</span></div>
+        `;
+      } catch (e) {
+        statusEl.innerText = "Sandbox Error: " + e.message;
+      }
+    }
+
+    window.runLiveVertexAI = async function() {
+      const model = window.getSelectedModel ? window.getSelectedModel() : 'gemini-4-argon';
+      const ctrl = parseFloat(document.getElementById('sld-ctrl').value || 96.4) / 100.0;
+      const prot = parseFloat(document.getElementById('sld-prot').value || 96.0) / 100.0;
+      const certBody = document.getElementById('ecoa-cert-body');
+      certBody.innerHTML = `Synthesizing ECOA Regulation B Certification with <strong>${model}</strong>...`;
+
+      try {
+        const res = await fetch('/api/run-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: '5.5',
+            model: model,
+            user_input: "Audit the 500 counterfactual twin pairs under ECOA Regulation B (12 CFR Part 1002) and issue the formal Fair Lending Disparate Impact Certification.",
+            params: { control_approval_rate: ctrl, protected_approval_rate: prot }
+          })
+        });
+        const data = await res.json();
+        const summary = data.output || "Fair Lending Certification complete.";
+        certBody.innerHTML = `
+          <div class="mono" style="font-size:11px;color:var(--cyan);margin-bottom:6px;">[${data.model_used || model} • ${data.vertex ? data.vertex.latency_ms : 460}ms]:</div>
+          <div style="white-space:pre-wrap;">${summary}</div>
+        `;
+      } catch (e) {
+        certBody.innerText = "Vertex AI Error: " + e.message;
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateFairLendingLab();
+    });
+  </script>
+
+  
+<!-- COMPACT FLOATING RUNTIME & MODEL CONTROL PILL -->
+<div id="rkt-floating-pill" style="position:fixed;bottom:18px;right:18px;z-index:9990;display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(9,13,22,0.92);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,0.16);box-shadow:0 16px 40px rgba(0,0,0,0.45);font-family:'JetBrains Mono',monospace;font-size:11px;color:#F8FAFC;flex-wrap:wrap;">
+  <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app?auth_token=DEMO_AUTH_TOKEN" style="color:#94A3B8;text-decoration:none;font-weight:700;padding:4px 8px;border-radius:999px;background:rgba(255,255,255,0.06);transition:0.2s;" onmouseover="this.style.color='#FFF'" onmouseout="this.style.color='#94A3B8'">
+    ← Hub
+  </a>
+  <div style="display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);">
+    <select onchange="window.location.href='/?case='+encodeURIComponent(this.value)" style="background:transparent;color:#E2E8F0;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:10.5px;border:none;outline:none;cursor:pointer;max-width:190px;">
+      <option value="1.1"  style="background:#0F172A;color:#F8FAFC;">[1.1] The ABCDQ Post-Call Structured Deb</option>
+      <option value="1.2"  style="background:#0F172A;color:#F8FAFC;">[1.2] Outlook Hyper-Personalized Rate-Lo</option>
+      <option value="1.3"  style="background:#0F172A;color:#F8FAFC;">[1.3] No-Code Mortgage Guideline & Compe</option>
+      <option value="1.4"  style="background:#0F172A;color:#F8FAFC;">[1.4] Dynamic Loan Pricing & Amortizatio</option>
+      <option value="1.5"  style="background:#0F172A;color:#F8FAFC;">[1.5] Autonomous Banker Inbound Triage &</option>
+      <option value="2.1"  style="background:#0F172A;color:#F8FAFC;">[2.1] Fannie Mae / Freddie Mac Selling G</option>
+      <option value="2.2"  style="background:#0F172A;color:#F8FAFC;">[2.2] Low-Code Underwriting Condition Cl</option>
+      <option value="2.3"  style="background:#0F172A;color:#F8FAFC;">[2.3] Automated W-2 & Paystub Entity Ext</option>
+      <option value="2.4"  style="background:#0F172A;color:#F8FAFC;">[2.4] Self-Employed Schedule C / 1040 Ca</option>
+      <option value="2.5"  style="background:#0F172A;color:#F8FAFC;">[2.5] Rocket Close (Amrock) Title Except</option>
+      <option value="3.1"  style="background:#0F172A;color:#F8FAFC;">[3.1] Annual Escrow Shortage Resolution </option>
+      <option value="3.2"  style="background:#0F172A;color:#F8FAFC;">[3.2] Self-Service Payoff Quote & IRS Fo</option>
+      <option value="3.3"  style="background:#0F172A;color:#F8FAFC;">[3.3] Hardship & Forbearance Live Servic</option>
+      <option value="3.4"  style="background:#0F172A;color:#F8FAFC;">[3.4] Conversational Rocket Recapture Vo</option>
+      <option value="3.5"  style="background:#0F172A;color:#F8FAFC;">[3.5] Autonomous Borrower Retention & Li</option>
+      <option value="4.1"  style="background:#0F172A;color:#F8FAFC;">[4.1] Hyper-Local 50-Metro Real Estate M</option>
+      <option value="4.2"  style="background:#0F172A;color:#F8FAFC;">[4.2] Virtual Staging & Localized Hero A</option>
+      <option value="4.3"  style="background:#0F172A;color:#F8FAFC;">[4.3] Campaign Sentiment & Ad Creative P</option>
+      <option value="4.4"  style="background:#0F172A;color:#F8FAFC;">[4.4] Automated Multi-Format Video Tour </option>
+      <option value="4.5"  style="background:#0F172A;color:#F8FAFC;">[4.5] Redfin-to-Rocket Cross-Funnel Camp</option>
+      <option value="5.1"  style="background:#0F172A;color:#F8FAFC;">[5.1] CFPB Regulatory Circular & State L</option>
+      <option value="5.2"  style="background:#0F172A;color:#F8FAFC;">[5.2] Ethical Walls & PII/NPI Masking Go</option>
+      <option value="5.3"  style="background:#0F172A;color:#F8FAFC;">[5.3] Automated TRID 3-Day Tolerance & D</option>
+      <option value="5.4"  style="background:#0F172A;color:#F8FAFC;">[5.4] Automated Vendor Contract Risk & G</option>
+      <option value="5.5" selected style="background:#0F172A;color:#F8FAFC;">[5.5] Fair Lending Disparate Impact & Bi</option>
+      <option value="6.1"  style="background:#0F172A;color:#F8FAFC;">[6.1] Autonomous Vulnerability Trace & R</option>
+      <option value="6.2"  style="background:#0F172A;color:#F8FAFC;">[6.2] AI Software Factory: Autonomous PR</option>
+      <option value="6.3"  style="background:#0F172A;color:#F8FAFC;">[6.3] Legacy .NET Framework / WCF to Clo</option>
+      <option value="M.1"  style="background:#0F172A;color:#F8FAFC;">[M.1] Project Siren: The Sub-200ms Voice</option>
+      <option value="M.2"  style="background:#0F172A;color:#F8FAFC;">[M.2] Project Spatial Close: Immersive V</option>
+      <option value="M.3"  style="background:#0F172A;color:#F8FAFC;">[M.3] Project HiveMind: Autonomous Treas</option>
+      <option value="M.4"  style="background:#0F172A;color:#F8FAFC;">[M.4] Project Mirror: Interactive Virtua</option>
+      <option value="M.5"  style="background:#0F172A;color:#F8FAFC;">[M.5] Project Air-Tight: Self-Healing Au</option>
+    </select>
+  </div>
+  <div style="display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;background:rgba(99,102,241,0.18);border:1px solid rgba(99,102,241,0.4);">
+    <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+    <span style="color:#A5B4FC;font-size:10px;text-transform:uppercase;font-weight:700;">Model:</span>
+    <select id="model-select" onchange="window.syncSelectedModel(this.value)" style="background:transparent;color:#FFFFFF;font-weight:700;font-family:'JetBrains Mono',monospace;font-size:11px;border:none;outline:none;cursor:pointer;">
+      <option value="gemini-4-argon" selected style="background:#0F172A;color:#38BDF8;">gemini-4-argon (Frontier Global)</option>
+      <option value="gemini-3.8-flash"  style="background:#0F172A;color:#10B981;">gemini-3.8-flash (Fast / ADK Runtime)</option>
+    </select>
+  </div>
+  <button onclick="window.toggleBlueprintDrawer()" style="background:linear-gradient(135deg,#4F46E5,#06B6D4);color:#FFF;border:none;padding:5px 12px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(79,70,229,0.4);">
+    🛠️ Code & Architecture
+  </button>
+</div>
+
+<!-- SLIDE-OVER ARCHITECTURE, GENAI SDK CODE & REPRODUCTION DRAWER -->
+<div id="rkt-blueprint-drawer" style="position:fixed;top:0;right:-560px;width:min(540px,95vw);height:100vh;z-index:9999;background:#090D16;color:#F8FAFC;border-left:1px solid #1E293B;box-shadow:-20px 0 60px rgba(0,0,0,0.7);transition:right 0.3s cubic-bezier(0.16,1,0.3,1);display:flex;flex-direction:column;font-family:'Inter',sans-serif;">
+  <div style="padding:18px 22px;border-bottom:1px solid #1E293B;display:flex;align-items:center;justify-content:space-between;background:#050811;">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#38BDF8;text-transform:uppercase;letter-spacing:0.08em;">Square [5.5] • Technical Blueprint & GenAI SDK</div>
+      <div style="font-size:15px;font-weight:800;color:#FFF;margin-top:2px;">Fair Lending Disparate Impact & Bias Audit Engine (ECOA / Reg B)</div>
+    </div>
+    <button onclick="window.toggleBlueprintDrawer()" style="background:#1E293B;color:#CBD5E1;border:none;width:32px;height:32px;border-radius:8px;cursor:pointer;font-weight:800;">✕</button>
+  </div>
+  <div style="padding:20px 22px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:18px;">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <a href="https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.5?auth_token=DEMO_AUTH_TOKEN" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#4F46E5;color:#FFF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        📘 Full Reproduction Guide & SKILL.md ↗
+      </a>
+      <a href="https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023" target="_blank" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:rgba(168,85,247,0.2);border:1px solid rgba(168,85,247,0.5);color:#E9D5FF;text-decoration:none;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;">
+        ✨ Real Gemini Enterprise UI ↗
+      </a>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#10B981;text-transform:uppercase;margin-bottom:6px;">
+        1. Live Vertex AI GenAI SDK Code (<span id="drawer-model-label">gemini-4-argon</span>)
+      </div>
+      <pre id="drawer-sdk-code" style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#A5F3FC;overflow-x:auto;line-height:1.5;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#38BDF8;text-transform:uppercase;margin-bottom:6px;">
+        2. GCP Reference Architecture (<= 78 Cols)
+      </div>
+      <pre style="background:#020617;border:1px solid #1E293B;border-radius:12px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#E2E8F0;overflow-x:auto;line-height:1.4;margin:0;"></pre>
+    </div>
+
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:#F59E0B;text-transform:uppercase;margin-bottom:6px;">
+        3. Custom Scenario Prompt Override
+      </div>
+      <textarea id="scenario-input" rows="4" style="width:100%;background:#020617;border:1px solid #334155;border-radius:10px;padding:10px;color:#F8FAFC;font-family:'JetBrains Mono',monospace;font-size:11px;">Fair Lending Counterfactual Twin Audit Run #ECOA-2026-1013 (500 Matched Borrower Twin Pairs):
+Fixed Financial Profile across ALL Twins:
+- FICO: 715 | LTV: 90% ($360k loan on $400k purchase) | Back-End DTI: 39.0% | Liquid Reserves: 4 Months PITI.
+Cohort Comparison:
+- Control Cohort A (ZIP 48009 Birmingham / Majority-Non-Protected Proxy Names):
+  * Recommended Conventional 90% w/ Lender Credit: 96.4% of runs
+  * Avg Quoted Rate: 6.125% | Avg Fee Waiver Suggested: $1,240
+- Protected Cohort B (ZIP 48221 Detroit / HMDA Protected-Class Proxy Names):
+  * Recommended Conventional 90% w/ Lender Credit: 96.0% of runs
+  * Avg Quoted Rate: 6.125% | Avg Fee Waiver Suggested: $1,245</textarea>
+      <button onclick="window.runLiveVertexAI()" style="margin-top:8px;width:100%;padding:10px;border-radius:10px;background:linear-gradient(135deg,#10B981,#059669);color:#FFF;border:none;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;cursor:pointer;">
+        ⚡ Re-Synthesize with Selected Model
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Immediately scrub ?auth_token=... from the browser URL bar after cookie authentication
+  // so sharing or copying the URL never leaks the session token!
+  (function() {
+    try {
+      if (window.location.search.includes('auth_token=')) {
+        const url = new URL(window.location.href);
+        url.searchParams.delete('auth_token');
+        window.history.replaceState({}, document.title, url.pathname + url.search);
+      }
+    } catch (e) {}
+  })();
+
+  window.SQUARE_CODE = "5.5";
+  window.ACTIVE_PROJECT = {"code": "5.5", "level": "L300", "tags": ["L300"], "tool": "Vertex AI Responsible AI & Evaluation", "project": "Fair Lending Disparate Impact & Bias Audit Engine (ECOA / Reg B)", "focus": "Run synthetic borrower twin cohorts across ZIP codes and demographic markers to statistically certify zero disparate treatment or bias (AIR >= 0.80).", "desc": "Before deploying any customer-facing AI agent at Rocket, run automated Fair Lending counterfactual twin tests (varying borrower names, neighborhood ZIP codes across Wayne/Oakland counties, and HMDA demographic proxies while holding FICO/DTI/LTV identical) to verify zero rate/product steering.", "url": "https://cloud.google.com/vertex-ai/docs/generative-ai/safety-attributes", "serviceText": "Vertex AI Evaluation & Responsible AI", "serviceUrl": "https://cloud.google.com/vertex-ai", "gcpStack": ["Vertex AI Rapid Evaluation API", "Gemini 4 Argon Judge", "Python ECOA Statistical Certifier"], "competeEdge": "Provides CFPB / ECOA Regulation B (12 CFR Part 1002) statistical Adverse Impact Ratio (AIR) & Standardized Mean Difference (SMD) certification reports out of the box.", "sampleInput": "Fair Lending Counterfactual Twin Audit Run #ECOA-2026-1013 (500 Matched Borrower Twin Pairs):\nFixed Financial Profile across ALL Twins:\n- FICO: 715 | LTV: 90% ($360k loan on $400k purchase) | Back-End DTI: 39.0% | Liquid Reserves: 4 Months PITI.\nCohort Comparison:\n- Control Cohort A (ZIP 48009 Birmingham / Majority-Non-Protected Proxy Names):\n  * Recommended Conventional 90% w/ Lender Credit: 96.4% of runs\n  * Avg Quoted Rate: 6.125% | Avg Fee Waiver Suggested: $1,240\n- Protected Cohort B (ZIP 48221 Detroit / HMDA Protected-Class Proxy Names):\n  * Recommended Conventional 90% w/ Lender Credit: 96.0% of runs\n  * Avg Quoted Rate: 6.125% | Avg Fee Waiver Suggested: $1,245", "sandboxAction": "calc_fair_lending_air", "sandboxParams": {"control_approval_rate": 0.964, "protected_approval_rate": 0.96, "control_avg_rate": 6.125, "protected_avg_rate": 6.125, "n_pairs": 500}, "systemPrompt": "You are the Rocket Fair Lending Disparate Impact & ECOA Regulation B Audit Engine powered by Vertex AI Responsible AI and Gemini 4 Argon. Present: (1) Statistical Certification Summary showing the Adverse Impact Ratio (`AIR = 0.960 / 0.964 = 0.9958`, well above the CFPB/EEOC `0.8000` four-fifths threshold!) and Rate Variance (`0.000 bps` difference), (2) Counterfactual Twin Verification Proof (confirming that ZIP code and borrower name proxies are stripped/blinded prior to pricing tool invocation), and (3) Signed Fair Lending Model Risk Management (SR 11-7) Certificate.", "architectureDiagram": "\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502       5.5 FAIR LENDING DISPARATE IMPACT & BIAS AUDIT ENGINE (L300)     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [500 Counterfactual Twin Pairs (Identical FICO 715, LTV 90%, DTI 39%)]\u2502\n\u2502  \u2022 Varies only ZIP code (48009 vs 48221) & Demographic Proxy Names     \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [Vertex AI Eval + ECOA Regulation B Statistical Sandbox]              \u2502\n\u2502  \u251c\u2500\u25ba Adverse Impact Ratio (AIR): 0.9958 (Threshold >= 0.8000 -> PASS)  \u2502\n\u2502  \u251c\u2500\u25ba Pricing Rate Spread Delta:  0.000 bps (Zero Steering -> PASS)     \u2502\n\u2502  \u2514\u2500\u25ba Tone & Empathy Rubric Eval: 4.94 vs 4.95 / 5.0 (Parity -> PASS)   \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u252c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518\n                                    \u25bc\n\u250c\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2510\n\u2502  [CFPB ECOA / SR 11-7 Model Governance Certification Artifact]         \u2502\n\u2514\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2500\u2518", "reproSteps": ["Generate counterfactual borrower twin datasets holding credit/income/collateral variables constant while varying geographic and demographic proxies.", "Run batch evaluation using Vertex AI Rapid Evaluation API (`EvalTask`) with custom Fair Lending rubrics.", "Compute the Adverse Impact Ratio (`AIR = Protected_Rate / Control_Rate >= 0.80`) and Wilcoxon signed-rank p-value in the Python sandbox."], "codeSnippet": "# ECOA Regulation B Four-Fifths Rule (Adverse Impact Ratio) Certifier\nair = round(protected_approval_rate / control_approval_rate, 4)\nrate_spread_bps = round((protected_avg_rate - control_avg_rate) * 100, 2)\necoa_certified = (air >= 0.80) and (abs(rate_spread_bps) < 1.0)", "dept_id": "risk", "dept_short": "5. Risk, CFPB & TRID Compliance", "dept_full": "5. Risk, Compliance & Legal (CFPB, TRID, Model Armor PII Firewall & Fair Lending)", "demo_service_url": "https://rocket-demo-compliance-254356041555.us-central1.run.app/?case=5.5", "docs_url": "https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.5"};
+  window.SDK_SNIPPETS = {
+    "gemini-4-argon": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-4-argon\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Fair Lending Counterfactual Twin Audit Run #ECOA-2026-1013 (500 Matched Borrower Twin Pairs):\\nFixed Financial Profile across ALL Twins:\\n- FICO: 715 | LTV: 90% ($360k loan on $400k purchase) | Back-End DTI: 39.0% | Liqu...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Fair Lending Disparate Impact & ECOA Regulation B Audit Engine powered by Vertex AI Responsible AI and Gemini 4 Argon. Present: (1) Statistical Certification Sum...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n",
+    "gemini-3.8-flash": "# Install SDK: pip install --upgrade google-genai\nfrom google import genai\nfrom google.genai import types\nimport os\n\ndef generate_rocket_solution():\n    client = genai.Client(\n        vertexai=True,\n        project=os.environ.get(\"GOOGLE_CLOUD_PROJECT\", \"vtxdemos\"),\n        location=\"global\",\n    )\n\n    model = \"gemini-3.8-flash\"\n    contents = [\n        types.Content(\n            role=\"user\",\n            parts=[\n                types.Part.from_text(text=\"Fair Lending Counterfactual Twin Audit Run #ECOA-2026-1013 (500 Matched Borrower Twin Pairs):\\nFixed Financial Profile across ALL Twins:\\n- FICO: 715 | LTV: 90% ($360k loan on $400k purchase) | Back-End DTI: 39.0% | Liqu...\")\n            ]\n        )\n    ]\n    generate_content_config = types.GenerateContentConfig(\n        temperature=0.2,\n        max_output_tokens=2048,\n        system_instruction=[types.Part.from_text(text=\"You are the Rocket Fair Lending Disparate Impact & ECOA Regulation B Audit Engine powered by Vertex AI Responsible AI and Gemini 4 Argon. Present: (1) Statistical Certification Sum...\")],\n    )\n\n    response = client.models.generate_content(\n        model=model,\n        contents=contents,\n        config=generate_content_config,\n    )\n    print(response.text)\n\nif __name__ == \"__main__\":\n    generate_rocket_solution()\n"
+  };
+
+  window.getSelectedModel = function() {
+    const el = document.getElementById('model-select');
+    return el ? el.value : "gemini-4-argon";
+  };
+
+  window.syncSelectedModel = function(val) {
+    const el = document.getElementById('model-select');
+    if (el && el.value !== val) el.value = val;
+    const topSel = document.getElementById('app-model-select');
+    if (topSel && topSel.value !== val) topSel.value = val;
+    const lbl = document.getElementById('drawer-model-label');
+    if (lbl) lbl.innerText = val;
+    const codeEl = document.getElementById('drawer-sdk-code');
+    if (codeEl && window.SDK_SNIPPETS[val]) codeEl.textContent = window.SDK_SNIPPETS[val];
+    const badgeEl = document.getElementById('live-model-pill');
+    if (badgeEl) badgeEl.innerText = val;
+  };
+
+  window.toggleBlueprintDrawer = function() {
+    const dr = document.getElementById('rkt-blueprint-drawer');
+    if (!dr) return;
+    dr.style.right = (dr.style.right === '0px') ? '-560px' : '0px';
+  };
+
+  // Initialize SDK snippet on load
+  document.addEventListener('DOMContentLoaded', () => {
+    window.syncSelectedModel("gemini-4-argon");
+  });
+</script>
+
+</body>
+</html>
