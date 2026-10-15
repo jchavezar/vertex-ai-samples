@@ -43,106 +43,13 @@ However, **overall timeline feasibility depends primarily on the Unstructured Do
 
 ![Weil Enterprise Legal AI High-Level Design (HLD)](./docs/diagrams/01_weil_hld_end_to_end_architecture.svg)
 
-```mermaid
-flowchart TB
-    subgraph SOURCES["1. Enterprise Data Sources (Unstructured vs. Direct API Channels)"]
-        UNSTRUCT["Unstructured Deal & Precedent Corpus<br/>• Executed PDFs (SPA, Credit, LPA)<br/>• Word Contracts (.docx 15-yr Numbering)<br/>• Financial Charts, Org Diagrams & Wet-Ink Scans"]
-        META["Structured Deal & Governance Metadata<br/>• Client-Matter Numbers (CMN)<br/>• Intapp Ethical Walls (Allow/Deny)<br/>• Homegrown Apps (FundGen, FundHQ, Antitrust)"]
-        COMMS["Communication & Schedule Channels<br/>• Email (Exchange / Workspace BCP)<br/>• Calendar (Outlook / Google Calendar)<br/>• Enterprise Chat & Collaborations"]
-    end
-
-    subgraph PIPELINE["2. Data Ingestion vs. Direct API Routing Layer"]
-        UNSTRUCT --> DOCPARSE["Unstructured Multimodal Indexing Pipeline<br/>• Layout & Clause Tree Parser + BBox Pin-Cites<br/>• 2-Pass Chart/Diagram/OCR Extractor (docparse)<br/>• Vertex AI gemini-embedding-001 (3072-Dim)"]
-        META --> CDC["Metadata & Intapp Wall Sync<br/>• Matter-Bounded & Cross-Matter Tags<br/>• Screen-Before-Rank ACL Tokens"]
-        COMMS --> API_EVAL{"Evaluation Gate:<br/>Direct API vs. Index?"}
-        API_EVAL -- "Live Triage, Schedule & Chat Lookups" --> DIRECT_API["Direct Runtime API / Federated MCP<br/>(Zero Vector Indexing Overhead)"]
-        API_EVAL -- "Deal Attachments & CMN Entity Links" --> DOCPARSE
-    end
-
-    subgraph STORAGE["3. Unified Cloud Spanner Hybrid GraphRAG (weil-legal-spanner)"]
-        DOCPARSE --> SPANNER[("Cloud Spanner: WeilLegalGraph<br/>• Relational: Matters, Documents, Clauses<br/>• Vector: ARRAY&lt;FLOAT32&gt;(3072) Cosine<br/>• Lexical: ClauseFtsIndex (TOKENLIST BM25)<br/>• Graph: ISO GQL (CITES_PRECEDENT, INTAPP_WALL)")]
-        CDC --> SPANNER
-        SPANNER --> RRF["Screen-Before-Rank + 3-Way Hybrid RRF Engine<br/>Gate 0: Intapp Wall Pre-Filter -> Vector + BM25 + Graph"]
-    end
-
-    subgraph RUNTIME["4. Google Cloud Agent Platform & Gemini Enterprise MCP Apps (SEP-1865)"]
-        RRF --> GATEWAY["Agent Registry + Agent Gateway (SPIFFE mTLS / IAP)<br/>+ Google ADK (gemini-3.8-flash) Multi-Agent Orchestrator"]
-        DIRECT_API --> GATEWAY
-        GATEWAY --> S1["Studio 1: Mike OSS Tabular Grid & Pin-Cite (UC-3, UC-5, UC-6)"]
-        GATEWAY --> S2["Studio 2: Redline & Word Legal Legos (UC-1, UC-2)"]
-        GATEWAY --> S3["Studio 3: FundGen, FundHQ MFN & Antitrust HSR (UC-6)"]
-        GATEWAY --> S4["Studio 4: Intapp Ethical Wall & Spanner Graph (UC-7, UC-8)"]
-        GATEWAY --> S5["Studio 5: Partner Inbox & Calendar Triage (UC-4)"]
-    end
-```
-
-```text
-┌────────────────────────────────────────────────────────────────────────────┐
-│      HIGH-LEVEL DESIGN (HLD): WEIL ENTERPRISE LEGAL AI PLATFORM (GCP)      │
-├────────────────────────────────────────────────────────────────────────────┤
-│                                                                            │
-│  [A. DATA SOURCES]                                                         │
-│   ├── Path 1 (Unstructured Docs): PDFs, .docx, Charts, Diagrams, Scans     │
-│   ├── Path 2 (Governance/Apps):   Intapp Walls, CMN Metadata, FundGen/HQ   │
-│   └── Path 3 (Email/Cal/Chat):    Evaluating Direct API vs. Graph Metadata │
-│                                    │                                       │
-│                                    ▼                                       │
-│  [B. UNSTRUCTURED INDEXING PIPELINE vs. DIRECT API FEDERATION]             │
-│   ├── Unstructured Pipeline (CRITICAL PATH FOR MVP):                       │
-│   │   • Clause/Section Hierarchy + Page/BBox Pin-Cite Extraction           │
-│   │   • Multimodal 2-Pass Chart, Table, Org-Diagram & Signature OCR        │
-│   │   • 3072-Dim gemini-embedding-001 + TOKENLIST Full-Text Tokenization   │
-│   └── Direct API / Federated MCP (Email, Calendar, Chat):                  │
-│       • Live runtime API calls for schedule conflicts, inbox triage & chat │
-│       • Avoids indexing/embedding 150M+ raw emails                         │
-│                                    │                                       │
-│                                    ▼                                       │
-│  [C. CLOUD SPANNER HYBRID GRAPHRAG (weil-legal-spanner / WeilLegalGraph)]  │
-│   ├── Gate 0: Screen-Before-Rank Intapp Ethical Wall & TeammateGrants      │
-│   └── 3-Way Hybrid RRF: Vector (Cosine) + Lexical (BM25) + ISO GQL Graph   │
-│                                    │                                       │
-│                                    ▼                                       │
-│  [D. GEMINI ENTERPRISE + 5 CUSTOM MCP APP STUDIOS (SEP-1865 / Cloud Run)]  │
-│   ├── Studio 1: Mike OSS Tabular Analysis Grid & Pin-Cite Reader (UC-3/5/6)│
-│   ├── Studio 2: Deterministic Redline & Word Legal Legos Studio (UC-1/2)   │
-│   ├── Studio 3: FundGen / FundHQ MFN & Antitrust HSR Lab (UC-6)            │
-│   ├── Studio 4: Intapp Ethical Wall, CMN Switcher & Graph Studio (UC-7/8)  │
-│   └── Studio 5: Partner Deal Inbox & Calendar Triage Studio (UC-4)         │
-└────────────────────────────────────────────────────────────────────────────┘
-```
-
 ---
 
 ## 2. Low-Level Design (LLD) — Unstructured Indexing Pipeline vs. Direct API Evaluation
 
 ![Weil Low-Level Design: Unstructured Indexing Pipeline vs. Direct API Evaluation](./docs/diagrams/02_weil_lld_unstructured_indexing_vs_direct_api.svg)
 
-Because legal diligence requires **exact verbatim clause pin-citing (`bbox` + page + hierarchical section)** across heterogeneous data rooms, the unstructured indexing pipeline is the primary technical dependency for moving from sample data to production data rooms:
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant GCS as GCS / Temporary Matter Bucket<br/>(PDF, .docx, PNG, Scans)
-    participant PARSER as Multimodal Extractor (docparse)<br/>(Layout + 2-Pass Gemini 3.8 Flash)
-    participant EMB as Vertex AI Embeddings<br/>(gemini-embedding-001 3072-D)
-    participant SPANNER as Cloud Spanner (WeilLegalGraph)<br/>Relational + Vector + FTS + Graph
-    participant GE as Gemini Enterprise MCP App<br/>(Tabular Grid & Pin-Cite UI)
-
-    GCS->>PARSER: 1. Ingest Unstructured File + Matter ID (CMN)
-    alt Executed PDF or Word (.docx)
-        PARSER->>PARSER: Extract 15-yr Legal Numbering Tree (ARTICLE / Section 8.02(b)) + Page BBox
-    else Financial Chart / Waterfall (PDF/PNG)
-        PARSER->>PARSER: Pass 1: Extract ChartSchemaOnly (Axes, Units, Series)<br/>Pass 2: Extract ChartData + Sum-to-Total Verification
-    else Corporate Org Diagram / Wet-Ink Scan
-        PARSER->>PARSER: Extract Entity Blocker Graph (Mermaid/JSON) + Signatory/Wire OCR
-    end
-    PARSER->>EMB: 2. Batch Embed Clause Chunks (task_type=RETRIEVAL_DOCUMENT, 3072-dim)
-    EMB-->>PARSER: Normalized FLOAT32[3072] Vectors
-    PARSER->>SPANNER: 3. Upsert Documents, Clauses, TOKENLIST & ISO GQL Edges (BelongsToMatter, CitesPrecedent)
-    GE->>SPANNER: 4. Query Grid Cell / Citation (with Lawyer ID & Active CMN)
-    SPANNER->>SPANNER: 5. Enforce IntappWalls (Screen-Before-Rank) -> Run 3-Way Hybrid RRF
-    SPANNER-->>GE: 6. Return Grounded Cell Answer + Verbatim Pin-Cite BBox & Page Highlight
-```
+Because legal diligence requires **exact verbatim clause pin-citing (`bbox` + page + hierarchical section)** across heterogeneous data rooms, the unstructured indexing pipeline is the primary technical dependency for moving from sample data to production data rooms.
 
 ---
 
