@@ -61,6 +61,9 @@ def render_4pillars_studio() -> str:
       --shadow-md: 0 28px 64px rgba(0, 0, 0, 0.62), inset 0 1.5px 0 rgba(255, 255, 255, 0.16);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      scroll-behavior: smooth;
+    }
     body {
       font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: var(--bg-canvas);
@@ -71,6 +74,7 @@ def render_4pillars_studio() -> str:
       background-attachment: fixed;
       color: var(--ink-primary);
       min-height: 100vh;
+      padding-bottom: 96px;
       overflow-x: hidden;
       transition: background 0.25s ease, color 0.25s ease;
     }
@@ -840,39 +844,47 @@ def render_4pillars_studio() -> str:
 
     /* =====================================================================
        PERSISTENT OMNI-PILLAR VOICE & SCREEN CO-PILOT BAR (KIRA)
+       Always fixed at the bottom of the viewport while the page scrolls dynamically!
        ===================================================================== */
     .omni-copilot-bar {
-      position: fixed;
-      bottom: 10px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: calc(100% - 32px);
-      max-width: 1460px;
-      background: rgba(255, 255, 255, 0.97);
-      backdrop-filter: blur(18px);
-      border: 1px solid #DDDDDD;
-      border-radius: 999px;
-      padding: 6px 12px;
-      color: #222222;
-      z-index: 950;
+      position: fixed !important;
+      bottom: 14px !important;
+      left: 50% !important;
+      transform: translateX(-50%) !important;
+      width: calc(100% - 32px) !important;
+      max-width: 1460px !important;
+      margin: 0 !important;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(24px) saturate(190%);
+      -webkit-backdrop-filter: blur(24px) saturate(190%);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+      border-radius: 999px !important;
+      padding: 7px 14px;
+      color: #0F172A;
+      z-index: 9950;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
-      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
+      gap: 10px;
+      box-shadow: 0 12px 36px rgba(15, 23, 42, 0.14), 0 2px 8px rgba(216, 30, 40, 0.08) !important;
     }
     [data-theme="dark"] .omni-copilot-bar {
-      background: rgba(15, 23, 42, 0.96);
-      border-color: #334155;
+      background: rgba(15, 23, 42, 0.94);
+      border-color: rgba(255, 255, 255, 0.14);
       color: #F8FAFC;
     }
     .omni-left {
       display: flex;
       align-items: center;
-      gap: 8px;
-      min-width: 175px;
-      max-width: 215px;
-      flex-shrink: 0;
+      gap: 9px;
+      width: 215px;
+      flex: 0 0 215px;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .omni-left > div:last-child {
+      min-width: 0;
+      flex: 1 1 auto;
       overflow: hidden;
     }
     .omni-avatar-thumb {
@@ -891,9 +903,9 @@ def render_4pillars_studio() -> str:
       object-fit: cover;
     }
     .omni-title {
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 800;
-      color: #222222;
+      color: #0F172A;
       display: flex;
       align-items: center;
       gap: 5px;
@@ -904,9 +916,9 @@ def render_4pillars_studio() -> str:
     [data-theme="dark"] .omni-title { color: #FFF; }
     .omni-transcript {
       font-size: 10px;
-      color: #717171;
+      color: #64748B;
       font-weight: 600;
-      max-width: 190px;
+      width: 100%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -917,20 +929,22 @@ def render_4pillars_studio() -> str:
       display: flex;
       align-items: center;
       gap: 6px;
-      flex: 1 1 280px;
-      min-width: 220px;
-      max-width: 420px;
+      flex: 1 1 320px;
+      min-width: 240px;
     }
     .omni-cmd-input {
       width: 100%;
-      padding: 7px 13px;
+      height: 34px;
+      padding: 0 14px;
       border-radius: 999px;
-      border: 1px solid #DDDDDD;
-      background: #F7F7F7;
-      color: #222222;
+      border: 1px solid #CBD5E1;
+      background: #F8FAFC;
+      color: #0F172A;
       font-family: inherit;
-      font-size: 11.5px;
+      font-size: 12px;
+      font-weight: 500;
       outline: none;
+      transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
     }
     [data-theme="dark"] .omni-cmd-input {
       background: #020617;
@@ -938,36 +952,40 @@ def render_4pillars_studio() -> str:
       color: #F8FAFC;
     }
     .omni-cmd-input:focus {
-      border-color: #222222;
+      border-color: #D81E28;
       background: #FFFFFF;
+      box-shadow: 0 0 0 3px rgba(216, 30, 40, 0.12);
     }
     .omni-chips {
       display: flex;
       align-items: center;
       gap: 5px;
       flex-wrap: nowrap;
-      overflow-x: auto;
-      scrollbar-width: none;
+      flex-shrink: 0;
     }
     .omni-chips::-webkit-scrollbar { display: none; }
     .omni-chip {
-      border: 1px solid #DDDDDD;
+      height: 32px;
+      border: 1px solid #E2E8F0;
       background: #FFFFFF;
-      color: #222222;
-      padding: 6px 10px;
+      color: #0F172A;
+      padding: 0 11px;
       border-radius: 999px;
-      font-size: 10.5px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
       display: inline-flex;
       align-items: center;
-      gap: 4px;
+      justify-content: center;
+      gap: 5px;
+      line-height: 1;
       transition: all 0.14s ease;
     }
     .omni-chip:hover {
-      border-color: #222222;
-      background: #F7F7F7;
+      border-color: #D81E28;
+      color: #D81E28;
+      background: #FFF5F5;
     }
     .omni-actions {
       display: flex;
@@ -976,23 +994,29 @@ def render_4pillars_studio() -> str:
       flex-shrink: 0;
     }
     .omni-btn {
-      border: 1px solid #DDDDDD;
-      background: #222222;
+      height: 34px;
+      border: 1px solid #E2E8F0;
+      background: #0F172A;
       color: #FFFFFF;
-      padding: 7px 13px;
+      padding: 0 13px;
       border-radius: 999px;
       font-size: 11.5px;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 5px;
+      line-height: 1;
       white-space: nowrap;
       transition: all 0.14s ease;
     }
     .omni-btn.primary {
-      background: linear-gradient(135deg, #FF385C 0%, #E31C5F 100%);
-      border-color: #FF385C;
+      background: linear-gradient(135deg, #D81E28 0%, #B91C1C 100%);
+      border-color: #D81E28;
+      background-clip: padding-box;
+      box-shadow: 0 4px 12px rgba(216, 30, 40, 0.25);
+    }
       color: #FFFFFF;
     }
     .omni-btn.mic-live {
@@ -1076,18 +1100,9 @@ def render_4pillars_studio() -> str:
     /* =========================================================================
        PILLAR 5: REDFIN POWERED BY ROCKET × GEMINI AI MARKETPLACE (BETTER THAN REDFIN.COM)
        ========================================================================= */
-    /* When Pillar 5 is active, dock Kira PiP & Omni Bar cleanly so 0px of cards or map are ever covered */
+    /* Keep the Kira Omni Co-Pilot Bar ALWAYS fixed & available at the bottom of the viewport across all tabs */
     body.p5-clean-mode .kira-pip-card:not(.speaking) {
       display: none !important;
-    }
-    body.p5-clean-mode .omni-copilot-bar {
-      position: static !important;
-      transform: none !important;
-      width: 100% !important;
-      max-width: 1480px !important;
-      margin: 24px auto 12px !important;
-      border-radius: 16px !important;
-      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06) !important;
     }
 
     /* 1. CRYSTAL LIQUID WHITE GLASS HERO BANNER + ROCKET RED ACCENTS */
