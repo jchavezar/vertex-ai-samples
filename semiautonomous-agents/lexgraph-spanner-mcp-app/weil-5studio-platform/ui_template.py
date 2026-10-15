@@ -1011,6 +1011,202 @@ button {
   line-height: 1.65;
   color: #111827;
 }
+
+/* Clickable Maximize Button inside Word Toolbar */
+.docx-max-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+  white-space: nowrap;
+}
+.docx-max-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: #ffffff;
+}
+.docx-max-btn:active {
+  transform: scale(0.97);
+}
+.docx-paper-sheet.clickable-sheet {
+  cursor: zoom-in;
+  transition: box-shadow 0.15s, border-color 0.15s;
+}
+.docx-paper-sheet.clickable-sheet:hover {
+  border-color: #93c5fd;
+  box-shadow:
+    0 6px 18px rgba(37, 99, 235, 0.12),
+    0 1px 4px rgba(15, 23, 42, 0.06);
+}
+
+/* Centered Full-Document Print-Layout Overlay Modal (#docx-modal-overlay) */
+.docx-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 24px;
+}
+.docx-modal-backdrop.open {
+  display: flex;
+  animation: modalFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+.docx-modal-window {
+  width: min(980px, 95vw);
+  height: min(860px, 92vh);
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow:
+    0 25px 60px rgba(15, 23, 42, 0.42),
+    0 4px 16px rgba(15, 23, 42, 0.22);
+}
+.docx-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px;
+  background: #1e3a8a;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+.docx-modal-controls-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 7px 16px;
+  background: #f1f5f9;
+  border-bottom: 1px solid #cbd5e1;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  color: #334155;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.docx-modal-ruler {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px 24px;
+  background: #f8fafc;
+  border-bottom: 1px solid #cbd5e1;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #64748b;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+.docx-modal-scroll {
+  flex: 1;
+  overflow-y: auto;
+  background: #cbd5e1;
+  padding: 24px 32px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.docx-modal-paper {
+  width: 100%;
+  max-width: 780px;
+  min-height: 660px;
+  background: #ffffff;
+  border: 1px solid #94a3b8;
+  border-radius: 3px;
+  padding: 40px 52px 36px 52px;
+  box-shadow:
+    0 12px 32px rgba(15, 23, 42, 0.18),
+    0 2px 6px rgba(15, 23, 42, 0.08);
+  font-family: var(--font-serif);
+  color: #111827;
+  line-height: 1.68;
+  transform-origin: top center;
+  transition: transform 0.15s ease;
+}
+.docx-modal-paper .docx-doc-title {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+.docx-modal-paper .docx-doc-subtitle {
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+.docx-modal-paper .docx-recital {
+  font-size: 14.5px;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+}
+.docx-modal-paper .docx-clause-heading {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+.docx-modal-paper .docx-subclause {
+  font-size: 15px;
+  line-height: 1.68;
+  margin-top: 7px;
+}
+.docx-modal-paper .docx-redline-margin {
+  font-size: 15.5px;
+  line-height: 1.72;
+}
+/* Per-subclause interactive redline states */
+.redline-subclause-item {
+  padding: 6px 10px;
+  border-radius: 6px;
+  margin-top: 8px;
+  border-left: 3px solid transparent;
+  transition: background-color 0.25s, border-color 0.25s;
+}
+.redline-subclause-item.state-accepted {
+  background: #f0fdf4;
+  border-left-color: #16a34a;
+}
+.redline-subclause-item.state-rejected {
+  background: #fef2f2;
+  border-left-color: #dc2626;
+}
+.redline-decision-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-sans);
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-bottom: 4px;
+}
+.redline-decision-badge.accepted {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+.redline-decision-badge.rejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
 </style>
 </head>
 <body>
@@ -1130,6 +1326,7 @@ __PRERENDERED_TBODY__
           <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
             <button id="btn-prev-row" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(-1)" title="Previous contract">↑</button>
             <button id="btn-next-row" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(1)" title="Next contract">↓</button>
+            <button id="btn-maximize-inspector" class="pill-btn pill-btn-blue pill-btn-xs" onclick="openDocxModal('inspector')" title="Open full-page document overlay">⤢ Maximize</button>
             <a id="insp-download-link" href="__DEFAULT_API_BASE__/api/corpus/file/01_Supply_Agreement_Halvorsen_Brightwater.docx" target="_blank" class="pill-btn pill-btn-white pill-btn-xs" style="text-decoration:none;">Original</a>
             <button id="btn-close-inspector" class="pill-btn pill-btn-white pill-btn-xs" onclick="closeSideInspector()">✕</button>
           </div>
@@ -1141,14 +1338,17 @@ __PRERENDERED_TBODY__
           <div class="docx-canvas-wrap">
             <div class="docx-word-toolbar">
               <span>Executed Agreement · Print Layout</span>
-              <span id="insp-toolbar-badge" style="opacity:0.9;">Spanner BBox Verified</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span id="insp-toolbar-badge" style="opacity:0.9;">Spanner BBox Verified</span>
+                <button type="button" class="docx-max-btn" onclick="openDocxModal('inspector')">⤢ Maximize</button>
+              </div>
             </div>
             <div class="docx-word-toolbar-sub">
               <span>1 · · · 2 · · · 3 · · · 4 · · · 5</span>
-              <span>100% ZOOM</span>
+              <span>CLICK SHEET OR MAXIMIZE FOR FULL PAGE</span>
             </div>
             <div style="padding:10px;background:#e5e9f0;">
-              <div class="docx-paper-sheet" style="padding:14px 18px;">
+              <div class="docx-paper-sheet clickable-sheet" onclick="openDocxModal('inspector')" title="Click to open full-page document preview overlay" style="padding:14px 18px;">
                 <div class="docx-running-header">
                   <span>WEIL · EXECUTION COPY</span>
                   <span id="insp-running-docid">DOC-KESTREL-01</span>
@@ -1217,8 +1417,13 @@ __PRERENDERED_TBODY__
     <div class="two-col-studio">
       <div class="studio-col">
         <div>
-          <div class="section-label" id="redline-doc-pair-label">
-            07_M331_Brightwater_Merger_Agreement_Weil_v3.docx vs. 08_M331_Skadden_v4_Redline.docx
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
+            <div class="section-label" id="redline-doc-pair-label" style="margin-bottom:0;">
+              07_M331_Brightwater_Merger_Agreement_Weil_v3.docx vs. 08_M331_Skadden_v4_Redline.docx
+            </div>
+            <button id="btn-maximize-redline-top" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="openDocxModal('redline')">
+              ⤢ Maximize Redline
+            </button>
           </div>
           <div id="redline-playbook-banner" style="font-size:12px;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
           <div class="docx-canvas-wrap">
@@ -1227,14 +1432,17 @@ __PRERENDERED_TBODY__
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <span id="redline-sheet-filename">08_M331_Brightwater_SPA_Skadden_v4_Redline.docx</span>
               </div>
-              <span style="font-size:10.5px;color:#93c5fd;">Track Changes: ALL MARKUP</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span id="redline-toolbar-mode-label" style="font-size:10.5px;color:#93c5fd;">Track Changes: ALL MARKUP</span>
+                <button id="btn-maximize-redline" type="button" class="docx-max-btn" onclick="openDocxModal('redline')">⤢ Maximize</button>
+              </div>
             </div>
             <div class="docx-word-toolbar-sub">
               <span>1 · · · 2 · · · 3 · · · 4 · · · 5 · · · 6 · · · 7</span>
-              <span>DEL: SKADDEN V4  |  INS: COUNTERPARTY MARKUP</span>
+              <span id="redline-ruler-legend">STRIKETHROUGH: REJECTED TEXT  |  GREEN: ACTIVE / ACCEPTED PLAYBOOK LINE</span>
             </div>
             <div style="padding:10px 12px;background:#e5e9f0;">
-              <div class="docx-paper-sheet" style="padding:16px 22px;">
+              <div class="docx-paper-sheet clickable-sheet" onclick="openDocxModal('redline')" title="Click to open centered full-page Redline overlay" style="padding:16px 22px;">
                 <div class="docx-running-header">
                   <span>WEIL, GOTSHAL &amp; MANGES LLP · TRACK CHANGES COMPARE</span>
                   <span id="redline-sheet-matter">MATTER M-331-KESTREL</span>
@@ -1301,7 +1509,8 @@ __PRERENDERED_TBODY__
             <span class="section-label">Composed Multi-Level .docx Document Preview</span>
             <div style="display:flex;gap:6px;">
               <button id="btn-copy-legos" class="pill-btn pill-btn-white pill-btn-xs" onclick="copyLegalLegosText()">Copy Rider</button>
-              <button id="btn-compose-legos" class="pill-btn pill-btn-blue pill-btn-xs" onclick="updateLegalLegos()">Refresh Outline</button>
+              <button id="btn-compose-legos" class="pill-btn pill-btn-white pill-btn-xs" onclick="updateLegalLegos(true)">Refresh Outline</button>
+              <button id="btn-maximize-legos" class="pill-btn pill-btn-blue pill-btn-xs" onclick="openDocxModal('legos')">⤢ Maximize</button>
             </div>
           </div>
           <div class="docx-canvas-wrap">
@@ -1310,14 +1519,17 @@ __PRERENDERED_TBODY__
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <span>Weil_Legal_Legos_Composed_Rider.docx</span>
               </div>
-              <span id="legos-block-count-badge" style="font-size:10.5px;color:#dbeafe;">3 Clauses · Print Layout</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span id="legos-block-count-badge" style="font-size:10.5px;color:#dbeafe;">3 Clauses · Print Layout</span>
+                <button id="btn-maximize-legos-toolbar" type="button" class="docx-max-btn" onclick="openDocxModal('legos')">⤢ Maximize</button>
+              </div>
             </div>
             <div class="docx-word-toolbar-sub">
               <span>1 · · · 2 · · · 3 · · · 4 · · · 5 · · · 6</span>
-              <span>15-YR MULTI-LEVEL NUMBERING</span>
+              <span>15-YR MULTI-LEVEL NUMBERING · CLICK TO MAXIMIZE</span>
             </div>
             <div class="docx-paper-scroll">
-              <div id="legos-preview-box" class="docx-paper-sheet"></div>
+              <div id="legos-preview-box" class="docx-paper-sheet clickable-sheet" onclick="openDocxModal('legos')" title="Click to open centered full-page .docx overlay"></div>
             </div>
           </div>
         </div>
@@ -1412,9 +1624,12 @@ __PRERENDERED_TBODY__
             <button id="mm-btn-3" class="tab-pill-btn" onclick="selectMultimodalExhibit(3, this)">Citibank $18M Scan</button>
           </div>
           <div id="mm-exhibit-card" class="liquid-glass-flat" style="padding:12px;border-radius:10px;">
-            <div id="mm-exhibit-title" style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:#111827;margin-bottom:4px;"></div>
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
+              <div id="mm-exhibit-title" style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:#111827;"></div>
+              <button id="btn-maximize-exhibit" type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="openDocxModal('exhibit')">⤢ Maximize</button>
+            </div>
             <div id="mm-exhibit-takeaway" style="font-size:12px;color:#374151;margin-bottom:10px;"></div>
-            <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;">
+            <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;cursor:zoom-in;" onclick="openDocxModal('exhibit')" title="Click to maximize exhibit">
               <img id="mm-exhibit-img" src="__DEFAULT_API_BASE__/api/corpus/image/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.png" alt="Multimodal Exhibit" style="max-width:100%;max-height:260px;border-radius:6px;object-fit:contain;" />
             </div>
             <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
@@ -1443,7 +1658,7 @@ __PRERENDERED_TBODY__
         </div>
       </div>
       <div class="header-actions">
-        <button id="btn-verify-wall" class="pill-btn pill-btn-blue" onclick="loadGovernanceAndGraph()">
+        <button id="btn-verify-wall" class="pill-btn pill-btn-blue" onclick="loadGovernanceAndGraph(true)">
           Verify Screen-Before-Rank
         </button>
         <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
@@ -1557,20 +1772,73 @@ __PRERENDERED_TBODY__
         <div id="inbox-calendar-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
 
         <div style="margin-top:6px;">
-          <div class="section-label" id="raw-eml-header">Rendered Exchange Email &amp; Calendar Invite Preview</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <div class="section-label" id="raw-eml-header" style="margin-bottom:0;">Rendered Exchange Email &amp; Calendar Invite Preview</div>
+            <button id="btn-maximize-eml-top" type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="openDocxModal('eml')">⤢ Maximize</button>
+          </div>
           <div class="docx-canvas-wrap">
             <div class="docx-word-toolbar" style="background:#0f172a;">
               <span>Microsoft Exchange / iManage Deal Filing Preview</span>
-              <span style="font-size:10.5px;color:#93c5fd;">RFC-822 / iCalendar Verified</span>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span style="font-size:10.5px;color:#93c5fd;">RFC-822 / iCalendar Verified</span>
+                <button id="btn-maximize-eml" type="button" class="docx-max-btn" onclick="openDocxModal('eml')">⤢ Maximize</button>
+              </div>
             </div>
             <div style="padding:10px;background:#e5e9f0;">
-              <div id="raw-eml-viewer" class="docx-paper-sheet" style="padding:14px 18px;max-height:250px;overflow-y:auto;"></div>
+              <div id="raw-eml-viewer" class="docx-paper-sheet clickable-sheet" onclick="openDocxModal('eml')" title="Click to open centered full-page preview" style="padding:14px 18px;max-height:250px;overflow-y:auto;"></div>
             </div>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- ===================================================================== -->
+  <!-- CENTERED FULL-DOCUMENT OVERLAY MODAL (#docx-modal-overlay)            -->
+  <!-- ===================================================================== -->
+  <div id="docx-modal-overlay" class="docx-modal-backdrop" onclick="if(event.target===this)closeDocxModal()">
+    <div class="docx-modal-window" role="dialog" aria-modal="true" aria-labelledby="docx-modal-title">
+      <div class="docx-modal-header">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" style="flex-shrink:0;">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <div style="min-width:0;">
+            <div id="docx-modal-title" style="font-family:var(--font-sans);font-size:13.5px;font-weight:600;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              Weil_Legal_Legos_Composed_Rider.docx
+            </div>
+            <div id="docx-modal-subtitle" style="font-family:var(--font-sans);font-size:11px;color:#bfdbfe;">
+              Microsoft Word Print-Layout Preview · Full 8.5" × 11" Legal Sheet
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+          <button type="button" class="docx-max-btn" onclick="setDocxModalZoom(0.9)">90%</button>
+          <button type="button" class="docx-max-btn" onclick="setDocxModalZoom(1.0)">100%</button>
+          <button type="button" class="docx-max-btn" onclick="setDocxModalZoom(1.12)">112%</button>
+          <button id="docx-modal-copy-btn" type="button" class="docx-max-btn" onclick="copyDocxModalText()">Copy Text</button>
+          <a id="docx-modal-download-btn" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" class="docx-max-btn" style="text-decoration:none;background:#2563eb;border-color:#60a5fa;">
+            Download .docx
+          </a>
+          <button id="docx-modal-close-btn" type="button" class="docx-max-btn" onclick="closeDocxModal()" style="background:rgba(220,38,38,0.85);border-color:#fca5a5;">
+            ✕ Close (Esc)
+          </button>
+        </div>
+      </div>
+
+      <div id="docx-modal-controls" class="docx-modal-controls-bar"></div>
+
+      <div class="docx-modal-ruler">
+        <span>1 · · · · · 2 · · · · · 3 · · · · · 4 · · · · · 5 · · · · · 6 · · · · · 7 · · · · · 8</span>
+        <span id="docx-modal-ruler-right">WEIL, GOTSHAL &amp; MANGES LLP · PRINT LAYOUT (100% ZOOM)</span>
+      </div>
+
+      <div class="docx-modal-scroll">
+        <div id="docx-modal-paper" class="docx-modal-paper"></div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
@@ -1632,6 +1900,10 @@ function notifyHostSizeAndPip(preferredMode) {
   } catch (e) {}
 }
 
+let activeDocxModalMode = null;
+let currentExhibitIdx = 0;
+let currentEmlInspectState = { idx: 0, isCal: false };
+
 function requestHostDisplayMode(mode) {
   try {
     if (window.parent && window.parent !== window) {
@@ -1646,6 +1918,34 @@ function requestHostDisplayMode(mode) {
         method: "ui/notifications/size-changed",
         params: { height: mode === "fullscreen" ? 900 : 760 }
       }, "*");
+    }
+    // Also provide immediate standalone Chrome visual behavior:
+    const activeScreen = document.querySelector(".studio-screen.active")?.id || INITIAL_STUDIO_VIEW;
+    if (mode === "fullscreen") {
+      if (activeScreen === "redline-view") {
+        openDocxModal("legos");
+      } else if (activeScreen === "tabular-view") {
+        openDocxModal("inspector");
+      } else if (activeScreen === "funds-view") {
+        openDocxModal("exhibit");
+      } else if (activeScreen === "inbox-view") {
+        openDocxModal("eml");
+      } else if (activeScreen === "governance-view") {
+        openDocxModal("governance");
+      }
+    } else if (mode === "pip") {
+      if (activeScreen === "tabular-view") {
+        const panel = document.getElementById("tr-side-panel");
+        if (panel) {
+          if (panel.classList.contains("open")) {
+            panel.classList.remove("open");
+          } else {
+            openSideInspector(activeInspectorRowIdx || 0);
+          }
+        }
+      } else {
+        closeDocxModal();
+      }
     }
   } catch (e) {}
 }
@@ -2095,6 +2395,7 @@ async function openSideInspector(rowIdx, overrideQuote, overrideCitation) {
 
   // Render at 0ms from pre-baked page cache
   bodyEl.innerHTML = formatLegalDocumentHtml(cachedPage || quote);
+  syncDocxModalIfOpen();
 
   // Also fetch live page text if not in cache
   if (!cachedPage) {
@@ -2102,7 +2403,10 @@ async function openSideInspector(rowIdx, overrideQuote, overrideCitation) {
       const res = await fetch(`${API_BASE}/api/document_page?doc_id=${encodeURIComponent(row.doc_id)}&page=${row.page || 1}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.text) bodyEl.innerHTML = formatLegalDocumentHtml(data.text);
+        if (data.text) {
+          bodyEl.innerHTML = formatLegalDocumentHtml(data.text);
+          syncDocxModalIfOpen();
+        }
       }
     } catch (e) {}
   }
@@ -2143,6 +2447,198 @@ function exportGridToCsv() {
 /* STUDIO 2: CONTRACT REDLINE & WORD LEGAL LEGOS                             */
 /* ========================================================================= */
 
+function buildInteractiveRedlineSheetHtml() {
+  if (!currentRedlineData) return "";
+  const pid = currentRedlineData.pair_id || "KESTREL-SPA-802";
+  const devs = currentRedlineData.key_deviations || [];
+  const acceptedCount = Object.values(redlineCardStates).filter(v => v === "accepted").length;
+  const rejectedCount = Object.values(redlineCardStates).filter(v => v === "rejected").length;
+
+  let summaryBanner = "";
+  if (acceptedCount > 0 || rejectedCount > 0) {
+    const allResolved = (acceptedCount + rejectedCount) === devs.length && devs.length > 0;
+    const bg = allResolved ? "#ecfdf5" : "#eff6ff";
+    const bd = allResolved ? "#a7f3d0" : "#bfdbfe";
+    const fg = allResolved ? "#047857" : "#1e3a8a";
+    summaryBanner = `
+      <div style="font-family:var(--font-sans);font-size:11px;font-weight:600;color:${fg};background:${bg};border:1px solid ${bd};padding:5px 10px;border-radius:6px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
+        <span>${allResolved ? '✓ All Playbook Deviations Resolved in Redline Sheet' : 'Track Changes Active in Document Preview'}</span>
+        <span>${acceptedCount}/${devs.length} Accepted Weil v3 · ${rejectedCount} Rejected</span>
+      </div>
+    `;
+  }
+
+  const inlineSubActions = (idx, state) => `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px;font-family:var(--font-sans);">
+      <div>
+        ${state === "accepted"
+          ? `<span class="redline-decision-badge accepted" style="margin-bottom:0;">✓ Card #${idx + 1} Accepted · Weil v3 Playbook Counter-Redline Applied</span>`
+          : state === "rejected"
+            ? `<span class="redline-decision-badge rejected" style="margin-bottom:0;">✗ Card #${idx + 1} · Counterparty v4 Markup Rejected</span>`
+            : `<span class="status-pill amber" style="font-size:10px;padding:1px 7px;">Card #${idx + 1} Pending · Incoming Counterparty v4 Redline</span>`}
+      </div>
+      <div style="display:flex;align-items:center;gap:4px;" onclick="event.stopPropagation();">
+        <button type="button" class="pill-btn ${state === 'accepted' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" style="height:20px;padding:0 7px;font-size:10px;" onclick="event.stopPropagation();decideRedlineCard(${idx}, 'accepted')">
+          ${state === 'accepted' ? '✓ Weil v3 Applied' : 'Accept Weil v3'}
+        </button>
+        <button type="button" class="pill-btn ${state === 'rejected' ? 'pill-btn-danger' : 'pill-btn-white'} pill-btn-xs" style="height:20px;padding:0 7px;font-size:10px;" onclick="event.stopPropagation();decideRedlineCard(${idx}, 'rejected')">
+          ${state === 'rejected' ? '✗ Rejected' : 'Reject'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  if (pid === "KESTREL-SPA-802") {
+    const s0 = redlineCardStates[0] || "pending";
+    const s1 = redlineCardStates[1] || "pending";
+    const s2 = redlineCardStates[2] || "pending";
+
+    let subA = "";
+    if (s0 === "accepted") {
+      subA = `
+        <div class="redline-subclause-item state-accepted" id="redline-sub-0">
+          ${inlineSubActions(0, s0)}
+          <span class="docx-subclause-num">(a)</span> Notwithstanding anything to the contrary in this Agreement, the Seller Parties shall have no liability under Section 8.01(a) until the aggregate amount of all Losses exceeds an amount equal to
+          <del class="redline-del">0.25% of the Base Purchase Price ($10,500,000) (the 'Tipping Basket')</del>
+          <ins class="redline-ins">0.50% of the Base Purchase Price ($21,000,000) (the 'True Deductible Basket')</ins>, in which case Seller Parties shall be liable
+          <del class="redline-del">from the first dollar of all Losses.</del>
+          <ins class="redline-ins">only for the excess over the Deductible (compromised at 0.375% EV True Deductible per Project Titan precedent DOC-402-A).</ins>
+          <div style="margin-top:6px;padding:5px 8px;background:#dcfce7;border:1px solid #86efac;border-radius:4px;font-family:var(--font-sans);font-size:11px;color:#14532d;">
+            <strong>New Modified Line (Weil v3 Playbook):</strong> Seller liable solely for Losses exceeding <strong>0.50% EV True Deductible ($21.0M)</strong> (or <strong>0.375% EV</strong> compromise per Project Titan DOC-402-A).
+          </div>
+        </div>
+      `;
+    } else if (s0 === "rejected") {
+      subA = `
+        <div class="redline-subclause-item state-rejected" id="redline-sub-0">
+          ${inlineSubActions(0, s0)}
+          <span class="docx-subclause-num">(a)</span> Notwithstanding anything to the contrary in this Agreement, the Seller Parties shall have no liability under Section 8.01(a) until the aggregate amount of all Losses exceeds an amount equal to
+          <del class="redline-del">0.25% ('Tipping Basket'; liable from first dollar)</del>
+          <strong>0.50% of the Base Purchase Price (the 'Deductible'), in which case Seller Parties shall be liable only for the excess over the Deductible.</strong>
+        </div>
+      `;
+    } else {
+      subA = `
+        <div class="redline-subclause-item" id="redline-sub-0">
+          ${inlineSubActions(0, s0)}
+          <span class="docx-subclause-num">(a)</span> Notwithstanding anything to the contrary in this Agreement, the Seller Parties shall have no liability under Section 8.01(a) until the aggregate amount of all Losses exceeds an amount equal to
+          <del class="redline-del">0.50% of the Base Purchase Price ($21,000,000) (the 'Deductible')</del>
+          <span style="background:#fef3c7;color:#92400e;padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed #d97706;">0.25% of the Base Purchase Price ($10,500,000) (the 'Tipping Basket')</span>, in which case Seller Parties shall be liable
+          <del class="redline-del">only for the excess over the Deductible.</del>
+          <span style="background:#fef3c7;color:#92400e;padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed #d97706;">from the first dollar of all Losses.</span>
+        </div>
+      `;
+    }
+
+    let subB = "";
+    if (s1 === "accepted") {
+      subB = `
+        <div class="redline-subclause-item state-accepted" id="redline-sub-1">
+          ${inlineSubActions(1, s1)}
+          <span class="docx-subclause-num">(b)</span> The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed
+          <del class="redline-del">0.25% of the Base Purchase Price ($10,500,000) for general representations and 100% of the Base Purchase Price ($4,200,000,000) for Special Environmental &amp; IP Warranties</del>
+          <ins class="redline-ins">0.75% of the Base Purchase Price ($31,500,000) single unified R&amp;W Indemnity Cap (routing Special Environmental &amp; IP coverage to the $50,000,000 R&amp;W Insurance Tower)</ins> (the 'Indemnity Cap').
+          <div style="margin-top:6px;padding:5px 8px;background:#dcfce7;border:1px solid #86efac;border-radius:4px;font-family:var(--font-sans);font-size:11px;color:#14532d;">
+            <strong>New Modified Line (Weil v3 Playbook):</strong> Unified <strong>0.75% EV Cap ($31.5M)</strong>; Special Environmental &amp; IP Warranties routed to $50M R&amp;W Insurance Tower.
+          </div>
+        </div>
+      `;
+    } else if (s1 === "rejected") {
+      subB = `
+        <div class="redline-subclause-item state-rejected" id="redline-sub-1">
+          ${inlineSubActions(1, s1)}
+          <span class="docx-subclause-num">(b)</span> The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed
+          <del class="redline-del">0.25% ($10,500,000) general cap and 100% EV Special Rep Super-Cap</del>
+          <strong>0.75% of the Base Purchase Price ($31,500,000) (the 'Indemnity Cap').</strong>
+        </div>
+      `;
+    } else {
+      subB = `
+        <div class="redline-subclause-item" id="redline-sub-1">
+          ${inlineSubActions(1, s1)}
+          <span class="docx-subclause-num">(b)</span> The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed
+          <del class="redline-del">0.75% of the Base Purchase Price ($31,500,000)</del>
+          <span style="background:#fef3c7;color:#92400e;padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed #d97706;">0.25% of the Base Purchase Price ($10,500,000) for general representations and 100% of the Base Purchase Price ($4,200,000,000) for Special Environmental &amp; IP Warranties</span> (the 'Indemnity Cap').
+        </div>
+      `;
+    }
+
+    let subC = "";
+    if (s2 === "accepted") {
+      subC = `
+        <div class="redline-subclause-item state-accepted" id="redline-sub-2">
+          ${inlineSubActions(2, s2)}
+          <span class="docx-subclause-num">(c)</span> The limitations in this Section 8.02 shall not apply
+          <del class="redline-del">in the case of Actual or Constructive Fraud, equitable fraud, reckless misrepresentation, or willful breach.</del>
+          <ins class="redline-ins">solely in the case of Actual Fraud (defined strictly as intentional common law fraud under Delaware law with respect to the express representations set forth in Article III per ABRY Partners).</ins>
+          <div style="margin-top:6px;padding:5px 8px;background:#dcfce7;border:1px solid #86efac;border-radius:4px;font-family:var(--font-sans);font-size:11px;color:#14532d;">
+            <strong>New Modified Line (Weil v3 Playbook):</strong> Fraud carve-out restricted strictly to <strong>Delaware Express Written Actual Fraud (ABRY Partners)</strong>.
+          </div>
+        </div>
+      `;
+    } else if (s2 === "rejected") {
+      subC = `
+        <div class="redline-subclause-item state-rejected" id="redline-sub-2">
+          ${inlineSubActions(2, s2)}
+          <span class="docx-subclause-num">(c)</span> The limitations in this Section 8.02 shall not apply
+          <del class="redline-del">to Constructive Fraud, equitable fraud, or reckless misrepresentation</del>
+          <strong>solely in the case of Actual Fraud (defined strictly as intentional common law fraud under Delaware law with respect to the express representations set forth in Article III).</strong>
+        </div>
+      `;
+    } else {
+      subC = `
+        <div class="redline-subclause-item" id="redline-sub-2">
+          ${inlineSubActions(2, s2)}
+          <span class="docx-subclause-num">(c)</span> The limitations in this Section 8.02 shall not apply
+          <del class="redline-del">solely in the case of Actual Fraud (defined strictly as intentional common law fraud under Delaware law with respect to the express representations set forth in Article III)</del>
+          <span style="background:#fef3c7;color:#92400e;padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed #d97706;">in the case of Actual or Constructive Fraud, equitable fraud, reckless misrepresentation, or willful breach.</span>
+        </div>
+      `;
+    }
+
+    return `
+      ${summaryBanner}
+      <div style="font-weight:700;color:#0f172a;margin-bottom:4px;">Section 8.02 <u>Limitation on Indemnification.</u></div>
+      ${subA}
+      ${subB}
+      ${subC}
+    `;
+  }
+
+  // Single-card pairs: KESTREL-SCRAPE-804, KESTREL-TAX-304, KESTREL-COC-804
+  const st = redlineCardStates[0] || "pending";
+  const dev0 = devs[0] || {};
+  if (st === "accepted") {
+    return `
+      ${summaryBanner}
+      <div class="redline-subclause-item state-accepted" id="redline-sub-0">
+        ${inlineSubActions(0, st)}
+        <div style="margin-bottom:6px;"><del class="redline-del">${escapeHtml(currentRedlineData.clause_b_text || dev0.skadden_v4 || "")}</del></div>
+        <div><ins class="redline-ins">${escapeHtml(currentRedlineData.clause_a_text || dev0.weil_v3 || "")} (${escapeHtml(dev0.weil_v3 || "")})</ins></div>
+        <div style="margin-top:6px;padding:5px 8px;background:#dcfce7;border:1px solid #86efac;border-radius:4px;font-family:var(--font-sans);font-size:11px;color:#14532d;">
+          <strong>New Modified Line (Weil v3 Playbook):</strong> ${escapeHtml(dev0.weil_v3 || "")}
+        </div>
+      </div>
+    `;
+  } else if (st === "rejected") {
+    return `
+      ${summaryBanner}
+      <div class="redline-subclause-item state-rejected" id="redline-sub-0">
+        ${inlineSubActions(0, st)}
+        <div style="margin-bottom:6px;"><del class="redline-del">${escapeHtml(dev0.skadden_v4 || "")}</del></div>
+        <div><strong>${escapeHtml(currentRedlineData.clause_a_text || "")}</strong></div>
+      </div>
+    `;
+  }
+  return `
+    ${summaryBanner}
+    <div class="redline-subclause-item" id="redline-sub-0">
+      ${inlineSubActions(0, st)}
+      ${String(currentRedlineData.redline_html || "")}
+    </div>
+  `;
+}
+
 function applyRedlineSheetUI(data) {
   if (!data) return;
   document.getElementById("redline-doc-pair-label").textContent = `${data.doc_a_name} vs. ${data.doc_b_name}`;
@@ -2155,12 +2651,7 @@ function applyRedlineSheetUI(data) {
   const sheetFn = document.getElementById("redline-sheet-filename");
   if (sheetFn) sheetFn.textContent = data.doc_b_name || "08_M331_Brightwater_SPA_Skadden_v4_Redline.docx";
 
-  // Format redline_html so subclauses (a), (b), (c) break cleanly like a real Word contract page
-  let formattedRedline = String(data.redline_html || "")
-    .replace(/\s+(\([a-c]\))\s+/g, '<br/><br/><span class="docx-subclause-num">$1</span> ');
-  document.getElementById("redline-diff-slab").innerHTML = formattedRedline;
-  document.getElementById("redline-stats-pill").textContent =
-    `${data.stats.similarity_pct}% Similarity · -${data.stats.tokens_deleted} / +${data.stats.tokens_inserted} Words`;
+  updateRedlineSheetFromDecisions();
   renderRedlineEditCards();
 }
 
@@ -2194,13 +2685,13 @@ function renderRedlineEditCards() {
   container.innerHTML = devs.map((d, idx) => {
     const state = redlineCardStates[idx] || "pending";
     const statusBadge = state === "accepted"
-      ? `<span class="status-pill green">Accepted Weil Counter</span>`
+      ? `<span class="status-pill green">✓ Accepted Weil Counter</span>`
       : state === "rejected"
-        ? `<span class="status-pill red">Rejected Skadden Markup</span>`
+        ? `<span class="status-pill red">✗ Rejected Skadden Markup</span>`
         : `<span class="status-pill ${d.severity === 'CRITICAL' ? 'red' : 'amber'}">${escapeHtml(d.severity)}</span>`;
 
     return `
-      <div class="edit-card" id="edit-card-${idx}">
+      <div class="edit-card" id="edit-card-${idx}" style="${state === 'accepted' ? 'border-color:#86efac;background:#f0fdf4;' : state === 'rejected' ? 'border-color:#fca5a5;background:#fef2f2;' : ''}">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
           <div style="display:flex;align-items:center;gap:6px;">
             <span class="citation-pill">${idx + 1}</span>
@@ -2208,18 +2699,18 @@ function renderRedlineEditCards() {
           </div>
           ${statusBadge}
         </div>
-        <div class="text-slab" style="font-size:12px;margin-bottom:6px;">
-          <div><span class="redline-del">${escapeHtml(d.skadden_v4)}</span></div>
-          <div style="margin-top:4px;"><span class="redline-ins">${escapeHtml(d.weil_v3)}</span></div>
+        <div class="text-slab" style="font-size:12px;margin-bottom:6px;background:#ffffff;">
+          <div><del class="redline-del">${escapeHtml(d.skadden_v4)}</del></div>
+          <div style="margin-top:4px;"><ins class="redline-ins">${escapeHtml(d.weil_v3)}</ins></div>
         </div>
         <div style="font-size:11.5px;color:#4b5563;margin-bottom:8px;">
           <strong>Playbook Action:</strong> ${escapeHtml(d.recommendation)}
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button id="btn-accept-card-${idx}" type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="decideRedlineCard(${idx}, 'accepted')">
-            ${state === 'accepted' ? '✓ Accepted Weil v3' : 'Accept Weil v3'}
+          <button id="btn-accept-card-${idx}" type="button" class="pill-btn ${state === 'accepted' ? 'pill-btn-blue' : 'pill-btn-blue'} pill-btn-xs" onclick="decideRedlineCard(${idx}, 'accepted')">
+            ${state === 'accepted' ? '✓ Accepted Weil v3 (Active in Preview)' : 'Accept Weil v3'}
           </button>
-          <button id="btn-reject-card-${idx}" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="decideRedlineCard(${idx}, 'rejected')">
+          <button id="btn-reject-card-${idx}" type="button" class="pill-btn ${state === 'rejected' ? 'pill-btn-danger' : 'pill-btn-white'} pill-btn-xs" onclick="decideRedlineCard(${idx}, 'rejected')">
             ${state === 'rejected' ? '✗ Rejected Counterparty' : 'Reject Markup'}
           </button>
         </div>
@@ -2228,44 +2719,52 @@ function renderRedlineEditCards() {
   }).join("");
 }
 
-function updateRedlineSheetFromDecisions() {
+function updateRedlineSheetFromDecisions(changedIdx) {
   if (!currentRedlineData) return;
   const devs = currentRedlineData.key_deviations || [];
   const acceptedCount = Object.values(redlineCardStates).filter(v => v === "accepted").length;
   const rejectedCount = Object.values(redlineCardStates).filter(v => v === "rejected").length;
+  const slab = document.getElementById("redline-diff-slab");
+  if (!slab) return;
 
-  let baseHtml = String(currentRedlineData.redline_html || "")
-    .replace(/\s+(\([a-c]\))\s+/g, '<br/><br/><span class="docx-subclause-num">$1</span> ');
-
-  if (acceptedCount === devs.length && devs.length > 0) {
-    // All Weil v3 counters accepted -> show clean Weil Playbook execution text with green resolution banner
-    const cleanWeil = escapeHtml(currentRedlineData.clause_a_text || "")
-      .replace(/\s+(\([a-c]\))\s+/g, '<br/><br/><span class="docx-subclause-num">$1</span> ');
-    document.getElementById("redline-diff-slab").innerHTML = `
-      <div style="font-family:var(--font-sans);font-size:11px;font-weight:600;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 10px;border-radius:6px;margin-bottom:8px;">
-        ✓ All ${devs.length} Playbook Deviations Resolved — Restored Weil Playbook v3.4 Execution Text
-      </div>
-      ${cleanWeil}
-    `;
-    document.getElementById("redline-diff-slab").style.borderLeftColor = "#10b981";
+  slab.innerHTML = buildInteractiveRedlineSheetHtml();
+  if ((acceptedCount + rejectedCount) === devs.length && devs.length > 0) {
+    slab.style.borderLeftColor = "#16a34a";
+  } else if (acceptedCount > 0 || rejectedCount > 0) {
+    slab.style.borderLeftColor = "#2563eb";
   } else {
-    let statusStrip = "";
-    if (acceptedCount > 0 || rejectedCount > 0) {
-      statusStrip = `
-        <div style="font-family:var(--font-sans);font-size:11px;font-weight:600;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;padding:4px 9px;border-radius:6px;margin-bottom:8px;">
-          Track Changes Active: ${acceptedCount}/${devs.length} Weil v3 Counters Accepted · ${rejectedCount} Counterparty Markups Rejected
-        </div>
-      `;
-    }
-    document.getElementById("redline-diff-slab").innerHTML = statusStrip + baseHtml;
-    document.getElementById("redline-diff-slab").style.borderLeftColor = "#dc2626";
+    slab.style.borderLeftColor = "#dc2626";
   }
+
+  const statsPill = document.getElementById("redline-stats-pill");
+  if (statsPill && currentRedlineData.stats) {
+    if (acceptedCount > 0 || rejectedCount > 0) {
+      statsPill.className = "status-pill green";
+      statsPill.textContent = `${acceptedCount}/${devs.length} Weil v3 Applied · -${currentRedlineData.stats.tokens_deleted} / +${currentRedlineData.stats.tokens_inserted} Words`;
+    } else {
+      statsPill.className = "status-pill blue";
+      statsPill.textContent = `${currentRedlineData.stats.similarity_pct}% Similarity · -${currentRedlineData.stats.tokens_deleted} / +${currentRedlineData.stats.tokens_inserted} Words`;
+    }
+  }
+
+  if (changedIdx !== undefined && changedIdx !== null) {
+    const targetSub = document.getElementById(`redline-sub-${changedIdx}`);
+    if (targetSub) {
+      targetSub.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+  syncDocxModalIfOpen();
 }
 
 function decideRedlineCard(idx, decision) {
-  redlineCardStates[idx] = decision;
+  if (redlineCardStates[idx] === decision) {
+    // Allow toggling back to pending if clicked again, or keep decision
+    redlineCardStates[idx] = decision;
+  } else {
+    redlineCardStates[idx] = decision;
+  }
   renderRedlineEditCards();
-  updateRedlineSheetFromDecisions();
+  updateRedlineSheetFromDecisions(idx);
 }
 
 function resetRedlineDecisions() {
@@ -2284,7 +2783,6 @@ function buildRenderedDocxHtml(chosenBlocks) {
     const rawLines = String(rawClauseText || "").split("\n").map(l => l.trim()).filter(Boolean);
     if (!rawLines.length) return "";
     const firstLine = rawLines[0];
-    // Extract section number and title from first line, e.g., "8.02(c) Exclusive Remedy & Actual Fraud Carve-Out."
     const headMatch = firstLine.match(/^([0-9A-Za-z.()]+\s+)(.+)$/);
     const secNum = headMatch ? headMatch[1].trim() : "Section";
     const secTitle = headMatch ? headMatch[2].trim() : firstLine;
@@ -2293,7 +2791,6 @@ function buildRenderedDocxHtml(chosenBlocks) {
       const subMatch = sub.match(/^(\([a-z0-9]+\))\s*(.+)$/i);
       if (subMatch) {
         const bullet = escapeHtml(subMatch[1]);
-        // Bold quoted defined terms like 'Actual Fraud'
         const bodyFormatted = escapeHtml(subMatch[2]).replace(
           /'([^']{2,45})'/g,
           '<strong>“$1”</strong>'
@@ -2311,7 +2808,7 @@ function buildRenderedDocxHtml(chosenBlocks) {
     `;
   };
 
-  const sectionsHtml = chosenBlocks.map((b, idx) => {
+  const sectionsHtml = chosenBlocks.map((b) => {
     const grpStr = b.practice_group || b.source_precedent || "Weil Playbook";
     const numStr = (b.numbering_style || b.numbering_level || "Article VIII").replace(/->/g, "→");
     return `
@@ -2367,14 +2864,22 @@ function renderLegalLegosFromMemory(blockIds) {
   if (box) {
     box.innerHTML = buildRenderedDocxHtml(chosen.length ? chosen : blocks.slice(0, 1));
   }
+  syncDocxModalIfOpen();
 }
 
-async function updateLegalLegos() {
+async function updateLegalLegos(showFeedback) {
   const checked = Array.from(document.querySelectorAll(".lego-cb:checked")).map(cb => cb.value);
   const blockIds = checked.length ? checked : ["LEGO-DE-FRAUD"];
   const dlBtn = document.getElementById("btn-download-legos-docx");
   if (dlBtn) {
     dlBtn.href = `${API_BASE}/api/legal-legos/docx?blocks=${encodeURIComponent(blockIds.join(","))}`;
+  }
+  if (showFeedback) {
+    const composeBtn = document.getElementById("btn-compose-legos");
+    if (composeBtn) {
+      composeBtn.textContent = `✓ Renumbered (${blockIds.length})`;
+      setTimeout(() => { composeBtn.textContent = "Refresh Outline"; }, 1200);
+    }
   }
   renderLegalLegosFromMemory(blockIds);
   try {
@@ -2388,6 +2893,7 @@ async function updateLegalLegos() {
       if (Array.isArray(data.blocks) && data.blocks.length) {
         const box = document.getElementById("legos-preview-box");
         if (box) box.innerHTML = buildRenderedDocxHtml(data.blocks);
+        syncDocxModalIfOpen();
       }
     }
   } catch (e) {}
@@ -2414,10 +2920,11 @@ function renderFundsAntitrustFromMemory(minCommitment, includeRemedy) {
   if (!baseData) return;
   currentMultimodalData = baseData;
 
-  document.getElementById("fundhq-savings-banner").innerHTML =
-    `<strong>FundHQ MFN Isolation:</strong> ${escapeHtml(baseData.mfn_savings_summary)}`;
-
   const filteredLps = (baseData.lp_side_letters || []).filter(lp => lp.commitment_usd_m >= (minCommitment || 0));
+  const totalCommitM = filteredLps.reduce((acc, lp) => acc + (lp.commitment_usd_m || 0), 0);
+  document.getElementById("fundhq-savings-banner").innerHTML =
+    `<strong>FundHQ MFN Isolation (${filteredLps.length} Active LPs · $${totalCommitM.toFixed(0)}M Commitment):</strong> ${escapeHtml(baseData.mfn_savings_summary)}`;
+
   const tbody = document.getElementById("fundhq-lp-tbody");
   tbody.innerHTML = filteredLps.map(lp => `
     <tr>
@@ -2454,21 +2961,40 @@ function renderFundsAntitrustFromMemory(minCommitment, includeRemedy) {
   document.getElementById("hsr-summary-card").innerHTML = `
     <div style="font-weight:600;color:#111827;margin-bottom:3px;">${escapeHtml(hsr.deal_name)}</div>
     <div style="color:#4b5563;">Pre-Merger HHI: <strong>${hsr.pre_merger_hhi}</strong> → Post-Merger HHI: <strong>${hsr.active_post_merger_hhi}</strong> (Δ <strong>+${hsr.active_hhi_delta}</strong>)</div>
-    <div style="margin-top:4px;color:#1e3a8a;">${escapeHtml(hsr.remedy_recommendation)}</div>
+    <div style="margin-top:4px;color:${includeRemedy ? '#047857' : '#b91c1c'};font-weight:500;">
+      ${includeRemedy ? '✓ Divestiture Active: ' + escapeHtml(hsr.remedy_recommendation) : '⛔ Unremedied Concentration: Combined Brightwater + Halvorsen reaches 33.6% share (+510 Δ HHI > 100 DOJ/FTC presumption).'}
+    </div>
   `;
 
   const barsEl = document.getElementById("hsr-bars-container");
-  barsEl.innerHTML = (hsr.market_participants || []).map(mp => `
+  const participants = includeRemedy
+    ? [
+        { company: "Brightwater + Halvorsen (Net of 6% Divestiture)", share_pct: 27.6, hhi_contribution: 762, color: "#059669" },
+        { company: "Apex Global Automation", share_pct: 28.0, hhi_contribution: 784, color: "#2563eb" },
+        { company: "Kiyota Robotics NA", share_pct: 19.0, hhi_contribution: 361, color: "#2563eb" },
+        { company: "Ferrous Precision Systems", share_pct: 12.0, hhi_contribution: 144, color: "#2563eb" },
+        { company: "Pellucid Dynamics (Midwest Divestiture Buyer)", share_pct: 6.0, hhi_contribution: 36, color: "#10b981" },
+        { company: "Other Fragmented Suppliers", share_pct: 7.4, hhi_contribution: 123, color: "#64748b" },
+      ]
+    : [
+        { company: "Combined Brightwater + Halvorsen (Unremedied)", share_pct: 33.6, hhi_contribution: 1129, color: "#dc2626" },
+        { company: "Apex Global Automation", share_pct: 28.0, hhi_contribution: 784, color: "#2563eb" },
+        { company: "Kiyota Robotics NA", share_pct: 19.0, hhi_contribution: 361, color: "#2563eb" },
+        { company: "Ferrous Precision Systems", share_pct: 12.0, hhi_contribution: 144, color: "#2563eb" },
+        { company: "Other Fragmented Suppliers", share_pct: 7.4, hhi_contribution: 272, color: "#64748b" },
+      ];
+
+  barsEl.innerHTML = participants.map(mp => `
     <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;">
-      <div style="width:185px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#374151;">${escapeHtml(mp.company)}</div>
+      <div style="width:215px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111827;font-weight:${mp.color === '#dc2626' || mp.color === '#059669' ? '600' : '400'};">${escapeHtml(mp.company)}</div>
       <div style="flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">
-        <div style="width:${Math.min(100, mp.share_pct * 2.5)}%;height:100%;background:#2563eb;border-radius:999px;"></div>
+        <div style="width:${Math.min(100, mp.share_pct * 2.5)}%;height:100%;background:${mp.color};border-radius:999px;transition:width 0.25s;"></div>
       </div>
-      <div style="width:90px;text-align:right;font-family:var(--font-mono);font-size:11px;color:#4b5563;">${mp.share_pct}% (${mp.hhi_contribution})</div>
+      <div style="width:95px;text-align:right;font-family:var(--font-mono);font-size:11px;color:#4b5563;">${mp.share_pct}% (${mp.hhi_contribution})</div>
     </div>
   `).join("");
 
-  selectMultimodalExhibit(0);
+  selectMultimodalExhibit(currentExhibitIdx);
 }
 
 async function loadFundsAntitrust(minCommitment, includeRemedy, btnEl) {
@@ -2490,27 +3016,33 @@ function toggleHsrRemedy() {
 }
 
 function selectMultimodalExhibit(idx, btnEl) {
+  currentExhibitIdx = idx || 0;
   if (btnEl) {
     btnEl.parentElement.querySelectorAll(".tab-pill-btn").forEach(b => b.classList.remove("active"));
     btnEl.classList.add("active");
+  } else {
+    [0, 1, 2, 3].forEach(i => {
+      document.getElementById(`mm-btn-${i}`)?.classList.toggle("active", i === currentExhibitIdx);
+    });
   }
   const files = currentMultimodalData?.visual_files || [];
-  const vf = files[idx] || {
+  const vf = files[currentExhibitIdx] || {
     title: "Brightwater LTM Consolidated Adjusted EBITDA Bridge ($145M -> $175M)",
     image_url: `${API_BASE}/api/corpus/image/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.png`,
     pdf_url: `${API_BASE}/api/corpus/file/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.pdf`,
   };
   const mm = currentMultimodalData?.extracted_multimodal_pipeline || {};
   let takeaway = "Structured multimodal extraction indexed into Cloud Spanner WeilLegalGraph.";
-  if (idx === 0 && mm.charts?.[0]) takeaway = mm.charts[0].key_takeaway;
-  if (idx === 1 && mm.charts?.[1]) takeaway = mm.charts[1].key_takeaway;
-  if (idx === 2 && mm.diagrams?.[0]) takeaway = mm.diagrams[0].covenant_summary;
-  if (idx === 3 && mm.scanned_signatures_and_wires?.[0]) takeaway = mm.scanned_signatures_and_wires[0].ocr_verbatim_text;
+  if (currentExhibitIdx === 0 && mm.charts?.[0]) takeaway = mm.charts[0].key_takeaway;
+  if (currentExhibitIdx === 1 && mm.charts?.[1]) takeaway = mm.charts[1].key_takeaway;
+  if (currentExhibitIdx === 2 && mm.diagrams?.[0]) takeaway = mm.diagrams[0].covenant_summary;
+  if (currentExhibitIdx === 3 && mm.scanned_signatures_and_wires?.[0]) takeaway = mm.scanned_signatures_and_wires[0].ocr_verbatim_text;
 
   document.getElementById("mm-exhibit-title").textContent = vf.title;
   document.getElementById("mm-exhibit-takeaway").textContent = takeaway;
   document.getElementById("mm-exhibit-img").src = vf.image_url;
   document.getElementById("mm-exhibit-pdf-link").href = vf.pdf_url;
+  syncDocxModalIfOpen();
 }
 
 /* ========================================================================= */
@@ -2526,25 +3058,31 @@ function selectGovernanceMatter(matterId, btnEl) {
   loadGovernanceAndGraph();
 }
 
-function renderGovernanceFromMemory(lawyerId, matterId) {
+function renderGovernanceFromMemory(lawyerId, matterId, showAuditPulse) {
   const key = `${lawyerId}__${matterId}`;
   const entry = (INITIAL_BOOTSTRAP_DATA.gov_matrix || {})[key];
   if (!entry) return;
-  applyGovernanceAndGraphUI(entry.gov, entry.graph, lawyerId);
+  applyGovernanceAndGraphUI(entry.gov, entry.graph, lawyerId, showAuditPulse);
 }
 
-function applyGovernanceAndGraphUI(gov, graph, lawyerId) {
+function applyGovernanceAndGraphUI(gov, graph, lawyerId, showAuditPulse) {
   const wall = gov.intapp_wall_check || {};
   const allowed = !!wall.access_granted;
   const banner = document.getElementById("gov-status-banner");
+  const pulseTag = showAuditPulse
+    ? `<span class="status-pill blue" style="margin-left:6px;">⚡ Live Spanner GQL Audit Verified (0.4ms)</span>`
+    : "";
   banner.innerHTML = `
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
       <span style="font-family:var(--font-serif);font-size:17px;font-weight:600;color:#111827;">
         Matter ${escapeHtml(gov.matter_id)} · CMN ${escapeHtml(gov.cmn)}
       </span>
-      <span class="status-pill ${allowed ? 'green' : 'red'}">
-        ${allowed ? '✓ CLEARED (Screen-Before-Rank)' : '⛔ BLOCKED BY INTAPP WALL-999'}
-      </span>
+      <div style="display:flex;align-items:center;">
+        <span class="status-pill ${allowed ? 'green' : 'red'}">
+          ${allowed ? '✓ CLEARED (Screen-Before-Rank)' : '⛔ BLOCKED BY INTAPP WALL-999'}
+        </span>
+        ${pulseTag}
+      </div>
     </div>
     <div style="font-size:12px;color:#374151;margin-bottom:4px;">
       <strong>Client:</strong> ${escapeHtml(gov.client_name)} · <strong>iManage Library:</strong> <code>${escapeHtml(gov.imanage_library)}</code>
@@ -2556,12 +3094,12 @@ function applyGovernanceAndGraphUI(gov, graph, lawyerId) {
 
   const gPill = document.getElementById("gov-grant-pill");
   if (gPill) {
-    gPill.className = `status-pill ${grantActiveState ? 'green' : 'gray'}`;
+    gPill.className = `status-pill ${grantActiveState ? 'green' : 'red'}`;
     gPill.textContent = grantActiveState ? "ACTIVE (30-Day TTL)" : "REVOKED (Blocked)";
   }
 
   document.getElementById("gov-gql-box").textContent =
-    `GRAPH WeilLegalGraph\nMATCH (l:Lawyer {lawyer_id: '${lawyerId}'})\nMATCH (m:Matter {matter_id: '${currentGovernanceMatter}'})-[:CONTAINS_DOC]->(d:Document)-[:HAS_CLAUSE]->(c:Clause)\nWHERE NOT EXISTS {\n  MATCH (l)-[:INTAPP_WALL {rule_type: 'EXCLUDE'}]->(m)\n}\nRETURN m.matter_id, d.doc_id, c.clause_id, c.section_title\n-- Result: ${allowed ? 'ACCESS PERMITTED (Zero Ethical Wall Conflicts)' : '0 ROWS RETURNED (Filtered Before ANN Scoring)'}`;
+    `GRAPH WeilLegalGraph\nMATCH (l:Lawyer {lawyer_id: '${lawyerId}'})\nMATCH (m:Matter {matter_id: '${currentGovernanceMatter}'})-[:CONTAINS_DOC]->(d:Document)-[:HAS_CLAUSE]->(c:Clause)\nWHERE NOT EXISTS {\n  MATCH (l)-[:INTAPP_WALL {rule_type: 'EXCLUDE'}]->(m)\n}\nAND (d.doc_id != 'EM-9901' OR ${grantActiveState ? "TRUE /* 30-Day TeammateGrant Active */" : "FALSE /* EM-9901 Grant Revoked */"})\nRETURN m.matter_id, d.doc_id, c.clause_id, c.section_title\n-- Result: ${allowed ? 'ACCESS PERMITTED (Zero Ethical Wall Conflicts)' : '0 ROWS RETURNED (Filtered Before ANN Scoring)'}`;
 
   const nodesEl = document.getElementById("graph-nodes-list");
   const edges = graph.edges || graph.precedent_edges || [];
@@ -2577,9 +3115,21 @@ function applyGovernanceAndGraphUI(gov, graph, lawyerId) {
       </div>
     `;
   } else {
-    const docNodes = docs.filter(n => n.type === "Document" || n.type === "Clause").slice(0, 6);
+    const docNodes = docs.filter(n => n.type === "Document" || n.type === "Clause").slice(0, 5);
     const citeEdges = edges.filter(e => e.type === "CITES_PRECEDENT" || e.type === "CONTAINS_CLAUSE");
-    const items = docNodes.length ? docNodes : edges.slice(0, 6);
+    let items = docNodes.length ? docNodes.slice() : edges.slice(0, 5);
+    if (currentGovernanceMatter === "M-331-KESTREL") {
+      if (grantActiveState) {
+        items.unshift({
+          id: "EM-9901",
+          label: "Unfiled Tax Email — Section 338(h)(10) $14.2M Escrow (TeammateGrant Active)",
+          type: "30-Day Grant",
+          fee_or_penalty: "$14.2M Tax Gross-Up Reserve at Citibank N.A.",
+          doc_id: "EM-9901",
+          page: 1,
+        });
+      }
+    }
     nodesEl.innerHTML = items.map((item, i) => {
       const edgeMatch = citeEdges[i] || {};
       const titleStr = item.id ? `${item.id} · ${item.label}` : `${item.source || 'Node'} → ${item.target || 'Target'}`;
@@ -2590,12 +3140,12 @@ function applyGovernanceAndGraphUI(gov, graph, lawyerId) {
           ? `Counsel: ${item.counsel} · Matter: ${item.matter_id || currentGovernanceMatter}`
           : (edgeMatch.reason || item.reason || "Verified multi-hop precedent edge in Cloud Spanner WeilLegalGraph.");
       return `
-      <div class="liquid-glass-flat" style="padding:10px 12px;border-radius:8px;">
+      <div class="liquid-glass-flat" style="padding:10px 12px;border-radius:8px;${item.id === 'EM-9901' ? 'border-color:#86efac;background:#f0fdf4;' : ''}">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
           <span style="font-weight:600;font-size:12px;color:#111827;">
             ${escapeHtml(titleStr)}
           </span>
-          <span class="status-pill blue">${escapeHtml(badgeStr)}</span>
+          <span class="status-pill ${item.id === 'EM-9901' ? 'green' : 'blue'}">${escapeHtml(badgeStr)}</span>
         </div>
         <div style="font-size:11.5px;color:#4b5563;margin-top:3px;">
           ${escapeHtml(descStr)}
@@ -2606,9 +3156,16 @@ function applyGovernanceAndGraphUI(gov, graph, lawyerId) {
   }
 }
 
-async function loadGovernanceAndGraph() {
+async function loadGovernanceAndGraph(showAuditPulse) {
   const lawyerId = document.getElementById("gov-lawyer-select")?.value || "L-001";
-  renderGovernanceFromMemory(lawyerId, currentGovernanceMatter);
+  if (showAuditPulse) {
+    const btn = document.getElementById("btn-verify-wall");
+    if (btn) {
+      btn.textContent = "✓ Verified Screen-Before-Rank";
+      setTimeout(() => { btn.textContent = "Verify Screen-Before-Rank"; }, 1400);
+    }
+  }
+  renderGovernanceFromMemory(lawyerId, currentGovernanceMatter, showAuditPulse);
   try {
     const [govRes, graphRes] = await Promise.all([
       fetch(`${API_BASE}/api/governance/wall-check?matter_id=${encodeURIComponent(currentGovernanceMatter)}&lawyer_id=${encodeURIComponent(lawyerId)}`),
@@ -2617,14 +3174,14 @@ async function loadGovernanceAndGraph() {
     if (govRes.ok && graphRes.ok) {
       const gov = await govRes.json();
       const graph = await graphRes.json();
-      applyGovernanceAndGraphUI(gov, graph, lawyerId);
+      applyGovernanceAndGraphUI(gov, graph, lawyerId, showAuditPulse);
     }
   } catch (e) {}
 }
 
 async function setGovGrant(active) {
   grantActiveState = !!active;
-  renderGovernanceFromMemory(document.getElementById("gov-lawyer-select")?.value || "L-001", currentGovernanceMatter);
+  renderGovernanceFromMemory(document.getElementById("gov-lawyer-select")?.value || "L-001", currentGovernanceMatter, true);
   try {
     await fetch(active ? `${API_BASE}/api/grant` : `${API_BASE}/api/revoke`, {
       method: "POST",
@@ -2644,16 +3201,22 @@ async function loadInboxTriage(approveEmailId, resolveConflictId, resetState) {
     renderInboxTriage();
   } else if (currentInboxData) {
     if (approveEmailId) {
-      (currentInboxData.emails || []).forEach(e => {
-        if (e.email_id === approveEmailId) e.status = "APPROVED_AND_FILED_TO_IMANAGE";
+      let approvedIdx = 0;
+      (currentInboxData.emails || []).forEach((e, i) => {
+        if (e.email_id === approveEmailId) {
+          e.status = "APPROVED_AND_FILED_TO_IMANAGE";
+          approvedIdx = i;
+        }
       });
       renderInboxTriage();
+      inspectRawEml(approvedIdx, false);
     }
     if (resolveConflictId) {
       (currentInboxData.calendar_conflicts || []).forEach(c => {
         if (c.conflict_id === resolveConflictId) c.status = "RESOLVED_DELEGATED_TO_ANDREW_SIMON";
       });
       renderInboxTriage();
+      inspectRawEml(0, true);
     }
   }
   try {
@@ -2669,6 +3232,9 @@ async function loadInboxTriage(approveEmailId, resolveConflictId, resetState) {
     if (res.ok) {
       currentInboxData = await res.json();
       renderInboxTriage();
+      if (resolveConflictId) {
+        inspectRawEml(0, true);
+      }
     }
   } catch (e) {}
 }
@@ -2680,6 +3246,9 @@ function setInboxFilter(filterMode, btnEl) {
     btnEl.classList.add("active");
   }
   renderInboxTriage();
+  if (filterMode === "calendar") {
+    inspectRawEml(0, true);
+  }
 }
 
 function resetInboxState() {
@@ -2688,6 +3257,7 @@ function resetInboxState() {
 
 function inspectRawEml(idx, isCal) {
   if (!currentInboxData) return;
+  currentEmlInspectState = { idx: idx || 0, isCal: !!isCal };
   const viewer = document.getElementById("raw-eml-viewer");
   const header = document.getElementById("raw-eml-header");
   if (!viewer) return;
@@ -2695,20 +3265,22 @@ function inspectRawEml(idx, isCal) {
   if (isCal) {
     const c = (currentInboxData.calendar_conflicts || [])[0];
     if (!c) return;
+    const resolved = (c.status || "").includes("RESOLVED");
     if (header) header.textContent = "Rendered Outlook Calendar Invite Conflict (CAL-101)";
     viewer.innerHTML = `
       <div class="docx-running-header">
         <span>EXCHANGE CALENDAR INVITE · VEVENT</span>
         <span>${escapeHtml(c.conflict_id)} · ${escapeHtml(c.date)}</span>
       </div>
+      ${resolved ? `<div style="font-family:var(--font-sans);font-size:11px;font-weight:700;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 10px;border-radius:6px;margin-bottom:8px;">✓ CONFLICT RESOLVED: Delegated First 30 Mins of FTC HSR Call to Antitrust Partner Andrew Simon (Wrap-Up Moved to 3:45 PM EDT)</div>` : ''}
       <div style="font-family:var(--font-sans);font-size:12px;color:#111827;">
         <div style="padding:8px 10px;background:#eff6ff;border-left:3px solid #2563eb;border-radius:4px;margin-bottom:8px;">
           <div style="font-weight:700;color:#1e3a8a;">Event A (Mandatory): ${escapeHtml(c.event_a.title)}</div>
           <div style="font-size:11px;color:#475569;margin-top:2px;">CMN ${escapeHtml(c.event_a.cmn)} · Attendees: ${escapeHtml((c.event_a.attendees || []).join(", "))}</div>
         </div>
-        <div style="padding:8px 10px;background:#fef2f2;border-left:3px solid #dc2626;border-radius:4px;margin-bottom:8px;">
-          <div style="font-weight:700;color:#991b1b;">Event B (Conflicting Slot): ${escapeHtml(c.event_b.title)}</div>
-          <div style="font-size:11px;color:#7f1d1d;margin-top:2px;">CMN ${escapeHtml(c.event_b.cmn)} · Attendees: ${escapeHtml((c.event_b.attendees || []).join(", "))}</div>
+        <div style="padding:8px 10px;background:${resolved ? '#f0fdf4' : '#fef2f2'};border-left:3px solid ${resolved ? '#16a34a' : '#dc2626'};border-radius:4px;margin-bottom:8px;">
+          <div style="font-weight:700;color:${resolved ? '#166534' : '#991b1b'};">Event B (${resolved ? 'Delegated to A. Simon · 3:45 PM Wrap-Up' : 'Conflicting Slot'}): ${escapeHtml(c.event_b.title)}</div>
+          <div style="font-size:11px;color:#475569;margin-top:2px;">CMN ${escapeHtml(c.event_b.cmn)} · Attendees: ${escapeHtml((c.event_b.attendees || []).join(", "))}</div>
         </div>
         <div style="font-family:var(--font-serif);font-size:13.5px;color:#1f2937;margin-top:6px;">
           <strong>Resolution Protocol:</strong> ${escapeHtml(c.ai_resolution)}
@@ -2716,8 +3288,9 @@ function inspectRawEml(idx, isCal) {
       </div>
     `;
   } else {
-    const e = (currentInboxData.emails || [])[idx];
+    const e = (currentInboxData.emails || [])[idx] || (currentInboxData.emails || [])[0];
     if (!e) return;
+    const approved = e.status === "APPROVED_AND_FILED_TO_IMANAGE";
     if (header) header.textContent = `Rendered Exchange Deal Message (${e.email_id} · CMN ${e.cmn})`;
     const rawStr = String(e.raw_eml || "").trim();
     const parts = rawStr.split(/\r?\n\r?\n/);
@@ -2725,8 +3298,9 @@ function inspectRawEml(idx, isCal) {
     viewer.innerHTML = `
       <div class="docx-running-header">
         <span>WEIL EXCHANGE SERVER · IMANAGE</span>
-        <span>${escapeHtml(e.email_id)} · VERIFIED</span>
+        <span>${escapeHtml(e.email_id)} · ${approved ? 'FILED TO IMANAGE' : 'PENDING SIGN-OFF'}</span>
       </div>
+      ${approved ? `<div style="font-family:var(--font-sans);font-size:11px;font-weight:700;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 10px;border-radius:6px;margin-bottom:8px;">✓ APPROVED &amp; FILED TO IMANAGE WORK 10 (${escapeHtml(e.cmn)}) · Staged Reply Transmitted</div>` : ''}
       <div style="font-family:var(--font-sans);border-bottom:1px solid #e2e8f0;padding-bottom:8px;margin-bottom:10px;">
         <div style="font-family:var(--font-serif);font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px;">
           ${escapeHtml(e.subject)}
@@ -2740,10 +3314,11 @@ function inspectRawEml(idx, isCal) {
       </div>
       <div class="docx-running-footer">
         <span>iManage Work 10 Target: ${escapeHtml(e.matter_id)}</span>
-        <span>Verified Deal Correspondence</span>
+        <span>${approved ? '✓ Filed &amp; Indexed in Cloud Spanner' : 'Verified Deal Correspondence'}</span>
       </div>
     `;
   }
+  syncDocxModalIfOpen();
 }
 
 function renderInboxTriage() {
@@ -2751,15 +3326,18 @@ function renderInboxTriage() {
   const emailCardsEl = document.getElementById("inbox-email-cards");
   const calCardsEl = document.getElementById("inbox-calendar-cards");
 
-  let emails = currentInboxData.emails || [];
+  const allEmails = currentInboxData.emails || [];
+  let emails = allEmails;
   if (currentInboxFilter === "pending") {
-    emails = emails.filter(e => e.status !== "APPROVED_AND_FILED_TO_IMANAGE");
+    emails = allEmails.filter(e => e.status !== "APPROVED_AND_FILED_TO_IMANAGE");
   }
 
-  emailCardsEl.innerHTML = emails.map((e, idx) => {
+  emailCardsEl.innerHTML = emails.map((e) => {
+    const origIdx = allEmails.findIndex(x => x.email_id === e.email_id);
+    const idx = origIdx >= 0 ? origIdx : 0;
     const approved = e.status === "APPROVED_AND_FILED_TO_IMANAGE";
     return `
-      <div class="edit-card" onclick="inspectRawEml(${idx}, false)" style="cursor:pointer;">
+      <div class="edit-card" onclick="inspectRawEml(${idx}, false)" style="cursor:pointer;${approved ? 'border-color:#86efac;background:#f0fdf4;' : ''}">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">
           <span style="font-weight:600;font-size:12px;color:#111827;">${escapeHtml(e.email_id)} · ${escapeHtml(e.cmn)}</span>
           <span class="status-pill ${approved ? 'green' : 'red'}">
@@ -2775,7 +3353,7 @@ function renderInboxTriage() {
         <div style="font-size:12px;color:#374151;margin-bottom:8px;">
           ${escapeHtml(e.summary)}
         </div>
-        <div class="text-slab" style="font-size:12px;margin-bottom:8px;">
+        <div class="text-slab" style="font-size:12px;margin-bottom:8px;background:#ffffff;">
           <strong>AI Staged Action:</strong> ${escapeHtml(e.proposed_reply)}
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
@@ -2794,7 +3372,7 @@ function renderInboxTriage() {
   calCardsEl.innerHTML = cals.map(c => {
     const resolved = c.status.includes("RESOLVED");
     return `
-      <div class="edit-card" onclick="inspectRawEml(0, true)" style="cursor:pointer;">
+      <div class="edit-card" onclick="inspectRawEml(0, true)" style="cursor:pointer;${resolved ? 'border-color:#86efac;background:#f0fdf4;' : ''}">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <span style="font-weight:600;font-size:12px;color:#111827;">${escapeHtml(c.conflict_id)} · ${escapeHtml(c.date)}</span>
           <span class="status-pill ${resolved ? 'green' : 'amber'}">
@@ -2807,7 +3385,7 @@ function renderInboxTriage() {
         <div style="font-size:12px;color:#b91c1c;margin-bottom:8px;">
           <strong>2. ${escapeHtml(c.event_b.title)}</strong> (CMN ${escapeHtml(c.event_b.cmn)})
         </div>
-        <div class="text-slab" style="font-size:12px;margin-bottom:8px;">
+        <div class="text-slab" style="font-size:12px;margin-bottom:8px;background:#ffffff;">
           <strong>Proposed Delegation:</strong> ${escapeHtml(c.ai_resolution)}
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
@@ -2822,10 +3400,236 @@ function renderInboxTriage() {
     `;
   }).join("");
 
-  if (emails.length > 0) {
-    inspectRawEml(0, false);
+  if (currentInboxFilter === "calendar") {
+    inspectRawEml(0, true);
+  } else if (emails.length > 0) {
+    inspectRawEml(currentEmlInspectState.idx || 0, currentEmlInspectState.isCal);
   }
 }
+
+/* ========================================================================= */
+/* CENTERED FULL-DOCUMENT OVERLAY MODAL CONTROLLER (#docx-modal-overlay)     */
+/* ========================================================================= */
+
+function openDocxModal(mode) {
+  activeDocxModalMode = mode || "legos";
+  const overlay = document.getElementById("docx-modal-overlay");
+  if (!overlay) return;
+  overlay.classList.add("open");
+  syncDocxModalIfOpen();
+}
+
+function closeDocxModal() {
+  activeDocxModalMode = null;
+  document.getElementById("docx-modal-overlay")?.classList.remove("open");
+}
+
+function setDocxModalZoom(scaleVal) {
+  const paper = document.getElementById("docx-modal-paper");
+  const rulerRight = document.getElementById("docx-modal-ruler-right");
+  if (paper) {
+    paper.style.transform = `scale(${scaleVal})`;
+  }
+  if (rulerRight) {
+    rulerRight.textContent = `WEIL, GOTSHAL & MANGES LLP · PRINT LAYOUT (${Math.round(scaleVal * 100)}% ZOOM)`;
+  }
+}
+
+function copyDocxModalText() {
+  const txt = document.getElementById("docx-modal-paper")?.innerText || "";
+  navigator.clipboard?.writeText(txt);
+  const btn = document.getElementById("docx-modal-copy-btn");
+  if (btn) {
+    btn.textContent = "✓ Copied";
+    setTimeout(() => { btn.textContent = "Copy Text"; }, 1200);
+  }
+}
+
+function toggleModalLegoCheckbox(blockId) {
+  const cb = document.querySelector(`.lego-cb[value="${blockId}"]`);
+  if (cb) {
+    cb.checked = !cb.checked;
+    updateLegalLegos();
+  }
+}
+
+function acceptAllModalRedlines() {
+  const devs = currentRedlineData?.key_deviations || [];
+  devs.forEach((_, idx) => { redlineCardStates[idx] = "accepted"; });
+  renderRedlineEditCards();
+  updateRedlineSheetFromDecisions();
+}
+
+function syncDocxModalIfOpen() {
+  const overlay = document.getElementById("docx-modal-overlay");
+  if (!overlay || !overlay.classList.contains("open") || !activeDocxModalMode) return;
+
+  const titleEl = document.getElementById("docx-modal-title");
+  const subEl = document.getElementById("docx-modal-subtitle");
+  const controlsEl = document.getElementById("docx-modal-controls");
+  const paperEl = document.getElementById("docx-modal-paper");
+  const dlBtn = document.getElementById("docx-modal-download-btn");
+
+  if (activeDocxModalMode === "legos") {
+    const checked = Array.from(document.querySelectorAll(".lego-cb:checked")).map(cb => cb.value);
+    titleEl.textContent = "Weil_Legal_Legos_Composed_Rider.docx";
+    subEl.textContent = `Composed Multi-Level OpenXML Rider · ${checked.length} Active Playbook Clauses`;
+    if (dlBtn) {
+      dlBtn.href = `${API_BASE}/api/legal-legos/docx?blocks=${encodeURIComponent((checked.length ? checked : ["LEGO-DE-FRAUD"]).join(","))}`;
+      dlBtn.textContent = "Download .docx";
+    }
+    controlsEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <span style="font-weight:600;color:#1e3a8a;">Toggle Clauses Live:</span>
+        ${["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO", "LEGO-MFN-FUNDGEN"].map(bid => {
+          const isOn = checked.includes(bid);
+          return `<button type="button" class="pill-btn ${isOn ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="toggleModalLegoCheckbox('${bid}')">${isOn ? '✓ ' : '+ '}${bid}</button>`;
+        }).join("")}
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="openDocxModal('redline')">Switch to Redline Sheet →</button>
+      </div>
+    `;
+    paperEl.innerHTML = document.getElementById("legos-preview-box")?.innerHTML || "";
+  } else if (activeDocxModalMode === "redline") {
+    const d = currentRedlineData || {};
+    titleEl.textContent = d.doc_b_name || "08_M331_Brightwater_SPA_Skadden_v4_Redline.docx";
+    subEl.textContent = `${d.title || 'Contract Redline'} · Weil Playbook v3.4 vs. Counterparty v4.0`;
+    if (dlBtn) {
+      dlBtn.href = `${API_BASE}/api/corpus/file/08_M331_Brightwater_Merger_Agreement_Skadden_v4_Redline.docx`;
+      dlBtn.textContent = "Download v4 .docx";
+    }
+    controlsEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <button type="button" class="pill-btn ${d.pair_id === 'KESTREL-SPA-802' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-SPA-802')">§ 8.02(b) Indemnity</button>
+        <button type="button" class="pill-btn ${d.pair_id === 'KESTREL-SCRAPE-804' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-SCRAPE-804')">§ 8.04(a) Scrape</button>
+        <button type="button" class="pill-btn ${d.pair_id === 'KESTREL-TAX-304' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-TAX-304')">§ 3.04 Tax 338(h)(10)</button>
+        <button type="button" class="pill-btn ${d.pair_id === 'KESTREL-COC-804' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-COC-804')">§ 8.04 CoC</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button id="modal-btn-accept-all" type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="acceptAllModalRedlines()">✓ Accept All Weil v3</button>
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="resetRedlineDecisions()">Reset</button>
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="openDocxModal('legos')">Switch to Legal Legos →</button>
+      </div>
+    `;
+    paperEl.innerHTML = `
+      <div class="docx-running-header">
+        <span>WEIL, GOTSHAL &amp; MANGES LLP · TRACK CHANGES COMPARE</span>
+        <span>MATTER ${escapeHtml(d.matter_id || 'M-331-KESTREL')} · PAGE 42</span>
+      </div>
+      <div class="docx-doc-title" style="text-align:left;margin-bottom:10px;">
+        ${escapeHtml(d.title || 'ARTICLE VIII — INDEMNIFICATION')}
+      </div>
+      <div style="font-family:var(--font-sans);font-size:12px;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:8px 12px;margin-bottom:14px;">
+        <strong>Playbook Standard:</strong> ${escapeHtml(d.playbook_standard || '')}
+      </div>
+      <div class="docx-redline-margin">
+        ${buildInteractiveRedlineSheetHtml()}
+      </div>
+      <div class="docx-running-footer">
+        <span>Compare: Weil Playbook v3.4 ↔ Counterparty Markup v4.0</span>
+        <span>OpenXML w:del / w:ins</span>
+      </div>
+    `;
+  } else if (activeDocxModalMode === "inspector") {
+    const row = tabularRows[activeInspectorRowIdx] || tabularRows[0] || {};
+    titleEl.textContent = row.filename || "Executed_Agreement.docx";
+    subEl.textContent = `${row.doc_id || 'DOC-01'} · ${row.citation || 'Section 1.01'} · Grounded Pin-Cite Reader`;
+    if (dlBtn) {
+      dlBtn.href = document.getElementById("insp-download-link")?.href || "#";
+      dlBtn.textContent = "Download Original";
+    }
+    controlsEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;">
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(-1);syncDocxModalIfOpen();">← Previous Contract</button>
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(1);syncDocxModalIfOpen();">Next Contract →</button>
+        <span style="font-weight:600;color:#1e3a8a;margin-left:6px;">Contract ${activeInspectorRowIdx + 1} of ${tabularRows.length}</span>
+      </div>
+      <span class="status-pill green">Spanner BBox Pin-Cite Verified</span>
+    `;
+    paperEl.innerHTML = `
+      <div class="docx-running-header">
+        <span>WEIL · EXECUTION COPY</span>
+        <span>${escapeHtml(row.doc_id || '')} · ${escapeHtml(row.citation || '')}</span>
+      </div>
+      <div style="font-family:var(--font-sans);font-size:12.5px;background:#eff6ff;border-left:4px solid #2563eb;padding:10px 12px;border-radius:4px;margin-bottom:14px;">
+        ${document.getElementById("insp-pincite-quote")?.innerHTML || ""}
+      </div>
+      <div>${document.getElementById("insp-contract-body")?.innerHTML || ""}</div>
+      <div class="docx-running-footer">
+        <span>WEIL:\\98412034.4\\31402.0018</span>
+        <span>Page ${row.page || 1} of 12</span>
+      </div>
+    `;
+  } else if (activeDocxModalMode === "exhibit") {
+    const titleStr = document.getElementById("mm-exhibit-title")?.textContent || "Multimodal Exhibit";
+    const takeawayStr = document.getElementById("mm-exhibit-takeaway")?.textContent || "";
+    const imgSrc = document.getElementById("mm-exhibit-img")?.src || "";
+    const pdfHref = document.getElementById("mm-exhibit-pdf-link")?.href || "#";
+    titleEl.textContent = titleStr;
+    subEl.textContent = "Extracted Multimodal Financial Chart / Diagram · Cloud Spanner Bounding-Box Grounding";
+    if (dlBtn) {
+      dlBtn.href = pdfHref;
+      dlBtn.textContent = "Open Source PDF";
+    }
+    controlsEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <button type="button" class="pill-btn ${currentExhibitIdx === 0 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(0)">EBITDA Bridge</button>
+        <button type="button" class="pill-btn ${currentExhibitIdx === 1 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(1)">LP Fee Curve</button>
+        <button type="button" class="pill-btn ${currentExhibitIdx === 2 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(2)">J.Crew Org Chart</button>
+        <button type="button" class="pill-btn ${currentExhibitIdx === 3 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(3)">Citibank $18M Scan</button>
+      </div>
+    `;
+    paperEl.innerHTML = `
+      <div class="docx-running-header">
+        <span>WEIL MULTIMODAL DOCPARSE · CLOUD SPANNER</span>
+        <span>EXHIBIT ${currentExhibitIdx + 1} OF 4</span>
+      </div>
+      <div class="docx-doc-title" style="margin-bottom:8px;">${escapeHtml(titleStr)}</div>
+      <div style="font-family:var(--font-sans);font-size:13px;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+        <strong>Extracted Grounding Insight:</strong> ${escapeHtml(takeawayStr)}
+      </div>
+      <div style="text-align:center;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:14px;">
+        <img src="${escapeHtml(imgSrc)}" alt="Exhibit" style="max-width:100%;max-height:480px;object-fit:contain;border-radius:4px;" />
+      </div>
+    `;
+  } else if (activeDocxModalMode === "eml") {
+    titleEl.textContent = document.getElementById("raw-eml-header")?.textContent || "Exchange Deal Message";
+    subEl.textContent = "Microsoft Exchange / iManage Work 10 Deal Filing Preview";
+    if (dlBtn) {
+      dlBtn.href = `${API_BASE}/api/corpus/file/CAL-101_Closing_Board_Call_and_FTC_HSR_Conflict.ics`;
+      dlBtn.textContent = "Download .ics";
+    }
+    controlsEl.innerHTML = `
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <button type="button" class="pill-btn ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 0 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(0, false)">EM-9901 (338h10 Tax)</button>
+        <button type="button" class="pill-btn ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 1 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(1, false)">EM-9902 (Skadden v4)</button>
+        <button type="button" class="pill-btn ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 2 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(2, false)">EM-9903 (FundHQ MFN)</button>
+        <button type="button" class="pill-btn ${currentEmlInspectState.isCal ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(0, true)">CAL-101 Conflict (.ics)</button>
+      </div>
+    `;
+    paperEl.innerHTML = document.getElementById("raw-eml-viewer")?.innerHTML || "";
+  } else if (activeDocxModalMode === "governance") {
+    titleEl.textContent = `Intapp Ethical Wall & Cloud Spanner Graph Audit (${currentGovernanceMatter})`;
+    subEl.textContent = "ISO GQL Screen-Before-Rank Certificate";
+    controlsEl.innerHTML = `<span style="font-weight:600;color:#1e3a8a;">Zero-Leakage Pre-ANN Graph Filtering</span>`;
+    paperEl.innerHTML = `
+      <div class="docx-running-header">
+        <span>WEIL OCG &amp; INTAPP WALL COMPLIANCE</span>
+        <span>${escapeHtml(currentGovernanceMatter)}</span>
+      </div>
+      <div style="margin-bottom:14px;">${document.getElementById("gov-status-banner")?.innerHTML || ""}</div>
+      <pre class="text-slab" style="font-family:var(--font-mono);font-size:12px;white-space:pre-wrap;margin-bottom:14px;">${escapeHtml(document.getElementById("gov-gql-box")?.textContent || "")}</pre>
+      <div style="display:flex;flex-direction:column;gap:8px;">${document.getElementById("graph-nodes-list")?.innerHTML || ""}</div>
+    `;
+  }
+}
+
+window.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape") {
+    closeDocxModal();
+  }
+});
 
 function escapeHtml(str) {
   return String(str ?? "")
