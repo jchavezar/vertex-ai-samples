@@ -4,6 +4,8 @@
 > 📄 **Full HLD & LLD Architecture Blueprint:** [**`WEIL_HLD_LLD_ARCHITECTURE.md`**](./WEIL_HLD_LLD_ARCHITECTURE.md) · [**`WEIL_UNIFIED_ARCHITECTURE_AND_USE_CASES.md`**](./WEIL_UNIFIED_ARCHITECTURE_AND_USE_CASES.md) · 💻 **Unified 5-Studio Platform Source:** [**`weil-5studio-platform/`**](./weil-5studio-platform/)
 
 ### 🏛️ 1. High-Level Design (HLD) — End-to-End Enterprise Legal AI Platform
+![Weil Google Cloud Reference Architecture (HLD & LLD with Official GCP Icons)](./docs/diagrams/00_weil_gcp_reference_architecture.png)
+
 ![Weil Enterprise Legal AI High-Level Design (HLD)](./docs/diagrams/01_weil_hld_end_to_end_architecture.svg)
 
 ### ⚙️ 2. Low-Level Design (LLD-1 & LLD-2) — Unstructured Multimodal Indexing Pipeline vs. Direct API Evaluation (Email, Calendar, Chat)

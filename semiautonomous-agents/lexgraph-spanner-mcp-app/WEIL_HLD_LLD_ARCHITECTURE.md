@@ -39,6 +39,8 @@ However, **overall timeline feasibility depends primarily on the Unstructured Do
 
 ## 2. High-Level Design (HLD) — End-to-End Enterprise Legal Platform Architecture
 
+![Weil Google Cloud Reference Architecture (HLD & LLD with Official GCP Icons)](./docs/diagrams/00_weil_gcp_reference_architecture.png)
+
 ![Weil Enterprise Legal AI High-Level Design (HLD)](./docs/diagrams/01_weil_hld_end_to_end_architecture.svg)
 
 ```mermaid
