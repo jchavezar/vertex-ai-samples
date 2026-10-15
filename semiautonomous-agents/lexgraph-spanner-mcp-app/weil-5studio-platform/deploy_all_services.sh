@@ -3,7 +3,7 @@ set -euo pipefail
 
 PROJECT_ID="vtxdemos"
 REGION="us-central1"
-IMAGE="us-central1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/mike-gcp-platform:v3.3.0"
+IMAGE="us-central1-docker.pkg.dev/${PROJECT_ID}/cloud-run-source-deploy/mike-gcp-platform:v3.4.0"
 COMMON_ENV="GOOGLE_CLOUD_PROJECT=${PROJECT_ID},VERTEX_PROJECT_ID=${PROJECT_ID},VERTEX_LOCATION=global,SPANNER_INSTANCE=weil-legal-spanner,SPANNER_DATABASE=weil-legal-context,DEFAULT_CHAT_MODEL=gemini-3.8-flash,REASONING_CHAT_MODEL=gemini-3.7-flash,OTEL_TO_CLOUD=true"
 
 echo "=== Building ${IMAGE} via Cloud Build ==="

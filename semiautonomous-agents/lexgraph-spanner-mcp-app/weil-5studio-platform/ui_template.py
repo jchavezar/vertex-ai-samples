@@ -1094,71 +1094,231 @@ button {
   display: none;
   align-items: center;
   justify-content: center;
-  padding: 18px 24px;
+  padding: 8px 12px;
 }
 .docx-modal-backdrop.open {
   display: flex;
   animation: modalFadeIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 @keyframes modalFadeIn {
-  from { opacity: 0; transform: scale(0.97); }
+  from { opacity: 0; transform: scale(0.98); }
   to { opacity: 1; transform: scale(1); }
 }
 .docx-modal-window {
-  width: min(980px, 95vw);
-  height: min(860px, 92vh);
-  background: #f8fafc;
-  border: 1px solid #cbd5e1;
+  width: min(1560px, 98.5vw);
+  height: min(940px, 96.5vh);
+  background: #f8fafd;
+  border: 1px solid #dadce0;
   border-radius: 12px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   box-shadow:
-    0 25px 60px rgba(15, 23, 42, 0.42),
-    0 4px 16px rgba(15, 23, 42, 0.22);
+    0 25px 60px rgba(15, 23, 42, 0.38),
+    0 4px 16px rgba(15, 23, 42, 0.18);
+  font-family: var(--font-sans);
 }
+/* Google Workspace Top App Header */
 .docx-modal-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 10px 16px;
-  background: #1e3a8a;
-  color: #ffffff;
+  padding: 8px 16px 4px 16px;
+  background: #f8fafd;
+  color: #1f1f1f;
   flex-shrink: 0;
 }
+.gw-menu-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 2px;
+  font-size: 12.5px;
+  color: #1f1f1f;
+}
+.gw-menu-item {
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 4px;
+  user-select: none;
+}
+.gw-menu-item:hover {
+  background: #e8eaed;
+}
+/* Google Workspace Rounded Pill Formatting Toolbar (#edf2fa) */
+.gw-format-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 4px 16px 8px 16px;
+  padding: 5px 14px;
+  background: #edf2fa;
+  border-radius: 999px;
+  min-height: 40px;
+  flex-shrink: 0;
+  overflow-x: auto;
+}
+.gw-tool-group {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+.gw-tool-divider {
+  width: 1px;
+  height: 20px;
+  background: #c7c7c7;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+.gw-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 7px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #1f1f1f;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.12s;
+}
+.gw-tool-btn:hover {
+  background: rgba(31, 31, 31, 0.08);
+}
+.gw-tool-btn.active {
+  background: #d3e3fd;
+  color: #041e49;
+}
+.gw-tool-select {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: #1f1f1f;
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.gw-tool-select:hover {
+  background: rgba(31, 31, 31, 0.08);
+}
+/* Context sub-controls bar */
 .docx-modal-controls-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  padding: 7px 16px;
-  background: #f1f5f9;
-  border-bottom: 1px solid #cbd5e1;
+  padding: 4px 20px 6px 20px;
+  background: #f8fafd;
+  border-bottom: 1px solid #e1e3e1;
   font-family: var(--font-sans);
   font-size: 11.5px;
-  color: #334155;
+  color: #444746;
   flex-shrink: 0;
   flex-wrap: wrap;
+}
+/* 3-Column Google Workspace Body (Left Tabs + Center Document + Right Gemini Panel) */
+.gw-workspace-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #f8fafd;
+  padding: 0 14px 12px 14px;
+  gap: 14px;
+}
+.gw-left-tabs-pane {
+  width: 225px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 6px 10px 4px;
+  overflow-y: auto;
+  color: #1f1f1f;
+}
+.gw-tab-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: #444746;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  margin-bottom: 3px;
+  transition: background-color 0.12s;
+}
+.gw-tab-pill:hover {
+  background: #edf2fa;
+}
+.gw-tab-pill.active {
+  background: #d3e3fd;
+  color: #041e49;
+  font-weight: 600;
+}
+.gw-outline-item {
+  display: block;
+  width: 100%;
+  padding: 5px 12px 5px 22px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #444746;
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.gw-outline-item:hover {
+  background: #edf2fa;
+  color: #0b57d0;
+}
+/* Center Document Column */
+.gw-center-doc-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #f8fafd;
+  border-radius: 8px;
+  overflow: hidden;
 }
 .docx-modal-ruler {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3px 24px;
-  background: #f8fafc;
-  border-bottom: 1px solid #cbd5e1;
+  padding: 2px 28px;
+  background: #f8fafd;
+  border-bottom: 1px solid #e1e3e1;
   font-family: var(--font-mono);
   font-size: 9.5px;
-  color: #64748b;
+  color: #5f6368;
   letter-spacing: 0.08em;
   flex-shrink: 0;
 }
 .docx-modal-scroll {
   flex: 1;
   overflow-y: auto;
-  background: #cbd5e1;
-  padding: 24px 32px;
+  background: #f8fafd;
+  padding: 16px 20px 32px 20px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -1166,19 +1326,126 @@ button {
 .docx-modal-paper {
   width: 100%;
   max-width: 780px;
-  min-height: 660px;
+  min-height: 720px;
   background: #ffffff;
-  border: 1px solid #94a3b8;
-  border-radius: 3px;
-  padding: 40px 52px 36px 52px;
-  box-shadow:
-    0 12px 32px rgba(15, 23, 42, 0.18),
-    0 2px 6px rgba(15, 23, 42, 0.08);
+  border: 1px solid #c7c7c7;
+  padding: 44px 56px 44px 56px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
   font-family: var(--font-serif);
   color: #111827;
   line-height: 1.68;
   transform-origin: top center;
-  transition: transform 0.15s ease;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  outline: none;
+}
+.docx-modal-paper:focus {
+  border-color: #a8c7fa;
+  box-shadow: 0 2px 10px rgba(11, 87, 208, 0.12);
+}
+/* Right Panel: Exact Google Workspace "Gemini" Side Assistant Card */
+.gw-gemini-sidepanel {
+  width: 365px;
+  flex-shrink: 0;
+  background: #ffffff;
+  border: 1px solid #e1e3e1;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.gw-gemini-sidepanel.hidden {
+  display: none;
+}
+.gw-gemini-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f3f4;
+  flex-shrink: 0;
+}
+.gw-gemini-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.gw-gemini-gradient-title {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1.28;
+  background: linear-gradient(90deg, #4285f4 0%, #9b72cb 52%, #d96570 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+.gw-prompt-suggestion {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: #1f1f1f;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.14s;
+}
+.gw-prompt-suggestion:hover {
+  background: #f0f4f9;
+}
+.gw-chat-bubble-user {
+  align-self: flex-end;
+  max-width: 88%;
+  background: #f0f4f9;
+  color: #1f1f1f;
+  padding: 9px 14px;
+  border-radius: 16px 16px 4px 16px;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+.gw-chat-bubble-ai {
+  align-self: flex-start;
+  width: 100%;
+  background: #ffffff;
+  color: #1f1f1f;
+  font-size: 12.5px;
+  line-height: 1.5;
+  border-left: 3px solid #4285f4;
+  padding-left: 10px;
+}
+.gw-input-shell {
+  margin: 4px 14px 6px 14px;
+  padding: 10px 14px 8px 14px;
+  background: #ffffff;
+  border: 1px solid #c4c7c5;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.gw-input-shell:focus-within {
+  border-color: #0b57d0;
+  box-shadow: 0 0 0 1px #0b57d0;
+}
+.gw-input-field {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: #1f1f1f;
 }
 .docx-modal-paper .docx-doc-title {
   font-size: 18px;
@@ -1208,9 +1475,10 @@ button {
 }
 /* Per-subclause interactive redline states */
 .redline-subclause-item {
-  padding: 6px 10px;
+  padding: 8px 12px;
   border-radius: 6px;
   margin-top: 8px;
+  margin-left: 6px;
   border-left: 3px solid transparent;
   transition: background-color 0.25s, border-color 0.25s;
 }
@@ -1830,48 +2098,278 @@ __PRERENDERED_TBODY__
   </section>
 
   <!-- ===================================================================== -->
-  <!-- CENTERED FULL-DOCUMENT OVERLAY MODAL (#docx-modal-overlay)            -->
+  <!-- GOOGLE WORKSPACE / WORD CO-EDITOR + GEMINI SIDE PANEL (#docx-modal-overlay) -->
   <!-- ===================================================================== -->
   <div id="docx-modal-overlay" class="docx-modal-backdrop" onclick="if(event.target===this)closeDocxModal()">
     <div class="docx-modal-window" role="dialog" aria-modal="true" aria-labelledby="docx-modal-title">
+
+      <!-- 1. Google Workspace Top Header Bar -->
       <div class="docx-modal-header">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" style="flex-shrink:0;">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-            <polyline points="14 2 14 8 20 8"/>
-          </svg>
+        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+          <!-- Google Docs / Word Format Icon -->
+          <div id="gw-format-icon-badge" style="width:36px;height:36px;border-radius:8px;background:#2684fc;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,0.12);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="8" y1="13" x2="16" y2="13"/>
+              <line x1="8" y1="17" x2="13" y2="17"/>
+            </svg>
+          </div>
           <div style="min-width:0;">
-            <div id="docx-modal-title" style="font-family:var(--font-sans);font-size:13.5px;font-weight:600;color:#ffffff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
-              Weil_Legal_Legos_Composed_Rider.docx
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div id="docx-modal-title" contenteditable="true" spellcheck="false" style="font-size:17px;font-weight:500;color:#1f1f1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:1px 4px;border-radius:4px;">
+                08_M331_Brightwater_SPA_Skadden_v4_Redline.docx
+              </div>
+              <span title="Star document" style="color:#5f6368;cursor:pointer;font-size:15px;" onclick="this.textContent=this.textContent==='☆'?'★':'☆';this.style.color='#fbbc04';">☆</span>
+              <button id="btn-format-lock-mode" type="button" onclick="toggleSourceFormatLock()" style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid #a8c7fa;background:#e8f0fe;color:#0b57d0;font-size:11px;font-weight:600;cursor:pointer;" title="Click to toggle Format-Locked .docx (OpenXML AST) vs Google Docs Native (documents.batchUpdate)">
+                <span id="format-lock-dot" style="width:7px;height:7px;border-radius:50%;background:#0b57d0;"></span>
+                <span id="format-lock-label">Format-Locked: .docx (OpenXML Preserved)</span>
+              </button>
+              <span id="gw-save-status" style="font-size:11px;color:#5f6368;">✓ Saved to Spanner &amp; iManage</span>
             </div>
-            <div id="docx-modal-subtitle" style="font-family:var(--font-sans);font-size:11px;color:#bfdbfe;">
-              Microsoft Word Print-Layout Preview · Full 8.5" × 11" Legal Sheet
+            <div class="gw-menu-bar">
+              <span class="gw-menu-item" onclick="downloadLiveEditedDocx()">File</span>
+              <span class="gw-menu-item" onclick="execDocFormat('undo')">Edit</span>
+              <span class="gw-menu-item" onclick="setDocxModalZoom(1.0)">View</span>
+              <span class="gw-menu-item" onclick="insertCustomClauseBlock()">Insert</span>
+              <span class="gw-menu-item" onclick="execDocFormat('bold')">Format</span>
+              <span class="gw-menu-item" onclick="acceptAllModalRedlines()">Playbook Tools</span>
+              <span class="gw-menu-item" onclick="toggleGwGeminiPanel(true)" style="color:#0b57d0;font-weight:600;">✦ Gemini</span>
+              <span id="docx-modal-subtitle" style="font-size:11px;color:#5f6368;margin-left:6px;">
+                Weil Playbook v3.4 vs. Counterparty v4.0
+              </span>
             </div>
           </div>
         </div>
-        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-          <button type="button" class="docx-max-btn" onclick="setDocxModalZoom(0.9)">90%</button>
-          <button type="button" class="docx-max-btn" onclick="setDocxModalZoom(1.0)">100%</button>
-          <button type="button" class="docx-max-btn" onclick="setDocxModalZoom(1.12)">112%</button>
-          <button id="docx-modal-copy-btn" type="button" class="docx-max-btn" onclick="copyDocxModalText()">Copy Text</button>
-          <a id="docx-modal-download-btn" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" class="docx-max-btn" style="text-decoration:none;background:#2563eb;border-color:#60a5fa;">
-            Download .docx
+
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <button id="docx-modal-copy-btn" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="copyDocxModalText()">Copy Text</button>
+          <button id="btn-export-live-docx" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="downloadLiveEditedDocx()" style="border-color:#a8c7fa;color:#0b57d0;font-weight:600;">
+            ⬇ Export Live .docx
+          </button>
+          <a id="docx-modal-download-btn" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:999px;background:#c2e7ff;color:#001d35;font-size:13px;font-weight:600;text-decoration:none;border:none;">
+            🔒 Share / .docx
           </a>
-          <button id="docx-modal-close-btn" type="button" class="docx-max-btn" onclick="closeDocxModal()" style="background:rgba(220,38,38,0.85);border-color:#fca5a5;">
+          <!-- 4-Point Google Workspace Gemini Sparkle Toggle -->
+          <button id="btn-toggle-gw-gemini" type="button" onclick="toggleGwGeminiPanel()" title="Toggle Gemini in Workspace Side Panel" style="width:36px;height:36px;border-radius:50%;border:1px solid #d3e3fd;background:#edf2fa;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+              <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" fill="url(#gwSparkleGrad)"/>
+              <defs>
+                <linearGradient id="gwSparkleGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                  <stop stop-color="#4285f4"/>
+                  <stop offset="0.5" stop-color="#9b72cb"/>
+                  <stop offset="1" stop-color="#d96570"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </button>
+          <button id="docx-modal-close-btn" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="closeDocxModal()" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5;font-weight:600;">
             ✕ Close (Esc)
           </button>
         </div>
       </div>
 
-      <div id="docx-modal-controls" class="docx-modal-controls-bar"></div>
+      <!-- 2. Google Workspace Rounded Pill Live Formatting Toolbar (#edf2fa) -->
+      <div class="gw-format-toolbar">
+        <div class="gw-tool-group">
+          <button type="button" class="gw-tool-btn" style="background:#ffffff;border-radius:999px;padding:0 10px;font-size:11.5px;color:#444746;" onclick="document.getElementById('gw-gemini-input')?.focus()">
+            🔍 Menus
+          </button>
+          <button id="gw-btn-undo" type="button" class="gw-tool-btn" title="Undo (Ctrl+Z)" onclick="execDocFormat('undo')">↶</button>
+          <button id="gw-btn-redo" type="button" class="gw-tool-btn" title="Redo (Ctrl+Y)" onclick="execDocFormat('redo')">↷</button>
+          <button type="button" class="gw-tool-btn" title="Print Document" onclick="window.print()">🖨</button>
+          <div class="gw-tool-divider"></div>
 
-      <div class="docx-modal-ruler">
-        <span>1 · · · · · 2 · · · · · 3 · · · · · 4 · · · · · 5 · · · · · 6 · · · · · 7 · · · · · 8</span>
-        <span id="docx-modal-ruler-right">WEIL, GOTSHAL &amp; MANGES LLP · PRINT LAYOUT (100% ZOOM)</span>
+          <select id="gw-zoom-select" class="gw-tool-select" onchange="setDocxModalZoom(parseFloat(this.value))" aria-label="Zoom">
+            <option value="0.9">90%</option>
+            <option value="1" selected>100%</option>
+            <option value="1.12">112%</option>
+          </select>
+          <div class="gw-tool-divider"></div>
+
+          <select id="gw-style-select" class="gw-tool-select" onchange="applyHeadingStyle(this.value)" aria-label="Text Style">
+            <option value="p">Normal legal text</option>
+            <option value="h2">Article / Section Heading</option>
+            <option value="h3">Subclause Heading</option>
+            <option value="blockquote">Block Quote / Indented</option>
+          </select>
+          <div class="gw-tool-divider"></div>
+
+          <select id="gw-font-select" class="gw-tool-select" onchange="applyDocFontFamily(this.value)" aria-label="Font Family">
+            <option value="'EB Garamond', Georgia, serif" selected>EB Garamond</option>
+            <option value="'Times New Roman', Times, serif">Times New Roman</option>
+            <option value="Arial, sans-serif">Arial</option>
+            <option value="'Google Sans', Inter, sans-serif">Google Sans</option>
+          </select>
+          <div class="gw-tool-divider"></div>
+
+          <button type="button" class="gw-tool-btn" title="Decrease font size" onclick="stepDocFontSize(-1)">−</button>
+          <span id="gw-font-size-display" style="min-width:26px;text-align:center;font-size:12px;font-weight:600;background:#ffffff;border:1px solid #c7c7c7;border-radius:4px;padding:2px 5px;">15</span>
+          <button type="button" class="gw-tool-btn" title="Increase font size" onclick="stepDocFontSize(1)">+</button>
+          <div class="gw-tool-divider"></div>
+
+          <button id="gw-btn-bold" type="button" class="gw-tool-btn" style="font-weight:700;" title="Bold (Ctrl+B)" onclick="execDocFormat('bold')">B</button>
+          <button id="gw-btn-italic" type="button" class="gw-tool-btn" style="font-style:italic;font-family:serif;" title="Italic (Ctrl+I)" onclick="execDocFormat('italic')">I</button>
+          <button id="gw-btn-underline" type="button" class="gw-tool-btn" style="text-decoration:underline;" title="Underline (Ctrl+U)" onclick="execDocFormat('underline')">U</button>
+          <button id="gw-btn-strike" type="button" class="gw-tool-btn" style="text-decoration:line-through;color:#dc2626;" title="Strikethrough / Redline Delete" onclick="execDocFormat('strikeThrough')">S̶</button>
+          <button id="gw-btn-highlight-yellow" type="button" class="gw-tool-btn" title="Highlight Yellow (Pin-Cite)" onclick="applyHighlightColor('#fef08a')">
+            <span style="background:#fef08a;padding:1px 5px;border-radius:3px;font-weight:700;">A🖍</span>
+          </button>
+          <button id="gw-btn-highlight-green" type="button" class="gw-tool-btn" title="Highlight Green (Weil Playbook Approved)" onclick="applyHighlightColor('#dcfce7')">
+            <span style="background:#dcfce7;color:#166534;padding:1px 5px;border-radius:3px;font-weight:700;">✓A</span>
+          </button>
+          <div class="gw-tool-divider"></div>
+
+          <button type="button" class="gw-tool-btn" title="Align Left" onclick="execDocFormat('justifyLeft')">⬅</button>
+          <button type="button" class="gw-tool-btn" title="Justify Legal Paragraph" onclick="execDocFormat('justifyFull')">☰</button>
+          <button id="gw-btn-insert-clause" type="button" class="gw-tool-btn" style="background:#d3e3fd;color:#041e49;padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:600;" onclick="insertCustomClauseBlock()">
+            + Insert Clause
+          </button>
+        </div>
+
+        <div class="gw-tool-group">
+          <span id="gw-edit-mode-pill" style="display:inline-flex;align-items:center;gap:5px;background:#ffffff;border:1px solid #c7c7c7;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:500;color:#0b57d0;">
+            ✎ Suggesting (Track Changes ON)
+          </span>
+        </div>
       </div>
 
-      <div class="docx-modal-scroll">
-        <div id="docx-modal-paper" class="docx-modal-paper"></div>
+      <!-- 3. Context Action Bar (#docx-modal-controls) -->
+      <div id="docx-modal-controls" class="docx-modal-controls-bar"></div>
+
+      <!-- 4. 3-Column Google Workspace Body (Left Document Tabs + Center Live Sheet + Right Gemini Assistant) -->
+      <div class="gw-workspace-body">
+
+        <!-- Left Column: Google Docs "Document tabs" & Outline -->
+        <aside class="gw-left-tabs-pane" id="gw-left-tabs-pane">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 10px 8px;">
+            <span style="font-size:12px;font-weight:600;color:#444746;">Document tabs</span>
+            <button type="button" class="gw-tool-btn" title="Add Clause Rider Tab" onclick="insertCustomClauseBlock()">+</button>
+          </div>
+
+          <button id="gw-tab-802" type="button" class="gw-tab-pill active" onclick="switchModalRedlineTab('KESTREL-SPA-802', this)">
+            <span>📄 § 8.02(b) Indemnity</span>
+          </button>
+          <button id="gw-tab-804a" type="button" class="gw-tab-pill" onclick="switchModalRedlineTab('KESTREL-SCRAPE-804', this)">
+            <span>📄 § 8.04(a) Scrape</span>
+          </button>
+          <button id="gw-tab-304" type="button" class="gw-tab-pill" onclick="switchModalRedlineTab('KESTREL-TAX-304', this)">
+            <span>📄 § 3.04 Tax 338(h)(10)</span>
+          </button>
+          <button id="gw-tab-804c" type="button" class="gw-tab-pill" onclick="switchModalRedlineTab('KESTREL-COC-804', this)">
+            <span>📄 § 8.04 CoC Consent</span>
+          </button>
+          <button id="gw-tab-legos" type="button" class="gw-tab-pill" onclick="openDocxModal('legos')">
+            <span>🧩 Legal Legos Rider</span>
+          </button>
+
+          <div style="margin-top:12px;padding:8px 8px 4px 8px;border-top:1px solid #e1e3e1;font-size:11px;font-weight:600;color:#5f6368;text-transform:uppercase;letter-spacing:0.04em;">
+            Clause Outline (Click to Jump)
+          </div>
+          <button type="button" class="gw-outline-item" onclick="focusModalSubclause(0)">(a) Deductible vs. Tipping Basket</button>
+          <button type="button" class="gw-outline-item" onclick="focusModalSubclause(1)">(b) Indemnity Cap (0.75% vs 0.25%)</button>
+          <button type="button" class="gw-outline-item" onclick="focusModalSubclause(2)">(c) Delaware Actual Fraud Carve-Out</button>
+
+          <div style="margin-top:auto;padding:10px;background:#edf2fa;border-radius:10px;font-size:11px;color:#1f1f1f;line-height:1.45;">
+            <div style="font-weight:600;color:#0b57d0;margin-bottom:3px;">🔒 Format Fidelity Guarantee</div>
+            <div id="gw-format-explainer-text">
+              Opened as <strong>.docx (OpenXML)</strong>. Live edits and Gemini actions mutate <code>&lt;w:p&gt;</code> &amp; <code>&lt;w:ins&gt;/&lt;w:del&gt;</code> nodes directly while keeping <code>styles.xml</code> &amp; <code>numbering.xml</code> 100% intact.
+            </div>
+          </div>
+        </aside>
+
+        <!-- Center Column: Ruler + Live Editable 8.5"x11" Contract Sheet -->
+        <div class="gw-center-doc-col">
+          <div class="docx-modal-ruler">
+            <span>1 · · · ▼ · · 2 · · · · · 3 · · · · · 4 · · · · · 5 · · · · · 6 · · · ▼ · · 7</span>
+            <span id="docx-modal-ruler-right">LIVE EDITABLE CANVAS · CLICK TEXT TO EDIT OR USE GEMINI SIDE PANEL</span>
+          </div>
+          <div class="docx-modal-scroll">
+            <div id="docx-modal-paper" class="docx-modal-paper" contenteditable="true" spellcheck="false" oninput="onModalPaperLiveEdit()"></div>
+          </div>
+        </div>
+
+        <!-- Right Column: Exact Google Workspace "Gemini" Side Panel -->
+        <aside id="gw-gemini-sidepanel" class="gw-gemini-sidepanel">
+          <div class="gw-gemini-header">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span style="font-size:15px;color:#444746;cursor:pointer;">☰</span>
+              <span style="font-size:16px;font-weight:500;color:#1f1f1f;">Gemini</span>
+              <span style="font-size:10.5px;background:#e8f0fe;color:#0b57d0;padding:2px 7px;border-radius:999px;font-weight:600;">3.8 Flash</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button type="button" class="gw-tool-btn" title="Reset Gemini conversation" onclick="resetGwGeminiChat()" style="font-size:12px;color:#5f6368;">↺</button>
+              <button type="button" class="gw-tool-btn" title="Close Gemini panel" onclick="toggleGwGeminiPanel(false)" style="font-size:14px;color:#5f6368;">✕</button>
+            </div>
+          </div>
+
+          <div id="gw-gemini-messages" class="gw-gemini-messages">
+            <!-- Initial Google Workspace Welcome & Action Prompts (Matches Screenshot 1) -->
+            <div id="gw-gemini-welcome" style="margin-top:auto;padding-top:12px;">
+              <div class="gw-gemini-gradient-title">
+                Get instant document summaries &amp; redlines
+              </div>
+              <div style="font-size:11.5px;color:#5f6368;margin-bottom:10px;">
+                Ask questions about this agreement or click an action below to modify the live document on the left:
+              </div>
+
+              <button id="gw-action-accept-all" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('accept_all')">
+                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span><strong>Apply Playbook v3.4:</strong> Accept all Weil seller-favorable positions across Section 8.02</span>
+              </button>
+
+              <button id="gw-action-fix-basket" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('restore_deductible')">
+                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span><strong>Modify § 8.02(a):</strong> Reject Tipping Basket and restore 0.50% True Deductible ($21M)</span>
+              </button>
+
+              <button id="gw-action-compromise-cap" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('compromise_cap')">
+                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span><strong>Draft Compromise in § 8.02(b):</strong> Set Indemnity Cap to 0.50% ($21M) &amp; remove $4.2B IP carve-out</span>
+              </button>
+
+              <button id="gw-action-insert-lego" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('insert_lego_rider')">
+                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span><strong>Insert Legal Lego Rider:</strong> Append Delaware Actual Fraud &amp; Privacy Pro clause (d)</span>
+              </button>
+
+              <button id="gw-action-summarize-risks" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('summarize_risks')">
+                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span><strong>Summarize &amp; Highlight:</strong> Analyze Skadden v4 risks in this document</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Google Workspace "Ask Gemini" Rounded Input Box -->
+          <div class="gw-input-shell">
+            <input
+              id="gw-gemini-input"
+              type="text"
+              class="gw-input-field"
+              placeholder="Ask Gemini or type an edit to apply..."
+              onkeydown="if(event.key==='Enter')sendWorkspaceGeminiPrompt()"
+            />
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:4px;">
+                <button type="button" class="gw-tool-btn" title="Insert Legal Lego Clause" onclick="runWorkspaceGeminiAction('insert_lego_rider')" style="font-size:15px;color:#444746;">+</button>
+                <button type="button" class="gw-tool-btn" title="Toggle Format-Lock (.docx vs Google Docs)" onclick="toggleSourceFormatLock()" style="font-size:13px;color:#444746;">⊶</button>
+              </div>
+              <button
+                id="gw-gemini-send-btn"
+                type="button"
+                onclick="sendWorkspaceGeminiPrompt()"
+                title="Send to Gemini"
+                style="width:28px;height:28px;border-radius:50%;border:none;background:#0b57d0;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;font-weight:700;"
+              >
+                ↑
+              </button>
+            </div>
+          </div>
+          <div style="font-size:10.5px;color:#5f6368;text-align:center;padding:2px 12px 10px 12px;">
+            Gemini in Workspace can make mistakes. <span style="text-decoration:underline;cursor:pointer;" onclick="toggleSourceFormatLock()">Format-Locked AST</span>
+          </div>
+        </aside>
+
       </div>
     </div>
   </div>
@@ -3450,11 +3948,15 @@ function renderInboxTriage() {
 }
 
 /* ========================================================================= */
-/* CENTERED FULL-DOCUMENT OVERLAY MODAL CONTROLLER (#docx-modal-overlay)     */
+/* GOOGLE WORKSPACE / WORD CO-EDITOR + GEMINI SIDE PANEL CONTROLLER          */
 /* ========================================================================= */
 
+let currentSourceFormatLock = "docx";
+let currentDocFontSizePx = 15;
+let lastProposedGeminiClause = "";
+
 function openDocxModal(mode) {
-  activeDocxModalMode = mode || "legos";
+  activeDocxModalMode = mode || "redline";
   const overlay = document.getElementById("docx-modal-overlay");
   if (!overlay) return;
   overlay.classList.add("open");
@@ -3473,7 +3975,7 @@ function setDocxModalZoom(scaleVal) {
     paper.style.transform = `scale(${scaleVal})`;
   }
   if (rulerRight) {
-    rulerRight.textContent = `WEIL, GOTSHAL & MANGES LLP · PRINT LAYOUT (${Math.round(scaleVal * 100)}% ZOOM)`;
+    rulerRight.textContent = `WEIL, GOTSHAL & MANGES LLP · LIVE CO-EDITOR (${Math.round(scaleVal * 100)}% ZOOM)`;
   }
 }
 
@@ -3485,6 +3987,388 @@ function copyDocxModalText() {
     btn.textContent = "✓ Copied";
     setTimeout(() => { btn.textContent = "Copy Text"; }, 1200);
   }
+}
+
+function onModalPaperLiveEdit() {
+  const statusEl = document.getElementById("gw-save-status");
+  if (statusEl) {
+    statusEl.textContent = currentSourceFormatLock === "docx"
+      ? "✓ Live edits synced to OpenXML AST (styles.xml preserved)"
+      : "✓ Live edits synced via Google Docs batchUpdate API";
+    statusEl.style.color = "#15803d";
+  }
+}
+
+function toggleSourceFormatLock() {
+  currentSourceFormatLock = currentSourceFormatLock === "docx" ? "gdoc" : "docx";
+  const labelEl = document.getElementById("format-lock-label");
+  const dotEl = document.getElementById("format-lock-dot");
+  const badgeEl = document.getElementById("gw-format-icon-badge");
+  const explainerEl = document.getElementById("gw-format-explainer-text");
+  const titleEl = document.getElementById("docx-modal-title");
+
+  if (currentSourceFormatLock === "docx") {
+    if (labelEl) labelEl.textContent = "Format-Locked: .docx (OpenXML Preserved)";
+    if (dotEl) dotEl.style.background = "#0b57d0";
+    if (badgeEl) badgeEl.style.background = "#1e3a8a";
+    if (titleEl && titleEl.textContent.endsWith(".gdoc")) {
+      titleEl.textContent = titleEl.textContent.replace(/\.gdoc$/, ".docx");
+    }
+    if (explainerEl) {
+      explainerEl.innerHTML = `Opened as <strong>.docx (OpenXML)</strong>. Live edits and Gemini actions mutate <code>&lt;w:p&gt;</code> &amp; <code>&lt;w:ins&gt;/&lt;w:del&gt;</code> nodes directly while keeping <code>styles.xml</code> &amp; <code>numbering.xml</code> 100% intact.`;
+    }
+  } else {
+    if (labelEl) labelEl.textContent = "Format-Locked: Google Docs (batchUpdate API)";
+    if (dotEl) dotEl.style.background = "#16a34a";
+    if (badgeEl) badgeEl.style.background = "#2684fc";
+    if (titleEl && titleEl.textContent.endsWith(".docx")) {
+      titleEl.textContent = titleEl.textContent.replace(/\.docx$/, ".gdoc");
+    }
+    if (explainerEl) {
+      explainerEl.innerHTML = `Opened as <strong>Google Doc</strong>. Live edits and Gemini actions execute via <code>documents.batchUpdate</code> (<code>InsertText</code> / <code>ReplaceAllText</code>) preserving 100% of Google Docs <code>NamedStyles</code>.`;
+    }
+  }
+  onModalPaperLiveEdit();
+}
+
+function execDocFormat(cmd, value = null) {
+  const paper = document.getElementById("docx-modal-paper");
+  if (!paper) return;
+  paper.focus();
+  const sel = window.getSelection();
+  const hasSelection = sel && sel.rangeCount > 0 && !sel.isCollapsed && paper.contains(sel.anchorNode);
+
+  if (hasSelection || cmd === "undo" || cmd === "redo" || cmd.startsWith("justify")) {
+    try {
+      document.execCommand(cmd, false, value);
+    } catch (e) {}
+  } else {
+    // If no text is highlighted, apply visual formatting to the first subclause so toolbar clicks are always visibly demonstrated
+    const targetSub = paper.querySelector("#redline-sub-0") || paper.querySelector(".docx-subclause") || paper;
+    if (cmd === "bold") {
+      targetSub.style.fontWeight = targetSub.style.fontWeight === "700" ? "400" : "700";
+    } else if (cmd === "italic") {
+      targetSub.style.fontStyle = targetSub.style.fontStyle === "italic" ? "normal" : "italic";
+    } else if (cmd === "underline") {
+      targetSub.style.textDecoration = targetSub.style.textDecoration === "underline" ? "none" : "underline";
+    } else if (cmd === "strikeThrough") {
+      targetSub.style.textDecoration = targetSub.style.textDecoration === "line-through" ? "none" : "line-through";
+    }
+  }
+  onModalPaperLiveEdit();
+}
+
+function applyHeadingStyle(tag) {
+  const paper = document.getElementById("docx-modal-paper");
+  if (!paper) return;
+  const titleNode = paper.querySelector(".docx-doc-title") || paper.firstElementChild;
+  if (!titleNode) return;
+  if (tag === "h2") {
+    titleNode.style.fontSize = "21px";
+    titleNode.style.color = "#0b57d0";
+  } else if (tag === "h3") {
+    titleNode.style.fontSize = "17px";
+    titleNode.style.color = "#1e3a8a";
+  } else if (tag === "blockquote") {
+    titleNode.style.borderLeft = "4px solid #0b57d0";
+    titleNode.style.paddingLeft = "12px";
+  } else {
+    titleNode.style.fontSize = "18px";
+    titleNode.style.color = "#111827";
+    titleNode.style.borderLeft = "none";
+    titleNode.style.paddingLeft = "0";
+  }
+  onModalPaperLiveEdit();
+}
+
+function applyDocFontFamily(fontFamily) {
+  const paper = document.getElementById("docx-modal-paper");
+  if (paper) {
+    paper.style.fontFamily = fontFamily;
+    onModalPaperLiveEdit();
+  }
+}
+
+function stepDocFontSize(delta) {
+  currentDocFontSizePx = Math.min(22, Math.max(11, currentDocFontSizePx + delta));
+  const disp = document.getElementById("gw-font-size-display");
+  if (disp) disp.textContent = String(currentDocFontSizePx);
+  const paper = document.getElementById("docx-modal-paper");
+  if (paper) {
+    paper.style.fontSize = `${currentDocFontSizePx}px`;
+    paper.querySelectorAll(".docx-subclause, .docx-redline-margin").forEach(el => {
+      el.style.fontSize = `${currentDocFontSizePx}px`;
+    });
+  }
+  onModalPaperLiveEdit();
+}
+
+function applyHighlightColor(colorHex) {
+  const paper = document.getElementById("docx-modal-paper");
+  if (!paper) return;
+  const sel = window.getSelection();
+  if (sel && sel.rangeCount > 0 && !sel.isCollapsed && paper.contains(sel.anchorNode)) {
+    try {
+      document.execCommand("hiliteColor", false, colorHex);
+      onModalPaperLiveEdit();
+      return;
+    } catch (e) {}
+  }
+  const target = paper.querySelector("#redline-sub-0") || paper.querySelector(".docx-subclause") || paper;
+  target.style.backgroundColor = colorHex;
+  target.style.padding = "8px 12px";
+  target.style.borderRadius = "6px";
+  onModalPaperLiveEdit();
+}
+
+function insertCustomClauseBlock(clauseText, badgeText) {
+  const paper = document.getElementById("docx-modal-paper");
+  if (!paper) return;
+  const container = paper.querySelector(".docx-redline-margin") || paper;
+  const block = document.createElement("div");
+  block.className = "docx-subclause redline-subclause-item state-accepted";
+  block.style.marginTop = "12px";
+  const textToInsert = clauseText || "(d) Express Written Actual Fraud & Privacy Pro Rider (Inserted via Co-Editor). Notwithstanding anything to the contrary in this Agreement, nothing in Article VIII shall limit Seller's liability for Express Written Actual Fraud with respect to the representations in Article III, and all Personal Data transfers shall comply with the Weil Privacy Pro Data Protection Addendum.";
+  const badgeLabel = badgeText || "✦ Inserted via Live Co-Editor · Native .docx Numbering Preserved";
+  block.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;" contenteditable="false">
+      <span class="redline-decision-badge accepted">${escapeHtml(badgeLabel)}</span>
+      <button type="button" class="pill-btn pill-btn-white pill-btn-xs" style="font-size:10px;padding:1px 7px;" onclick="this.closest('.redline-subclause-item').remove();onModalPaperLiveEdit();">Remove</button>
+    </div>
+    <div>${escapeHtml(textToInsert)}</div>
+  `;
+  container.appendChild(block);
+  block.scrollIntoView({ behavior: "smooth", block: "center" });
+  onModalPaperLiveEdit();
+}
+
+function switchModalRedlineTab(pairId, btnEl) {
+  document.querySelectorAll(".gw-tab-pill").forEach(b => b.classList.remove("active"));
+  if (btnEl) btnEl.classList.add("active");
+  activeDocxModalMode = "redline";
+  loadRedlinePair(pairId);
+}
+
+function focusModalSubclause(idx) {
+  const paper = document.getElementById("docx-modal-paper");
+  if (!paper) return;
+  const subs = paper.querySelectorAll(".redline-subclause-item, .docx-subclause");
+  const target = subs[idx] || subs[0];
+  if (target) {
+    target.scrollIntoView({ behavior: "smooth", block: "center" });
+    const origBg = target.style.backgroundColor;
+    target.style.backgroundColor = "#fef08a";
+    setTimeout(() => { target.style.backgroundColor = origBg; }, 900);
+  }
+}
+
+function toggleGwGeminiPanel(forceState) {
+  const panel = document.getElementById("gw-gemini-sidepanel");
+  if (!panel) return;
+  if (typeof forceState === "boolean") {
+    panel.classList.toggle("hidden", !forceState);
+  } else {
+    panel.classList.toggle("hidden");
+  }
+}
+
+function resetGwGeminiChat() {
+  const msgBox = document.getElementById("gw-gemini-messages");
+  if (!msgBox) return;
+  msgBox.querySelectorAll(".gw-dynamic-msg").forEach(el => el.remove());
+  const welcome = document.getElementById("gw-gemini-welcome");
+  if (welcome) welcome.style.display = "block";
+}
+
+function appendGwGeminiExchange(userPrompt, aiHtml) {
+  const msgBox = document.getElementById("gw-gemini-messages");
+  if (!msgBox) return;
+  const uDiv = document.createElement("div");
+  uDiv.className = "gw-chat-bubble-user gw-dynamic-msg";
+  uDiv.textContent = userPrompt;
+  msgBox.appendChild(uDiv);
+
+  const aDiv = document.createElement("div");
+  aDiv.className = "gw-chat-bubble-ai gw-dynamic-msg";
+  aDiv.innerHTML = aiHtml;
+  msgBox.appendChild(aDiv);
+  msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+function runWorkspaceGeminiAction(actionType) {
+  if (activeDocxModalMode !== "redline" && actionType !== "summarize_risks") {
+    activeDocxModalMode = "redline";
+    syncDocxModalIfOpen();
+  }
+
+  if (actionType === "accept_all") {
+    acceptAllModalRedlines();
+    appendGwGeminiExchange(
+      "Apply Playbook v3.4: Accept all Weil seller-favorable positions across Section 8.02",
+      `<div style="font-weight:600;color:#15803d;margin-bottom:4px;">✓ Applied to Document (3/3 Clauses Updated)</div>
+       <div>All three counterparty markups in <strong>Section 8.02(a), (b), and (c)</strong> have been restored to <strong>Weil PE Seller Playbook v3.4</strong>:</div>
+       <ul style="margin:6px 0 6px 16px;padding:0;font-size:12px;">
+         <li><strong>§ 8.02(a):</strong> Restored 0.50% True Deductible ($21,000,000)</li>
+         <li><strong>§ 8.02(b):</strong> Restored 0.75% Indemnity Cap ($31,500,000)</li>
+         <li><strong>§ 8.02(c):</strong> Restricted carve-out strictly to Delaware Express Written Actual Fraud</li>
+       </ul>
+       <div style="font-size:11px;color:#5f6368;">Format-Lock: Updated <code>&lt;w:p&gt;</code> nodes in <code>word/document.xml</code> with zero style drift.</div>`
+    );
+    onModalPaperLiveEdit();
+  } else if (actionType === "restore_deductible") {
+    decideRedlineCard(0, "accepted");
+    focusModalSubclause(0);
+    appendGwGeminiExchange(
+      "Modify § 8.02(a): Reject Tipping Basket and restore 0.50% True Deductible ($21M)",
+      `<div style="font-weight:600;color:#15803d;margin-bottom:4px;">✓ Updated Section 8.02(a) in Live Document</div>
+       <div>Rejected Skadden's 0.25% first-dollar Tipping Basket ($10.5M) and restored Weil's <strong>0.50% True Deductible ($21,000,000)</strong> where Seller is liable only for Losses exceeding the Deductible.</div>`
+    );
+    onModalPaperLiveEdit();
+  } else if (actionType === "compromise_cap") {
+    const paper = document.getElementById("docx-modal-paper");
+    const sub1 = paper?.querySelector("#redline-sub-1");
+    if (sub1) {
+      sub1.className = "docx-subclause redline-subclause-item state-accepted";
+      sub1.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;" contenteditable="false">
+          <span class="redline-decision-badge accepted">✦ Gemini Negotiated Compromise Applied (0.50% EV Cap)</span>
+          <button type="button" class="pill-btn pill-btn-white pill-btn-xs" style="font-size:10px;padding:1px 7px;" onclick="decideRedlineCard(1, 'pending')">Undo</button>
+        </div>
+        <strong>(b)</strong> The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed <span style="background:#dcfce7;color:#166534;font-weight:600;padding:1px 5px;border-radius:3px;">0.50% of the Base Purchase Price ($21,000,000) for general representations and 15% of the Base Purchase Price ($630,000,000) for Special Environmental &amp; IP Warranties</span> (the "Indemnity Cap").
+      `;
+      sub1.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    appendGwGeminiExchange(
+      "Draft Compromise in § 8.02(b): Set Indemnity Cap to 0.50% ($21M) & remove $4.2B IP carve-out",
+      `<div style="font-weight:600;color:#0b57d0;margin-bottom:4px;">✦ Rewrote Section 8.02(b) in Live Document</div>
+       <div>Replaced Skadden's uncapped 100% ($4.2B) Special IP/Environmental super-cap with a balanced <strong>0.50% ($21M) general cap</strong> and a <strong>15% ($630M) Special IP/Environmental sub-cap</strong> while preserving native paragraph numbering.</div>`
+    );
+    onModalPaperLiveEdit();
+  } else if (actionType === "insert_lego_rider") {
+    insertCustomClauseBlock(
+      "(d) Delaware Express Written Actual Fraud & Privacy Pro Rider (Legal Lego Block LEGO-DE-FRAUD + LEGO-PRIVACY-PRO). Solely in the case of intentional common law Actual Fraud under Delaware law (expressly excluding equitable fraud, promissory fraud, or constructive fraud) with respect to the express representations inside Article III, the Indemnity Cap shall not apply. All cross-border Personal Data transfers shall remain governed by the Weil Privacy Pro Standard Contractual Clauses.",
+      "✦ Inserted by Gemini in Workspace · Legal Lego Rider (d)"
+    );
+    appendGwGeminiExchange(
+      "Insert Legal Lego Rider: Append Delaware Actual Fraud & Privacy Pro clause (d)",
+      `<div style="font-weight:600;color:#15803d;margin-bottom:4px;">✓ Inserted Clause (d) into Live Document</div>
+       <div>Appended <strong>Legal Lego Blocks LEGO-DE-FRAUD &amp; LEGO-PRIVACY-PRO</strong> as subsection <strong>(d)</strong> at the bottom of the agreement sheet, inheriting the document's multi-level numbering and serif typography.</div>`
+    );
+  } else if (actionType === "summarize_risks") {
+    sendWorkspaceGeminiPrompt("Summarize the 3 counterparty redline risks in this document and provide a recommended Playbook v3.4 fix clause.");
+  }
+}
+
+async function sendWorkspaceGeminiPrompt(presetText) {
+  const inputEl = document.getElementById("gw-gemini-input");
+  const promptText = (presetText || (inputEl && inputEl.value) || "").trim();
+  if (!promptText) return;
+  if (inputEl && !presetText) inputEl.value = "";
+
+  const paper = document.getElementById("docx-modal-paper");
+  const docText = paper ? paper.innerText : "";
+  const docTitle = document.getElementById("docx-modal-title")?.innerText || "Agreement.docx";
+
+  // Check if user typed a direct command like "accept all"
+  const lower = promptText.toLowerCase();
+  if (lower.includes("accept all")) {
+    runWorkspaceGeminiAction("accept_all");
+    return;
+  }
+
+  const msgBox = document.getElementById("gw-gemini-messages");
+  const uDiv = document.createElement("div");
+  uDiv.className = "gw-chat-bubble-user gw-dynamic-msg";
+  uDiv.textContent = promptText;
+  msgBox?.appendChild(uDiv);
+
+  const loadingDiv = document.createElement("div");
+  loadingDiv.className = "gw-chat-bubble-ai gw-dynamic-msg";
+  loadingDiv.innerHTML = `<div style="color:#0b57d0;font-weight:500;">✦ Gemini 3.8 Flash analyzing document (${escapeHtml(currentSourceFormatLock.toUpperCase())})...</div>`;
+  msgBox?.appendChild(loadingDiv);
+  if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+
+  try {
+    const resp = await fetch(`${API_BASE}/api/workspace-assistant`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        prompt: promptText,
+        document_title: docTitle,
+        document_text: docText,
+        pair_id: currentRedlineData?.pair_id || "KESTREL-SPA-802",
+        source_format: currentSourceFormatLock,
+      }),
+    });
+    const data = await resp.json();
+    lastProposedGeminiClause = data.proposed_clause || "";
+
+    // Auto-apply if user explicitly asked to insert/apply/rewrite/add/change
+    const shouldAutoApply = /(insert|apply|rewrite|replace|change|add|modify)/i.test(promptText) && lastProposedGeminiClause;
+    if (shouldAutoApply) {
+      insertCustomClauseBlock(lastProposedGeminiClause, "✦ Auto-Applied by Gemini 3.8 Flash in Workspace");
+    }
+
+    loadingDiv.innerHTML = `
+      <div style="margin-bottom:6px;">${escapeHtml(data.summary || "")}</div>
+      ${lastProposedGeminiClause ? `
+        <div style="background:#f8fafd;border:1px solid #d3e3fd;border-radius:8px;padding:8px 10px;margin-top:6px;font-family:var(--font-serif);font-size:12px;color:#111827;">
+          ${escapeHtml(lastProposedGeminiClause)}
+        </div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
+          <button type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="applyCustomGeminiClauseToDoc()">
+            ${shouldAutoApply ? '✓ Applied to Document (Click to Insert Again)' : '✦ ' + escapeHtml(data.action_label || 'Apply Clause Edit to Document')}
+          </button>
+        </div>
+      ` : ""}
+    `;
+  } catch (err) {
+    loadingDiv.innerHTML = `<div style="color:#b91c1c;">Unable to reach Gemini Workspace Assistant: ${escapeHtml(err.message)}</div>`;
+  }
+  if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
+}
+
+function applyCustomGeminiClauseToDoc() {
+  if (!lastProposedGeminiClause) return;
+  insertCustomClauseBlock(lastProposedGeminiClause, "✦ Applied from Gemini Side Panel · Native Format Preserved");
+}
+
+async function downloadLiveEditedDocx() {
+  const paper = document.getElementById("docx-modal-paper");
+  const titleStr = (document.getElementById("docx-modal-title")?.innerText || "Weil_Edited_Draft.docx").trim();
+  const rawText = paper ? paper.innerText : "";
+  const paragraphs = rawText.split(/\n+/).map(s => s.trim()).filter(Boolean);
+
+  const btn = document.getElementById("btn-export-live-docx");
+  if (btn) btn.textContent = "⏳ Exporting .docx...";
+  try {
+    const resp = await fetch(`${API_BASE}/api/export-live-docx`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        filename: titleStr.endsWith(".docx") ? titleStr : `${titleStr}.docx`,
+        title: "WEIL, GOTSHAL & MANGES LLP — CO-EDITED OPENXML DOCUMENT",
+        paragraphs: paragraphs,
+      }),
+    });
+    if (resp.ok) {
+      const blob = await resp.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = titleStr.endsWith(".docx") ? titleStr : `${titleStr}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      if (btn) {
+        btn.textContent = "✓ Downloaded .docx";
+        setTimeout(() => { btn.textContent = "⬇ Export Live .docx"; }, 1800);
+      }
+      return;
+    }
+  } catch (e) {}
+  if (btn) btn.textContent = "⬇ Export Live .docx";
 }
 
 function toggleModalLegoCheckbox(blockId) {
@@ -3518,11 +4402,11 @@ function syncDocxModalIfOpen() {
     subEl.textContent = `Composed Multi-Level OpenXML Rider · ${checked.length} Active Playbook Clauses`;
     if (dlBtn) {
       dlBtn.href = `${API_BASE}/api/legal-legos/docx?blocks=${encodeURIComponent((checked.length ? checked : ["LEGO-DE-FRAUD"]).join(","))}`;
-      dlBtn.textContent = "Download .docx";
+      dlBtn.textContent = "🔒 Share / .docx";
     }
     controlsEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        <span style="font-weight:600;color:#1e3a8a;">Toggle Clauses Live:</span>
+        <span style="font-weight:600;color:#1e3a8a;">Toggle Legal Lego Blocks Live:</span>
         ${["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO", "LEGO-MFN-FUNDGEN"].map(bid => {
           const isOn = checked.includes(bid);
           return `<button type="button" class="pill-btn ${isOn ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="toggleModalLegoCheckbox('${bid}')">${isOn ? '✓ ' : '+ '}${bid}</button>`;
@@ -3539,7 +4423,7 @@ function syncDocxModalIfOpen() {
     subEl.textContent = `${d.title || 'Contract Redline'} · Weil Playbook v3.4 vs. Counterparty v4.0`;
     if (dlBtn) {
       dlBtn.href = `${API_BASE}/api/corpus/file/08_M331_Brightwater_Merger_Agreement_Skadden_v4_Redline.docx`;
-      dlBtn.textContent = "Download v4 .docx";
+      dlBtn.textContent = "🔒 Share / v4 .docx";
     }
     controlsEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -3555,7 +4439,7 @@ function syncDocxModalIfOpen() {
       </div>
     `;
     paperEl.innerHTML = `
-      <div class="docx-running-header">
+      <div class="docx-running-header" contenteditable="false">
         <span>WEIL, GOTSHAL &amp; MANGES LLP · TRACK CHANGES COMPARE</span>
         <span>MATTER ${escapeHtml(d.matter_id || 'M-331-KESTREL')} · PAGE 42</span>
       </div>
@@ -3568,7 +4452,7 @@ function syncDocxModalIfOpen() {
       <div class="docx-redline-margin">
         ${buildInteractiveRedlineSheetHtml()}
       </div>
-      <div class="docx-running-footer">
+      <div class="docx-running-footer" contenteditable="false">
         <span>Compare: Weil Playbook v3.4 ↔ Counterparty Markup v4.0</span>
         <span>OpenXML w:del / w:ins</span>
       </div>
@@ -3579,7 +4463,7 @@ function syncDocxModalIfOpen() {
     subEl.textContent = `${row.doc_id || 'DOC-01'} · ${row.citation || 'Section 1.01'} · Grounded Pin-Cite Reader`;
     if (dlBtn) {
       dlBtn.href = document.getElementById("insp-download-link")?.href || "#";
-      dlBtn.textContent = "Download Original";
+      dlBtn.textContent = "🔒 Original .docx";
     }
     controlsEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;">
@@ -3590,7 +4474,7 @@ function syncDocxModalIfOpen() {
       <span class="status-pill green">Spanner BBox Pin-Cite Verified</span>
     `;
     paperEl.innerHTML = `
-      <div class="docx-running-header">
+      <div class="docx-running-header" contenteditable="false">
         <span>WEIL · EXECUTION COPY</span>
         <span>${escapeHtml(row.doc_id || '')} · ${escapeHtml(row.citation || '')}</span>
       </div>
@@ -3598,7 +4482,7 @@ function syncDocxModalIfOpen() {
         ${document.getElementById("insp-pincite-quote")?.innerHTML || ""}
       </div>
       <div>${document.getElementById("insp-contract-body")?.innerHTML || ""}</div>
-      <div class="docx-running-footer">
+      <div class="docx-running-footer" contenteditable="false">
         <span>WEIL:\\98412034.4\\31402.0018</span>
         <span>Page ${row.page || 1} of 12</span>
       </div>

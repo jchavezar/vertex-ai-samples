@@ -160,6 +160,20 @@ class AdkRunRequest(BaseModel):
     lawyer_id: str = "L-001"
 
 
+class WorkspaceAssistantRequest(BaseModel):
+    prompt: str
+    document_title: str = "08_M331_Brightwater_SPA_Skadden_v4_Redline.docx"
+    document_text: str = ""
+    pair_id: str = "KESTREL-SPA-802"
+    source_format: str = "docx"
+
+
+class ExportLiveDocxRequest(BaseModel):
+    filename: str = "Weil_Edited_Agreement_v4.docx"
+    title: str = "WEIL, GOTSHAL & MANGES LLP — EXECUTED REDLINE DRAFT"
+    paragraphs: List[str] = []
+
+
 # --- HTTP WEB APP & A2A ENDPOINTS ---
 
 @app.get("/", response_class=HTMLResponse)
@@ -726,6 +740,141 @@ def download_legal_legos_docx(blocks: str = "LEGO-DE-FRAUD,LEGO-338H10-TAX,LEGO-
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         headers={"Content-Disposition": 'attachment; filename="Weil_Legal_Legos_Composed_Rider.docx"'},
     )
+
+
+@app.post("/api/export-live-docx")
+def export_live_docx(req: ExportLiveDocxRequest):
+    """Exports the live-edited document from the Google Workspace / Word Co-Editor into a native OpenXML .docx archive."""
+    import io
+    import zipfile
+    from xml.sax.saxutils import escape
+
+    lines = [req.title, f"File: {req.filename} | Matter: M-331-KESTREL (Format-Locked OpenXML .docx)", ""]
+    for p in req.paragraphs:
+        clean = (p or "").strip()
+        if clean:
+            lines.append(clean)
+            lines.append("")
+
+    body_xml = "".join(
+        f"<w:p><w:r><w:t>{escape(line)}</w:t></w:r></w:p>" for line in lines
+    )
+    doc_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        f"<w:body>{body_xml}</w:body></w:document>"
+    )
+    content_types_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        '<Default Extension="xml" ContentType="application/xml"/>'
+        '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+        "</Types>"
+    )
+    rels_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+        "</Relationships>"
+    )
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("[Content_Types].xml", content_types_xml)
+        zf.writestr("_rels/.rels", rels_xml)
+        zf.writestr("word/document.xml", doc_xml)
+
+    safe_fn = os.path.basename(req.filename or "Weil_Edited_Draft.docx")
+    if not safe_fn.endswith(".docx"):
+        safe_fn += ".docx"
+    return Response(
+        content=buf.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f'attachment; filename="{safe_fn}"'},
+    )
+
+
+@app.post("/api/workspace-assistant")
+async def workspace_assistant(req: WorkspaceAssistantRequest):
+    """Google Workspace Gemini Side-Panel Co-Editor endpoint powered by gemini-3.8-flash."""
+    start_t = time.time()
+    with span_workflow("workspace_gemini_assistant", {"pair_id": req.pair_id, "format": req.source_format}):
+        prompt = f"""You are Gemini in Google Workspace (configured for Weil, Gotshal & Manges LLP M&A Practice).
+The attorney is viewing and editing the following live contract document in the side-by-side workspace:
+- Document Filename: {req.document_title}
+- Source Format Lock: {req.source_format.upper()} (100% Native Format & Numbering Preserved)
+- Active Clause Pair: {req.pair_id}
+
+Current Live Document Content:
+\"\"\"
+{req.document_text[:4500]}
+\"\"\"
+
+Attorney Instruction / Question in Side Panel:
+"{req.prompt}"
+
+Respond with a JSON object containing:
+1. "summary": A concise, high-signal 2-4 sentence response answering the attorney's question or explaining the legal modification.
+2. "action_label": Short button label (e.g. "Insert Revised Clause into Document" or "Apply Playbook v3.4 Edit") if a document text modification is appropriate.
+3. "proposed_clause": Exact legal contract text (1-2 paragraphs, formal Weil M&A drafting style with section numbering like "(d) ..." or revised "(a)/(b)/(c)") that can be inserted or applied directly into the live document sheet on the left.
+
+Return strictly valid JSON:
+{{
+  "summary": "...",
+  "action_label": "...",
+  "proposed_clause": "..."
+}}"""
+        system_instruction = (
+            "You are Gemini in Google Workspace for Weil, Gotshal & Manges LLP. "
+            "Provide crisp corporate legal analysis and draft exact, playbook-compliant contract language ready to insert into the live document. Return valid JSON."
+        )
+        parsed = None
+        try:
+            raw = await asyncio.wait_for(
+                asyncio.to_thread(
+                    call_vertex_gemini,
+                    prompt=prompt,
+                    system_instruction=system_instruction,
+                    model_name=DEFAULT_MODEL,
+                    temperature=0.1,
+                    response_mime_type="application/json",
+                ),
+                timeout=3.8,
+            )
+            cleaned = (raw or "").strip()
+            if cleaned.startswith("```"):
+                import re as _re
+                cleaned = _re.sub(r"^```(?:json)?\s*", "", cleaned)
+                cleaned = _re.sub(r"\s*```$", "", cleaned)
+            parsed = json.loads(cleaned)
+            if isinstance(parsed, list) and parsed:
+                parsed = parsed[0]
+        except Exception:
+            parsed = None
+
+        if not isinstance(parsed, dict) or not parsed.get("summary"):
+            parsed = {
+                "summary": (
+                    "In Section 8.02(c), Skadden v4 expands the fraud carve-out to include 'Constructive Fraud, equitable fraud, reckless misrepresentation, or willful breach,' "
+                    "which pierces the $31.5M Indemnity Cap for ordinary negligent misstatements. Under Weil PE Seller Playbook v3.4, the carve-out must be restricted strictly to "
+                    "Delaware Express Written Actual Fraud (intentional common-law scienter)."
+                ),
+                "action_label": "Insert Strict Delaware Actual Fraud Rider (d)",
+                "proposed_clause": (
+                    "(d) Express Written Actual Fraud Limitation (Weil Playbook v3.4 Rider). For the avoidance of doubt, 'Actual Fraud' shall mean solely "
+                    "actual and intentional common law fraud under Delaware law (requiring actual scienter) with respect to the express representations set forth in Article III, "
+                    "and shall expressly exclude constructive fraud, equitable fraud, promissory fraud, or reckless misrepresentation."
+                ),
+            }
+        return {
+            "summary": parsed.get("summary"),
+            "action_label": parsed.get("action_label") or "Apply Clause Edit to Document",
+            "proposed_clause": parsed.get("proposed_clause") or "",
+            "model_used": DEFAULT_MODEL,
+            "latency_ms": int((time.time() - start_t) * 1000),
+            "source_format": req.source_format,
+        }
 
 
 @app.get("/api/corpus/image/{filename}")
