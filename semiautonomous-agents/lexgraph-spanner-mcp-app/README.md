@@ -1,3 +1,31 @@
+<!-- WEIL_V3_HLD_LLD_START -->
+# Weil Enterprise Legal AI MVP — High-Level Design (HLD), Low-Level Design (LLD) & 8-Use-Case Live Demos (`v3.2.0`)
+
+> 📄 **Full HLD & LLD Architecture Blueprint:** [**`WEIL_HLD_LLD_ARCHITECTURE.md`**](./WEIL_HLD_LLD_ARCHITECTURE.md) · [**`WEIL_UNIFIED_ARCHITECTURE_AND_USE_CASES.md`**](./WEIL_UNIFIED_ARCHITECTURE_AND_USE_CASES.md) · 💻 **Unified 5-Studio Platform Source:** [**`weil-5studio-platform/`**](./weil-5studio-platform/)
+
+### 🏛️ 1. High-Level Design (HLD) — End-to-End Enterprise Legal AI Platform
+![Weil Enterprise Legal AI High-Level Design (HLD)](./docs/diagrams/01_weil_hld_end_to_end_architecture.svg)
+
+### ⚙️ 2. Low-Level Design (LLD-1 & LLD-2) — Unstructured Multimodal Indexing Pipeline vs. Direct API Evaluation (Email, Calendar, Chat)
+![Weil Low-Level Design: Unstructured Indexing Pipeline vs. Direct API Evaluation](./docs/diagrams/02_weil_lld_unstructured_indexing_vs_direct_api.svg)
+
+### 🧩 3. Low-Level Design (LLD-3) — All 8 Legal Use Cases Mapped to 5 Gemini Enterprise Custom MCP App Studios (`SEP-1865`)
+![Weil Low-Level Design: 8 Legal Use Cases Mapped to 5 Gemini Enterprise MCP App Studios](./docs/diagrams/03_weil_lld_8_use_cases_5_studios_matrix.svg)
+
+| Use Case # | Legal Capability | Architecture & Data Dependency | Live Cloud Run Demo (`us-central1`) | Deep-Dive HLD/LLD Link |
+| :-: | :--- | :--- | :--- | :--- |
+| **UC-1** | **Document Redlining & Playbook Risk Deviation** | Unstructured `.docx`/PDF Indexing + Spanner Precedent Caps | [`weil-redline-word-agent`](https://weil-redline-word-agent-254356041555.us-central1.run.app) | [UC-1 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-1-document-redlining--playbook-deviation-analysis) |
+| **UC-2** | **Integrated Word Processing & Privacy Pro "Legal Legos"** | OpenXML 15-Yr Numbering Tree + Modular Clause Blocks | [`weil-redline-word-agent`](https://weil-redline-word-agent-254356041555.us-central1.run.app) | [UC-2 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-2-integrated-word-processing--privacy-pro-legal-legos-docx) |
+| **UC-3** | **Side-by-Side Pin-Cite Citation Review (★ Priority)** | **Critical Path:** Unstructured Clause + Page/BBox Indexing | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [UC-3 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-3-side-by-side-pin-cite-citation-review--priority) |
+| **UC-4** | **Email, Calendar & Chat Triage Automation** | **Evaluating:** Direct Runtime API / MCP vs. Envelope Graph | [`weil-inbox-calendar-agent`](https://weil-inbox-calendar-agent-254356041555.us-central1.run.app) | [UC-4 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-4-email-calendar--chat-triage-automation-direct-api-vs-graph-evaluation) |
+| **UC-5** | **Multi-Document Tabular Analysis Grids (★ Priority)** | **Critical Path:** Unstructured Multimodal Indexing + Spanner RRF | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [UC-5 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-5-multi-document-tabular-analysis-grids--priority--mike-oss-in-ge) |
+| **UC-6** | **Workflow & Grid Builder + Homegrown Apps (`FundGen`/`FundHQ`/HSR)** | Spanner Precedent Graph + 2-Pass Chart/Waterfall OCR | [`weil-funds-antitrust-agent`](https://weil-funds-antitrust-agent-254356041555.us-central1.run.app) | [UC-6 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-6-self-service-workflow--grid-builder--homegrown-apps-fundgen-fundhq-antitrust) |
+| **UC-7** | **Matter & Knowledge Workspaces (Cross-Matter `CUJ-0`)** | Cloud Spanner ISO GQL Property Graph (`WeilLegalGraph`) | [`weil-governance-wall-agent`](https://weil-governance-wall-agent-254356041555.us-central1.run.app) | [UC-7 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-7-matter--knowledge-workspaces-cross-matter-precedent-graphrag) |
+| **UC-8** | **Dynamic Client-Matter Tracking & Intapp Ethical Walls** | Spanner `IntappWalls` (`Screen-Before-Rank`) + `TeammateGrants` | [`weil-governance-wall-agent`](https://weil-governance-wall-agent-254356041555.us-central1.run.app) | [UC-8 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-8-dynamic-client-matter-tracking-cmn-context-switcher--intapp-ethical-walls) |
+
+---
+<!-- WEIL_V3_HLD_LLD_END -->
+
 # LexGraph Spanner GraphRAG & Interactive Legal Grid MCP App (`SEP-1865`)
 
 > **End-to-End Customer Proof & Reference Implementation**:

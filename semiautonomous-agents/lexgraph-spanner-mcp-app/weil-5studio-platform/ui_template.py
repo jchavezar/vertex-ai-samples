@@ -1,0 +1,2428 @@
+"""Mike OSS (`willchen96/mike`) + Gemini Enterprise (`ucs-canvas-panel`) Unified UI Template.
+
+Engineered specifically for Gemini Enterprise (`vertexaisearch.cloud.google.com`) Custom MCP Apps (`SEP-1865`):
+1. Full SEP-1865 `@modelcontextprotocol/ext-apps` Bidirectional `postMessage` Handshake:
+   - Sends `ui/initialize`, `ui/notifications/initialized`, `ui/notifications/size-changed` (`height: 760`),
+     and `ui/request-display-mode` (`mode: "pip"`) so Gemini Enterprise automatically expands the iframe
+     and docks the app into the right-hand side panel (with 1-click Side Panel / Maximize toggles).
+2. Zero-Latency Pre-Baked Bootstrap State (`INITIAL_BOOTSTRAP_DATA`) + Server-Side Pre-Rendered Rows:
+   - Because Gemini Enterprise renders `resources/read` inside a sandboxed `about:srcdoc` iframe (`origin: null`),
+     all 5 studios pre-bake their complete corpus, clauses, contract pages, redlines, Legal Legos, FundGen/FundHQ
+     MFN matrices, HSR HHI bars, base64 multimodal charts, Intapp Wall/Graph nodes, and Partner Inbox/Calendar
+     items directly into the HTML and execute all API calls against absolute `API_BASE` URLs.
+3. Exact Mike OSS + Gemini Enterprise Design System (`EB Garamond` + `Google Sans Flex` / `Inter`).
+"""
+
+import base64
+import html as html_lib
+import json
+import os
+from pathlib import Path
+from typing import Any, Dict
+
+import adk_agents
+import demo_data
+import spanner_engine
+
+DEFAULT_CLOUD_RUN_BASE = os.environ.get(
+    "PUBLIC_API_BASE_URL",
+    "https://mike-gcp-platform-254356041555.us-central1.run.app",
+)
+
+_BOOTSTRAP_CACHE: Dict[str, Any] = {}
+
+
+def _encode_png_data_uri(filename: str, fallback_url: str) -> str:
+    """Encodes a chart/diagram PNG from corpus/charts_and_images/ as a data URI so it renders inside sandboxed srcdoc iframes."""
+    p = Path(__file__).resolve().parent / "corpus" / "charts_and_images" / filename
+    if p.exists():
+        try:
+            b64 = base64.b64encode(p.read_bytes()).decode("ascii")
+            return f"data:image/png;base64,{b64}"
+        except Exception:
+            pass
+    return fallback_url
+
+
+def _build_bootstrap_payload(initial_view: str, api_base: str) -> Dict[str, Any]:
+    cache_key = f"{initial_view}:{api_base}"
+    if cache_key in _BOOTSTRAP_CACHE:
+        return _BOOTSTRAP_CACHE[cache_key]
+
+    payload: Dict[str, Any] = {}
+
+    if initial_view == "tabular-view":
+        kestrel_rows = list(demo_data.TABULAR_REVIEWS)
+        unfiled_row = {
+            "doc_id": "EM-9901",
+            "filename": "EM-9901_Unfiled_Tax_Email_Section_338h10_Election.eml",
+            "matter": "M-331-KESTREL",
+            "coc_trigger": "IRC § 338(h)(10) Joint Election & Asset Step-Up",
+            "consent_required": "30-Day Teammate Grant Active (Screen-Before-Rank)",
+            "notice_window": "Pre-Signing Tax Covenant",
+            "termination_right": "First-Dollar Tax Indemnity Carve-Out",
+            "fee_or_penalty": "$14.2M Tax Gross-Up Escrow Reserve (Citibank N.A.)",
+            "citation": "Tax Rider § 6.09(a)",
+            "page": 1,
+            "rrf_score": 0.0341,
+            "entailment_verified": True,
+            "quote": (
+                "Per Marcus Thorne (Tax Partner, EM-9901): Seller shareholders require a $14,200,000 Tax Gross-Up Escrow "
+                "at Citibank N.A. to compensate for ordinary-income vs. capital-gains rate differentials triggered by the "
+                "IRC Section 338(h)(10) election on Brightwater's cleanroom fab assets."
+            ),
+        }
+        if not any(r.get("doc_id") == "EM-9901" for r in kestrel_rows):
+            kestrel_rows.append(unfiled_row)
+
+        clauses_path = Path(__file__).resolve().parent / "corpus" / "indexed_clauses.json"
+        clauses_list = []
+        if clauses_path.exists():
+            try:
+                clauses_list = json.loads(clauses_path.read_text(encoding="utf-8"))
+            except Exception:
+                clauses_list = []
+        by_doc: Dict[str, Dict[str, Any]] = {}
+        for c in clauses_list:
+            did = c.get("doc_id", "")
+            if did and did not in by_doc:
+                by_doc[did] = {
+                    "doc_id": did,
+                    "section_id": c.get("section_id", "1.01"),
+                    "section_title": c.get("section_title", "Executed Provision"),
+                    "category": c.get("category", "Corporate / M&A"),
+                    "page": c.get("page", 1),
+                    "text": (c.get("text") or "")[:240],
+                }
+
+        all_docs = list(demo_data.DOCUMENTS) + [demo_data.UNFILED_EMAIL]
+        scaled_rows = []
+        for d in all_docs:
+            did = d["id"]
+            sample = by_doc.get(did, {})
+            scaled_rows.append({
+                "doc_id": did,
+                "filename": d["name"],
+                "matter": d.get("matter_id", "M-331-KESTREL"),
+                "coc_trigger": sample.get("section_title") or d.get("version") or "Executed Deal Provision",
+                "consent_required": "Prior Written Consent Required" if "01" in did or "02" in did else "Verified Spanner Graph Node",
+                "notice_window": d.get("size", "Indexed"),
+                "termination_right": sample.get("category", "Corporate / M&A"),
+                "fee_or_penalty": d.get("status", "3,072-dim Vector + FTS"),
+                "citation": f"Sec. {sample['section_id']}" if sample.get("section_id") else "Sec. 1.01",
+                "page": sample.get("page", 1),
+                "quote": sample.get("text") or (d.get("summary") or "")[:240] or "Indexed in Cloud Spanner WeilLegalGraph.",
+            })
+
+        doc_pages: Dict[str, str] = {}
+        for r in kestrel_rows:
+            did = r["doc_id"]
+            pg = r.get("page", 1)
+            try:
+                page_res = spanner_engine.get_document_page_text(did, pg)
+                doc_pages[did] = (page_res.get("text") or r.get("quote", ""))[:1800]
+            except Exception:
+                doc_pages[did] = r.get("quote", "")
+
+        payload["kestrel_rows"] = kestrel_rows
+        payload["scaled_rows"] = scaled_rows
+        payload["doc_pages"] = doc_pages
+
+    elif initial_view == "redline-view":
+        redlines = {}
+        for pid in ("KESTREL-SPA-802", "KESTREL-SCRAPE-804", "KESTREL-TAX-304", "KESTREL-COC-804"):
+            redlines[pid] = adk_agents.compute_deterministic_redline(pair_id=pid)
+        payload["redlines"] = redlines
+        payload["legal_legos_default"] = adk_agents.compose_legal_legos_clause(
+            block_ids=["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO"]
+        )
+        payload["legal_legos_blocks"] = list(adk_agents.DEFAULT_LEGAL_LEGOS_BLOCKS.values())
+
+    elif initial_view == "funds-view":
+        funds_on = adk_agents.analyze_fundgen_mfn_and_antitrust_hhi(0.0, True)
+        funds_off = adk_agents.analyze_fundgen_mfn_and_antitrust_hhi(0.0, False)
+        for f_obj in (funds_on, funds_off):
+            for vf in f_obj.get("visual_files", []):
+                raw_img = vf.get("image_url", "")
+                if raw_img.startswith("/"):
+                    vf["image_url"] = f"{api_base}{raw_img}"
+                raw_pdf = vf.get("pdf_url", "")
+                if raw_pdf.startswith("/"):
+                    vf["pdf_url"] = f"{api_base}{raw_pdf}"
+        payload["funds_remedy_on"] = funds_on
+        payload["funds_remedy_off"] = funds_off
+
+    elif initial_view == "governance-view":
+        gov_matrix: Dict[str, Any] = {}
+        for lid in ("L-001", "L-002", "L-003", "L-005"):
+            for mid in ("M-331-KESTREL", "M-402", "M-610-FUNDGEN", "M-720-ANTITRUST", "M-999"):
+                key = f"{lid}__{mid}"
+                raw_graph = spanner_engine.traverse_precedent_graph(matter_id=mid, lawyer_id=lid)
+                nodes = [n for n in (raw_graph.get("nodes") or []) if n.get("type") in ("Document", "Clause")][:6]
+                edges = [e for e in (raw_graph.get("edges") or []) if e.get("type") in ("CITES_PRECEDENT", "CONTAINS_CLAUSE")][:6]
+                gov_matrix[key] = {
+                    "gov": adk_agents.verify_cmn_and_intapp_wall(lawyer_id=lid, matter_id=mid),
+                    "graph": {"nodes": nodes, "edges": edges},
+                }
+        payload["gov_matrix"] = gov_matrix
+
+    elif initial_view == "inbox-view":
+        payload["inbox_initial"] = adk_agents.triage_partner_inbox_and_calendar(reset_state=False)
+
+    _BOOTSTRAP_CACHE[cache_key] = payload
+    return payload
+
+
+def _prerender_kestrel_tbody_html(kestrel_rows: list) -> str:
+    """Server-side pre-renders the 7 Kestrel rows into <tbody> so the grid is populated at 0.0ms even before JS runs."""
+    rows_html = []
+    for idx, row in enumerate(kestrel_rows):
+        consent = str(row.get("consent_required", ""))
+        cl = consent.lower()
+        if any(k in cl for k in ("prior written", "unanimous", "joint", "sole discretion")):
+            pill_cls = "red"
+        elif any(k in cl for k in ("notice", "30", "45")):
+            pill_cls = "amber"
+        else:
+            pill_cls = "green"
+        active_cls = "active-row" if idx == 0 else ""
+        rows_html.append(
+            f'<tr id="tr-row-{idx}" class="{active_cls}">'
+            f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
+            f'<div class="doc-cell-title">'
+            f'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;">'
+            f'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'
+            f'</svg>'
+            f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{html_lib.escape(str(row.get("filename", "")))}</span>'
+            f'</div>'
+            f'<div class="doc-cell-sub">{html_lib.escape(str(row.get("doc_id", "")))} · {html_lib.escape(str(row.get("citation", "Sec. 8.02")))}</div>'
+            f'</td>'
+            f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
+            f'{html_lib.escape(str(row.get("coc_trigger", "")))}'
+            f'<button type="button" class="citation-pill" onclick="event.stopPropagation();openSideInspector({idx})">1</button>'
+            f'</td>'
+            f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
+            f'<span class="status-pill {pill_cls}">{html_lib.escape(consent)}</span>'
+            f'</td>'
+            f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
+            f'{html_lib.escape(str(row.get("notice_window", "")))}'
+            f'</td>'
+            f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
+            f'<div style="font-weight:500;color:#111827;">{html_lib.escape(str(row.get("fee_or_penalty", "")))}</div>'
+            f'<div style="font-size:11px;color:#6b7280;">{html_lib.escape(str(row.get("termination_right", "")))}</div>'
+            f'</td>'
+            f'</tr>'
+        )
+    return "\n".join(rows_html)
+
+
+def build_mike_gcp_html(
+    initial_view: str = "tabular-view",
+    api_base: str = DEFAULT_CLOUD_RUN_BASE,
+) -> str:
+    if initial_view in ("assistant-view", "project-view", ""):
+        initial_view = "tabular-view"
+
+    bootstrap = _build_bootstrap_payload(
+        initial_view=initial_view,
+        api_base=api_base,
+    )
+    bootstrap_json = json.dumps(bootstrap).replace("</", "<\\/")
+    kestrel_rows = bootstrap.get("kestrel_rows") or list(demo_data.TABULAR_REVIEWS)
+    prerendered_tbody = _prerender_kestrel_tbody_html(kestrel_rows) if initial_view == "tabular-view" else ""
+    first_row = kestrel_rows[0]
+    first_quote = html_lib.escape(first_row.get("quote", ""))
+    first_page_text = html_lib.escape((bootstrap.get("doc_pages") or {}).get(first_row["doc_id"], first_row.get("quote", "")))
+
+    html = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mike — Enterprise Legal AI for Gemini Enterprise</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=Google+Sans+Flex:opsz,wght@8..144,400..600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  /* Official Mike OSS (willchen96/mike) + Gemini Enterprise Luminous Tokens */
+  --app-background: #f9fafb;
+  --app-surface: #fdfdfe;
+  --app-surface-hover: #f3f4f6;
+  --app-surface-active: #eff0f3;
+  --app-floating: #fefefe;
+  --table-grid-border: #e5e7eb;
+  --border-subtle: #e5e7eb;
+  --border-strong: #d1d5db;
+
+  --editor-heading: #111827;
+  --editor-text: #374151;
+  --editor-muted-text: #6b7280;
+
+  --color-blue: #0088ff;
+  --ge-primary: #2563eb;
+  --citation-selected-background: rgba(0, 136, 255, 0.09);
+  --citation-selected-text: #172554;
+
+  --spreadsheet-header-tint: rgba(241, 245, 249, 0.85);
+  --spreadsheet-header-corner: #f1f5f9;
+  --spreadsheet-highlight-background: rgba(59, 130, 246, 0.12);
+  --spreadsheet-highlight-outline: #3b82f6;
+
+  --font-serif: "EB Garamond", Georgia, serif;
+  --font-sans: "Google Sans Flex", "Google Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 114, 128, 0.3) transparent;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  min-height: 680px;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.5;
+  background-color: var(--app-background);
+  color: var(--editor-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+/* Official Mike OSS Liquid Glass Surfaces (LiquidGlassUI.css) */
+.liquid-glass-flat {
+  background: var(--app-surface);
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  box-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.06),
+    0 1px 2px -1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+/* Official Mike OSS TabPillButtonUI (TabPillButtonUI.tsx) */
+.tab-pill-btn {
+  display: inline-flex;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 9999px;
+  padding: 0 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #4b5563;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.tab-pill-btn:hover {
+  background: #ffffff;
+  color: #111827;
+  border-color: #d1d5db;
+}
+.tab-pill-btn.active {
+  background: #ffffff;
+  color: #111827;
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), inset 0 1px 0 #ffffff;
+  font-weight: 600;
+}
+
+/* Official Mike OSS PillButtonUI (PillButtonUI.styles.ts) */
+.pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 26px;
+  padding: 0 11px;
+  border-radius: 9999px;
+  font-size: 11.5px;
+  font-weight: 500;
+  line-height: 1;
+  transition: background-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.1s;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+.pill-btn:active {
+  transform: scale(0.98);
+}
+.pill-btn-xs {
+  height: 23px;
+  padding: 0 9px;
+  font-size: 11px;
+}
+.pill-btn-blue {
+  background: rgba(37, 99, 235, 0.92);
+  color: #ffffff;
+  box-shadow:
+    0 2px 6px rgba(37, 99, 235, 0.14),
+    inset 1px 1px 0 rgba(255, 255, 255, 0.28);
+}
+.pill-btn-blue:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+.pill-btn-white {
+  background: #fdfdfe;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+.pill-btn-white:hover:not(:disabled) {
+  background: #f3f4f6;
+  color: #111827;
+}
+.pill-btn-danger {
+  background: rgba(220, 38, 38, 0.92);
+  color: #ffffff;
+  box-shadow: 0 2px 6px rgba(127, 29, 29, 0.14);
+}
+.pill-btn-danger:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+/* Official Mike OSS CitationPillUI (CitationPillUI.tsx) */
+.citation-pill {
+  display: inline-flex;
+  height: 17px;
+  min-width: 17px;
+  padding: 0 4px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgba(229, 231, 235, 0.85);
+  font-family: var(--font-serif);
+  font-size: 11px;
+  font-weight: 600;
+  color: #1f2937;
+  border: none;
+  margin-left: 3px;
+  vertical-align: middle;
+  transition: background-color 0.15s, color 0.15s;
+}
+.citation-pill:hover,
+.citation-pill.active {
+  background: #dbeafe;
+  color: #1e3a8a;
+}
+
+/* Official Mike OSS Status / Risk Pills (pillUtils.ts) */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border-radius: 9999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.tr-table td .status-pill {
+  white-space: normal;
+  text-align: left;
+  line-height: 1.3;
+}
+.status-pill.red {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+.status-pill.amber {
+  background: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+.status-pill.green {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+.status-pill.blue {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+.status-pill.gray {
+  background: #f3f4f6;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+}
+
+/* Main App Container */
+#app-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100vw;
+  height: 100vh;
+  min-height: 680px;
+  overflow: hidden;
+  background: var(--app-background);
+}
+
+.studio-screen {
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 680px;
+  overflow: hidden;
+}
+.studio-screen.active {
+  display: flex;
+}
+
+/* Mike OSS PageHeader (Single-line compact header so it never eats vertical height) */
+.mike-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 44px;
+  padding: 6px 12px;
+  background: var(--app-surface);
+  border-bottom: 1px solid var(--table-grid-border);
+  flex-shrink: 0;
+}
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+.header-brand > div {
+  min-width: 0;
+  flex: 1;
+}
+.header-title {
+  font-family: var(--font-serif);
+  font-size: 17px;
+  font-weight: 500;
+  color: var(--editor-heading);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header-subtitle {
+  font-size: 10.5px;
+  color: var(--editor-muted-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+/* Mike OSS TableToolbar */
+.mike-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--app-background);
+  border-bottom: 1px solid var(--table-grid-border);
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+}
+
+.search-input {
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 9999px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 11.5px;
+  color: #111827;
+  outline: none;
+  width: 170px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.search-input:focus {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 2px rgba(0, 136, 255, 0.15);
+}
+
+/* Split Workspace Stage */
+.workspace-stage {
+  flex: 1;
+  display: flex;
+  min-height: 480px;
+  overflow: hidden;
+  position: relative;
+}
+
+.primary-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Mike OSS TRSidePanel (TRSidePanel.tsx) */
+.side-inspector-pane {
+  width: 420px;
+  max-width: 45%;
+  background: var(--app-surface);
+  border-left: 1px solid var(--table-grid-border);
+  display: none;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+  box-shadow: -4px 0 16px rgba(15, 23, 42, 0.04);
+  z-index: 30;
+}
+.side-inspector-pane.open {
+  display: flex;
+}
+
+@media (max-width: 780px) {
+  .side-inspector-pane {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    max-width: 100%;
+    border-left: none;
+  }
+  .search-input {
+    width: 125px;
+  }
+  .header-title {
+    font-size: 15.5px;
+  }
+}
+
+/* Mike OSS Tabular Review Grid (TRTable.tsx + TabularCell.tsx) */
+.tr-grid-scroll {
+  flex: 1;
+  min-height: 420px;
+  overflow: auto;
+  background: var(--app-surface);
+}
+.tr-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+}
+.tr-table th {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  background: #f8fafc;
+  border-bottom: 1px solid var(--table-grid-border);
+  border-right: 1px solid var(--table-grid-border);
+  padding: 7px 10px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4b5563;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tr-table td {
+  border-bottom: 1px solid var(--table-grid-border);
+  border-right: 1px solid var(--table-grid-border);
+  padding: 7px 10px;
+  vertical-align: top;
+  color: #374151;
+  line-height: 1.42;
+  background: var(--app-surface);
+  transition: background-color 0.12s;
+}
+.tr-table tr:hover td {
+  background: #f9fafb;
+}
+.tr-table tr.active-row td {
+  background: rgba(0, 136, 255, 0.05);
+}
+
+.doc-cell-title {
+  font-weight: 500;
+  color: #111827;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.doc-cell-title:hover {
+  color: var(--ge-primary);
+}
+.doc-cell-sub {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* Inline Add Column Drawer (AddColumnModal.tsx) */
+.add-col-bar {
+  display: none;
+  padding: 8px 12px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--table-grid-border);
+  gap: 6px;
+  flex-direction: column;
+}
+.add-col-bar.open {
+  display: flex;
+}
+.add-col-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.field-input {
+  height: 26px;
+  padding: 0 9px;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  font-size: 11.5px;
+  color: #111827;
+  outline: none;
+}
+.field-input:focus {
+  border-color: var(--color-blue);
+  box-shadow: 0 0 0 2px rgba(0, 136, 255, 0.15);
+}
+
+/* Mike OSS Document & Pin-Cite Reader */
+.inspector-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--table-grid-border);
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+.inspector-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px 16px;
+  font-family: var(--font-serif);
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--editor-text);
+  background: var(--app-surface);
+}
+.pin-cite-box {
+  font-family: var(--font-sans);
+  font-size: 11.5px;
+  background: var(--citation-selected-background);
+  color: var(--citation-selected-text);
+  border-left: 3px solid var(--color-blue);
+  padding: 8px 10px;
+  border-radius: 0 8px 8px 0;
+  margin-bottom: 12px;
+}
+.contract-highlight {
+  background: #fef08a;
+  color: #713f12;
+  padding: 1px 4px;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px #facc15;
+}
+
+/* Mike OSS EditCardUI & TextSlabUI */
+.edit-card {
+  background: var(--app-surface);
+  border: 1px solid var(--table-grid-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.text-slab {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 9px 11px;
+  font-family: var(--font-serif);
+  font-size: 14px;
+  line-height: 1.58;
+  color: #1f2937;
+}
+.redline-del, del.redline-del {
+  color: #dc2626;
+  text-decoration: line-through;
+  background: rgba(254, 226, 226, 0.55);
+  padding: 0 2px;
+  border-radius: 3px;
+}
+.redline-ins, ins.redline-ins {
+  color: #15803d;
+  text-decoration: none;
+  font-weight: 600;
+  background: rgba(220, 252, 231, 0.65);
+  padding: 0 2px;
+  border-radius: 3px;
+}
+
+/* Split Grid for Studios 2, 3, 4, 5 */
+.two-col-studio {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  min-height: 480px;
+  overflow: hidden;
+}
+@media (max-width: 780px) {
+  .two-col-studio {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
+.studio-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 14px;
+  gap: 10px;
+}
+.studio-col + .studio-col {
+  border-left: 1px solid var(--table-grid-border);
+  background: #fdfdfe;
+}
+@media (max-width: 780px) {
+  .studio-col {
+    overflow-y: visible;
+  }
+  .studio-col + .studio-col {
+    border-left: none;
+    border-top: 1px solid var(--table-grid-border);
+  }
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.skeleton-bar {
+  height: 12px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+</style>
+</head>
+<body>
+
+<div id="app-shell">
+
+  <!-- ===================================================================== -->
+  <!-- STUDIO 1: MIKE OSS TABULAR REVIEW & PIN-CITE READER (mike-gcp-platform) -->
+  <!-- ===================================================================== -->
+  <section id="tabular-view" class="studio-screen">
+    <header class="mike-page-header">
+      <div class="header-brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
+          <circle cx="12" cy="12" r="9.5" stroke="#9ca3af"/>
+          <path d="M12 2.5L15 9.5M21.5 12L14.5 15M12 21.5L9 14.5M2.5 12L9.5 9"/>
+          <circle cx="12" cy="12" r="3" fill="#2563eb" stroke="none"/>
+        </svg>
+        <div>
+          <div class="header-title">Project Kestrel — Change of Control Review</div>
+          <div class="header-subtitle" id="tr-subtitle">Matter M-331 · CMN 31402-0018 · 7 Active Contracts in Cloud Spanner</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-toggle-add-col" class="pill-btn pill-btn-blue" onclick="toggleAddColumnBar()">
+          + Add column
+        </button>
+        <button id="btn-export-csv" class="pill-btn pill-btn-white" onclick="exportGridToCsv()">
+          Export CSV
+        </button>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')" title="Dock in Gemini Enterprise Right Side Panel">
+          Side Panel
+        </button>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')" title="Expand to Fullscreen">
+          Maximize
+        </button>
+      </div>
+    </header>
+
+    <div class="mike-toolbar">
+      <div class="toolbar-left">
+        <button id="pill-corpus-kestrel" class="tab-pill-btn active" onclick="switchTabularCorpus('kestrel')">
+          Kestrel CoC Grid (7)
+        </button>
+        <button id="pill-corpus-all" class="tab-pill-btn" onclick="switchTabularCorpus('scaled')">
+          All Deal Documents (46)
+        </button>
+        <button id="pill-grant-em9901" class="tab-pill-btn" onclick="toggleTeammateGrant()" title="Toggle 30-day Screen-Before-Rank grant for unfiled tax email EM-9901">
+          <span id="grant-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;"></span>
+          <span id="grant-label">EM-9901 Grant: Active</span>
+        </button>
+      </div>
+      <div class="toolbar-right">
+        <input id="tr-search-input" type="search" class="search-input" placeholder="Filter contracts or clauses..." oninput="filterTabularRows(this.value)" />
+      </div>
+    </div>
+
+    <!-- Inline Add Column Bar (Mike OSS AddColumnModal pattern — Live Parallel Gemini 3.8 Flash) -->
+    <div id="add-col-bar" class="add-col-bar">
+      <div class="add-col-row">
+        <span style="font-size:11px;font-weight:600;color:#4b5563;">Quick Presets:</span>
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Agreement Title & Parties', 'Extract the official agreement title and contracting parties from the preamble.')">
+          Agreement Title &amp; Parties
+        </button>
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Indemnity Cap & Basket', 'Extract the exact dollar and percentage Indemnity Cap, Deductible/Tipping Basket, and Fraud Carve-out.')">
+          Indemnity Cap &amp; Basket
+        </button>
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Governing Law & Venue', 'Extract the governing law jurisdiction, arbitration or court venue, and jury waiver.')">
+          Governing Law &amp; Venue
+        </button>
+        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="fillPresetColumn('IP & J.Crew Blocker', 'Identify whether Material IP drop-downs to Unrestricted Subsidiaries are blocked and required lender consent %.')">
+          IP &amp; J.Crew Blocker
+        </button>
+      </div>
+      <div class="add-col-row">
+        <input id="new-col-name" type="text" class="field-input" style="width:175px;" placeholder="Column name (e.g. Title, Parties, Law)" value="" onkeydown="if(event.key==='Enter')runDynamicColumnExtraction()" />
+        <input id="new-col-prompt" type="text" class="field-input" style="flex:1;min-width:190px;" placeholder="Optional extraction instructions (leave blank to auto-extract by Column name via Gemini 3.8 Flash)..." value="" onkeydown="if(event.key==='Enter')runDynamicColumnExtraction()" />
+        <button id="btn-run-col-extract" type="button" class="pill-btn pill-btn-blue" onclick="runDynamicColumnExtraction()">
+          Run extraction
+        </button>
+        <button type="button" class="pill-btn pill-btn-white" onclick="toggleAddColumnBar()">
+          Cancel
+        </button>
+      </div>
+    </div>
+
+    <div class="workspace-stage">
+      <div class="primary-pane">
+        <div class="tr-grid-scroll">
+          <table class="tr-table" id="kestrel-grid-table">
+            <thead id="tr-thead">
+              <tr>
+                <th style="width:220px;">Document</th>
+                <th style="width:185px;">CoC / Provision Trigger</th>
+                <th style="width:210px;">Consent Requirement</th>
+                <th style="width:125px;">Notice Window</th>
+                <th style="width:185px;">Termination &amp; Fee Impact</th>
+              </tr>
+            </thead>
+            <tbody id="tr-tbody">
+__PRERENDERED_TBODY__
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Mike OSS TRSidePanel Document & Pin-Cite Reader -->
+      <aside id="tr-side-panel" class="side-inspector-pane">
+        <div class="inspector-header">
+          <div style="min-width:0;">
+            <div id="insp-doc-title" style="font-weight:600;font-size:12px;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              01_Supply_Agreement_Halvorsen_Brightwater.docx
+            </div>
+            <div id="insp-doc-meta" style="font-size:11px;color:#6b7280;">
+              DOC-KESTREL-01 · Section 12.03(a) · Page 4
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+            <button id="btn-prev-row" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(-1)" title="Previous contract">↑</button>
+            <button id="btn-next-row" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(1)" title="Next contract">↓</button>
+            <a id="insp-download-link" href="__DEFAULT_API_BASE__/api/corpus/file/01_Supply_Agreement_Halvorsen_Brightwater.docx" target="_blank" class="pill-btn pill-btn-white pill-btn-xs" style="text-decoration:none;">Original</a>
+            <button id="btn-close-inspector" class="pill-btn pill-btn-white pill-btn-xs" onclick="closeSideInspector()">✕</button>
+          </div>
+        </div>
+        <div class="inspector-body">
+          <div class="pin-cite-box" id="insp-pincite-quote">
+            <strong>Pin-Cite (Section 12.03(a), p.4):</strong> “__FIRST_QUOTE__”
+          </div>
+          <div id="insp-contract-body" style="white-space:pre-wrap;">__FIRST_PAGE_TEXT__</div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- STUDIO 2: CONTRACT REDLINE & WORD LEGAL LEGOS (weil-redline-word-agent) -->
+  <!-- ===================================================================== -->
+  <section id="redline-view" class="studio-screen">
+    <header class="mike-page-header">
+      <div class="header-brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="9" y1="15" x2="15" y2="15" stroke="#2563eb"/>
+        </svg>
+        <div>
+          <div class="header-title">Contract Redline &amp; Legal Legos Composer</div>
+          <div class="header-subtitle">Weil v3 Playbook vs. Skadden v4 Counterparty Markup · Privacy Pro .docx Builder</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a id="btn-download-v4-docx" href="__DEFAULT_API_BASE__/api/corpus/file/08_M331_Brightwater_Merger_Agreement_Skadden_v4_Redline.docx" target="_blank" class="pill-btn pill-btn-white" style="text-decoration:none;">
+          Skadden v4 .docx
+        </a>
+        <a id="btn-download-legos-docx" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" class="pill-btn pill-btn-blue" style="text-decoration:none;">
+          Export Composed .docx
+        </a>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+      </div>
+    </header>
+
+    <div class="mike-toolbar">
+      <div class="toolbar-left">
+        <button id="red-pair-802" class="tab-pill-btn active" onclick="loadRedlinePair('KESTREL-SPA-802', this)">
+          SPA § 8.02(b) Indemnity Cap
+        </button>
+        <button id="red-pair-scrape" class="tab-pill-btn" onclick="loadRedlinePair('KESTREL-SCRAPE-804', this)">
+          SPA § 8.04(a) Materiality Scrape
+        </button>
+        <button id="red-pair-tax" class="tab-pill-btn" onclick="loadRedlinePair('KESTREL-TAX-304', this)">
+          Tax Rider § 3.04 338(h)(10)
+        </button>
+        <button id="red-pair-coc" class="tab-pill-btn" onclick="loadRedlinePair('KESTREL-COC-804', this)">
+          Quillfeather § 8.04 CoC
+        </button>
+      </div>
+      <div class="toolbar-right">
+        <span id="redline-stats-pill" class="status-pill blue">74.2% Similarity · 0.4ms Diff</span>
+      </div>
+    </div>
+
+    <div class="two-col-studio">
+      <div class="studio-col">
+        <div>
+          <div class="section-label" id="redline-doc-pair-label">
+            07_M331_Brightwater_Merger_Agreement_Weil_v3.docx vs. 08_M331_Skadden_v4_Redline.docx
+          </div>
+          <div id="redline-playbook-banner" style="font-size:12px;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
+          <div id="redline-diff-slab" class="text-slab"></div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span class="section-label">Tracked Playbook Deviations (Mike OSS EditCardUI)</span>
+            <button id="btn-reset-redline-cards" class="pill-btn pill-btn-white pill-btn-xs" onclick="resetRedlineDecisions()">Reset decisions</button>
+          </div>
+          <div id="redline-edit-cards"></div>
+        </div>
+      </div>
+
+      <div class="studio-col">
+        <div>
+          <div class="section-label">Weil Privacy Pro &amp; M&amp;A "Legal Legos" Clause Blocks</div>
+          <p style="font-size:11.5px;color:#6b7280;margin-bottom:6px;">
+            Select pre-vetted Weil Playbook clause blocks to assemble a numbered OpenXML <code>.docx</code> rider:
+          </p>
+          <div id="legos-checkbox-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
+              <input type="checkbox" class="lego-cb" value="LEGO-DE-FRAUD" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
+              <div>
+                <div style="font-size:12px;font-weight:600;color:#111827;">LEGO-DE-FRAUD · Delaware Express Actual Fraud (ABRY)</div>
+                <div style="font-size:11px;color:#6b7280;">Article VIII → Section 8.02(c)(i)..(ii) · Excludes constructive/equitable fraud</div>
+              </div>
+            </label>
+            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
+              <input type="checkbox" class="lego-cb" value="LEGO-338H10-TAX" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
+              <div>
+                <div style="font-size:12px;font-weight:600;color:#111827;">LEGO-338H10-TAX · IRC § 338(h)(10) $14.2M Tax Escrow</div>
+                <div style="font-size:11px;color:#6b7280;">Article VI → Section 6.09(a)..(b) · Citibank N.A. 18-month tax reserve</div>
+              </div>
+            </label>
+            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
+              <input type="checkbox" class="lego-cb" value="LEGO-PRIVACY-PRO" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
+              <div>
+                <div style="font-size:12px;font-weight:600;color:#111827;">LEGO-PRIVACY-PRO · Zero Foundation Model Training &amp; GDPR</div>
+                <div style="font-size:11px;color:#6b7280;">Article XI → Section 11.04(a)..(c) · 24-hour cyber breach notice</div>
+              </div>
+            </label>
+            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
+              <input type="checkbox" class="lego-cb" value="LEGO-MFN-FUNDGEN" onchange="updateLegalLegos()" style="margin-top:3px;" />
+              <div>
+                <div style="font-size:12px;font-weight:600;color:#111827;">LEGO-MFN-FUNDGEN · Size-Tiered LP MFN Election Rider</div>
+                <div style="font-size:11px;color:#6b7280;">Side Letter → Paragraph 4(a)..(c) · $250M+ anchor carve-out</div>
+              </div>
+            </label>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span class="section-label">Composed Multi-Level .docx Preview</span>
+            <div style="display:flex;gap:6px;">
+              <button id="btn-copy-legos" class="pill-btn pill-btn-white pill-btn-xs" onclick="copyLegalLegosText()">Copy Rider</button>
+              <button id="btn-compose-legos" class="pill-btn pill-btn-blue pill-btn-xs" onclick="updateLegalLegos()">Refresh Outline</button>
+            </div>
+          </div>
+          <pre id="legos-preview-box" class="text-slab" style="font-family:var(--font-serif);font-size:13.5px;white-space:pre-wrap;max-height:260px;overflow-y:auto;"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- STUDIO 3: FUNDGEN / FUNDHQ MFN & ANTITRUST HSR (weil-funds-antitrust) -->
+  <!-- ===================================================================== -->
+  <section id="funds-view" class="studio-screen">
+    <header class="mike-page-header">
+      <div class="header-brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
+          <rect x="3" y="3" width="18" height="18" rx="3" stroke="#9ca3af"/>
+          <path d="M7 16V11M12 16V7M17 16V13" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <div class="header-title">FundGen / FundHQ MFN &amp; Antitrust HSR Analyzer</div>
+          <div class="header-subtitle">Matter M-610 ($12.5B Fund VIII LPA) &amp; Matter M-720 (FTC Second Request HHI &amp; Multimodal Charts)</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-FUND-02_Weil_FundHQ_Sovereign_LP_MFN_Side_Letter_Compendium.pdf" target="_blank" class="pill-btn pill-btn-white" style="text-decoration:none;">
+          FundHQ PDF
+        </a>
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-HSR-01_Hart_Scott_Rodino_Second_Request_Market_Share_Filing.pdf" target="_blank" class="pill-btn pill-btn-white" style="text-decoration:none;">
+          HSR Filing PDF
+        </a>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+      </div>
+    </header>
+
+    <div class="mike-toolbar">
+      <div class="toolbar-left">
+        <span style="font-size:11px;font-weight:600;color:#4b5563;">LP Tier Filter:</span>
+        <button id="btn-lp-all" class="tab-pill-btn active" onclick="loadFundsAntitrust(0, null, this)">
+          All LPs (5)
+        </button>
+        <button id="btn-lp-150" class="tab-pill-btn" onclick="loadFundsAntitrust(150, null, this)">
+          &gt;= $150M Early-Bird
+        </button>
+        <button id="btn-lp-250" class="tab-pill-btn" onclick="loadFundsAntitrust(250, null, this)">
+          &gt;= $250M Sovereign Anchor
+        </button>
+      </div>
+      <div class="toolbar-right">
+        <button id="btn-hsr-remedy-toggle" class="pill-btn pill-btn-blue" onclick="toggleHsrRemedy()">
+          HSR Divestiture Remedy: ON (Cleared +30 Δ HHI)
+        </button>
+      </div>
+    </div>
+
+    <div class="two-col-studio">
+      <div class="studio-col">
+        <div>
+          <div class="section-label">FundHQ Sovereign &amp; Institutional LP Side-Letter MFN Matrix (DOC-FUND-01 / 02)</div>
+          <div id="fundhq-savings-banner" style="font-size:12px;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
+          <div style="overflow-x:auto;border:1px solid var(--table-grid-border);border-radius:8px;">
+            <table class="tr-table">
+              <thead>
+                <tr>
+                  <th style="width:28%;">Limited Partner</th>
+                  <th style="width:16%;">Commit ($M)</th>
+                  <th style="width:16%;">Fee / Carry</th>
+                  <th style="width:40%;">MFN Election Scope &amp; Excusal Rights</th>
+                </tr>
+              </thead>
+              <tbody id="fundhq-lp-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <span class="section-label">FTC HSR Second Request — HHI Market Concentration (DOC-HSR-01)</span>
+            <span id="hsr-status-badge" class="status-pill green">CLEARED (+30 Δ HHI)</span>
+          </div>
+          <div id="hsr-summary-card" class="liquid-glass-flat" style="padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:8px;"></div>
+          <div id="hsr-bars-container" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+
+      <div class="studio-col">
+        <div>
+          <div class="section-label">Extracted Multimodal Exhibits (corpus/charts_and_images/)</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+            <button id="mm-btn-0" class="tab-pill-btn active" onclick="selectMultimodalExhibit(0, this)">EBITDA Bridge</button>
+            <button id="mm-btn-1" class="tab-pill-btn" onclick="selectMultimodalExhibit(1, this)">LP Fee Curve</button>
+            <button id="mm-btn-2" class="tab-pill-btn" onclick="selectMultimodalExhibit(2, this)">J.Crew Org Chart</button>
+            <button id="mm-btn-3" class="tab-pill-btn" onclick="selectMultimodalExhibit(3, this)">Citibank $18M Scan</button>
+          </div>
+          <div id="mm-exhibit-card" class="liquid-glass-flat" style="padding:12px;border-radius:10px;">
+            <div id="mm-exhibit-title" style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:#111827;margin-bottom:4px;"></div>
+            <div id="mm-exhibit-takeaway" style="font-size:12px;color:#374151;margin-bottom:10px;"></div>
+            <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;">
+              <img id="mm-exhibit-img" src="__DEFAULT_API_BASE__/api/corpus/image/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.png" alt="Multimodal Exhibit" style="max-width:100%;max-height:260px;border-radius:6px;object-fit:contain;" />
+            </div>
+            <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:11px;color:#6b7280;">Extracted via docparse Bounding-Box Schema → Cloud Spanner</span>
+              <a id="mm-exhibit-pdf-link" href="__DEFAULT_API_BASE__/api/corpus/file/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.pdf" target="_blank" class="pill-btn pill-btn-white pill-btn-xs" style="text-decoration:none;">Open Source PDF</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- STUDIO 4: INTAPP ETHICAL WALL & SPANNER GRAPH (weil-governance-wall)  -->
+  <!-- ===================================================================== -->
+  <section id="governance-view" class="studio-screen">
+    <header class="mike-page-header">
+      <div class="header-brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <circle cx="12" cy="11" r="2.5" fill="#2563eb" stroke="none"/>
+        </svg>
+        <div>
+          <div class="header-title">Intapp Ethical Wall &amp; Cloud Spanner Graph</div>
+          <div class="header-subtitle">Screen-Before-Rank Access Verification · Client Matter Number (CMN) Switcher</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-verify-wall" class="pill-btn pill-btn-blue" onclick="loadGovernanceAndGraph()">
+          Verify Screen-Before-Rank
+        </button>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+      </div>
+    </header>
+
+    <div class="mike-toolbar">
+      <div class="toolbar-left">
+        <span style="font-size:11px;font-weight:600;color:#4b5563;">Attorney:</span>
+        <select id="gov-lawyer-select" class="field-input" style="border-radius:9999px;" onchange="loadGovernanceAndGraph()">
+          <option value="L-001">L-001 · Sarah Jenkins (M&amp;A Managing Partner — Walled from M-999)</option>
+          <option value="L-002">L-002 · David Vance (Senior M&amp;A Partner)</option>
+          <option value="L-003">L-003 · Marcus Thorne (Tax Partner — Owner of EM-9901)</option>
+          <option value="L-005">L-005 · Elena Rostova (Restructuring Partner — Cleared for M-999)</option>
+        </select>
+      </div>
+      <div class="toolbar-right" style="flex-wrap:wrap;">
+        <button id="cmn-btn-m331" class="tab-pill-btn active" onclick="selectGovernanceMatter('M-331-KESTREL', this)">M-331 Brightwater</button>
+        <button id="cmn-btn-m402" class="tab-pill-btn" onclick="selectGovernanceMatter('M-402', this)">M-402 Apollo</button>
+        <button id="cmn-btn-m610" class="tab-pill-btn" onclick="selectGovernanceMatter('M-610-FUNDGEN', this)">M-610 FundGen</button>
+        <button id="cmn-btn-m720" class="tab-pill-btn" onclick="selectGovernanceMatter('M-720-ANTITRUST', this)">M-720 HSR</button>
+        <button id="cmn-btn-m999" class="tab-pill-btn" onclick="selectGovernanceMatter('M-999', this)">M-999 Omega (Wall)</button>
+      </div>
+    </div>
+
+    <div class="two-col-studio">
+      <div class="studio-col">
+        <div id="gov-status-banner" class="liquid-glass-flat" style="padding:12px;border-radius:10px;"></div>
+
+        <div class="liquid-glass-flat" style="padding:10px 12px;border-radius:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span class="section-label">Unfiled Deal Email 30-Day Teammate Grant (EM-9901)</span>
+            <span id="gov-grant-pill" class="status-pill green">ACTIVE (30-Day TTL)</span>
+          </div>
+          <p style="font-size:11.5px;color:#4b5563;margin-bottom:8px;">
+            Controls whether Marcus Thorne's unfiled Exchange tax email (<code>EM-9901</code> · $14.2M IRC § 338(h)(10) Gross-Up) is traversable in Cloud Spanner <code>TeammateGrants</code>:
+          </p>
+          <div style="display:flex;gap:8px;">
+            <button id="btn-gov-grant" class="pill-btn pill-btn-blue pill-btn-xs" onclick="setGovGrant(true)">Grant 30-Day Access</button>
+            <button id="btn-gov-revoke" class="pill-btn pill-btn-white pill-btn-xs" onclick="setGovGrant(false)">Revoke Access</button>
+          </div>
+        </div>
+
+        <div>
+          <div class="section-label">Cloud Spanner ISO GQL Screen-Before-Rank Query</div>
+          <pre id="gov-gql-box" class="text-slab" style="font-family:var(--font-mono);font-size:11px;white-space:pre-wrap;"></pre>
+        </div>
+      </div>
+
+      <div class="studio-col">
+        <div>
+          <div class="section-label">Live Cloud Spanner Property Graph (WeilLegalGraph)</div>
+          <div id="graph-nodes-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================================== -->
+  <!-- STUDIO 5: PARTNER DEAL INBOX & CALENDAR TRIAGE (weil-inbox-calendar)  -->
+  <!-- ===================================================================== -->
+  <section id="inbox-view" class="studio-screen">
+    <header class="mike-page-header">
+      <div class="header-brand">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
+          <rect x="3" y="4" width="18" height="16" rx="2"/>
+          <polyline points="3 7 12 13 21 7" stroke="#2563eb"/>
+        </svg>
+        <div>
+          <div class="header-title">Partner Deal Inbox &amp; Calendar Conflict Triage</div>
+          <div class="header-subtitle">Sarah Jenkins (L-001) · One-Tap iManage CMN Auto-Filer &amp; FTC HSR Conflict Resolver</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btn-reset-inbox" class="pill-btn pill-btn-white" onclick="resetInboxState()">
+          Reset Queue
+        </button>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+      </div>
+    </header>
+
+    <div class="mike-toolbar">
+      <div class="toolbar-left">
+        <button id="inb-filter-all" class="tab-pill-btn active" onclick="setInboxFilter('all', this)">
+          All Priority Items (4)
+        </button>
+        <button id="inb-filter-pending" class="tab-pill-btn" onclick="setInboxFilter('pending', this)">
+          Pending Sign-Off
+        </button>
+        <button id="inb-filter-cal" class="tab-pill-btn" onclick="setInboxFilter('calendar', this)">
+          Calendar Conflicts (CAL-101)
+        </button>
+      </div>
+      <div class="toolbar-right">
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/CAL-101_Closing_Board_Call_and_FTC_HSR_Conflict.ics" target="_blank" class="pill-btn pill-btn-white pill-btn-xs" style="text-decoration:none;">
+          Download .ics
+        </a>
+      </div>
+    </div>
+
+    <div class="two-col-studio">
+      <div class="studio-col" id="inbox-emails-col">
+        <div class="section-label">Partner Deal Emails &amp; iManage CMN Filing Queue (corpus/emails_and_calendar/)</div>
+        <div id="inbox-email-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
+      </div>
+
+      <div class="studio-col" id="inbox-cal-col">
+        <div class="section-label">Closing &amp; Regulatory Calendar Conflict (CAL-101)</div>
+        <div id="inbox-calendar-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+        <div style="margin-top:6px;">
+          <div class="section-label" id="raw-eml-header">Verbatim .EML / .ICS Source (corpus/emails_and_calendar/)</div>
+          <pre id="raw-eml-viewer" class="text-slab" style="font-family:var(--font-mono);font-size:11px;white-space:pre-wrap;max-height:240px;overflow-y:auto;"></pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const INITIAL_STUDIO_VIEW = "__INITIAL_STUDIO_VIEW__";
+const DEFAULT_API_BASE = "__DEFAULT_API_BASE__";
+const API_BASE = (
+  window.location.origin &&
+  window.location.origin !== "null" &&
+  (window.location.origin.includes("run.app") ||
+   window.location.origin.includes("localhost") ||
+   window.location.origin.includes("127.0.0.1"))
+) ? window.location.origin : DEFAULT_API_BASE;
+
+const INITIAL_BOOTSTRAP_DATA = __INITIAL_BOOTSTRAP_JSON__;
+
+let currentCorpusMode = "kestrel";
+let tabularRows = (INITIAL_BOOTSTRAP_DATA.kestrel_rows || []).slice();
+let dynamicColumns = [];
+let activeInspectorRowIdx = 0;
+let activeSearchQuery = "";
+let grantActiveState = true;
+let hsrRemedyActive = true;
+let currentLpFilter = 0;
+let currentMultimodalData = INITIAL_BOOTSTRAP_DATA.funds_remedy_on || null;
+let currentGovernanceMatter = "M-331-KESTREL";
+let currentRedlineData = (INITIAL_BOOTSTRAP_DATA.redlines || {})["KESTREL-SPA-802"] || null;
+let redlineCardStates = {};
+let currentInboxData = INITIAL_BOOTSTRAP_DATA.inbox_initial || null;
+let currentInboxFilter = "all";
+
+/* ========================================================================= */
+/* SEP-1865 MCP APP (@modelcontextprotocol/ext-apps) BIDIRECTIONAL BRIDGE    */
+/* ========================================================================= */
+let mcpRpcId = 100;
+
+function notifyHostSizeAndPip(preferredMode) {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        jsonrpc: "2.0",
+        method: "ui/notifications/initialized",
+        params: {}
+      }, "*");
+      window.parent.postMessage({
+        jsonrpc: "2.0",
+        method: "ui/notifications/size-changed",
+        params: { height: 760 }
+      }, "*");
+      if (preferredMode) {
+        window.parent.postMessage({
+          jsonrpc: "2.0",
+          id: ++mcpRpcId,
+          method: "ui/request-display-mode",
+          params: { mode: preferredMode }
+        }, "*");
+      }
+    }
+  } catch (e) {}
+}
+
+function requestHostDisplayMode(mode) {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        jsonrpc: "2.0",
+        id: ++mcpRpcId,
+        method: "ui/request-display-mode",
+        params: { mode: mode || "pip" }
+      }, "*");
+      window.parent.postMessage({
+        jsonrpc: "2.0",
+        method: "ui/notifications/size-changed",
+        params: { height: mode === "fullscreen" ? 900 : 760 }
+      }, "*");
+    }
+  } catch (e) {}
+}
+
+function initMcpAppBridge() {
+  try {
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "ui/initialize",
+        params: {
+          protocolVersion: "2026-01-26",
+          appInfo: { name: "weil-legal-mcp-app", version: "3.2.0" },
+          appCapabilities: {
+            availableDisplayModes: ["inline", "fullscreen", "pip"]
+          }
+        }
+      }, "*");
+      setTimeout(() => notifyHostSizeAndPip("pip"), 40);
+      setTimeout(() => notifyHostSizeAndPip(null), 350);
+    }
+  } catch (e) {}
+}
+
+window.addEventListener("message", (event) => {
+  const data = event.data;
+  if (!data || typeof data !== "object") return;
+  if (data.id === 1 && data.result) {
+    notifyHostSizeAndPip("pip");
+  }
+  if (data.method === "ui/notifications/tool-input" && data.params) {
+    const args = data.params.arguments || {};
+    if (args.column_name && args.column_prompt) {
+      fillPresetColumn(args.column_name, args.column_prompt);
+      runDynamicColumnExtraction();
+    }
+  } else if (data.method === "ui/notifications/tool-result" && data.params) {
+    const sc = data.params.structuredContent || {};
+    if (sc.added_column && sc.added_column.name) {
+      applyServerAddedColumn(sc.added_column);
+    }
+  }
+});
+
+function applyServerAddedColumn(colPayload) {
+  if (!colPayload || !colPayload.name) return;
+  const exists = dynamicColumns.some(c => c.name === colPayload.name);
+  if (!exists) {
+    dynamicColumns.push(colPayload);
+    renderTabularGrid();
+  }
+}
+
+function activateInitialStudio() {
+  let target = INITIAL_STUDIO_VIEW || "tabular-view";
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("view")) target = params.get("view");
+  } catch (e) {}
+  if (target === "assistant-view" || target === "project-view") {
+    target = "tabular-view";
+  }
+  document.querySelectorAll(".studio-screen").forEach(el => {
+    el.classList.toggle("active", el.id === target);
+  });
+
+  // Render synchronously from INITIAL_BOOTSTRAP_DATA at 0ms, then refresh in background
+  if (target === "tabular-view") {
+    renderTabularGrid();
+    if (window.innerWidth >= 880) {
+      openSideInspector(0);
+    }
+    loadTabularWorkspace("kestrel");
+  } else if (target === "redline-view") {
+    renderRedlineFromMemory("KESTREL-SPA-802");
+    renderLegalLegosFromMemory(["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO"]);
+    loadRedlinePair("KESTREL-SPA-802");
+    updateLegalLegos();
+  } else if (target === "funds-view") {
+    renderFundsAntitrustFromMemory(0, true);
+    loadFundsAntitrust(0, true);
+  } else if (target === "governance-view") {
+    renderGovernanceFromMemory("L-001", "M-331-KESTREL");
+    loadGovernanceAndGraph();
+  } else if (target === "inbox-view") {
+    renderInboxTriage();
+    loadInboxTriage();
+  }
+}
+
+/* ========================================================================= */
+/* STUDIO 1: MIKE OSS TABULAR REVIEW & PIN-CITE READER                       */
+/* ========================================================================= */
+
+async function loadTabularWorkspace(corpusMode) {
+  currentCorpusMode = corpusMode || currentCorpusMode;
+  document.getElementById("pill-corpus-kestrel")?.classList.toggle("active", currentCorpusMode === "kestrel");
+  document.getElementById("pill-corpus-all")?.classList.toggle("active", currentCorpusMode === "scaled");
+
+  // 1. Instant 0ms local state update from INITIAL_BOOTSTRAP_DATA
+  if (currentCorpusMode === "scaled") {
+    tabularRows = (INITIAL_BOOTSTRAP_DATA.scaled_rows || []).slice();
+    if (!grantActiveState) {
+      tabularRows = tabularRows.filter(r => r.doc_id !== "EM-9901");
+    }
+    document.getElementById("tr-subtitle").textContent =
+      `Full Deal Corpus (${tabularRows.length} Files · 1,293 Indexed Clauses) · Cloud Spanner WeilLegalGraph`;
+  } else {
+    tabularRows = (INITIAL_BOOTSTRAP_DATA.kestrel_rows || []).slice();
+    if (!grantActiveState) {
+      tabularRows = tabularRows.filter(r => r.doc_id !== "EM-9901");
+    }
+    document.getElementById("tr-subtitle").textContent =
+      `Matter M-331 · CMN 31402-0018 · ${tabularRows.length} Active Contracts in Cloud Spanner`;
+  }
+  updateGrantPillUI(grantActiveState);
+  renderTabularGrid();
+
+  // 2. Background sync with Cloud Run API_BASE
+  try {
+    const res = await fetch(`${API_BASE}/api/state?corpus=${encodeURIComponent(currentCorpusMode)}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    grantActiveState = !!data.teammate_grant_active;
+    updateGrantPillUI(grantActiveState);
+    if (currentCorpusMode === "kestrel" && Array.isArray(data.tabular_reviews) && data.tabular_reviews.length) {
+      tabularRows = data.tabular_reviews;
+      document.getElementById("tr-subtitle").textContent =
+        `Matter M-331 · CMN 31402-0018 · ${tabularRows.length} Active Contracts in Cloud Spanner`;
+      renderTabularGrid();
+    }
+  } catch (e) {}
+}
+
+function updateGrantPillUI(active) {
+  const dot = document.getElementById("grant-dot");
+  const lbl = document.getElementById("grant-label");
+  if (dot) dot.style.background = active ? "#10b981" : "#9ca3af";
+  if (lbl) lbl.textContent = active ? "EM-9901 Grant: Active" : "EM-9901 Grant: Revoked";
+}
+
+async function toggleTeammateGrant() {
+  grantActiveState = !grantActiveState;
+  updateGrantPillUI(grantActiveState);
+  await loadTabularWorkspace(currentCorpusMode);
+  try {
+    const endpoint = grantActiveState ? `${API_BASE}/api/grant` : `${API_BASE}/api/revoke`;
+    await fetch(endpoint, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({email_id: "EM-9901"}),
+    });
+  } catch (e) {}
+}
+
+function switchTabularCorpus(mode) {
+  loadTabularWorkspace(mode);
+}
+
+function filterTabularRows(q) {
+  activeSearchQuery = (q || "").trim().toLowerCase();
+  renderTabularGrid();
+}
+
+function statusPillForConsent(text) {
+  const t = (text || "").toLowerCase();
+  if (t.includes("prior written") || t.includes("unanimous") || t.includes("joint") || t.includes("sole discretion")) {
+    return `<span class="status-pill red">${escapeHtml(text)}</span>`;
+  }
+  if (t.includes("notice") || t.includes("30") || t.includes("45")) {
+    return `<span class="status-pill amber">${escapeHtml(text)}</span>`;
+  }
+  return `<span class="status-pill green">${escapeHtml(text)}</span>`;
+}
+
+function renderTabularGrid() {
+  const thead = document.getElementById("tr-thead");
+  const tbody = document.getElementById("tr-tbody");
+  if (!thead || !tbody) return;
+
+  let colsHtml = `
+    <tr>
+      <th style="width:220px;">Document</th>
+      <th style="width:185px;">CoC / Provision Trigger</th>
+      <th style="width:210px;">Consent Requirement</th>
+      <th style="width:125px;">Notice Window</th>
+      <th style="width:185px;">Termination &amp; Fee Impact</th>
+  `;
+  dynamicColumns.forEach((dc, colIdx) => {
+    const progressText = (dc.totalCount && dc.completedCount < dc.totalCount)
+      ? ` <span style="font-size:10px;font-weight:500;color:#2563eb;">(${dc.completedCount}/${dc.totalCount})</span>`
+      : "";
+    colsHtml += `<th style="width:215px;background:#eff6ff;color:#1e3a8a;">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
+        <span>✦ ${escapeHtml(dc.name)}${progressText}</span>
+        <button type="button" onclick="removeDynamicColumn(${colIdx})" title="Remove column" style="border:none;background:transparent;color:#64748b;cursor:pointer;font-size:12px;padding:0 2px;line-height:1;">×</button>
+      </div>
+    </th>`;
+  });
+  colsHtml += `</tr>`;
+  thead.innerHTML = colsHtml;
+
+  const filtered = tabularRows.filter(r => {
+    if (!activeSearchQuery) return true;
+    const blob = `${r.filename} ${r.doc_id} ${r.coc_trigger} ${r.consent_required} ${r.fee_or_penalty} ${r.quote}`.toLowerCase();
+    return blob.includes(activeSearchQuery);
+  });
+
+  tbody.innerHTML = filtered.map((row, idx) => {
+    const dynCells = dynamicColumns.map(dc => {
+      const cellVal = dc.values[row.doc_id];
+      if (!cellVal || cellVal.status === "loading") {
+        return `<td>
+          <div class="skeleton-bar" style="margin-bottom:4px;"></div>
+          <div style="font-size:10px;color:#2563eb;font-weight:500;">⚡ Gemini 3.8 Flash...</div>
+        </td>`;
+      }
+      const citeLabel = cellVal.citation ? `<div style="font-size:10px;color:#6b7280;margin-top:2px;">${escapeHtml(cellVal.citation)} · p.${cellVal.page || row.page || 1}</div>` : "";
+      return `<td onclick="openSideInspector(${idx}, '${escapeJs(cellVal.quote || row.quote)}', '${escapeJs(cellVal.citation || row.citation)}')" style="cursor:pointer;">
+        <div style="font-weight:500;color:#111827;">
+          <span>${escapeHtml(cellVal.answer)}</span>
+          <button type="button" class="citation-pill" onclick="event.stopPropagation();openSideInspector(${idx}, '${escapeJs(cellVal.quote || row.quote)}', '${escapeJs(cellVal.citation || row.citation)}')">${idx + 1}</button>
+        </div>
+        ${citeLabel}
+      </td>`;
+    }).join("");
+
+    return `
+      <tr id="tr-row-${idx}" class="${idx === activeInspectorRowIdx ? 'active-row' : ''}">
+        <td onclick="openSideInspector(${idx})" style="cursor:pointer;">
+          <div class="doc-cell-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+            </svg>
+            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(row.filename)}</span>
+          </div>
+          <div class="doc-cell-sub">${escapeHtml(row.doc_id)} · ${escapeHtml(row.citation || 'Sec. 8.02')}</div>
+        </td>
+        <td onclick="openSideInspector(${idx})" style="cursor:pointer;">
+          ${escapeHtml(row.coc_trigger)}
+          <button type="button" class="citation-pill" onclick="event.stopPropagation();openSideInspector(${idx})">1</button>
+        </td>
+        <td onclick="openSideInspector(${idx})" style="cursor:pointer;">
+          ${statusPillForConsent(row.consent_required)}
+        </td>
+        <td onclick="openSideInspector(${idx})" style="cursor:pointer;">
+          ${escapeHtml(row.notice_window)}
+        </td>
+        <td onclick="openSideInspector(${idx})" style="cursor:pointer;">
+          <div style="font-weight:500;color:#111827;">${escapeHtml(row.fee_or_penalty)}</div>
+          <div style="font-size:11px;color:#6b7280;">${escapeHtml(row.termination_right)}</div>
+        </td>
+        ${dynCells}
+      </tr>
+    `;
+  }).join("");
+}
+
+function removeDynamicColumn(colIdx) {
+  if (colIdx >= 0 && colIdx < dynamicColumns.length) {
+    dynamicColumns.splice(colIdx, 1);
+    renderTabularGrid();
+  }
+}
+
+function toggleAddColumnBar() {
+  const bar = document.getElementById("add-col-bar");
+  if (bar) {
+    bar.classList.toggle("open");
+    if (bar.classList.contains("open")) {
+      setTimeout(() => document.getElementById("new-col-name")?.focus(), 40);
+    }
+  }
+}
+
+function fillPresetColumn(name, prompt) {
+  const nameEl = document.getElementById("new-col-name");
+  const promptEl = document.getElementById("new-col-prompt");
+  if (nameEl) nameEl.value = name;
+  if (promptEl) promptEl.value = prompt;
+}
+
+async function runDynamicColumnExtraction() {
+  const nameInput = document.getElementById("new-col-name");
+  const promptInput = document.getElementById("new-col-prompt");
+  const colName = ((nameInput && nameInput.value) || "").trim() || "Agreement Title";
+  const rawPrompt = ((promptInput && promptInput.value) || "").trim();
+  const colPrompt = rawPrompt || `Extract the exact "${colName}" from this agreement/document.`;
+
+  // Reset inputs so the next column starts clean and never reuses an old prompt
+  if (nameInput) nameInput.value = "";
+  if (promptInput) promptInput.value = "";
+  document.getElementById("add-col-bar")?.classList.remove("open");
+
+  const targetRows = tabularRows.slice();
+  const colObj = {
+    name: colName,
+    prompt: colPrompt,
+    values: {},
+    completedCount: 0,
+    totalCount: targetRows.length,
+  };
+
+  // Initialize every cell in the column to live parallel loading state (NO mock data)
+  targetRows.forEach(r => {
+    colObj.values[r.doc_id] = { status: "loading" };
+  });
+  dynamicColumns.push(colObj);
+  renderTabularGrid();
+
+  // Scroll table horizontally so the user sees the new column and parallel loading bars immediately
+  const scroller = document.querySelector(".tr-grid-scroll");
+  if (scroller) {
+    setTimeout(() => { scroller.scrollLeft = scroller.scrollWidth; }, 30);
+  }
+
+  // Execute real parallel Gemini 3.8 Flash extractions across all active contracts in the grid
+  await Promise.all(targetRows.map(async (r) => {
+    try {
+      const resp = await fetch(`${API_BASE}/api/extract_single`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+          doc_id: r.doc_id,
+          column_name: colName,
+          column_prompt: colPrompt,
+          model: "gemini-3.8-flash",
+        }),
+      });
+      if (resp.ok) {
+        const resData = await resp.json();
+        const extractedText = resData.extracted_value || resData.extracted_answer || resData.summary || "Not addressed in contract";
+        colObj.values[r.doc_id] = {
+          status: "done",
+          answer: extractedText,
+          quote: resData.quote || resData.verbatim_quote || r.quote,
+          citation: resData.citation || resData.section_citation || r.citation,
+          page: resData.page || r.page || 1,
+        };
+      } else {
+        colObj.values[r.doc_id] = {
+          status: "done",
+          answer: `HTTP ${resp.status}`,
+          quote: r.quote,
+          citation: r.citation,
+          page: r.page || 1,
+        };
+      }
+    } catch (e) {
+      colObj.values[r.doc_id] = {
+        status: "done",
+        answer: "Connection error",
+        quote: r.quote,
+        citation: r.citation,
+        page: r.page || 1,
+      };
+    } finally {
+      colObj.completedCount = (colObj.completedCount || 0) + 1;
+      renderTabularGrid();
+    }
+  }));
+}
+
+async function openSideInspector(rowIdx, overrideQuote, overrideCitation) {
+  if (rowIdx < 0 || rowIdx >= tabularRows.length) return;
+  activeInspectorRowIdx = rowIdx;
+  const row = tabularRows[rowIdx];
+  const panel = document.getElementById("tr-side-panel");
+  if (panel) panel.classList.add("open");
+
+  document.querySelectorAll("#tr-tbody tr").forEach((tr, i) => {
+    tr.classList.toggle("active-row", i === rowIdx);
+  });
+
+  const quote = overrideQuote || row.quote || "";
+  const citation = overrideCitation || row.citation || "Section 1.01";
+  document.getElementById("insp-doc-title").textContent = row.filename;
+  document.getElementById("insp-doc-meta").textContent = `${row.doc_id} · ${citation} · Page ${row.page || 1}`;
+  document.getElementById("insp-pincite-quote").innerHTML =
+    `<strong>Pin-Cite (${escapeHtml(citation)}, p.${row.page || 1}):</strong> “${escapeHtml(quote)}”`;
+
+  const dl = document.getElementById("insp-download-link");
+  if (dl) dl.href = `${API_BASE}/api/corpus/file/${encodeURIComponent(row.filename)}`;
+
+  const bodyEl = document.getElementById("insp-contract-body");
+  const cachedPage = (INITIAL_BOOTSTRAP_DATA.doc_pages || {})[row.doc_id] || "";
+  const renderHighlightedBody = (rawText) => {
+    if (quote && rawText.includes(quote.slice(0, 28))) {
+      const snippet = quote.slice(0, 45);
+      const escapedRaw = escapeHtml(rawText);
+      const escapedSnip = escapeHtml(snippet);
+      bodyEl.innerHTML = escapedRaw.replace(
+        escapedSnip,
+        `<mark class="contract-highlight">${escapedSnip}</mark>`
+      );
+    } else {
+      bodyEl.innerHTML = `<mark class="contract-highlight">${escapeHtml(quote)}</mark>\n\n${escapeHtml(rawText)}`;
+    }
+  };
+
+  // Render at 0ms from pre-baked page cache
+  renderHighlightedBody(cachedPage || quote);
+
+  // Also fetch live page text if not in cache
+  if (!cachedPage) {
+    try {
+      const res = await fetch(`${API_BASE}/api/document_page?doc_id=${encodeURIComponent(row.doc_id)}&page=${row.page || 1}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.text) renderHighlightedBody(data.text);
+      }
+    } catch (e) {}
+  }
+}
+
+function navigateInspectorRow(delta) {
+  const nextIdx = activeInspectorRowIdx + delta;
+  if (nextIdx >= 0 && nextIdx < tabularRows.length) {
+    openSideInspector(nextIdx);
+  }
+}
+
+function closeSideInspector() {
+  document.getElementById("tr-side-panel")?.classList.remove("open");
+}
+
+function exportGridToCsv() {
+  const headers = ["Document ID", "Filename", "Trigger", "Consent", "Notice Window", "Fee / Penalty", "Citation"];
+  dynamicColumns.forEach(dc => headers.push(dc.name));
+  const lines = [headers.map(h => `"${h.replace(/"/g, '""')}"`).join(",")];
+  tabularRows.forEach(r => {
+    const base = [r.doc_id, r.filename, r.coc_trigger, r.consent_required, r.notice_window, r.fee_or_penalty, r.citation];
+    dynamicColumns.forEach(dc => {
+      const v = dc.values[r.doc_id]?.answer || "";
+      base.push(v);
+    });
+    lines.push(base.map(c => `"${String(c || '').replace(/"/g, '""')}"`).join(","));
+  });
+  const blob = new Blob([lines.join("\n")], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `Weil_${currentCorpusMode}_Tabular_Review.csv`;
+  a.click();
+}
+
+/* ========================================================================= */
+/* STUDIO 2: CONTRACT REDLINE & WORD LEGAL LEGOS                             */
+/* ========================================================================= */
+
+function renderRedlineFromMemory(pairId) {
+  const data = (INITIAL_BOOTSTRAP_DATA.redlines || {})[pairId];
+  if (!data) return;
+  currentRedlineData = data;
+  redlineCardStates = {};
+  document.getElementById("redline-doc-pair-label").textContent = `${data.doc_a_name} vs. ${data.doc_b_name}`;
+  document.getElementById("redline-playbook-banner").innerHTML =
+    `<strong>Playbook Standard:</strong> ${escapeHtml(data.playbook_standard)}`;
+  document.getElementById("redline-diff-slab").innerHTML = data.redline_html;
+  document.getElementById("redline-stats-pill").textContent =
+    `${data.stats.similarity_pct}% Similarity · -${data.stats.tokens_deleted} / +${data.stats.tokens_inserted} Words`;
+  renderRedlineEditCards();
+}
+
+async function loadRedlinePair(pairId, btnEl) {
+  if (btnEl) {
+    btnEl.parentElement.querySelectorAll(".tab-pill-btn").forEach(b => b.classList.remove("active"));
+    btnEl.classList.add("active");
+  }
+  renderRedlineFromMemory(pairId);
+  try {
+    const res = await fetch(`${API_BASE}/api/redline?pair_id=${encodeURIComponent(pairId)}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    currentRedlineData = data;
+    document.getElementById("redline-doc-pair-label").textContent = `${data.doc_a_name} vs. ${data.doc_b_name}`;
+    document.getElementById("redline-playbook-banner").innerHTML =
+      `<strong>Playbook Standard:</strong> ${escapeHtml(data.playbook_standard)}`;
+    document.getElementById("redline-diff-slab").innerHTML = data.redline_html;
+    document.getElementById("redline-stats-pill").textContent =
+      `${data.stats.similarity_pct}% Similarity · -${data.stats.tokens_deleted} / +${data.stats.tokens_inserted} Words`;
+    renderRedlineEditCards();
+  } catch (e) {}
+}
+
+function renderRedlineEditCards() {
+  const container = document.getElementById("redline-edit-cards");
+  if (!container || !currentRedlineData) return;
+  const devs = currentRedlineData.key_deviations || [];
+  container.innerHTML = devs.map((d, idx) => {
+    const state = redlineCardStates[idx] || "pending";
+    const statusBadge = state === "accepted"
+      ? `<span class="status-pill green">Accepted Weil Counter</span>`
+      : state === "rejected"
+        ? `<span class="status-pill red">Rejected Skadden Markup</span>`
+        : `<span class="status-pill ${d.severity === 'CRITICAL' ? 'red' : 'amber'}">${escapeHtml(d.severity)}</span>`;
+
+    return `
+      <div class="edit-card" id="edit-card-${idx}">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="citation-pill">${idx + 1}</span>
+            <span style="font-weight:600;font-size:12.5px;color:#111827;">${escapeHtml(d.issue)}</span>
+          </div>
+          ${statusBadge}
+        </div>
+        <div class="text-slab" style="font-size:12px;margin-bottom:6px;">
+          <div><span class="redline-del">${escapeHtml(d.skadden_v4)}</span></div>
+          <div style="margin-top:4px;"><span class="redline-ins">${escapeHtml(d.weil_v3)}</span></div>
+        </div>
+        <div style="font-size:11.5px;color:#4b5563;margin-bottom:8px;">
+          <strong>Playbook Action:</strong> ${escapeHtml(d.recommendation)}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button id="btn-accept-card-${idx}" type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="decideRedlineCard(${idx}, 'accepted')">
+            ${state === 'accepted' ? '✓ Accepted Weil v3' : 'Accept Weil v3'}
+          </button>
+          <button id="btn-reject-card-${idx}" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="decideRedlineCard(${idx}, 'rejected')">
+            ${state === 'rejected' ? '✗ Rejected Counterparty' : 'Reject Markup'}
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function decideRedlineCard(idx, decision) {
+  redlineCardStates[idx] = decision;
+  renderRedlineEditCards();
+}
+
+function resetRedlineDecisions() {
+  redlineCardStates = {};
+  renderRedlineEditCards();
+}
+
+function renderLegalLegosFromMemory(blockIds) {
+  const blocks = INITIAL_BOOTSTRAP_DATA.legal_legos_blocks || [];
+  const chosen = blocks.filter(b => blockIds.includes(b.block_id));
+  const lines = [
+    "======================================================================",
+    "WEIL, GOTSHAL & MANGES LLP — MODULAR 'LEGAL LEGOS' NUMBERED .DOCX RIDER",
+    "Matter: M-331-KESTREL | Target Outline Root: Article VIII",
+    "======================================================================",
+    "",
+  ];
+  chosen.forEach((b, idx) => {
+    const titleStr = b.name || b.title || b.block_id;
+    const numStr = b.numbering_style || b.numbering_level || "Article VIII";
+    const grpStr = b.practice_group || b.source_precedent || "Weil Playbook";
+    lines.push(`[BLOCK ${idx + 1}: ${b.block_id} — ${titleStr.toUpperCase()}]`);
+    lines.push(`Practice Group: ${grpStr}`);
+    lines.push(`Numbering Hierarchy: ${numStr}`);
+    lines.push("----------------------------------------------------------------------");
+    lines.push(b.clause_text);
+    lines.push("");
+  });
+  const box = document.getElementById("legos-preview-box");
+  if (box) box.textContent = lines.join("\n");
+}
+
+async function updateLegalLegos() {
+  const checked = Array.from(document.querySelectorAll(".lego-cb:checked")).map(cb => cb.value);
+  const blockIds = checked.length ? checked : ["LEGO-DE-FRAUD"];
+  const dlBtn = document.getElementById("btn-download-legos-docx");
+  if (dlBtn) {
+    dlBtn.href = `${API_BASE}/api/legal-legos/docx?blocks=${encodeURIComponent(blockIds.join(","))}`;
+  }
+  renderLegalLegosFromMemory(blockIds);
+  try {
+    const res = await fetch(`${API_BASE}/api/legal-legos`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({ block_ids: blockIds, target_section_prefix: "Article VIII" }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.composed_docx_preview) {
+        document.getElementById("legos-preview-box").textContent = data.composed_docx_preview;
+      }
+    }
+  } catch (e) {}
+}
+
+function copyLegalLegosText() {
+  const txt = document.getElementById("legos-preview-box")?.textContent || "";
+  navigator.clipboard?.writeText(txt);
+  const btn = document.getElementById("btn-copy-legos");
+  if (btn) {
+    btn.textContent = "✓ Copied";
+    setTimeout(() => { btn.textContent = "Copy Rider"; }, 1400);
+  }
+}
+
+/* ========================================================================= */
+/* STUDIO 3: FUNDGEN / FUNDHQ MFN & ANTITRUST HSR                            */
+/* ========================================================================= */
+
+function renderFundsAntitrustFromMemory(minCommitment, includeRemedy) {
+  const baseData = includeRemedy
+    ? INITIAL_BOOTSTRAP_DATA.funds_remedy_on
+    : INITIAL_BOOTSTRAP_DATA.funds_remedy_off;
+  if (!baseData) return;
+  currentMultimodalData = baseData;
+
+  document.getElementById("fundhq-savings-banner").innerHTML =
+    `<strong>FundHQ MFN Isolation:</strong> ${escapeHtml(baseData.mfn_savings_summary)}`;
+
+  const filteredLps = (baseData.lp_side_letters || []).filter(lp => lp.commitment_usd_m >= (minCommitment || 0));
+  const tbody = document.getElementById("fundhq-lp-tbody");
+  tbody.innerHTML = filteredLps.map(lp => `
+    <tr>
+      <td>
+        <div style="font-weight:600;color:#111827;">${escapeHtml(lp.lp_name)}</div>
+        <div style="font-size:11px;color:#6b7280;">${escapeHtml(lp.tier)}</div>
+      </td>
+      <td style="font-weight:600;color:#111827;">$${lp.commitment_usd_m.toFixed(0)}M</td>
+      <td>
+        <span class="status-pill blue">${lp.mgmt_fee_bps} bps / ${lp.carry_pct}%</span>
+      </td>
+      <td>
+        <div style="font-weight:500;color:#111827;">${escapeHtml(lp.mfn_scope)}</div>
+        <div style="font-size:11px;color:#6b7280;">${escapeHtml(lp.co_invest_priority)} · ${escapeHtml(lp.esg_excusal)}</div>
+      </td>
+    </tr>
+  `).join("");
+
+  const hsr = baseData.antitrust_hsr;
+  const toggleBtn = document.getElementById("btn-hsr-remedy-toggle");
+  const statusBadge = document.getElementById("hsr-status-badge");
+  if (includeRemedy) {
+    toggleBtn.className = "pill-btn pill-btn-blue";
+    toggleBtn.textContent = `HSR Divestiture Remedy: ON (Cleared +${hsr.active_hhi_delta} Δ HHI)`;
+    statusBadge.className = "status-pill green";
+    statusBadge.textContent = `CLEARED (${hsr.active_post_merger_hhi} HHI / +${hsr.active_hhi_delta} Δ)`;
+  } else {
+    toggleBtn.className = "pill-btn pill-btn-danger";
+    toggleBtn.textContent = `HSR Divestiture Remedy: OFF (Presumed Block +${hsr.active_hhi_delta} Δ HHI)`;
+    statusBadge.className = "status-pill red";
+    statusBadge.textContent = `CHALLENGE PRESUMED (${hsr.active_post_merger_hhi} HHI / +${hsr.active_hhi_delta} Δ)`;
+  }
+
+  document.getElementById("hsr-summary-card").innerHTML = `
+    <div style="font-weight:600;color:#111827;margin-bottom:3px;">${escapeHtml(hsr.deal_name)}</div>
+    <div style="color:#4b5563;">Pre-Merger HHI: <strong>${hsr.pre_merger_hhi}</strong> → Post-Merger HHI: <strong>${hsr.active_post_merger_hhi}</strong> (Δ <strong>+${hsr.active_hhi_delta}</strong>)</div>
+    <div style="margin-top:4px;color:#1e3a8a;">${escapeHtml(hsr.remedy_recommendation)}</div>
+  `;
+
+  const barsEl = document.getElementById("hsr-bars-container");
+  barsEl.innerHTML = (hsr.market_participants || []).map(mp => `
+    <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;">
+      <div style="width:185px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#374151;">${escapeHtml(mp.company)}</div>
+      <div style="flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">
+        <div style="width:${Math.min(100, mp.share_pct * 2.5)}%;height:100%;background:#2563eb;border-radius:999px;"></div>
+      </div>
+      <div style="width:90px;text-align:right;font-family:var(--font-mono);font-size:11px;color:#4b5563;">${mp.share_pct}% (${mp.hhi_contribution})</div>
+    </div>
+  `).join("");
+
+  selectMultimodalExhibit(0);
+}
+
+async function loadFundsAntitrust(minCommitment, includeRemedy, btnEl) {
+  if (minCommitment !== null && minCommitment !== undefined) {
+    currentLpFilter = minCommitment;
+  }
+  if (includeRemedy !== null && includeRemedy !== undefined) {
+    hsrRemedyActive = includeRemedy;
+  }
+  if (btnEl) {
+    btnEl.parentElement.querySelectorAll(".tab-pill-btn").forEach(b => b.classList.remove("active"));
+    btnEl.classList.add("active");
+  }
+  renderFundsAntitrustFromMemory(currentLpFilter, hsrRemedyActive);
+}
+
+function toggleHsrRemedy() {
+  loadFundsAntitrust(currentLpFilter, !hsrRemedyActive);
+}
+
+function selectMultimodalExhibit(idx, btnEl) {
+  if (btnEl) {
+    btnEl.parentElement.querySelectorAll(".tab-pill-btn").forEach(b => b.classList.remove("active"));
+    btnEl.classList.add("active");
+  }
+  const files = currentMultimodalData?.visual_files || [];
+  const vf = files[idx] || {
+    title: "Brightwater LTM Consolidated Adjusted EBITDA Bridge ($145M -> $175M)",
+    image_url: `${API_BASE}/api/corpus/image/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.png`,
+    pdf_url: `${API_BASE}/api/corpus/file/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.pdf`,
+  };
+  const mm = currentMultimodalData?.extracted_multimodal_pipeline || {};
+  let takeaway = "Structured multimodal extraction indexed into Cloud Spanner WeilLegalGraph.";
+  if (idx === 0 && mm.charts?.[0]) takeaway = mm.charts[0].key_takeaway;
+  if (idx === 1 && mm.charts?.[1]) takeaway = mm.charts[1].key_takeaway;
+  if (idx === 2 && mm.diagrams?.[0]) takeaway = mm.diagrams[0].covenant_summary;
+  if (idx === 3 && mm.scanned_signatures_and_wires?.[0]) takeaway = mm.scanned_signatures_and_wires[0].ocr_verbatim_text;
+
+  document.getElementById("mm-exhibit-title").textContent = vf.title;
+  document.getElementById("mm-exhibit-takeaway").textContent = takeaway;
+  document.getElementById("mm-exhibit-img").src = vf.image_url;
+  document.getElementById("mm-exhibit-pdf-link").href = vf.pdf_url;
+}
+
+/* ========================================================================= */
+/* STUDIO 4: INTAPP ETHICAL WALL & SPANNER GRAPH                             */
+/* ========================================================================= */
+
+function selectGovernanceMatter(matterId, btnEl) {
+  currentGovernanceMatter = matterId;
+  if (btnEl) {
+    btnEl.parentElement.querySelectorAll(".tab-pill-btn").forEach(b => b.classList.remove("active"));
+    btnEl.classList.add("active");
+  }
+  loadGovernanceAndGraph();
+}
+
+function renderGovernanceFromMemory(lawyerId, matterId) {
+  const key = `${lawyerId}__${matterId}`;
+  const entry = (INITIAL_BOOTSTRAP_DATA.gov_matrix || {})[key];
+  if (!entry) return;
+  applyGovernanceAndGraphUI(entry.gov, entry.graph, lawyerId);
+}
+
+function applyGovernanceAndGraphUI(gov, graph, lawyerId) {
+  const wall = gov.intapp_wall_check || {};
+  const allowed = !!wall.access_granted;
+  const banner = document.getElementById("gov-status-banner");
+  banner.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <span style="font-family:var(--font-serif);font-size:17px;font-weight:600;color:#111827;">
+        Matter ${escapeHtml(gov.matter_id)} · CMN ${escapeHtml(gov.cmn)}
+      </span>
+      <span class="status-pill ${allowed ? 'green' : 'red'}">
+        ${allowed ? '✓ CLEARED (Screen-Before-Rank)' : '⛔ BLOCKED BY INTAPP WALL-999'}
+      </span>
+    </div>
+    <div style="font-size:12px;color:#374151;margin-bottom:4px;">
+      <strong>Client:</strong> ${escapeHtml(gov.client_name)} · <strong>iManage Library:</strong> <code>${escapeHtml(gov.imanage_library)}</code>
+    </div>
+    <div style="font-size:12px;color:#4b5563;">
+      <strong>OCG Policy:</strong> ${escapeHtml(gov.ocg_ai_policy)}
+    </div>
+  `;
+
+  const gPill = document.getElementById("gov-grant-pill");
+  if (gPill) {
+    gPill.className = `status-pill ${grantActiveState ? 'green' : 'gray'}`;
+    gPill.textContent = grantActiveState ? "ACTIVE (30-Day TTL)" : "REVOKED (Blocked)";
+  }
+
+  document.getElementById("gov-gql-box").textContent =
+    `GRAPH WeilLegalGraph\nMATCH (l:Lawyer {lawyer_id: '${lawyerId}'})\nMATCH (m:Matter {matter_id: '${currentGovernanceMatter}'})-[:CONTAINS_DOC]->(d:Document)-[:HAS_CLAUSE]->(c:Clause)\nWHERE NOT EXISTS {\n  MATCH (l)-[:INTAPP_WALL {rule_type: 'EXCLUDE'}]->(m)\n}\nRETURN m.matter_id, d.doc_id, c.clause_id, c.section_title\n-- Result: ${allowed ? 'ACCESS PERMITTED (Zero Ethical Wall Conflicts)' : '0 ROWS RETURNED (Filtered Before ANN Scoring)'}`;
+
+  const nodesEl = document.getElementById("graph-nodes-list");
+  const edges = graph.edges || graph.precedent_edges || [];
+  const docs = graph.documents || graph.nodes || [];
+  if (!allowed) {
+    nodesEl.innerHTML = `
+      <div class="edit-card" style="border-color:#fecaca;background:#fef2f2;">
+        <div style="font-weight:600;color:#b91c1c;margin-bottom:4px;">⛔ Zero-Leakage Screen-Before-Rank Enforcement</div>
+        <div style="font-size:12px;color:#7f1d1d;">
+          Attorney <code>${escapeHtml(lawyerId)}</code> is barred from <code>${escapeHtml(currentGovernanceMatter)}</code> by Intapp Rule <code>WALL-999</code>.
+          Switch attorney to <strong>L-005 · Elena Rostova</strong> in the toolbar above to inspect Project Omega graph nodes.
+        </div>
+      </div>
+    `;
+  } else {
+    const docNodes = docs.filter(n => n.type === "Document" || n.type === "Clause").slice(0, 6);
+    const citeEdges = edges.filter(e => e.type === "CITES_PRECEDENT" || e.type === "CONTAINS_CLAUSE");
+    const items = docNodes.length ? docNodes : edges.slice(0, 6);
+    nodesEl.innerHTML = items.map((item, i) => {
+      const edgeMatch = citeEdges[i] || {};
+      const titleStr = item.id ? `${item.id} · ${item.label}` : `${item.source || 'Node'} → ${item.target || 'Target'}`;
+      const badgeStr = item.type || edgeMatch.type || currentGovernanceMatter;
+      const descStr = item.fee_or_penalty
+        ? `Fee/Impact: ${item.fee_or_penalty} · Doc: ${item.doc_id || currentGovernanceMatter} (p.${item.page || 1})`
+        : item.counsel
+          ? `Counsel: ${item.counsel} · Matter: ${item.matter_id || currentGovernanceMatter}`
+          : (edgeMatch.reason || item.reason || "Verified multi-hop precedent edge in Cloud Spanner WeilLegalGraph.");
+      return `
+      <div class="liquid-glass-flat" style="padding:10px 12px;border-radius:8px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <span style="font-weight:600;font-size:12px;color:#111827;">
+            ${escapeHtml(titleStr)}
+          </span>
+          <span class="status-pill blue">${escapeHtml(badgeStr)}</span>
+        </div>
+        <div style="font-size:11.5px;color:#4b5563;margin-top:3px;">
+          ${escapeHtml(descStr)}
+        </div>
+      </div>
+      `;
+    }).join("");
+  }
+}
+
+async function loadGovernanceAndGraph() {
+  const lawyerId = document.getElementById("gov-lawyer-select")?.value || "L-001";
+  renderGovernanceFromMemory(lawyerId, currentGovernanceMatter);
+  try {
+    const [govRes, graphRes] = await Promise.all([
+      fetch(`${API_BASE}/api/governance/wall-check?matter_id=${encodeURIComponent(currentGovernanceMatter)}&lawyer_id=${encodeURIComponent(lawyerId)}`),
+      fetch(`${API_BASE}/api/graph?matter_id=${encodeURIComponent(currentGovernanceMatter)}&lawyer_id=${encodeURIComponent(lawyerId)}`),
+    ]);
+    if (govRes.ok && graphRes.ok) {
+      const gov = await govRes.json();
+      const graph = await graphRes.json();
+      applyGovernanceAndGraphUI(gov, graph, lawyerId);
+    }
+  } catch (e) {}
+}
+
+async function setGovGrant(active) {
+  grantActiveState = !!active;
+  renderGovernanceFromMemory(document.getElementById("gov-lawyer-select")?.value || "L-001", currentGovernanceMatter);
+  try {
+    await fetch(active ? `${API_BASE}/api/grant` : `${API_BASE}/api/revoke`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({email_id: "EM-9901"}),
+    });
+  } catch (e) {}
+}
+
+/* ========================================================================= */
+/* STUDIO 5: PARTNER DEAL INBOX & CALENDAR TRIAGE                            */
+/* ========================================================================= */
+
+async function loadInboxTriage(approveEmailId, resolveConflictId, resetState) {
+  if (resetState && INITIAL_BOOTSTRAP_DATA.inbox_initial) {
+    currentInboxData = JSON.parse(JSON.stringify(INITIAL_BOOTSTRAP_DATA.inbox_initial));
+    renderInboxTriage();
+  } else if (currentInboxData) {
+    if (approveEmailId) {
+      (currentInboxData.emails || []).forEach(e => {
+        if (e.email_id === approveEmailId) e.status = "APPROVED_AND_FILED_TO_IMANAGE";
+      });
+      renderInboxTriage();
+    }
+    if (resolveConflictId) {
+      (currentInboxData.calendar_conflicts || []).forEach(c => {
+        if (c.conflict_id === resolveConflictId) c.status = "RESOLVED_DELEGATED_TO_ANDREW_SIMON";
+      });
+      renderInboxTriage();
+    }
+  }
+  try {
+    const res = await fetch(`${API_BASE}/api/inbox-triage`, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        approve_email_id: approveEmailId || null,
+        resolve_conflict_id: resolveConflictId || null,
+        reset_state: !!resetState,
+      }),
+    });
+    if (res.ok) {
+      currentInboxData = await res.json();
+      renderInboxTriage();
+    }
+  } catch (e) {}
+}
+
+function setInboxFilter(filterMode, btnEl) {
+  currentInboxFilter = filterMode;
+  if (btnEl) {
+    btnEl.parentElement.querySelectorAll(".tab-pill-btn").forEach(b => b.classList.remove("active"));
+    btnEl.classList.add("active");
+  }
+  renderInboxTriage();
+}
+
+function resetInboxState() {
+  loadInboxTriage(null, null, true);
+}
+
+function inspectRawEml(idx, isCal) {
+  if (!currentInboxData) return;
+  const viewer = document.getElementById("raw-eml-viewer");
+  const header = document.getElementById("raw-eml-header");
+  if (isCal) {
+    const c = (currentInboxData.calendar_conflicts || [])[0];
+    if (header) header.textContent = "Verbatim .ICS Source (CAL-101_Closing_Board_Call_and_FTC_HSR_Conflict.ics)";
+    if (viewer) viewer.textContent = c?.raw_ics || "";
+  } else {
+    const e = (currentInboxData.emails || [])[idx];
+    if (header) header.textContent = `Verbatim .EML Source (${e?.email_id})`;
+    if (viewer) viewer.textContent = e?.raw_eml || e?.summary || "";
+  }
+}
+
+function renderInboxTriage() {
+  if (!currentInboxData) return;
+  const emailCardsEl = document.getElementById("inbox-email-cards");
+  const calCardsEl = document.getElementById("inbox-calendar-cards");
+
+  let emails = currentInboxData.emails || [];
+  if (currentInboxFilter === "pending") {
+    emails = emails.filter(e => e.status !== "APPROVED_AND_FILED_TO_IMANAGE");
+  }
+
+  emailCardsEl.innerHTML = emails.map((e, idx) => {
+    const approved = e.status === "APPROVED_AND_FILED_TO_IMANAGE";
+    return `
+      <div class="edit-card" onclick="inspectRawEml(${idx}, false)" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">
+          <span style="font-weight:600;font-size:12px;color:#111827;">${escapeHtml(e.email_id)} · ${escapeHtml(e.cmn)}</span>
+          <span class="status-pill ${approved ? 'green' : 'red'}">
+            ${approved ? '✓ Filed to iManage' : escapeHtml(e.priority)}
+          </span>
+        </div>
+        <div style="font-family:var(--font-serif);font-size:15px;font-weight:600;color:#111827;margin-bottom:3px;">
+          ${escapeHtml(e.subject)}
+        </div>
+        <div style="font-size:11.5px;color:#6b7280;margin-bottom:6px;">
+          From: ${escapeHtml(e.sender)} · ${escapeHtml(e.received_at)}
+        </div>
+        <div style="font-size:12px;color:#374151;margin-bottom:8px;">
+          ${escapeHtml(e.summary)}
+        </div>
+        <div class="text-slab" style="font-size:12px;margin-bottom:8px;">
+          <strong>AI Staged Action:</strong> ${escapeHtml(e.proposed_reply)}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button id="btn-approve-${escapeHtml(e.email_id)}" type="button" class="pill-btn ${approved ? 'pill-btn-white' : 'pill-btn-blue'} pill-btn-xs" onclick="event.stopPropagation();loadInboxTriage('${escapeJs(e.email_id)}', null, false)">
+            ${approved ? '✓ Approved & Filed to iManage' : 'Approve & File to iManage'}
+          </button>
+          <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="event.stopPropagation();inspectRawEml(${idx}, false)">
+            View .eml
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const cals = currentInboxData.calendar_conflicts || [];
+  calCardsEl.innerHTML = cals.map(c => {
+    const resolved = c.status.includes("RESOLVED");
+    return `
+      <div class="edit-card" onclick="inspectRawEml(0, true)" style="cursor:pointer;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-weight:600;font-size:12px;color:#111827;">${escapeHtml(c.conflict_id)} · ${escapeHtml(c.date)}</span>
+          <span class="status-pill ${resolved ? 'green' : 'amber'}">
+            ${resolved ? '✓ Conflict Resolved' : 'Hard Overlap Detected'}
+          </span>
+        </div>
+        <div style="font-size:12px;color:#111827;margin-bottom:4px;">
+          <strong>1. ${escapeHtml(c.event_a.title)}</strong> (CMN ${escapeHtml(c.event_a.cmn)})
+        </div>
+        <div style="font-size:12px;color:#b91c1c;margin-bottom:8px;">
+          <strong>2. ${escapeHtml(c.event_b.title)}</strong> (CMN ${escapeHtml(c.event_b.cmn)})
+        </div>
+        <div class="text-slab" style="font-size:12px;margin-bottom:8px;">
+          <strong>Proposed Delegation:</strong> ${escapeHtml(c.ai_resolution)}
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <button id="btn-resolve-cal-101" type="button" class="pill-btn ${resolved ? 'pill-btn-white' : 'pill-btn-blue'} pill-btn-xs" onclick="event.stopPropagation();loadInboxTriage(null, '${escapeJs(c.conflict_id)}', false)">
+            ${resolved ? '✓ Delegated to A. Simon (3:45 PM Wrap-Up)' : 'Delegate FTC Overlap to A. Simon'}
+          </button>
+          <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="event.stopPropagation();inspectRawEml(0, true)">
+            View .ics
+          </button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  if (emails.length > 0) {
+    inspectRawEml(0, false);
+  }
+}
+
+function escapeHtml(str) {
+  return String(str ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function escapeJs(str) {
+  return String(str ?? "").replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+}
+
+// Run immediately AND on DOMContentLoaded so srcdoc iframes never miss initialization
+initMcpAppBridge();
+activateInitialStudio();
+window.addEventListener("DOMContentLoaded", () => {
+  initMcpAppBridge();
+  activateInitialStudio();
+});
+</script>
+</body>
+</html>
+"""
+    html = html.replace(
+        f'id="{initial_view}" class="studio-screen"',
+        f'id="{initial_view}" class="studio-screen active"',
+    )
+    html = html.replace("__INITIAL_STUDIO_VIEW__", initial_view)
+    html = html.replace("__DEFAULT_API_BASE__", api_base.rstrip("/"))
+    html = html.replace("__INITIAL_BOOTSTRAP_JSON__", bootstrap_json)
+    html = html.replace("__PRERENDERED_TBODY__", prerendered_tbody)
+    html = html.replace("__FIRST_QUOTE__", first_quote)
+    html = html.replace("__FIRST_PAGE_TEXT__", first_page_text)
+    return html
