@@ -489,8 +489,8 @@ def compose_legal_legos_clause(
         blocks = list(DEFAULT_LEGAL_LEGOS_BLOCKS.values())
 
     composed_sections = []
-    for idx, b in enumerate(blocks, start=1):
-        composed_sections.append(f"/* [LEGAL LEGO BLOCK {idx}: {b['block_id']} — {b['practice_group']}] */\n{b['clause_text']}")
+    for b in blocks:
+        composed_sections.append(f"Section {b['clause_text']}")
 
     return {
         "target_section_prefix": target_section_prefix,

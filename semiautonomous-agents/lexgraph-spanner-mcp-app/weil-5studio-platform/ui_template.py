@@ -856,6 +856,161 @@ button {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* Realistic Microsoft Word (.docx) & Legal Contract Print-Layout Sheet */
+.docx-canvas-wrap {
+  background: #eef1f5;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+.docx-word-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 12px;
+  background: #1e3a8a;
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 500;
+}
+.docx-word-toolbar-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 12px;
+  background: #f8fafc;
+  border-bottom: 1px solid #cbd5e1;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #64748b;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.docx-paper-scroll {
+  padding: 12px 14px;
+  max-height: 440px;
+  overflow-y: auto;
+  background: #e5e9f0;
+}
+.docx-paper-sheet {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+  padding: 18px 22px 16px 22px;
+  box-shadow:
+    0 4px 14px rgba(15, 23, 42, 0.08),
+    0 1px 3px rgba(15, 23, 42, 0.05);
+  font-family: var(--font-serif);
+  color: #111827;
+  line-height: 1.62;
+  position: relative;
+}
+.docx-running-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 6px;
+  margin-bottom: 10px;
+  border-bottom: 2px double #cbd5e1;
+  font-family: var(--font-sans);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #64748b;
+  white-space: nowrap;
+}
+.docx-doc-title {
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: #0f172a;
+  margin-bottom: 3px;
+}
+.docx-doc-subtitle {
+  text-align: center;
+  font-family: var(--font-serif);
+  font-size: 12.5px;
+  font-style: italic;
+  color: #475569;
+  margin-bottom: 12px;
+}
+.docx-recital {
+  font-size: 13px;
+  text-align: justify;
+  text-indent: 24px;
+  color: #1f2937;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f1f5f9;
+}
+.docx-clause-block {
+  margin-bottom: 14px;
+  padding-left: 10px;
+  border-left: 2px solid #dbeafe;
+}
+.docx-clause-meta-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 3px;
+}
+.docx-clause-heading {
+  font-family: var(--font-serif);
+  font-size: 14.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.docx-clause-heading u {
+  text-underline-offset: 3px;
+  text-decoration-color: #64748b;
+}
+.docx-subclause {
+  font-family: var(--font-serif);
+  font-size: 13.8px;
+  color: #1f2937;
+  text-align: justify;
+  padding-left: 26px;
+  text-indent: -20px;
+  margin-top: 5px;
+  line-height: 1.58;
+}
+.docx-subclause-num {
+  font-weight: 700;
+  color: #0f172a;
+  margin-right: 4px;
+}
+.docx-running-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding-top: 8px;
+  border-top: 1px solid #cbd5e1;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: #64748b;
+}
+/* Track Changes Margin Bar on Redline Sheet */
+.docx-redline-margin {
+  border-left: 3px solid #dc2626;
+  padding-left: 14px;
+  text-align: justify;
+  font-size: 14.2px;
+  line-height: 1.65;
+  color: #111827;
+}
 </style>
 </head>
 <body>
@@ -979,11 +1134,33 @@ __PRERENDERED_TBODY__
             <button id="btn-close-inspector" class="pill-btn pill-btn-white pill-btn-xs" onclick="closeSideInspector()">✕</button>
           </div>
         </div>
-        <div class="inspector-body">
-          <div class="pin-cite-box" id="insp-pincite-quote">
+        <div class="inspector-body" style="padding:10px 12px;background:#e5e9f0;">
+          <div class="pin-cite-box" id="insp-pincite-quote" style="background:#ffffff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;box-shadow:0 2px 6px rgba(15,23,42,0.05);">
             <strong>Pin-Cite (Section 12.03(a), p.4):</strong> “__FIRST_QUOTE__”
           </div>
-          <div id="insp-contract-body" style="white-space:pre-wrap;">__FIRST_PAGE_TEXT__</div>
+          <div class="docx-canvas-wrap">
+            <div class="docx-word-toolbar">
+              <span>Executed Agreement · Print Layout</span>
+              <span id="insp-toolbar-badge" style="opacity:0.9;">Spanner BBox Verified</span>
+            </div>
+            <div class="docx-word-toolbar-sub">
+              <span>1 · · · 2 · · · 3 · · · 4 · · · 5</span>
+              <span>100% ZOOM</span>
+            </div>
+            <div style="padding:10px;background:#e5e9f0;">
+              <div class="docx-paper-sheet" style="padding:14px 18px;">
+                <div class="docx-running-header">
+                  <span>WEIL · EXECUTION COPY</span>
+                  <span id="insp-running-docid">DOC-KESTREL-01</span>
+                </div>
+                <div id="insp-contract-body" style="font-family:var(--font-serif);font-size:14px;line-height:1.65;color:#111827;">__FIRST_PAGE_TEXT__</div>
+                <div class="docx-running-footer">
+                  <span>WEIL:\98412034.4\31402.0018</span>
+                  <span id="insp-running-page">Page 4 of 12</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </aside>
     </div>
@@ -1044,7 +1221,35 @@ __PRERENDERED_TBODY__
             07_M331_Brightwater_Merger_Agreement_Weil_v3.docx vs. 08_M331_Skadden_v4_Redline.docx
           </div>
           <div id="redline-playbook-banner" style="font-size:12px;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
-          <div id="redline-diff-slab" class="text-slab"></div>
+          <div class="docx-canvas-wrap">
+            <div class="docx-word-toolbar" style="background:#0f172a;">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span id="redline-sheet-filename">08_M331_Brightwater_SPA_Skadden_v4_Redline.docx</span>
+              </div>
+              <span style="font-size:10.5px;color:#93c5fd;">Track Changes: ALL MARKUP</span>
+            </div>
+            <div class="docx-word-toolbar-sub">
+              <span>1 · · · 2 · · · 3 · · · 4 · · · 5 · · · 6 · · · 7</span>
+              <span>DEL: SKADDEN V4  |  INS: COUNTERPARTY MARKUP</span>
+            </div>
+            <div style="padding:10px 12px;background:#e5e9f0;">
+              <div class="docx-paper-sheet" style="padding:16px 22px;">
+                <div class="docx-running-header">
+                  <span>WEIL, GOTSHAL &amp; MANGES LLP · TRACK CHANGES COMPARE</span>
+                  <span id="redline-sheet-matter">MATTER M-331-KESTREL</span>
+                </div>
+                <div id="redline-sheet-title" style="font-family:var(--font-serif);font-size:14.5px;font-weight:700;color:#0f172a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.02em;">
+                  ARTICLE VIII — INDEMNIFICATION · SECTION 8.02
+                </div>
+                <div id="redline-diff-slab" class="docx-redline-margin"></div>
+                <div class="docx-running-footer">
+                  <span>Compare: Weil Playbook v3.4 ↔ Counterparty Markup v4.0</span>
+                  <span>OpenXML w:del / w:ins</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -1093,13 +1298,28 @@ __PRERENDERED_TBODY__
             </label>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span class="section-label">Composed Multi-Level .docx Preview</span>
+            <span class="section-label">Composed Multi-Level .docx Document Preview</span>
             <div style="display:flex;gap:6px;">
               <button id="btn-copy-legos" class="pill-btn pill-btn-white pill-btn-xs" onclick="copyLegalLegosText()">Copy Rider</button>
               <button id="btn-compose-legos" class="pill-btn pill-btn-blue pill-btn-xs" onclick="updateLegalLegos()">Refresh Outline</button>
             </div>
           </div>
-          <pre id="legos-preview-box" class="text-slab" style="font-family:var(--font-serif);font-size:13.5px;white-space:pre-wrap;max-height:260px;overflow-y:auto;"></pre>
+          <div class="docx-canvas-wrap">
+            <div class="docx-word-toolbar">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <span>Weil_Legal_Legos_Composed_Rider.docx</span>
+              </div>
+              <span id="legos-block-count-badge" style="font-size:10.5px;color:#dbeafe;">3 Clauses · Print Layout</span>
+            </div>
+            <div class="docx-word-toolbar-sub">
+              <span>1 · · · 2 · · · 3 · · · 4 · · · 5 · · · 6</span>
+              <span>15-YR MULTI-LEVEL NUMBERING</span>
+            </div>
+            <div class="docx-paper-scroll">
+              <div id="legos-preview-box" class="docx-paper-sheet"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1337,8 +1557,16 @@ __PRERENDERED_TBODY__
         <div id="inbox-calendar-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
 
         <div style="margin-top:6px;">
-          <div class="section-label" id="raw-eml-header">Verbatim .EML / .ICS Source (corpus/emails_and_calendar/)</div>
-          <pre id="raw-eml-viewer" class="text-slab" style="font-family:var(--font-mono);font-size:11px;white-space:pre-wrap;max-height:240px;overflow-y:auto;"></pre>
+          <div class="section-label" id="raw-eml-header">Rendered Exchange Email &amp; Calendar Invite Preview</div>
+          <div class="docx-canvas-wrap">
+            <div class="docx-word-toolbar" style="background:#0f172a;">
+              <span>Microsoft Exchange / iManage Deal Filing Preview</span>
+              <span style="font-size:10.5px;color:#93c5fd;">RFC-822 / iCalendar Verified</span>
+            </div>
+            <div style="padding:10px;background:#e5e9f0;">
+              <div id="raw-eml-viewer" class="docx-paper-sheet" style="padding:14px 18px;max-height:250px;overflow-y:auto;"></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1803,24 +2031,70 @@ async function openSideInspector(rowIdx, overrideQuote, overrideCitation) {
   const dl = document.getElementById("insp-download-link");
   if (dl) dl.href = `${API_BASE}/api/corpus/file/${encodeURIComponent(row.filename)}`;
 
+  const runDocEl = document.getElementById("insp-running-docid");
+  if (runDocEl) runDocEl.textContent = `${row.doc_id} · ${citation.toUpperCase()}`;
+  const runPageEl = document.getElementById("insp-running-page");
+  if (runPageEl) runPageEl.textContent = `Page ${row.page || 1} of 12`;
+
   const bodyEl = document.getElementById("insp-contract-body");
   const cachedPage = (INITIAL_BOOTSTRAP_DATA.doc_pages || {})[row.doc_id] || "";
-  const renderHighlightedBody = (rawText) => {
-    if (quote && rawText.includes(quote.slice(0, 28))) {
-      const snippet = quote.slice(0, 45);
-      const escapedRaw = escapeHtml(rawText);
-      const escapedSnip = escapeHtml(snippet);
-      bodyEl.innerHTML = escapedRaw.replace(
-        escapedSnip,
-        `<mark class="contract-highlight">${escapedSnip}</mark>`
-      );
-    } else {
-      bodyEl.innerHTML = `<mark class="contract-highlight">${escapeHtml(quote)}</mark>\n\n${escapeHtml(rawText)}`;
+  const formatLegalDocumentHtml = (rawText) => {
+    const cleanText = String(rawText || "").trim();
+    const lines = cleanText.split(/\n+/);
+    const snippet = quote ? quote.slice(0, 42) : "";
+    let matchedQuote = false;
+
+    const blocksHtml = lines.map((line) => {
+      const trimmed = line.trim();
+      if (!trimmed) return "";
+      let htmlLine = escapeHtml(trimmed);
+      if (snippet && trimmed.includes(snippet)) {
+        matchedQuote = true;
+        const escSnip = escapeHtml(snippet);
+        htmlLine = htmlLine.replace(
+          escSnip,
+          `<mark class="contract-highlight">${escSnip}</mark>`
+        );
+      }
+      if (/^(ARTICLE\s+[IVXLC0-9]+|EXHIBIT\s+[A-Z0-9]+)/i.test(trimmed)) {
+        return `<div class="docx-doc-title" style="margin-top:8px;margin-bottom:6px;font-size:14.5px;">${htmlLine}</div>`;
+      }
+      if (/^(Section\s+[0-9.]+|[0-9]+\.[0-9]+\s+)/i.test(trimmed)) {
+        const m = trimmed.match(/^(Section\s+[0-9.]+(?:\([a-z0-9]+\))?\s*[^.]{0,55}\.)(.*)$/i);
+        if (m) {
+          let headEsc = escapeHtml(m[1]);
+          let restEsc = escapeHtml(m[2]);
+          const isTargetClause = (snippet && trimmed.includes(snippet)) || (citation && trimmed.toLowerCase().includes(citation.toLowerCase().replace(/^sec\.\s*/i, "section ")));
+          if (isTargetClause) {
+            matchedQuote = true;
+            return `<div style="margin-top:8px;text-align:justify;background:#fefce8;border-left:3px solid #eab308;padding:6px 10px;border-radius:0 6px 6px 0;"><span class="docx-clause-heading"><u>${headEsc}</u></span> <mark class="contract-highlight">${restEsc.trim()}</mark></div>`;
+          }
+          return `<div style="margin-top:8px;text-align:justify;"><span class="docx-clause-heading"><u>${headEsc}</u></span>${restEsc}</div>`;
+        }
+        return `<div class="docx-clause-heading" style="margin-top:8px;"><u>${htmlLine}</u></div>`;
+      }
+      if (/^\([a-z0-9]+\)/i.test(trimmed)) {
+        return `<div class="docx-subclause">${htmlLine}</div>`;
+      }
+      return `<div style="margin-top:6px;text-align:justify;text-indent:20px;">${htmlLine}</div>`;
+    }).join("");
+
+    if (!matchedQuote && quote) {
+      return `
+        <div class="docx-clause-block" style="background:#fefce8;border-left:3px solid #eab308;padding:8px 12px;margin-bottom:10px;">
+          <div style="font-family:var(--font-sans);font-size:10px;font-weight:700;color:#854d0e;text-transform:uppercase;margin-bottom:3px;">
+            Highlighted Grounding Clause (${escapeHtml(citation)} · Page ${row.page || 1})
+          </div>
+          <div style="text-align:justify;"><mark class="contract-highlight">${escapeHtml(quote)}</mark></div>
+        </div>
+        ${blocksHtml}
+      `;
     }
+    return blocksHtml;
   };
 
   // Render at 0ms from pre-baked page cache
-  renderHighlightedBody(cachedPage || quote);
+  bodyEl.innerHTML = formatLegalDocumentHtml(cachedPage || quote);
 
   // Also fetch live page text if not in cache
   if (!cachedPage) {
@@ -1828,7 +2102,7 @@ async function openSideInspector(rowIdx, overrideQuote, overrideCitation) {
       const res = await fetch(`${API_BASE}/api/document_page?doc_id=${encodeURIComponent(row.doc_id)}&page=${row.page || 1}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.text) renderHighlightedBody(data.text);
+        if (data.text) bodyEl.innerHTML = formatLegalDocumentHtml(data.text);
       }
     } catch (e) {}
   }
@@ -1869,18 +2143,33 @@ function exportGridToCsv() {
 /* STUDIO 2: CONTRACT REDLINE & WORD LEGAL LEGOS                             */
 /* ========================================================================= */
 
+function applyRedlineSheetUI(data) {
+  if (!data) return;
+  document.getElementById("redline-doc-pair-label").textContent = `${data.doc_a_name} vs. ${data.doc_b_name}`;
+  document.getElementById("redline-playbook-banner").innerHTML =
+    `<strong>Playbook Standard:</strong> ${escapeHtml(data.playbook_standard)}`;
+  const sheetTitle = document.getElementById("redline-sheet-title");
+  if (sheetTitle) sheetTitle.textContent = data.title || "ARTICLE VIII — INDEMNIFICATION";
+  const sheetMatter = document.getElementById("redline-sheet-matter");
+  if (sheetMatter) sheetMatter.textContent = `MATTER ${data.matter_id || 'M-331-KESTREL'} · PAGE 42`;
+  const sheetFn = document.getElementById("redline-sheet-filename");
+  if (sheetFn) sheetFn.textContent = data.doc_b_name || "08_M331_Brightwater_SPA_Skadden_v4_Redline.docx";
+
+  // Format redline_html so subclauses (a), (b), (c) break cleanly like a real Word contract page
+  let formattedRedline = String(data.redline_html || "")
+    .replace(/\s+(\([a-c]\))\s+/g, '<br/><br/><span class="docx-subclause-num">$1</span> ');
+  document.getElementById("redline-diff-slab").innerHTML = formattedRedline;
+  document.getElementById("redline-stats-pill").textContent =
+    `${data.stats.similarity_pct}% Similarity · -${data.stats.tokens_deleted} / +${data.stats.tokens_inserted} Words`;
+  renderRedlineEditCards();
+}
+
 function renderRedlineFromMemory(pairId) {
   const data = (INITIAL_BOOTSTRAP_DATA.redlines || {})[pairId];
   if (!data) return;
   currentRedlineData = data;
   redlineCardStates = {};
-  document.getElementById("redline-doc-pair-label").textContent = `${data.doc_a_name} vs. ${data.doc_b_name}`;
-  document.getElementById("redline-playbook-banner").innerHTML =
-    `<strong>Playbook Standard:</strong> ${escapeHtml(data.playbook_standard)}`;
-  document.getElementById("redline-diff-slab").innerHTML = data.redline_html;
-  document.getElementById("redline-stats-pill").textContent =
-    `${data.stats.similarity_pct}% Similarity · -${data.stats.tokens_deleted} / +${data.stats.tokens_inserted} Words`;
-  renderRedlineEditCards();
+  applyRedlineSheetUI(data);
 }
 
 async function loadRedlinePair(pairId, btnEl) {
@@ -1894,13 +2183,7 @@ async function loadRedlinePair(pairId, btnEl) {
     if (!res.ok) return;
     const data = await res.json();
     currentRedlineData = data;
-    document.getElementById("redline-doc-pair-label").textContent = `${data.doc_a_name} vs. ${data.doc_b_name}`;
-    document.getElementById("redline-playbook-banner").innerHTML =
-      `<strong>Playbook Standard:</strong> ${escapeHtml(data.playbook_standard)}`;
-    document.getElementById("redline-diff-slab").innerHTML = data.redline_html;
-    document.getElementById("redline-stats-pill").textContent =
-      `${data.stats.similarity_pct}% Similarity · -${data.stats.tokens_deleted} / +${data.stats.tokens_inserted} Words`;
-    renderRedlineEditCards();
+    applyRedlineSheetUI(data);
   } catch (e) {}
 }
 
@@ -1945,39 +2228,145 @@ function renderRedlineEditCards() {
   }).join("");
 }
 
+function updateRedlineSheetFromDecisions() {
+  if (!currentRedlineData) return;
+  const devs = currentRedlineData.key_deviations || [];
+  const acceptedCount = Object.values(redlineCardStates).filter(v => v === "accepted").length;
+  const rejectedCount = Object.values(redlineCardStates).filter(v => v === "rejected").length;
+
+  let baseHtml = String(currentRedlineData.redline_html || "")
+    .replace(/\s+(\([a-c]\))\s+/g, '<br/><br/><span class="docx-subclause-num">$1</span> ');
+
+  if (acceptedCount === devs.length && devs.length > 0) {
+    // All Weil v3 counters accepted -> show clean Weil Playbook execution text with green resolution banner
+    const cleanWeil = escapeHtml(currentRedlineData.clause_a_text || "")
+      .replace(/\s+(\([a-c]\))\s+/g, '<br/><br/><span class="docx-subclause-num">$1</span> ');
+    document.getElementById("redline-diff-slab").innerHTML = `
+      <div style="font-family:var(--font-sans);font-size:11px;font-weight:600;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 10px;border-radius:6px;margin-bottom:8px;">
+        ✓ All ${devs.length} Playbook Deviations Resolved — Restored Weil Playbook v3.4 Execution Text
+      </div>
+      ${cleanWeil}
+    `;
+    document.getElementById("redline-diff-slab").style.borderLeftColor = "#10b981";
+  } else {
+    let statusStrip = "";
+    if (acceptedCount > 0 || rejectedCount > 0) {
+      statusStrip = `
+        <div style="font-family:var(--font-sans);font-size:11px;font-weight:600;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;padding:4px 9px;border-radius:6px;margin-bottom:8px;">
+          Track Changes Active: ${acceptedCount}/${devs.length} Weil v3 Counters Accepted · ${rejectedCount} Counterparty Markups Rejected
+        </div>
+      `;
+    }
+    document.getElementById("redline-diff-slab").innerHTML = statusStrip + baseHtml;
+    document.getElementById("redline-diff-slab").style.borderLeftColor = "#dc2626";
+  }
+}
+
 function decideRedlineCard(idx, decision) {
   redlineCardStates[idx] = decision;
   renderRedlineEditCards();
+  updateRedlineSheetFromDecisions();
 }
 
 function resetRedlineDecisions() {
   redlineCardStates = {};
   renderRedlineEditCards();
+  updateRedlineSheetFromDecisions();
+}
+
+function buildRenderedDocxHtml(chosenBlocks) {
+  const countBadge = document.getElementById("legos-block-count-badge");
+  if (countBadge) {
+    countBadge.textContent = `${chosenBlocks.length} Clause${chosenBlocks.length === 1 ? '' : 's'} · Print Layout`;
+  }
+
+  const formatClauseLinesHtml = (rawClauseText) => {
+    const rawLines = String(rawClauseText || "").split("\n").map(l => l.trim()).filter(Boolean);
+    if (!rawLines.length) return "";
+    const firstLine = rawLines[0];
+    // Extract section number and title from first line, e.g., "8.02(c) Exclusive Remedy & Actual Fraud Carve-Out."
+    const headMatch = firstLine.match(/^([0-9A-Za-z.()]+\s+)(.+)$/);
+    const secNum = headMatch ? headMatch[1].trim() : "Section";
+    const secTitle = headMatch ? headMatch[2].trim() : firstLine;
+
+    const subLinesHtml = rawLines.slice(1).map(sub => {
+      const subMatch = sub.match(/^(\([a-z0-9]+\))\s*(.+)$/i);
+      if (subMatch) {
+        const bullet = escapeHtml(subMatch[1]);
+        // Bold quoted defined terms like 'Actual Fraud'
+        const bodyFormatted = escapeHtml(subMatch[2]).replace(
+          /'([^']{2,45})'/g,
+          '<strong>“$1”</strong>'
+        );
+        return `<div class="docx-subclause"><span class="docx-subclause-num">${bullet}</span>${bodyFormatted}</div>`;
+      }
+      return `<div class="docx-subclause">${escapeHtml(sub)}</div>`;
+    }).join("");
+
+    return `
+      <div class="docx-clause-heading">
+        Section ${escapeHtml(secNum)} <u>${escapeHtml(secTitle)}</u>
+      </div>
+      ${subLinesHtml}
+    `;
+  };
+
+  const sectionsHtml = chosenBlocks.map((b, idx) => {
+    const grpStr = b.practice_group || b.source_precedent || "Weil Playbook";
+    const numStr = (b.numbering_style || b.numbering_level || "Article VIII").replace(/->/g, "→");
+    return `
+      <div class="docx-clause-block">
+        <div class="docx-clause-meta-bar" style="white-space:nowrap;">
+          <span class="status-pill blue" style="font-family:var(--font-sans);font-size:9.5px;padding:1px 7px;">
+            ${escapeHtml(b.block_id)} · ${escapeHtml(grpStr)}
+          </span>
+          <span style="font-family:var(--font-mono);font-size:9.5px;color:#64748b;white-space:nowrap;">
+            ${escapeHtml(numStr)}
+          </span>
+        </div>
+        ${formatClauseLinesHtml(b.clause_text)}
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="docx-running-header">
+      <span>WEIL, GOTSHAL &amp; MANGES LLP · EXECUTION RIDER</span>
+      <span>CMN 31402-0018 · M-331</span>
+    </div>
+    <div class="docx-doc-title">
+      MODULAR CLAUSE RIDER TO AGREEMENT AND PLAN OF MERGER
+    </div>
+    <div class="docx-doc-subtitle">
+      By and Among Brightwater Industrial Holdings, Inc., Halvorsen Precision Corp. &amp; Seller Representative
+    </div>
+    <div class="docx-recital">
+      <strong>THIS MODULAR PLAYBOOK RIDER</strong> (this <strong>“Rider”</strong>) is hereby incorporated into and made a binding part of the Agreement and Plan of Merger dated as of October 15, 2026 (the <strong>“Agreement”</strong>). Capitalized terms used but not otherwise defined herein shall have the meanings ascribed to such terms in Article I of the Agreement:
+    </div>
+    ${sectionsHtml}
+    <div style="margin-top:14px;padding-top:10px;border-top:1px dashed #cbd5e1;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--font-serif);font-size:12px;color:#334155;">
+      <div>
+        <div style="font-weight:700;text-transform:uppercase;font-size:10.5px;color:#475569;">Approved per Weil M&amp;A / Privacy Pro Playbook v3.4:</div>
+        <div style="margin-top:4px;font-style:italic;">/s/ Sarah Jenkins, Managing Partner (M&amp;A) &amp; D. Cockerell, Partner (Tax)</div>
+      </div>
+      <div style="font-family:var(--font-sans);font-size:10px;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;padding:2px 8px;border-radius:999px;font-weight:600;">
+        ✓ OpenXML .docx Ready
+      </div>
+    </div>
+    <div class="docx-running-footer">
+      <span>WEIL:\\98412034.4\\31402.0018</span>
+      <span>Page 1 of 1</span>
+    </div>
+  `;
 }
 
 function renderLegalLegosFromMemory(blockIds) {
   const blocks = INITIAL_BOOTSTRAP_DATA.legal_legos_blocks || [];
   const chosen = blocks.filter(b => blockIds.includes(b.block_id));
-  const lines = [
-    "======================================================================",
-    "WEIL, GOTSHAL & MANGES LLP — MODULAR 'LEGAL LEGOS' NUMBERED .DOCX RIDER",
-    "Matter: M-331-KESTREL | Target Outline Root: Article VIII",
-    "======================================================================",
-    "",
-  ];
-  chosen.forEach((b, idx) => {
-    const titleStr = b.name || b.title || b.block_id;
-    const numStr = b.numbering_style || b.numbering_level || "Article VIII";
-    const grpStr = b.practice_group || b.source_precedent || "Weil Playbook";
-    lines.push(`[BLOCK ${idx + 1}: ${b.block_id} — ${titleStr.toUpperCase()}]`);
-    lines.push(`Practice Group: ${grpStr}`);
-    lines.push(`Numbering Hierarchy: ${numStr}`);
-    lines.push("----------------------------------------------------------------------");
-    lines.push(b.clause_text);
-    lines.push("");
-  });
   const box = document.getElementById("legos-preview-box");
-  if (box) box.textContent = lines.join("\n");
+  if (box) {
+    box.innerHTML = buildRenderedDocxHtml(chosen.length ? chosen : blocks.slice(0, 1));
+  }
 }
 
 async function updateLegalLegos() {
@@ -1996,8 +2385,9 @@ async function updateLegalLegos() {
     });
     if (res.ok) {
       const data = await res.json();
-      if (data.composed_docx_preview) {
-        document.getElementById("legos-preview-box").textContent = data.composed_docx_preview;
+      if (Array.isArray(data.blocks) && data.blocks.length) {
+        const box = document.getElementById("legos-preview-box");
+        if (box) box.innerHTML = buildRenderedDocxHtml(data.blocks);
       }
     }
   } catch (e) {}
@@ -2300,14 +2690,59 @@ function inspectRawEml(idx, isCal) {
   if (!currentInboxData) return;
   const viewer = document.getElementById("raw-eml-viewer");
   const header = document.getElementById("raw-eml-header");
+  if (!viewer) return;
+
   if (isCal) {
     const c = (currentInboxData.calendar_conflicts || [])[0];
-    if (header) header.textContent = "Verbatim .ICS Source (CAL-101_Closing_Board_Call_and_FTC_HSR_Conflict.ics)";
-    if (viewer) viewer.textContent = c?.raw_ics || "";
+    if (!c) return;
+    if (header) header.textContent = "Rendered Outlook Calendar Invite Conflict (CAL-101)";
+    viewer.innerHTML = `
+      <div class="docx-running-header">
+        <span>EXCHANGE CALENDAR INVITE · VEVENT</span>
+        <span>${escapeHtml(c.conflict_id)} · ${escapeHtml(c.date)}</span>
+      </div>
+      <div style="font-family:var(--font-sans);font-size:12px;color:#111827;">
+        <div style="padding:8px 10px;background:#eff6ff;border-left:3px solid #2563eb;border-radius:4px;margin-bottom:8px;">
+          <div style="font-weight:700;color:#1e3a8a;">Event A (Mandatory): ${escapeHtml(c.event_a.title)}</div>
+          <div style="font-size:11px;color:#475569;margin-top:2px;">CMN ${escapeHtml(c.event_a.cmn)} · Attendees: ${escapeHtml((c.event_a.attendees || []).join(", "))}</div>
+        </div>
+        <div style="padding:8px 10px;background:#fef2f2;border-left:3px solid #dc2626;border-radius:4px;margin-bottom:8px;">
+          <div style="font-weight:700;color:#991b1b;">Event B (Conflicting Slot): ${escapeHtml(c.event_b.title)}</div>
+          <div style="font-size:11px;color:#7f1d1d;margin-top:2px;">CMN ${escapeHtml(c.event_b.cmn)} · Attendees: ${escapeHtml((c.event_b.attendees || []).join(", "))}</div>
+        </div>
+        <div style="font-family:var(--font-serif);font-size:13.5px;color:#1f2937;margin-top:6px;">
+          <strong>Resolution Protocol:</strong> ${escapeHtml(c.ai_resolution)}
+        </div>
+      </div>
+    `;
   } else {
     const e = (currentInboxData.emails || [])[idx];
-    if (header) header.textContent = `Verbatim .EML Source (${e?.email_id})`;
-    if (viewer) viewer.textContent = e?.raw_eml || e?.summary || "";
+    if (!e) return;
+    if (header) header.textContent = `Rendered Exchange Deal Message (${e.email_id} · CMN ${e.cmn})`;
+    const rawStr = String(e.raw_eml || "").trim();
+    const parts = rawStr.split(/\r?\n\r?\n/);
+    const bodyText = (parts.length > 1 ? parts.slice(1).join("\n\n").trim() : "") || e.summary;
+    viewer.innerHTML = `
+      <div class="docx-running-header">
+        <span>WEIL EXCHANGE SERVER · IMANAGE</span>
+        <span>${escapeHtml(e.email_id)} · VERIFIED</span>
+      </div>
+      <div style="font-family:var(--font-sans);border-bottom:1px solid #e2e8f0;padding-bottom:8px;margin-bottom:10px;">
+        <div style="font-family:var(--font-serif);font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px;">
+          ${escapeHtml(e.subject)}
+        </div>
+        <div style="font-size:11.5px;color:#334155;"><strong>From:</strong> ${escapeHtml(e.sender)}</div>
+        <div style="font-size:11.5px;color:#334155;"><strong>To:</strong> Sarah Jenkins (M&amp;A Lead Partner, Weil NY) · <strong>Sent:</strong> ${escapeHtml(e.received_at)}</div>
+        <div style="font-size:11px;color:#1d4ed8;margin-top:3px;"><strong>Tagged Client-Matter Number:</strong> ${escapeHtml(e.cmn)}</div>
+      </div>
+      <div style="font-family:var(--font-serif);font-size:13.8px;line-height:1.6;color:#111827;white-space:pre-line;">
+        ${escapeHtml(bodyText)}
+      </div>
+      <div class="docx-running-footer">
+        <span>iManage Work 10 Target: ${escapeHtml(e.matter_id)}</span>
+        <span>Verified Deal Correspondence</span>
+      </div>
+    `;
   }
 }
 
