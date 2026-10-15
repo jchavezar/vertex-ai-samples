@@ -193,7 +193,7 @@ def _prerender_kestrel_tbody_html(kestrel_rows: list) -> str:
             f'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;">'
             f'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'
             f'</svg>'
-            f'<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{html_lib.escape(str(row.get("filename", "")))}</span>'
+            f'<span class="doc-filename-text">{html_lib.escape(str(row.get("filename", "")))}</span>'
             f'</div>'
             f'<div class="doc-cell-sub">{html_lib.escape(str(row.get("doc_id", "")))} · {html_lib.escape(str(row.get("citation", "Sec. 8.02")))}</div>'
             f'</td>'
@@ -496,7 +496,7 @@ button {
   justify-content: space-between;
   gap: 8px;
   min-height: 44px;
-  padding: 6px 12px;
+  padding: 6px 18px;
   background: var(--app-surface);
   border-bottom: 1px solid var(--table-grid-border);
   flex-shrink: 0;
@@ -542,7 +542,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 6px;
-  padding: 6px 12px;
+  padding: 6px 18px;
   background: var(--app-background);
   border-bottom: 1px solid var(--table-grid-border);
   flex-shrink: 0;
@@ -598,8 +598,8 @@ button {
 
 /* Mike OSS TRSidePanel (TRSidePanel.tsx) */
 .side-inspector-pane {
-  width: 420px;
-  max-width: 45%;
+  width: 340px;
+  max-width: 32%;
   background: var(--app-surface);
   border-left: 1px solid var(--table-grid-border);
   display: none;
@@ -608,6 +608,7 @@ button {
   overflow: hidden;
   box-shadow: -4px 0 16px rgba(15, 23, 42, 0.04);
   z-index: 30;
+  flex-shrink: 0;
 }
 .side-inspector-pane.open {
   display: flex;
@@ -635,10 +636,12 @@ button {
   min-height: 420px;
   overflow: auto;
   background: var(--app-surface);
+  position: relative;
 }
 .tr-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   table-layout: fixed;
   font-size: 12px;
 }
@@ -649,7 +652,7 @@ button {
   background: #f8fafc;
   border-bottom: 1px solid var(--table-grid-border);
   border-right: 1px solid var(--table-grid-border);
-  padding: 7px 10px;
+  padding: 8px 10px;
   text-align: left;
   font-size: 11px;
   font-weight: 600;
@@ -658,30 +661,62 @@ button {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.tr-table th:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 25;
+  background: #f8fafc;
+  padding-left: 18px;
+  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08);
+}
 .tr-table td {
   border-bottom: 1px solid var(--table-grid-border);
   border-right: 1px solid var(--table-grid-border);
-  padding: 7px 10px;
+  padding: 8px 10px;
   vertical-align: top;
   color: #374151;
   line-height: 1.42;
   background: var(--app-surface);
   transition: background-color 0.12s;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.tr-table td:first-child {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background: var(--app-surface);
+  padding-left: 18px;
+  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08);
 }
 .tr-table tr:hover td {
   background: #f9fafb;
 }
+.tr-table tr:hover td:first-child {
+  background: #f9fafb;
+}
 .tr-table tr.active-row td {
-  background: rgba(0, 136, 255, 0.05);
+  background: #f0f7ff;
+}
+.tr-table tr.active-row td:first-child {
+  background: #f0f7ff;
 }
 
 .doc-cell-title {
   font-weight: 500;
   color: #111827;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 6px;
   cursor: pointer;
+}
+.doc-cell-title svg {
+  margin-top: 2px;
+}
+.doc-filename-text {
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.32;
 }
 .doc-cell-title:hover {
   color: var(--ge-primary);
@@ -689,7 +724,8 @@ button {
 .doc-cell-sub {
   font-size: 11px;
   color: #6b7280;
-  margin-top: 2px;
+  margin-top: 3px;
+  padding-left: 20px;
 }
 
 /* Inline Add Column Drawer (AddColumnModal.tsx) */
@@ -1298,11 +1334,11 @@ button {
           <table class="tr-table" id="kestrel-grid-table">
             <thead id="tr-thead">
               <tr>
-                <th style="width:220px;">Document</th>
-                <th style="width:185px;">CoC / Provision Trigger</th>
-                <th style="width:210px;">Consent Requirement</th>
-                <th style="width:125px;">Notice Window</th>
-                <th style="width:185px;">Termination &amp; Fee Impact</th>
+                <th style="width:165px;">Document</th>
+                <th style="width:135px;">CoC / Provision Trigger</th>
+                <th style="width:145px;">Consent Requirement</th>
+                <th style="width:95px;">Notice Window</th>
+                <th style="width:140px;">Termination &amp; Fee Impact</th>
               </tr>
             </thead>
             <tbody id="tr-tbody">
@@ -2129,19 +2165,19 @@ function renderTabularGrid() {
 
   let colsHtml = `
     <tr>
-      <th style="width:220px;">Document</th>
-      <th style="width:185px;">CoC / Provision Trigger</th>
-      <th style="width:210px;">Consent Requirement</th>
-      <th style="width:125px;">Notice Window</th>
-      <th style="width:185px;">Termination &amp; Fee Impact</th>
+      <th style="width:165px;">Document</th>
+      <th style="width:135px;">CoC / Provision Trigger</th>
+      <th style="width:145px;">Consent Requirement</th>
+      <th style="width:95px;">Notice Window</th>
+      <th style="width:140px;">Termination &amp; Fee Impact</th>
   `;
   dynamicColumns.forEach((dc, colIdx) => {
     const progressText = (dc.totalCount && dc.completedCount < dc.totalCount)
       ? ` <span style="font-size:10px;font-weight:500;color:#2563eb;">(${dc.completedCount}/${dc.totalCount})</span>`
       : "";
-    colsHtml += `<th style="width:215px;background:#eff6ff;color:#1e3a8a;">
+    colsHtml += `<th style="width:155px;background:#eff6ff;color:#1e3a8a;">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
-        <span>✦ ${escapeHtml(dc.name)}${progressText}</span>
+        <span style="overflow:hidden;text-overflow:ellipsis;">✦ ${escapeHtml(dc.name)}${progressText}</span>
         <button type="button" onclick="removeDynamicColumn(${colIdx})" title="Remove column" style="border:none;background:transparent;color:#64748b;cursor:pointer;font-size:12px;padding:0 2px;line-height:1;">×</button>
       </div>
     </th>`;
@@ -2181,7 +2217,7 @@ function renderTabularGrid() {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
             </svg>
-            <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(row.filename)}</span>
+            <span class="doc-filename-text">${escapeHtml(row.filename)}</span>
           </div>
           <div class="doc-cell-sub">${escapeHtml(row.doc_id)} · ${escapeHtml(row.citation || 'Sec. 8.02')}</div>
         </td>
@@ -2257,10 +2293,16 @@ async function runDynamicColumnExtraction() {
   dynamicColumns.push(colObj);
   renderTabularGrid();
 
-  // Scroll table horizontally so the user sees the new column and parallel loading bars immediately
+  // Only scroll horizontally if the table overflows the viewport width (e.g., 2+ added columns)
   const scroller = document.querySelector(".tr-grid-scroll");
   if (scroller) {
-    setTimeout(() => { scroller.scrollLeft = scroller.scrollWidth; }, 30);
+    setTimeout(() => {
+      if (scroller.scrollWidth > scroller.clientWidth + 8) {
+        scroller.scrollLeft = scroller.scrollWidth - scroller.clientWidth;
+      } else {
+        scroller.scrollLeft = 0;
+      }
+    }, 30);
   }
 
   // Execute real parallel Gemini 3.8 Flash extractions across all active contracts in the grid

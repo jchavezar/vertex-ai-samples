@@ -262,16 +262,29 @@ Respond ONLY with a strictly valid JSON object matching this schema:
         # 1. Attempt standard JSON decode
         try:
             parsed = json.loads(cleaned)
-            val = str(parsed.get("extracted_value", "Review Required"))
-            cit = str(parsed.get("citation", "Preamble / Sec. 1.01"))
-            pg = int(parsed.get("page", 1))
-            qt = str(parsed.get("quote", ""))
+            if isinstance(parsed, list) and parsed:
+                parsed = parsed[0]
+            if not isinstance(parsed, dict):
+                parsed = {}
+            val = str(parsed.get("extracted_value") or "Not Specified")
+            cit = str(parsed.get("citation") or "Preamble / Sec. 1.01")
+            raw_pg = parsed.get("page")
+            try:
+                pg = int(raw_pg) if raw_pg is not None else 1
+            except (ValueError, TypeError):
+                pg = 1
+            raw_conf = parsed.get("confidence")
+            try:
+                conf = float(raw_conf) if raw_conf is not None else 0.95
+            except (ValueError, TypeError):
+                conf = 0.95
+            qt = str(parsed.get("quote") or "")
             return {
                 "doc_id": d_id,
                 "filename": doc["name"],
                 "extracted_value": val,
                 "extracted_answer": val,
-                "confidence": float(parsed.get("confidence", 0.95)),
+                "confidence": conf,
                 "citation": cit,
                 "section_citation": cit,
                 "page": pg,
