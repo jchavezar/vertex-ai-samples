@@ -8,15 +8,15 @@
 
 ## Quick Navigation
 1. [Executive Summary & MVP Feasibility (Why Unstructured Indexing is the Critical Path)](#1-executive-summary--mvp-feasibility-why-unstructured-indexing-is-the-critical-path)
-2. [High-Level Design (HLD) — End-to-End Enterprise Legal Platform Architecture](#2-high-level-design-hld--end-to-end-enterprise-legal-platform-architecture)
-3. [Low-Level Design (LLD-1) — Unstructured Multimodal Document Indexing Pipeline](#3-low-level-design-lld-1--unstructured-multimodal-document-indexing-pipeline)
-4. [Low-Level Design (LLD-2) — Direct API vs. Selective Indexing for Email, Calendar & Chat](#4-low-level-design-lld-2--direct-api-vs-selective-indexing-for-email-calendar--chat)
-5. [Low-Level Design (LLD-3) — All 8 Legal Use Cases, Architecture & Live Cloud Run Demos](#5-low-level-design-lld-3--all-8-legal-use-cases-architecture--live-cloud-run-demos)
+2. [High-Level Design (HLD) — End-to-End Enterprise Legal Platform Architecture](#1-high-level-design-hld--end-to-end-enterprise-legal-platform-architecture)
+3. [Low-Level Design (LLD) — Unstructured Indexing Pipeline vs. Direct API Evaluation](#2-low-level-design-lld--unstructured-indexing-pipeline-vs-direct-api-evaluation)
+4. [Direct API vs. Selective Indexing Matrix (Email, Calendar & Chat)](#3-direct-api-vs-selective-indexing-matrix-email-calendar--chat)
+5. [Use Case by Use Case Documentation & Demos (UC-1 through UC-8)](#4-use-case-by-use-case-documentation--demos-uc-1-through-uc-8)
    - [UC-1: Document Redlining & Playbook Deviation Analysis](#uc-1-document-redlining--playbook-deviation-analysis)
    - [UC-2: Integrated Word Processing & Privacy Pro "Legal Legos" (.docx)](#uc-2-integrated-word-processing--privacy-pro-legal-legos-docx)
-   - [UC-3: Side-by-Side Pin-Cite Citation Review (★ Priority)](#uc-3-side-by-side-pin-cite-citation-review--priority)
+   - [UC-3: Side-by-Side Pin-Cite Citation Review (Priority)](#uc-3-side-by-side-pin-cite-citation-review-priority)
    - [UC-4: Email, Calendar & Chat Triage Automation (Direct API vs. Graph Evaluation)](#uc-4-email-calendar--chat-triage-automation-direct-api-vs-graph-evaluation)
-   - [UC-5: Multi-Document Tabular Analysis Grids (★ Priority — Mike OSS in GE)](#uc-5-multi-document-tabular-analysis-grids--priority--mike-oss-in-ge)
+   - [UC-5: Multi-Document Tabular Analysis Grids (Priority — Mike OSS in GE)](#uc-5-multi-document-tabular-analysis-grids-priority--mike-oss-in-ge)
    - [UC-6: Self-Service Workflow & Grid Builder + Homegrown Apps (FundGen, FundHQ, Antitrust)](#uc-6-self-service-workflow--grid-builder--homegrown-apps-fundgen-fundhq-antitrust)
    - [UC-7: Matter & Knowledge Workspaces (Cross-Matter Precedent GraphRAG)](#uc-7-matter--knowledge-workspaces-cross-matter-precedent-graphrag)
    - [UC-8: Dynamic Client-Matter Tracking (CMN Context Switcher & Intapp Ethical Walls)](#uc-8-dynamic-client-matter-tracking-cmn-context-switcher--intapp-ethical-walls)
@@ -37,7 +37,7 @@ However, **overall timeline feasibility depends primarily on the Unstructured Do
 
 ---
 
-## 2. High-Level Design (HLD) — End-to-End Enterprise Legal Platform Architecture
+## 1. High-Level Design (HLD) — End-to-End Enterprise Legal Platform Architecture
 
 ![Weil Google Cloud Reference Architecture (HLD & LLD with Official GCP Icons)](./docs/diagrams/00_weil_gcp_reference_architecture.png)
 
@@ -113,7 +113,7 @@ flowchart TB
 
 ---
 
-## 3. Low-Level Design (LLD-1) — Unstructured Multimodal Document Indexing Pipeline
+## 2. Low-Level Design (LLD) — Unstructured Indexing Pipeline vs. Direct API Evaluation
 
 ![Weil Low-Level Design: Unstructured Indexing Pipeline vs. Direct API Evaluation](./docs/diagrams/02_weil_lld_unstructured_indexing_vs_direct_api.svg)
 
@@ -146,7 +146,7 @@ sequenceDiagram
 
 ---
 
-## 4. Low-Level Design (LLD-2) — Direct API vs. Selective Indexing for Email, Calendar & Chat
+## 3. Direct API vs. Selective Indexing Matrix (Email, Calendar & Chat)
 
 For non-document channels (**Email, Calendar, Chat**), we are evaluating a **two-tier hybrid pattern** so we do not block the MVP or incur unnecessary indexing costs on ~150M messages:
 
@@ -158,7 +158,7 @@ For non-document channels (**Email, Calendar, Chat**), we are evaluating a **two
 
 ---
 
-## 5. Low-Level Design (LLD-3) — All 8 Legal Use Cases, Architecture & Live Cloud Run Demos
+## 4. Use Case by Use Case Documentation & Demos (UC-1 through UC-8)
 
 ![Weil Low-Level Design: 8 Legal Use Cases Mapped to 5 Gemini Enterprise MCP App Studios](./docs/diagrams/03_weil_lld_8_use_cases_5_studios_matrix.svg)
 
@@ -177,6 +177,8 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 
 ---
 
+<a id="uc-1"></a>
+<a id="uc-1-document-redlining--playbook-deviation-analysis"></a>
 ### UC-1: Document Redlining & Playbook Deviation Analysis
 * **Live Demo**: [`https://weil-redline-word-agent-254356041555.us-central1.run.app`](https://weil-redline-word-agent-254356041555.us-central1.run.app)
 * **Low-Level Design**:
@@ -187,6 +189,8 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 
 ---
 
+<a id="uc-2"></a>
+<a id="uc-2-integrated-word-processing--privacy-pro-legal-legos-docx"></a>
 ### UC-2: Integrated Word Processing & Privacy Pro "Legal Legos" (`.docx`)
 * **Live Demo**: [`https://weil-redline-word-agent-254356041555.us-central1.run.app`](https://weil-redline-word-agent-254356041555.us-central1.run.app)
 * **Low-Level Design**:
@@ -195,7 +199,10 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 
 ---
 
-### UC-3: Side-by-Side Pin-Cite Citation Review (★ Priority)
+<a id="uc-3"></a>
+<a id="uc-3-side-by-side-pin-cite-citation-review--priority"></a>
+<a id="uc-3-side-by-side-pin-cite-citation-review-priority"></a>
+### UC-3: Side-by-Side Pin-Cite Citation Review (Priority)
 * **Live Demo**: [`https://mike-gcp-platform-254356041555.us-central1.run.app`](https://mike-gcp-platform-254356041555.us-central1.run.app)
 * **Low-Level Design**:
   * Shared subroutine (`CUJ-4`) invoked from any Analysis Grid cell or Red-Flag Memo citation.
@@ -205,6 +212,8 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 
 ---
 
+<a id="uc-4"></a>
+<a id="uc-4-email-calendar--chat-triage-automation-direct-api-vs-graph-evaluation"></a>
 ### UC-4: Email, Calendar & Chat Triage Automation (Direct API vs. Graph Evaluation)
 * **Live Demo**: [`https://weil-inbox-calendar-agent-254356041555.us-central1.run.app`](https://weil-inbox-calendar-agent-254356041555.us-central1.run.app)
 * **Low-Level Design**:
@@ -215,7 +224,10 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 
 ---
 
-### UC-5: Multi-Document Tabular Analysis Grids (★ Priority — Mike OSS in GE)
+<a id="uc-5"></a>
+<a id="uc-5-multi-document-tabular-analysis-grids--priority--mike-oss-in-ge"></a>
+<a id="uc-5-multi-document-tabular-analysis-grids-priority---mike-oss-in-ge"></a>
+### UC-5: Multi-Document Tabular Analysis Grids (Priority — Mike OSS in GE)
 * **Live Demo**: [`https://mike-gcp-platform-254356041555.us-central1.run.app`](https://mike-gcp-platform-254356041555.us-central1.run.app)
 * **Low-Level Design**:
   * Adapts the open-source **Mike OSS** tabular review experience inside Gemini Enterprise (`SEP-1865` `ui://mike-gcp/workspace.html`).
@@ -225,6 +237,8 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 
 ---
 
+<a id="uc-6"></a>
+<a id="uc-6-self-service-workflow--grid-builder--homegrown-apps-fundgen-fundhq-antitrust"></a>
 ### UC-6: Self-Service Workflow & Grid Builder + Homegrown Apps (`FundGen`, `FundHQ`, Antitrust)
 * **Live Demo**: [`https://weil-funds-antitrust-agent-254356041555.us-central1.run.app`](https://weil-funds-antitrust-agent-254356041555.us-central1.run.app)
 * **Low-Level Design**:
@@ -234,6 +248,8 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 
 ---
 
+<a id="uc-7"></a>
+<a id="uc-7-matter--knowledge-workspaces-cross-matter-precedent-graphrag"></a>
 ### UC-7: Matter & Knowledge Workspaces (Cross-Matter Precedent GraphRAG)
 * **Live Demo**: [`https://weil-governance-wall-agent-254356041555.us-central1.run.app`](https://weil-governance-wall-agent-254356041555.us-central1.run.app)
 * **Low-Level Design**:
@@ -241,6 +257,8 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 
 ---
 
+<a id="uc-8"></a>
+<a id="uc-8-dynamic-client-matter-tracking-cmn-context-switcher--intapp-ethical-walls"></a>
 ### UC-8: Dynamic Client-Matter Tracking (CMN Context Switcher & Intapp Ethical Walls)
 * **Live Demo**: [`https://weil-governance-wall-agent-254356041555.us-central1.run.app`](https://weil-governance-wall-agent-254356041555.us-central1.run.app)
 * **Low-Level Design**:
