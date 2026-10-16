@@ -30,6 +30,26 @@ DEFAULT_CLOUD_RUN_BASE = os.environ.get(
 )
 
 _BOOTSTRAP_CACHE: Dict[str, Any] = {}
+_TOKENS_CSS_CACHE: str = ""
+
+
+def _load_ge_luminous_tokens_css() -> str:
+    """Loads the official GE UI Library + Luminous v23.0.0 stylesheet."""
+    global _TOKENS_CSS_CACHE
+    if _TOKENS_CSS_CACHE:
+        return _TOKENS_CSS_CACHE
+    candidates = [
+        Path(__file__).resolve().parent / "ge-luminous-tokens.css",
+        Path(
+            "/google/src/cloud/nitantmakwana/jetski_ui_design_skill/google3/experimental/users/nitantmakwana/skills/ge_ui_designer/assets/ge-luminous-tokens.css"
+        ),
+    ]
+    for p in candidates:
+        if p.exists():
+            _TOKENS_CSS_CACHE = p.read_text(encoding="utf-8").strip()
+            return _TOKENS_CSS_CACHE
+    return ""
+
 
 
 def _encode_png_data_uri(filename: str, fallback_url: str) -> str:
@@ -190,7 +210,7 @@ def _prerender_kestrel_tbody_html(kestrel_rows: list) -> str:
             f'<tr id="tr-row-{idx}" class="{active_cls}">'
             f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
             f'<div class="doc-cell-title">'
-            f'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;">'
+            f'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-primary)" stroke-width="2" style="flex-shrink:0;">'
             f'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>'
             f'</svg>'
             f'<span class="doc-filename-text">{html_lib.escape(str(row.get("filename", "")))}</span>'
@@ -202,14 +222,14 @@ def _prerender_kestrel_tbody_html(kestrel_rows: list) -> str:
             f'<button type="button" class="citation-pill" onclick="event.stopPropagation();openSideInspector({idx})">1</button>'
             f'</td>'
             f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
-            f'<span class="status-pill {pill_cls}">{html_lib.escape(consent)}</span>'
+            f'<span class="status-pill lumi-status-badge {pill_cls}">{html_lib.escape(consent)}</span>'
             f'</td>'
             f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
             f'{html_lib.escape(str(row.get("notice_window", "")))}'
             f'</td>'
             f'<td onclick="openSideInspector({idx})" style="cursor:pointer;">'
-            f'<div style="font-weight:500;color:#111827;">{html_lib.escape(str(row.get("fee_or_penalty", "")))}</div>'
-            f'<div style="font-size:11px;color:#6b7280;">{html_lib.escape(str(row.get("termination_right", "")))}</div>'
+            f'<div style="font-weight:500;color:var(--color-ge-on-surface);">{html_lib.escape(str(row.get("fee_or_penalty", "")))}</div>'
+            f'<div style="font-size:11px;color:var(--color-ge-on-surface-variant);">{html_lib.escape(str(row.get("termination_right", "")))}</div>'
             f'</td>'
             f'</tr>'
         )
@@ -235,7 +255,7 @@ def build_mike_gcp_html(
     first_page_text = html_lib.escape((bootstrap.get("doc_pages") or {}).get(first_row["doc_id"], first_row.get("quote", "")))
 
     html = r"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="google" data-mode="light">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -245,30 +265,32 @@ def build_mike_gcp_html(
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=Google+Sans+Flex:opsz,wght@8..144,400..600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
+/* __GE_LUMINOUS_TOKENS_CSS__ */
+
 :root {
   /* Official Mike OSS (willchen96/mike) + Gemini Enterprise Luminous Tokens */
-  --app-background: #f9fafb;
-  --app-surface: #fdfdfe;
-  --app-surface-hover: #f3f4f6;
-  --app-surface-active: #eff0f3;
-  --app-floating: #fefefe;
-  --table-grid-border: #e5e7eb;
-  --border-subtle: #e5e7eb;
-  --border-strong: #d1d5db;
+  --app-background: var(--color-ge-surface);
+  --app-surface: var(--color-ge-surface-container-lowest);
+  --app-surface-hover: var(--color-ge-surface-container);
+  --app-surface-active: var(--color-ge-surface-container);
+  --app-floating: var(--color-ge-surface-container-lowest);
+  --table-grid-border: var(--color-ge-outline-variant);
+  --border-subtle: var(--color-ge-outline-variant);
+  --border-strong: var(--color-ge-outline-variant);
 
-  --editor-heading: #111827;
-  --editor-text: #374151;
-  --editor-muted-text: #6b7280;
+  --editor-heading: var(--color-ge-on-surface);
+  --editor-text: var(--color-ge-on-surface);
+  --editor-muted-text: var(--color-ge-on-surface-variant);
 
-  --color-blue: #0088ff;
-  --ge-primary: #2563eb;
+  --color-blue: var(--color-ge-accent);
+  --ge-primary: var(--color-ge-primary);
   --citation-selected-background: rgba(0, 136, 255, 0.09);
-  --citation-selected-text: #172554;
+  --citation-selected-text: var(--color-ge-on-primary-container);
 
   --spreadsheet-header-tint: rgba(241, 245, 249, 0.85);
-  --spreadsheet-header-corner: #f1f5f9;
+  --spreadsheet-header-corner: var(--color-ge-surface-container);
   --spreadsheet-highlight-background: rgba(59, 130, 246, 0.12);
-  --spreadsheet-highlight-outline: #3b82f6;
+  --spreadsheet-highlight-outline: var(--color-ge-accent);
 
   --font-serif: "EB Garamond", Georgia, serif;
   --font-sans: "Google Sans Flex", "Google Sans", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -307,11 +329,8 @@ button {
 /* Official Mike OSS Liquid Glass Surfaces (LiquidGlassUI.css) */
 .liquid-glass-flat {
   background: var(--app-surface);
-  border: 1px solid rgba(229, 231, 235, 0.9);
-  box-shadow:
-    0 1px 3px 0 rgba(0, 0, 0, 0.06),
-    0 1px 2px -1px rgba(0, 0, 0, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  border: 1px solid var(--color-ge-outline-variant);
+  box-shadow: var(--lumi-sys-elevation--level1);
 }
 
 /* Official Mike OSS TabPillButtonUI (TabPillButtonUI.tsx) */
@@ -325,23 +344,23 @@ button {
   padding: 0 10px;
   font-size: 11.5px;
   font-weight: 500;
-  color: #4b5563;
-  background: rgba(255, 255, 255, 0.65);
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  color: var(--color-ge-on-surface-variant);
+  background: var(--color-ge-surface-container-lowest);
+  border: 1px solid var(--color-ge-outline-variant);
+  box-shadow: none;
   transition: background-color 0.15s, color 0.15s, border-color 0.15s;
   white-space: nowrap;
 }
 .tab-pill-btn:hover {
-  background: #ffffff;
-  color: #111827;
-  border-color: #d1d5db;
+  background: var(--color-ge-surface-container-low);
+  color: var(--color-ge-on-surface);
+  border-color: var(--color-ge-outline-variant);
 }
 .tab-pill-btn.active {
-  background: #ffffff;
-  color: #111827;
-  border-color: #cbd5e1;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), inset 0 1px 0 #ffffff;
+  background: var(--color-ge-secondary-container);
+  color: var(--color-ge-on-secondary-container);
+  border-color: transparent;
+  box-shadow: none;
   font-weight: 600;
 }
 
@@ -364,38 +383,40 @@ button {
 .pill-btn:active {
   transform: scale(0.98);
 }
+.pill-btn.lumi-icon-btn {
+  width: auto;
+}
 .pill-btn-xs {
   height: 23px;
   padding: 0 9px;
   font-size: 11px;
 }
 .pill-btn-blue {
-  background: rgba(37, 99, 235, 0.92);
-  color: #ffffff;
-  box-shadow:
-    0 2px 6px rgba(37, 99, 235, 0.14),
-    inset 1px 1px 0 rgba(255, 255, 255, 0.28);
+  background: var(--color-ge-primary);
+  color: var(--color-ge-on-primary);
+  box-shadow: none;
 }
 .pill-btn-blue:hover:not(:disabled) {
-  background: #1d4ed8;
+  background: var(--color-ge-primary);
+  filter: brightness(1.06);
 }
 .pill-btn-white {
-  background: #fdfdfe;
-  color: #374151;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  background: var(--color-ge-surface-container-lowest);
+  color: var(--color-ge-on-surface);
+  border: 1px solid var(--color-ge-outline-variant);
+  box-shadow: none;
 }
 .pill-btn-white:hover:not(:disabled) {
-  background: #f3f4f6;
-  color: #111827;
+  background: var(--color-ge-surface-container);
+  color: var(--color-ge-on-surface);
 }
 .pill-btn-danger {
   background: rgba(220, 38, 38, 0.92);
-  color: #ffffff;
+  color: var(--lumi-sys-color--white);
   box-shadow: 0 2px 6px rgba(127, 29, 29, 0.14);
 }
 .pill-btn-danger:hover:not(:disabled) {
-  background: #b91c1c;
+  background: var(--color-red-text);
 }
 
 /* Official Mike OSS CitationPillUI (CitationPillUI.tsx) */
@@ -407,11 +428,11 @@ button {
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
-  background: rgba(229, 231, 235, 0.85);
+  background: var(--color-ge-surface-container-high);
   font-family: var(--font-serif);
   font-size: 11px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--color-ge-on-surface);
   border: none;
   margin-left: 3px;
   vertical-align: middle;
@@ -419,13 +440,14 @@ button {
 }
 .citation-pill:hover,
 .citation-pill.active {
-  background: #dbeafe;
-  color: #1e3a8a;
+  background: var(--color-ge-secondary-container);
+  color: var(--color-ge-on-secondary-container);
 }
 
 /* Official Mike OSS Status / Risk Pills (pillUtils.ts) */
 .status-pill {
   display: inline-flex;
+  height: auto;
   align-items: center;
   gap: 4px;
   border-radius: 9999px;
@@ -441,29 +463,29 @@ button {
   line-height: 1.3;
 }
 .status-pill.red {
-  background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
+  background: var(--color-red-bg);
+  color: var(--color-red-text);
+  border: 1px solid var(--color-red-border);
 }
 .status-pill.amber {
-  background: #fffbeb;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background: var(--color-yellow-bg);
+  color: var(--color-yellow-text);
+  border: 1px solid var(--color-yellow-border);
 }
 .status-pill.green {
-  background: #ecfdf5;
-  color: #047857;
-  border: 1px solid #a7f3d0;
+  background: var(--color-green-bg);
+  color: var(--color-green-text);
+  border: 1px solid var(--color-green-border);
 }
 .status-pill.blue {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
+  background: var(--color-blue-bg);
+  color: var(--color-ge-primary);
+  border: 1px solid var(--color-blue-border);
 }
 .status-pill.gray {
-  background: #f3f4f6;
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
+  background: var(--color-ge-surface-container);
+  color: var(--color-ge-on-surface-variant);
+  border: 1px solid var(--color-ge-outline-variant);
 }
 
 /* Main App Container */
@@ -565,10 +587,10 @@ button {
   height: 26px;
   padding: 0 10px;
   border-radius: 9999px;
-  border: 1px solid #d1d5db;
-  background: #ffffff;
+  border: 1px solid var(--color-ge-outline-variant);
+  background: var(--color-ge-surface-container-lowest);
   font-size: 11.5px;
-  color: #111827;
+  color: var(--color-ge-on-surface);
   outline: none;
   width: 170px;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -649,14 +671,14 @@ button {
   position: sticky;
   top: 0;
   z-index: 15;
-  background: #f8fafc;
+  background: var(--color-ge-surface-container-low);
   border-bottom: 1px solid var(--table-grid-border);
   border-right: 1px solid var(--table-grid-border);
   padding: 8px 10px;
   text-align: left;
   font-size: 11px;
   font-weight: 600;
-  color: #4b5563;
+  color: var(--color-ge-on-surface-variant);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -665,7 +687,7 @@ button {
   position: sticky;
   left: 0;
   z-index: 25;
-  background: #f8fafc;
+  background: var(--color-ge-surface-container-low);
   padding-left: 18px;
   box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08);
 }
@@ -674,7 +696,7 @@ button {
   border-right: 1px solid var(--table-grid-border);
   padding: 8px 10px;
   vertical-align: top;
-  color: #374151;
+  color: var(--color-ge-on-surface);
   line-height: 1.42;
   background: var(--app-surface);
   transition: background-color 0.12s;
@@ -690,21 +712,21 @@ button {
   box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08);
 }
 .tr-table tr:hover td {
-  background: #f9fafb;
+  background: var(--color-ge-surface);
 }
 .tr-table tr:hover td:first-child {
-  background: #f9fafb;
+  background: var(--color-ge-surface);
 }
 .tr-table tr.active-row td {
-  background: #f0f7ff;
+  background: var(--color-ge-accent-surface);
 }
 .tr-table tr.active-row td:first-child {
-  background: #f0f7ff;
+  background: var(--color-ge-accent-surface);
 }
 
 .doc-cell-title {
   font-weight: 500;
-  color: #111827;
+  color: var(--color-ge-on-surface);
   display: flex;
   align-items: flex-start;
   gap: 6px;
@@ -723,7 +745,7 @@ button {
 }
 .doc-cell-sub {
   font-size: 11px;
-  color: #6b7280;
+  color: var(--color-ge-on-surface-variant);
   margin-top: 3px;
   padding-left: 20px;
 }
@@ -732,7 +754,7 @@ button {
 .add-col-bar {
   display: none;
   padding: 8px 12px;
-  background: #ffffff;
+  background: var(--color-ge-surface-container-lowest);
   border-bottom: 1px solid var(--table-grid-border);
   gap: 6px;
   flex-direction: column;
@@ -750,10 +772,10 @@ button {
   height: 26px;
   padding: 0 9px;
   border-radius: 8px;
-  border: 1px solid #d1d5db;
-  background: #ffffff;
+  border: 1px solid var(--color-ge-outline-variant);
+  background: var(--color-ge-surface-container-lowest);
   font-size: 11.5px;
-  color: #111827;
+  color: var(--color-ge-on-surface);
   outline: none;
 }
 .field-input:focus {
@@ -769,7 +791,7 @@ button {
   gap: 8px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--table-grid-border);
-  background: #f8fafc;
+  background: var(--color-ge-surface-container-low);
   flex-shrink: 0;
 }
 .inspector-body {
@@ -793,11 +815,11 @@ button {
   margin-bottom: 12px;
 }
 .contract-highlight {
-  background: #fef08a;
-  color: #713f12;
+  background: var(--color-yellow-bg);
+  color: var(--color-yellow-text);
   padding: 1px 4px;
   border-radius: 3px;
-  box-shadow: 0 0 0 1px #facc15;
+  box-shadow: 0 0 0 1px var(--color-yellow-border);
 }
 
 /* Mike OSS EditCardUI & TextSlabUI */
@@ -810,27 +832,27 @@ button {
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
 }
 .text-slab {
-  background: #f9fafb;
-  border: 1px solid #e5e7eb;
+  background: var(--color-ge-surface);
+  border: 1px solid var(--color-ge-outline-variant);
   border-radius: 8px;
   padding: 9px 11px;
   font-family: var(--font-serif);
   font-size: 14px;
   line-height: 1.58;
-  color: #1f2937;
+  color: var(--color-ge-on-surface);
 }
 .redline-del, del.redline-del {
-  color: #dc2626;
+  color: var(--color-red-text);
   text-decoration: line-through;
-  background: rgba(254, 226, 226, 0.55);
+  background: var(--color-red-bg);
   padding: 0 2px;
   border-radius: 3px;
 }
 .redline-ins, ins.redline-ins {
-  color: #15803d;
+  color: var(--color-green-text);
   text-decoration: none;
   font-weight: 600;
-  background: rgba(220, 252, 231, 0.65);
+  background: var(--color-green-bg);
   padding: 0 2px;
   border-radius: 3px;
 }
@@ -860,7 +882,7 @@ button {
 }
 .studio-col + .studio-col {
   border-left: 1px solid var(--table-grid-border);
-  background: #fdfdfe;
+  background: var(--color-ge-surface-container-lowest);
 }
 @media (max-width: 780px) {
   .studio-col {
@@ -877,14 +899,14 @@ button {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: #6b7280;
+  color: var(--color-ge-on-surface-variant);
   margin-bottom: 4px;
 }
 
 .skeleton-bar {
   height: 12px;
   border-radius: 4px;
-  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background: linear-gradient(90deg, var(--color-ge-surface-container) 25%, var(--color-ge-surface-container-high) 50%, var(--color-ge-surface-container) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.2s infinite;
 }
@@ -895,8 +917,8 @@ button {
 
 /* Realistic Microsoft Word (.docx) & Legal Contract Print-Layout Sheet */
 .docx-canvas-wrap {
-  background: #eef1f5;
-  border: 1px solid #cbd5e1;
+  background: var(--color-ge-surface-container);
+  border: 1px solid var(--color-ge-outline-variant);
   border-radius: 10px;
   overflow: hidden;
   box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.06);
@@ -907,8 +929,9 @@ button {
   justify-content: space-between;
   gap: 8px;
   padding: 6px 12px;
-  background: #1e3a8a;
-  color: #ffffff;
+  background: var(--color-ge-primary-container);
+  color: var(--color-ge-on-primary-container);
+  border-bottom: 1px solid var(--color-ge-outline-variant);
   font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 500;
@@ -919,11 +942,11 @@ button {
   justify-content: space-between;
   gap: 8px;
   padding: 4px 12px;
-  background: #f8fafc;
-  border-bottom: 1px solid #cbd5e1;
+  background: var(--color-ge-surface-container-low);
+  border-bottom: 1px solid var(--color-ge-outline-variant);
   font-family: var(--font-mono);
   font-size: 9.5px;
-  color: #64748b;
+  color: var(--color-ge-on-surface-variant);
   letter-spacing: 0.05em;
   white-space: nowrap;
   overflow: hidden;
@@ -932,18 +955,18 @@ button {
   padding: 12px 14px;
   max-height: 440px;
   overflow-y: auto;
-  background: #e5e9f0;
+  background: var(--color-ge-surface-container-high);
 }
 .docx-paper-sheet {
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: var(--color-ge-surface-container-lowest);
+  border: 1px solid var(--color-ge-outline-variant);
   border-radius: 3px;
   padding: 18px 22px 16px 22px;
   box-shadow:
     0 4px 14px rgba(15, 23, 42, 0.08),
     0 1px 3px rgba(15, 23, 42, 0.05);
   font-family: var(--font-serif);
-  color: #111827;
+  color: var(--color-ge-on-surface);
   line-height: 1.62;
   position: relative;
 }
@@ -954,13 +977,13 @@ button {
   gap: 8px;
   padding-bottom: 6px;
   margin-bottom: 10px;
-  border-bottom: 2px double #cbd5e1;
+  border-bottom: 2px double var(--color-ge-outline-variant);
   font-family: var(--font-sans);
   font-size: 9px;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--color-ge-on-surface-variant);
   white-space: nowrap;
 }
 .docx-doc-title {
@@ -970,7 +993,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  color: #0f172a;
+  color: var(--color-ge-on-surface);
   margin-bottom: 3px;
 }
 .docx-doc-subtitle {
@@ -978,22 +1001,22 @@ button {
   font-family: var(--font-serif);
   font-size: 12.5px;
   font-style: italic;
-  color: #475569;
+  color: var(--color-ge-on-surface-variant);
   margin-bottom: 12px;
 }
 .docx-recital {
   font-size: 13px;
   text-align: justify;
   text-indent: 24px;
-  color: #1f2937;
+  color: var(--color-ge-on-surface);
   margin-bottom: 12px;
   padding-bottom: 10px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--color-ge-surface-container);
 }
 .docx-clause-block {
   margin-bottom: 14px;
   padding-left: 10px;
-  border-left: 2px solid #dbeafe;
+  border-left: 2px solid var(--color-blue-bg);
 }
 .docx-clause-meta-bar {
   display: flex;
@@ -1006,16 +1029,16 @@ button {
   font-family: var(--font-serif);
   font-size: 14.5px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-ge-on-surface);
 }
 .docx-clause-heading u {
   text-underline-offset: 3px;
-  text-decoration-color: #64748b;
+  text-decoration-color: var(--color-ge-on-surface-variant);
 }
 .docx-subclause {
   font-family: var(--font-serif);
   font-size: 13.8px;
-  color: #1f2937;
+  color: var(--color-ge-on-surface);
   text-align: justify;
   padding-left: 26px;
   text-indent: -20px;
@@ -1024,7 +1047,7 @@ button {
 }
 .docx-subclause-num {
   font-weight: 700;
-  color: #0f172a;
+  color: var(--color-ge-on-surface);
   margin-right: 4px;
 }
 .docx-running-footer {
@@ -1033,19 +1056,19 @@ button {
   justify-content: space-between;
   margin-top: 14px;
   padding-top: 8px;
-  border-top: 1px solid #cbd5e1;
+  border-top: 1px solid var(--color-ge-outline-variant);
   font-family: var(--font-mono);
   font-size: 9.5px;
-  color: #64748b;
+  color: var(--color-ge-on-surface-variant);
 }
 /* Track Changes Margin Bar on Redline Sheet */
 .docx-redline-margin {
-  border-left: 3px solid #dc2626;
+  border-left: 3px solid var(--lumi-sys-color--error);
   padding-left: 14px;
   text-align: justify;
   font-size: 14.2px;
   line-height: 1.65;
-  color: #111827;
+  color: var(--color-ge-on-surface);
 }
 
 /* Clickable Maximize Button inside Word Toolbar */
@@ -1055,19 +1078,20 @@ button {
   gap: 4px;
   padding: 2px 9px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.32);
+  background: var(--color-ge-surface-container-lowest);
+  color: var(--color-ge-on-surface);
+  border: 1px solid var(--color-ge-outline-variant);
   font-family: var(--font-sans);
   font-size: 10.5px;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+  transition: background 0.15s, color 0.15s, transform 0.1s, border-color 0.15s;
   white-space: nowrap;
 }
 .docx-max-btn:hover {
-  background: rgba(255, 255, 255, 0.28);
-  border-color: #ffffff;
+  background: var(--color-ge-secondary-container);
+  color: var(--color-ge-on-secondary-container);
+  border-color: var(--color-ge-outline-variant);
 }
 .docx-max-btn:active {
   transform: scale(0.97);
@@ -1077,7 +1101,7 @@ button {
   transition: box-shadow 0.15s, border-color 0.15s;
 }
 .docx-paper-sheet.clickable-sheet:hover {
-  border-color: #93c5fd;
+  border-color: var(--color-blue-border);
   box-shadow:
     0 6px 18px rgba(37, 99, 235, 0.12),
     0 1px 4px rgba(15, 23, 42, 0.06);
@@ -1107,8 +1131,8 @@ button {
 .docx-modal-window {
   width: min(1560px, 98.5vw);
   height: min(940px, 96.5vh);
-  background: #f8fafd;
-  border: 1px solid #dadce0;
+  background: var(--color-ge-surface-container-low);
+  border: 1px solid var(--color-ge-outline-variant);
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -1125,8 +1149,8 @@ button {
   justify-content: space-between;
   gap: 12px;
   padding: 8px 16px 4px 16px;
-  background: #f8fafd;
-  color: #1f1f1f;
+  background: var(--color-ge-surface-container-low);
+  color: var(--color-ge-on-surface);
   flex-shrink: 0;
 }
 .gw-menu-bar {
@@ -1135,7 +1159,7 @@ button {
   gap: 10px;
   margin-top: 2px;
   font-size: 12.5px;
-  color: #1f1f1f;
+  color: var(--color-ge-on-surface);
 }
 .gw-menu-item {
   cursor: pointer;
@@ -1144,9 +1168,9 @@ button {
   user-select: none;
 }
 .gw-menu-item:hover {
-  background: #e8eaed;
+  background: var(--color-ge-surface-container-high);
 }
-/* Google Workspace Rounded Pill Formatting Toolbar (#edf2fa) */
+/* Google Workspace Rounded Pill Formatting Toolbar (var(--color-ge-surface-container-high)) */
 .gw-format-toolbar {
   display: flex;
   align-items: center;
@@ -1154,7 +1178,7 @@ button {
   gap: 6px;
   margin: 4px 16px 8px 16px;
   padding: 5px 14px;
-  background: #edf2fa;
+  background: var(--color-ge-surface-container-high);
   border-radius: 999px;
   min-height: 40px;
   flex-shrink: 0;
@@ -1169,7 +1193,7 @@ button {
 .gw-tool-divider {
   width: 1px;
   height: 20px;
-  background: #c7c7c7;
+  background: var(--color-ge-outline-variant);
   margin: 0 4px;
   flex-shrink: 0;
 }
@@ -1184,7 +1208,7 @@ button {
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: #1f1f1f;
+  color: var(--color-ge-on-surface);
   font-family: var(--font-sans);
   font-size: 12.5px;
   font-weight: 500;
@@ -1192,11 +1216,11 @@ button {
   transition: background-color 0.12s;
 }
 .gw-tool-btn:hover {
-  background: rgba(31, 31, 31, 0.08);
+  background: var(--lumi-sys-color-states--hover-on-surface);
 }
 .gw-tool-btn.active {
-  background: #d3e3fd;
-  color: #041e49;
+  background: var(--color-ge-primary-container);
+  color: var(--color-ge-on-primary-container);
 }
 .gw-tool-select {
   height: 28px;
@@ -1204,14 +1228,14 @@ button {
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
-  color: #1f1f1f;
+  color: var(--color-ge-on-surface);
   font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
 }
 .gw-tool-select:hover {
-  background: rgba(31, 31, 31, 0.08);
+  background: var(--lumi-sys-color-states--hover-on-surface);
 }
 /* Context sub-controls bar */
 .docx-modal-controls-bar {
@@ -1220,11 +1244,11 @@ button {
   justify-content: space-between;
   gap: 10px;
   padding: 4px 20px 6px 20px;
-  background: #f8fafd;
-  border-bottom: 1px solid #e1e3e1;
+  background: var(--color-ge-surface-container-low);
+  border-bottom: 1px solid var(--color-ge-outline-variant);
   font-family: var(--font-sans);
   font-size: 11.5px;
-  color: #444746;
+  color: var(--color-ge-on-surface-variant);
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -1234,7 +1258,7 @@ button {
   flex: 1;
   min-height: 0;
   overflow: hidden;
-  background: #f8fafd;
+  background: var(--color-ge-surface-container-low);
   padding: 0 14px 12px 14px;
   gap: 14px;
 }
@@ -1245,7 +1269,7 @@ button {
   flex-direction: column;
   padding: 10px 6px 10px 4px;
   overflow-y: auto;
-  color: #1f1f1f;
+  color: var(--color-ge-on-surface);
 }
 .gw-tab-pill {
   display: flex;
@@ -1257,7 +1281,7 @@ button {
   border: none;
   border-radius: 999px;
   background: transparent;
-  color: #444746;
+  color: var(--color-ge-on-surface-variant);
   font-family: var(--font-sans);
   font-size: 12.5px;
   font-weight: 500;
@@ -1267,11 +1291,11 @@ button {
   transition: background-color 0.12s;
 }
 .gw-tab-pill:hover {
-  background: #edf2fa;
+  background: var(--color-ge-surface-container-high);
 }
 .gw-tab-pill.active {
-  background: #d3e3fd;
-  color: #041e49;
+  background: var(--color-ge-primary-container);
+  color: var(--color-ge-on-primary-container);
   font-weight: 600;
 }
 .gw-outline-item {
@@ -1281,15 +1305,15 @@ button {
   border: none;
   border-radius: 6px;
   background: transparent;
-  color: #444746;
+  color: var(--color-ge-on-surface-variant);
   font-family: var(--font-sans);
   font-size: 11.5px;
   text-align: left;
   cursor: pointer;
 }
 .gw-outline-item:hover {
-  background: #edf2fa;
-  color: #0b57d0;
+  background: var(--color-ge-surface-container-high);
+  color: var(--color-ge-primary);
 }
 /* Center Document Column */
 .gw-center-doc-col {
@@ -1297,7 +1321,7 @@ button {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: #f8fafd;
+  background: var(--color-ge-surface-container-low);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -1306,18 +1330,18 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 2px 28px;
-  background: #f8fafd;
-  border-bottom: 1px solid #e1e3e1;
+  background: var(--color-ge-surface-container-low);
+  border-bottom: 1px solid var(--color-ge-outline-variant);
   font-family: var(--font-mono);
   font-size: 9.5px;
-  color: #5f6368;
+  color: var(--color-ge-on-surface-variant);
   letter-spacing: 0.08em;
   flex-shrink: 0;
 }
 .docx-modal-scroll {
   flex: 1;
   overflow-y: auto;
-  background: #f8fafd;
+  background: var(--color-ge-surface-container-low);
   padding: 16px 20px 32px 20px;
   display: flex;
   justify-content: center;
@@ -1327,27 +1351,27 @@ button {
   width: 100%;
   max-width: 780px;
   min-height: 720px;
-  background: #ffffff;
-  border: 1px solid #c7c7c7;
+  background: var(--color-ge-surface-container-lowest);
+  border: 1px solid var(--color-ge-outline-variant);
   padding: 44px 56px 44px 56px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
   font-family: var(--font-serif);
-  color: #111827;
+  color: var(--color-ge-on-surface);
   line-height: 1.68;
   transform-origin: top center;
   transition: transform 0.15s ease, box-shadow 0.2s ease;
   outline: none;
 }
 .docx-modal-paper:focus {
-  border-color: #a8c7fa;
+  border-color: var(--color-blue-border);
   box-shadow: 0 2px 10px rgba(11, 87, 208, 0.12);
 }
 /* Right Panel: Exact Google Workspace "Gemini" Side Assistant Card */
 .gw-gemini-sidepanel {
   width: 365px;
   flex-shrink: 0;
-  background: #ffffff;
-  border: 1px solid #e1e3e1;
+  background: var(--color-ge-surface-container-lowest);
+  border: 1px solid var(--color-ge-outline-variant);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -1362,7 +1386,7 @@ button {
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid var(--color-ge-surface-container);
   flex-shrink: 0;
 }
 .gw-gemini-messages {
@@ -1378,7 +1402,7 @@ button {
   font-size: 20px;
   font-weight: 500;
   line-height: 1.28;
-  background: linear-gradient(90deg, #4285f4 0%, #9b72cb 52%, #d96570 100%);
+  background: var(--gradient-gemini-sparkle);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 10px;
@@ -1392,7 +1416,7 @@ button {
   border: none;
   border-radius: 10px;
   background: transparent;
-  color: #1f1f1f;
+  color: var(--color-ge-on-surface);
   font-family: var(--font-sans);
   font-size: 12.5px;
   line-height: 1.4;
@@ -1401,13 +1425,13 @@ button {
   transition: background-color 0.14s;
 }
 .gw-prompt-suggestion:hover {
-  background: #f0f4f9;
+  background: var(--color-ge-surface);
 }
 .gw-chat-bubble-user {
   align-self: flex-end;
   max-width: 88%;
-  background: #f0f4f9;
-  color: #1f1f1f;
+  background: var(--color-ge-surface);
+  color: var(--color-ge-on-surface);
   padding: 9px 14px;
   border-radius: 16px 16px 4px 16px;
   font-size: 12.5px;
@@ -1416,18 +1440,18 @@ button {
 .gw-chat-bubble-ai {
   align-self: flex-start;
   width: 100%;
-  background: #ffffff;
-  color: #1f1f1f;
+  background: var(--color-ge-surface-container-lowest);
+  color: var(--color-ge-on-surface);
   font-size: 12.5px;
   line-height: 1.5;
-  border-left: 3px solid #4285f4;
+  border-left: 3px solid var(--color-ge-accent);
   padding-left: 10px;
 }
 .gw-input-shell {
   margin: 4px 14px 6px 14px;
   padding: 10px 14px 8px 14px;
-  background: #ffffff;
-  border: 1px solid #c4c7c5;
+  background: var(--color-ge-surface-container-lowest);
+  border: 1px solid var(--color-ge-outline-variant);
   border-radius: 22px;
   display: flex;
   flex-direction: column;
@@ -1435,8 +1459,8 @@ button {
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 .gw-input-shell:focus-within {
-  border-color: #0b57d0;
-  box-shadow: 0 0 0 1px #0b57d0;
+  border-color: var(--color-ge-primary);
+  box-shadow: 0 0 0 1px var(--color-ge-primary);
 }
 .gw-input-field {
   width: 100%;
@@ -1445,7 +1469,7 @@ button {
   background: transparent;
   font-family: var(--font-sans);
   font-size: 13px;
-  color: #1f1f1f;
+  color: var(--color-ge-on-surface);
 }
 .docx-modal-paper .docx-doc-title {
   font-size: 18px;
@@ -1475,7 +1499,8 @@ button {
 }
 /* Per-subclause interactive redline states */
 .redline-subclause-item {
-  padding: 8px 12px;
+  padding: 8px 14px;
+  text-indent: 0;
   border-radius: 6px;
   margin-top: 8px;
   margin-left: 6px;
@@ -1483,12 +1508,12 @@ button {
   transition: background-color 0.25s, border-color 0.25s;
 }
 .redline-subclause-item.state-accepted {
-  background: #f0fdf4;
-  border-left-color: #16a34a;
+  background: var(--color-green-bg);
+  border-left-color: var(--color-green-icon);
 }
 .redline-subclause-item.state-rejected {
-  background: #fef2f2;
-  border-left-color: #dc2626;
+  background: var(--color-red-bg);
+  border-left-color: var(--lumi-sys-color--error);
 }
 .redline-decision-badge {
   display: inline-flex;
@@ -1502,14 +1527,14 @@ button {
   margin-bottom: 4px;
 }
 .redline-decision-badge.accepted {
-  background: #dcfce7;
-  color: #166534;
-  border: 1px solid #86efac;
+  background: var(--color-green-bg);
+  color: var(--color-green-text);
+  border: 1px solid var(--color-green-border);
 }
 .redline-decision-badge.rejected {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fca5a5;
+  background: var(--color-red-bg);
+  color: var(--color-red-text);
+  border: 1px solid var(--color-red-border);
 }
 </style>
 </head>
@@ -1521,29 +1546,32 @@ button {
   <!-- STUDIO 1: MIKE OSS TABULAR REVIEW & PIN-CITE READER (mike-gcp-platform) -->
   <!-- ===================================================================== -->
   <section id="tabular-view" class="studio-screen">
-    <header class="mike-page-header">
+    <header class="mike-page-header lumi-page-header">
       <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
-          <circle cx="12" cy="12" r="9.5" stroke="#9ca3af"/>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
+          <circle cx="12" cy="12" r="9.5" stroke="var(--color-ge-outline)"/>
           <path d="M12 2.5L15 9.5M21.5 12L14.5 15M12 21.5L9 14.5M2.5 12L9.5 9"/>
-          <circle cx="12" cy="12" r="3" fill="#2563eb" stroke="none"/>
+          <circle cx="12" cy="12" r="3" fill="var(--color-ge-primary)" stroke="none"/>
         </svg>
         <div>
-          <div class="header-title">Project Kestrel — Change of Control Review</div>
-          <div class="header-subtitle" id="tr-subtitle">Matter M-331 · CMN 31402-0018 · 7 Active Contracts in Cloud Spanner</div>
+          <div class="header-title gds-title-m">Project Kestrel — Change of Control Review</div>
+          <div class="header-subtitle gds-body-s" id="tr-subtitle">Matter M-331 · CMN 31402-0018 · 7 Active Contracts in Cloud Spanner</div>
         </div>
       </div>
       <div class="header-actions">
-        <button id="btn-toggle-add-col" class="pill-btn pill-btn-blue" onclick="toggleAddColumnBar()">
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
+          ◐ Theme
+        </button>
+        <button id="btn-toggle-add-col" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="toggleAddColumnBar()">
           + Add column
         </button>
-        <button id="btn-export-csv" class="pill-btn pill-btn-white" onclick="exportGridToCsv()">
+        <button id="btn-export-csv" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" onclick="exportGridToCsv()">
           Export CSV
         </button>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')" title="Dock in Gemini Enterprise Right Side Panel">
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')" title="Dock in Gemini Enterprise Right Side Panel">
           Side Panel
         </button>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')" title="Expand to Fullscreen">
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')" title="Expand to Fullscreen">
           Maximize
         </button>
       </div>
@@ -1551,46 +1579,46 @@ button {
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <button id="pill-corpus-kestrel" class="tab-pill-btn active" onclick="switchTabularCorpus('kestrel')">
+        <button id="pill-corpus-kestrel" class="tab-pill-btn lumi-chip active" onclick="switchTabularCorpus('kestrel')">
           Kestrel CoC Grid (7)
         </button>
-        <button id="pill-corpus-all" class="tab-pill-btn" onclick="switchTabularCorpus('scaled')">
+        <button id="pill-corpus-all" class="tab-pill-btn lumi-chip" onclick="switchTabularCorpus('scaled')">
           All Deal Documents (46)
         </button>
-        <button id="pill-grant-em9901" class="tab-pill-btn" onclick="toggleTeammateGrant()" title="Toggle 30-day Screen-Before-Rank grant for unfiled tax email EM-9901">
-          <span id="grant-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#10b981;"></span>
+        <button id="pill-grant-em9901" class="tab-pill-btn lumi-chip" onclick="toggleTeammateGrant()" title="Toggle 30-day Screen-Before-Rank grant for unfiled tax email EM-9901">
+          <span id="grant-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--color-green-icon);"></span>
           <span id="grant-label">EM-9901 Grant: Active</span>
         </button>
       </div>
       <div class="toolbar-right">
-        <input id="tr-search-input" type="search" class="search-input" placeholder="Filter contracts or clauses..." oninput="filterTabularRows(this.value)" />
+        <input id="tr-search-input" type="search" class="search-input lumi-search-bar" placeholder="Filter contracts or clauses..." oninput="filterTabularRows(this.value)" />
       </div>
     </div>
 
     <!-- Inline Add Column Bar (Mike OSS AddColumnModal pattern — Live Parallel Gemini 3.8 Flash) -->
     <div id="add-col-bar" class="add-col-bar">
       <div class="add-col-row">
-        <span style="font-size:11px;font-weight:600;color:#4b5563;">Quick Presets:</span>
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Agreement Title & Parties', 'Extract the official agreement title and contracting parties from the preamble.')">
+        <span style="font-size:11px;font-weight:600;color:var(--color-ge-on-surface-variant);">Quick Presets:</span>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Agreement Title & Parties', 'Extract the official agreement title and contracting parties from the preamble.')">
           Agreement Title &amp; Parties
         </button>
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Indemnity Cap & Basket', 'Extract the exact dollar and percentage Indemnity Cap, Deductible/Tipping Basket, and Fraud Carve-out.')">
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Indemnity Cap & Basket', 'Extract the exact dollar and percentage Indemnity Cap, Deductible/Tipping Basket, and Fraud Carve-out.')">
           Indemnity Cap &amp; Basket
         </button>
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Governing Law & Venue', 'Extract the governing law jurisdiction, arbitration or court venue, and jury waiver.')">
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Governing Law & Venue', 'Extract the governing law jurisdiction, arbitration or court venue, and jury waiver.')">
           Governing Law &amp; Venue
         </button>
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="fillPresetColumn('IP & J.Crew Blocker', 'Identify whether Material IP drop-downs to Unrestricted Subsidiaries are blocked and required lender consent %.')">
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="fillPresetColumn('IP & J.Crew Blocker', 'Identify whether Material IP drop-downs to Unrestricted Subsidiaries are blocked and required lender consent %.')">
           IP &amp; J.Crew Blocker
         </button>
       </div>
       <div class="add-col-row">
         <input id="new-col-name" type="text" class="field-input" style="width:175px;" placeholder="Column name (e.g. Title, Parties, Law)" value="" onkeydown="if(event.key==='Enter')runDynamicColumnExtraction()" />
         <input id="new-col-prompt" type="text" class="field-input" style="flex:1;min-width:190px;" placeholder="Optional extraction instructions (leave blank to auto-extract by Column name via Gemini 3.8 Flash)..." value="" onkeydown="if(event.key==='Enter')runDynamicColumnExtraction()" />
-        <button id="btn-run-col-extract" type="button" class="pill-btn pill-btn-blue" onclick="runDynamicColumnExtraction()">
+        <button id="btn-run-col-extract" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="runDynamicColumnExtraction()">
           Run extraction
         </button>
-        <button type="button" class="pill-btn pill-btn-white" onclick="toggleAddColumnBar()">
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" onclick="toggleAddColumnBar()">
           Cancel
         </button>
       </div>
@@ -1599,7 +1627,7 @@ button {
     <div class="workspace-stage">
       <div class="primary-pane">
         <div class="tr-grid-scroll">
-          <table class="tr-table" id="kestrel-grid-table">
+          <table class="tr-table lumi-table" id="kestrel-grid-table">
             <thead id="tr-thead">
               <tr>
                 <th style="width:165px;">Document</th>
@@ -1617,26 +1645,26 @@ __PRERENDERED_TBODY__
       </div>
 
       <!-- Mike OSS TRSidePanel Document & Pin-Cite Reader -->
-      <aside id="tr-side-panel" class="side-inspector-pane">
+      <aside id="tr-side-panel" class="side-inspector-pane animate-canvas-slide-in">
         <div class="inspector-header">
           <div style="min-width:0;">
-            <div id="insp-doc-title" style="font-weight:600;font-size:12px;color:#111827;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            <div id="insp-doc-title" style="font-weight:600;font-size:12px;color:var(--color-ge-on-surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
               01_Supply_Agreement_Halvorsen_Brightwater.docx
             </div>
-            <div id="insp-doc-meta" style="font-size:11px;color:#6b7280;">
+            <div id="insp-doc-meta" style="font-size:11px;color:var(--color-ge-on-surface-variant);">
               DOC-KESTREL-01 · Section 12.03(a) · Page 4
             </div>
           </div>
           <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-            <button id="btn-prev-row" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(-1)" title="Previous contract">↑</button>
-            <button id="btn-next-row" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(1)" title="Next contract">↓</button>
-            <button id="btn-maximize-inspector" class="pill-btn pill-btn-blue pill-btn-xs" onclick="openDocxModal('inspector')" title="Open full-page document overlay">⤢ Maximize</button>
-            <a id="insp-download-link" href="__DEFAULT_API_BASE__/api/corpus/file/01_Supply_Agreement_Halvorsen_Brightwater.docx" target="_blank" class="pill-btn pill-btn-white pill-btn-xs" style="text-decoration:none;">Original</a>
-            <button id="btn-close-inspector" class="pill-btn pill-btn-white pill-btn-xs" onclick="closeSideInspector()">✕</button>
+            <button id="btn-prev-row" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(-1)" title="Previous contract">↑</button>
+            <button id="btn-next-row" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(1)" title="Next contract">↓</button>
+            <button id="btn-maximize-inspector" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="openDocxModal('inspector')" title="Open full-page document overlay">⤢ Maximize</button>
+            <a id="insp-download-link" href="__DEFAULT_API_BASE__/api/corpus/file/01_Supply_Agreement_Halvorsen_Brightwater.docx" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="text-decoration:none;">Original</a>
+            <button id="btn-close-inspector" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="closeSideInspector()">✕</button>
           </div>
         </div>
-        <div class="inspector-body" style="padding:10px 12px;background:#e5e9f0;">
-          <div class="pin-cite-box" id="insp-pincite-quote" style="background:#ffffff;border:1px solid #bfdbfe;border-left:4px solid #2563eb;box-shadow:0 2px 6px rgba(15,23,42,0.05);">
+        <div class="inspector-body" style="padding:10px 12px;background:var(--color-ge-surface-container-high);">
+          <div class="pin-cite-box" id="insp-pincite-quote" style="background:var(--color-ge-surface-container-lowest);border:1px solid var(--color-blue-border);border-left:4px solid var(--color-ge-primary);box-shadow:0 2px 6px rgba(15,23,42,0.05);">
             <strong>Pin-Cite (Section 12.03(a), p.4):</strong> “__FIRST_QUOTE__”
           </div>
           <div class="docx-canvas-wrap">
@@ -1651,13 +1679,13 @@ __PRERENDERED_TBODY__
               <span>1 · · · 2 · · · 3 · · · 4 · · · 5</span>
               <span>CLICK SHEET OR MAXIMIZE FOR FULL PAGE</span>
             </div>
-            <div style="padding:10px;background:#e5e9f0;">
+            <div style="padding:10px;background:var(--color-ge-surface-container-high);">
               <div class="docx-paper-sheet clickable-sheet" onclick="openDocxModal('inspector')" title="Click to open full-page document preview overlay" style="padding:14px 18px;">
                 <div class="docx-running-header">
                   <span>WEIL · EXECUTION COPY</span>
                   <span id="insp-running-docid">DOC-KESTREL-01</span>
                 </div>
-                <div id="insp-contract-body" style="font-family:var(--font-serif);font-size:14px;line-height:1.65;color:#111827;">__FIRST_PAGE_TEXT__</div>
+                <div id="insp-contract-body" style="font-family:var(--font-serif);font-size:14px;line-height:1.65;color:var(--color-ge-on-surface);">__FIRST_PAGE_TEXT__</div>
                 <div class="docx-running-footer">
                   <span>WEIL:\98412034.4\31402.0018</span>
                   <span id="insp-running-page">Page 4 of 12</span>
@@ -1674,47 +1702,50 @@ __PRERENDERED_TBODY__
   <!-- STUDIO 2: CONTRACT REDLINE & WORD LEGAL LEGOS (weil-redline-word-agent) -->
   <!-- ===================================================================== -->
   <section id="redline-view" class="studio-screen">
-    <header class="mike-page-header">
+    <header class="mike-page-header lumi-page-header">
       <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
           <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
           <polyline points="14 2 14 8 20 8"/>
-          <line x1="9" y1="15" x2="15" y2="15" stroke="#2563eb"/>
+          <line x1="9" y1="15" x2="15" y2="15" stroke="var(--color-ge-primary)"/>
         </svg>
         <div>
-          <div class="header-title">Contract Redline &amp; Legal Legos Composer</div>
-          <div class="header-subtitle">Weil v3 Playbook vs. Skadden v4 Counterparty Markup · Privacy Pro .docx Builder</div>
+          <div class="header-title gds-title-m">Contract Redline &amp; Legal Legos Composer</div>
+          <div class="header-subtitle gds-body-s">Weil v3 Playbook vs. Skadden v4 Counterparty Markup · Privacy Pro .docx Builder</div>
         </div>
       </div>
       <div class="header-actions">
-        <a id="btn-download-v4-docx" href="__DEFAULT_API_BASE__/api/corpus/file/08_M331_Brightwater_Merger_Agreement_Skadden_v4_Redline.docx" target="_blank" class="pill-btn pill-btn-white" style="text-decoration:none;">
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
+          ◐ Theme
+        </button>
+        <a id="btn-download-v4-docx" href="__DEFAULT_API_BASE__/api/corpus/file/08_M331_Brightwater_Merger_Agreement_Skadden_v4_Redline.docx" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" style="text-decoration:none;">
           Skadden v4 .docx
         </a>
-        <a id="btn-download-legos-docx" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" class="pill-btn pill-btn-blue" style="text-decoration:none;">
+        <a id="btn-download-legos-docx" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" style="text-decoration:none;">
           Export Composed .docx
         </a>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
       </div>
     </header>
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <button id="red-pair-802" class="tab-pill-btn active" onclick="loadRedlinePair('KESTREL-SPA-802', this)">
+        <button id="red-pair-802" class="tab-pill-btn lumi-chip active" onclick="loadRedlinePair('KESTREL-SPA-802', this)">
           SPA § 8.02(b) Indemnity Cap
         </button>
-        <button id="red-pair-scrape" class="tab-pill-btn" onclick="loadRedlinePair('KESTREL-SCRAPE-804', this)">
+        <button id="red-pair-scrape" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-SCRAPE-804', this)">
           SPA § 8.04(a) Materiality Scrape
         </button>
-        <button id="red-pair-tax" class="tab-pill-btn" onclick="loadRedlinePair('KESTREL-TAX-304', this)">
+        <button id="red-pair-tax" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-TAX-304', this)">
           Tax Rider § 3.04 338(h)(10)
         </button>
-        <button id="red-pair-coc" class="tab-pill-btn" onclick="loadRedlinePair('KESTREL-COC-804', this)">
+        <button id="red-pair-coc" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-COC-804', this)">
           Quillfeather § 8.04 CoC
         </button>
       </div>
       <div class="toolbar-right">
-        <span id="redline-stats-pill" class="status-pill blue">74.2% Similarity · 0.4ms Diff</span>
+        <span id="redline-stats-pill" class="status-pill lumi-status-badge blue">74.2% Similarity · 0.4ms Diff</span>
       </div>
     </div>
 
@@ -1722,22 +1753,22 @@ __PRERENDERED_TBODY__
       <div class="studio-col">
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
-            <div class="section-label" id="redline-doc-pair-label" style="margin-bottom:0;">
+            <div class="section-label gds-label-s" id="redline-doc-pair-label" style="margin-bottom:0;">
               07_M331_Brightwater_Merger_Agreement_Weil_v3.docx vs. 08_M331_Skadden_v4_Redline.docx
             </div>
-            <button id="btn-maximize-redline-top" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="openDocxModal('redline')">
+            <button id="btn-maximize-redline-top" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="openDocxModal('redline')">
               ⤢ Maximize Redline
             </button>
           </div>
-          <div id="redline-playbook-banner" style="font-size:12px;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
+          <div id="redline-playbook-banner" style="font-size:12px;color:var(--color-ge-on-primary-container);background:var(--color-blue-bg);border:1px solid var(--color-blue-border);border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
           <div class="docx-canvas-wrap">
-            <div class="docx-word-toolbar" style="background:#0f172a;">
+            <div class="docx-word-toolbar">
               <div style="display:flex;align-items:center;gap:6px;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-primary-container)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <span id="redline-sheet-filename">08_M331_Brightwater_SPA_Skadden_v4_Redline.docx</span>
               </div>
               <div style="display:flex;align-items:center;gap:8px;">
-                <span id="redline-toolbar-mode-label" style="font-size:10.5px;color:#93c5fd;">Track Changes: ALL MARKUP</span>
+                <span id="redline-toolbar-mode-label" style="font-size:10.5px;color:var(--color-ge-on-primary-container);">Track Changes: ALL MARKUP</span>
                 <button id="btn-maximize-redline" type="button" class="docx-max-btn" onclick="openDocxModal('redline')">⤢ Maximize</button>
               </div>
             </div>
@@ -1745,13 +1776,13 @@ __PRERENDERED_TBODY__
               <span>1 · · · 2 · · · 3 · · · 4 · · · 5 · · · 6 · · · 7</span>
               <span id="redline-ruler-legend">STRIKETHROUGH: REJECTED TEXT  |  GREEN: ACTIVE / ACCEPTED PLAYBOOK LINE</span>
             </div>
-            <div style="padding:10px 12px;background:#e5e9f0;">
+            <div style="padding:10px 12px;background:var(--color-ge-surface-container-high);">
               <div class="docx-paper-sheet clickable-sheet" onclick="openDocxModal('redline')" title="Click to open centered full-page Redline overlay" style="padding:16px 22px;">
                 <div class="docx-running-header">
                   <span>WEIL, GOTSHAL &amp; MANGES LLP · TRACK CHANGES COMPARE</span>
                   <span id="redline-sheet-matter">MATTER M-331-KESTREL</span>
                 </div>
-                <div id="redline-sheet-title" style="font-family:var(--font-serif);font-size:14.5px;font-weight:700;color:#0f172a;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.02em;">
+                <div id="redline-sheet-title" style="font-family:var(--font-serif);font-size:14.5px;font-weight:700;color:var(--color-ge-on-surface);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.02em;">
                   ARTICLE VIII — INDEMNIFICATION · SECTION 8.02
                 </div>
                 <div id="redline-diff-slab" class="docx-redline-margin"></div>
@@ -1766,65 +1797,65 @@ __PRERENDERED_TBODY__
 
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span class="section-label">Tracked Playbook Deviations (Mike OSS EditCardUI)</span>
-            <button id="btn-reset-redline-cards" class="pill-btn pill-btn-white pill-btn-xs" onclick="resetRedlineDecisions()">Reset decisions</button>
+            <span class="section-label gds-label-s">Tracked Playbook Deviations (Mike OSS EditCardUI)</span>
+            <button id="btn-reset-redline-cards" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="resetRedlineDecisions()">Reset decisions</button>
           </div>
-          <div id="redline-edit-cards"></div>
+          <div id="redline-edit-cards" class="discover-reveal"></div>
         </div>
       </div>
 
       <div class="studio-col">
         <div>
-          <div class="section-label">Weil Privacy Pro &amp; M&amp;A "Legal Legos" Clause Blocks</div>
-          <p style="font-size:11.5px;color:#6b7280;margin-bottom:6px;">
+          <div class="section-label gds-label-s">Weil Privacy Pro &amp; M&amp;A "Legal Legos" Clause Blocks</div>
+          <p style="font-size:11.5px;color:var(--color-ge-on-surface-variant);margin-bottom:6px;">
             Select pre-vetted Weil Playbook clause blocks to assemble a numbered OpenXML <code>.docx</code> rider:
           </p>
           <div id="legos-checkbox-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
             <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
               <input type="checkbox" class="lego-cb" value="LEGO-DE-FRAUD" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
               <div>
-                <div style="font-size:12px;font-weight:600;color:#111827;">LEGO-DE-FRAUD · Delaware Express Actual Fraud (ABRY)</div>
-                <div style="font-size:11px;color:#6b7280;">Article VIII → Section 8.02(c)(i)..(ii) · Excludes constructive/equitable fraud</div>
+                <div style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-DE-FRAUD · Delaware Express Actual Fraud (ABRY)</div>
+                <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Article VIII → Section 8.02(c)(i)..(ii) · Excludes constructive/equitable fraud</div>
               </div>
             </label>
             <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
               <input type="checkbox" class="lego-cb" value="LEGO-338H10-TAX" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
               <div>
-                <div style="font-size:12px;font-weight:600;color:#111827;">LEGO-338H10-TAX · IRC § 338(h)(10) $14.2M Tax Escrow</div>
-                <div style="font-size:11px;color:#6b7280;">Article VI → Section 6.09(a)..(b) · Citibank N.A. 18-month tax reserve</div>
+                <div style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-338H10-TAX · IRC § 338(h)(10) $14.2M Tax Escrow</div>
+                <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Article VI → Section 6.09(a)..(b) · Citibank N.A. 18-month tax reserve</div>
               </div>
             </label>
             <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
               <input type="checkbox" class="lego-cb" value="LEGO-PRIVACY-PRO" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
               <div>
-                <div style="font-size:12px;font-weight:600;color:#111827;">LEGO-PRIVACY-PRO · Zero Foundation Model Training &amp; GDPR</div>
-                <div style="font-size:11px;color:#6b7280;">Article XI → Section 11.04(a)..(c) · 24-hour cyber breach notice</div>
+                <div style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-PRIVACY-PRO · Zero Foundation Model Training &amp; GDPR</div>
+                <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Article XI → Section 11.04(a)..(c) · 24-hour cyber breach notice</div>
               </div>
             </label>
             <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
               <input type="checkbox" class="lego-cb" value="LEGO-MFN-FUNDGEN" onchange="updateLegalLegos()" style="margin-top:3px;" />
               <div>
-                <div style="font-size:12px;font-weight:600;color:#111827;">LEGO-MFN-FUNDGEN · Size-Tiered LP MFN Election Rider</div>
-                <div style="font-size:11px;color:#6b7280;">Side Letter → Paragraph 4(a)..(c) · $250M+ anchor carve-out</div>
+                <div style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-MFN-FUNDGEN · Size-Tiered LP MFN Election Rider</div>
+                <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Side Letter → Paragraph 4(a)..(c) · $250M+ anchor carve-out</div>
               </div>
             </label>
           </div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span class="section-label">Composed Multi-Level .docx Document Preview</span>
+            <span class="section-label gds-label-s">Composed Multi-Level .docx Document Preview</span>
             <div style="display:flex;gap:6px;">
-              <button id="btn-copy-legos" class="pill-btn pill-btn-white pill-btn-xs" onclick="copyLegalLegosText()">Copy Rider</button>
-              <button id="btn-compose-legos" class="pill-btn pill-btn-white pill-btn-xs" onclick="updateLegalLegos(true)">Refresh Outline</button>
-              <button id="btn-maximize-legos" class="pill-btn pill-btn-blue pill-btn-xs" onclick="openDocxModal('legos')">⤢ Maximize</button>
+              <button id="btn-copy-legos" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="copyLegalLegosText()">Copy Rider</button>
+              <button id="btn-compose-legos" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="updateLegalLegos(true)">Refresh Outline</button>
+              <button id="btn-maximize-legos" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="openDocxModal('legos')">⤢ Maximize</button>
             </div>
           </div>
           <div class="docx-canvas-wrap">
             <div class="docx-word-toolbar">
               <div style="display:flex;align-items:center;gap:6px;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-primary-container)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                 <span>Weil_Legal_Legos_Composed_Rider.docx</span>
               </div>
               <div style="display:flex;align-items:center;gap:8px;">
-                <span id="legos-block-count-badge" style="font-size:10.5px;color:#dbeafe;">3 Clauses · Print Layout</span>
+                <span id="legos-block-count-badge" style="font-size:10.5px;color:var(--color-ge-on-primary-container);">3 Clauses · Print Layout</span>
                 <button id="btn-maximize-legos-toolbar" type="button" class="docx-max-btn" onclick="openDocxModal('legos')">⤢ Maximize</button>
               </div>
             </div>
@@ -1845,44 +1876,47 @@ __PRERENDERED_TBODY__
   <!-- STUDIO 3: FUNDGEN / FUNDHQ MFN & ANTITRUST HSR (weil-funds-antitrust) -->
   <!-- ===================================================================== -->
   <section id="funds-view" class="studio-screen">
-    <header class="mike-page-header">
+    <header class="mike-page-header lumi-page-header">
       <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
-          <rect x="3" y="3" width="18" height="18" rx="3" stroke="#9ca3af"/>
-          <path d="M7 16V11M12 16V7M17 16V13" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
+          <rect x="3" y="3" width="18" height="18" rx="3" stroke="var(--color-ge-outline)"/>
+          <path d="M7 16V11M12 16V7M17 16V13" stroke="var(--color-ge-primary)" stroke-width="2.2" stroke-linecap="round"/>
         </svg>
         <div>
-          <div class="header-title">FundGen / FundHQ MFN &amp; Antitrust HSR Analyzer</div>
-          <div class="header-subtitle">Matter M-610 ($12.5B Fund VIII LPA) &amp; Matter M-720 (FTC Second Request HHI &amp; Multimodal Charts)</div>
+          <div class="header-title gds-title-m">FundGen / FundHQ MFN &amp; Antitrust HSR Analyzer</div>
+          <div class="header-subtitle gds-body-s">Matter M-610 ($12.5B Fund VIII LPA) &amp; Matter M-720 (FTC Second Request HHI &amp; Multimodal Charts)</div>
         </div>
       </div>
       <div class="header-actions">
-        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-FUND-02_Weil_FundHQ_Sovereign_LP_MFN_Side_Letter_Compendium.pdf" target="_blank" class="pill-btn pill-btn-white" style="text-decoration:none;">
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
+          ◐ Theme
+        </button>
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-FUND-02_Weil_FundHQ_Sovereign_LP_MFN_Side_Letter_Compendium.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" style="text-decoration:none;">
           FundHQ PDF
         </a>
-        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-HSR-01_Hart_Scott_Rodino_Second_Request_Market_Share_Filing.pdf" target="_blank" class="pill-btn pill-btn-white" style="text-decoration:none;">
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-HSR-01_Hart_Scott_Rodino_Second_Request_Market_Share_Filing.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" style="text-decoration:none;">
           HSR Filing PDF
         </a>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
       </div>
     </header>
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <span style="font-size:11px;font-weight:600;color:#4b5563;">LP Tier Filter:</span>
-        <button id="btn-lp-all" class="tab-pill-btn active" onclick="loadFundsAntitrust(0, null, this)">
+        <span style="font-size:11px;font-weight:600;color:var(--color-ge-on-surface-variant);">LP Tier Filter:</span>
+        <button id="btn-lp-all" class="tab-pill-btn lumi-chip active" onclick="loadFundsAntitrust(0, null, this)">
           All LPs (5)
         </button>
-        <button id="btn-lp-150" class="tab-pill-btn" onclick="loadFundsAntitrust(150, null, this)">
+        <button id="btn-lp-150" class="tab-pill-btn lumi-chip" onclick="loadFundsAntitrust(150, null, this)">
           &gt;= $150M Early-Bird
         </button>
-        <button id="btn-lp-250" class="tab-pill-btn" onclick="loadFundsAntitrust(250, null, this)">
+        <button id="btn-lp-250" class="tab-pill-btn lumi-chip" onclick="loadFundsAntitrust(250, null, this)">
           &gt;= $250M Sovereign Anchor
         </button>
       </div>
       <div class="toolbar-right">
-        <button id="btn-hsr-remedy-toggle" class="pill-btn pill-btn-blue" onclick="toggleHsrRemedy()">
+        <button id="btn-hsr-remedy-toggle" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="toggleHsrRemedy()">
           HSR Divestiture Remedy: ON (Cleared +30 Δ HHI)
         </button>
       </div>
@@ -1891,10 +1925,10 @@ __PRERENDERED_TBODY__
     <div class="two-col-studio">
       <div class="studio-col">
         <div>
-          <div class="section-label">FundHQ Sovereign &amp; Institutional LP Side-Letter MFN Matrix (DOC-FUND-01 / 02)</div>
-          <div id="fundhq-savings-banner" style="font-size:12px;color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
+          <div class="section-label gds-label-s">FundHQ Sovereign &amp; Institutional LP Side-Letter MFN Matrix (DOC-FUND-01 / 02)</div>
+          <div id="fundhq-savings-banner" style="font-size:12px;color:var(--color-green-text);background:var(--color-green-bg);border:1px solid var(--color-green-border);border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
           <div style="overflow-x:auto;border:1px solid var(--table-grid-border);border-radius:8px;">
-            <table class="tr-table">
+            <table class="tr-table lumi-table">
               <thead>
                 <tr>
                   <th style="width:28%;">Limited Partner</th>
@@ -1910,8 +1944,8 @@ __PRERENDERED_TBODY__
 
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <span class="section-label">FTC HSR Second Request — HHI Market Concentration (DOC-HSR-01)</span>
-            <span id="hsr-status-badge" class="status-pill green">CLEARED (+30 Δ HHI)</span>
+            <span class="section-label gds-label-s">FTC HSR Second Request — HHI Market Concentration (DOC-HSR-01)</span>
+            <span id="hsr-status-badge" class="status-pill lumi-status-badge green">CLEARED (+30 Δ HHI)</span>
           </div>
           <div id="hsr-summary-card" class="liquid-glass-flat" style="padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:8px;"></div>
           <div id="hsr-bars-container" style="display:flex;flex-direction:column;gap:6px;"></div>
@@ -1920,25 +1954,25 @@ __PRERENDERED_TBODY__
 
       <div class="studio-col">
         <div>
-          <div class="section-label">Extracted Multimodal Exhibits (corpus/charts_and_images/)</div>
+          <div class="section-label gds-label-s">Extracted Multimodal Exhibits (corpus/charts_and_images/)</div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-            <button id="mm-btn-0" class="tab-pill-btn active" onclick="selectMultimodalExhibit(0, this)">EBITDA Bridge</button>
-            <button id="mm-btn-1" class="tab-pill-btn" onclick="selectMultimodalExhibit(1, this)">LP Fee Curve</button>
-            <button id="mm-btn-2" class="tab-pill-btn" onclick="selectMultimodalExhibit(2, this)">J.Crew Org Chart</button>
-            <button id="mm-btn-3" class="tab-pill-btn" onclick="selectMultimodalExhibit(3, this)">Citibank $18M Scan</button>
+            <button id="mm-btn-0" class="tab-pill-btn lumi-chip active" onclick="selectMultimodalExhibit(0, this)">EBITDA Bridge</button>
+            <button id="mm-btn-1" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(1, this)">LP Fee Curve</button>
+            <button id="mm-btn-2" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(2, this)">J.Crew Org Chart</button>
+            <button id="mm-btn-3" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(3, this)">Citibank $18M Scan</button>
           </div>
           <div id="mm-exhibit-card" class="liquid-glass-flat" style="padding:12px;border-radius:10px;">
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
-              <div id="mm-exhibit-title" style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:#111827;"></div>
-              <button id="btn-maximize-exhibit" type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="openDocxModal('exhibit')">⤢ Maximize</button>
+              <div id="mm-exhibit-title" style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--color-ge-on-surface);"></div>
+              <button id="btn-maximize-exhibit" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="openDocxModal('exhibit')">⤢ Maximize</button>
             </div>
-            <div id="mm-exhibit-takeaway" style="font-size:12px;color:#374151;margin-bottom:10px;"></div>
-            <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:8px;padding:8px;text-align:center;cursor:zoom-in;" onclick="openDocxModal('exhibit')" title="Click to maximize exhibit">
+            <div id="mm-exhibit-takeaway" style="font-size:12px;color:var(--color-ge-on-surface);margin-bottom:10px;"></div>
+            <div style="background:var(--color-ge-surface-container-low);border:1px solid var(--color-ge-outline-variant);border-radius:8px;padding:8px;text-align:center;cursor:zoom-in;" onclick="openDocxModal('exhibit')" title="Click to maximize exhibit">
               <img id="mm-exhibit-img" src="__DEFAULT_API_BASE__/api/corpus/image/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.png" alt="Multimodal Exhibit" style="max-width:100%;max-height:260px;border-radius:6px;object-fit:contain;" />
             </div>
             <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:11px;color:#6b7280;">Extracted via docparse Bounding-Box Schema → Cloud Spanner</span>
-              <a id="mm-exhibit-pdf-link" href="__DEFAULT_API_BASE__/api/corpus/file/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.pdf" target="_blank" class="pill-btn pill-btn-white pill-btn-xs" style="text-decoration:none;">Open Source PDF</a>
+              <span style="font-size:11px;color:var(--color-ge-on-surface-variant);">Extracted via docparse Bounding-Box Schema → Cloud Spanner</span>
+              <a id="mm-exhibit-pdf-link" href="__DEFAULT_API_BASE__/api/corpus/file/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="text-decoration:none;">Open Source PDF</a>
             </div>
           </div>
         </div>
@@ -1950,29 +1984,32 @@ __PRERENDERED_TBODY__
   <!-- STUDIO 4: INTAPP ETHICAL WALL & SPANNER GRAPH (weil-governance-wall)  -->
   <!-- ===================================================================== -->
   <section id="governance-view" class="studio-screen">
-    <header class="mike-page-header">
+    <header class="mike-page-header lumi-page-header">
       <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          <circle cx="12" cy="11" r="2.5" fill="#2563eb" stroke="none"/>
+          <circle cx="12" cy="11" r="2.5" fill="var(--color-ge-primary)" stroke="none"/>
         </svg>
         <div>
-          <div class="header-title">Intapp Ethical Wall &amp; Cloud Spanner Graph</div>
-          <div class="header-subtitle">Screen-Before-Rank Access Verification · Client Matter Number (CMN) Switcher</div>
+          <div class="header-title gds-title-m">Intapp Ethical Wall &amp; Cloud Spanner Graph</div>
+          <div class="header-subtitle gds-body-s">Screen-Before-Rank Access Verification · Client Matter Number (CMN) Switcher</div>
         </div>
       </div>
       <div class="header-actions">
-        <button id="btn-verify-wall" class="pill-btn pill-btn-blue" onclick="loadGovernanceAndGraph(true)">
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
+          ◐ Theme
+        </button>
+        <button id="btn-verify-wall" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="loadGovernanceAndGraph(true)">
           Verify Screen-Before-Rank
         </button>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
       </div>
     </header>
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <span style="font-size:11px;font-weight:600;color:#4b5563;">Attorney:</span>
+        <span style="font-size:11px;font-weight:600;color:var(--color-ge-on-surface-variant);">Attorney:</span>
         <select id="gov-lawyer-select" class="field-input" style="border-radius:9999px;" onchange="loadGovernanceAndGraph()">
           <option value="L-001">L-001 · Sarah Jenkins (M&amp;A Managing Partner — Walled from M-999)</option>
           <option value="L-002">L-002 · David Vance (Senior M&amp;A Partner)</option>
@@ -1981,11 +2018,11 @@ __PRERENDERED_TBODY__
         </select>
       </div>
       <div class="toolbar-right" style="flex-wrap:wrap;">
-        <button id="cmn-btn-m331" class="tab-pill-btn active" onclick="selectGovernanceMatter('M-331-KESTREL', this)">M-331 Brightwater</button>
-        <button id="cmn-btn-m402" class="tab-pill-btn" onclick="selectGovernanceMatter('M-402', this)">M-402 Apollo</button>
-        <button id="cmn-btn-m610" class="tab-pill-btn" onclick="selectGovernanceMatter('M-610-FUNDGEN', this)">M-610 FundGen</button>
-        <button id="cmn-btn-m720" class="tab-pill-btn" onclick="selectGovernanceMatter('M-720-ANTITRUST', this)">M-720 HSR</button>
-        <button id="cmn-btn-m999" class="tab-pill-btn" onclick="selectGovernanceMatter('M-999', this)">M-999 Omega (Wall)</button>
+        <button id="cmn-btn-m331" class="tab-pill-btn lumi-chip active" onclick="selectGovernanceMatter('M-331-KESTREL', this)">M-331 Brightwater</button>
+        <button id="cmn-btn-m402" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-402', this)">M-402 Apollo</button>
+        <button id="cmn-btn-m610" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-610-FUNDGEN', this)">M-610 FundGen</button>
+        <button id="cmn-btn-m720" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-720-ANTITRUST', this)">M-720 HSR</button>
+        <button id="cmn-btn-m999" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-999', this)">M-999 Omega (Wall)</button>
       </div>
     </div>
 
@@ -1995,27 +2032,27 @@ __PRERENDERED_TBODY__
 
         <div class="liquid-glass-flat" style="padding:10px 12px;border-radius:10px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span class="section-label">Unfiled Deal Email 30-Day Teammate Grant (EM-9901)</span>
-            <span id="gov-grant-pill" class="status-pill green">ACTIVE (30-Day TTL)</span>
+            <span class="section-label gds-label-s">Unfiled Deal Email 30-Day Teammate Grant (EM-9901)</span>
+            <span id="gov-grant-pill" class="status-pill lumi-status-badge green">ACTIVE (30-Day TTL)</span>
           </div>
-          <p style="font-size:11.5px;color:#4b5563;margin-bottom:8px;">
+          <p style="font-size:11.5px;color:var(--color-ge-on-surface-variant);margin-bottom:8px;">
             Controls whether Marcus Thorne's unfiled Exchange tax email (<code>EM-9901</code> · $14.2M IRC § 338(h)(10) Gross-Up) is traversable in Cloud Spanner <code>TeammateGrants</code>:
           </p>
           <div style="display:flex;gap:8px;">
-            <button id="btn-gov-grant" class="pill-btn pill-btn-blue pill-btn-xs" onclick="setGovGrant(true)">Grant 30-Day Access</button>
-            <button id="btn-gov-revoke" class="pill-btn pill-btn-white pill-btn-xs" onclick="setGovGrant(false)">Revoke Access</button>
+            <button id="btn-gov-grant" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="setGovGrant(true)">Grant 30-Day Access</button>
+            <button id="btn-gov-revoke" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="setGovGrant(false)">Revoke Access</button>
           </div>
         </div>
 
         <div>
-          <div class="section-label">Cloud Spanner ISO GQL Screen-Before-Rank Query</div>
+          <div class="section-label gds-label-s">Cloud Spanner ISO GQL Screen-Before-Rank Query</div>
           <pre id="gov-gql-box" class="text-slab" style="font-family:var(--font-mono);font-size:11px;white-space:pre-wrap;"></pre>
         </div>
       </div>
 
       <div class="studio-col">
         <div>
-          <div class="section-label">Live Cloud Spanner Property Graph (WeilLegalGraph)</div>
+          <div class="section-label gds-label-s">Live Cloud Spanner Property Graph (WeilLegalGraph)</div>
           <div id="graph-nodes-list" style="display:flex;flex-direction:column;gap:8px;"></div>
         </div>
       </div>
@@ -2026,40 +2063,43 @@ __PRERENDERED_TBODY__
   <!-- STUDIO 5: PARTNER DEAL INBOX & CALENDAR TRIAGE (weil-inbox-calendar)  -->
   <!-- ===================================================================== -->
   <section id="inbox-view" class="studio-screen">
-    <header class="mike-page-header">
+    <header class="mike-page-header lumi-page-header">
       <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="1.8" style="flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
           <rect x="3" y="4" width="18" height="16" rx="2"/>
-          <polyline points="3 7 12 13 21 7" stroke="#2563eb"/>
+          <polyline points="3 7 12 13 21 7" stroke="var(--color-ge-primary)"/>
         </svg>
         <div>
-          <div class="header-title">Partner Deal Inbox &amp; Calendar Conflict Triage</div>
-          <div class="header-subtitle">Sarah Jenkins (L-001) · One-Tap iManage CMN Auto-Filer &amp; FTC HSR Conflict Resolver</div>
+          <div class="header-title gds-title-m">Partner Deal Inbox &amp; Calendar Conflict Triage</div>
+          <div class="header-subtitle gds-body-s">Sarah Jenkins (L-001) · One-Tap iManage CMN Auto-Filer &amp; FTC HSR Conflict Resolver</div>
         </div>
       </div>
       <div class="header-actions">
-        <button id="btn-reset-inbox" class="pill-btn pill-btn-white" onclick="resetInboxState()">
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
+          ◐ Theme
+        </button>
+        <button id="btn-reset-inbox" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" onclick="resetInboxState()">
           Reset Queue
         </button>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
-        <button class="pill-btn pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
       </div>
     </header>
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <button id="inb-filter-all" class="tab-pill-btn active" onclick="setInboxFilter('all', this)">
+        <button id="inb-filter-all" class="tab-pill-btn lumi-chip active" onclick="setInboxFilter('all', this)">
           All Priority Items (4)
         </button>
-        <button id="inb-filter-pending" class="tab-pill-btn" onclick="setInboxFilter('pending', this)">
+        <button id="inb-filter-pending" class="tab-pill-btn lumi-chip" onclick="setInboxFilter('pending', this)">
           Pending Sign-Off
         </button>
-        <button id="inb-filter-cal" class="tab-pill-btn" onclick="setInboxFilter('calendar', this)">
+        <button id="inb-filter-cal" class="tab-pill-btn lumi-chip" onclick="setInboxFilter('calendar', this)">
           Calendar Conflicts (CAL-101)
         </button>
       </div>
       <div class="toolbar-right">
-        <a href="__DEFAULT_API_BASE__/api/corpus/file/CAL-101_Closing_Board_Call_and_FTC_HSR_Conflict.ics" target="_blank" class="pill-btn pill-btn-white pill-btn-xs" style="text-decoration:none;">
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/CAL-101_Closing_Board_Call_and_FTC_HSR_Conflict.ics" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="text-decoration:none;">
           Download .ics
         </a>
       </div>
@@ -2067,28 +2107,28 @@ __PRERENDERED_TBODY__
 
     <div class="two-col-studio">
       <div class="studio-col" id="inbox-emails-col">
-        <div class="section-label">Partner Deal Emails &amp; iManage CMN Filing Queue (corpus/emails_and_calendar/)</div>
-        <div id="inbox-email-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div class="section-label gds-label-s">Partner Deal Emails &amp; iManage CMN Filing Queue (corpus/emails_and_calendar/)</div>
+        <div id="inbox-email-cards" class="discover-reveal" style="display:flex;flex-direction:column;gap:8px;"></div>
       </div>
 
       <div class="studio-col" id="inbox-cal-col">
-        <div class="section-label">Closing &amp; Regulatory Calendar Conflict (CAL-101)</div>
+        <div class="section-label gds-label-s">Closing &amp; Regulatory Calendar Conflict (CAL-101)</div>
         <div id="inbox-calendar-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
 
         <div style="margin-top:6px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <div class="section-label" id="raw-eml-header" style="margin-bottom:0;">Rendered Exchange Email &amp; Calendar Invite Preview</div>
-            <button id="btn-maximize-eml-top" type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="openDocxModal('eml')">⤢ Maximize</button>
+            <div class="section-label gds-label-s" id="raw-eml-header" style="margin-bottom:0;">Rendered Exchange Email &amp; Calendar Invite Preview</div>
+            <button id="btn-maximize-eml-top" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="openDocxModal('eml')">⤢ Maximize</button>
           </div>
           <div class="docx-canvas-wrap">
-            <div class="docx-word-toolbar" style="background:#0f172a;">
+            <div class="docx-word-toolbar">
               <span>Microsoft Exchange / iManage Deal Filing Preview</span>
               <div style="display:flex;align-items:center;gap:8px;">
-                <span style="font-size:10.5px;color:#93c5fd;">RFC-822 / iCalendar Verified</span>
+                <span style="font-size:10.5px;color:var(--color-ge-on-primary-container);">RFC-822 / iCalendar Verified</span>
                 <button id="btn-maximize-eml" type="button" class="docx-max-btn" onclick="openDocxModal('eml')">⤢ Maximize</button>
               </div>
             </div>
-            <div style="padding:10px;background:#e5e9f0;">
+            <div style="padding:10px;background:var(--color-ge-surface-container-high);">
               <div id="raw-eml-viewer" class="docx-paper-sheet clickable-sheet" onclick="openDocxModal('eml')" title="Click to open centered full-page preview" style="padding:14px 18px;max-height:250px;overflow-y:auto;"></div>
             </div>
           </div>
@@ -2107,8 +2147,8 @@ __PRERENDERED_TBODY__
       <div class="docx-modal-header">
         <div style="display:flex;align-items:center;gap:12px;min-width:0;">
           <!-- Google Docs / Word Format Icon -->
-          <div id="gw-format-icon-badge" style="width:36px;height:36px;border-radius:8px;background:#2684fc;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,0.12);">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2">
+          <div id="gw-format-icon-badge" style="width:36px;height:36px;border-radius:8px;background:var(--color-ge-accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 1px 2px rgba(0,0,0,0.12);">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--lumi-sys-color--white)" stroke-width="2">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <polyline points="14 2 14 8 20 8"/>
               <line x1="8" y1="13" x2="16" y2="13"/>
@@ -2117,15 +2157,15 @@ __PRERENDERED_TBODY__
           </div>
           <div style="min-width:0;">
             <div style="display:flex;align-items:center;gap:8px;">
-              <div id="docx-modal-title" contenteditable="true" spellcheck="false" style="font-size:17px;font-weight:500;color:#1f1f1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:1px 4px;border-radius:4px;">
+              <div id="docx-modal-title" contenteditable="true" spellcheck="false" style="font-size:17px;font-weight:500;color:var(--color-ge-on-surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:1px 4px;border-radius:4px;">
                 08_M331_Brightwater_SPA_Skadden_v4_Redline.docx
               </div>
-              <span title="Star document" style="color:#5f6368;cursor:pointer;font-size:15px;" onclick="this.textContent=this.textContent==='☆'?'★':'☆';this.style.color='#fbbc04';">☆</span>
-              <button id="btn-format-lock-mode" type="button" onclick="toggleSourceFormatLock()" style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid #a8c7fa;background:#e8f0fe;color:#0b57d0;font-size:11px;font-weight:600;cursor:pointer;" title="Click to toggle Format-Locked .docx (OpenXML AST) vs Google Docs Native (documents.batchUpdate)">
-                <span id="format-lock-dot" style="width:7px;height:7px;border-radius:50%;background:#0b57d0;"></span>
+              <span title="Star document" style="color:var(--color-ge-on-surface-variant);cursor:pointer;font-size:15px;" onclick="this.textContent=this.textContent==='☆'?'★':'☆';this.style.color='var(--color-yellow-icon)';">☆</span>
+              <button id="btn-format-lock-mode" type="button" onclick="toggleSourceFormatLock()" style="display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:999px;border:1px solid var(--color-blue-border);background:var(--color-blue-bg);color:var(--color-ge-primary);font-size:11px;font-weight:600;cursor:pointer;" title="Click to toggle Format-Locked .docx (OpenXML AST) vs Google Docs Native (documents.batchUpdate)">
+                <span id="format-lock-dot" style="width:7px;height:7px;border-radius:50%;background:var(--color-ge-primary);"></span>
                 <span id="format-lock-label">Format-Locked: .docx (OpenXML Preserved)</span>
               </button>
-              <span id="gw-save-status" style="font-size:11px;color:#5f6368;">✓ Saved to Spanner &amp; iManage</span>
+              <span id="gw-save-status" style="font-size:11px;color:var(--color-ge-on-surface-variant);">✓ Saved to Spanner &amp; iManage</span>
             </div>
             <div class="gw-menu-bar">
               <span class="gw-menu-item" onclick="downloadLiveEditedDocx()">File</span>
@@ -2134,8 +2174,8 @@ __PRERENDERED_TBODY__
               <span class="gw-menu-item" onclick="insertCustomClauseBlock()">Insert</span>
               <span class="gw-menu-item" onclick="execDocFormat('bold')">Format</span>
               <span class="gw-menu-item" onclick="acceptAllModalRedlines()">Playbook Tools</span>
-              <span class="gw-menu-item" onclick="toggleGwGeminiPanel(true)" style="color:#0b57d0;font-weight:600;">✦ Gemini</span>
-              <span id="docx-modal-subtitle" style="font-size:11px;color:#5f6368;margin-left:6px;">
+              <span class="gw-menu-item" onclick="toggleGwGeminiPanel(true)" style="color:var(--color-ge-primary);font-weight:600;">✦ Gemini</span>
+              <span id="docx-modal-subtitle" style="font-size:11px;color:var(--color-ge-on-surface-variant);margin-left:6px;">
                 Weil Playbook v3.4 vs. Counterparty v4.0
               </span>
             </div>
@@ -2143,36 +2183,37 @@ __PRERENDERED_TBODY__
         </div>
 
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <button id="docx-modal-copy-btn" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="copyDocxModalText()">Copy Text</button>
-          <button id="btn-export-live-docx" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="downloadLiveEditedDocx()" style="border-color:#a8c7fa;color:#0b57d0;font-weight:600;">
+          <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">◐ Theme</button>
+          <button id="docx-modal-copy-btn" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="copyDocxModalText()">Copy Text</button>
+          <button id="btn-export-live-docx" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="downloadLiveEditedDocx()" style="border-color:var(--color-blue-border);color:var(--color-ge-primary);font-weight:600;">
             ⬇ Export Live .docx
           </button>
-          <a id="docx-modal-download-btn" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:999px;background:#c2e7ff;color:#001d35;font-size:13px;font-weight:600;text-decoration:none;border:none;">
+          <a id="docx-modal-download-btn" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:999px;background:var(--color-ge-secondary-container);color:var(--color-ge-on-secondary-container);font-size:13px;font-weight:600;text-decoration:none;border:none;">
             🔒 Share / .docx
           </a>
           <!-- 4-Point Google Workspace Gemini Sparkle Toggle -->
-          <button id="btn-toggle-gw-gemini" type="button" onclick="toggleGwGeminiPanel()" title="Toggle Gemini in Workspace Side Panel" style="width:36px;height:36px;border-radius:50%;border:1px solid #d3e3fd;background:#edf2fa;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;">
+          <button id="btn-toggle-gw-gemini" type="button" onclick="toggleGwGeminiPanel()" title="Toggle Gemini in Workspace Side Panel" style="width:36px;height:36px;border-radius:50%;border:1px solid var(--color-ge-primary-container);background:var(--color-ge-surface-container-high);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M12 2C12 7.5 16.5 12 22 12C16.5 12 12 16.5 12 22C12 16.5 7.5 12 2 12C7.5 12 12 7.5 12 2Z" fill="url(#gwSparkleGrad)"/>
               <defs>
                 <linearGradient id="gwSparkleGrad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#4285f4"/>
-                  <stop offset="0.5" stop-color="#9b72cb"/>
-                  <stop offset="1" stop-color="#d96570"/>
+                  <stop stop-color="var(--color-ge-accent)"/>
+                  <stop offset="0.5" stop-color="var(--color-purple-icon)"/>
+                  <stop offset="1" stop-color="var(--color-red-icon)"/>
                 </linearGradient>
               </defs>
             </svg>
           </button>
-          <button id="docx-modal-close-btn" type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="closeDocxModal()" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5;font-weight:600;">
+          <button id="docx-modal-close-btn" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="closeDocxModal()" style="background:var(--color-red-bg);color:var(--color-red-text);border-color:var(--color-red-border);font-weight:600;">
             ✕ Close (Esc)
           </button>
         </div>
       </div>
 
-      <!-- 2. Google Workspace Rounded Pill Live Formatting Toolbar (#edf2fa) -->
+      <!-- 2. Google Workspace Rounded Pill Live Formatting Toolbar (var(--color-ge-surface-container-high)) -->
       <div class="gw-format-toolbar">
         <div class="gw-tool-group">
-          <button type="button" class="gw-tool-btn" style="background:#ffffff;border-radius:999px;padding:0 10px;font-size:11.5px;color:#444746;" onclick="document.getElementById('gw-gemini-input')?.focus()">
+          <button type="button" class="gw-tool-btn" style="background:var(--color-ge-surface-container-lowest);border-radius:999px;padding:0 10px;font-size:11.5px;color:var(--color-ge-on-surface-variant);" onclick="document.getElementById('gw-gemini-input')?.focus()">
             🔍 Menus
           </button>
           <button id="gw-btn-undo" type="button" class="gw-tool-btn" title="Undo (Ctrl+Z)" onclick="execDocFormat('undo')">↶</button>
@@ -2204,31 +2245,31 @@ __PRERENDERED_TBODY__
           <div class="gw-tool-divider"></div>
 
           <button type="button" class="gw-tool-btn" title="Decrease font size" onclick="stepDocFontSize(-1)">−</button>
-          <span id="gw-font-size-display" style="min-width:26px;text-align:center;font-size:12px;font-weight:600;background:#ffffff;border:1px solid #c7c7c7;border-radius:4px;padding:2px 5px;">15</span>
+          <span id="gw-font-size-display" style="min-width:26px;text-align:center;font-size:12px;font-weight:600;background:var(--color-ge-surface-container-lowest);border:1px solid var(--color-ge-outline-variant);border-radius:4px;padding:2px 5px;">15</span>
           <button type="button" class="gw-tool-btn" title="Increase font size" onclick="stepDocFontSize(1)">+</button>
           <div class="gw-tool-divider"></div>
 
           <button id="gw-btn-bold" type="button" class="gw-tool-btn" style="font-weight:700;" title="Bold (Ctrl+B)" onclick="execDocFormat('bold')">B</button>
           <button id="gw-btn-italic" type="button" class="gw-tool-btn" style="font-style:italic;font-family:serif;" title="Italic (Ctrl+I)" onclick="execDocFormat('italic')">I</button>
           <button id="gw-btn-underline" type="button" class="gw-tool-btn" style="text-decoration:underline;" title="Underline (Ctrl+U)" onclick="execDocFormat('underline')">U</button>
-          <button id="gw-btn-strike" type="button" class="gw-tool-btn" style="text-decoration:line-through;color:#dc2626;" title="Strikethrough / Redline Delete" onclick="execDocFormat('strikeThrough')">S̶</button>
-          <button id="gw-btn-highlight-yellow" type="button" class="gw-tool-btn" title="Highlight Yellow (Pin-Cite)" onclick="applyHighlightColor('#fef08a')">
-            <span style="background:#fef08a;padding:1px 5px;border-radius:3px;font-weight:700;">A🖍</span>
+          <button id="gw-btn-strike" type="button" class="gw-tool-btn" style="text-decoration:line-through;color:var(--lumi-sys-color--error);" title="Strikethrough / Redline Delete" onclick="execDocFormat('strikeThrough')">S̶</button>
+          <button id="gw-btn-highlight-yellow" type="button" class="gw-tool-btn" title="Highlight Yellow (Pin-Cite)" onclick="applyHighlightColor('var(--color-yellow-bg)')">
+            <span style="background:var(--color-yellow-bg);padding:1px 5px;border-radius:3px;font-weight:700;">A🖍</span>
           </button>
-          <button id="gw-btn-highlight-green" type="button" class="gw-tool-btn" title="Highlight Green (Weil Playbook Approved)" onclick="applyHighlightColor('#dcfce7')">
-            <span style="background:#dcfce7;color:#166534;padding:1px 5px;border-radius:3px;font-weight:700;">✓A</span>
+          <button id="gw-btn-highlight-green" type="button" class="gw-tool-btn" title="Highlight Green (Weil Playbook Approved)" onclick="applyHighlightColor('var(--color-green-bg)')">
+            <span style="background:var(--color-green-bg);color:var(--color-green-text);padding:1px 5px;border-radius:3px;font-weight:700;">✓A</span>
           </button>
           <div class="gw-tool-divider"></div>
 
           <button type="button" class="gw-tool-btn" title="Align Left" onclick="execDocFormat('justifyLeft')">⬅</button>
           <button type="button" class="gw-tool-btn" title="Justify Legal Paragraph" onclick="execDocFormat('justifyFull')">☰</button>
-          <button id="gw-btn-insert-clause" type="button" class="gw-tool-btn" style="background:#d3e3fd;color:#041e49;padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:600;" onclick="insertCustomClauseBlock()">
+          <button id="gw-btn-insert-clause" type="button" class="gw-tool-btn" style="background:var(--color-ge-primary-container);color:var(--color-ge-on-primary-container);padding:0 10px;border-radius:999px;font-size:11.5px;font-weight:600;" onclick="insertCustomClauseBlock()">
             + Insert Clause
           </button>
         </div>
 
         <div class="gw-tool-group">
-          <span id="gw-edit-mode-pill" style="display:inline-flex;align-items:center;gap:5px;background:#ffffff;border:1px solid #c7c7c7;border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:500;color:#0b57d0;">
+          <span id="gw-edit-mode-pill" style="display:inline-flex;align-items:center;gap:5px;background:var(--color-ge-surface-container-lowest);border:1px solid var(--color-ge-outline-variant);border-radius:999px;padding:3px 10px;font-size:11.5px;font-weight:500;color:var(--color-ge-primary);">
             ✎ Suggesting (Track Changes ON)
           </span>
         </div>
@@ -2243,7 +2284,7 @@ __PRERENDERED_TBODY__
         <!-- Left Column: Google Docs "Document tabs" & Outline -->
         <aside class="gw-left-tabs-pane" id="gw-left-tabs-pane">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:4px 8px 10px 8px;">
-            <span style="font-size:12px;font-weight:600;color:#444746;">Document tabs</span>
+            <span style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface-variant);">Document tabs</span>
             <button type="button" class="gw-tool-btn" title="Add Clause Rider Tab" onclick="insertCustomClauseBlock()">+</button>
           </div>
 
@@ -2263,15 +2304,15 @@ __PRERENDERED_TBODY__
             <span>🧩 Legal Legos Rider</span>
           </button>
 
-          <div style="margin-top:12px;padding:8px 8px 4px 8px;border-top:1px solid #e1e3e1;font-size:11px;font-weight:600;color:#5f6368;text-transform:uppercase;letter-spacing:0.04em;">
+          <div style="margin-top:12px;padding:8px 8px 4px 8px;border-top:1px solid var(--color-ge-outline-variant);font-size:11px;font-weight:600;color:var(--color-ge-on-surface-variant);text-transform:uppercase;letter-spacing:0.04em;">
             Clause Outline (Click to Jump)
           </div>
           <button type="button" class="gw-outline-item" onclick="focusModalSubclause(0)">(a) Deductible vs. Tipping Basket</button>
           <button type="button" class="gw-outline-item" onclick="focusModalSubclause(1)">(b) Indemnity Cap (0.75% vs 0.25%)</button>
           <button type="button" class="gw-outline-item" onclick="focusModalSubclause(2)">(c) Delaware Actual Fraud Carve-Out</button>
 
-          <div style="margin-top:auto;padding:10px;background:#edf2fa;border-radius:10px;font-size:11px;color:#1f1f1f;line-height:1.45;">
-            <div style="font-weight:600;color:#0b57d0;margin-bottom:3px;">🔒 Format Fidelity Guarantee</div>
+          <div style="margin-top:auto;padding:10px;background:var(--color-ge-surface-container-high);border-radius:10px;font-size:11px;color:var(--color-ge-on-surface);line-height:1.45;">
+            <div style="font-weight:600;color:var(--color-ge-primary);margin-bottom:3px;">🔒 Format Fidelity Guarantee</div>
             <div id="gw-format-explainer-text">
               Opened as <strong>.docx (OpenXML)</strong>. Live edits and Gemini actions mutate <code>&lt;w:p&gt;</code> &amp; <code>&lt;w:ins&gt;/&lt;w:del&gt;</code> nodes directly while keeping <code>styles.xml</code> &amp; <code>numbering.xml</code> 100% intact.
             </div>
@@ -2290,16 +2331,16 @@ __PRERENDERED_TBODY__
         </div>
 
         <!-- Right Column: Exact Google Workspace "Gemini" Side Panel -->
-        <aside id="gw-gemini-sidepanel" class="gw-gemini-sidepanel">
+        <aside id="gw-gemini-sidepanel" class="gw-gemini-sidepanel animate-canvas-slide-in">
           <div class="gw-gemini-header">
             <div style="display:flex;align-items:center;gap:8px;">
-              <span style="font-size:15px;color:#444746;cursor:pointer;">☰</span>
-              <span style="font-size:16px;font-weight:500;color:#1f1f1f;">Gemini</span>
-              <span style="font-size:10.5px;background:#e8f0fe;color:#0b57d0;padding:2px 7px;border-radius:999px;font-weight:600;">3.8 Flash</span>
+              <span style="font-size:15px;color:var(--color-ge-on-surface-variant);cursor:pointer;">☰</span>
+              <span style="font-size:16px;font-weight:500;color:var(--color-ge-on-surface);">Gemini</span>
+              <span style="font-size:10.5px;background:var(--color-blue-bg);color:var(--color-ge-primary);padding:2px 7px;border-radius:999px;font-weight:600;">3.8 Flash</span>
             </div>
             <div style="display:flex;align-items:center;gap:6px;">
-              <button type="button" class="gw-tool-btn" title="Reset Gemini conversation" onclick="resetGwGeminiChat()" style="font-size:12px;color:#5f6368;">↺</button>
-              <button type="button" class="gw-tool-btn" title="Close Gemini panel" onclick="toggleGwGeminiPanel(false)" style="font-size:14px;color:#5f6368;">✕</button>
+              <button type="button" class="gw-tool-btn" title="Reset Gemini conversation" onclick="resetGwGeminiChat()" style="font-size:12px;color:var(--color-ge-on-surface-variant);">↺</button>
+              <button type="button" class="gw-tool-btn" title="Close Gemini panel" onclick="toggleGwGeminiPanel(false)" style="font-size:14px;color:var(--color-ge-on-surface-variant);">✕</button>
             </div>
           </div>
 
@@ -2309,39 +2350,39 @@ __PRERENDERED_TBODY__
               <div class="gw-gemini-gradient-title">
                 Get instant document summaries &amp; redlines
               </div>
-              <div style="font-size:11.5px;color:#5f6368;margin-bottom:10px;">
+              <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);margin-bottom:10px;">
                 Ask questions about this agreement or click an action below to modify the live document on the left:
               </div>
 
               <button id="gw-action-accept-all" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('accept_all')">
-                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span style="color:var(--color-ge-primary);font-weight:700;">↳</span>
                 <span><strong>Apply Playbook v3.4:</strong> Accept all Weil seller-favorable positions across Section 8.02</span>
               </button>
 
               <button id="gw-action-fix-basket" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('restore_deductible')">
-                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span style="color:var(--color-ge-primary);font-weight:700;">↳</span>
                 <span><strong>Modify § 8.02(a):</strong> Reject Tipping Basket and restore 0.50% True Deductible ($21M)</span>
               </button>
 
               <button id="gw-action-compromise-cap" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('compromise_cap')">
-                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span style="color:var(--color-ge-primary);font-weight:700;">↳</span>
                 <span><strong>Draft Compromise in § 8.02(b):</strong> Set Indemnity Cap to 0.50% ($21M) &amp; remove $4.2B IP carve-out</span>
               </button>
 
               <button id="gw-action-insert-lego" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('insert_lego_rider')">
-                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span style="color:var(--color-ge-primary);font-weight:700;">↳</span>
                 <span><strong>Insert Legal Lego Rider:</strong> Append Delaware Actual Fraud &amp; Privacy Pro clause (d)</span>
               </button>
 
               <button id="gw-action-summarize-risks" type="button" class="gw-prompt-suggestion" onclick="runWorkspaceGeminiAction('summarize_risks')">
-                <span style="color:#0b57d0;font-weight:700;">↳</span>
+                <span style="color:var(--color-ge-primary);font-weight:700;">↳</span>
                 <span><strong>Summarize &amp; Highlight:</strong> Analyze Skadden v4 risks in this document</span>
               </button>
             </div>
           </div>
 
           <!-- Bottom Google Workspace "Ask Gemini" Rounded Input Box -->
-          <div class="gw-input-shell">
+          <div class="gw-input-shell lumi-composer">
             <input
               id="gw-gemini-input"
               type="text"
@@ -2351,21 +2392,21 @@ __PRERENDERED_TBODY__
             />
             <div style="display:flex;align-items:center;justify-content:space-between;">
               <div style="display:flex;align-items:center;gap:4px;">
-                <button type="button" class="gw-tool-btn" title="Insert Legal Lego Clause" onclick="runWorkspaceGeminiAction('insert_lego_rider')" style="font-size:15px;color:#444746;">+</button>
-                <button type="button" class="gw-tool-btn" title="Toggle Format-Lock (.docx vs Google Docs)" onclick="toggleSourceFormatLock()" style="font-size:13px;color:#444746;">⊶</button>
+                <button type="button" class="gw-tool-btn" title="Insert Legal Lego Clause" onclick="runWorkspaceGeminiAction('insert_lego_rider')" style="font-size:15px;color:var(--color-ge-on-surface-variant);">+</button>
+                <button type="button" class="gw-tool-btn" title="Toggle Format-Lock (.docx vs Google Docs)" onclick="toggleSourceFormatLock()" style="font-size:13px;color:var(--color-ge-on-surface-variant);">⊶</button>
               </div>
               <button
                 id="gw-gemini-send-btn"
                 type="button"
                 onclick="sendWorkspaceGeminiPrompt()"
                 title="Send to Gemini"
-                style="width:28px;height:28px;border-radius:50%;border:none;background:#0b57d0;color:#ffffff;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;font-weight:700;"
+                style="width:28px;height:28px;border-radius:50%;border:none;background:var(--color-ge-primary);color:var(--lumi-sys-color--white);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;font-weight:700;"
               >
                 ↑
               </button>
             </div>
           </div>
-          <div style="font-size:10.5px;color:#5f6368;text-align:center;padding:2px 12px 10px 12px;">
+          <div style="font-size:10.5px;color:var(--color-ge-on-surface-variant);text-align:center;padding:2px 12px 10px 12px;">
             Gemini in Workspace can make mistakes. <span style="text-decoration:underline;cursor:pointer;" onclick="toggleSourceFormatLock()">Format-Locked AST</span>
           </div>
         </aside>
@@ -2408,6 +2449,14 @@ let currentInboxFilter = "all";
 /* SEP-1865 MCP APP (@modelcontextprotocol/ext-apps) BIDIRECTIONAL BRIDGE    */
 /* ========================================================================= */
 let mcpRpcId = 100;
+
+function toggleGeThemeMode() {
+  const root = document.documentElement;
+  const current = root.getAttribute("data-mode") || "light";
+  const next = current === "dark" ? "light" : "dark";
+  root.setAttribute("data-mode", next);
+  root.classList.toggle("dark-theme", next === "dark");
+}
 
 function notifyHostSizeAndPip(preferredMode) {
   try {
@@ -2618,7 +2667,7 @@ async function loadTabularWorkspace(corpusMode) {
 function updateGrantPillUI(active) {
   const dot = document.getElementById("grant-dot");
   const lbl = document.getElementById("grant-label");
-  if (dot) dot.style.background = active ? "#10b981" : "#9ca3af";
+  if (dot) dot.style.background = active ? "var(--color-green-icon)" : "var(--color-ge-outline)";
   if (lbl) lbl.textContent = active ? "EM-9901 Grant: Active" : "EM-9901 Grant: Revoked";
 }
 
@@ -2648,12 +2697,12 @@ function filterTabularRows(q) {
 function statusPillForConsent(text) {
   const t = (text || "").toLowerCase();
   if (t.includes("prior written") || t.includes("unanimous") || t.includes("joint") || t.includes("sole discretion")) {
-    return `<span class="status-pill red">${escapeHtml(text)}</span>`;
+    return `<span class="status-pill lumi-status-badge red">${escapeHtml(text)}</span>`;
   }
   if (t.includes("notice") || t.includes("30") || t.includes("45")) {
-    return `<span class="status-pill amber">${escapeHtml(text)}</span>`;
+    return `<span class="status-pill lumi-status-badge amber">${escapeHtml(text)}</span>`;
   }
-  return `<span class="status-pill green">${escapeHtml(text)}</span>`;
+  return `<span class="status-pill lumi-status-badge green">${escapeHtml(text)}</span>`;
 }
 
 function renderTabularGrid() {
@@ -2671,12 +2720,12 @@ function renderTabularGrid() {
   `;
   dynamicColumns.forEach((dc, colIdx) => {
     const progressText = (dc.totalCount && dc.completedCount < dc.totalCount)
-      ? ` <span style="font-size:10px;font-weight:500;color:#2563eb;">(${dc.completedCount}/${dc.totalCount})</span>`
+      ? ` <span style="font-size:10px;font-weight:500;color:var(--color-ge-primary);">(${dc.completedCount}/${dc.totalCount})</span>`
       : "";
-    colsHtml += `<th style="width:155px;background:#eff6ff;color:#1e3a8a;">
+    colsHtml += `<th style="width:155px;background:var(--color-blue-bg);color:var(--color-ge-on-primary-container);">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
         <span style="overflow:hidden;text-overflow:ellipsis;">✦ ${escapeHtml(dc.name)}${progressText}</span>
-        <button type="button" onclick="removeDynamicColumn(${colIdx})" title="Remove column" style="border:none;background:transparent;color:#64748b;cursor:pointer;font-size:12px;padding:0 2px;line-height:1;">×</button>
+        <button type="button" onclick="removeDynamicColumn(${colIdx})" title="Remove column" style="border:none;background:transparent;color:var(--color-ge-on-surface-variant);cursor:pointer;font-size:12px;padding:0 2px;line-height:1;">×</button>
       </div>
     </th>`;
   });
@@ -2694,13 +2743,13 @@ function renderTabularGrid() {
       const cellVal = dc.values[row.doc_id];
       if (!cellVal || cellVal.status === "loading") {
         return `<td>
-          <div class="skeleton-bar" style="margin-bottom:4px;"></div>
-          <div style="font-size:10px;color:#2563eb;font-weight:500;">⚡ Gemini 3.8 Flash...</div>
+          <div class="skeleton-bar agent-skeleton-wipe" style="margin-bottom:4px;"></div>
+          <div style="font-size:10px;color:var(--color-ge-primary);font-weight:500;">⚡ Gemini 3.8 Flash...</div>
         </td>`;
       }
-      const citeLabel = cellVal.citation ? `<div style="font-size:10px;color:#6b7280;margin-top:2px;">${escapeHtml(cellVal.citation)} · p.${cellVal.page || row.page || 1}</div>` : "";
+      const citeLabel = cellVal.citation ? `<div style="font-size:10px;color:var(--color-ge-on-surface-variant);margin-top:2px;">${escapeHtml(cellVal.citation)} · p.${cellVal.page || row.page || 1}</div>` : "";
       return `<td onclick="openSideInspector(${idx}, '${escapeJs(cellVal.quote || row.quote)}', '${escapeJs(cellVal.citation || row.citation)}')" style="cursor:pointer;">
-        <div style="font-weight:500;color:#111827;">
+        <div style="font-weight:500;color:var(--color-ge-on-surface);">
           <span>${escapeHtml(cellVal.answer)}</span>
           <button type="button" class="citation-pill" onclick="event.stopPropagation();openSideInspector(${idx}, '${escapeJs(cellVal.quote || row.quote)}', '${escapeJs(cellVal.citation || row.citation)}')">${idx + 1}</button>
         </div>
@@ -2712,7 +2761,7 @@ function renderTabularGrid() {
       <tr id="tr-row-${idx}" class="${idx === activeInspectorRowIdx ? 'active-row' : ''}">
         <td onclick="openSideInspector(${idx})" style="cursor:pointer;">
           <div class="doc-cell-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" style="flex-shrink:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-primary)" stroke-width="2" style="flex-shrink:0;">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
             </svg>
             <span class="doc-filename-text">${escapeHtml(row.filename)}</span>
@@ -2730,8 +2779,8 @@ function renderTabularGrid() {
           ${escapeHtml(row.notice_window)}
         </td>
         <td onclick="openSideInspector(${idx})" style="cursor:pointer;">
-          <div style="font-weight:500;color:#111827;">${escapeHtml(row.fee_or_penalty)}</div>
-          <div style="font-size:11px;color:#6b7280;">${escapeHtml(row.termination_right)}</div>
+          <div style="font-weight:500;color:var(--color-ge-on-surface);">${escapeHtml(row.fee_or_penalty)}</div>
+          <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">${escapeHtml(row.termination_right)}</div>
         </td>
         ${dynCells}
       </tr>
@@ -2907,7 +2956,7 @@ async function openSideInspector(rowIdx, overrideQuote, overrideCitation) {
           const isTargetClause = (snippet && trimmed.includes(snippet)) || (citation && trimmed.toLowerCase().includes(citation.toLowerCase().replace(/^sec\.\s*/i, "section ")));
           if (isTargetClause) {
             matchedQuote = true;
-            return `<div style="margin-top:8px;text-align:justify;background:#fefce8;border-left:3px solid #eab308;padding:6px 10px;border-radius:0 6px 6px 0;"><span class="docx-clause-heading"><u>${headEsc}</u></span> <mark class="contract-highlight">${restEsc.trim()}</mark></div>`;
+            return `<div style="margin-top:8px;text-align:justify;background:var(--color-yellow-bg);border-left:3px solid var(--color-yellow-icon);padding:6px 10px;border-radius:0 6px 6px 0;"><span class="docx-clause-heading"><u>${headEsc}</u></span> <mark class="contract-highlight">${restEsc.trim()}</mark></div>`;
           }
           return `<div style="margin-top:8px;text-align:justify;"><span class="docx-clause-heading"><u>${headEsc}</u></span>${restEsc}</div>`;
         }
@@ -2921,8 +2970,8 @@ async function openSideInspector(rowIdx, overrideQuote, overrideCitation) {
 
     if (!matchedQuote && quote) {
       return `
-        <div class="docx-clause-block" style="background:#fefce8;border-left:3px solid #eab308;padding:8px 12px;margin-bottom:10px;">
-          <div style="font-family:var(--font-sans);font-size:10px;font-weight:700;color:#854d0e;text-transform:uppercase;margin-bottom:3px;">
+        <div class="docx-clause-block" style="background:var(--color-yellow-bg);border-left:3px solid var(--color-yellow-icon);padding:8px 12px;margin-bottom:10px;">
+          <div style="font-family:var(--font-sans);font-size:10px;font-weight:700;color:var(--color-yellow-text);text-transform:uppercase;margin-bottom:3px;">
             Highlighted Grounding Clause (${escapeHtml(citation)} · Page ${row.page || 1})
           </div>
           <div style="text-align:justify;"><mark class="contract-highlight">${escapeHtml(quote)}</mark></div>
@@ -2997,9 +3046,9 @@ function buildInteractiveRedlineSheetHtml() {
   let summaryBanner = "";
   if (acceptedCount > 0 || rejectedCount > 0) {
     const allResolved = (acceptedCount + rejectedCount) === devs.length && devs.length > 0;
-    const bg = allResolved ? "#ecfdf5" : "#eff6ff";
-    const bd = allResolved ? "#a7f3d0" : "#bfdbfe";
-    const fg = allResolved ? "#047857" : "#1e3a8a";
+    const bg = allResolved ? "var(--color-green-bg)" : "var(--color-blue-bg)";
+    const bd = allResolved ? "var(--color-green-border)" : "var(--color-blue-border)";
+    const fg = allResolved ? "var(--color-green-text)" : "var(--color-ge-on-primary-container)";
     summaryBanner = `
       <div style="font-family:var(--font-sans);font-size:11px;font-weight:600;color:${fg};background:${bg};border:1px solid ${bd};padding:5px 10px;border-radius:6px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;">
         <span>${allResolved ? '✓ All Playbook Deviations Resolved in Redline Sheet' : 'Track Changes Active in Document Preview'}</span>
@@ -3015,13 +3064,13 @@ function buildInteractiveRedlineSheetHtml() {
           ? `<span class="redline-decision-badge accepted" style="margin-bottom:0;">✓ Card #${idx + 1} Accepted · Weil v3 Playbook Counter-Redline Applied</span>`
           : state === "rejected"
             ? `<span class="redline-decision-badge rejected" style="margin-bottom:0;">✗ Card #${idx + 1} · Counterparty v4 Markup Rejected</span>`
-            : `<span class="status-pill amber" style="font-size:10px;padding:1px 7px;">Card #${idx + 1} Pending · Incoming Counterparty v4 Redline</span>`}
+            : `<span class="status-pill lumi-status-badge amber" style="font-size:10px;padding:1px 7px;">Card #${idx + 1} Pending · Incoming Counterparty v4 Redline</span>`}
       </div>
       <div style="display:flex;align-items:center;gap:4px;" onclick="event.stopPropagation();">
-        <button type="button" class="pill-btn ${state === 'accepted' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" style="height:20px;padding:0 7px;font-size:10px;" onclick="event.stopPropagation();decideRedlineCard(${idx}, 'accepted')">
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${state === 'accepted' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" style="height:20px;padding:0 7px;font-size:10px;" onclick="event.stopPropagation();decideRedlineCard(${idx}, 'accepted')">
           ${state === 'accepted' ? '✓ Weil v3 Applied' : 'Accept Weil v3'}
         </button>
-        <button type="button" class="pill-btn ${state === 'rejected' ? 'pill-btn-danger' : 'pill-btn-white'} pill-btn-xs" style="height:20px;padding:0 7px;font-size:10px;" onclick="event.stopPropagation();decideRedlineCard(${idx}, 'rejected')">
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${state === 'rejected' ? 'pill-btn-danger' : 'pill-btn-white'} pill-btn-xs" style="height:20px;padding:0 7px;font-size:10px;" onclick="event.stopPropagation();decideRedlineCard(${idx}, 'rejected')">
           ${state === 'rejected' ? '✗ Rejected' : 'Reject'}
         </button>
       </div>
@@ -3043,7 +3092,7 @@ function buildInteractiveRedlineSheetHtml() {
           <ins class="redline-ins">0.50% of the Base Purchase Price ($21,000,000) (the 'True Deductible Basket')</ins>, in which case Seller Parties shall be liable
           <del class="redline-del">from the first dollar of all Losses.</del>
           <ins class="redline-ins">only for the excess over the Deductible (compromised at 0.375% EV True Deductible per Project Titan precedent DOC-402-A).</ins>
-          <div style="margin-top:6px;padding:5px 8px;background:#dcfce7;border:1px solid #86efac;border-radius:4px;font-family:var(--font-sans);font-size:11px;color:#14532d;">
+          <div style="margin-top:6px;padding:5px 8px;background:var(--color-green-bg);border:1px solid var(--color-green-border);border-radius:4px;font-family:var(--font-sans);font-size:11px;color:var(--color-green-text);">
             <strong>New Modified Line (Weil v3 Playbook):</strong> Seller liable solely for Losses exceeding <strong>0.50% EV True Deductible ($21.0M)</strong> (or <strong>0.375% EV</strong> compromise per Project Titan DOC-402-A).
           </div>
         </div>
@@ -3063,9 +3112,9 @@ function buildInteractiveRedlineSheetHtml() {
           ${inlineSubActions(0, s0)}
           <span class="docx-subclause-num">(a)</span> Notwithstanding anything to the contrary in this Agreement, the Seller Parties shall have no liability under Section 8.01(a) until the aggregate amount of all Losses exceeds an amount equal to
           <del class="redline-del">0.50% of the Base Purchase Price ($21,000,000) (the 'Deductible')</del>
-          <span style="background:#fef3c7;color:#92400e;padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed #d97706;">0.25% of the Base Purchase Price ($10,500,000) (the 'Tipping Basket')</span>, in which case Seller Parties shall be liable
+          <span style="background:var(--color-yellow-bg);color:var(--color-yellow-text);padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed var(--color-yellow-icon);">0.25% of the Base Purchase Price ($10,500,000) (the 'Tipping Basket')</span>, in which case Seller Parties shall be liable
           <del class="redline-del">only for the excess over the Deductible.</del>
-          <span style="background:#fef3c7;color:#92400e;padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed #d97706;">from the first dollar of all Losses.</span>
+          <span style="background:var(--color-yellow-bg);color:var(--color-yellow-text);padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed var(--color-yellow-icon);">from the first dollar of all Losses.</span>
         </div>
       `;
     }
@@ -3078,7 +3127,7 @@ function buildInteractiveRedlineSheetHtml() {
           <span class="docx-subclause-num">(b)</span> The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed
           <del class="redline-del">0.25% of the Base Purchase Price ($10,500,000) for general representations and 100% of the Base Purchase Price ($4,200,000,000) for Special Environmental &amp; IP Warranties</del>
           <ins class="redline-ins">0.75% of the Base Purchase Price ($31,500,000) single unified R&amp;W Indemnity Cap (routing Special Environmental &amp; IP coverage to the $50,000,000 R&amp;W Insurance Tower)</ins> (the 'Indemnity Cap').
-          <div style="margin-top:6px;padding:5px 8px;background:#dcfce7;border:1px solid #86efac;border-radius:4px;font-family:var(--font-sans);font-size:11px;color:#14532d;">
+          <div style="margin-top:6px;padding:5px 8px;background:var(--color-green-bg);border:1px solid var(--color-green-border);border-radius:4px;font-family:var(--font-sans);font-size:11px;color:var(--color-green-text);">
             <strong>New Modified Line (Weil v3 Playbook):</strong> Unified <strong>0.75% EV Cap ($31.5M)</strong>; Special Environmental &amp; IP Warranties routed to $50M R&amp;W Insurance Tower.
           </div>
         </div>
@@ -3098,7 +3147,7 @@ function buildInteractiveRedlineSheetHtml() {
           ${inlineSubActions(1, s1)}
           <span class="docx-subclause-num">(b)</span> The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed
           <del class="redline-del">0.75% of the Base Purchase Price ($31,500,000)</del>
-          <span style="background:#fef3c7;color:#92400e;padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed #d97706;">0.25% of the Base Purchase Price ($10,500,000) for general representations and 100% of the Base Purchase Price ($4,200,000,000) for Special Environmental &amp; IP Warranties</span> (the 'Indemnity Cap').
+          <span style="background:var(--color-yellow-bg);color:var(--color-yellow-text);padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed var(--color-yellow-icon);">0.25% of the Base Purchase Price ($10,500,000) for general representations and 100% of the Base Purchase Price ($4,200,000,000) for Special Environmental &amp; IP Warranties</span> (the 'Indemnity Cap').
         </div>
       `;
     }
@@ -3111,7 +3160,7 @@ function buildInteractiveRedlineSheetHtml() {
           <span class="docx-subclause-num">(c)</span> The limitations in this Section 8.02 shall not apply
           <del class="redline-del">in the case of Actual or Constructive Fraud, equitable fraud, reckless misrepresentation, or willful breach.</del>
           <ins class="redline-ins">solely in the case of Actual Fraud (defined strictly as intentional common law fraud under Delaware law with respect to the express representations set forth in Article III per ABRY Partners).</ins>
-          <div style="margin-top:6px;padding:5px 8px;background:#dcfce7;border:1px solid #86efac;border-radius:4px;font-family:var(--font-sans);font-size:11px;color:#14532d;">
+          <div style="margin-top:6px;padding:5px 8px;background:var(--color-green-bg);border:1px solid var(--color-green-border);border-radius:4px;font-family:var(--font-sans);font-size:11px;color:var(--color-green-text);">
             <strong>New Modified Line (Weil v3 Playbook):</strong> Fraud carve-out restricted strictly to <strong>Delaware Express Written Actual Fraud (ABRY Partners)</strong>.
           </div>
         </div>
@@ -3131,14 +3180,14 @@ function buildInteractiveRedlineSheetHtml() {
           ${inlineSubActions(2, s2)}
           <span class="docx-subclause-num">(c)</span> The limitations in this Section 8.02 shall not apply
           <del class="redline-del">solely in the case of Actual Fraud (defined strictly as intentional common law fraud under Delaware law with respect to the express representations set forth in Article III)</del>
-          <span style="background:#fef3c7;color:#92400e;padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed #d97706;">in the case of Actual or Constructive Fraud, equitable fraud, reckless misrepresentation, or willful breach.</span>
+          <span style="background:var(--color-yellow-bg);color:var(--color-yellow-text);padding:0 4px;border-radius:3px;font-weight:600;border-bottom:1.5px dashed var(--color-yellow-icon);">in the case of Actual or Constructive Fraud, equitable fraud, reckless misrepresentation, or willful breach.</span>
         </div>
       `;
     }
 
     return `
       ${summaryBanner}
-      <div style="font-weight:700;color:#0f172a;margin-bottom:4px;">Section 8.02 <u>Limitation on Indemnification.</u></div>
+      <div style="font-weight:700;color:var(--color-ge-on-surface);margin-bottom:4px;">Section 8.02 <u>Limitation on Indemnification.</u></div>
       ${subA}
       ${subB}
       ${subC}
@@ -3155,7 +3204,7 @@ function buildInteractiveRedlineSheetHtml() {
         ${inlineSubActions(0, st)}
         <div style="margin-bottom:6px;"><del class="redline-del">${escapeHtml(currentRedlineData.clause_b_text || dev0.skadden_v4 || "")}</del></div>
         <div><ins class="redline-ins">${escapeHtml(currentRedlineData.clause_a_text || dev0.weil_v3 || "")} (${escapeHtml(dev0.weil_v3 || "")})</ins></div>
-        <div style="margin-top:6px;padding:5px 8px;background:#dcfce7;border:1px solid #86efac;border-radius:4px;font-family:var(--font-sans);font-size:11px;color:#14532d;">
+        <div style="margin-top:6px;padding:5px 8px;background:var(--color-green-bg);border:1px solid var(--color-green-border);border-radius:4px;font-family:var(--font-sans);font-size:11px;color:var(--color-green-text);">
           <strong>New Modified Line (Weil v3 Playbook):</strong> ${escapeHtml(dev0.weil_v3 || "")}
         </div>
       </div>
@@ -3225,32 +3274,32 @@ function renderRedlineEditCards() {
   container.innerHTML = devs.map((d, idx) => {
     const state = redlineCardStates[idx] || "pending";
     const statusBadge = state === "accepted"
-      ? `<span class="status-pill green">✓ Accepted Weil Counter</span>`
+      ? `<span class="status-pill lumi-status-badge green">✓ Accepted Weil Counter</span>`
       : state === "rejected"
-        ? `<span class="status-pill red">✗ Rejected Skadden Markup</span>`
-        : `<span class="status-pill ${d.severity === 'CRITICAL' ? 'red' : 'amber'}">${escapeHtml(d.severity)}</span>`;
+        ? `<span class="status-pill lumi-status-badge red">✗ Rejected Skadden Markup</span>`
+        : `<span class="status-pill lumi-status-badge ${d.severity === 'CRITICAL' ? 'red' : 'amber'}">${escapeHtml(d.severity)}</span>`;
 
     return `
-      <div class="edit-card" id="edit-card-${idx}" style="${state === 'accepted' ? 'border-color:#86efac;background:#f0fdf4;' : state === 'rejected' ? 'border-color:#fca5a5;background:#fef2f2;' : ''}">
+      <div class="edit-card lumi-card card--interactive" id="edit-card-${idx}" style="${state === 'accepted' ? 'border-color:var(--color-green-border);background:var(--color-green-bg);' : state === 'rejected' ? 'border-color:var(--color-red-border);background:var(--color-red-bg);' : ''}">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
           <div style="display:flex;align-items:center;gap:6px;">
             <span class="citation-pill">${idx + 1}</span>
-            <span style="font-weight:600;font-size:12.5px;color:#111827;">${escapeHtml(d.issue)}</span>
+            <span style="font-weight:600;font-size:12.5px;color:var(--color-ge-on-surface);">${escapeHtml(d.issue)}</span>
           </div>
           ${statusBadge}
         </div>
-        <div class="text-slab" style="font-size:12px;margin-bottom:6px;background:#ffffff;">
+        <div class="text-slab" style="font-size:12px;margin-bottom:6px;background:var(--color-ge-surface-container-lowest);">
           <div><del class="redline-del">${escapeHtml(d.skadden_v4)}</del></div>
           <div style="margin-top:4px;"><ins class="redline-ins">${escapeHtml(d.weil_v3)}</ins></div>
         </div>
-        <div style="font-size:11.5px;color:#4b5563;margin-bottom:8px;">
+        <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);margin-bottom:8px;">
           <strong>Playbook Action:</strong> ${escapeHtml(d.recommendation)}
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button id="btn-accept-card-${idx}" type="button" class="pill-btn ${state === 'accepted' ? 'pill-btn-blue' : 'pill-btn-blue'} pill-btn-xs" onclick="decideRedlineCard(${idx}, 'accepted')">
+          <button id="btn-accept-card-${idx}" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${state === 'accepted' ? 'pill-btn-blue' : 'pill-btn-blue'} pill-btn-xs" onclick="decideRedlineCard(${idx}, 'accepted')">
             ${state === 'accepted' ? '✓ Accepted Weil v3 (Active in Preview)' : 'Accept Weil v3'}
           </button>
-          <button id="btn-reject-card-${idx}" type="button" class="pill-btn ${state === 'rejected' ? 'pill-btn-danger' : 'pill-btn-white'} pill-btn-xs" onclick="decideRedlineCard(${idx}, 'rejected')">
+          <button id="btn-reject-card-${idx}" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${state === 'rejected' ? 'pill-btn-danger' : 'pill-btn-white'} pill-btn-xs" onclick="decideRedlineCard(${idx}, 'rejected')">
             ${state === 'rejected' ? '✗ Rejected Counterparty' : 'Reject Markup'}
           </button>
         </div>
@@ -3269,20 +3318,20 @@ function updateRedlineSheetFromDecisions(changedIdx) {
 
   slab.innerHTML = buildInteractiveRedlineSheetHtml();
   if ((acceptedCount + rejectedCount) === devs.length && devs.length > 0) {
-    slab.style.borderLeftColor = "#16a34a";
+    slab.style.borderLeftColor = "var(--color-green-icon)";
   } else if (acceptedCount > 0 || rejectedCount > 0) {
-    slab.style.borderLeftColor = "#2563eb";
+    slab.style.borderLeftColor = "var(--color-ge-primary)";
   } else {
-    slab.style.borderLeftColor = "#dc2626";
+    slab.style.borderLeftColor = "var(--lumi-sys-color--error)";
   }
 
   const statsPill = document.getElementById("redline-stats-pill");
   if (statsPill && currentRedlineData.stats) {
     if (acceptedCount > 0 || rejectedCount > 0) {
-      statsPill.className = "status-pill green";
+      statsPill.className = "status-pill lumi-status-badge green";
       statsPill.textContent = `${acceptedCount}/${devs.length} Weil v3 Applied · -${currentRedlineData.stats.tokens_deleted} / +${currentRedlineData.stats.tokens_inserted} Words`;
     } else {
-      statsPill.className = "status-pill blue";
+      statsPill.className = "status-pill lumi-status-badge blue";
       statsPill.textContent = `${currentRedlineData.stats.similarity_pct}% Similarity · -${currentRedlineData.stats.tokens_deleted} / +${currentRedlineData.stats.tokens_inserted} Words`;
     }
   }
@@ -3354,10 +3403,10 @@ function buildRenderedDocxHtml(chosenBlocks) {
     return `
       <div class="docx-clause-block">
         <div class="docx-clause-meta-bar" style="white-space:nowrap;">
-          <span class="status-pill blue" style="font-family:var(--font-sans);font-size:9.5px;padding:1px 7px;">
+          <span class="status-pill lumi-status-badge blue" style="font-family:var(--font-sans);font-size:9.5px;padding:1px 7px;">
             ${escapeHtml(b.block_id)} · ${escapeHtml(grpStr)}
           </span>
-          <span style="font-family:var(--font-mono);font-size:9.5px;color:#64748b;white-space:nowrap;">
+          <span style="font-family:var(--font-mono);font-size:9.5px;color:var(--color-ge-on-surface-variant);white-space:nowrap;">
             ${escapeHtml(numStr)}
           </span>
         </div>
@@ -3381,12 +3430,12 @@ function buildRenderedDocxHtml(chosenBlocks) {
       <strong>THIS MODULAR PLAYBOOK RIDER</strong> (this <strong>“Rider”</strong>) is hereby incorporated into and made a binding part of the Agreement and Plan of Merger dated as of October 15, 2026 (the <strong>“Agreement”</strong>). Capitalized terms used but not otherwise defined herein shall have the meanings ascribed to such terms in Article I of the Agreement:
     </div>
     ${sectionsHtml}
-    <div style="margin-top:14px;padding-top:10px;border-top:1px dashed #cbd5e1;display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--font-serif);font-size:12px;color:#334155;">
+    <div style="margin-top:14px;padding-top:10px;border-top:1px dashed var(--color-ge-outline-variant);display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--font-serif);font-size:12px;color:var(--color-ge-on-surface-variant);">
       <div>
-        <div style="font-weight:700;text-transform:uppercase;font-size:10.5px;color:#475569;">Approved per Weil M&amp;A / Privacy Pro Playbook v3.4:</div>
+        <div style="font-weight:700;text-transform:uppercase;font-size:10.5px;color:var(--color-ge-on-surface-variant);">Approved per Weil M&amp;A / Privacy Pro Playbook v3.4:</div>
         <div style="margin-top:4px;font-style:italic;">/s/ Sarah Jenkins, Managing Partner (M&amp;A) &amp; D. Cockerell, Partner (Tax)</div>
       </div>
-      <div style="font-family:var(--font-sans);font-size:10px;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;padding:2px 8px;border-radius:999px;font-weight:600;">
+      <div style="font-family:var(--font-sans);font-size:10px;color:var(--color-green-text);background:var(--color-green-bg);border:1px solid var(--color-green-border);padding:2px 8px;border-radius:999px;font-weight:600;">
         ✓ OpenXML .docx Ready
       </div>
     </div>
@@ -3469,16 +3518,16 @@ function renderFundsAntitrustFromMemory(minCommitment, includeRemedy) {
   tbody.innerHTML = filteredLps.map(lp => `
     <tr>
       <td>
-        <div style="font-weight:600;color:#111827;">${escapeHtml(lp.lp_name)}</div>
-        <div style="font-size:11px;color:#6b7280;">${escapeHtml(lp.tier)}</div>
+        <div style="font-weight:600;color:var(--color-ge-on-surface);">${escapeHtml(lp.lp_name)}</div>
+        <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">${escapeHtml(lp.tier)}</div>
       </td>
-      <td style="font-weight:600;color:#111827;">$${lp.commitment_usd_m.toFixed(0)}M</td>
+      <td style="font-weight:600;color:var(--color-ge-on-surface);">$${lp.commitment_usd_m.toFixed(0)}M</td>
       <td>
-        <span class="status-pill blue">${lp.mgmt_fee_bps} bps / ${lp.carry_pct}%</span>
+        <span class="status-pill lumi-status-badge blue">${lp.mgmt_fee_bps} bps / ${lp.carry_pct}%</span>
       </td>
       <td>
-        <div style="font-weight:500;color:#111827;">${escapeHtml(lp.mfn_scope)}</div>
-        <div style="font-size:11px;color:#6b7280;">${escapeHtml(lp.co_invest_priority)} · ${escapeHtml(lp.esg_excusal)}</div>
+        <div style="font-weight:500;color:var(--color-ge-on-surface);">${escapeHtml(lp.mfn_scope)}</div>
+        <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">${escapeHtml(lp.co_invest_priority)} · ${escapeHtml(lp.esg_excusal)}</div>
       </td>
     </tr>
   `).join("");
@@ -3487,21 +3536,21 @@ function renderFundsAntitrustFromMemory(minCommitment, includeRemedy) {
   const toggleBtn = document.getElementById("btn-hsr-remedy-toggle");
   const statusBadge = document.getElementById("hsr-status-badge");
   if (includeRemedy) {
-    toggleBtn.className = "pill-btn pill-btn-blue";
+    toggleBtn.className = "pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue";
     toggleBtn.textContent = `HSR Divestiture Remedy: ON (Cleared +${hsr.active_hhi_delta} Δ HHI)`;
-    statusBadge.className = "status-pill green";
+    statusBadge.className = "status-pill lumi-status-badge green";
     statusBadge.textContent = `CLEARED (${hsr.active_post_merger_hhi} HHI / +${hsr.active_hhi_delta} Δ)`;
   } else {
-    toggleBtn.className = "pill-btn pill-btn-danger";
+    toggleBtn.className = "pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-danger";
     toggleBtn.textContent = `HSR Divestiture Remedy: OFF (Presumed Block +${hsr.active_hhi_delta} Δ HHI)`;
-    statusBadge.className = "status-pill red";
+    statusBadge.className = "status-pill lumi-status-badge red";
     statusBadge.textContent = `CHALLENGE PRESUMED (${hsr.active_post_merger_hhi} HHI / +${hsr.active_hhi_delta} Δ)`;
   }
 
   document.getElementById("hsr-summary-card").innerHTML = `
-    <div style="font-weight:600;color:#111827;margin-bottom:3px;">${escapeHtml(hsr.deal_name)}</div>
-    <div style="color:#4b5563;">Pre-Merger HHI: <strong>${hsr.pre_merger_hhi}</strong> → Post-Merger HHI: <strong>${hsr.active_post_merger_hhi}</strong> (Δ <strong>+${hsr.active_hhi_delta}</strong>)</div>
-    <div style="margin-top:4px;color:${includeRemedy ? '#047857' : '#b91c1c'};font-weight:500;">
+    <div style="font-weight:600;color:var(--color-ge-on-surface);margin-bottom:3px;">${escapeHtml(hsr.deal_name)}</div>
+    <div style="color:var(--color-ge-on-surface-variant);">Pre-Merger HHI: <strong>${hsr.pre_merger_hhi}</strong> → Post-Merger HHI: <strong>${hsr.active_post_merger_hhi}</strong> (Δ <strong>+${hsr.active_hhi_delta}</strong>)</div>
+    <div style="margin-top:4px;color:${includeRemedy ? 'var(--color-green-text)' : 'var(--color-red-text)'};font-weight:500;">
       ${includeRemedy ? '✓ Divestiture Active: ' + escapeHtml(hsr.remedy_recommendation) : '⛔ Unremedied Concentration: Combined Brightwater + Halvorsen reaches 33.6% share (+510 Δ HHI > 100 DOJ/FTC presumption).'}
     </div>
   `;
@@ -3509,28 +3558,28 @@ function renderFundsAntitrustFromMemory(minCommitment, includeRemedy) {
   const barsEl = document.getElementById("hsr-bars-container");
   const participants = includeRemedy
     ? [
-        { company: "Brightwater + Halvorsen (Net of 6% Divestiture)", share_pct: 27.6, hhi_contribution: 762, color: "#059669" },
-        { company: "Apex Global Automation", share_pct: 28.0, hhi_contribution: 784, color: "#2563eb" },
-        { company: "Kiyota Robotics NA", share_pct: 19.0, hhi_contribution: 361, color: "#2563eb" },
-        { company: "Ferrous Precision Systems", share_pct: 12.0, hhi_contribution: 144, color: "#2563eb" },
-        { company: "Pellucid Dynamics (Midwest Divestiture Buyer)", share_pct: 6.0, hhi_contribution: 36, color: "#10b981" },
-        { company: "Other Fragmented Suppliers", share_pct: 7.4, hhi_contribution: 123, color: "#64748b" },
+        { company: "Brightwater + Halvorsen (Net of 6% Divestiture)", share_pct: 27.6, hhi_contribution: 762, color: "var(--color-green-icon)" },
+        { company: "Apex Global Automation", share_pct: 28.0, hhi_contribution: 784, color: "var(--color-ge-primary)" },
+        { company: "Kiyota Robotics NA", share_pct: 19.0, hhi_contribution: 361, color: "var(--color-ge-primary)" },
+        { company: "Ferrous Precision Systems", share_pct: 12.0, hhi_contribution: 144, color: "var(--color-ge-primary)" },
+        { company: "Pellucid Dynamics (Midwest Divestiture Buyer)", share_pct: 6.0, hhi_contribution: 36, color: "var(--color-green-icon)" },
+        { company: "Other Fragmented Suppliers", share_pct: 7.4, hhi_contribution: 123, color: "var(--color-ge-on-surface-variant)" },
       ]
     : [
-        { company: "Combined Brightwater + Halvorsen (Unremedied)", share_pct: 33.6, hhi_contribution: 1129, color: "#dc2626" },
-        { company: "Apex Global Automation", share_pct: 28.0, hhi_contribution: 784, color: "#2563eb" },
-        { company: "Kiyota Robotics NA", share_pct: 19.0, hhi_contribution: 361, color: "#2563eb" },
-        { company: "Ferrous Precision Systems", share_pct: 12.0, hhi_contribution: 144, color: "#2563eb" },
-        { company: "Other Fragmented Suppliers", share_pct: 7.4, hhi_contribution: 272, color: "#64748b" },
+        { company: "Combined Brightwater + Halvorsen (Unremedied)", share_pct: 33.6, hhi_contribution: 1129, color: "var(--lumi-sys-color--error)" },
+        { company: "Apex Global Automation", share_pct: 28.0, hhi_contribution: 784, color: "var(--color-ge-primary)" },
+        { company: "Kiyota Robotics NA", share_pct: 19.0, hhi_contribution: 361, color: "var(--color-ge-primary)" },
+        { company: "Ferrous Precision Systems", share_pct: 12.0, hhi_contribution: 144, color: "var(--color-ge-primary)" },
+        { company: "Other Fragmented Suppliers", share_pct: 7.4, hhi_contribution: 272, color: "var(--color-ge-on-surface-variant)" },
       ];
 
   barsEl.innerHTML = participants.map(mp => `
     <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;">
-      <div style="width:215px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#111827;font-weight:${mp.color === '#dc2626' || mp.color === '#059669' ? '600' : '400'};">${escapeHtml(mp.company)}</div>
-      <div style="flex:1;height:8px;background:#e5e7eb;border-radius:999px;overflow:hidden;">
+      <div style="width:215px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--color-ge-on-surface);font-weight:${mp.color === 'var(--lumi-sys-color--error)' || mp.color === 'var(--color-green-icon)' ? '600' : '400'};">${escapeHtml(mp.company)}</div>
+      <div style="flex:1;height:8px;background:var(--color-ge-outline-variant);border-radius:999px;overflow:hidden;">
         <div style="width:${Math.min(100, mp.share_pct * 2.5)}%;height:100%;background:${mp.color};border-radius:999px;transition:width 0.25s;"></div>
       </div>
-      <div style="width:95px;text-align:right;font-family:var(--font-mono);font-size:11px;color:#4b5563;">${mp.share_pct}% (${mp.hhi_contribution})</div>
+      <div style="width:95px;text-align:right;font-family:var(--font-mono);font-size:11px;color:var(--color-ge-on-surface-variant);">${mp.share_pct}% (${mp.hhi_contribution})</div>
     </div>
   `).join("");
 
@@ -3610,31 +3659,31 @@ function applyGovernanceAndGraphUI(gov, graph, lawyerId, showAuditPulse) {
   const allowed = !!wall.access_granted;
   const banner = document.getElementById("gov-status-banner");
   const pulseTag = showAuditPulse
-    ? `<span class="status-pill blue" style="margin-left:6px;">⚡ Live Spanner GQL Audit Verified (0.4ms)</span>`
+    ? `<span class="status-pill lumi-status-badge blue" style="margin-left:6px;">⚡ Live Spanner GQL Audit Verified (0.4ms)</span>`
     : "";
   banner.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:6px;">
-      <span style="font-family:var(--font-serif);font-size:17px;font-weight:600;color:#111827;">
+      <span style="font-family:var(--font-serif);font-size:17px;font-weight:600;color:var(--color-ge-on-surface);">
         Matter ${escapeHtml(gov.matter_id)} · CMN ${escapeHtml(gov.cmn)}
       </span>
       <div style="display:flex;align-items:center;">
-        <span class="status-pill ${allowed ? 'green' : 'red'}">
+        <span class="status-pill lumi-status-badge ${allowed ? 'green' : 'red'}">
           ${allowed ? '✓ CLEARED (Screen-Before-Rank)' : '⛔ BLOCKED BY INTAPP WALL-999'}
         </span>
         ${pulseTag}
       </div>
     </div>
-    <div style="font-size:12px;color:#374151;margin-bottom:4px;">
+    <div style="font-size:12px;color:var(--color-ge-on-surface);margin-bottom:4px;">
       <strong>Client:</strong> ${escapeHtml(gov.client_name)} · <strong>iManage Library:</strong> <code>${escapeHtml(gov.imanage_library)}</code>
     </div>
-    <div style="font-size:12px;color:#4b5563;">
+    <div style="font-size:12px;color:var(--color-ge-on-surface-variant);">
       <strong>OCG Policy:</strong> ${escapeHtml(gov.ocg_ai_policy)}
     </div>
   `;
 
   const gPill = document.getElementById("gov-grant-pill");
   if (gPill) {
-    gPill.className = `status-pill ${grantActiveState ? 'green' : 'red'}`;
+    gPill.className = `status-pill lumi-status-badge ${grantActiveState ? 'green' : 'red'}`;
     gPill.textContent = grantActiveState ? "ACTIVE (30-Day TTL)" : "REVOKED (Blocked)";
   }
 
@@ -3646,9 +3695,9 @@ function applyGovernanceAndGraphUI(gov, graph, lawyerId, showAuditPulse) {
   const docs = graph.documents || graph.nodes || [];
   if (!allowed) {
     nodesEl.innerHTML = `
-      <div class="edit-card" style="border-color:#fecaca;background:#fef2f2;">
-        <div style="font-weight:600;color:#b91c1c;margin-bottom:4px;">⛔ Zero-Leakage Screen-Before-Rank Enforcement</div>
-        <div style="font-size:12px;color:#7f1d1d;">
+      <div class="edit-card lumi-card card--interactive" style="border-color:var(--color-red-border);background:var(--color-red-bg);">
+        <div style="font-weight:600;color:var(--color-red-text);margin-bottom:4px;">⛔ Zero-Leakage Screen-Before-Rank Enforcement</div>
+        <div style="font-size:12px;color:var(--color-red-text);">
           Attorney <code>${escapeHtml(lawyerId)}</code> is barred from <code>${escapeHtml(currentGovernanceMatter)}</code> by Intapp Rule <code>WALL-999</code>.
           Switch attorney to <strong>L-005 · Elena Rostova</strong> in the toolbar above to inspect Project Omega graph nodes.
         </div>
@@ -3680,14 +3729,14 @@ function applyGovernanceAndGraphUI(gov, graph, lawyerId, showAuditPulse) {
           ? `Counsel: ${item.counsel} · Matter: ${item.matter_id || currentGovernanceMatter}`
           : (edgeMatch.reason || item.reason || "Verified multi-hop precedent edge in Cloud Spanner WeilLegalGraph.");
       return `
-      <div class="liquid-glass-flat" style="padding:10px 12px;border-radius:8px;${item.id === 'EM-9901' ? 'border-color:#86efac;background:#f0fdf4;' : ''}">
+      <div class="liquid-glass-flat" style="padding:10px 12px;border-radius:8px;${item.id === 'EM-9901' ? 'border-color:var(--color-green-border);background:var(--color-green-bg);' : ''}">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <span style="font-weight:600;font-size:12px;color:#111827;">
+          <span style="font-weight:600;font-size:12px;color:var(--color-ge-on-surface);">
             ${escapeHtml(titleStr)}
           </span>
-          <span class="status-pill ${item.id === 'EM-9901' ? 'green' : 'blue'}">${escapeHtml(badgeStr)}</span>
+          <span class="status-pill lumi-status-badge ${item.id === 'EM-9901' ? 'green' : 'blue'}">${escapeHtml(badgeStr)}</span>
         </div>
-        <div style="font-size:11.5px;color:#4b5563;margin-top:3px;">
+        <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);margin-top:3px;">
           ${escapeHtml(descStr)}
         </div>
       </div>
@@ -3812,17 +3861,17 @@ function inspectRawEml(idx, isCal) {
         <span>EXCHANGE CALENDAR INVITE · VEVENT</span>
         <span>${escapeHtml(c.conflict_id)} · ${escapeHtml(c.date)}</span>
       </div>
-      ${resolved ? `<div style="font-family:var(--font-sans);font-size:11px;font-weight:700;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 10px;border-radius:6px;margin-bottom:8px;">✓ CONFLICT RESOLVED: Delegated First 30 Mins of FTC HSR Call to Antitrust Partner Andrew Simon (Wrap-Up Moved to 3:45 PM EDT)</div>` : ''}
-      <div style="font-family:var(--font-sans);font-size:12px;color:#111827;">
-        <div style="padding:8px 10px;background:#eff6ff;border-left:3px solid #2563eb;border-radius:4px;margin-bottom:8px;">
-          <div style="font-weight:700;color:#1e3a8a;">Event A (Mandatory): ${escapeHtml(c.event_a.title)}</div>
-          <div style="font-size:11px;color:#475569;margin-top:2px;">CMN ${escapeHtml(c.event_a.cmn)} · Attendees: ${escapeHtml((c.event_a.attendees || []).join(", "))}</div>
+      ${resolved ? `<div style="font-family:var(--font-sans);font-size:11px;font-weight:700;color:var(--color-green-text);background:var(--color-green-bg);border:1px solid var(--color-green-border);padding:5px 10px;border-radius:6px;margin-bottom:8px;">✓ CONFLICT RESOLVED: Delegated First 30 Mins of FTC HSR Call to Antitrust Partner Andrew Simon (Wrap-Up Moved to 3:45 PM EDT)</div>` : ''}
+      <div style="font-family:var(--font-sans);font-size:12px;color:var(--color-ge-on-surface);">
+        <div style="padding:8px 10px;background:var(--color-blue-bg);border-left:3px solid var(--color-ge-primary);border-radius:4px;margin-bottom:8px;">
+          <div style="font-weight:700;color:var(--color-ge-on-primary-container);">Event A (Mandatory): ${escapeHtml(c.event_a.title)}</div>
+          <div style="font-size:11px;color:var(--color-ge-on-surface-variant);margin-top:2px;">CMN ${escapeHtml(c.event_a.cmn)} · Attendees: ${escapeHtml((c.event_a.attendees || []).join(", "))}</div>
         </div>
-        <div style="padding:8px 10px;background:${resolved ? '#f0fdf4' : '#fef2f2'};border-left:3px solid ${resolved ? '#16a34a' : '#dc2626'};border-radius:4px;margin-bottom:8px;">
-          <div style="font-weight:700;color:${resolved ? '#166534' : '#991b1b'};">Event B (${resolved ? 'Delegated to A. Simon · 3:45 PM Wrap-Up' : 'Conflicting Slot'}): ${escapeHtml(c.event_b.title)}</div>
-          <div style="font-size:11px;color:#475569;margin-top:2px;">CMN ${escapeHtml(c.event_b.cmn)} · Attendees: ${escapeHtml((c.event_b.attendees || []).join(", "))}</div>
+        <div style="padding:8px 10px;background:${resolved ? 'var(--color-green-bg)' : 'var(--color-red-bg)'};border-left:3px solid ${resolved ? 'var(--color-green-icon)' : 'var(--lumi-sys-color--error)'};border-radius:4px;margin-bottom:8px;">
+          <div style="font-weight:700;color:${resolved ? 'var(--color-green-text)' : 'var(--color-red-text)'};">Event B (${resolved ? 'Delegated to A. Simon · 3:45 PM Wrap-Up' : 'Conflicting Slot'}): ${escapeHtml(c.event_b.title)}</div>
+          <div style="font-size:11px;color:var(--color-ge-on-surface-variant);margin-top:2px;">CMN ${escapeHtml(c.event_b.cmn)} · Attendees: ${escapeHtml((c.event_b.attendees || []).join(", "))}</div>
         </div>
-        <div style="font-family:var(--font-serif);font-size:13.5px;color:#1f2937;margin-top:6px;">
+        <div style="font-family:var(--font-serif);font-size:13.5px;color:var(--color-ge-on-surface);margin-top:6px;">
           <strong>Resolution Protocol:</strong> ${escapeHtml(c.ai_resolution)}
         </div>
       </div>
@@ -3840,16 +3889,16 @@ function inspectRawEml(idx, isCal) {
         <span>WEIL EXCHANGE SERVER · IMANAGE</span>
         <span>${escapeHtml(e.email_id)} · ${approved ? 'FILED TO IMANAGE' : 'PENDING SIGN-OFF'}</span>
       </div>
-      ${approved ? `<div style="font-family:var(--font-sans);font-size:11px;font-weight:700;color:#047857;background:#ecfdf5;border:1px solid #a7f3d0;padding:5px 10px;border-radius:6px;margin-bottom:8px;">✓ APPROVED &amp; FILED TO IMANAGE WORK 10 (${escapeHtml(e.cmn)}) · Staged Reply Transmitted</div>` : ''}
-      <div style="font-family:var(--font-sans);border-bottom:1px solid #e2e8f0;padding-bottom:8px;margin-bottom:10px;">
-        <div style="font-family:var(--font-serif);font-size:15px;font-weight:700;color:#0f172a;margin-bottom:4px;">
+      ${approved ? `<div style="font-family:var(--font-sans);font-size:11px;font-weight:700;color:var(--color-green-text);background:var(--color-green-bg);border:1px solid var(--color-green-border);padding:5px 10px;border-radius:6px;margin-bottom:8px;">✓ APPROVED &amp; FILED TO IMANAGE WORK 10 (${escapeHtml(e.cmn)}) · Staged Reply Transmitted</div>` : ''}
+      <div style="font-family:var(--font-sans);border-bottom:1px solid var(--color-ge-outline-variant);padding-bottom:8px;margin-bottom:10px;">
+        <div style="font-family:var(--font-serif);font-size:15px;font-weight:700;color:var(--color-ge-on-surface);margin-bottom:4px;">
           ${escapeHtml(e.subject)}
         </div>
-        <div style="font-size:11.5px;color:#334155;"><strong>From:</strong> ${escapeHtml(e.sender)}</div>
-        <div style="font-size:11.5px;color:#334155;"><strong>To:</strong> Sarah Jenkins (M&amp;A Lead Partner, Weil NY) · <strong>Sent:</strong> ${escapeHtml(e.received_at)}</div>
-        <div style="font-size:11px;color:#1d4ed8;margin-top:3px;"><strong>Tagged Client-Matter Number:</strong> ${escapeHtml(e.cmn)}</div>
+        <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);"><strong>From:</strong> ${escapeHtml(e.sender)}</div>
+        <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);"><strong>To:</strong> Sarah Jenkins (M&amp;A Lead Partner, Weil NY) · <strong>Sent:</strong> ${escapeHtml(e.received_at)}</div>
+        <div style="font-size:11px;color:var(--color-ge-primary);margin-top:3px;"><strong>Tagged Client-Matter Number:</strong> ${escapeHtml(e.cmn)}</div>
       </div>
-      <div style="font-family:var(--font-serif);font-size:13.8px;line-height:1.6;color:#111827;white-space:pre-line;">
+      <div style="font-family:var(--font-serif);font-size:13.8px;line-height:1.6;color:var(--color-ge-on-surface);white-space:pre-line;">
         ${escapeHtml(bodyText)}
       </div>
       <div class="docx-running-footer">
@@ -3877,30 +3926,30 @@ function renderInboxTriage() {
     const idx = origIdx >= 0 ? origIdx : 0;
     const approved = e.status === "APPROVED_AND_FILED_TO_IMANAGE";
     return `
-      <div class="edit-card" onclick="inspectRawEml(${idx}, false)" style="cursor:pointer;${approved ? 'border-color:#86efac;background:#f0fdf4;' : ''}">
+      <div class="edit-card lumi-card card--interactive" onclick="inspectRawEml(${idx}, false)" style="cursor:pointer;${approved ? 'border-color:var(--color-green-border);background:var(--color-green-bg);' : ''}">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px;">
-          <span style="font-weight:600;font-size:12px;color:#111827;">${escapeHtml(e.email_id)} · ${escapeHtml(e.cmn)}</span>
-          <span class="status-pill ${approved ? 'green' : 'red'}">
+          <span style="font-weight:600;font-size:12px;color:var(--color-ge-on-surface);">${escapeHtml(e.email_id)} · ${escapeHtml(e.cmn)}</span>
+          <span class="status-pill lumi-status-badge ${approved ? 'green' : 'red'}">
             ${approved ? '✓ Filed to iManage' : escapeHtml(e.priority)}
           </span>
         </div>
-        <div style="font-family:var(--font-serif);font-size:15px;font-weight:600;color:#111827;margin-bottom:3px;">
+        <div style="font-family:var(--font-serif);font-size:15px;font-weight:600;color:var(--color-ge-on-surface);margin-bottom:3px;">
           ${escapeHtml(e.subject)}
         </div>
-        <div style="font-size:11.5px;color:#6b7280;margin-bottom:6px;">
+        <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);margin-bottom:6px;">
           From: ${escapeHtml(e.sender)} · ${escapeHtml(e.received_at)}
         </div>
-        <div style="font-size:12px;color:#374151;margin-bottom:8px;">
+        <div style="font-size:12px;color:var(--color-ge-on-surface);margin-bottom:8px;">
           ${escapeHtml(e.summary)}
         </div>
-        <div class="text-slab" style="font-size:12px;margin-bottom:8px;background:#ffffff;">
+        <div class="text-slab" style="font-size:12px;margin-bottom:8px;background:var(--color-ge-surface-container-lowest);">
           <strong>AI Staged Action:</strong> ${escapeHtml(e.proposed_reply)}
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button id="btn-approve-${escapeHtml(e.email_id)}" type="button" class="pill-btn ${approved ? 'pill-btn-white' : 'pill-btn-blue'} pill-btn-xs" onclick="event.stopPropagation();loadInboxTriage('${escapeJs(e.email_id)}', null, false)">
+          <button id="btn-approve-${escapeHtml(e.email_id)}" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${approved ? 'pill-btn-white' : 'pill-btn-blue'} pill-btn-xs" onclick="event.stopPropagation();loadInboxTriage('${escapeJs(e.email_id)}', null, false)">
             ${approved ? '✓ Approved & Filed to iManage' : 'Approve & File to iManage'}
           </button>
-          <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="event.stopPropagation();inspectRawEml(${idx}, false)">
+          <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="event.stopPropagation();inspectRawEml(${idx}, false)">
             View .eml
           </button>
         </div>
@@ -3912,27 +3961,27 @@ function renderInboxTriage() {
   calCardsEl.innerHTML = cals.map(c => {
     const resolved = c.status.includes("RESOLVED");
     return `
-      <div class="edit-card" onclick="inspectRawEml(0, true)" style="cursor:pointer;${resolved ? 'border-color:#86efac;background:#f0fdf4;' : ''}">
+      <div class="edit-card lumi-card card--interactive" onclick="inspectRawEml(0, true)" style="cursor:pointer;${resolved ? 'border-color:var(--color-green-border);background:var(--color-green-bg);' : ''}">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-weight:600;font-size:12px;color:#111827;">${escapeHtml(c.conflict_id)} · ${escapeHtml(c.date)}</span>
-          <span class="status-pill ${resolved ? 'green' : 'amber'}">
+          <span style="font-weight:600;font-size:12px;color:var(--color-ge-on-surface);">${escapeHtml(c.conflict_id)} · ${escapeHtml(c.date)}</span>
+          <span class="status-pill lumi-status-badge ${resolved ? 'green' : 'amber'}">
             ${resolved ? '✓ Conflict Resolved' : 'Hard Overlap Detected'}
           </span>
         </div>
-        <div style="font-size:12px;color:#111827;margin-bottom:4px;">
+        <div style="font-size:12px;color:var(--color-ge-on-surface);margin-bottom:4px;">
           <strong>1. ${escapeHtml(c.event_a.title)}</strong> (CMN ${escapeHtml(c.event_a.cmn)})
         </div>
-        <div style="font-size:12px;color:#b91c1c;margin-bottom:8px;">
+        <div style="font-size:12px;color:var(--color-red-text);margin-bottom:8px;">
           <strong>2. ${escapeHtml(c.event_b.title)}</strong> (CMN ${escapeHtml(c.event_b.cmn)})
         </div>
-        <div class="text-slab" style="font-size:12px;margin-bottom:8px;background:#ffffff;">
+        <div class="text-slab" style="font-size:12px;margin-bottom:8px;background:var(--color-ge-surface-container-lowest);">
           <strong>Proposed Delegation:</strong> ${escapeHtml(c.ai_resolution)}
         </div>
         <div style="display:flex;align-items:center;gap:6px;">
-          <button id="btn-resolve-cal-101" type="button" class="pill-btn ${resolved ? 'pill-btn-white' : 'pill-btn-blue'} pill-btn-xs" onclick="event.stopPropagation();loadInboxTriage(null, '${escapeJs(c.conflict_id)}', false)">
+          <button id="btn-resolve-cal-101" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${resolved ? 'pill-btn-white' : 'pill-btn-blue'} pill-btn-xs" onclick="event.stopPropagation();loadInboxTriage(null, '${escapeJs(c.conflict_id)}', false)">
             ${resolved ? '✓ Delegated to A. Simon (3:45 PM Wrap-Up)' : 'Delegate FTC Overlap to A. Simon'}
           </button>
-          <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="event.stopPropagation();inspectRawEml(0, true)">
+          <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="event.stopPropagation();inspectRawEml(0, true)">
             View .ics
           </button>
         </div>
@@ -3995,7 +4044,7 @@ function onModalPaperLiveEdit() {
     statusEl.textContent = currentSourceFormatLock === "docx"
       ? "✓ Live edits synced to OpenXML AST (styles.xml preserved)"
       : "✓ Live edits synced via Google Docs batchUpdate API";
-    statusEl.style.color = "#15803d";
+    statusEl.style.color = "var(--lumi-sys-color--positive)";
   }
 }
 
@@ -4009,8 +4058,8 @@ function toggleSourceFormatLock() {
 
   if (currentSourceFormatLock === "docx") {
     if (labelEl) labelEl.textContent = "Format-Locked: .docx (OpenXML Preserved)";
-    if (dotEl) dotEl.style.background = "#0b57d0";
-    if (badgeEl) badgeEl.style.background = "#1e3a8a";
+    if (dotEl) dotEl.style.background = "var(--color-ge-primary)";
+    if (badgeEl) badgeEl.style.background = "var(--color-ge-on-primary-container)";
     if (titleEl && titleEl.textContent.endsWith(".gdoc")) {
       titleEl.textContent = titleEl.textContent.replace(/\.gdoc$/, ".docx");
     }
@@ -4019,8 +4068,8 @@ function toggleSourceFormatLock() {
     }
   } else {
     if (labelEl) labelEl.textContent = "Format-Locked: Google Docs (batchUpdate API)";
-    if (dotEl) dotEl.style.background = "#16a34a";
-    if (badgeEl) badgeEl.style.background = "#2684fc";
+    if (dotEl) dotEl.style.background = "var(--color-green-icon)";
+    if (badgeEl) badgeEl.style.background = "var(--color-ge-accent)";
     if (titleEl && titleEl.textContent.endsWith(".docx")) {
       titleEl.textContent = titleEl.textContent.replace(/\.docx$/, ".gdoc");
     }
@@ -4065,16 +4114,16 @@ function applyHeadingStyle(tag) {
   if (!titleNode) return;
   if (tag === "h2") {
     titleNode.style.fontSize = "21px";
-    titleNode.style.color = "#0b57d0";
+    titleNode.style.color = "var(--color-ge-primary)";
   } else if (tag === "h3") {
     titleNode.style.fontSize = "17px";
-    titleNode.style.color = "#1e3a8a";
+    titleNode.style.color = "var(--color-ge-on-primary-container)";
   } else if (tag === "blockquote") {
-    titleNode.style.borderLeft = "4px solid #0b57d0";
+    titleNode.style.borderLeft = "4px solid var(--color-ge-primary)";
     titleNode.style.paddingLeft = "12px";
   } else {
     titleNode.style.fontSize = "18px";
-    titleNode.style.color = "#111827";
+    titleNode.style.color = "var(--color-ge-on-surface)";
     titleNode.style.borderLeft = "none";
     titleNode.style.paddingLeft = "0";
   }
@@ -4103,19 +4152,25 @@ function stepDocFontSize(delta) {
   onModalPaperLiveEdit();
 }
 
-function applyHighlightColor(colorHex) {
+function applyHighlightColor(colorToken) {
   const paper = document.getElementById("docx-modal-paper");
   if (!paper) return;
+  let resolvedColor = colorToken;
+  const varMatch = String(colorToken || "").match(/^var\((--[^)]+)\)$/);
+  if (varMatch) {
+    const computed = getComputedStyle(document.documentElement).getPropertyValue(varMatch[1]).trim();
+    if (computed) resolvedColor = computed;
+  }
   const sel = window.getSelection();
   if (sel && sel.rangeCount > 0 && !sel.isCollapsed && paper.contains(sel.anchorNode)) {
     try {
-      document.execCommand("hiliteColor", false, colorHex);
+      document.execCommand("hiliteColor", false, resolvedColor);
       onModalPaperLiveEdit();
       return;
     } catch (e) {}
   }
   const target = paper.querySelector("#redline-sub-0") || paper.querySelector(".docx-subclause") || paper;
-  target.style.backgroundColor = colorHex;
+  target.style.backgroundColor = colorToken;
   target.style.padding = "8px 12px";
   target.style.borderRadius = "6px";
   onModalPaperLiveEdit();
@@ -4133,7 +4188,7 @@ function insertCustomClauseBlock(clauseText, badgeText) {
   block.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;" contenteditable="false">
       <span class="redline-decision-badge accepted">${escapeHtml(badgeLabel)}</span>
-      <button type="button" class="pill-btn pill-btn-white pill-btn-xs" style="font-size:10px;padding:1px 7px;" onclick="this.closest('.redline-subclause-item').remove();onModalPaperLiveEdit();">Remove</button>
+      <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="font-size:10px;padding:1px 7px;" onclick="this.closest('.redline-subclause-item').remove();onModalPaperLiveEdit();">Remove</button>
     </div>
     <div>${escapeHtml(textToInsert)}</div>
   `;
@@ -4157,7 +4212,7 @@ function focusModalSubclause(idx) {
   if (target) {
     target.scrollIntoView({ behavior: "smooth", block: "center" });
     const origBg = target.style.backgroundColor;
-    target.style.backgroundColor = "#fef08a";
+    target.style.backgroundColor = "var(--color-yellow-bg)";
     setTimeout(() => { target.style.backgroundColor = origBg; }, 900);
   }
 }
@@ -4205,14 +4260,14 @@ function runWorkspaceGeminiAction(actionType) {
     acceptAllModalRedlines();
     appendGwGeminiExchange(
       "Apply Playbook v3.4: Accept all Weil seller-favorable positions across Section 8.02",
-      `<div style="font-weight:600;color:#15803d;margin-bottom:4px;">✓ Applied to Document (3/3 Clauses Updated)</div>
+      `<div style="font-weight:600;color:var(--lumi-sys-color--positive);margin-bottom:4px;">✓ Applied to Document (3/3 Clauses Updated)</div>
        <div>All three counterparty markups in <strong>Section 8.02(a), (b), and (c)</strong> have been restored to <strong>Weil PE Seller Playbook v3.4</strong>:</div>
        <ul style="margin:6px 0 6px 16px;padding:0;font-size:12px;">
          <li><strong>§ 8.02(a):</strong> Restored 0.50% True Deductible ($21,000,000)</li>
          <li><strong>§ 8.02(b):</strong> Restored 0.75% Indemnity Cap ($31,500,000)</li>
          <li><strong>§ 8.02(c):</strong> Restricted carve-out strictly to Delaware Express Written Actual Fraud</li>
        </ul>
-       <div style="font-size:11px;color:#5f6368;">Format-Lock: Updated <code>&lt;w:p&gt;</code> nodes in <code>word/document.xml</code> with zero style drift.</div>`
+       <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Format-Lock: Updated <code>&lt;w:p&gt;</code> nodes in <code>word/document.xml</code> with zero style drift.</div>`
     );
     onModalPaperLiveEdit();
   } else if (actionType === "restore_deductible") {
@@ -4220,7 +4275,7 @@ function runWorkspaceGeminiAction(actionType) {
     focusModalSubclause(0);
     appendGwGeminiExchange(
       "Modify § 8.02(a): Reject Tipping Basket and restore 0.50% True Deductible ($21M)",
-      `<div style="font-weight:600;color:#15803d;margin-bottom:4px;">✓ Updated Section 8.02(a) in Live Document</div>
+      `<div style="font-weight:600;color:var(--lumi-sys-color--positive);margin-bottom:4px;">✓ Updated Section 8.02(a) in Live Document</div>
        <div>Rejected Skadden's 0.25% first-dollar Tipping Basket ($10.5M) and restored Weil's <strong>0.50% True Deductible ($21,000,000)</strong> where Seller is liable only for Losses exceeding the Deductible.</div>`
     );
     onModalPaperLiveEdit();
@@ -4232,15 +4287,15 @@ function runWorkspaceGeminiAction(actionType) {
       sub1.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;" contenteditable="false">
           <span class="redline-decision-badge accepted">✦ Gemini Negotiated Compromise Applied (0.50% EV Cap)</span>
-          <button type="button" class="pill-btn pill-btn-white pill-btn-xs" style="font-size:10px;padding:1px 7px;" onclick="decideRedlineCard(1, 'pending')">Undo</button>
+          <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="font-size:10px;padding:1px 7px;" onclick="decideRedlineCard(1, 'pending')">Undo</button>
         </div>
-        <strong>(b)</strong> The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed <span style="background:#dcfce7;color:#166534;font-weight:600;padding:1px 5px;border-radius:3px;">0.50% of the Base Purchase Price ($21,000,000) for general representations and 15% of the Base Purchase Price ($630,000,000) for Special Environmental &amp; IP Warranties</span> (the "Indemnity Cap").
+        <strong>(b)</strong> The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed <span style="background:var(--color-green-bg);color:var(--color-green-text);font-weight:600;padding:1px 5px;border-radius:3px;">0.50% of the Base Purchase Price ($21,000,000) for general representations and 15% of the Base Purchase Price ($630,000,000) for Special Environmental &amp; IP Warranties</span> (the "Indemnity Cap").
       `;
       sub1.scrollIntoView({ behavior: "smooth", block: "center" });
     }
     appendGwGeminiExchange(
       "Draft Compromise in § 8.02(b): Set Indemnity Cap to 0.50% ($21M) & remove $4.2B IP carve-out",
-      `<div style="font-weight:600;color:#0b57d0;margin-bottom:4px;">✦ Rewrote Section 8.02(b) in Live Document</div>
+      `<div style="font-weight:600;color:var(--color-ge-primary);margin-bottom:4px;">✦ Rewrote Section 8.02(b) in Live Document</div>
        <div>Replaced Skadden's uncapped 100% ($4.2B) Special IP/Environmental super-cap with a balanced <strong>0.50% ($21M) general cap</strong> and a <strong>15% ($630M) Special IP/Environmental sub-cap</strong> while preserving native paragraph numbering.</div>`
     );
     onModalPaperLiveEdit();
@@ -4251,7 +4306,7 @@ function runWorkspaceGeminiAction(actionType) {
     );
     appendGwGeminiExchange(
       "Insert Legal Lego Rider: Append Delaware Actual Fraud & Privacy Pro clause (d)",
-      `<div style="font-weight:600;color:#15803d;margin-bottom:4px;">✓ Inserted Clause (d) into Live Document</div>
+      `<div style="font-weight:600;color:var(--lumi-sys-color--positive);margin-bottom:4px;">✓ Inserted Clause (d) into Live Document</div>
        <div>Appended <strong>Legal Lego Blocks LEGO-DE-FRAUD &amp; LEGO-PRIVACY-PRO</strong> as subsection <strong>(d)</strong> at the bottom of the agreement sheet, inheriting the document's multi-level numbering and serif typography.</div>`
     );
   } else if (actionType === "summarize_risks") {
@@ -4284,7 +4339,7 @@ async function sendWorkspaceGeminiPrompt(presetText) {
 
   const loadingDiv = document.createElement("div");
   loadingDiv.className = "gw-chat-bubble-ai gw-dynamic-msg";
-  loadingDiv.innerHTML = `<div style="color:#0b57d0;font-weight:500;">✦ Gemini 3.8 Flash analyzing document (${escapeHtml(currentSourceFormatLock.toUpperCase())})...</div>`;
+  loadingDiv.innerHTML = `<div style="display:flex;align-items:center;gap:8px;color:var(--color-ge-primary);font-weight:500;"><span class="lumi-thinking-dots"><span></span><span></span><span></span></span><span class="lumi-shimmer-text">✦ Gemini 3.8 Flash analyzing document (${escapeHtml(currentSourceFormatLock.toUpperCase())})...</span></div>`;
   msgBox?.appendChild(loadingDiv);
   if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
 
@@ -4312,18 +4367,18 @@ async function sendWorkspaceGeminiPrompt(presetText) {
     loadingDiv.innerHTML = `
       <div style="margin-bottom:6px;">${escapeHtml(data.summary || "")}</div>
       ${lastProposedGeminiClause ? `
-        <div style="background:#f8fafd;border:1px solid #d3e3fd;border-radius:8px;padding:8px 10px;margin-top:6px;font-family:var(--font-serif);font-size:12px;color:#111827;">
+        <div style="background:var(--color-ge-surface-container-low);border:1px solid var(--color-ge-primary-container);border-radius:8px;padding:8px 10px;margin-top:6px;font-family:var(--font-serif);font-size:12px;color:var(--color-ge-on-surface);">
           ${escapeHtml(lastProposedGeminiClause)}
         </div>
         <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
-          <button type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="applyCustomGeminiClauseToDoc()">
+          <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="applyCustomGeminiClauseToDoc()">
             ${shouldAutoApply ? '✓ Applied to Document (Click to Insert Again)' : '✦ ' + escapeHtml(data.action_label || 'Apply Clause Edit to Document')}
           </button>
         </div>
       ` : ""}
     `;
   } catch (err) {
-    loadingDiv.innerHTML = `<div style="color:#b91c1c;">Unable to reach Gemini Workspace Assistant: ${escapeHtml(err.message)}</div>`;
+    loadingDiv.innerHTML = `<div style="color:var(--color-red-text);">Unable to reach Gemini Workspace Assistant: ${escapeHtml(err.message)}</div>`;
   }
   if (msgBox) msgBox.scrollTop = msgBox.scrollHeight;
 }
@@ -4406,14 +4461,14 @@ function syncDocxModalIfOpen() {
     }
     controlsEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        <span style="font-weight:600;color:#1e3a8a;">Toggle Legal Lego Blocks Live:</span>
+        <span style="font-weight:600;color:var(--color-ge-on-primary-container);">Toggle Legal Lego Blocks Live:</span>
         ${["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO", "LEGO-MFN-FUNDGEN"].map(bid => {
           const isOn = checked.includes(bid);
-          return `<button type="button" class="pill-btn ${isOn ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="toggleModalLegoCheckbox('${bid}')">${isOn ? '✓ ' : '+ '}${bid}</button>`;
+          return `<button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${isOn ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="toggleModalLegoCheckbox('${bid}')">${isOn ? '✓ ' : '+ '}${bid}</button>`;
         }).join("")}
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="openDocxModal('redline')">Switch to Redline Sheet →</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="openDocxModal('redline')">Switch to Redline Sheet →</button>
       </div>
     `;
     paperEl.innerHTML = document.getElementById("legos-preview-box")?.innerHTML || "";
@@ -4427,15 +4482,15 @@ function syncDocxModalIfOpen() {
     }
     controlsEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        <button type="button" class="pill-btn ${d.pair_id === 'KESTREL-SPA-802' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-SPA-802')">§ 8.02(b) Indemnity</button>
-        <button type="button" class="pill-btn ${d.pair_id === 'KESTREL-SCRAPE-804' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-SCRAPE-804')">§ 8.04(a) Scrape</button>
-        <button type="button" class="pill-btn ${d.pair_id === 'KESTREL-TAX-304' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-TAX-304')">§ 3.04 Tax 338(h)(10)</button>
-        <button type="button" class="pill-btn ${d.pair_id === 'KESTREL-COC-804' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-COC-804')">§ 8.04 CoC</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${d.pair_id === 'KESTREL-SPA-802' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-SPA-802')">§ 8.02(b) Indemnity</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${d.pair_id === 'KESTREL-SCRAPE-804' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-SCRAPE-804')">§ 8.04(a) Scrape</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${d.pair_id === 'KESTREL-TAX-304' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-TAX-304')">§ 3.04 Tax 338(h)(10)</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${d.pair_id === 'KESTREL-COC-804' ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="loadRedlinePair('KESTREL-COC-804')">§ 8.04 CoC</button>
       </div>
       <div style="display:flex;align-items:center;gap:6px;">
-        <button id="modal-btn-accept-all" type="button" class="pill-btn pill-btn-blue pill-btn-xs" onclick="acceptAllModalRedlines()">✓ Accept All Weil v3</button>
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="resetRedlineDecisions()">Reset</button>
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="openDocxModal('legos')">Switch to Legal Legos →</button>
+        <button id="modal-btn-accept-all" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="acceptAllModalRedlines()">✓ Accept All Weil v3</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="resetRedlineDecisions()">Reset</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="openDocxModal('legos')">Switch to Legal Legos →</button>
       </div>
     `;
     paperEl.innerHTML = `
@@ -4446,7 +4501,7 @@ function syncDocxModalIfOpen() {
       <div class="docx-doc-title" style="text-align:left;margin-bottom:10px;">
         ${escapeHtml(d.title || 'ARTICLE VIII — INDEMNIFICATION')}
       </div>
-      <div style="font-family:var(--font-sans);font-size:12px;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:8px 12px;margin-bottom:14px;">
+      <div style="font-family:var(--font-sans);font-size:12px;color:var(--color-ge-on-primary-container);background:var(--color-blue-bg);border:1px solid var(--color-blue-border);border-radius:6px;padding:8px 12px;margin-bottom:14px;">
         <strong>Playbook Standard:</strong> ${escapeHtml(d.playbook_standard || '')}
       </div>
       <div class="docx-redline-margin">
@@ -4467,18 +4522,18 @@ function syncDocxModalIfOpen() {
     }
     controlsEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;">
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(-1);syncDocxModalIfOpen();">← Previous Contract</button>
-        <button type="button" class="pill-btn pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(1);syncDocxModalIfOpen();">Next Contract →</button>
-        <span style="font-weight:600;color:#1e3a8a;margin-left:6px;">Contract ${activeInspectorRowIdx + 1} of ${tabularRows.length}</span>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(-1);syncDocxModalIfOpen();">← Previous Contract</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="navigateInspectorRow(1);syncDocxModalIfOpen();">Next Contract →</button>
+        <span style="font-weight:600;color:var(--color-ge-on-primary-container);margin-left:6px;">Contract ${activeInspectorRowIdx + 1} of ${tabularRows.length}</span>
       </div>
-      <span class="status-pill green">Spanner BBox Pin-Cite Verified</span>
+      <span class="status-pill lumi-status-badge green">Spanner BBox Pin-Cite Verified</span>
     `;
     paperEl.innerHTML = `
       <div class="docx-running-header" contenteditable="false">
         <span>WEIL · EXECUTION COPY</span>
         <span>${escapeHtml(row.doc_id || '')} · ${escapeHtml(row.citation || '')}</span>
       </div>
-      <div style="font-family:var(--font-sans);font-size:12.5px;background:#eff6ff;border-left:4px solid #2563eb;padding:10px 12px;border-radius:4px;margin-bottom:14px;">
+      <div style="font-family:var(--font-sans);font-size:12.5px;background:var(--color-blue-bg);border-left:4px solid var(--color-ge-primary);padding:10px 12px;border-radius:4px;margin-bottom:14px;">
         ${document.getElementById("insp-pincite-quote")?.innerHTML || ""}
       </div>
       <div>${document.getElementById("insp-contract-body")?.innerHTML || ""}</div>
@@ -4500,10 +4555,10 @@ function syncDocxModalIfOpen() {
     }
     controlsEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        <button type="button" class="pill-btn ${currentExhibitIdx === 0 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(0)">EBITDA Bridge</button>
-        <button type="button" class="pill-btn ${currentExhibitIdx === 1 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(1)">LP Fee Curve</button>
-        <button type="button" class="pill-btn ${currentExhibitIdx === 2 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(2)">J.Crew Org Chart</button>
-        <button type="button" class="pill-btn ${currentExhibitIdx === 3 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(3)">Citibank $18M Scan</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${currentExhibitIdx === 0 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(0)">EBITDA Bridge</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${currentExhibitIdx === 1 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(1)">LP Fee Curve</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${currentExhibitIdx === 2 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(2)">J.Crew Org Chart</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${currentExhibitIdx === 3 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="selectMultimodalExhibit(3)">Citibank $18M Scan</button>
       </div>
     `;
     paperEl.innerHTML = `
@@ -4512,10 +4567,10 @@ function syncDocxModalIfOpen() {
         <span>EXHIBIT ${currentExhibitIdx + 1} OF 4</span>
       </div>
       <div class="docx-doc-title" style="margin-bottom:8px;">${escapeHtml(titleStr)}</div>
-      <div style="font-family:var(--font-sans);font-size:13px;color:#1e3a8a;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px 14px;margin-bottom:14px;">
+      <div style="font-family:var(--font-sans);font-size:13px;color:var(--color-ge-on-primary-container);background:var(--color-blue-bg);border:1px solid var(--color-blue-border);border-radius:8px;padding:10px 14px;margin-bottom:14px;">
         <strong>Extracted Grounding Insight:</strong> ${escapeHtml(takeawayStr)}
       </div>
-      <div style="text-align:center;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;padding:14px;">
+      <div style="text-align:center;background:var(--color-ge-surface-container-low);border:1px solid var(--color-ge-outline-variant);border-radius:8px;padding:14px;">
         <img src="${escapeHtml(imgSrc)}" alt="Exhibit" style="max-width:100%;max-height:480px;object-fit:contain;border-radius:4px;" />
       </div>
     `;
@@ -4528,17 +4583,17 @@ function syncDocxModalIfOpen() {
     }
     controlsEl.innerHTML = `
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        <button type="button" class="pill-btn ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 0 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(0, false)">EM-9901 (338h10 Tax)</button>
-        <button type="button" class="pill-btn ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 1 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(1, false)">EM-9902 (Skadden v4)</button>
-        <button type="button" class="pill-btn ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 2 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(2, false)">EM-9903 (FundHQ MFN)</button>
-        <button type="button" class="pill-btn ${currentEmlInspectState.isCal ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(0, true)">CAL-101 Conflict (.ics)</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 0 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(0, false)">EM-9901 (338h10 Tax)</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 1 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(1, false)">EM-9902 (Skadden v4)</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${!currentEmlInspectState.isCal && currentEmlInspectState.idx === 2 ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(2, false)">EM-9903 (FundHQ MFN)</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer ${currentEmlInspectState.isCal ? 'pill-btn-blue' : 'pill-btn-white'} pill-btn-xs" onclick="inspectRawEml(0, true)">CAL-101 Conflict (.ics)</button>
       </div>
     `;
     paperEl.innerHTML = document.getElementById("raw-eml-viewer")?.innerHTML || "";
   } else if (activeDocxModalMode === "governance") {
     titleEl.textContent = `Intapp Ethical Wall & Cloud Spanner Graph Audit (${currentGovernanceMatter})`;
     subEl.textContent = "ISO GQL Screen-Before-Rank Certificate";
-    controlsEl.innerHTML = `<span style="font-weight:600;color:#1e3a8a;">Zero-Leakage Pre-ANN Graph Filtering</span>`;
+    controlsEl.innerHTML = `<span style="font-weight:600;color:var(--color-ge-on-primary-container);">Zero-Leakage Pre-ANN Graph Filtering</span>`;
     paperEl.innerHTML = `
       <div class="docx-running-header">
         <span>WEIL OCG &amp; INTAPP WALL COMPLIANCE</span>
@@ -4590,4 +4645,5 @@ window.addEventListener("DOMContentLoaded", () => {
     html = html.replace("__PRERENDERED_TBODY__", prerendered_tbody)
     html = html.replace("__FIRST_QUOTE__", first_quote)
     html = html.replace("__FIRST_PAGE_TEXT__", first_page_text)
+    html = html.replace("/* __GE_LUMINOUS_TOKENS_CSS__ */", _load_ge_luminous_tokens_css())
     return html
