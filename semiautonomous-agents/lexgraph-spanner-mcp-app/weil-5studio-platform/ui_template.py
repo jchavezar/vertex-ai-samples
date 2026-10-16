@@ -65,129 +65,129 @@ def _encode_png_data_uri(filename: str, fallback_url: str) -> str:
 
 
 def _build_bootstrap_payload(initial_view: str, api_base: str) -> Dict[str, Any]:
-    cache_key = f"{initial_view}:{api_base}"
+    cache_key = f"all_studios:{api_base}"
     if cache_key in _BOOTSTRAP_CACHE:
         return _BOOTSTRAP_CACHE[cache_key]
 
     payload: Dict[str, Any] = {}
 
-    if initial_view == "tabular-view":
-        kestrel_rows = list(demo_data.TABULAR_REVIEWS)
-        unfiled_row = {
-            "doc_id": "EM-9901",
-            "filename": "EM-9901_Unfiled_Tax_Email_Section_338h10_Election.eml",
-            "matter": "M-331-KESTREL",
-            "coc_trigger": "IRC § 338(h)(10) Joint Election & Asset Step-Up",
-            "consent_required": "30-Day Teammate Grant Active (Screen-Before-Rank)",
-            "notice_window": "Pre-Signing Tax Covenant",
-            "termination_right": "First-Dollar Tax Indemnity Carve-Out",
-            "fee_or_penalty": "$14.2M Tax Gross-Up Escrow Reserve (Citibank N.A.)",
-            "citation": "Tax Rider § 6.09(a)",
-            "page": 1,
-            "rrf_score": 0.0341,
-            "entailment_verified": True,
-            "quote": (
-                "Per Marcus Thorne (Tax Partner, EM-9901): Seller shareholders require a $14,200,000 Tax Gross-Up Escrow "
-                "at Citibank N.A. to compensate for ordinary-income vs. capital-gains rate differentials triggered by the "
-                "IRC Section 338(h)(10) election on Brightwater's cleanroom fab assets."
-            ),
-        }
-        if not any(r.get("doc_id") == "EM-9901" for r in kestrel_rows):
-            kestrel_rows.append(unfiled_row)
+    # 1. Studio 1: Tabular Review & Grounded Pin-Cite Reader
+    kestrel_rows = list(demo_data.TABULAR_REVIEWS)
+    unfiled_row = {
+        "doc_id": "EM-9901",
+        "filename": "EM-9901_Unfiled_Tax_Email_Section_338h10_Election.eml",
+        "matter": "M-331-KESTREL",
+        "coc_trigger": "IRC § 338(h)(10) Joint Election & Asset Step-Up",
+        "consent_required": "30-Day Teammate Grant Active (Screen-Before-Rank)",
+        "notice_window": "Pre-Signing Tax Covenant",
+        "termination_right": "First-Dollar Tax Indemnity Carve-Out",
+        "fee_or_penalty": "$14.2M Tax Gross-Up Escrow Reserve (Citibank N.A.)",
+        "citation": "Tax Rider § 6.09(a)",
+        "page": 1,
+        "rrf_score": 0.0341,
+        "entailment_verified": True,
+        "quote": (
+            "Per Marcus Thorne (Tax Partner, EM-9901): Seller shareholders require a $14,200,000 Tax Gross-Up Escrow "
+            "at Citibank N.A. to compensate for ordinary-income vs. capital-gains rate differentials triggered by the "
+            "IRC Section 338(h)(10) election on Brightwater's cleanroom fab assets."
+        ),
+    }
+    if not any(r.get("doc_id") == "EM-9901" for r in kestrel_rows):
+        kestrel_rows.append(unfiled_row)
 
-        clauses_path = Path(__file__).resolve().parent / "corpus" / "indexed_clauses.json"
-        clauses_list = []
-        if clauses_path.exists():
-            try:
-                clauses_list = json.loads(clauses_path.read_text(encoding="utf-8"))
-            except Exception:
-                clauses_list = []
-        by_doc: Dict[str, Dict[str, Any]] = {}
-        for c in clauses_list:
-            did = c.get("doc_id", "")
-            if did and did not in by_doc:
-                by_doc[did] = {
-                    "doc_id": did,
-                    "section_id": c.get("section_id", "1.01"),
-                    "section_title": c.get("section_title", "Executed Provision"),
-                    "category": c.get("category", "Corporate / M&A"),
-                    "page": c.get("page", 1),
-                    "text": (c.get("text") or "")[:240],
-                }
-
-        all_docs = list(demo_data.DOCUMENTS) + [demo_data.UNFILED_EMAIL]
-        scaled_rows = []
-        for d in all_docs:
-            did = d["id"]
-            sample = by_doc.get(did, {})
-            scaled_rows.append({
+    clauses_path = Path(__file__).resolve().parent / "corpus" / "indexed_clauses.json"
+    clauses_list = []
+    if clauses_path.exists():
+        try:
+            clauses_list = json.loads(clauses_path.read_text(encoding="utf-8"))
+        except Exception:
+            clauses_list = []
+    by_doc: Dict[str, Dict[str, Any]] = {}
+    for c in clauses_list:
+        did = c.get("doc_id", "")
+        if did and did not in by_doc:
+            by_doc[did] = {
                 "doc_id": did,
-                "filename": d["name"],
-                "matter": d.get("matter_id", "M-331-KESTREL"),
-                "coc_trigger": sample.get("section_title") or d.get("version") or "Executed Deal Provision",
-                "consent_required": "Prior Written Consent Required" if "01" in did or "02" in did else "Verified Spanner Graph Node",
-                "notice_window": d.get("size", "Indexed"),
-                "termination_right": sample.get("category", "Corporate / M&A"),
-                "fee_or_penalty": d.get("status", "3,072-dim Vector + FTS"),
-                "citation": f"Sec. {sample['section_id']}" if sample.get("section_id") else "Sec. 1.01",
-                "page": sample.get("page", 1),
-                "quote": sample.get("text") or (d.get("summary") or "")[:240] or "Indexed in Cloud Spanner WeilLegalGraph.",
-            })
+                "section_id": c.get("section_id", "1.01"),
+                "section_title": c.get("section_title", "Executed Provision"),
+                "category": c.get("category", "Corporate / M&A"),
+                "page": c.get("page", 1),
+                "text": (c.get("text") or "")[:240],
+            }
 
-        doc_pages: Dict[str, str] = {}
-        for r in kestrel_rows:
-            did = r["doc_id"]
-            pg = r.get("page", 1)
-            try:
-                page_res = spanner_engine.get_document_page_text(did, pg)
-                doc_pages[did] = (page_res.get("text") or r.get("quote", ""))[:1800]
-            except Exception:
-                doc_pages[did] = r.get("quote", "")
+    all_docs = list(demo_data.DOCUMENTS) + [demo_data.UNFILED_EMAIL]
+    scaled_rows = []
+    for d in all_docs:
+        did = d["id"]
+        sample = by_doc.get(did, {})
+        scaled_rows.append({
+            "doc_id": did,
+            "filename": d["name"],
+            "matter": d.get("matter_id", "M-331-KESTREL"),
+            "coc_trigger": sample.get("section_title") or d.get("version") or "Executed Deal Provision",
+            "consent_required": "Prior Written Consent Required" if "01" in did or "02" in did else "Verified Spanner Graph Node",
+            "notice_window": d.get("size", "Indexed"),
+            "termination_right": sample.get("category", "Corporate / M&A"),
+            "fee_or_penalty": d.get("status", "3,072-dim Vector + FTS"),
+            "citation": f"Sec. {sample['section_id']}" if sample.get("section_id") else "Sec. 1.01",
+            "page": sample.get("page", 1),
+            "quote": sample.get("text") or (d.get("summary") or "")[:240] or "Indexed in Cloud Spanner WeilLegalGraph.",
+        })
 
-        payload["kestrel_rows"] = kestrel_rows
-        payload["scaled_rows"] = scaled_rows
-        payload["doc_pages"] = doc_pages
+    doc_pages: Dict[str, str] = {}
+    for r in kestrel_rows:
+        did = r["doc_id"]
+        pg = r.get("page", 1)
+        try:
+            page_res = spanner_engine.get_document_page_text(did, pg)
+            doc_pages[did] = (page_res.get("text") or r.get("quote", ""))[:1800]
+        except Exception:
+            doc_pages[did] = r.get("quote", "")
 
-    elif initial_view == "redline-view":
-        redlines = {}
-        for pid in ("KESTREL-SPA-802", "KESTREL-SCRAPE-804", "KESTREL-TAX-304", "KESTREL-COC-804"):
-            redlines[pid] = adk_agents.compute_deterministic_redline(pair_id=pid)
-        payload["redlines"] = redlines
-        payload["legal_legos_default"] = adk_agents.compose_legal_legos_clause(
-            block_ids=["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO"]
-        )
-        payload["legal_legos_blocks"] = list(adk_agents.DEFAULT_LEGAL_LEGOS_BLOCKS.values())
+    payload["kestrel_rows"] = kestrel_rows
+    payload["scaled_rows"] = scaled_rows
+    payload["doc_pages"] = doc_pages
 
-    elif initial_view == "funds-view":
-        funds_on = adk_agents.analyze_fundgen_mfn_and_antitrust_hhi(0.0, True)
-        funds_off = adk_agents.analyze_fundgen_mfn_and_antitrust_hhi(0.0, False)
-        for f_obj in (funds_on, funds_off):
-            for vf in f_obj.get("visual_files", []):
-                raw_img = vf.get("image_url", "")
-                if raw_img.startswith("/"):
-                    vf["image_url"] = f"{api_base}{raw_img}"
-                raw_pdf = vf.get("pdf_url", "")
-                if raw_pdf.startswith("/"):
-                    vf["pdf_url"] = f"{api_base}{raw_pdf}"
-        payload["funds_remedy_on"] = funds_on
-        payload["funds_remedy_off"] = funds_off
+    # 2. Studio 2: Contract Redline & Word Legal Legos
+    redlines = {}
+    for pid in ("KESTREL-SPA-802", "KESTREL-SCRAPE-804", "KESTREL-TAX-304", "KESTREL-COC-804"):
+        redlines[pid] = adk_agents.compute_deterministic_redline(pair_id=pid)
+    payload["redlines"] = redlines
+    payload["legal_legos_default"] = adk_agents.compose_legal_legos_clause(
+        block_ids=["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO"]
+    )
+    payload["legal_legos_blocks"] = list(adk_agents.DEFAULT_LEGAL_LEGOS_BLOCKS.values())
 
-    elif initial_view == "governance-view":
-        gov_matrix: Dict[str, Any] = {}
-        for lid in ("L-001", "L-002", "L-003", "L-005"):
-            for mid in ("M-331-KESTREL", "M-402", "M-610-FUNDGEN", "M-720-ANTITRUST", "M-999"):
-                key = f"{lid}__{mid}"
-                raw_graph = spanner_engine.traverse_precedent_graph(matter_id=mid, lawyer_id=lid)
-                nodes = [n for n in (raw_graph.get("nodes") or []) if n.get("type") in ("Document", "Clause")][:6]
-                edges = [e for e in (raw_graph.get("edges") or []) if e.get("type") in ("CITES_PRECEDENT", "CONTAINS_CLAUSE")][:6]
-                gov_matrix[key] = {
-                    "gov": adk_agents.verify_cmn_and_intapp_wall(lawyer_id=lid, matter_id=mid),
-                    "graph": {"nodes": nodes, "edges": edges},
-                }
-        payload["gov_matrix"] = gov_matrix
+    # 3. Studio 3: FundGen / FundHQ MFN & Antitrust HSR
+    funds_on = adk_agents.analyze_fundgen_mfn_and_antitrust_hhi(0.0, True)
+    funds_off = adk_agents.analyze_fundgen_mfn_and_antitrust_hhi(0.0, False)
+    for f_obj in (funds_on, funds_off):
+        for vf in f_obj.get("visual_files", []):
+            raw_img = vf.get("image_url", "")
+            if raw_img.startswith("/"):
+                vf["image_url"] = f"{api_base}{raw_img}"
+            raw_pdf = vf.get("pdf_url", "")
+            if raw_pdf.startswith("/"):
+                vf["pdf_url"] = f"{api_base}{raw_pdf}"
+    payload["funds_remedy_on"] = funds_on
+    payload["funds_remedy_off"] = funds_off
 
-    elif initial_view == "inbox-view":
-        payload["inbox_initial"] = adk_agents.triage_partner_inbox_and_calendar(reset_state=False)
+    # 4. Studio 4: Intapp Ethical Wall & Cloud Spanner Graph
+    gov_matrix: Dict[str, Any] = {}
+    for lid in ("L-001", "L-002", "L-003", "L-005"):
+        for mid in ("M-331-KESTREL", "M-402", "M-610-FUNDGEN", "M-720-ANTITRUST", "M-999"):
+            key = f"{lid}__{mid}"
+            raw_graph = spanner_engine.traverse_precedent_graph(matter_id=mid, lawyer_id=lid)
+            nodes = [n for n in (raw_graph.get("nodes") or []) if n.get("type") in ("Document", "Clause")][:6]
+            edges = [e for e in (raw_graph.get("edges") or []) if e.get("type") in ("CITES_PRECEDENT", "CONTAINS_CLAUSE")][:6]
+            gov_matrix[key] = {
+                "gov": adk_agents.verify_cmn_and_intapp_wall(lawyer_id=lid, matter_id=mid),
+                "graph": {"nodes": nodes, "edges": edges},
+            }
+    payload["gov_matrix"] = gov_matrix
+
+    # 5. Studio 5: Partner Deal Inbox & Calendar Triage
+    payload["inbox_initial"] = adk_agents.triage_partner_inbox_and_calendar(reset_state=False)
 
     _BOOTSTRAP_CACHE[cache_key] = payload
     return payload
@@ -249,7 +249,7 @@ def build_mike_gcp_html(
     )
     bootstrap_json = json.dumps(bootstrap).replace("</", "<\\/")
     kestrel_rows = bootstrap.get("kestrel_rows") or list(demo_data.TABULAR_REVIEWS)
-    prerendered_tbody = _prerender_kestrel_tbody_html(kestrel_rows) if initial_view == "tabular-view" else ""
+    prerendered_tbody = _prerender_kestrel_tbody_html(kestrel_rows)
     first_row = kestrel_rows[0]
     first_quote = html_lib.escape(first_row.get("quote", ""))
     first_page_text = html_lib.escape((bootstrap.get("doc_pages") or {}).get(first_row["doc_id"], first_row.get("quote", "")))
@@ -259,13 +259,21 @@ def build_mike_gcp_html(
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Mike — Enterprise Legal AI for Gemini Enterprise</title>
+<title>Gemini Enterprise — Weil Legal Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=Google+Sans+Flex:opsz,wght@8..144,400..600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..700&family=Google+Sans+Flex:opsz,wght@8..144,300..700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
 
 <style>
 /* __GE_LUMINOUS_TOKENS_CSS__ */
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap');
+
+:root,
+[data-theme="google"],
+[data-mode="light"],
+[data-mode="dark"] {
+  --font-icon: 'Material Symbols Rounded', 'Luminous Symbols', 'Google Symbols';
+}
 
 :root {
   /* Official Mike OSS (willchen96/mike) + Gemini Enterprise Luminous Tokens */
@@ -313,8 +321,8 @@ html, body {
   font-family: var(--font-sans);
   font-size: 13px;
   line-height: 1.5;
-  background-color: var(--app-background);
-  color: var(--editor-text);
+  background-color: var(--color-ge-surface);
+  color: var(--color-ge-on-surface);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -328,21 +336,22 @@ button {
 
 /* Official Mike OSS Liquid Glass Surfaces (LiquidGlassUI.css) */
 .liquid-glass-flat {
-  background: var(--app-surface);
+  background: var(--color-ge-surface-container-lowest);
   border: 1px solid var(--color-ge-outline-variant);
+  border-radius: 16px;
   box-shadow: var(--lumi-sys-elevation--level1);
 }
 
-/* Official Mike OSS TabPillButtonUI (TabPillButtonUI.tsx) */
+/* Gemini Enterprise Luminous Filter Chips (components/luminous/chips/Chip.tsx) */
 .tab-pill-btn {
   display: inline-flex;
-  height: 26px;
+  height: 32px;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  border-radius: 9999px;
-  padding: 0 10px;
-  font-size: 11.5px;
+  gap: 6px;
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--color-ge-on-surface-variant);
   background: var(--color-ge-surface-container-lowest);
@@ -352,28 +361,42 @@ button {
   white-space: nowrap;
 }
 .tab-pill-btn:hover {
-  background: var(--color-ge-surface-container-low);
+  background: var(--lumi-sys-color-states--hover-on-surface);
   color: var(--color-ge-on-surface);
   border-color: var(--color-ge-outline-variant);
 }
-.tab-pill-btn.active {
+.tab-pill-btn.active,
+.lumi-chip.active {
   background: var(--color-ge-secondary-container);
   color: var(--color-ge-on-secondary-container);
   border-color: transparent;
   box-shadow: none;
   font-weight: 600;
 }
+.lumi-segmented-group .tab-pill-btn {
+  height: 28px;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: var(--color-ge-on-surface-variant);
+  padding: 0 14px;
+}
+.lumi-segmented-group .tab-pill-btn.active {
+  background: var(--color-ge-surface-container-lowest);
+  color: var(--color-ge-on-surface);
+  box-shadow: var(--lumi-sys-elevation--level1);
+}
 
-/* Official Mike OSS PillButtonUI (PillButtonUI.styles.ts) */
+/* Gemini Enterprise Luminous Action Buttons (components/luminous/buttons/Button.tsx) */
 .pill-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  height: 26px;
-  padding: 0 11px;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
   border-radius: 9999px;
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 500;
   line-height: 1;
   transition: background-color 0.15s, color 0.15s, box-shadow 0.15s, transform 0.1s;
@@ -384,12 +407,14 @@ button {
   transform: scale(0.98);
 }
 .pill-btn.lumi-icon-btn {
-  width: auto;
+  width: 36px;
+  height: 36px;
+  padding: 0;
 }
 .pill-btn-xs {
-  height: 23px;
-  padding: 0 9px;
-  font-size: 11px;
+  height: 28px;
+  padding: 0 11px;
+  font-size: 11.5px;
 }
 .pill-btn-blue {
   background: var(--color-ge-primary);
@@ -407,34 +432,34 @@ button {
   box-shadow: none;
 }
 .pill-btn-white:hover:not(:disabled) {
-  background: var(--color-ge-surface-container);
+  background: var(--lumi-sys-color-states--hover-on-surface);
   color: var(--color-ge-on-surface);
 }
 .pill-btn-danger {
-  background: rgba(220, 38, 38, 0.92);
-  color: var(--lumi-sys-color--white);
-  box-shadow: 0 2px 6px rgba(127, 29, 29, 0.14);
+  background: var(--color-red-bg);
+  color: var(--color-red-text);
+  border: 1px solid var(--color-red-border);
 }
 .pill-btn-danger:hover:not(:disabled) {
-  background: var(--color-red-text);
+  background: var(--color-red-border);
 }
 
 /* Official Mike OSS CitationPillUI (CitationPillUI.tsx) */
 .citation-pill {
   display: inline-flex;
-  height: 17px;
-  min-width: 17px;
-  padding: 0 4px;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 5px;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
   background: var(--color-ge-surface-container-high);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: 11px;
   font-weight: 600;
   color: var(--color-ge-on-surface);
   border: none;
-  margin-left: 3px;
+  margin-left: 4px;
   vertical-align: middle;
   transition: background-color 0.15s, color 0.15s;
 }
@@ -444,16 +469,16 @@ button {
   color: var(--color-ge-on-secondary-container);
 }
 
-/* Official Mike OSS Status / Risk Pills (pillUtils.ts) */
+/* Gemini Enterprise Status Badges (components/luminous/badges/StatusBadge.tsx) */
 .status-pill {
   display: inline-flex;
   height: auto;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   border-radius: 9999px;
-  padding: 2px 8px;
-  font-size: 11px;
-  font-weight: 500;
+  padding: 3px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
   line-height: 1.25;
   white-space: nowrap;
 }
@@ -488,45 +513,120 @@ button {
   border: 1px solid var(--color-ge-outline-variant);
 }
 
-/* Main App Container */
-#app-shell {
-  display: flex;
-  flex-direction: column;
+/* ==========================================================================
+ * Authentic Gemini Enterprise App Shell (NavRail.tsx + Canvas.tsx)
+ * ========================================================================== */
+#app-shell,
+.ge-app-shell {
+  display: grid;
+  grid-template-columns: 236px minmax(0, 1fr);
   width: 100vw;
   height: 100vh;
   min-height: 680px;
   overflow: hidden;
-  background: var(--app-background);
+  background-color: var(--color-ge-surface);
+}
+.ge-nav-rail {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 12px;
+  background-color: var(--color-ge-surface);
+  overflow-y: auto;
+}
+.ge-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 12px 18px;
+}
+.ge-nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.ge-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 9999px;
+  border: none;
+  background: transparent;
+  color: var(--color-ge-on-surface-variant);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+.ge-nav-item:hover {
+  background-color: var(--lumi-sys-color-states--hover-on-surface);
+  color: var(--color-ge-on-surface);
+}
+.ge-nav-item.active {
+  background-color: var(--color-ge-secondary-container);
+  color: var(--color-ge-on-secondary-container);
+  font-weight: 600;
+}
+.ge-main-canvas {
+  background-color: var(--color-ge-surface-container-lowest);
+  border: 1px solid var(--color-ge-outline-variant);
+  border-radius: 24px;
+  margin: 12px 12px 12px 0;
+  padding: 20px 28px;
+  box-shadow: var(--lumi-sys-elevation--level1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+.ge-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  flex-shrink: 0;
+}
+.ge-kpi-grid .lumi-card {
+  padding: 14px 16px;
+  border-radius: 16px;
+}
+.ge-kpi-grid .gds-headline-l {
+  font-size: 25px;
+  line-height: 31px;
 }
 
 .studio-screen {
   display: none;
   flex-direction: column;
+  gap: 14px;
   width: 100%;
-  height: 100%;
-  min-height: 680px;
-  overflow: hidden;
+  flex: 1;
+  min-height: 0;
 }
 .studio-screen.active {
   display: flex;
 }
 
-/* Mike OSS PageHeader (Single-line compact header so it never eats vertical height) */
+/* Gemini Enterprise PageHeader (components/luminous/headers/PageHeader.tsx) */
 .mike-page-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  min-height: 44px;
-  padding: 6px 18px;
-  background: var(--app-surface);
-  border-bottom: 1px solid var(--table-grid-border);
+  gap: 12px;
+  padding: 0 0 14px 0;
+  background: transparent;
+  border-bottom: 1px solid var(--color-ge-outline-variant);
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 .header-brand {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  align-items: flex-start;
+  gap: 10px;
   min-width: 0;
   flex: 1;
 }
@@ -535,78 +635,76 @@ button {
   flex: 1;
 }
 .header-title {
-  font-family: var(--font-serif);
-  font-size: 17px;
-  font-weight: 500;
-  color: var(--editor-heading);
-  letter-spacing: -0.01em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 30px;
+  color: var(--color-ge-on-surface);
+  letter-spacing: 0;
+  margin: 0;
 }
 .header-subtitle {
-  font-size: 10.5px;
-  color: var(--editor-muted-text);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 12px;
+  color: var(--color-ge-on-surface-variant);
 }
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
-/* Mike OSS TableToolbar */
+/* Gemini Enterprise SearchBar & FilterRow (SearchBar.tsx, FilterRow.tsx) */
 .mike-toolbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
-  padding: 6px 18px;
-  background: var(--app-background);
-  border-bottom: 1px solid var(--table-grid-border);
+  gap: 12px;
+  padding: 0;
+  background: transparent;
+  border-bottom: none;
   flex-shrink: 0;
   flex-wrap: wrap;
 }
 .toolbar-left {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 .toolbar-right {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 8px;
   margin-left: auto;
 }
 
 .search-input {
-  height: 26px;
-  padding: 0 10px;
+  height: 38px;
+  padding: 0 14px;
   border-radius: 9999px;
-  border: 1px solid var(--color-ge-outline-variant);
-  background: var(--color-ge-surface-container-lowest);
-  font-size: 11.5px;
+  border: 1px solid transparent;
+  background: var(--color-ge-surface-container);
+  font-size: 13px;
   color: var(--color-ge-on-surface);
   outline: none;
-  width: 170px;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  width: 240px;
+  transition: border-color 0.15s, background-color 0.15s;
 }
 .search-input:focus {
-  border-color: var(--color-blue);
-  box-shadow: 0 0 0 2px rgba(0, 136, 255, 0.15);
+  background: var(--color-ge-surface-container-lowest);
+  border-color: var(--color-ge-primary);
 }
 
 /* Split Workspace Stage */
 .workspace-stage {
   flex: 1;
   display: flex;
-  min-height: 480px;
-  overflow: hidden;
+  gap: 18px;
+  min-height: 420px;
   position: relative;
+  align-items: stretch;
 }
 
 .primary-pane {
@@ -615,25 +713,46 @@ button {
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  border-radius: 16px;
+  border: 1px solid var(--color-ge-outline-variant);
+  background: var(--color-ge-surface-container-lowest);
   overflow: hidden;
 }
 
-/* Mike OSS TRSidePanel (TRSidePanel.tsx) */
+/* Grounded Clause & Document Inspector Card */
 .side-inspector-pane {
-  width: 340px;
-  max-width: 32%;
-  background: var(--app-surface);
-  border-left: 1px solid var(--table-grid-border);
+  width: 390px;
+  max-width: 39%;
+  background: var(--color-ge-accent-surface);
+  border: 1px solid var(--color-ge-accent);
+  border-radius: 16px;
   display: none;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-  box-shadow: -4px 0 16px rgba(15, 23, 42, 0.04);
+  box-shadow: var(--lumi-sys-elevation--level1);
   z-index: 30;
   flex-shrink: 0;
 }
 .side-inspector-pane.open {
   display: flex;
+}
+
+@media (max-width: 1020px) {
+  #app-shell,
+  .ge-app-shell {
+    grid-template-columns: 1fr;
+  }
+  .ge-nav-rail {
+    display: none !important;
+  }
+  .ge-main-canvas {
+    margin: 8px !important;
+    padding: 16px 20px !important;
+  }
+  .ge-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 780px) {
@@ -642,41 +761,38 @@ button {
     inset: 0;
     width: 100%;
     max-width: 100%;
-    border-left: none;
   }
   .search-input {
-    width: 125px;
+    width: 160px;
   }
   .header-title {
-    font-size: 15.5px;
+    font-size: 19px;
   }
 }
 
-/* Mike OSS Tabular Review Grid (TRTable.tsx + TabularCell.tsx) */
+/* Gemini Enterprise DataTable (components/luminous/archive/DataTable.tsx) */
 .tr-grid-scroll {
   flex: 1;
-  min-height: 420px;
+  min-height: 380px;
   overflow: auto;
-  background: var(--app-surface);
+  background: var(--color-ge-surface-container-lowest);
   position: relative;
 }
 .tr-table {
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
+  border-collapse: collapse;
   table-layout: fixed;
-  font-size: 12px;
+  font-size: 12.5px;
 }
 .tr-table th {
   position: sticky;
   top: 0;
   z-index: 15;
   background: var(--color-ge-surface-container-low);
-  border-bottom: 1px solid var(--table-grid-border);
-  border-right: 1px solid var(--table-grid-border);
-  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-ge-outline-variant);
+  padding: 11px 14px;
   text-align: left;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--color-ge-on-surface-variant);
   white-space: nowrap;
@@ -688,17 +804,15 @@ button {
   left: 0;
   z-index: 25;
   background: var(--color-ge-surface-container-low);
-  padding-left: 18px;
-  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08);
+  padding-left: 16px;
 }
 .tr-table td {
-  border-bottom: 1px solid var(--table-grid-border);
-  border-right: 1px solid var(--table-grid-border);
-  padding: 8px 10px;
+  border-bottom: 1px solid var(--color-ge-outline-variant);
+  padding: 12px 14px;
   vertical-align: top;
   color: var(--color-ge-on-surface);
-  line-height: 1.42;
-  background: var(--app-surface);
+  line-height: 1.45;
+  background: var(--color-ge-surface-container-lowest);
   transition: background-color 0.12s;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -707,25 +821,20 @@ button {
   position: sticky;
   left: 0;
   z-index: 10;
-  background: var(--app-surface);
-  padding-left: 18px;
-  box-shadow: 2px 0 6px -2px rgba(15, 23, 42, 0.08);
+  background: var(--color-ge-surface-container-lowest);
+  padding-left: 16px;
 }
-.tr-table tr:hover td {
-  background: var(--color-ge-surface);
-}
+.tr-table tr:hover td,
 .tr-table tr:hover td:first-child {
-  background: var(--color-ge-surface);
+  background: var(--lumi-sys-color-states--hover-on-surface);
 }
-.tr-table tr.active-row td {
-  background: var(--color-ge-accent-surface);
-}
+.tr-table tr.active-row td,
 .tr-table tr.active-row td:first-child {
   background: var(--color-ge-accent-surface);
 }
 
 .doc-cell-title {
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-ge-on-surface);
   display: flex;
   align-items: flex-start;
@@ -738,13 +847,13 @@ button {
 .doc-filename-text {
   white-space: normal;
   word-break: break-word;
-  line-height: 1.32;
+  line-height: 1.35;
 }
 .doc-cell-title:hover {
-  color: var(--ge-primary);
+  color: var(--color-ge-primary);
 }
 .doc-cell-sub {
-  font-size: 11px;
+  font-size: 11.5px;
   color: var(--color-ge-on-surface-variant);
   margin-top: 3px;
   padding-left: 20px;
@@ -753,10 +862,11 @@ button {
 /* Inline Add Column Drawer (AddColumnModal.tsx) */
 .add-col-bar {
   display: none;
-  padding: 8px 12px;
-  background: var(--color-ge-surface-container-lowest);
-  border-bottom: 1px solid var(--table-grid-border);
-  gap: 6px;
+  padding: 12px 16px;
+  background: var(--color-ge-surface-container-low);
+  border: 1px solid var(--color-ge-outline-variant);
+  border-radius: 16px;
+  gap: 8px;
   flex-direction: column;
 }
 .add-col-bar.open {
@@ -765,33 +875,33 @@ button {
 .add-col-row {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-wrap: wrap;
 }
 .field-input {
-  height: 26px;
-  padding: 0 9px;
+  height: 34px;
+  padding: 0 12px;
   border-radius: 8px;
   border: 1px solid var(--color-ge-outline-variant);
   background: var(--color-ge-surface-container-lowest);
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: var(--color-ge-on-surface);
   outline: none;
 }
 .field-input:focus {
-  border-color: var(--color-blue);
+  border-color: var(--color-ge-primary);
   box-shadow: 0 0 0 2px rgba(0, 136, 255, 0.15);
 }
 
-/* Mike OSS Document & Pin-Cite Reader */
+/* Grounded Document & Pin-Cite Reader */
 .inspector-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--table-grid-border);
-  background: var(--color-ge-surface-container-low);
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-ge-outline-variant);
+  background: var(--color-ge-accent-surface);
   flex-shrink: 0;
 }
 .inspector-body {
@@ -801,17 +911,18 @@ button {
   font-family: var(--font-serif);
   font-size: 14.5px;
   line-height: 1.65;
-  color: var(--editor-text);
-  background: var(--app-surface);
+  color: var(--color-ge-on-surface);
+  background: var(--color-ge-accent-surface);
 }
 .pin-cite-box {
   font-family: var(--font-sans);
-  font-size: 11.5px;
-  background: var(--citation-selected-background);
-  color: var(--citation-selected-text);
-  border-left: 3px solid var(--color-blue);
-  padding: 8px 10px;
-  border-radius: 0 8px 8px 0;
+  font-size: 12px;
+  background: var(--color-ge-surface-container-lowest);
+  color: var(--color-ge-on-surface);
+  border: 1px solid var(--color-ge-outline-variant);
+  border-left: 4px solid var(--color-ge-accent);
+  padding: 10px 12px;
+  border-radius: 12px;
   margin-bottom: 12px;
 }
 .contract-highlight {
@@ -822,20 +933,20 @@ button {
   box-shadow: 0 0 0 1px var(--color-yellow-border);
 }
 
-/* Mike OSS EditCardUI & TextSlabUI */
+/* Gemini Enterprise ResourceCard & TextSlab */
 .edit-card {
-  background: var(--app-surface);
-  border: 1px solid var(--table-grid-border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  background: var(--color-ge-surface-container-lowest);
+  border: 1px solid var(--color-ge-outline-variant);
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  box-shadow: var(--lumi-sys-elevation--level1);
 }
 .text-slab {
   background: var(--color-ge-surface);
   border: 1px solid var(--color-ge-outline-variant);
-  border-radius: 8px;
-  padding: 9px 11px;
+  border-radius: 12px;
+  padding: 10px 12px;
   font-family: var(--font-serif);
   font-size: 14px;
   line-height: 1.58;
@@ -862,43 +973,32 @@ button {
   flex: 1;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
-  min-height: 480px;
-  overflow: hidden;
+  gap: 18px;
+  min-height: 420px;
+  align-items: start;
 }
-@media (max-width: 780px) {
+@media (max-width: 880px) {
   .two-col-studio {
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
   }
 }
 .studio-col {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  overflow-y: auto;
-  padding: 12px 14px;
-  gap: 10px;
+  padding: 0;
+  gap: 14px;
 }
 .studio-col + .studio-col {
-  border-left: 1px solid var(--table-grid-border);
-  background: var(--color-ge-surface-container-lowest);
-}
-@media (max-width: 780px) {
-  .studio-col {
-    overflow-y: visible;
-  }
-  .studio-col + .studio-col {
-    border-left: none;
-    border-top: 1px solid var(--table-grid-border);
-  }
+  border-left: none;
+  background: transparent;
 }
 
 .section-label {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.01em;
   color: var(--color-ge-on-surface-variant);
   margin-bottom: 4px;
 }
@@ -1540,65 +1640,153 @@ button {
 </head>
 <body>
 
-<div id="app-shell">
+<div id="app-shell" class="ge-app-shell">
+
+  <!-- Left Navigation Rail (components/luminous/navigation-rail/NavRail.tsx) -->
+  <aside class="ge-nav-rail" aria-label="Primary Navigation">
+    <div>
+      <div class="ge-brand-row">
+        <span class="google-symbols filled" style="font-size:26px; background:var(--gradient-gemini-sparkle); -webkit-background-clip:text; -webkit-text-fill-color:transparent; color:transparent;">temp_preferences_custom</span>
+        <div>
+          <div class="gds-title-m" style="line-height:1.2;">Gemini Enterprise</div>
+          <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Weil Legal Intelligence</div>
+        </div>
+      </div>
+      <nav class="ge-nav-list" id="ge-studio-nav-list">
+        <button type="button" class="ge-nav-item" data-studio="tabular-view" onclick="switchStudioScreen('tabular-view', this)">
+          <span class="google-symbols">table_chart</span> Tabular Diligence
+        </button>
+        <button type="button" class="ge-nav-item" data-studio="redline-view" onclick="switchStudioScreen('redline-view', this)">
+          <span class="google-symbols">gavel</span> Redline &amp; Legos
+        </button>
+        <button type="button" class="ge-nav-item" data-studio="funds-view" onclick="switchStudioScreen('funds-view', this)">
+          <span class="google-symbols">account_tree</span> FundGen &amp; HSR
+        </button>
+        <button type="button" class="ge-nav-item" data-studio="governance-view" onclick="switchStudioScreen('governance-view', this)">
+          <span class="google-symbols">corporate_fare</span> Intapp &amp; Graph
+        </button>
+        <button type="button" class="ge-nav-item" data-studio="inbox-view" onclick="switchStudioScreen('inbox-view', this)">
+          <span class="google-symbols">description</span> Partner Inbox
+        </button>
+      </nav>
+    </div>
+    <div class="lumi-card lumi-card-tonal" style="padding:14px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+        <span class="gds-emphasized-body-s">MCP Host Bridge</span>
+        <span class="lumi-status-badge lumi-badge-green"><span class="lumi-status-badge-dot"></span>Connected</span>
+      </div>
+      <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">
+        Grounded in 46 deal contracts &amp; Cloud Spanner WeilLegalGraph.
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Workspace Canvas (components/luminous/canvas/Canvas.tsx) -->
+  <main class="ge-main-canvas">
 
   <!-- ===================================================================== -->
   <!-- STUDIO 1: MIKE OSS TABULAR REVIEW & PIN-CITE READER (mike-gcp-platform) -->
   <!-- ===================================================================== -->
   <section id="tabular-view" class="studio-screen">
     <header class="mike-page-header lumi-page-header">
-      <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
-          <circle cx="12" cy="12" r="9.5" stroke="var(--color-ge-outline)"/>
-          <path d="M12 2.5L15 9.5M21.5 12L14.5 15M12 21.5L9 14.5M2.5 12L9.5 9"/>
-          <circle cx="12" cy="12" r="3" fill="var(--color-ge-primary)" stroke="none"/>
-        </svg>
-        <div>
-          <div class="header-title gds-title-m">Project Kestrel — Change of Control Review</div>
-          <div class="header-subtitle gds-body-s" id="tr-subtitle">Matter M-331 · CMN 31402-0018 · 7 Active Contracts in Cloud Spanner</div>
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+          <span class="gds-body-s" id="tr-subtitle" style="color:var(--color-ge-on-surface-variant);">Active Matters / Project Kestrel M&amp;A • CMN 31402-0018 • 7 Active Contracts in Cloud Spanner</span>
+          <span class="lumi-status-badge lumi-badge-purple">
+            <span class="google-symbols filled" style="font-size:13px;">auto_awesome</span> Luminous AI Active
+          </span>
         </div>
+        <h1 class="header-title gds-headline-m">Project Kestrel — Change of Control &amp; Deal Diligence</h1>
       </div>
       <div class="header-actions">
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
-          ◐ Theme
+        <div class="lumi-segmented-group" role="tablist" aria-label="Corpus Scope">
+          <button id="pill-corpus-kestrel" type="button" class="lumi-segmented-item tab-pill-btn active" onclick="switchTabularCorpus('kestrel')">
+            Kestrel CoC (7)
+          </button>
+          <button id="pill-corpus-all" type="button" class="lumi-segmented-item tab-pill-btn" onclick="switchTabularCorpus('scaled')">
+            All Contracts (46)
+          </button>
+        </div>
+        <button type="button" class="lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode" aria-label="Toggle Light or Dark Mode">
+          <span class="google-symbols ge-theme-icon">dark_mode</span>
         </button>
-        <button id="btn-toggle-add-col" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="toggleAddColumnBar()">
-          + Add column
+        <button id="btn-toggle-add-col" type="button" class="pill-btn lumi-btn lumi-btn-accent lumi-btn-sm button--state-layer" onclick="toggleAddColumnBar()">
+          <span class="google-symbols filled" style="font-size:16px;">auto_awesome</span> Add AI Column
         </button>
-        <button id="btn-export-csv" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" onclick="exportGridToCsv()">
-          Export CSV
+        <button id="btn-export-csv" type="button" class="pill-btn lumi-btn lumi-btn-filled lumi-btn-sm button--state-layer" onclick="exportGridToCsv()">
+          <span class="google-symbols" style="font-size:16px;">ios_share</span> Export CSV
         </button>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')" title="Dock in Gemini Enterprise Right Side Panel">
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('pip')" title="Dock in Gemini Enterprise Right Side Panel">
           Side Panel
         </button>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')" title="Expand to Fullscreen">
-          Maximize
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('fullscreen')" title="Expand to Fullscreen">
+          <span class="google-symbols" style="font-size:15px;">open_in_full</span> Maximize
         </button>
       </div>
     </header>
 
     <div class="mike-toolbar">
+      <div class="lumi-search-bar" style="flex:1; min-width:260px;">
+        <span class="google-symbols" style="color:var(--color-ge-on-surface-variant);">search</span>
+        <input id="tr-search-input" type="search" placeholder="Filter by contract filename, Change-of-Control trigger, consent threshold, or fee penalty..." oninput="filterTabularRows(this.value)" />
+      </div>
       <div class="toolbar-left">
-        <button id="pill-corpus-kestrel" class="tab-pill-btn lumi-chip active" onclick="switchTabularCorpus('kestrel')">
-          Kestrel CoC Grid (7)
+        <button type="button" class="tab-pill-btn lumi-chip selected active" onclick="filterTabularRows('')">
+          <span class="google-symbols" style="font-size:15px;">check</span> All Provisions
         </button>
-        <button id="pill-corpus-all" class="tab-pill-btn lumi-chip" onclick="switchTabularCorpus('scaled')">
-          All Deal Documents (46)
+        <button type="button" class="tab-pill-btn lumi-chip" onclick="filterTabularRows('prior written')">
+          Prior Written Consent
         </button>
-        <button id="pill-grant-em9901" class="tab-pill-btn lumi-chip" onclick="toggleTeammateGrant()" title="Toggle 30-day Screen-Before-Rank grant for unfiled tax email EM-9901">
-          <span id="grant-dot" style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--color-green-icon);"></span>
+        <button type="button" class="tab-pill-btn lumi-chip" onclick="filterTabularRows('338')">
+          IRC § 338(h)(10) Tax
+        </button>
+        <button id="pill-grant-em9901" type="button" class="tab-pill-btn lumi-chip" onclick="toggleTeammateGrant()" title="Toggle 30-day Screen-Before-Rank grant for unfiled tax email EM-9901">
+          <span id="grant-dot" style="display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--color-green-icon);"></span>
           <span id="grant-label">EM-9901 Grant: Active</span>
         </button>
       </div>
-      <div class="toolbar-right">
-        <input id="tr-search-input" type="search" class="search-input lumi-search-bar" placeholder="Filter contracts or clauses..." oninput="filterTabularRows(this.value)" />
-      </div>
     </div>
+
+    <!-- KPI Summary Cards (components/luminous/cards/ResourceCard.tsx) -->
+    <section class="ge-kpi-grid discover-reveal" aria-label="Diligence Portfolio Metrics">
+      <div class="lumi-card card--interactive" onclick="switchTabularCorpus('scaled')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Indexed Deal Contracts</span>
+          <span class="lumi-status-badge lumi-badge-teal"><span class="lumi-status-badge-dot"></span>Spanner Verified</span>
+        </div>
+        <div class="gds-headline-l">46 Docs</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">7 Kestrel CoC + 39 Precedents</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="filterTabularRows('prior written')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Change-of-Control Risk</span>
+          <span class="lumi-status-badge lumi-badge-red"><span class="lumi-status-badge-dot"></span>High Risk</span>
+        </div>
+        <div class="gds-headline-l">4 Blockers</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">Prior written consent required</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="toggleTeammateGrant()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Unfiled Tax Escrow</span>
+          <span class="lumi-status-badge lumi-badge-yellow"><span class="lumi-status-badge-dot"></span>30-Day Grant</span>
+        </div>
+        <div class="gds-headline-l">$14.2M</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">IRC § 338(h)(10) EM-9901</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="openSideInspector(0)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Citation Grounding</span>
+          <span class="lumi-status-badge lumi-badge-green"><span class="lumi-status-badge-dot"></span>100% Verified</span>
+        </div>
+        <div class="gds-headline-l">1,293 Clauses</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">docparse BBox + RRF Entailed</div>
+      </div>
+    </section>
 
     <!-- Inline Add Column Bar (Mike OSS AddColumnModal pattern — Live Parallel Gemini 3.8 Flash) -->
     <div id="add-col-bar" class="add-col-bar">
       <div class="add-col-row">
-        <span style="font-size:11px;font-weight:600;color:var(--color-ge-on-surface-variant);">Quick Presets:</span>
+        <span style="font-size:11.5px;font-weight:600;color:var(--color-ge-on-surface-variant);">Quick Presets:</span>
         <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="fillPresetColumn('Agreement Title & Parties', 'Extract the official agreement title and contracting parties from the preamble.')">
           Agreement Title &amp; Parties
         </button>
@@ -1613,19 +1801,26 @@ button {
         </button>
       </div>
       <div class="add-col-row">
-        <input id="new-col-name" type="text" class="field-input" style="width:175px;" placeholder="Column name (e.g. Title, Parties, Law)" value="" onkeydown="if(event.key==='Enter')runDynamicColumnExtraction()" />
-        <input id="new-col-prompt" type="text" class="field-input" style="flex:1;min-width:190px;" placeholder="Optional extraction instructions (leave blank to auto-extract by Column name via Gemini 3.8 Flash)..." value="" onkeydown="if(event.key==='Enter')runDynamicColumnExtraction()" />
-        <button id="btn-run-col-extract" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="runDynamicColumnExtraction()">
-          Run extraction
+        <input id="new-col-name" type="text" class="field-input" style="width:190px;" placeholder="Column name (e.g. Title, Parties, Law)" value="" onkeydown="if(event.key==='Enter')runDynamicColumnExtraction()" />
+        <input id="new-col-prompt" type="text" class="field-input" style="flex:1;min-width:210px;" placeholder="Optional extraction instructions (leave blank to auto-extract by Column name via Gemini 3.8 Flash)..." value="" onkeydown="if(event.key==='Enter')runDynamicColumnExtraction()" />
+        <button id="btn-run-col-extract" type="button" class="pill-btn lumi-btn lumi-btn-filled lumi-btn-sm button--state-layer" onclick="runDynamicColumnExtraction()">
+          <span class="google-symbols filled" style="font-size:15px;">auto_awesome</span> Run extraction
         </button>
-        <button type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" onclick="toggleAddColumnBar()">
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="toggleAddColumnBar()">
           Cancel
         </button>
       </div>
     </div>
 
     <div class="workspace-stage">
-      <div class="primary-pane">
+      <div class="primary-pane lumi-table-wrap">
+        <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--color-ge-outline-variant);">
+          <span class="gds-title-m">Extracted Change-of-Control &amp; Deal Clauses</span>
+          <span class="lumi-source-chip">
+            <span class="google-symbols" style="font-size:14px; color:var(--color-teal-icon);">verified</span>
+            Cloud Spanner WeilLegalGraph
+          </span>
+        </div>
         <div class="tr-grid-scroll">
           <table class="tr-table lumi-table" id="kestrel-grid-table">
             <thead id="tr-thead">
@@ -1644,14 +1839,14 @@ __PRERENDERED_TBODY__
         </div>
       </div>
 
-      <!-- Mike OSS TRSidePanel Document & Pin-Cite Reader -->
+      <!-- Grounded Clause & Document Pin-Cite Reader -->
       <aside id="tr-side-panel" class="side-inspector-pane animate-canvas-slide-in">
         <div class="inspector-header">
           <div style="min-width:0;">
-            <div id="insp-doc-title" style="font-weight:600;font-size:12px;color:var(--color-ge-on-surface);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+            <div id="insp-doc-title" class="gds-title-m" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
               01_Supply_Agreement_Halvorsen_Brightwater.docx
             </div>
-            <div id="insp-doc-meta" style="font-size:11px;color:var(--color-ge-on-surface-variant);">
+            <div id="insp-doc-meta" class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">
               DOC-KESTREL-01 · Section 12.03(a) · Page 4
             </div>
           </div>
@@ -1663,8 +1858,8 @@ __PRERENDERED_TBODY__
             <button id="btn-close-inspector" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="closeSideInspector()">✕</button>
           </div>
         </div>
-        <div class="inspector-body" style="padding:10px 12px;background:var(--color-ge-surface-container-high);">
-          <div class="pin-cite-box" id="insp-pincite-quote" style="background:var(--color-ge-surface-container-lowest);border:1px solid var(--color-blue-border);border-left:4px solid var(--color-ge-primary);box-shadow:0 2px 6px rgba(15,23,42,0.05);">
+        <div class="inspector-body" style="padding:12px 14px;">
+          <div class="pin-cite-box" id="insp-pincite-quote">
             <strong>Pin-Cite (Section 12.03(a), p.4):</strong> “__FIRST_QUOTE__”
           </div>
           <div class="docx-canvas-wrap">
@@ -1703,44 +1898,44 @@ __PRERENDERED_TBODY__
   <!-- ===================================================================== -->
   <section id="redline-view" class="studio-screen">
     <header class="mike-page-header lumi-page-header">
-      <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-          <polyline points="14 2 14 8 20 8"/>
-          <line x1="9" y1="15" x2="15" y2="15" stroke="var(--color-ge-primary)"/>
-        </svg>
-        <div>
-          <div class="header-title gds-title-m">Contract Redline &amp; Legal Legos Composer</div>
-          <div class="header-subtitle gds-body-s">Weil v3 Playbook vs. Skadden v4 Counterparty Markup · Privacy Pro .docx Builder</div>
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Active Matters / Project Kestrel M&amp;A • Weil v3 Playbook vs. Skadden v4 Markup</span>
+          <span class="lumi-status-badge lumi-badge-purple">
+            <span class="google-symbols filled" style="font-size:13px;">auto_awesome</span> Luminous AI Active
+          </span>
         </div>
+        <h1 class="header-title gds-headline-m">Contract Redline &amp; Legal Legos Composer</h1>
       </div>
       <div class="header-actions">
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
-          ◐ Theme
+        <button type="button" class="lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode" aria-label="Toggle Light or Dark Mode">
+          <span class="google-symbols ge-theme-icon">dark_mode</span>
         </button>
-        <a id="btn-download-v4-docx" href="__DEFAULT_API_BASE__/api/corpus/file/08_M331_Brightwater_Merger_Agreement_Skadden_v4_Redline.docx" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" style="text-decoration:none;">
-          Skadden v4 .docx
+        <a id="btn-download-v4-docx" href="__DEFAULT_API_BASE__/api/corpus/file/08_M331_Brightwater_Merger_Agreement_Skadden_v4_Redline.docx" target="_blank" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" style="text-decoration:none;">
+          <span class="google-symbols" style="font-size:16px;">description</span> Skadden v4 .docx
         </a>
-        <a id="btn-download-legos-docx" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" style="text-decoration:none;">
-          Export Composed .docx
+        <a id="btn-download-legos-docx" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" class="pill-btn lumi-btn lumi-btn-filled lumi-btn-sm button--state-layer" style="text-decoration:none;">
+          <span class="google-symbols" style="font-size:16px;">ios_share</span> Export Composed .docx
         </a>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('fullscreen')">
+          <span class="google-symbols" style="font-size:15px;">open_in_full</span> Maximize
+        </button>
       </div>
     </header>
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <button id="red-pair-802" class="tab-pill-btn lumi-chip active" onclick="loadRedlinePair('KESTREL-SPA-802', this)">
-          SPA § 8.02(b) Indemnity Cap
+        <button id="red-pair-802" type="button" class="tab-pill-btn lumi-chip active" onclick="loadRedlinePair('KESTREL-SPA-802', this)">
+          <span class="google-symbols" style="font-size:15px;">gavel</span> SPA § 8.02(b) Indemnity Cap
         </button>
-        <button id="red-pair-scrape" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-SCRAPE-804', this)">
+        <button id="red-pair-scrape" type="button" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-SCRAPE-804', this)">
           SPA § 8.04(a) Materiality Scrape
         </button>
-        <button id="red-pair-tax" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-TAX-304', this)">
+        <button id="red-pair-tax" type="button" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-TAX-304', this)">
           Tax Rider § 3.04 338(h)(10)
         </button>
-        <button id="red-pair-coc" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-COC-804', this)">
+        <button id="red-pair-coc" type="button" class="tab-pill-btn lumi-chip" onclick="loadRedlinePair('KESTREL-COC-804', this)">
           Quillfeather § 8.04 CoC
         </button>
       </div>
@@ -1749,19 +1944,55 @@ __PRERENDERED_TBODY__
       </div>
     </div>
 
+    <!-- KPI Summary Cards -->
+    <section class="ge-kpi-grid discover-reveal" aria-label="Redline & Playbook Metrics">
+      <div class="lumi-card card--interactive" onclick="loadRedlinePair('KESTREL-SPA-802')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Indemnity Cap Delta</span>
+          <span class="lumi-status-badge lumi-badge-red"><span class="lumi-status-badge-dot"></span>High Risk</span>
+        </div>
+        <div class="gds-headline-l">0.25% vs 0.75%</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">$10.5M Skadden v4 vs $31.5M Weil v3</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="loadRedlinePair('KESTREL-SPA-802')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Basket Structure</span>
+          <span class="lumi-status-badge lumi-badge-yellow"><span class="lumi-status-badge-dot"></span>Near Threshold</span>
+        </div>
+        <div class="gds-headline-l">Tipping Basket</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">First-dollar vs $21.0M Deductible</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="openDocxModal('redline')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">OpenXML AST Diff</span>
+          <span class="lumi-status-badge lumi-badge-teal"><span class="lumi-status-badge-dot"></span>100% Verified</span>
+        </div>
+        <div class="gds-headline-l">74.2% Match</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">w:del / w:ins format-locked</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="openDocxModal('legos')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Legal Legos Rider</span>
+          <span class="lumi-status-badge lumi-badge-green"><span class="lumi-status-badge-dot"></span>Compliant</span>
+        </div>
+        <div class="gds-headline-l">3 Clauses</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">ABRY Fraud • § 338(h)(10) • GDPR</div>
+      </div>
+    </section>
+
     <div class="two-col-studio">
       <div class="studio-col">
         <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
-            <div class="section-label gds-label-s" id="redline-doc-pair-label" style="margin-bottom:0;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+            <div class="section-label gds-title-m" id="redline-doc-pair-label" style="margin-bottom:0;">
               07_M331_Brightwater_Merger_Agreement_Weil_v3.docx vs. 08_M331_Skadden_v4_Redline.docx
             </div>
             <button id="btn-maximize-redline-top" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="openDocxModal('redline')">
               ⤢ Maximize Redline
             </button>
           </div>
-          <div id="redline-playbook-banner" style="font-size:12px;color:var(--color-ge-on-primary-container);background:var(--color-blue-bg);border:1px solid var(--color-blue-border);border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
-          <div class="docx-canvas-wrap">
+          <div id="redline-playbook-banner" class="lumi-card lumi-card-selected" style="font-size:12.5px;color:var(--color-ge-on-surface);padding:12px 16px;margin-bottom:10px;border-radius:16px;"></div>
+          <div class="docx-canvas-wrap" style="border-radius:16px;">
             <div class="docx-word-toolbar">
               <div style="display:flex;align-items:center;gap:6px;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-primary-container)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -1797,7 +2028,7 @@ __PRERENDERED_TBODY__
 
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span class="section-label gds-label-s">Tracked Playbook Deviations (Mike OSS EditCardUI)</span>
+            <span class="section-label gds-title-m">Tracked Playbook Deviations (EditCardUI)</span>
             <button id="btn-reset-redline-cards" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="resetRedlineDecisions()">Reset decisions</button>
           </div>
           <div id="redline-edit-cards" class="discover-reveal"></div>
@@ -1805,50 +2036,50 @@ __PRERENDERED_TBODY__
       </div>
 
       <div class="studio-col">
-        <div>
-          <div class="section-label gds-label-s">Weil Privacy Pro &amp; M&amp;A "Legal Legos" Clause Blocks</div>
-          <p style="font-size:11.5px;color:var(--color-ge-on-surface-variant);margin-bottom:6px;">
+        <div class="lumi-card" style="padding:16px;">
+          <div class="section-label gds-title-m" style="margin-bottom:4px;">Weil Privacy Pro &amp; M&amp;A "Legal Legos" Clause Blocks</div>
+          <p class="gds-body-s" style="color:var(--color-ge-on-surface-variant);margin-bottom:10px;">
             Select pre-vetted Weil Playbook clause blocks to assemble a numbered OpenXML <code>.docx</code> rider:
           </p>
-          <div id="legos-checkbox-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
-            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
+          <div id="legos-checkbox-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;">
+            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-radius:12px;cursor:pointer;">
               <input type="checkbox" class="lego-cb" value="LEGO-DE-FRAUD" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
               <div>
-                <div style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-DE-FRAUD · Delaware Express Actual Fraud (ABRY)</div>
-                <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Article VIII → Section 8.02(c)(i)..(ii) · Excludes constructive/equitable fraud</div>
+                <div style="font-size:12.5px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-DE-FRAUD · Delaware Express Actual Fraud (ABRY)</div>
+                <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);">Article VIII → Section 8.02(c)(i)..(ii) · Excludes constructive/equitable fraud</div>
               </div>
             </label>
-            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
+            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-radius:12px;cursor:pointer;">
               <input type="checkbox" class="lego-cb" value="LEGO-338H10-TAX" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
               <div>
-                <div style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-338H10-TAX · IRC § 338(h)(10) $14.2M Tax Escrow</div>
-                <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Article VI → Section 6.09(a)..(b) · Citibank N.A. 18-month tax reserve</div>
+                <div style="font-size:12.5px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-338H10-TAX · IRC § 338(h)(10) $14.2M Tax Escrow</div>
+                <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);">Article VI → Section 6.09(a)..(b) · Citibank N.A. 18-month tax reserve</div>
               </div>
             </label>
-            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
+            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-radius:12px;cursor:pointer;">
               <input type="checkbox" class="lego-cb" value="LEGO-PRIVACY-PRO" checked onchange="updateLegalLegos()" style="margin-top:3px;" />
               <div>
-                <div style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-PRIVACY-PRO · Zero Foundation Model Training &amp; GDPR</div>
-                <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Article XI → Section 11.04(a)..(c) · 24-hour cyber breach notice</div>
+                <div style="font-size:12.5px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-PRIVACY-PRO · Zero Foundation Model Training &amp; GDPR</div>
+                <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);">Article XI → Section 11.04(a)..(c) · 24-hour cyber breach notice</div>
               </div>
             </label>
-            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:7px 10px;border-radius:8px;cursor:pointer;">
+            <label class="liquid-glass-flat" style="display:flex;align-items:flex-start;gap:8px;padding:9px 12px;border-radius:12px;cursor:pointer;">
               <input type="checkbox" class="lego-cb" value="LEGO-MFN-FUNDGEN" onchange="updateLegalLegos()" style="margin-top:3px;" />
               <div>
-                <div style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-MFN-FUNDGEN · Size-Tiered LP MFN Election Rider</div>
-                <div style="font-size:11px;color:var(--color-ge-on-surface-variant);">Side Letter → Paragraph 4(a)..(c) · $250M+ anchor carve-out</div>
+                <div style="font-size:12.5px;font-weight:600;color:var(--color-ge-on-surface);">LEGO-MFN-FUNDGEN · Size-Tiered LP MFN Election Rider</div>
+                <div style="font-size:11.5px;color:var(--color-ge-on-surface-variant);">Side Letter → Paragraph 4(a)..(c) · $250M+ anchor carve-out</div>
               </div>
             </label>
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span class="section-label gds-label-s">Composed Multi-Level .docx Document Preview</span>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span class="section-label gds-title-m" style="margin-bottom:0;">Composed Multi-Level .docx Preview</span>
             <div style="display:flex;gap:6px;">
               <button id="btn-copy-legos" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="copyLegalLegosText()">Copy Rider</button>
               <button id="btn-compose-legos" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="updateLegalLegos(true)">Refresh Outline</button>
               <button id="btn-maximize-legos" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="openDocxModal('legos')">⤢ Maximize</button>
             </div>
           </div>
-          <div class="docx-canvas-wrap">
+          <div class="docx-canvas-wrap" style="border-radius:16px;">
             <div class="docx-word-toolbar">
               <div style="display:flex;align-items:center;gap:6px;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-primary-container)" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
@@ -1868,6 +2099,22 @@ __PRERENDERED_TBODY__
             </div>
           </div>
         </div>
+
+        <!-- Gemini Enterprise PromptPlate (components/luminous/composer/Composer.tsx) -->
+        <div class="lumi-composer">
+          <div class="gds-body-m" style="color:var(--color-ge-on-surface-variant); margin-bottom:10px;">
+            Ask Gemini 3.8 Flash to draft a compromise indemnity basket, insert Delaware fraud blocks, or co-edit in live OpenXML print layout...
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap;">
+            <span class="lumi-source-chip">
+              <span class="google-symbols" style="font-size:14px; color:var(--color-teal-icon);">verified</span>
+              OpenXML AST + Weil Playbook v3.4
+            </span>
+            <button type="button" class="lumi-btn lumi-btn-accent lumi-btn-sm button--state-layer" onclick="openDocxModal('redline')">
+              <span class="google-symbols filled" style="font-size:16px;">auto_awesome</span> Co-Edit in Gemini Workspace
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -1877,57 +2124,97 @@ __PRERENDERED_TBODY__
   <!-- ===================================================================== -->
   <section id="funds-view" class="studio-screen">
     <header class="mike-page-header lumi-page-header">
-      <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
-          <rect x="3" y="3" width="18" height="18" rx="3" stroke="var(--color-ge-outline)"/>
-          <path d="M7 16V11M12 16V7M17 16V13" stroke="var(--color-ge-primary)" stroke-width="2.2" stroke-linecap="round"/>
-        </svg>
-        <div>
-          <div class="header-title gds-title-m">FundGen / FundHQ MFN &amp; Antitrust HSR Analyzer</div>
-          <div class="header-subtitle gds-body-s">Matter M-610 ($12.5B Fund VIII LPA) &amp; Matter M-720 (FTC Second Request HHI &amp; Multimodal Charts)</div>
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Active Matters / Matter M-610 ($12.5B Fund VIII LPA) &amp; Matter M-720 (FTC Second Request HHI)</span>
+          <span class="lumi-status-badge lumi-badge-purple">
+            <span class="google-symbols filled" style="font-size:13px;">auto_awesome</span> Luminous AI Active
+          </span>
         </div>
+        <h1 class="header-title gds-headline-m">FundGen / FundHQ MFN &amp; Antitrust HSR Analyzer</h1>
       </div>
       <div class="header-actions">
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
-          ◐ Theme
+        <button type="button" class="lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode" aria-label="Toggle Light or Dark Mode">
+          <span class="google-symbols ge-theme-icon">dark_mode</span>
         </button>
-        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-FUND-02_Weil_FundHQ_Sovereign_LP_MFN_Side_Letter_Compendium.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" style="text-decoration:none;">
-          FundHQ PDF
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-FUND-02_Weil_FundHQ_Sovereign_LP_MFN_Side_Letter_Compendium.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" style="text-decoration:none;">
+          <span class="google-symbols" style="font-size:16px;">description</span> FundHQ PDF
         </a>
-        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-HSR-01_Hart_Scott_Rodino_Second_Request_Market_Share_Filing.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" style="text-decoration:none;">
-          HSR Filing PDF
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/DOC-HSR-01_Hart_Scott_Rodino_Second_Request_Market_Share_Filing.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-filled lumi-btn-sm button--state-layer" style="text-decoration:none;">
+          <span class="google-symbols" style="font-size:16px;">ios_share</span> HSR Filing PDF
         </a>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('fullscreen')">
+          <span class="google-symbols" style="font-size:15px;">open_in_full</span> Maximize
+        </button>
       </div>
     </header>
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <span style="font-size:11px;font-weight:600;color:var(--color-ge-on-surface-variant);">LP Tier Filter:</span>
-        <button id="btn-lp-all" class="tab-pill-btn lumi-chip active" onclick="loadFundsAntitrust(0, null, this)">
-          All LPs (5)
+        <span style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface-variant);">LP Tier Filter:</span>
+        <button id="btn-lp-all" type="button" class="tab-pill-btn lumi-chip active" onclick="loadFundsAntitrust(0, null, this)">
+          <span class="google-symbols" style="font-size:15px;">check</span> All LPs (5)
         </button>
-        <button id="btn-lp-150" class="tab-pill-btn lumi-chip" onclick="loadFundsAntitrust(150, null, this)">
+        <button id="btn-lp-150" type="button" class="tab-pill-btn lumi-chip" onclick="loadFundsAntitrust(150, null, this)">
           &gt;= $150M Early-Bird
         </button>
-        <button id="btn-lp-250" class="tab-pill-btn lumi-chip" onclick="loadFundsAntitrust(250, null, this)">
+        <button id="btn-lp-250" type="button" class="tab-pill-btn lumi-chip" onclick="loadFundsAntitrust(250, null, this)">
           &gt;= $250M Sovereign Anchor
         </button>
       </div>
       <div class="toolbar-right">
-        <button id="btn-hsr-remedy-toggle" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="toggleHsrRemedy()">
+        <button id="btn-hsr-remedy-toggle" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="toggleHsrRemedy()">
           HSR Divestiture Remedy: ON (Cleared +30 Δ HHI)
         </button>
       </div>
     </div>
 
+    <!-- KPI Summary Cards -->
+    <section class="ge-kpi-grid discover-reveal" aria-label="FundGen & Antitrust Metrics">
+      <div class="lumi-card card--interactive" onclick="loadFundsAntitrust(0, null)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Fund VIII Commitments</span>
+          <span class="lumi-status-badge lumi-badge-blue"><span class="lumi-status-badge-dot"></span>Sovereign Tier</span>
+        </div>
+        <div class="gds-headline-l">$12.5B Cap</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">5 Institutional LPs Analyzed</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="loadFundsAntitrust(250, null)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Fee Savings Preserved</span>
+          <span class="lumi-status-badge lumi-badge-green"><span class="lumi-status-badge-dot"></span>Compliant</span>
+        </div>
+        <div class="gds-headline-l">$18.4M / yr</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">Size-Tiered MFN Carve-Out</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="toggleHsrRemedy()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Post-Merger HHI Delta</span>
+          <span class="lumi-status-badge lumi-badge-teal"><span class="lumi-status-badge-dot"></span>Divestiture On</span>
+        </div>
+        <div class="gds-headline-l">+30 Δ HHI</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">Below 100-pt FTC Second Request</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="openDocxModal('exhibit')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Multimodal Exhibits</span>
+          <span class="lumi-status-badge lumi-badge-purple"><span class="lumi-status-badge-dot"></span>100% Verified</span>
+        </div>
+        <div class="gds-headline-l">4 Exhibits</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">EBITDA • Fee Curve • Org • Citibank</div>
+      </div>
+    </section>
+
     <div class="two-col-studio">
       <div class="studio-col">
-        <div>
-          <div class="section-label gds-label-s">FundHQ Sovereign &amp; Institutional LP Side-Letter MFN Matrix (DOC-FUND-01 / 02)</div>
-          <div id="fundhq-savings-banner" style="font-size:12px;color:var(--color-green-text);background:var(--color-green-bg);border:1px solid var(--color-green-border);border-radius:8px;padding:8px 12px;margin-bottom:8px;"></div>
-          <div style="overflow-x:auto;border:1px solid var(--table-grid-border);border-radius:8px;">
+        <div class="lumi-table-wrap">
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-bottom:1px solid var(--color-ge-outline-variant);">
+            <span class="gds-title-m">FundHQ Sovereign &amp; Institutional LP Side-Letter MFN Matrix</span>
+            <span class="lumi-source-chip">DOC-FUND-01 / 02</span>
+          </div>
+          <div id="fundhq-savings-banner" style="font-size:12px;color:var(--color-green-text);background:var(--color-green-bg);border-bottom:1px solid var(--color-green-border);padding:8px 16px;"></div>
+          <div style="overflow-x:auto;">
             <table class="tr-table lumi-table">
               <thead>
                 <tr>
@@ -1942,38 +2229,39 @@ __PRERENDERED_TBODY__
           </div>
         </div>
 
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <span class="section-label gds-label-s">FTC HSR Second Request — HHI Market Concentration (DOC-HSR-01)</span>
+        <div class="lumi-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span class="gds-title-m">FTC HSR Second Request — HHI Market Concentration (DOC-HSR-01)</span>
             <span id="hsr-status-badge" class="status-pill lumi-status-badge green">CLEARED (+30 Δ HHI)</span>
           </div>
-          <div id="hsr-summary-card" class="liquid-glass-flat" style="padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:8px;"></div>
+          <div id="hsr-summary-card" class="liquid-glass-flat" style="padding:10px 12px;border-radius:12px;font-size:12px;margin-bottom:10px;"></div>
           <div id="hsr-bars-container" style="display:flex;flex-direction:column;gap:6px;"></div>
         </div>
       </div>
 
       <div class="studio-col">
-        <div>
-          <div class="section-label gds-label-s">Extracted Multimodal Exhibits (corpus/charts_and_images/)</div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-            <button id="mm-btn-0" class="tab-pill-btn lumi-chip active" onclick="selectMultimodalExhibit(0, this)">EBITDA Bridge</button>
-            <button id="mm-btn-1" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(1, this)">LP Fee Curve</button>
-            <button id="mm-btn-2" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(2, this)">J.Crew Org Chart</button>
-            <button id="mm-btn-3" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(3, this)">Citibank $18M Scan</button>
+        <div id="mm-exhibit-card" class="lumi-card lumi-card-selected" style="padding:16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
+            <span class="gds-title-m">Extracted Multimodal Exhibits</span>
+            <button id="btn-maximize-exhibit" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="openDocxModal('exhibit')">⤢ Maximize</button>
           </div>
-          <div id="mm-exhibit-card" class="liquid-glass-flat" style="padding:12px;border-radius:10px;">
-            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px;">
-              <div id="mm-exhibit-title" style="font-family:var(--font-serif);font-size:16px;font-weight:600;color:var(--color-ge-on-surface);"></div>
-              <button id="btn-maximize-exhibit" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="openDocxModal('exhibit')">⤢ Maximize</button>
-            </div>
-            <div id="mm-exhibit-takeaway" style="font-size:12px;color:var(--color-ge-on-surface);margin-bottom:10px;"></div>
-            <div style="background:var(--color-ge-surface-container-low);border:1px solid var(--color-ge-outline-variant);border-radius:8px;padding:8px;text-align:center;cursor:zoom-in;" onclick="openDocxModal('exhibit')" title="Click to maximize exhibit">
-              <img id="mm-exhibit-img" src="__DEFAULT_API_BASE__/api/corpus/image/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.png" alt="Multimodal Exhibit" style="max-width:100%;max-height:260px;border-radius:6px;object-fit:contain;" />
-            </div>
-            <div style="margin-top:8px;display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:11px;color:var(--color-ge-on-surface-variant);">Extracted via docparse Bounding-Box Schema → Cloud Spanner</span>
-              <a id="mm-exhibit-pdf-link" href="__DEFAULT_API_BASE__/api/corpus/file/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="text-decoration:none;">Open Source PDF</a>
-            </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+            <button id="mm-btn-0" type="button" class="tab-pill-btn lumi-chip active" onclick="selectMultimodalExhibit(0, this)">EBITDA Bridge</button>
+            <button id="mm-btn-1" type="button" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(1, this)">LP Fee Curve</button>
+            <button id="mm-btn-2" type="button" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(2, this)">J.Crew Org Chart</button>
+            <button id="mm-btn-3" type="button" class="tab-pill-btn lumi-chip" onclick="selectMultimodalExhibit(3, this)">Citibank $18M Scan</button>
+          </div>
+          <div id="mm-exhibit-title" class="gds-title-l" style="margin-bottom:6px;color:var(--color-ge-on-surface);"></div>
+          <div id="mm-exhibit-takeaway" class="gds-body-s" style="color:var(--color-ge-on-surface-variant);margin-bottom:12px;"></div>
+          <div style="background:var(--color-ge-surface-container-lowest);border:1px solid var(--color-ge-outline-variant);border-radius:12px;padding:10px;text-align:center;cursor:zoom-in;" onclick="openDocxModal('exhibit')" title="Click to maximize exhibit">
+            <img id="mm-exhibit-img" src="__DEFAULT_API_BASE__/api/corpus/image/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.png" alt="Multimodal Exhibit" style="max-width:100%;max-height:260px;border-radius:6px;object-fit:contain;" />
+          </div>
+          <div style="margin-top:10px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <span class="lumi-source-chip">
+              <span class="google-symbols" style="font-size:14px; color:var(--color-teal-icon);">verified</span>
+              docparse Bounding-Box → Cloud Spanner
+            </span>
+            <a id="mm-exhibit-pdf-link" href="__DEFAULT_API_BASE__/api/corpus/file/DOC-CHART-01_Brightwater_EBITDA_Bridge_and_Valuation_Waterfall.pdf" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="text-decoration:none;">Open Source PDF</a>
           </div>
         </div>
       </div>
@@ -1985,31 +2273,32 @@ __PRERENDERED_TBODY__
   <!-- ===================================================================== -->
   <section id="governance-view" class="studio-screen">
     <header class="mike-page-header lumi-page-header">
-      <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          <circle cx="12" cy="11" r="2.5" fill="var(--color-ge-primary)" stroke="none"/>
-        </svg>
-        <div>
-          <div class="header-title gds-title-m">Intapp Ethical Wall &amp; Cloud Spanner Graph</div>
-          <div class="header-subtitle gds-body-s">Screen-Before-Rank Access Verification · Client Matter Number (CMN) Switcher</div>
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Active Matters / Screen-Before-Rank Access Verification • Intapp Wall &amp; CMN Switcher</span>
+          <span class="lumi-status-badge lumi-badge-purple">
+            <span class="google-symbols filled" style="font-size:13px;">auto_awesome</span> Luminous AI Active
+          </span>
         </div>
+        <h1 class="header-title gds-headline-m">Intapp Ethical Wall &amp; Cloud Spanner Graph</h1>
       </div>
       <div class="header-actions">
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
-          ◐ Theme
+        <button type="button" class="lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode" aria-label="Toggle Light or Dark Mode">
+          <span class="google-symbols ge-theme-icon">dark_mode</span>
         </button>
-        <button id="btn-verify-wall" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue" onclick="loadGovernanceAndGraph(true)">
-          Verify Screen-Before-Rank
+        <button id="btn-verify-wall" type="button" class="pill-btn lumi-btn lumi-btn-filled lumi-btn-sm button--state-layer" onclick="loadGovernanceAndGraph(true)">
+          <span class="google-symbols" style="font-size:16px;">verified</span> Verify Screen-Before-Rank
         </button>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('fullscreen')">
+          <span class="google-symbols" style="font-size:15px;">open_in_full</span> Maximize
+        </button>
       </div>
     </header>
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <span style="font-size:11px;font-weight:600;color:var(--color-ge-on-surface-variant);">Attorney:</span>
+        <span style="font-size:12px;font-weight:600;color:var(--color-ge-on-surface-variant);">Attorney:</span>
         <select id="gov-lawyer-select" class="field-input" style="border-radius:9999px;" onchange="loadGovernanceAndGraph()">
           <option value="L-001">L-001 · Sarah Jenkins (M&amp;A Managing Partner — Walled from M-999)</option>
           <option value="L-002">L-002 · David Vance (Senior M&amp;A Partner)</option>
@@ -2018,41 +2307,80 @@ __PRERENDERED_TBODY__
         </select>
       </div>
       <div class="toolbar-right" style="flex-wrap:wrap;">
-        <button id="cmn-btn-m331" class="tab-pill-btn lumi-chip active" onclick="selectGovernanceMatter('M-331-KESTREL', this)">M-331 Brightwater</button>
-        <button id="cmn-btn-m402" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-402', this)">M-402 Apollo</button>
-        <button id="cmn-btn-m610" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-610-FUNDGEN', this)">M-610 FundGen</button>
-        <button id="cmn-btn-m720" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-720-ANTITRUST', this)">M-720 HSR</button>
-        <button id="cmn-btn-m999" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-999', this)">M-999 Omega (Wall)</button>
+        <button id="cmn-btn-m331" type="button" class="tab-pill-btn lumi-chip active" onclick="selectGovernanceMatter('M-331-KESTREL', this)">M-331 Brightwater</button>
+        <button id="cmn-btn-m402" type="button" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-402', this)">M-402 Apollo</button>
+        <button id="cmn-btn-m610" type="button" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-610-FUNDGEN', this)">M-610 FundGen</button>
+        <button id="cmn-btn-m720" type="button" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-720-ANTITRUST', this)">M-720 HSR</button>
+        <button id="cmn-btn-m999" type="button" class="tab-pill-btn lumi-chip" onclick="selectGovernanceMatter('M-999', this)">M-999 Omega (Wall)</button>
       </div>
     </div>
 
+    <!-- KPI Summary Cards -->
+    <section class="ge-kpi-grid discover-reveal" aria-label="Governance & Graph Metrics">
+      <div class="lumi-card card--interactive" onclick="loadGovernanceAndGraph(true)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Screen-Before-Rank</span>
+          <span class="lumi-status-badge lumi-badge-green"><span class="lumi-status-badge-dot"></span>Enforced</span>
+        </div>
+        <div class="gds-headline-l">0 Leaks</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">Pre-ANN Intapp Wall Filter</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="selectGovernanceMatter('M-999')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Active Ethical Walls</span>
+          <span class="lumi-status-badge lumi-badge-red"><span class="lumi-status-badge-dot"></span>Restricted</span>
+        </div>
+        <div class="gds-headline-l">28 Walls</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">Matter M-999 Omega Blocked</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="selectGovernanceMatter('M-331-KESTREL')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Spanner Graph Nodes</span>
+          <span class="lumi-status-badge lumi-badge-teal"><span class="lumi-status-badge-dot"></span>100% Verified</span>
+        </div>
+        <div class="gds-headline-l">146 Nodes</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">47 Docs • 57 Clauses • 14 Matters</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="setGovGrant(!grantActiveState)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Teammate Grant TTL</span>
+          <span class="lumi-status-badge lumi-badge-yellow"><span class="lumi-status-badge-dot"></span>Active</span>
+        </div>
+        <div class="gds-headline-l">30 Days</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">EM-9901 Tax Partner Grant</div>
+      </div>
+    </section>
+
     <div class="two-col-studio">
       <div class="studio-col">
-        <div id="gov-status-banner" class="liquid-glass-flat" style="padding:12px;border-radius:10px;"></div>
+        <div id="gov-status-banner" class="lumi-card lumi-card-selected" style="padding:14px 16px;"></div>
 
-        <div class="liquid-glass-flat" style="padding:10px 12px;border-radius:10px;">
+        <div class="lumi-card" style="padding:14px 16px;">
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span class="section-label gds-label-s">Unfiled Deal Email 30-Day Teammate Grant (EM-9901)</span>
+            <span class="gds-title-m">Unfiled Deal Email 30-Day Teammate Grant (EM-9901)</span>
             <span id="gov-grant-pill" class="status-pill lumi-status-badge green">ACTIVE (30-Day TTL)</span>
           </div>
-          <p style="font-size:11.5px;color:var(--color-ge-on-surface-variant);margin-bottom:8px;">
+          <p class="gds-body-s" style="color:var(--color-ge-on-surface-variant);margin-bottom:10px;">
             Controls whether Marcus Thorne's unfiled Exchange tax email (<code>EM-9901</code> · $14.2M IRC § 338(h)(10) Gross-Up) is traversable in Cloud Spanner <code>TeammateGrants</code>:
           </p>
           <div style="display:flex;gap:8px;">
-            <button id="btn-gov-grant" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="setGovGrant(true)">Grant 30-Day Access</button>
-            <button id="btn-gov-revoke" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="setGovGrant(false)">Revoke Access</button>
+            <button id="btn-gov-grant" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="setGovGrant(true)">Grant 30-Day Access</button>
+            <button id="btn-gov-revoke" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="setGovGrant(false)">Revoke Access</button>
           </div>
         </div>
 
-        <div>
-          <div class="section-label gds-label-s">Cloud Spanner ISO GQL Screen-Before-Rank Query</div>
-          <pre id="gov-gql-box" class="text-slab" style="font-family:var(--font-mono);font-size:11px;white-space:pre-wrap;"></pre>
+        <div class="lumi-card" style="padding:14px 16px;">
+          <div class="gds-title-m" style="margin-bottom:8px;">Cloud Spanner ISO GQL Screen-Before-Rank Query</div>
+          <pre id="gov-gql-box" class="text-slab" style="font-family:var(--font-mono);font-size:11.5px;white-space:pre-wrap;"></pre>
         </div>
       </div>
 
       <div class="studio-col">
-        <div>
-          <div class="section-label gds-label-s">Live Cloud Spanner Property Graph (WeilLegalGraph)</div>
+        <div class="lumi-card" style="padding:14px 16px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+            <span class="gds-title-m">Live Cloud Spanner Property Graph (WeilLegalGraph)</span>
+            <span class="lumi-source-chip">ISO GQL</span>
+          </div>
           <div id="graph-nodes-list" style="display:flex;flex-direction:column;gap:8px;"></div>
         </div>
       </div>
@@ -2064,63 +2392,100 @@ __PRERENDERED_TBODY__
   <!-- ===================================================================== -->
   <section id="inbox-view" class="studio-screen">
     <header class="mike-page-header lumi-page-header">
-      <div class="header-brand">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-ge-on-surface)" stroke-width="1.8" style="flex-shrink:0;">
-          <rect x="3" y="4" width="18" height="16" rx="2"/>
-          <polyline points="3 7 12 13 21 7" stroke="var(--color-ge-primary)"/>
-        </svg>
-        <div>
-          <div class="header-title gds-title-m">Partner Deal Inbox &amp; Calendar Conflict Triage</div>
-          <div class="header-subtitle gds-body-s">Sarah Jenkins (L-001) · One-Tap iManage CMN Auto-Filer &amp; FTC HSR Conflict Resolver</div>
+      <div>
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Active Matters / Sarah Jenkins (L-001) • iManage CMN Auto-Filer &amp; FTC HSR Conflict Triage</span>
+          <span class="lumi-status-badge lumi-badge-purple">
+            <span class="google-symbols filled" style="font-size:13px;">auto_awesome</span> Luminous AI Active
+          </span>
         </div>
+        <h1 class="header-title gds-headline-m">Partner Deal Inbox &amp; Calendar Conflict Triage</h1>
       </div>
       <div class="header-actions">
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">
-          ◐ Theme
+        <button type="button" class="lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode" aria-label="Toggle Light or Dark Mode">
+          <span class="google-symbols ge-theme-icon">dark_mode</span>
         </button>
-        <button id="btn-reset-inbox" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white" onclick="resetInboxState()">
+        <button id="btn-reset-inbox" type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="resetInboxState()">
           Reset Queue
         </button>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('pip')">Side Panel</button>
-        <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="requestHostDisplayMode('fullscreen')">Maximize</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('pip')">Side Panel</button>
+        <button type="button" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="requestHostDisplayMode('fullscreen')">
+          <span class="google-symbols" style="font-size:15px;">open_in_full</span> Maximize
+        </button>
       </div>
     </header>
 
     <div class="mike-toolbar">
       <div class="toolbar-left">
-        <button id="inb-filter-all" class="tab-pill-btn lumi-chip active" onclick="setInboxFilter('all', this)">
-          All Priority Items (4)
+        <button id="inb-filter-all" type="button" class="tab-pill-btn lumi-chip active" onclick="setInboxFilter('all', this)">
+          <span class="google-symbols" style="font-size:15px;">check</span> All Priority Items (4)
         </button>
-        <button id="inb-filter-pending" class="tab-pill-btn lumi-chip" onclick="setInboxFilter('pending', this)">
+        <button id="inb-filter-pending" type="button" class="tab-pill-btn lumi-chip" onclick="setInboxFilter('pending', this)">
           Pending Sign-Off
         </button>
-        <button id="inb-filter-cal" class="tab-pill-btn lumi-chip" onclick="setInboxFilter('calendar', this)">
+        <button id="inb-filter-cal" type="button" class="tab-pill-btn lumi-chip" onclick="setInboxFilter('calendar', this)">
           Calendar Conflicts (CAL-101)
         </button>
       </div>
       <div class="toolbar-right">
-        <a href="__DEFAULT_API_BASE__/api/corpus/file/CAL-101_Closing_Board_Call_and_FTC_HSR_Conflict.ics" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="text-decoration:none;">
-          Download .ics
+        <a href="__DEFAULT_API_BASE__/api/corpus/file/CAL-101_Closing_Board_Call_and_FTC_HSR_Conflict.ics" target="_blank" class="pill-btn lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" style="text-decoration:none;">
+          <span class="google-symbols" style="font-size:16px;">ios_share</span> Download .ics
         </a>
       </div>
     </div>
 
+    <!-- KPI Summary Cards -->
+    <section class="ge-kpi-grid discover-reveal" aria-label="Partner Inbox & Calendar Metrics">
+      <div class="lumi-card card--interactive" onclick="setInboxFilter('all')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Priority Partner Queue</span>
+          <span class="lumi-status-badge lumi-badge-yellow"><span class="lumi-status-badge-dot"></span>Needs Triage</span>
+        </div>
+        <div class="gds-headline-l">4 Items</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">3 Unfiled .eml + 1 .ics Conflict</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="inspectRawEml(0, false)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">iManage CMN Auto-Tag</span>
+          <span class="lumi-status-badge lumi-badge-teal"><span class="lumi-status-badge-dot"></span>99.4% Conf.</span>
+        </div>
+        <div class="gds-headline-l">3 Matters</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">31402-0018 • 40819-0004 • 72011</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="inspectRawEml(0, true)">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">FTC HSR Call Conflict</span>
+          <span class="lumi-status-badge lumi-badge-red"><span class="lumi-status-badge-dot"></span>High Risk</span>
+        </div>
+        <div class="gds-headline-l">CAL-101</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">Overlaps Board Closing Call</div>
+      </div>
+      <div class="lumi-card card--interactive" onclick="openDocxModal('eml')">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <span class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">Exchange / iCal Sync</span>
+          <span class="lumi-status-badge lumi-badge-green"><span class="lumi-status-badge-dot"></span>Connected</span>
+        </div>
+        <div class="gds-headline-l">RFC-822</div>
+        <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant); margin-top:4px;">Zero-Copy Envelope Indexing</div>
+      </div>
+    </section>
+
     <div class="two-col-studio">
       <div class="studio-col" id="inbox-emails-col">
-        <div class="section-label gds-label-s">Partner Deal Emails &amp; iManage CMN Filing Queue (corpus/emails_and_calendar/)</div>
-        <div id="inbox-email-cards" class="discover-reveal" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div class="gds-title-m">Partner Deal Emails &amp; iManage CMN Filing Queue</div>
+        <div id="inbox-email-cards" class="discover-reveal" style="display:flex;flex-direction:column;gap:10px;"></div>
       </div>
 
       <div class="studio-col" id="inbox-cal-col">
-        <div class="section-label gds-label-s">Closing &amp; Regulatory Calendar Conflict (CAL-101)</div>
-        <div id="inbox-calendar-cards" style="display:flex;flex-direction:column;gap:8px;"></div>
+        <div class="gds-title-m">Closing &amp; Regulatory Calendar Conflict (CAL-101)</div>
+        <div id="inbox-calendar-cards" style="display:flex;flex-direction:column;gap:10px;"></div>
 
-        <div style="margin-top:6px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-            <div class="section-label gds-label-s" id="raw-eml-header" style="margin-bottom:0;">Rendered Exchange Email &amp; Calendar Invite Preview</div>
+        <div class="lumi-card lumi-card-selected" style="padding:14px 16px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <div class="gds-title-m" id="raw-eml-header" style="margin-bottom:0;">Rendered Exchange Email &amp; Calendar Invite Preview</div>
             <button id="btn-maximize-eml-top" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-blue pill-btn-xs" onclick="openDocxModal('eml')">⤢ Maximize</button>
           </div>
-          <div class="docx-canvas-wrap">
+          <div class="docx-canvas-wrap" style="border-radius:12px;">
             <div class="docx-word-toolbar">
               <span>Microsoft Exchange / iManage Deal Filing Preview</span>
               <div style="display:flex;align-items:center;gap:8px;">
@@ -2136,6 +2501,8 @@ __PRERENDERED_TBODY__
       </div>
     </div>
   </section>
+
+  </main>
 
   <!-- ===================================================================== -->
   <!-- GOOGLE WORKSPACE / WORD CO-EDITOR + GEMINI SIDE PANEL (#docx-modal-overlay) -->
@@ -2456,6 +2823,9 @@ function toggleGeThemeMode() {
   const next = current === "dark" ? "light" : "dark";
   root.setAttribute("data-mode", next);
   root.classList.toggle("dark-theme", next === "dark");
+  document.querySelectorAll(".ge-theme-icon").forEach(el => {
+    el.textContent = next === "dark" ? "light_mode" : "dark_mode";
+  });
 }
 
 function notifyHostSizeAndPip(preferredMode) {
@@ -2583,6 +2953,47 @@ function applyServerAddedColumn(colPayload) {
   }
 }
 
+function switchStudioScreen(target, btnEl) {
+  if (!target) return;
+  document.querySelectorAll(".studio-screen").forEach(el => {
+    el.classList.toggle("active", el.id === target);
+  });
+  document.querySelectorAll("#ge-studio-nav-list .ge-nav-item").forEach(btn => {
+    const isAct = btn.getAttribute("data-studio") === target;
+    btn.classList.toggle("active", isAct);
+    const icon = btn.querySelector(".google-symbols");
+    if (icon) icon.classList.toggle("filled", isAct);
+  });
+
+  if (target === "tabular-view") {
+    renderTabularGrid();
+    if (window.innerWidth >= 880) {
+      const panel = document.getElementById("tr-side-panel");
+      if (panel && !panel.classList.contains("open")) {
+        openSideInspector(activeInspectorRowIdx || 0);
+      }
+    }
+    loadTabularWorkspace(currentCorpusMode || "kestrel");
+  } else if (target === "redline-view") {
+    const pid = currentRedlineData?.pair_id || "KESTREL-SPA-802";
+    renderRedlineFromMemory(pid);
+    const checked = Array.from(document.querySelectorAll(".lego-cb:checked")).map(cb => cb.value);
+    renderLegalLegosFromMemory(checked.length ? checked : ["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO"]);
+    loadRedlinePair(pid);
+    updateLegalLegos();
+  } else if (target === "funds-view") {
+    renderFundsAntitrustFromMemory(currentLpFilter || 0, hsrRemedyActive);
+    loadFundsAntitrust(currentLpFilter || 0, hsrRemedyActive);
+  } else if (target === "governance-view") {
+    const lid = document.getElementById("gov-lawyer-select")?.value || "L-001";
+    renderGovernanceFromMemory(lid, currentGovernanceMatter || "M-331-KESTREL");
+    loadGovernanceAndGraph();
+  } else if (target === "inbox-view") {
+    renderInboxTriage();
+    loadInboxTriage();
+  }
+}
+
 function activateInitialStudio() {
   let target = INITIAL_STUDIO_VIEW || "tabular-view";
   try {
@@ -2592,32 +3003,7 @@ function activateInitialStudio() {
   if (target === "assistant-view" || target === "project-view") {
     target = "tabular-view";
   }
-  document.querySelectorAll(".studio-screen").forEach(el => {
-    el.classList.toggle("active", el.id === target);
-  });
-
-  // Render synchronously from INITIAL_BOOTSTRAP_DATA at 0ms, then refresh in background
-  if (target === "tabular-view") {
-    renderTabularGrid();
-    if (window.innerWidth >= 880) {
-      openSideInspector(0);
-    }
-    loadTabularWorkspace("kestrel");
-  } else if (target === "redline-view") {
-    renderRedlineFromMemory("KESTREL-SPA-802");
-    renderLegalLegosFromMemory(["LEGO-DE-FRAUD", "LEGO-338H10-TAX", "LEGO-PRIVACY-PRO"]);
-    loadRedlinePair("KESTREL-SPA-802");
-    updateLegalLegos();
-  } else if (target === "funds-view") {
-    renderFundsAntitrustFromMemory(0, true);
-    loadFundsAntitrust(0, true);
-  } else if (target === "governance-view") {
-    renderGovernanceFromMemory("L-001", "M-331-KESTREL");
-    loadGovernanceAndGraph();
-  } else if (target === "inbox-view") {
-    renderInboxTriage();
-    loadInboxTriage();
-  }
+  switchStudioScreen(target);
 }
 
 /* ========================================================================= */
@@ -3232,7 +3618,7 @@ function applyRedlineSheetUI(data) {
   if (!data) return;
   document.getElementById("redline-doc-pair-label").textContent = `${data.doc_a_name} vs. ${data.doc_b_name}`;
   document.getElementById("redline-playbook-banner").innerHTML =
-    `<strong>Playbook Standard:</strong> ${escapeHtml(data.playbook_standard)}`;
+    `<div style="display:flex;align-items:flex-start;gap:8px;"><span class="google-symbols filled" style="font-size:18px;color:var(--color-ge-accent);flex-shrink:0;">auto_awesome</span><div><strong>Playbook Standard:</strong> ${escapeHtml(data.playbook_standard)}</div></div>`;
   const sheetTitle = document.getElementById("redline-sheet-title");
   if (sheetTitle) sheetTitle.textContent = data.title || "ARTICLE VIII — INDEMNIFICATION";
   const sheetMatter = document.getElementById("redline-sheet-matter");
@@ -4638,6 +5024,10 @@ window.addEventListener("DOMContentLoaded", () => {
     html = html.replace(
         f'id="{initial_view}" class="studio-screen"',
         f'id="{initial_view}" class="studio-screen active"',
+    )
+    html = html.replace(
+        f'class="ge-nav-item" data-studio="{initial_view}"',
+        f'class="ge-nav-item active" data-studio="{initial_view}"',
     )
     html = html.replace("__INITIAL_STUDIO_VIEW__", initial_view)
     html = html.replace("__DEFAULT_API_BASE__", api_base.rstrip("/"))
