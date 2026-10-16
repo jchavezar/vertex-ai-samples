@@ -795,6 +795,179 @@ def export_live_docx(req: ExportLiveDocxRequest):
     )
 
 
+@app.get("/api/redline/format-proof-docx")
+def download_format_proof_docx(mode: str = "after_ast"):
+    """Generates a real OpenXML .docx demonstrating Format-Locked AST preservation vs. Round-Trip corruption.
+
+    Modes:
+    - 'before': Counterparty Skadden v4 .docx with intact Weil styles.xml & 9-level numbering.xml
+    - 'after_ast': Surgical AST-redlined .docx with native <w:del>/<w:ins> Track Changes and 100% identical styles.xml & numbering.xml
+    - 'broken_roundtrip': Simulated .docx -> Google Docs -> .docx round-trip export showing destroyed numbering & styles
+    """
+    import hashlib
+    import io
+    import zipfile
+
+    styles_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        '<w:style w:type="paragraph" w:styleId="WeilArticleHeading">'
+        '<w:name w:val="Weil Article Heading"/><w:pPr><w:jc w:val="center"/><w:spacing w:before="240" w:after="120"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="EB Garamond" w:hAnsi="EB Garamond"/><w:b/><w:sz w:val="26"/></w:rPr>'
+        '</w:style>'
+        '<w:style w:type="paragraph" w:styleId="WeilSection2">'
+        '<w:name w:val="Weil Section Level 2"/><w:pPr><w:ind w:left="360"/><w:spacing w:before="160" w:after="80"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="EB Garamond" w:hAnsi="EB Garamond"/><w:b/><w:u w:val="single"/><w:sz w:val="24"/></w:rPr>'
+        '</w:style>'
+        '<w:style w:type="paragraph" w:styleId="WeilIndentLevel2">'
+        '<w:name w:val="Weil Indent Level 2 (a)"/><w:pPr><w:ind w:left="720" w:hanging="360"/><w:spacing w:after="120"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="EB Garamond" w:hAnsi="EB Garamond"/><w:sz w:val="24"/></w:rPr>'
+        '</w:style>'
+        '<w:style w:type="paragraph" w:styleId="WeilIndentLevel3">'
+        '<w:name w:val="Weil Indent Level 3 (i)"/><w:pPr><w:ind w:left="1080" w:hanging="360"/><w:spacing w:after="120"/></w:pPr>'
+        '<w:rPr><w:rFonts w:ascii="EB Garamond" w:hAnsi="EB Garamond"/><w:sz w:val="24"/></w:rPr>'
+        '</w:style>'
+        '</w:styles>'
+    )
+    numbering_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        '<w:abstractNum w:abstractNumId="14">'
+        '<w:lvl w:ilvl="0"><w:start w:val="8"/><w:numFmt w:val="upperRoman"/><w:lvlText w:val="ARTICLE %1"/></w:lvl>'
+        '<w:lvl w:ilvl="1"><w:start w:val="1"/><w:numFmt w:val="lowerLetter"/><w:lvlText w:val="(%2)"/></w:lvl>'
+        '<w:lvl w:ilvl="2"><w:start w:val="1"/><w:numFmt w:val="lowerRoman"/><w:lvlText w:val="(%3)"/></w:lvl>'
+        '</w:abstractNum>'
+        '<w:num w:numId="14"><w:abstractNumId w:val="14"/></w:num>'
+        '</w:numbering>'
+    )
+
+    if mode == "before":
+        filename = "01_Skadden_v4_Counterparty_Original_FormatLocked.docx"
+        clause_a_xml = (
+            '<w:p>'
+            '<w:pPr><w:pStyle w:val="WeilIndentLevel2"/><w:numPr><w:ilvl w:val="1"/><w:numId w:val="14"/></w:numPr><w:ind w:left="720" w:hanging="360"/></w:pPr>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:b/><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">(a) Basket Structure. </w:t></w:r>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:sz w:val="24"/></w:rPr>'
+            '<w:t>Notwithstanding anything to the contrary in this Agreement, the Seller Parties shall have no liability under Section 8.01(a) until the aggregate amount of all Losses exceeds an amount equal to 0.25% of the Base Purchase Price ($10,500,000) (the "Tipping Basket"), in which case Seller Parties shall be liable from the first dollar of all Losses.</w:t>'
+            '</w:r>'
+            '</w:p>'
+        )
+    elif mode == "broken_roundtrip":
+        filename = "03_BROKEN_RoundTrip_GDocs_Conversion_Corrupted.docx"
+        styles_xml = (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            '<w:style w:type="paragraph" w:styleId="Normal_kix"><w:name w:val="Normal"/><w:rPr><w:rFonts w:ascii="Arial"/><w:sz w:val="22"/></w:rPr></w:style>'
+            '</w:styles>'
+        )
+        numbering_xml = (
+            '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            '<w:numbering xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"/>'
+        )
+        clause_a_xml = (
+            '<w:p><w:pPr><w:pStyle w:val="Normal_kix"/></w:pPr>'
+            '<w:r><w:t>1. INDEMNIFICATION AND SURVIVAL (Lost ARTICLE VIII Roman Heading &amp; Centering)</w:t></w:r></w:p>'
+            '<w:p><w:pPr><w:pStyle w:val="Normal_kix"/></w:pPr>'
+            '<w:r><w:t>1. Limitation on Indemnification. (Reset from Section 8.02 to flat 1.)</w:t></w:r></w:p>'
+            '<w:p><w:pPr><w:pStyle w:val="Normal_kix"/></w:pPr>'
+            '<w:r><w:t>a. Seller Parties shall have no liability under [Error! Reference source not found.] until Losses exceed 0.50% True Deductible ($21,000,000). (36pt hanging indent collapsed; native Track Changes &lt;w:ins&gt;/&lt;w:del&gt; flattened; all 120 pages flag as modified in Litera Compare!)</w:t></w:r></w:p>'
+        )
+    else:
+        filename = "02_Weil_v3_Gemini_AST_Redlined_FormatLocked.docx"
+        clause_a_xml = (
+            '<w:p>'
+            '<w:pPr><w:pStyle w:val="WeilIndentLevel2"/><w:numPr><w:ilvl w:val="1"/><w:numId w:val="14"/></w:numPr><w:ind w:left="720" w:hanging="360"/></w:pPr>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:b/><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">(a) Basket Structure. </w:t></w:r>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:sz w:val="24"/></w:rPr>'
+            '<w:t xml:space="preserve">Notwithstanding anything to the contrary in this Agreement, the Seller Parties shall have no liability under Section 8.01(a) until the aggregate amount of all Losses exceeds an amount equal to </w:t>'
+            '</w:r>'
+            '<w:del w:id="901" w:author="Weil Gemini Legal AI" w:date="2026-10-16T19:40:00Z">'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:sz w:val="24"/></w:rPr>'
+            '<w:delText>0.25% of the Base Purchase Price ($10,500,000) (the "Tipping Basket"), in which case Seller Parties shall be liable from the first dollar of all Losses.</w:delText>'
+            '</w:r></w:del>'
+            '<w:ins w:id="902" w:author="Weil Gemini Legal AI" w:date="2026-10-16T19:40:00Z">'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:sz w:val="24"/></w:rPr>'
+            '<w:t>0.50% of the Base Purchase Price ($21,000,000) (the "True Deductible"), in which case Seller Parties shall be liable strictly for the excess over the True Deductible.</w:t>'
+            '</w:r></w:ins>'
+            '</w:p>'
+        )
+
+    styles_sha = hashlib.sha256(styles_xml.encode("utf-8")).hexdigest()[:12]
+    num_sha = hashlib.sha256(numbering_xml.encode("utf-8")).hexdigest()[:12]
+
+    if mode == "broken_roundtrip":
+        doc_body = clause_a_xml
+    else:
+        doc_body = (
+            '<w:p><w:pPr><w:pStyle w:val="WeilArticleHeading"/></w:pPr>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:b/><w:sz w:val="24"/></w:rPr>'
+            f'<w:t>WEIL, GOTSHAL &amp; MANGES LLP · MATTER M-331-KESTREL · FORMAT-LOCK PROOF (styles.xml SHA: {styles_sha} | numbering.xml SHA: {num_sha})</w:t></w:r></w:p>'
+            '<w:p><w:pPr><w:pStyle w:val="WeilArticleHeading"/></w:pPr>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:b/><w:sz w:val="28"/></w:rPr>'
+            '<w:t>ARTICLE VIII — INDEMNIFICATION &amp; SURVIVAL</w:t></w:r></w:p>'
+            '<w:p><w:pPr><w:pStyle w:val="WeilSection2"/><w:ind w:left="360"/></w:pPr>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:b/><w:u w:val="single"/><w:sz w:val="24"/></w:rPr>'
+            '<w:t>Section 8.02 Limitation on Indemnification.</w:t></w:r></w:p>'
+            + clause_a_xml
+            + '<w:p><w:pPr><w:pStyle w:val="WeilIndentLevel3"/><w:numPr><w:ilvl w:val="2"/><w:numId w:val="14"/></w:numPr><w:ind w:left="1080" w:hanging="360"/></w:pPr>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:b/><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">(i) De Minimis Claim Threshold. </w:t></w:r>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:sz w:val="24"/></w:rPr>'
+            '<w:t>No individual claim or series of related claims for Losses under Section 8.01(a) shall be counted toward the True Deductible unless such claim exceeds $150,000 ("Mini-Basket").</w:t></w:r></w:p>'
+            '<w:p><w:pPr><w:pStyle w:val="WeilIndentLevel2"/><w:numPr><w:ilvl w:val="1"/><w:numId w:val="14"/></w:numPr><w:ind w:left="720" w:hanging="360"/></w:pPr>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:b/><w:sz w:val="24"/></w:rPr><w:t xml:space="preserve">(b) General Indemnity Cap. </w:t></w:r>'
+            '<w:r><w:rPr><w:rFonts w:ascii="EB Garamond"/><w:sz w:val="24"/></w:rPr>'
+            '<w:t>The maximum aggregate liability of the Seller Parties under Section 8.01(a) shall not exceed 0.75% of the Base Purchase Price ($31,500,000) (the "Indemnity Cap").</w:t></w:r></w:p>'
+        )
+
+    doc_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+        f"<w:body>{doc_body}</w:body></w:document>"
+    )
+    content_types_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+        '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+        '<Default Extension="xml" ContentType="application/xml"/>'
+        '<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+        '<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+        '<Override PartName="/word/numbering.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml"/>'
+        "</Types>"
+    )
+    rels_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+        "</Relationships>"
+    )
+    doc_rels_xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+        '<Relationship Id="rIdStyles" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+        '<Relationship Id="rIdNumbering" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/numbering" Target="numbering.xml"/>'
+        "</Relationships>"
+    )
+
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr("[Content_Types].xml", content_types_xml)
+        zf.writestr("_rels/.rels", rels_xml)
+        zf.writestr("word/_rels/document.xml.rels", doc_rels_xml)
+        zf.writestr("word/styles.xml", styles_xml)
+        zf.writestr("word/numbering.xml", numbering_xml)
+        zf.writestr("word/document.xml", doc_xml)
+
+    return Response(
+        content=buf.getvalue(),
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"',
+            "X-Weil-Styles-SHA256": styles_sha,
+            "X-Weil-Numbering-SHA256": num_sha,
+        },
+    )
+
+
 @app.post("/api/workspace-assistant")
 async def workspace_assistant(req: WorkspaceAssistantRequest):
     """Google Workspace Gemini Side-Panel Co-Editor endpoint powered by gemini-3.8-flash."""

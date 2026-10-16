@@ -1,0 +1,91 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_R1["Tier 1: Deal Document Ingress & Format-Locked Dual Router (Zero Format Conversion)"]
+    Lawyer["Weil Deal Counsel & Partners<br/>(Gemini Enterprise / Desktop Word / Workspace)"]:::neutral
+    Lawyer@{ icon: "fa:user", pos: "b" }
+
+    Router["Format-Locked Dual Router<br/>(Cloud Run weil-redline-word-agent)"]:::gcpBlue
+    Router@{ icon: "gcp:cloud-run", pos: "b" }
+
+    SpannerBrain["Cloud Spanner WeilLegalGraph<br/>(Playbook v3.4 + Intapp Ethical Wall)"]:::gcpBlue
+    SpannerBrain@{ icon: "gcp:cloud-spanner", pos: "b" }
+
+    GeminiFlash["Vertex AI Gemini 3.8 Flash<br/>(Surgical Clause & Redline Engine)"]:::gcpGreen
+    GeminiFlash@{ icon: "gcp:vertexai", pos: "b" }
+
+    wp_A_out(((A))):::waypoint
+    wp_B_out(((B))):::waypoint
+
+    Lawyer --> Router
+    Router --> SpannerBrain
+    Router --> GeminiFlash
+    Router --> wp_A_out
+    Router --> wp_B_out
+  end
+
+  subgraph SG_R2["Tier 2: Track A — Native Microsoft Word (.docx OpenXML AST & Office.js Task Pane)"]
+    wp_A_in(((A))):::waypoint
+
+    DocxWeb["Surface A1: Gemini Enterprise Web Canvas<br/>(Surgical lxml OpenXML &lt;w:p&gt; AST Engine)"]:::gcpBlue
+    DocxWeb@{ icon: "fa:file-word", pos: "b" }
+
+    DocxWord["Surface A2: Microsoft Word Task Pane<br/>(Office.js Word.run + ChangeTrackingMode)"]
+    DocxWord@{ icon: "logos:microsoft", pos: "b" }
+
+    DocxTpl["Track C: First-Draft Rider Generator<br/>(docxtpl Native .docx Master Templates)"]:::gcpGreen
+    DocxTpl@{ icon: "fa:file-word", pos: "b" }
+
+    DocxProof["100% Format-Locked .docx Output<br/>(styles.xml &amp; numbering.xml Byte-Identical)"]:::gcpGreen
+    DocxProof@{ icon: "fa:circle-check", pos: "b" }
+
+    wp_A_in --> DocxWeb
+    wp_A_in --> DocxWord
+    wp_A_in --> DocxTpl
+    wp_A_in --> DocxProof
+  end
+
+  subgraph SG_R3["Tier 3: Track B — Native Google Docs (documents.batchUpdate API & NamedStyles)"]
+    wp_B_in(((B))):::waypoint
+
+    GDocEmbed["Surface B1: Embedded Google Docs Canvas<br/>(/edit?rm=minimal + Gemini Side Panel)"]:::gcpGreen
+    GDocEmbed@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    GDocAPI["Surgical Google Docs REST API<br/>(batchUpdate deleteContentRange + insertText)"]:::gcpBlue
+    GDocAPI@{ icon: "gcp:cloud-run", pos: "b" }
+
+    GDocProof["100% Native Google Doc Output<br/>(kix.weil9level Lists &amp; 36pt Indents Intact)"]:::gcpGreen
+    GDocProof@{ icon: "fa:circle-check", pos: "b" }
+
+    AntiPattern["FORBIDDEN Anti-Pattern: .docx to GDocs to .docx<br/>(Destroys w:numId=14 &amp; Triggers 120-Page False Diffs)"]:::gcpRed
+
+    wp_B_in --> GDocEmbed
+    wp_B_in --> GDocAPI
+    wp_B_in --> GDocProof
+    wp_B_in --> AntiPattern
+  end
+
+  SG_R1 ~~~ SG_R2 ~~~ SG_R3
+
+  style SG_R1 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_R2 fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+  style SG_R3 fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold

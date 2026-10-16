@@ -1,0 +1,243 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1060" width="1600" height="1060" style="background:#F8FAFC;font-family:'Google Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <defs>
+    <filter id="gcp-shadow" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+    <filter id="card-shadow" x="-1%" y="-1%" width="102%" height="104%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#1A73E8"/>
+    </marker>
+    <marker id="arr-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#188038"/>
+    </marker>
+    <marker id="arr-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#7C3AED"/>
+    </marker>
+    <marker id="arr-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#D93025"/>
+    </marker>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#E2E8F0" stroke-width="0.7"/>
+    </pattern>
+  </defs>
+
+  <!-- Blueprint Grid Background -->
+  <rect width="1600" height="1060" fill="#F8FAFC"/>
+  <rect width="1600" height="1060" fill="url(#grid)"/>
+
+  <!-- ==================== TOP GOOGLE CLOUD ARCHITECTURE HEADER ==================== -->
+  <rect x="20" y="16" width="1560" height="78" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="20" y="16" width="8" height="78" rx="4" fill="#1A73E8"/>
+
+  <!-- Official Google Cloud Multi-Color Cloud Icon -->
+  <g transform="translate(46, 35)">
+    <path d="M22.8 11.2l3.4-3.4c-.2-.2-.5-.4-.7-.6-2.2-1.6-4.9-2.5-7.8-2.5-5.6 0-10.4 3.5-12.3 8.5l4.2 3.1c1.1-3.3 4.3-5.7 8.1-5.7 1.9 0 3.7.7 5.1 1.6z" fill="#EA4335"/>
+    <path d="M30.4 15.6c-.8-3.1-2.6-5.8-5.1-7.7l-3.4 3.4c1.7 1.3 2.9 3.2 3.3 5.4v.5c2.4 0 4.3 1.9 4.3 4.3s-1.9 4.3-4.3 4.3h-8.5v5.8h8.5c5.6 0 10.1-4.5 10.1-10.1 0-2.3-.8-4.3-1.9-5.9z" fill="#4285F4"/>
+    <path d="M8.2 31.6h8.5v-5.8H8.2c-2.4 0-4.3-1.9-4.3-4.3 0-1.8 1.1-3.3 2.7-4l-4.2-3.1C.9 16.2 0 18.7 0 21.5c0 5.6 4.5 10.1 8.2 10.1z" fill="#FBBC04"/>
+    <path d="M16.7 31.6c2.8 0 5.4-1.1 7.3-2.9l-4.1-4.1c-.9.7-2 1.2-3.2 1.2-3.1 0-5.8-2.1-6.7-5l-4.2 3.1c1.9 4.5 6.1 7.7 10.9 7.7z" fill="#34A853"/>
+  </g>
+
+  <text x="96" y="47" fill="#202124" font-size="20.5" font-weight="800" letter-spacing="-0.3">Google Cloud Reference Architecture — Format-Locked Legal Document Co-Editing (.docx &amp; Google Docs)</text>
+  <text x="96" y="70" fill="#5F6368" font-size="12.5" font-weight="500">Single Brain, Dual Surface Blueprint: Surgical OpenXML AST (&lt;w:p&gt; / &lt;w:ins&gt; / &lt;w:del&gt;) · Word Office.js Add-In · Google Docs batchUpdate API · Zero Round-Trip Conversion</text>
+
+  <!-- Right Header Badges -->
+  <rect x="1168" y="26" width="194" height="24" rx="12" fill="#E8F0FE" stroke="#1A73E8"/>
+  <text x="1265" y="42" fill="#1967D2" font-size="10.5" font-weight="700" text-anchor="middle">100% Litera Compare Safe</text>
+  <rect x="1372" y="26" width="192" height="24" rx="12" fill="#E6F4EA" stroke="#188038"/>
+  <text x="1468" y="42" fill="#137333" font-size="10.5" font-weight="700" text-anchor="middle">Zero Format Conversion</text>
+  <text x="1366" y="73" fill="#5F6368" font-size="11" font-weight="600" text-anchor="middle">Engine: weil-redline-word-agent · gemini-3.8-flash · Spanner GraphRAG</text>
+
+  <!-- ==================== ZONE 1: INGRESS & FORMAT-LOCK ROUTER (LEFT COLUMN: x=20, w=340) ==================== -->
+  <rect x="20" y="110" width="340" height="630" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="20" y="110" width="340" height="36" rx="10" fill="#1E293B"/>
+  <text x="36" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">ZONE 1 — INGRESS &amp; FORMAT-LOCK ROUTER</text>
+
+  <!-- Card 1A: Source Document Arrival -->
+  <rect x="36" y="160" width="308" height="175" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="58" cy="184" r="14" fill="#1E293B"/>
+  <text x="58" y="188" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">1A</text>
+  <text x="80" y="182" fill="#0F172A" font-size="13.5" font-weight="800">Deal Document Ingress</text>
+  <text x="80" y="198" fill="#475569" font-size="10.5" font-weight="700">iManage DMS · Counterparty Email · Drive</text>
+  <text x="48" y="220" fill="#1E293B" font-size="11">• Counterparty .docx (Skadden v4 SPA Markup)</text>
+  <text x="48" y="237" fill="#1E293B" font-size="11">• Internal Google Doc (Deal Workstream Memo)</text>
+  <text x="48" y="254" fill="#1E293B" font-size="11">• Weil Master Template (FundGen / Legal Legos)</text>
+  <rect x="48" y="268" width="284" height="54" rx="6" fill="#F1F5F9" stroke="#CBD5E1"/>
+  <text x="60" y="286" fill="#0F172A" font-size="10.5" font-weight="700">Invariant Rule #1 (Format-Lock):</text>
+  <text x="60" y="302" fill="#334155" font-size="10">Keep exact container format it was opened in.</text>
+  <text x="60" y="315" fill="#D93025" font-size="10" font-weight="700">NEVER convert .docx &lt;-&gt; Google Docs.</text>
+
+  <!-- Arrow 1A -> 1B -->
+  <line x1="190" y1="335" x2="190" y2="362" stroke="#1A73E8" stroke-width="2.5" marker-end="url(#arr-blue)"/>
+
+  <!-- Card 1B: Deterministic MIME & AST Router -->
+  <rect x="36" y="366" width="308" height="200" rx="8" fill="#EFF6FF" stroke="#1A73E8" stroke-width="2" filter="url(#card-shadow)"/>
+  <circle cx="58" cy="390" r="14" fill="#1A73E8"/>
+  <text x="58" y="394" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">1B</text>
+  <text x="80" y="388" fill="#174EA6" font-size="13.5" font-weight="800">Format-Locked Dual Router</text>
+  <text x="80" y="404" fill="#1A73E8" font-size="9.8" font-weight="700" font-family="monospace">app.py · adk_agents.py · spanner_engine</text>
+  <text x="48" y="426" fill="#1E293B" font-size="11" font-weight="700">1. Opened as .docx (OpenXML ZIP Archive):</text>
+  <text x="48" y="442" fill="#334155" font-size="10.5">   Routes to Track A (OpenXML AST / Office.js)</text>
+  <text x="48" y="462" fill="#1E293B" font-size="11" font-weight="700">2. Opened as Google Doc (application/vnd...):</text>
+  <text x="48" y="478" fill="#334155" font-size="10.5">   Routes to Track B (Google Docs batchUpdate)</text>
+  <text x="48" y="498" fill="#1E293B" font-size="11" font-weight="700">3. New First-Draft Rider / Side Letter:</text>
+  <text x="48" y="514" fill="#334155" font-size="10.5">   Routes to Track C (docxtpl Native .docx Jinja2)</text>
+  <rect x="48" y="528" width="284" height="24" rx="4" fill="#DBEAFE"/>
+  <text x="190" y="544" fill="#1E40AF" font-size="10" font-weight="700" text-anchor="middle">✓ Grounded in Cloud Spanner WeilLegalGraph</text>
+
+  <!-- Card 1C: Shared Spanner & Gemini Brain -->
+  <rect x="36" y="582" width="308" height="142" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="58" cy="606" r="14" fill="#7C3AED"/>
+  <text x="58" y="610" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">AI</text>
+  <text x="80" y="604" fill="#4C1D95" font-size="13.5" font-weight="800">Shared Legal AI Brain (Cloud Run)</text>
+  <text x="80" y="620" fill="#6D28D9" font-size="10.5" font-weight="700">gemini-3.8-flash + Cloud Spanner GraphRAG</text>
+  <text x="48" y="641" fill="#1E293B" font-size="10.8">• Evaluates Weil Playbook v3.4 rules &amp; caps</text>
+  <text x="48" y="658" fill="#1E293B" font-size="10.8">• Enforces Intapp Ethical Wall Screen-Before-Rank</text>
+  <text x="48" y="675" fill="#1E293B" font-size="10.8">• Serves BOTH Gemini Enterprise Web Canvas</text>
+  <text x="48" y="691" fill="#1E293B" font-size="10.8">  AND Native Word / Google Workspace Add-ins</text>
+  <rect x="48" y="700" width="284" height="16" rx="4" fill="#EDE9FE"/>
+  <text x="190" y="712" fill="#5B21B6" font-size="9.5" font-weight="700" text-anchor="middle">Zero UI Replication of M365 Ribbon Tools</text>
+
+  <!-- ==================== ZONE 2: TRACK A — NATIVE .DOCX OPENXML PIPELINE (CENTER COLUMN: x=384, w=596) ==================== -->
+  <rect x="384" y="110" width="596" height="630" rx="10" fill="#FFFFFF" stroke="#1A73E8" stroke-width="2" filter="url(#gcp-shadow)"/>
+  <rect x="384" y="110" width="596" height="36" rx="10" fill="#1A73E8"/>
+  <text x="404" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">ZONE 2 — TRACK A: NATIVE MICROSOFT WORD (.DOCX OPENXML) PRESERVATION</text>
+
+  <!-- Routing Arrow Zone 1 -> Zone 2 -->
+  <line x1="344" y1="435" x2="380" y2="250" stroke="#1A73E8" stroke-width="2.5" marker-end="url(#arr-blue)"/>
+
+  <!-- Surface A1: Web Canvas + Headless OpenXML AST (Studio 2) -->
+  <rect x="402" y="160" width="560" height="238" rx="8" fill="#EFF6FF" stroke="#1A73E8" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <rect x="416" y="172" width="324" height="20" rx="4" fill="#1A73E8"/>
+  <text x="578" y="186" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">SURFACE A1 · GEMINI ENTERPRISE WEB CANVAS (STUDIO 2)</text>
+  <text x="416" y="210" fill="#174EA6" font-size="14" font-weight="800">2A. Surgical Headless OpenXML AST Engine (No M365 Required)</text>
+  <text x="416" y="228" fill="#1E293B" font-size="11">• Unzips counterparty .docx in memory; parses word/document.xml via lxml / python-docx</text>
+  <text x="416" y="245" fill="#1E293B" font-size="11">• Locates exact target paragraph node (&lt;w:p w14:paraId="4829A10C"&gt; — Section 8.02(a))</text>
+  <text x="416" y="262" fill="#1E293B" font-size="11">• Injects native Word Track Changes (&lt;w:del&gt; &amp; &lt;w:ins w:author="Gemini Legal AI"&gt;) inside &lt;w:p&gt;</text>
+
+  <!-- XML Code Proof Box inside 2A -->
+  <rect x="416" y="274" width="532" height="112" rx="6" fill="#0F172A" stroke="#334155"/>
+  <text x="428" y="292" fill="#38BDF8" font-size="10" font-weight="700" font-family="monospace">&lt;!-- word/document.xml: Paragraph style &amp; 9-level numbering stay 100% intact --&gt;</text>
+  <text x="428" y="308" fill="#E2E8F0" font-size="10" font-family="monospace">&lt;w:p w14:paraId="4829A10C"&gt;</text>
+  <text x="428" y="323" fill="#A7F3D0" font-size="9.5" font-family="monospace">  &lt;w:pPr&gt;&lt;w:pStyle w:val="WeilIndent2"/&gt;&lt;w:numPr w:ilvl="1" w:numId="14"/&gt;&lt;/w:pPr&gt;</text>
+  <text x="428" y="338" fill="#FCA5A5" font-size="9.5" font-family="monospace">  &lt;w:del w:author="Weil AI"&gt;&lt;w:delText&gt;0.25% Tipping Basket ($10.5M)&lt;/w:delText&gt;&lt;/w:del&gt;</text>
+  <text x="428" y="353" fill="#86EFAC" font-size="9.5" font-family="monospace">  &lt;w:ins w:author="Weil AI"&gt;&lt;w:t&gt;0.50% True Deductible ($21.0M)&lt;/w:t&gt;&lt;/w:ins&gt;</text>
+  <text x="428" y="368" fill="#E2E8F0" font-size="10" font-family="monospace">&lt;/w:p&gt;</text>
+  <text x="428" y="381" fill="#FDE047" font-size="9.5" font-weight="700" font-family="monospace">✓ word/styles.xml: UNCHANGED (0 diff) · word/numbering.xml: UNCHANGED (0 diff)</text>
+
+  <!-- Surface A2: Native Microsoft Word Task Pane Add-in (Office.js) -->
+  <rect x="402" y="412" width="560" height="172" rx="8" fill="#F8FAFC" stroke="#0284C7" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <rect x="416" y="424" width="320" height="20" rx="4" fill="#0284C7"/>
+  <text x="576" y="438" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">SURFACE A2 · NATIVE WORD TASK PANE ADD-IN (OFFICE.JS)</text>
+  <text x="416" y="462" fill="#0369A1" font-size="14" font-weight="800">2B. Live Co-Editing Inside Desktop Word / M365 Web (When Typing Heavily)</text>
+  <text x="416" y="480" fill="#1E293B" font-size="11">• Same Studio 2 UI loads in Word's right-hand Task Pane (380px pip mode via manifest.xml)</text>
+  <text x="416" y="497" fill="#1E293B" font-size="11">• Word natively renders .docx on the left; Gemini applies surgical edits via Office.js API:</text>
+  <rect x="416" y="508" width="532" height="64" rx="6" fill="#0F172A" stroke="#334155"/>
+  <text x="428" y="526" fill="#93C5FD" font-size="10" font-family="monospace">await Word.run(async (ctx) =&gt; {</text>
+  <text x="428" y="542" fill="#86EFAC" font-size="10" font-family="monospace">  ctx.document.changeTrackingMode = Word.ChangeTrackingMode.trackAll;</text>
+  <text x="428" y="558" fill="#E2E8F0" font-size="10" font-family="monospace">  targetParagraph.insertOoxml(geminiClauseOoxml, Word.InsertLocation.replace);</text>
+
+  <!-- Track C: First-Draft Template Engine (docxtpl) -->
+  <rect x="402" y="596" width="560" height="128" rx="8" fill="#ECFDF5" stroke="#059669" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <rect x="416" y="608" width="284" height="20" rx="4" fill="#059669"/>
+  <text x="558" y="622" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">TRACK C · FIRST-DRAFT GENERATION (DOCXTPL)</text>
+  <text x="416" y="645" fill="#065F46" font-size="13.5" font-weight="800">2C. Native .docx Master Templates for New Riders &amp; FundGen Side Letters</text>
+  <text x="416" y="663" fill="#1E293B" font-size="11">• Used ONLY when generating a brand-new rider (Legal Legos / LP Side Letters), NEVER for redlines</text>
+  <text x="416" y="680" fill="#1E293B" font-size="11">• Injects structured JSON into Weil's pre-styled .docx master template via docxtpl (Jinja2 AST)</text>
+  <rect x="416" y="692" width="532" height="22" rx="4" fill="#D1FAE5"/>
+  <text x="682" y="707" fill="#065F46" font-size="10" font-weight="700" text-anchor="middle">✓ Output: 100% Format-Locked .docx · Passes Counterparty Litera Compare with Zero False Diffs</text>
+
+  <!-- ==================== ZONE 3: TRACK B — NATIVE GOOGLE DOCS PIPELINE (RIGHT COLUMN: x=1004, w=576) ==================== -->
+  <rect x="1004" y="110" width="576" height="630" rx="10" fill="#FFFFFF" stroke="#188038" stroke-width="2" filter="url(#gcp-shadow)"/>
+  <rect x="1004" y="110" width="576" height="36" rx="10" fill="#188038"/>
+  <text x="1024" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">ZONE 3 — TRACK B: NATIVE GOOGLE DOCS (BATCHUPDATE API) PRESERVATION</text>
+
+  <!-- Card 3A: Google Workspace / Embedded Canvas -->
+  <rect x="1022" y="160" width="540" height="172" rx="8" fill="#ECFDF5" stroke="#188038" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <rect x="1036" y="172" width="316" height="20" rx="4" fill="#188038"/>
+  <text x="1194" y="186" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">SURFACE B1 &amp; B2 · GOOGLE DOCS + GEMINI SIDE PANEL</text>
+  <text x="1036" y="210" fill="#137333" font-size="14" font-weight="800">3A. Native Google Docs Iframe (/edit?rm=minimal) or Workspace Add-On</text>
+  <text x="1036" y="228" fill="#1E293B" font-size="11">• When opened as a Google Doc, it stays a native Google Doc on Google Drive</text>
+  <text x="1036" y="245" fill="#1E293B" font-size="11">• Left pane renders live Google Doc; right pane hosts Gemini 3.8 Flash assistant</text>
+  <text x="1036" y="262" fill="#1E293B" font-size="11">• Reads structural AST via docs.documents.get(documentId) with exact UTF-16 indices</text>
+  <rect x="1036" y="276" width="512" height="44" rx="6" fill="#D1FAE5" stroke="#34D399"/>
+  <text x="1048" y="294" fill="#065F46" font-size="10.5" font-weight="700">Why Formatting Never Breaks in Google Docs Mode:</text>
+  <text x="1048" y="310" fill="#047857" font-size="10">Edits mutate text inside existing paragraph ranges, inheriting NamedStyles &amp; kix list IDs.</text>
+
+  <!-- Card 3B: Surgical documents.batchUpdate Payload -->
+  <rect x="1022" y="346" width="540" height="238" rx="8" fill="#F8FAFC" stroke="#188038" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <text x="1036" y="372" fill="#137333" font-size="14" font-weight="800">3B. Surgical Google Docs REST API (documents.batchUpdate)</text>
+  <text x="1036" y="390" fill="#1E293B" font-size="11">• Mutates character offsets [startIndex: 1420, endIndex: 1618] inside paragraph node</text>
+  <text x="1036" y="407" fill="#1E293B" font-size="11">• Preserves paragraphStyle.namedStyleType, indentFirstLine (36pt), &amp; bullet.listId</text>
+  <rect x="1036" y="418" width="512" height="152" rx="6" fill="#0F172A" stroke="#334155"/>
+  <text x="1048" y="436" fill="#34D399" font-size="10" font-weight="700" font-family="monospace">// POST https://docs.googleapis.com/v1/documents/{docId}:batchUpdate</text>
+  <text x="1048" y="452" fill="#E2E8F0" font-size="10" font-family="monospace">{ "requests": [</text>
+  <text x="1048" y="468" fill="#FCA5A5" font-size="10" font-family="monospace">  { "deleteContentRange": { "range": { "startIndex": 1482, "endIndex": 1546 } } },</text>
+  <text x="1048" y="484" fill="#86EFAC" font-size="10" font-family="monospace">  { "insertText": { "location": { "index": 1482 },</text>
+  <text x="1048" y="500" fill="#86EFAC" font-size="10" font-family="monospace">      "text": "0.50% of Base Purchase Price ($21,000,000) ('True Deductible')" } },</text>
+  <text x="1048" y="516" fill="#93C5FD" font-size="10" font-family="monospace">  { "updateTextStyle": { "range": { "startIndex": 1482, "endIndex": 1545 },</text>
+  <text x="1048" y="532" fill="#93C5FD" font-size="10" font-family="monospace">      "textStyle": { "weightedFontFamily": { "fontFamily": "EB Garamond" } },</text>
+  <text x="1048" y="548" fill="#93C5FD" font-size="10" font-family="monospace">      "fields": "weightedFontFamily" } } ] }</text>
+  <text x="1048" y="563" fill="#FDE047" font-size="9.5" font-weight="700" font-family="monospace">✓ bullet.listId: "kix.weil9level" (nestingLevel: 1) &amp; NamedStyles 100% preserved</text>
+
+  <!-- Card 3C: Google Drive Named Revisions & Audit Trail -->
+  <rect x="1022" y="596" width="540" height="128" rx="8" fill="#EFF6FF" stroke="#1A73E8" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <text x="1036" y="622" fill="#174EA6" font-size="13.5" font-weight="800">3C. Revision Locking, NamedRanges &amp; Spanner Provenance</text>
+  <text x="1036" y="642" fill="#1E293B" font-size="11">• Wraps every AI-modified clause in a Google Docs NamedRange (weil_clause_8_02_a)</text>
+  <text x="1036" y="659" fill="#1E293B" font-size="11">• Enforces writeControl.requiredRevisionId so concurrent human edits never collide</text>
+  <text x="1036" y="676" fill="#1E293B" font-size="11">• Logs exact before/after diff + Playbook citation into Cloud Spanner WeilLegalGraph</text>
+  <rect x="1036" y="692" width="512" height="22" rx="4" fill="#DBEAFE"/>
+  <text x="1292" y="707" fill="#1E40AF" font-size="10" font-weight="700" text-anchor="middle">✓ Output: 100% Native Google Doc with Zero Alignment or Outline Drift</text>
+
+  <!-- ==================== ZONE 4: CONCRETE VISUAL OUTPUT PROOF & ANTI-PATTERN COMPARISON (BOTTOM: y=756, h=284) ==================== -->
+  <rect x="20" y="756" width="1560" height="284" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="20" y="756" width="1560" height="34" rx="10" fill="#0F172A"/>
+  <text x="40" y="778" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">ZONE 4 — CONCRETE OUTPUT PROOF: WHY FORMAT-LOCKED ROUTING SUCCEEDS VS. WHY ROUND-TRIP CONVERSION FAILS</text>
+
+  <!-- Box 4A: Preserved .docx Output Proof -->
+  <rect x="36" y="802" width="496" height="224" rx="8" fill="#F0FDF4" stroke="#16A34A" stroke-width="2"/>
+  <rect x="48" y="812" width="236" height="20" rx="4" fill="#16A34A"/>
+  <text x="166" y="826" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">✓ EXAMPLE 1: FORMAT-LOCKED .DOCX OUTPUT</text>
+  <text x="48" y="848" fill="#065F46" font-size="12.5" font-weight="800">Opened as .docx -&gt; Edited via OpenXML AST -&gt; Saved as .docx</text>
+  <rect x="48" y="858" width="472" height="118" rx="6" fill="#FFFFFF" stroke="#BBF7D0"/>
+  <text x="60" y="876" fill="#64748B" font-size="9.5" font-weight="700" font-family="monospace">HEADER: WEIL, GOTSHAL &amp; MANGES LLP · MATTER M-331-KESTREL · PAGE 42</text>
+  <text x="60" y="894" fill="#0F172A" font-size="11.5" font-weight="800" font-family="Georgia,serif">ARTICLE VIII — INDEMNIFICATION &amp; SURVIVAL</text>
+  <text x="76" y="912" fill="#0F172A" font-size="11" font-weight="700" font-family="Georgia,serif">Section 8.02 Limitation on Indemnification.</text>
+  <text x="94" y="930" fill="#0F172A" font-size="10.5" font-family="Georgia,serif">(a) Basket: Seller Parties shall have no liability until Losses exceed</text>
+  <text x="112" y="946" fill="#DC2626" font-size="10.5" font-family="Georgia,serif" text-decoration="line-through">0.25% Tipping Basket ($10.5M)</text>
+  <text x="278" y="946" fill="#15803D" font-size="10.5" font-weight="700" font-family="Georgia,serif" text-decoration="underline">0.50% True Deductible ($21.0M)</text>
+  <text x="112" y="964" fill="#0F172A" font-size="10.5" font-family="Georgia,serif">(i) Mini-Basket: Individual claims below $150,000 excluded.</text>
+  <text x="48" y="994" fill="#065F46" font-size="10.5" font-weight="700">✓ Multi-Level Numbering (VIII -&gt; 8.02 -&gt; (a) -&gt; (i)): 100% Intact (w:numId=14)</text>
+  <text x="48" y="1012" fill="#065F46" font-size="10.5" font-weight="700">✓ Litera Compare Audit: ONLY Section 8.02(a) shows redline (0 false diffs)</text>
+
+  <!-- Box 4B: Preserved Google Docs Output Proof -->
+  <rect x="552" y="802" width="496" height="224" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+  <rect x="564" y="812" width="268" height="20" rx="4" fill="#2563EB"/>
+  <text x="698" y="826" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">✓ EXAMPLE 2: FORMAT-LOCKED GOOGLE DOC OUTPUT</text>
+  <text x="564" y="848" fill="#1E3A8A" font-size="12.5" font-weight="800">Opened as Google Doc -&gt; Edited via batchUpdate -&gt; Google Doc</text>
+  <rect x="564" y="858" width="472" height="118" rx="6" fill="#FFFFFF" stroke="#BFDBFE"/>
+  <text x="576" y="876" fill="#2563EB" font-size="9.5" font-weight="700" font-family="monospace">GOOGLE DOCS STRUCTURAL TREE · listId: "kix.weil9level" · NamedStyles Intact</text>
+  <text x="576" y="894" fill="#0F172A" font-size="11.5" font-weight="800" font-family="Georgia,serif">ARTICLE VIII — INDEMNIFICATION &amp; SURVIVAL  [HEADING_1]</text>
+  <text x="592" y="912" fill="#0F172A" font-size="11" font-weight="700" font-family="Georgia,serif">Section 8.02 Limitation on Indemnification.  [HEADING_2]</text>
+  <text x="610" y="930" fill="#0F172A" font-size="10.5" font-family="Georgia,serif">(a) [nestingLevel:1, indentFirstLine:36pt] Updated in-place at index 1482..1545:</text>
+  <text x="628" y="946" fill="#1D4ED8" font-size="10.5" font-weight="700" font-family="Georgia,serif">"0.50% of Base Purchase Price ($21,000,000) ('True Deductible')"</text>
+  <text x="628" y="964" fill="#0F172A" font-size="10.5" font-family="Georgia,serif">(i) [nestingLevel:2, indentFirstLine:54pt] Sub-paragraph untouched.</text>
+  <text x="564" y="994" fill="#1E3A8A" font-size="10.5" font-weight="700">✓ Paragraph Indents (36pt / 54pt) &amp; kix List Hierarchy: 100% Intact</text>
+  <text x="564" y="1012" fill="#1E3A8A" font-size="10.5" font-weight="700">✓ Native Google Docs Version History &amp; NamedRange Anchors Preserved</text>
+
+  <!-- Box 4C: The Broken Round-Trip Anti-Pattern -->
+  <rect x="1068" y="802" width="496" height="224" rx="8" fill="#FEF2F2" stroke="#DC2626" stroke-width="2"/>
+  <rect x="1080" y="812" width="356" height="20" rx="4" fill="#DC2626"/>
+  <text x="1258" y="826" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">✗ ANTI-PATTERN: .DOCX -&gt; GOOGLE DOCS -&gt; .DOCX CONVERSION</text>
+  <text x="1080" y="848" fill="#991B1B" font-size="12.5" font-weight="800">Why Law Firms Forbid Round-Trip Format Conversion</text>
+  <rect x="1080" y="858" width="472" height="118" rx="6" fill="#FFFFFF" stroke="#FECACA"/>
+  <text x="1092" y="876" fill="#DC2626" font-size="9.5" font-weight="700" font-family="monospace">BROKEN EXPORT: styles.xml rewritten · w:numId=14 destroyed · Cross-refs dead</text>
+  <text x="1092" y="894" fill="#7F1D1D" font-size="11.5" font-family="sans-serif">1. INDEMNIFICATION &amp; SURVIVAL  (Lost ARTICLE VIII Roman style)</text>
+  <text x="1092" y="912" fill="#7F1D1D" font-size="11" font-family="sans-serif">1. Limitation on Indemnification.  (Reset to flat '1.' instead of '8.02')</text>
+  <text x="1092" y="930" fill="#7F1D1D" font-size="10.5" font-family="sans-serif">a. Seller Parties shall have no liability... (36pt hanging indent collapsed)</text>
+  <text x="1092" y="946" fill="#DC2626" font-size="10.5" font-weight="700" font-family="sans-serif">[Error! Reference source not found.]  (Broken &lt;w:fldSimple&gt; bookmark)</text>
+  <text x="1092" y="964" fill="#DC2626" font-size="10.5" font-family="sans-serif">All &lt;w:ins&gt;/&lt;w:del&gt; author timestamps flattened or re-authored</text>
+  <text x="1080" y="994" fill="#991B1B" font-size="10.5" font-weight="700">✗ Litera Compare Failure: All 120 pages (1,840 paragraphs) flag as modified!</text>
+  <text x="1080" y="1012" fill="#991B1B" font-size="10.5" font-weight="700">✗ Opposing Counsel Rejects Markup Due to Corrupted Numbering &amp; Styles</text>
+</svg>

@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 940" width="1560" height="940" style="background:#F8FAFC;font-family:'Google Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.07"/>
+    </filter>
+    <marker id="arr-b" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563EB"/>
+    </marker>
+    <marker id="arr-g" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669"/>
+    </marker>
+    <marker id="arr-p" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#7C3AED"/>
+    </marker>
+    <pattern id="grid2" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#E2E8F0" stroke-width="0.7"/>
+    </pattern>
+  </defs>
+
+  <rect width="1560" height="940" fill="#F8FAFC"/>
+  <rect width="1560" height="940" fill="url(#grid2)"/>
+
+  <!-- Header Banner -->
+  <rect x="24" y="20" width="1512" height="74" rx="10" fill="#0F172A" filter="url(#shadow)"/>
+  <text x="48" y="49" fill="#F8FAFC" font-size="20" font-weight="800" letter-spacing="-0.3">SINGLE BRAIN, DUAL SURFACE — 6-STAGE DOCUMENT CO-EDITING SWIMLANES (LLD)</text>
+  <text x="48" y="72" fill="#94A3B8" font-size="12.5" font-weight="500">How One Cloud Run + Spanner GraphRAG Backend Powers Both Gemini Enterprise Web Canvas (Pattern B) &amp; Native Word / Google Docs Add-Ins (Pattern A)</text>
+  <rect x="1264" y="34" width="248" height="44" rx="8" fill="#1E293B" stroke="#334155"/>
+  <text x="1388" y="52" fill="#38BDF8" font-size="11.5" font-weight="700" text-anchor="middle">GE Luminous v23.0.0 + SEP-1865</text>
+  <text x="1388" y="68" fill="#34D399" font-size="10.5" font-weight="700" text-anchor="middle">100% Shared Backend &amp; Playbook</text>
+
+  <!-- ==================== SWIMLANE 1: STAGES 1 & 2 (USER SURFACE SELECTION & PLAYBOOK GROUNDING) ==================== -->
+  <rect x="24" y="110" width="1512" height="240" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="24" y="110" width="1512" height="32" rx="10" fill="#1E293B"/>
+  <text x="44" y="131" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.6">SWIMLANE 1 — STAGE 1: DUAL-SURFACE CO-EDITING ENTRYPOINT &amp; STAGE 2: CLOUD SPANNER GRAPHRAG PLAYBOOK RETRIEVAL</text>
+
+  <!-- Stage 1A: Surface 1 (Web Canvas) -->
+  <rect x="44" y="156" width="460" height="176" rx="8" fill="#EFF6FF" stroke="#2563EB" stroke-width="2"/>
+  <rect x="58" y="168" width="234" height="18" rx="4" fill="#2563EB"/>
+  <text x="175" y="181" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">STAGE 1A · SURFACE 1 (80% OF WORKFLOWS)</text>
+  <text x="58" y="204" fill="#1E3A8A" font-size="13.5" font-weight="800">Gemini Enterprise Web Canvas (Studio 2 MCP App)</text>
+  <text x="58" y="224" fill="#1E40AF" font-size="11.2">• Best for: Multi-doc triage, Playbook redline cards, Legal Legos</text>
+  <text x="58" y="242" fill="#1E40AF" font-size="11.2">• Maximized Co-Editor (#docx-modal-overlay) shows Print-Layout</text>
+  <text x="58" y="259" fill="#1E40AF" font-size="11.2">  sheet on left + Gemini 3.8 Flash assistant side panel on right</text>
+  <text x="58" y="278" fill="#1D4ED8" font-size="10.5" font-weight="700" font-family="monospace">• Zero M365 license or desktop app switch needed</text>
+  <rect x="58" y="294" width="432" height="24" rx="4" fill="#DBEAFE"/>
+  <text x="274" y="310" fill="#1E3A8A" font-size="10" font-weight="700" text-anchor="middle">Live on Cloud Run: weil-redline-word-agent (GE Luminous v23.0.0)</text>
+
+  <!-- Stage 1B: Surface 2 (Native Host Add-In) -->
+  <rect x="534" y="156" width="460" height="176" rx="8" fill="#ECFDF5" stroke="#059669" stroke-width="2"/>
+  <rect x="548" y="168" width="256" height="18" rx="4" fill="#059669"/>
+  <text x="676" y="181" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">STAGE 1B · SURFACE 2 (20% HEAVY DRAFTING)</text>
+  <text x="548" y="204" fill="#065F46" font-size="13.5" font-weight="800">Native Word Add-In (Office.js) &amp; Google Docs Add-On</text>
+  <text x="548" y="224" fill="#047857" font-size="11.2">• Best for: Heavy manual keyboard drafting &amp; complex sub-lists</text>
+  <text x="548" y="242" fill="#047857" font-size="11.2">• Loads the EXACT SAME Cloud Run UI in 380px Task Pane mode</text>
+  <text x="548" y="259" fill="#047857" font-size="11.2">• Native Word / Google Docs handles 100% of keyboard layout</text>
+  <text x="548" y="278" fill="#065F46" font-size="10.5" font-weight="700" font-family="monospace">• Zero custom ribbon/layout code to build or maintain</text>
+  <rect x="548" y="294" width="432" height="24" rx="4" fill="#D1FAE5"/>
+  <text x="764" y="310" fill="#065F46" font-size="10" font-weight="700" text-anchor="middle">40-Line manifest.xml Points Directly to Cloud Run URL</text>
+
+  <!-- Stage 2: Spanner GraphRAG + Intapp Wall -->
+  <rect x="1024" y="156" width="492" height="176" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="2"/>
+  <rect x="1038" y="168" width="246" height="18" rx="4" fill="#7C3AED"/>
+  <text x="1161" y="181" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">STAGE 2 · SHARED SPANNER GRAPHRAG</text>
+  <text x="1038" y="204" fill="#4C1D95" font-size="13.5" font-weight="800">Intapp Screen-Before-Rank &amp; Playbook Lookup</text>
+  <text x="1038" y="224" fill="#5B21B6" font-size="11.2">• Verifies attorney clearance in Cloud Spanner (WeilLegalGraph)</text>
+  <text x="1038" y="242" fill="#5B21B6" font-size="11.2">• Retrieves Weil PE Seller Playbook v3.4 thresholds (§ 8.02 Cap</text>
+  <text x="1038" y="259" fill="#5B21B6" font-size="11.2">  &lt;= 0.75% EV, True Deductible Basket, Delaware Actual Fraud)</text>
+  <text x="1038" y="278" fill="#4C1D95" font-size="10.5" font-weight="700" font-family="monospace">• Binds target paragraph ID (p_id="sec_8_02_a") &amp; char offsets</text>
+  <rect x="1038" y="294" width="464" height="24" rx="4" fill="#EDE9FE"/>
+  <text x="1270" y="310" fill="#4C1D95" font-size="10" font-weight="700" text-anchor="middle">Single Source of Truth Across Web Canvas, Word &amp; Google Docs</text>
+
+  <line x1="504" y1="244" x2="532" y2="244" stroke="#2563EB" stroke-width="2.5" marker-end="url(#arr-b)"/>
+  <line x1="994" y1="244" x2="1022" y2="244" stroke="#059669" stroke-width="2.5" marker-end="url(#arr-p)"/>
+
+  <!-- ==================== SWIMLANE 2: STAGES 3 & 4 (SURGICAL AST MUTATION FOR .DOCX VS GOOGLE DOCS) ==================== -->
+  <rect x="24" y="370" width="1512" height="256" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="24" y="370" width="1512" height="32" rx="10" fill="#1E3A8A"/>
+  <text x="44" y="391" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.6">SWIMLANE 2 — STAGE 3 &amp; STAGE 4: FORMAT-LOCKED SURGICAL AST MUTATION (.DOCX OPENXML VS. GOOGLE DOCS API)</text>
+
+  <!-- Stage 3: .docx Surgical Mutation -->
+  <rect x="44" y="416" width="726" height="194" rx="8" fill="#EFF6FF" stroke="#1A73E8" stroke-width="2"/>
+  <rect x="58" y="428" width="290" height="18" rx="4" fill="#1A73E8"/>
+  <text x="203" y="441" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">STAGE 3 · IF OPENED AS MICROSOFT WORD (.DOCX)</text>
+  <text x="58" y="464" fill="#174EA6" font-size="14" font-weight="800">Surgical OpenXML Node Replacement (word/document.xml Only)</text>
+  <text x="58" y="484" fill="#1E293B" font-size="11.2">1. Keeps original .docx ZIP container: word/styles.xml, word/numbering.xml, headers/footers untouched</text>
+  <text x="58" y="502" fill="#1E293B" font-size="11.2">2. In Web Canvas (Studio 2): Python lxml mutates target &lt;w:p&gt;, wrapping old text in &lt;w:del&gt; and new</text>
+  <text x="58" y="519" fill="#1E293B" font-size="11.2">   Playbook text in &lt;w:ins w:author="Gemini Legal AI" w:date="2026-10-16T19:40:00Z"&gt;</text>
+  <text x="58" y="537" fill="#1E293B" font-size="11.2">3. In Word Add-In (Office.js): Calls targetParagraph.insertOoxml() with ChangeTrackingMode.trackAll</text>
+  <rect x="58" y="550" width="698" height="46" rx="6" fill="#0F172A"/>
+  <text x="72" y="569" fill="#86EFAC" font-size="10.5" font-weight="700" font-family="monospace">SHA-256 Check: styles.xml = 9f8e2b1c (UNCHANGED) | numbering.xml = 3c7a1104 (UNCHANGED)</text>
+  <text x="72" y="586" fill="#38BDF8" font-size="10.5" font-weight="700" font-family="monospace">Result: 9-Level Outline (Article VIII -&gt; Section 8.02 -&gt; (a) -&gt; (i)) &amp; Cross-Refs 100% Intact</text>
+
+  <!-- Stage 4: Google Docs Surgical Mutation -->
+  <rect x="790" y="416" width="726" height="194" rx="8" fill="#ECFDF5" stroke="#059669" stroke-width="2"/>
+  <rect x="804" y="428" width="290" height="18" rx="4" fill="#059669"/>
+  <text x="949" y="441" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">STAGE 4 · IF OPENED AS NATIVE GOOGLE DOC</text>
+  <text x="804" y="464" fill="#065F46" font-size="14" font-weight="800">Surgical Range Update (docs.documents.batchUpdate REST API)</text>
+  <text x="804" y="484" fill="#1E293B" font-size="11.2">1. Reads live document structural JSON (body.content[].paragraph.elements[].startIndex..endIndex)</text>
+  <text x="804" y="502" fill="#1E293B" font-size="11.2">2. Executes atomic batchUpdate: deleteContentRange + insertText strictly inside the inner text run</text>
+  <text x="804" y="519" fill="#1E293B" font-size="11.2">   (excluding the trailing '\n' newline so paragraph-level NamedStyles &amp; list bullets never reset)</text>
+  <text x="804" y="537" fill="#1E293B" font-size="11.2">3. Binds NamedRange (weil_clause_8_02_a) &amp; writeControl.requiredRevisionId for audit traceability</text>
+  <rect x="804" y="550" width="698" height="46" rx="6" fill="#0F172A"/>
+  <text x="818" y="569" fill="#86EFAC" font-size="10.5" font-weight="700" font-family="monospace">Preserved Properties: namedStyleType="NORMAL_TEXT" | listId="kix.weil9level" | nestingLevel=1</text>
+  <text x="818" y="586" fill="#38BDF8" font-size="10.5" font-weight="700" font-family="monospace">Result: 36pt Hanging Indents, EB Garamond Typography &amp; Native Version History 100% Intact</text>
+
+  <!-- ==================== SWIMLANE 3: STAGES 5 & 6 (VERIFICATION, LITERA AUDIT & EXPORT) ==================== -->
+  <rect x="24" y="646" width="1512" height="270" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="24" y="646" width="1512" height="32" rx="10" fill="#065F46"/>
+  <text x="44" y="667" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.6">SWIMLANE 3 — STAGE 5: LIVE SIDE-BY-SIDE VISUAL VERIFICATION &amp; STAGE 6: LITERA-SAFE COUNTERPARTY EXPORT</text>
+
+  <!-- Stage 5A: Instant Live Preview -->
+  <rect x="44" y="692" width="470" height="206" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5"/>
+  <rect x="58" y="704" width="210" height="18" rx="4" fill="#334155"/>
+  <text x="163" y="717" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">STAGE 5A · 0ms LIVE VISUAL DIFF</text>
+  <text x="58" y="740" fill="#0F172A" font-size="13.5" font-weight="800">Interactive Redline &amp; Format-Lock Inspector</text>
+  <text x="58" y="760" fill="#334155" font-size="11.2">• Lawyer sees green flash + inline redline (<tspan fill="#DC2626" text-decoration="line-through">del</tspan> / <tspan fill="#16A34A" font-weight="700">ins</tspan>) immediately</text>
+  <text x="58" y="778" fill="#334155" font-size="11.2">• "Inspect Format-Lock Proof" drawer shows live XML/JSON AST</text>
+  <text x="58" y="796" fill="#334155" font-size="11.2">  diff + SHA-256 style checksums right inside Studio 2</text>
+  <text x="58" y="814" fill="#334155" font-size="11.2">• 1-click Undo/Reset or clause-by-clause Accept/Reject</text>
+  <rect x="58" y="860" width="442" height="24" rx="4" fill="#E2E8F0"/>
+  <text x="279" y="876" fill="#0F172A" font-size="10" font-weight="700" text-anchor="middle">Verified in Headless Chrome Across Both Light &amp; Dark Modes</text>
+
+  <!-- Stage 5B: Architectural Decision Matrix -->
+  <rect x="544" y="692" width="470" height="206" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1.5"/>
+  <rect x="558" y="704" width="250" height="18" rx="4" fill="#D97706"/>
+  <text x="683" y="717" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">STAGE 5B · WHEN TO USE WHICH SURFACE</text>
+  <text x="558" y="740" fill="#92400E" font-size="13.5" font-weight="800">Golden Rule for Weil Customer Deployment</text>
+  <text x="558" y="760" fill="#78350F" font-size="11.2" font-weight="700">1. Use Gemini Enterprise Web Canvas (Surface 1) when:</text>
+  <text x="558" y="777" fill="#78350F" font-size="10.8">   Reviewing 46 deal contracts, applying Playbook redlines, or</text>
+  <text x="558" y="793" fill="#78350F" font-size="10.8">   assembling modular Privacy Pro / Tax Legal Legos riders.</text>
+  <text x="558" y="813" fill="#78350F" font-size="11.2" font-weight="700">2. Use Word Add-In / Native GDocs (Surface 2) when:</text>
+  <text x="558" y="830" fill="#78350F" font-size="10.8">   Doing heavy freeform manual typing across multi-page sections.</text>
+  <rect x="558" y="860" width="442" height="24" rx="4" fill="#FEF3C7"/>
+  <text x="779" y="876" fill="#92400E" font-size="10" font-weight="700" text-anchor="middle">Both Surfaces Call the Exact Same Cloud Run Endpoints</text>
+
+  <!-- Stage 6: Counterparty Export & Litera Verification -->
+  <rect x="1044" y="692" width="472" height="206" rx="8" fill="#ECFDF5" stroke="#059669" stroke-width="2"/>
+  <rect x="1058" y="704" width="268" height="18" rx="4" fill="#059669"/>
+  <text x="1192" y="717" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">STAGE 6 · LITERA-SAFE DEAL ROOM DELIVERY</text>
+  <text x="1058" y="740" fill="#065F46" font-size="13.5" font-weight="800">Zero-Corruption Export to iManage &amp; Opposing Counsel</text>
+  <text x="1058" y="760" fill="#047857" font-size="11.2">• Downloads Format-Locked .docx (/api/redline/sample-docx)</text>
+  <text x="1058" y="778" fill="#047857" font-size="11.2">• Counterparty (Skadden) runs Litera Compare against v4:</text>
+  <text x="1058" y="796" fill="#065F46" font-size="11.2" font-weight="700">  -&gt; ONLY edited clauses show redlines (0 false page diffs)</text>
+  <text x="1058" y="814" fill="#065F46" font-size="11.2" font-weight="700">  -&gt; 100% of custom styles, numbering &amp; footers preserved</text>
+  <text x="1058" y="832" fill="#047857" font-size="11.2">• Auto-files signed version + CMN audit trail to iManage</text>
+  <rect x="1058" y="860" width="444" height="24" rx="4" fill="#D1FAE5"/>
+  <text x="1280" y="876" fill="#065F46" font-size="10" font-weight="700" text-anchor="middle">✓ Production-Ready for Sprint 3 Sandbox Deployment (Nov 2026)</text>
+
+  <line x1="514" y1="795" x2="542" y2="795" stroke="#334155" stroke-width="2.5" marker-end="url(#arr-b)"/>
+  <line x1="1014" y1="795" x2="1042" y2="795" stroke="#D97706" stroke-width="2.5" marker-end="url(#arr-g)"/>
+</svg>

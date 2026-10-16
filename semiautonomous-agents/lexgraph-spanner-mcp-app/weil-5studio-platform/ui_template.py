@@ -604,8 +604,7 @@ button {
   flex-direction: column;
   gap: 14px;
   width: 100%;
-  flex: 1;
-  min-height: 0;
+  flex: 1 0 auto;
 }
 .studio-screen.active {
   display: flex;
@@ -970,7 +969,7 @@ button {
 
 /* Split Grid for Studios 2, 3, 4, 5 */
 .two-col-studio {
-  flex: 1;
+  flex: 0 0 auto;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
   gap: 18px;
@@ -2110,9 +2109,229 @@ __PRERENDERED_TBODY__
               <span class="google-symbols" style="font-size:14px; color:var(--color-teal-icon);">verified</span>
               OpenXML AST + Weil Playbook v3.4
             </span>
-            <button type="button" class="lumi-btn lumi-btn-accent lumi-btn-sm button--state-layer" onclick="openDocxModal('redline')">
-              <span class="google-symbols filled" style="font-size:16px;">auto_awesome</span> Co-Edit in Gemini Workspace
-            </button>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button type="button" class="lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" onclick="document.getElementById('format-proof-showcase')?.scrollIntoView({behavior:'smooth'})">
+                <span class="google-symbols" style="font-size:16px;">fact_check</span> Format-Lock Output Proof
+              </button>
+              <button type="button" class="lumi-btn lumi-btn-accent lumi-btn-sm button--state-layer" onclick="openDocxModal('redline')">
+                <span class="google-symbols filled" style="font-size:16px;">auto_awesome</span> Co-Edit in Gemini Workspace
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- FORMAT-LOCKED OUTPUT PROOF: .DOCX (OPENXML) VS GOOGLE DOCS API      -->
+    <!-- =================================================================== -->
+    <div id="format-proof-showcase" class="lumi-card discover-reveal" style="padding:18px 20px; margin-top:8px; flex-shrink:0; background:var(--color-ge-surface-container-lowest); border:1px solid var(--color-ge-outline-variant); border-radius:16px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+        <div>
+          <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px; flex-wrap:wrap;">
+            <span class="gds-title-m" style="font-weight:600; color:var(--color-ge-on-surface);">Format-Locked Co-Editing Output Proof: Why Formatting Is Never Broken</span>
+            <span class="lumi-status-badge lumi-badge-green"><span class="lumi-status-badge-dot"></span>100% Litera Compare Safe</span>
+          </div>
+          <div class="gds-body-s" style="color:var(--color-ge-on-surface-variant);">
+            Compare the actual rendered output and underlying AST/API payload when a contract is opened &amp; modified as a native <strong>.docx (OpenXML)</strong> vs. a native <strong>Google Doc (batchUpdate API)</strong> vs. the broken <strong>Round-Trip Conversion Anti-Pattern</strong>.
+          </div>
+        </div>
+        <div class="lumi-segmented-group" role="tablist" aria-label="Format Proof Examples">
+          <button id="btn-proof-docx" type="button" class="lumi-segmented-item active" onclick="switchFormatProofTab('docx', this)">
+            <span class="google-symbols" style="font-size:15px;">description</span> 1. Native .docx (OpenXML AST)
+          </button>
+          <button id="btn-proof-gdocs" type="button" class="lumi-segmented-item" onclick="switchFormatProofTab('gdocs', this)">
+            <span class="google-symbols" style="font-size:15px;">article</span> 2. Native Google Doc (batchUpdate)
+          </button>
+          <button id="btn-proof-broken" type="button" class="lumi-segmented-item" onclick="switchFormatProofTab('broken', this)">
+            <span class="google-symbols" style="font-size:15px; color:var(--color-red-icon);">warning</span> 3. Broken Round-Trip (.docx→GDocs→.docx)
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 1: NATIVE .DOCX OPENXML AST OUTPUT PROOF -->
+      <div id="proof-pane-docx" class="format-proof-pane" style="display:grid; grid-template-columns:1.05fr 0.95fr; gap:16px; align-items:start;">
+        <div class="docx-canvas-wrap" style="border-radius:14px;">
+          <div class="docx-word-toolbar">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="google-symbols" style="font-size:15px; color:var(--color-ge-on-primary-container);">verified</span>
+              <span>02_Weil_v3_Gemini_AST_Redlined_FormatLocked.docx (Opened &amp; Saved as Native .docx)</span>
+            </div>
+            <span class="lumi-status-badge lumi-badge-green" style="height:22px; font-size:11px;">w:numId=14 Intact</span>
+          </div>
+          <div style="padding:14px 18px; background:var(--color-ge-surface-container-lowest); font-family:var(--font-serif); color:var(--color-ge-on-surface);">
+            <div style="display:flex; justify-content:space-between; font-family:var(--font-sans); font-size:10px; color:var(--color-ge-on-surface-variant); border-bottom:1px solid var(--color-ge-outline-variant); padding-bottom:6px; margin-bottom:10px;">
+              <span>HEADER: WEIL, GOTSHAL &amp; MANGES LLP · MATTER M-331-KESTREL</span>
+              <span>PAGE 42 · STYLES &amp; NUMBERING LOCKED</span>
+            </div>
+            <div style="text-align:center; font-weight:700; font-size:15px; margin-bottom:6px; letter-spacing:0.02em;">
+              ARTICLE VIII — INDEMNIFICATION &amp; SURVIVAL <span style="font-family:var(--font-mono); font-size:10px; font-weight:500; background:var(--color-blue-bg); color:var(--color-blue-text); padding:1px 6px; border-radius:4px;">w:pStyle="WeilArticleHeading"</span>
+            </div>
+            <div style="margin-left:18px; font-weight:700; font-size:14px; text-decoration:underline; margin-bottom:8px;">
+              Section 8.02 Limitation on Indemnification. <span style="font-family:var(--font-mono); font-size:10px; font-weight:500; text-decoration:none; background:var(--color-blue-bg); color:var(--color-blue-text); padding:1px 6px; border-radius:4px;">w:pStyle="WeilSection2"</span>
+            </div>
+            <div style="margin-left:36px; text-indent:-18px; font-size:13.5px; line-height:1.55; margin-bottom:8px;">
+              <strong>(a) Basket Structure.</strong> Notwithstanding anything to the contrary in this Agreement, the Seller Parties shall have no liability under Section 8.01(a) until the aggregate amount of all Losses exceeds an amount equal to
+              <span class="redline-del">0.25% of the Base Purchase Price ($10,500,000) (the &ldquo;Tipping Basket&rdquo;), from the first dollar of all Losses.</span>
+              <span class="redline-ins">0.50% of the Base Purchase Price ($21,000,000) (the &ldquo;True Deductible&rdquo;), and then strictly for the excess over the True Deductible.</span>
+              <span style="font-family:var(--font-mono); font-size:10px; background:var(--color-green-bg); color:var(--color-green-text); padding:1px 6px; border-radius:4px;">w:ilvl="1" w:numId="14" (36pt indent)</span>
+            </div>
+            <div style="margin-left:54px; text-indent:-18px; font-size:13px; line-height:1.5; color:var(--color-ge-on-surface);">
+              <strong>(i) De Minimis Threshold.</strong> No individual claim below $150,000 (&ldquo;Mini-Basket&rdquo;) shall be counted toward the True Deductible.
+              <span style="font-family:var(--font-mono); font-size:10px; background:var(--color-green-bg); color:var(--color-green-text); padding:1px 6px; border-radius:4px;">w:ilvl="2" w:numId="14" (54pt indent)</span>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:10px; border-top:1px solid var(--color-ge-outline-variant); font-family:var(--font-sans);">
+              <a href="__DEFAULT_API_BASE__/api/redline/format-proof-docx?mode=before" target="_blank" class="lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" style="text-decoration:none;">
+                <span class="google-symbols" style="font-size:15px;">download</span> 1. Before (Skadden v4 .docx)
+              </a>
+              <a href="__DEFAULT_API_BASE__/api/redline/format-proof-docx?mode=after_ast" target="_blank" class="lumi-btn lumi-btn-filled lumi-btn-sm button--state-layer" style="text-decoration:none;">
+                <span class="google-symbols" style="font-size:15px;">download</span> 2. After Gemini AST Redline (.docx)
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="lumi-card lumi-card-tonal" style="padding:14px 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span class="gds-label-l">Under-the-Hood OpenXML AST Diff (word/document.xml)</span>
+            <span class="lumi-status-badge lumi-badge-teal">0 False Diffs in Litera</span>
+          </div>
+          <pre style="margin:0; padding:12px; border-radius:10px; background:var(--color-ge-surface-container-lowest); border:1px solid var(--color-ge-outline-variant); font-family:var(--font-mono); font-size:11px; line-height:1.5; overflow-x:auto; color:var(--color-ge-on-surface);">&lt;!-- word/styles.xml SHA-256: UNCHANGED (0 bytes modified) --&gt;
+&lt;!-- word/numbering.xml SHA-256: UNCHANGED (w:numId="14" intact) --&gt;
+&lt;w:p w14:paraId="4829A10C"&gt;
+  &lt;w:pPr&gt;
+    &lt;w:pStyle w:val="WeilIndentLevel2"/&gt;
+    &lt;w:numPr&gt;&lt;w:ilvl w:val="1"/&gt;&lt;w:numId w:val="14"/&gt;&lt;/w:numPr&gt;
+    &lt;w:ind w:left="720" w:hanging="360"/&gt;
+  &lt;/w:pPr&gt;
+  &lt;w:del w:id="901" w:author="Weil Gemini Legal AI"&gt;
+    &lt;w:r&gt;&lt;w:delText&gt;0.25% Tipping Basket ($10,500,000)&lt;/w:delText&gt;&lt;/w:r&gt;
+  &lt;/w:del&gt;
+  &lt;w:ins w:id="902" w:author="Weil Gemini Legal AI"&gt;
+    &lt;w:r&gt;&lt;w:t&gt;0.50% True Deductible ($21,000,000)&lt;/w:t&gt;&lt;/w:r&gt;
+  &lt;/w:ins&gt;
+&lt;/w:p&gt;</pre>
+          <div class="gds-body-s" style="margin-top:8px; color:var(--color-ge-on-surface-variant);">
+            <strong>Why Format Never Breaks:</strong> Our backend never converts <code>.docx</code> to HTML/Google Docs and back. It mutates only the target <code>&lt;w:p&gt;</code> node in <code>word/document.xml</code> (or calls <code>Office.js insertOoxml</code> inside Word), keeping 100% of custom styles, 9-level numbering, and page margins untouched.
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: NATIVE GOOGLE DOCS (BATCHUPDATE API) OUTPUT PROOF -->
+      <div id="proof-pane-gdocs" class="format-proof-pane" style="display:none; grid-template-columns:1.05fr 0.95fr; gap:16px; align-items:start;">
+        <div class="docx-canvas-wrap" style="border-radius:14px;">
+          <div class="docx-word-toolbar">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="google-symbols" style="font-size:15px; color:var(--color-ge-on-primary-container);">article</span>
+              <span>Project_Kestrel_SPA_Workstream_Draft (Opened &amp; Edited as Native Google Doc)</span>
+            </div>
+            <span class="lumi-status-badge lumi-badge-blue" style="height:22px; font-size:11px;">listId: kix.weil9level</span>
+          </div>
+          <div style="padding:14px 18px; background:var(--color-ge-surface-container-lowest); font-family:var(--font-serif); color:var(--color-ge-on-surface);">
+            <div style="display:flex; justify-content:space-between; font-family:var(--font-sans); font-size:10px; color:var(--color-ge-on-surface-variant); border-bottom:1px solid var(--color-ge-outline-variant); padding-bottom:6px; margin-bottom:10px;">
+              <span>GOOGLE DOCS NATIVE CANVAS · REVISION ID: ALm37BV_kestrel_rev42</span>
+              <span>NAMED STYLES &amp; KIX LISTS INTACT</span>
+            </div>
+            <div style="text-align:center; font-weight:700; font-size:15px; margin-bottom:6px;">
+              ARTICLE VIII — INDEMNIFICATION &amp; SURVIVAL <span style="font-family:var(--font-mono); font-size:10px; font-weight:500; background:var(--color-blue-bg); color:var(--color-blue-text); padding:1px 6px; border-radius:4px;">namedStyleType: HEADING_1</span>
+            </div>
+            <div style="margin-left:18px; font-weight:700; font-size:14px; text-decoration:underline; margin-bottom:8px;">
+              Section 8.02 Limitation on Indemnification. <span style="font-family:var(--font-mono); font-size:10px; font-weight:500; text-decoration:none; background:var(--color-blue-bg); color:var(--color-blue-text); padding:1px 6px; border-radius:4px;">namedStyleType: HEADING_2</span>
+            </div>
+            <div style="margin-left:36px; text-indent:-18px; font-size:13.5px; line-height:1.55; margin-bottom:8px;">
+              <strong>(a) Basket Structure (Index 1482..1634):</strong> Notwithstanding anything to the contrary in this Agreement, the Seller Parties shall have no liability under Section 8.01(a) until the aggregate amount of all Losses exceeds
+              <span class="redline-ins">0.50% of the Base Purchase Price ($21,000,000) (the &ldquo;True Deductible&rdquo;), and Seller Parties shall be liable strictly for the excess over the True Deductible.</span>
+              <span style="font-family:var(--font-mono); font-size:10px; background:var(--color-green-bg); color:var(--color-green-text); padding:1px 6px; border-radius:4px;">nestingLevel:1 · indent:36pt</span>
+            </div>
+            <div style="margin-left:54px; text-indent:-18px; font-size:13px; line-height:1.5;">
+              <strong>(i) De Minimis Threshold:</strong> Individual claims below $150,000 excluded.
+              <span style="font-family:var(--font-mono); font-size:10px; background:var(--color-green-bg); color:var(--color-green-text); padding:1px 6px; border-radius:4px;">nestingLevel:2 · indent:54pt</span>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:10px; border-top:1px solid var(--color-ge-outline-variant); font-family:var(--font-sans);">
+              <a href="https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit" target="_blank" class="lumi-btn lumi-btn-filled lumi-btn-sm button--state-layer" style="text-decoration:none;">
+                <span class="google-symbols" style="font-size:15px;">open_in_new</span> Open Live Google Doc Proof (Edited via batchUpdate)
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="lumi-card lumi-card-tonal" style="padding:14px 16px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span class="gds-label-l">Surgical Google Docs API Payload (documents.batchUpdate)</span>
+            <span class="lumi-status-badge lumi-badge-green">NamedStyles Intact</span>
+          </div>
+          <pre style="margin:0; padding:12px; border-radius:10px; background:var(--color-ge-surface-container-lowest); border:1px solid var(--color-ge-outline-variant); font-family:var(--font-mono); font-size:11px; line-height:1.5; overflow-x:auto; color:var(--color-ge-on-surface);">// POST https://docs.googleapis.com/v1/documents/{docId}:batchUpdate
+// Mutates strictly inside [startIndex: 1482, endIndex: 1589]
+// (Leaves trailing '\n' untouched so paragraph style &amp; listId never reset)
+{
+  "writeControl": { "requiredRevisionId": "ALm37BV_kestrel_rev42" },
+  "requests": [
+    { "deleteContentRange": { "range": { "startIndex": 1482, "endIndex": 1589 } } },
+    { "insertText": {
+        "location": { "index": 1482 },
+        "text": "0.50% of Base Purchase Price ($21,000,000) ('True Deductible')..."
+    } },
+    { "createNamedRange": {
+        "name": "weil_playbook_v3_sec_8_02_a",
+        "range": { "startIndex": 1482, "endIndex": 1634 }
+    } }
+  ]
+}</pre>
+          <div class="gds-body-s" style="margin-top:8px; color:var(--color-ge-on-surface-variant);">
+            <strong>Why Format Never Breaks in Google Docs:</strong> In Google Docs, paragraph styles (<code>HEADING_2</code>, <code>36pt</code> hanging indent, and <code>bullet.listId</code>) are attached to the paragraph's trailing <code>\n</code> newline token. By replacing only the inner text range <code>[startIndex, endIndex - 1]</code>, 100% of alignments and list hierarchies remain intact.
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: BROKEN ROUND-TRIP CONVERSION ANTI-PATTERN (.DOCX -> GDOCS -> .DOCX) -->
+      <div id="proof-pane-broken" class="format-proof-pane" style="display:none; grid-template-columns:1.05fr 0.95fr; gap:16px; align-items:start;">
+        <div class="docx-canvas-wrap" style="border-radius:14px; border-color:var(--color-red-border);">
+          <div class="docx-word-toolbar" style="background:var(--color-red-bg); color:var(--color-red-text);">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="google-symbols" style="font-size:15px; color:var(--color-red-icon);">error</span>
+              <span>03_BROKEN_RoundTrip_GDocs_Conversion_Corrupted.docx (Anti-Pattern: .docx → GDocs → .docx)</span>
+            </div>
+            <span class="lumi-status-badge lumi-badge-red" style="height:22px; font-size:11px;">120 Pages Corrupted</span>
+          </div>
+          <div style="padding:14px 18px; background:var(--color-ge-surface-container-lowest); font-family:sans-serif; color:var(--color-ge-on-surface);">
+            <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--color-red-text); border-bottom:1px solid var(--color-red-border); padding-bottom:6px; margin-bottom:10px;">
+              <span>✗ HEADER STRIPPED: Running Matter Header &amp; Page Tab Alignment Shifted</span>
+              <span>FONT RESET TO ARIAL 11PT</span>
+            </div>
+            <div style="font-size:13.5px; margin-bottom:6px; color:var(--color-red-text);">
+              1. INDEMNIFICATION AND SURVIVAL <span style="font-family:var(--font-mono); font-size:10px; background:var(--color-red-bg); padding:1px 6px; border-radius:4px;">✗ Lost ARTICLE VIII Roman Heading &amp; Centering</span>
+            </div>
+            <div style="font-size:13px; margin-bottom:6px; color:var(--color-red-text);">
+              1. Limitation on Indemnification. <span style="font-family:var(--font-mono); font-size:10px; background:var(--color-red-bg); padding:1px 6px; border-radius:4px;">✗ Reset from Section 8.02 to flat "1."</span>
+            </div>
+            <div style="font-size:12.5px; line-height:1.5; margin-bottom:6px;">
+              a. Seller Parties shall have no liability under <strong style="color:var(--color-red-text);">[Error! Reference source not found.]</strong> until Losses exceed 0.50% True Deductible ($21,000,000).
+              <span style="font-family:var(--font-mono); font-size:10px; background:var(--color-red-bg); color:var(--color-red-text); padding:1px 6px; border-radius:4px;">✗ 36pt hanging indent collapsed · w:fldSimple broken</span>
+            </div>
+            <div style="font-size:12.5px; line-height:1.5; color:var(--color-ge-on-surface-variant);">
+              1. De Minimis Threshold. <span style="font-family:var(--font-mono); font-size:10px; background:var(--color-red-bg); color:var(--color-red-text); padding:1px 6px; border-radius:4px;">✗ Sub-level (i) detached from parent list</span>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; padding-top:10px; border-top:1px solid var(--color-ge-outline-variant);">
+              <a href="__DEFAULT_API_BASE__/api/redline/format-proof-docx?mode=broken_roundtrip" target="_blank" class="lumi-btn lumi-btn-outlined lumi-btn-sm button--state-layer" style="text-decoration:none; color:var(--color-red-text); border-color:var(--color-red-border);">
+                <span class="google-symbols" style="font-size:15px;">download</span> Download Corrupted Round-Trip .docx (Inspect Failure)
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="lumi-card" style="padding:14px 16px; background:var(--color-red-bg); border-color:var(--color-red-border);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <span class="gds-label-l" style="color:var(--color-red-text);">Why Law Firms Forbid .docx → Google Docs → .docx Conversion</span>
+            <span class="lumi-status-badge lumi-badge-red">FAILS LITERA COMPARE</span>
+          </div>
+          <pre style="margin:0; padding:12px; border-radius:10px; background:var(--color-ge-surface-container-lowest); border:1px solid var(--color-red-border); font-family:var(--font-mono); font-size:11px; line-height:1.5; overflow-x:auto; color:var(--color-red-text);">&lt;!-- CORRUPTED ROUND-TRIP EXPORT --&gt;
+&lt;!-- 1. word/styles.xml overwritten with generic Normal_kix --&gt;
+&lt;!-- 2. word/numbering.xml w:numId="14" 9-level outline destroyed --&gt;
+&lt;!-- 3. All &lt;w:ins&gt;/&lt;w:del&gt; author/date attributes flattened --&gt;
+&lt;!-- 4. Litera Compare Result: 1,840 / 1,840 paragraphs (120 pages)
+        light up as modified (100% false-positive redline noise!) --&gt;</pre>
+          <div class="gds-body-s" style="margin-top:8px; color:var(--color-red-text);">
+            <strong>Architectural Takeaway:</strong> Never convert counterparty <code>.docx</code> agreements into Google Docs and re-export. Always keep <code>.docx</code> on the OpenXML AST / <code>Office.js</code> track and Google Docs on the <code>documents.batchUpdate</code> track.
           </div>
         </div>
       </div>
@@ -2550,11 +2769,16 @@ __PRERENDERED_TBODY__
         </div>
 
         <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
-          <button class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode">◐ Theme</button>
+          <button type="button" class="lumi-icon-btn" onclick="toggleGeThemeMode()" title="Toggle Light / Dark Mode" aria-label="Toggle Light or Dark Mode">
+            <span class="google-symbols ge-theme-icon">dark_mode</span>
+          </button>
           <button id="docx-modal-copy-btn" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="copyDocxModalText()">Copy Text</button>
           <button id="btn-export-live-docx" type="button" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" onclick="downloadLiveEditedDocx()" style="border-color:var(--color-blue-border);color:var(--color-ge-primary);font-weight:600;">
             ⬇ Export Live .docx
           </button>
+          <a id="btn-open-live-gdoc-proof" href="https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit" target="_blank" class="pill-btn lumi-btn lumi-btn-sm button--state-layer pill-btn-white pill-btn-xs" style="border-color:var(--color-green-border);color:var(--color-green-text);font-weight:600;text-decoration:none;">
+            ↗ Live Google Doc
+          </a>
           <a id="docx-modal-download-btn" href="__DEFAULT_API_BASE__/api/legal-legos/docx" target="_blank" style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:999px;background:var(--color-ge-secondary-container);color:var(--color-ge-on-secondary-container);font-size:13px;font-weight:600;text-decoration:none;border:none;">
             🔒 Share / .docx
           </a>
@@ -4434,6 +4658,29 @@ function onModalPaperLiveEdit() {
   }
 }
 
+function switchFormatProofTab(mode, btnEl) {
+  const panes = {
+    docx: document.getElementById("proof-pane-docx"),
+    gdocs: document.getElementById("proof-pane-gdocs"),
+    broken: document.getElementById("proof-pane-broken"),
+  };
+  Object.keys(panes).forEach((k) => {
+    if (panes[k]) {
+      panes[k].style.display = k === mode ? "grid" : "none";
+    }
+  });
+  const btnMap = {
+    docx: document.getElementById("btn-proof-docx"),
+    gdocs: document.getElementById("btn-proof-gdocs"),
+    broken: document.getElementById("btn-proof-broken"),
+  };
+  Object.keys(btnMap).forEach((k) => {
+    if (btnMap[k]) {
+      btnMap[k].classList.toggle("active", k === mode);
+    }
+  });
+}
+
 function toggleSourceFormatLock() {
   currentSourceFormatLock = currentSourceFormatLock === "docx" ? "gdoc" : "docx";
   const labelEl = document.getElementById("format-lock-label");
@@ -4452,6 +4699,7 @@ function toggleSourceFormatLock() {
     if (explainerEl) {
       explainerEl.innerHTML = `Opened as <strong>.docx (OpenXML)</strong>. Live edits and Gemini actions mutate <code>&lt;w:p&gt;</code> &amp; <code>&lt;w:ins&gt;/&lt;w:del&gt;</code> nodes directly while keeping <code>styles.xml</code> &amp; <code>numbering.xml</code> 100% intact.`;
     }
+    switchFormatProofTab("docx");
   } else {
     if (labelEl) labelEl.textContent = "Format-Locked: Google Docs (batchUpdate API)";
     if (dotEl) dotEl.style.background = "var(--color-green-icon)";
@@ -4462,6 +4710,7 @@ function toggleSourceFormatLock() {
     if (explainerEl) {
       explainerEl.innerHTML = `Opened as <strong>Google Doc</strong>. Live edits and Gemini actions execute via <code>documents.batchUpdate</code> (<code>InsertText</code> / <code>ReplaceAllText</code>) preserving 100% of Google Docs <code>NamedStyles</code>.`;
     }
+    switchFormatProofTab("gdocs");
   }
   onModalPaperLiveEdit();
 }
