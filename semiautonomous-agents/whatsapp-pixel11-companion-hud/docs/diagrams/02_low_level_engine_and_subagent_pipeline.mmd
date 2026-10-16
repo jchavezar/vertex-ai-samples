@@ -1,0 +1,110 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart LR
+  subgraph SG_INGEST["Flow 1: Deterministic CDP State Machine & Origin Tagging"]
+    direction TB
+    CDP_Lock["File-Level Mutex Lock<br/>(/tmp/wa_cdp_session.lock)"]:::neutral
+
+    CDP_Timezone["Timezone & Locale Enforcer<br/>(Emulation.setTimezoneOverride)"]
+    CDP_Timezone@{ icon: "logos:chrome", pos: "b" }
+
+    OriginRouter["Deterministic Origin Classifier<br/>(peer | human_manual | historical_archive)"]:::gcpBlue
+    OriginRouter@{ icon: "gcp:cloud-run", pos: "b" }
+
+    ShadowGuard["Human-Presence Shadow Lock<br/>(100% Read-Only Passive Mode)"]:::gcpRed
+    ShadowGuard@{ icon: "gcp:cloud-run", pos: "b" }
+
+    TablesDB["6 Normalized SQLite WAL Tables<br/>(messages, chats, metrics, brains, rl, media)"]
+    TablesDB@{ icon: "logos:sqlite", pos: "b" }
+
+    wp_L1_out(((1))):::waypoint
+
+    CDP_Lock --> CDP_Timezone
+    CDP_Timezone --> OriginRouter
+    OriginRouter --> ShadowGuard
+    OriginRouter --> TablesDB
+    ShadowGuard --> TablesDB
+    TablesDB --> wp_L1_out
+  end
+
+  subgraph SG_BRAIN["Flow 2: Multi-Model Swarm & Anti-Hallucination Guardrails"]
+    direction TB
+    wp_L1_in(((1))):::waypoint
+
+    PreHook["PreInvocation Compaction Guard<br/>(Injects Ground-Truth Anchor IDs)"]:::gcpYellow
+    PreHook@{ icon: "gcp:cloud-run", pos: "b" }
+
+    RouterDecomp["Parallel Complexity Router<br/>(Splits Live Q&A vs Deep Analysis)"]:::gcpBlue
+    RouterDecomp@{ icon: "gcp:vertexai", pos: "b" }
+
+    WorkerFlash["Flash-Next Sub-Agent (Gemini 3.8 Flash)<br/>(0.058ms FTS5 Lookup • 3-Option Drafts)"]:::gcpGreen
+    WorkerFlash@{ icon: "gcp:vertexai", pos: "b" }
+
+    WorkerVision["Multimodal Media Analyzer (Gemini 3.8 Flash)<br/>(Photos, Reels & Voice Note Subtext)"]:::gcpGreen
+    WorkerVision@{ icon: "gcp:vertexai", pos: "b" }
+
+    WorkerArgon["Frontier Sub-Agent (Gemini 4 Argon)<br/>(Psychometric Polarity & Social RLHF)"]:::gcpBlue
+    WorkerArgon@{ icon: "gcp:vertexai", pos: "b" }
+
+    StopVerifier["Zero-Hallucination Stop Hook<br/>(Blocks Unverified Quotes or Merged Rows)"]:::gcpRed
+    StopVerifier@{ icon: "gcp:cloud-run", pos: "b" }
+
+    wp_L2_out(((2))):::waypoint
+
+    wp_L1_in --> PreHook
+    PreHook --> RouterDecomp
+    RouterDecomp --> WorkerFlash
+    RouterDecomp --> WorkerVision
+    RouterDecomp --> WorkerArgon
+    WorkerFlash --> StopVerifier
+    WorkerVision --> StopVerifier
+    WorkerArgon --> StopVerifier
+    StopVerifier --> wp_L2_out
+  end
+
+  subgraph SG_MOBILE["Flow 3: Sub-ms Mobile Bridge & Pixel 11 Pro HUD"]
+    direction TB
+    wp_L2_in(((2))):::waypoint
+
+    ProtoOverlay["Direct SQLite Protobuf Decoder<br/>(Reads Unflushed Steps in <0.4ms)"]
+    ProtoOverlay@{ icon: "logos:sqlite", pos: "b" }
+
+    CompactDelta["98.8% Payload Compressor<br/>(374KB Boot -> 55.7KB SSE Delta)"]:::gcpYellow
+    CompactDelta@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    FastCache["Client 0ms HTML Cache<br/>(IndexedDB + Signature Diffing)"]:::gcpBlue
+    FastCache@{ icon: "gcp:cloud-run", pos: "b" }
+
+    Pixel11UI["Pixel 11 Pro 412x915 Touch HUD<br/>(Minimizable Q#1->A#1 • 5 Pillars)"]:::gcpGreen
+    Pixel11UI@{ icon: "fa:user", pos: "b" }
+
+    wp_L2_in --> ProtoOverlay
+    ProtoOverlay --> CompactDelta
+    CompactDelta --> FastCache
+    FastCache --> Pixel11UI
+  end
+
+  SG_INGEST ~~~ SG_BRAIN ~~~ SG_MOBILE
+
+  style SG_INGEST fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_BRAIN fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_MOBILE fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold

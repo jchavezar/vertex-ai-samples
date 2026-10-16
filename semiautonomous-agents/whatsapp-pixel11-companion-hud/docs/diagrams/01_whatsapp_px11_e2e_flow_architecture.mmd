@@ -1,0 +1,114 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph ROW1[" "]
+    direction LR
+    subgraph SG_R1["Stage 1: Multi-Device Chrome CDP Ingestion & E2EE Bypass"]
+      direction TB
+      WhatsAppE2EE["WhatsApp Group & 1:1 Threads<br/>(Advanced Chat Privacy ON • @Meta AI Disabled)"]
+      WhatsAppE2EE@{ icon: "logos:whatsapp", pos: "b" }
+
+      ChromeCDP["Genuine Chrome 155 Multi-Device Node<br/>(Port 9222 • /tmp/wa_cdp_session.lock Mutex)"]
+      ChromeCDP@{ icon: "logos:chrome", pos: "b" }
+
+      DOMScraper["DOM & Mutation Extractor<br/>([data-id], Quoted Replies, Reactions, Media)"]:::gcpBlue
+      DOMScraper@{ icon: "gcp:cloud-run", pos: "b" }
+
+      NightlyCrawler["Progressive Nightly History Crawler<br/>(300 Batches/Night • origin='historical_archive')"]:::neutral
+
+      SQLiteTruth["SQLite WAL Ground Truth Ledger<br/>(whatsapp_truth.db • Peer vs Human vs Bot Origin)"]
+      SQLiteTruth@{ icon: "logos:sqlite", pos: "b" }
+
+      wp_A_out(((A))):::waypoint
+
+      WhatsAppE2EE --> ChromeCDP
+      ChromeCDP --> DOMScraper
+      ChromeCDP --> NightlyCrawler
+      DOMScraper --> SQLiteTruth
+      NightlyCrawler --> SQLiteTruth
+      SQLiteTruth --> wp_A_out
+    end
+
+    subgraph SG_R2["Stage 2: 58.1µs Hybrid RAG, 2-Tier Batch & Sub-Agent Swarm"]
+      direction TB
+      wp_A_in(((A))):::waypoint
+
+      HybridRAG["58.1-Microsecond Hybrid RAG Engine<br/>(SQLite FTS5 BM25 + RAM Inverted Index)"]:::gcpGreen
+      HybridRAG@{ icon: "gcp:vertexai", pos: "b" }
+
+      Tier2Batch["2-Tier Idle Batch Cognitive Profiler<br/>($0.00 Local + Gemini 3.8 Flash 50-Msg Batch)"]:::gcpBlue
+      Tier2Batch@{ icon: "gcp:vertexai", pos: "b" }
+
+      FastSubagent["Fast Synchronous Q&A Sub-Agent<br/>(Gemini 3.8 Flash • <1s Live Thread Grounding)"]:::gcpGreen
+      FastSubagent@{ icon: "gcp:vertexai", pos: "b" }
+
+      DeepSubagent["Deep Psychometric & Strategy Sub-Agent<br/>(Gemini 4 Argon • 360° Brain OS & Playbooks)"]:::gcpBlue
+      DeepSubagent@{ icon: "gcp:vertexai", pos: "b" }
+
+      StopHookGuard["Deterministic SQLite Stop-Hook Verifier<br/>(Enforces Exact [wa_id:XXXX] Single-Row Citations)"]:::gcpRed
+      StopHookGuard@{ icon: "gcp:cloud-run", pos: "b" }
+
+      wp_B_out(((B))):::waypoint
+
+      wp_A_in --> HybridRAG
+      wp_A_in --> Tier2Batch
+      HybridRAG --> FastSubagent
+      Tier2Batch --> DeepSubagent
+      FastSubagent --> StopHookGuard
+      DeepSubagent --> StopHookGuard
+      StopHookGuard --> wp_B_out
+    end
+  end
+
+  subgraph SG_R3["Stage 3: Outbound 5G Cloud Run Reverse-Tunnel & Pixel 11 Pro 120Hz HUD"]
+    direction LR
+    wp_B_in(((B))):::waypoint
+
+    HUDCompiler["Zero-Latency HUD Pre-Compiler<br/>(renderer.py • <2.5ms Ephemeral Micro-Apps)"]:::gcpBlue
+    HUDCompiler@{ icon: "gcp:cloud-run", pos: "b" }
+
+    ReverseTunnel["Outbound 0.8s Reverse-Tunnel<br/>(cloud_tunnel_sync.py • 0 Idle LLM Calls)"]:::gcpYellow
+    ReverseTunnel@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    CloudRunRelay["Cloud Run 5G Single-Instance Relay<br/>(2FA TOTP + Burn-After-Reading QR Pairing)"]:::gcpBlue
+    CloudRunRelay@{ icon: "gcp:cloud-run", pos: "b" }
+
+    Pixel11Stream["Pixel 11 Pro View 1: Live Stream & Split HUD<br/>(3-Option Co-Pilot + Minimizable Q#N->A#N)"]:::gcpGreen
+    Pixel11Stream@{ icon: "fa:user", pos: "b" }
+
+    Pixel11Analytics["Pixel 11 Pro View 2: 5-Pillar Telemetry Glass<br/>(360° Member Dossiers + RLHF Matrix)"]:::gcpBlue
+    Pixel11Analytics@{ icon: "fa:user", pos: "b" }
+
+    wp_B_in --> HUDCompiler
+    HUDCompiler --> ReverseTunnel
+    ReverseTunnel --> CloudRunRelay
+    CloudRunRelay --> Pixel11Stream
+    CloudRunRelay --> Pixel11Analytics
+  end
+
+  SG_R1 ~~~ SG_R2
+  ROW1 ~~~ SG_R3
+
+  style ROW1 fill:none,stroke:none
+  style SG_R1 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_R2 fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_R3 fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold
