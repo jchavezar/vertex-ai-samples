@@ -1,7 +1,7 @@
 <!-- WEIL_V3_HLD_LLD_START -->
-# Weil Enterprise Legal AI MVP — High-Level Design (HLD), Low-Level Design (LLD) & 8-Use-Case Live Demos (`v3.2.0`)
+# Weil Enterprise Legal AI MVP — High-Level Design (HLD), Low-Level Design (LLD) & 8-Use-Case Live Demos (`v3.2.0` · GE Luminous v23.0.0)
 
-> 📄 **Full HLD & LLD Architecture Blueprint:** [**`WEIL_HLD_LLD_ARCHITECTURE.md`**](./WEIL_HLD_LLD_ARCHITECTURE.md) · [**`WEIL_UNIFIED_ARCHITECTURE_AND_USE_CASES.md`**](./WEIL_UNIFIED_ARCHITECTURE_AND_USE_CASES.md) · 💻 **Unified 5-Studio Platform Source:** [**`weil-5studio-platform/`**](./weil-5studio-platform/)
+> 📄 **Full HLD & LLD Architecture Blueprint:** [**`WEIL_HLD_LLD_ARCHITECTURE.md`**](./WEIL_HLD_LLD_ARCHITECTURE.md) · 📝 **Document Integration & Format-Locked Co-Editing Guide (`Single Brain, Dual Surface`):** [**`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`**](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) · 🔗 **Live Google Doc Format-Lock Proof (`documents.batchUpdate`):** [**Open Live Google Doc**](https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit) · 🔌 **GE MCP App Integration Guide:** [**`GEMINI_ENTERPRISE_MCP_APP_INTEGRATION_GUIDE.md`**](./GEMINI_ENTERPRISE_MCP_APP_INTEGRATION_GUIDE.md) · 🎙️ **Presenter Guide:** [**`WEIL_DEMO_PRESENTER_GUIDE.md`**](./WEIL_DEMO_PRESENTER_GUIDE.md) · 💻 **Unified 5-Studio Platform Source:** [**`weil-5studio-platform/`**](./weil-5studio-platform/)
 
 ### 🏛️ 1. High-Level Design (HLD) — End-to-End Enterprise Legal AI Platform
 ![Weil Google Cloud Reference Architecture (HLD & LLD with Official GCP Icons)](./docs/diagrams/00_weil_gcp_reference_architecture.png)
@@ -14,16 +14,36 @@
 ### 🧩 3. Low-Level Design (LLD-3) — All 8 Legal Use Cases Mapped to 5 Gemini Enterprise Custom MCP App Studios (`SEP-1865`)
 ![Weil Low-Level Design: 8 Legal Use Cases Mapped to 5 Gemini Enterprise MCP App Studios](./docs/diagrams/03_weil_lld_8_use_cases_5_studios_matrix.svg)
 
-| Use Case # | Legal Capability | Architecture & Data Dependency | Live Cloud Run Demo (`us-central1`) | Deep-Dive HLD/LLD Link |
+### 📄 4. Document Integration & Format-Locked Co-Editing (`Single Brain, Dual Surface`: `.docx` OpenXML AST & Google Docs `batchUpdate`)
+> Full architectural guide, SHA-256 verified `.docx` samples, and live Google Doc proof: [**`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`**](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md)
+
+![Weil Document Integration & Format-Locked Dual-Routing Architecture](./docs/diagrams/04_weil_document_integration_dual_routing_architecture.png)
+
+![Weil Single Brain, Dual Surface Execution Swimlanes](./docs/diagrams/05_weil_single_brain_dual_surface_swimlanes.png)
+
+| Format-Lock Proof Artifact | Download / Live Link | `word/styles.xml` SHA-256 | `word/numbering.xml` SHA-256 | Litera Compare Verdict |
+| :--- | :--- | :--- | :--- | :--- |
+| **1. Original Counterparty `.docx` (Before Edit)** | [`docs/samples/01_Weil_M&A_SPA_Section_8_02_ORIGINAL_BEFORE_EDIT.docx`](./docs/samples/01_Weil_M&A_SPA_Section_8_02_ORIGINAL_BEFORE_EDIT.docx) | `c1350f2b2adb` | `ab9e4c222c40` | Baseline Counterparty v4 |
+| **2. After Gemini Surgical OpenXML AST Redline (`.docx`)** | [`docs/samples/02_Weil_M&A_SPA_Section_8_02_AFTER_SURGICAL_OPENXML_AST_FORMAT_LOCKED.docx`](./docs/samples/02_Weil_M&A_SPA_Section_8_02_AFTER_SURGICAL_OPENXML_AST_FORMAT_LOCKED.docx) | `c1350f2b2adb` (**100% Identical**) | `ab9e4c222c40` (**100% Identical**) | **PASS (`0` False Diffs)** |
+| **3. Broken Round-Trip (`.docx → GDocs → .docx`)** | [`docs/samples/03_Weil_M&A_SPA_Section_8_02_BROKEN_ROUNDTRIP_CONVERTED.docx`](./docs/samples/03_Weil_M&A_SPA_Section_8_02_BROKEN_ROUNDTRIP_CONVERTED.docx) | `c64b59c3c6f1` (**Overwritten**) | `377983a8764a` (**Destroyed**) | **FAIL (120 Pages Corrupted)** |
+| **4. Live Google Doc Proof (`documents.batchUpdate`)** | [`https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit`](https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit) | `HEADING_1` / `HEADING_2` Intact | `listId: kix.weil9level` Intact | **PASS (In-Place `batchUpdate` on `§ 8.02(a)`)** |
+
+![Tab 1 — Native .docx OpenXML AST Output Proof](./docs/screenshots/ge_format_proof_tab1_docx.png)
+
+![Tab 2 — Native Google Doc batchUpdate Output Proof](./docs/screenshots/ge_format_proof_tab2_gdocs.png)
+
+![Tab 3 — Why Law Firms Forbid .docx to Google Docs to .docx Round-Trip Conversion](./docs/screenshots/ge_format_proof_tab3_broken.png)
+
+| Use Case # | Legal Capability | Architecture & Data Dependency | Live Cloud Run Demo (`us-central1`) | Documentation File |
 | :-: | :--- | :--- | :--- | :--- |
-| **UC-1** | **Document Redlining & Playbook Risk Deviation** | Unstructured `.docx`/PDF Indexing + Spanner Precedent Caps | [`weil-redline-word-agent`](https://weil-redline-word-agent-254356041555.us-central1.run.app) | [UC-1 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-1-document-redlining--playbook-deviation-analysis) |
-| **UC-2** | **Integrated Word Processing & Privacy Pro "Legal Legos"** | OpenXML 15-Yr Numbering Tree + Modular Clause Blocks | [`weil-redline-word-agent`](https://weil-redline-word-agent-254356041555.us-central1.run.app) | [UC-2 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-2-integrated-word-processing--privacy-pro-legal-legos-docx) |
-| **UC-3** | **Side-by-Side Pin-Cite Citation Review (★ Priority)** | **Critical Path:** Unstructured Clause + Page/BBox Indexing | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [UC-3 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-3-side-by-side-pin-cite-citation-review--priority) |
-| **UC-4** | **Email, Calendar & Chat Triage Automation** | **Evaluating:** Direct Runtime API / MCP vs. Envelope Graph | [`weil-inbox-calendar-agent`](https://weil-inbox-calendar-agent-254356041555.us-central1.run.app) | [UC-4 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-4-email-calendar--chat-triage-automation-direct-api-vs-graph-evaluation) |
-| **UC-5** | **Multi-Document Tabular Analysis Grids (★ Priority)** | **Critical Path:** Unstructured Multimodal Indexing + Spanner RRF | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [UC-5 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-5-multi-document-tabular-analysis-grids--priority--mike-oss-in-ge) |
-| **UC-6** | **Workflow & Grid Builder + Homegrown Apps (`FundGen`/`FundHQ`/HSR)** | Spanner Precedent Graph + 2-Pass Chart/Waterfall OCR | [`weil-funds-antitrust-agent`](https://weil-funds-antitrust-agent-254356041555.us-central1.run.app) | [UC-6 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-6-self-service-workflow--grid-builder--homegrown-apps-fundgen-fundhq-antitrust) |
-| **UC-7** | **Matter & Knowledge Workspaces (Cross-Matter `CUJ-0`)** | Cloud Spanner ISO GQL Property Graph (`WeilLegalGraph`) | [`weil-governance-wall-agent`](https://weil-governance-wall-agent-254356041555.us-central1.run.app) | [UC-7 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-7-matter--knowledge-workspaces-cross-matter-precedent-graphrag) |
-| **UC-8** | **Dynamic Client-Matter Tracking & Intapp Ethical Walls** | Spanner `IntappWalls` (`Screen-Before-Rank`) + `TeammateGrants` | [`weil-governance-wall-agent`](https://weil-governance-wall-agent-254356041555.us-central1.run.app) | [UC-8 LLD](./WEIL_HLD_LLD_ARCHITECTURE.md#uc-8-dynamic-client-matter-tracking-cmn-context-switcher--intapp-ethical-walls) |
+| **UC-1** | **Document Redlining & Playbook Risk Deviation** | Unstructured `.docx`/PDF Indexing + Spanner Precedent Caps | [`weil-redline-word-agent`](https://weil-redline-word-agent-254356041555.us-central1.run.app) | [`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) |
+| **UC-2** | **Integrated Word Processing & Privacy Pro "Legal Legos"** | OpenXML 15-Yr Numbering Tree + Modular Clause Blocks | [`weil-redline-word-agent`](https://weil-redline-word-agent-254356041555.us-central1.run.app) | [`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) |
+| **UC-3** | **Side-by-Side Pin-Cite Citation Review (★ Priority)** | **Critical Path:** Unstructured Clause + Page/BBox Indexing | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
+| **UC-4** | **Email, Calendar & Chat Triage Automation** | **Evaluating:** Direct Runtime API / MCP vs. Envelope Graph | [`weil-inbox-calendar-agent`](https://weil-inbox-calendar-agent-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
+| **UC-5** | **Multi-Document Tabular Analysis Grids (★ Priority)** | **Critical Path:** Unstructured Multimodal Indexing + Spanner RRF | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
+| **UC-6** | **Workflow & Grid Builder + Homegrown Apps (`FundGen`/`FundHQ`/HSR)** | Spanner Precedent Graph + 2-Pass Chart/Waterfall OCR | [`weil-funds-antitrust-agent`](https://weil-funds-antitrust-agent-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
+| **UC-7** | **Matter & Knowledge Workspaces (Cross-Matter `CUJ-0`)** | Cloud Spanner ISO GQL Property Graph (`WeilLegalGraph`) | [`weil-governance-wall-agent`](https://weil-governance-wall-agent-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
+| **UC-8** | **Dynamic Client-Matter Tracking & Intapp Ethical Walls** | Spanner `IntappWalls` (`Screen-Before-Rank`) + `TeammateGrants` | [`weil-governance-wall-agent`](https://weil-governance-wall-agent-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
 
 ---
 <!-- WEIL_V3_HLD_LLD_END -->

@@ -88,21 +88,42 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 <a id="uc-1-document-redlining--playbook-deviation-analysis"></a>
 ### UC-1: Document Redlining & Playbook Deviation Analysis
 * **Live Demo**: [`https://weil-redline-word-agent-254356041555.us-central1.run.app`](https://weil-redline-word-agent-254356041555.us-central1.run.app)
+* **Deep-Dive Document Integration & Format-Lock Guide**: [**`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`**](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md)
+* **Live Google Doc Format-Lock Proof (`documents.batchUpdate` on `§ 8.02(a)`)**: [`https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit`](https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit)
 * **Low-Level Design**:
   * Ingests opposing counsel markups (`.docx` / PDF pairs, e.g., *Brightwater Merger Agreement Weil v3 vs. Skadden v4*), computes deterministic word-level `<del>`/`<ins>` diffs, and benchmarks deviations against historical precedent caps in Cloud Spanner (`M-215` Project Kestrel & `M-518` Project Vanguard).
-  * Renders interactive `EditCardUI` cards allowing counsel to `Accept Weil v3`, `Reject Markup`, or inspect Playbook risk flags.
+  * Renders interactive `EditCardUI` cards allowing counsel to `Accept Weil v3`, `Reject Markup`, or inspect Playbook risk flags inside the **GE Luminous v23.0.0** App Shell (`Light` and `Dark` modes).
 
-![UC-1 & UC-2 Redline and Legal Legos Studio](./docs/screenshots_v3/v3_studio2_redline_1440px.png)
+![UC-1 & UC-2 Redline and Legal Legos Studio (GE Luminous v23.0.0 Light Mode)](./docs/screenshots/ge_luminous_studio2_light.png)
+
+![UC-1 & UC-2 Redline and Legal Legos Studio (GE Luminous v23.0.0 Dark Mode)](./docs/screenshots/ge_luminous_studio2_dark.png)
+
+![Maximized Format-Locked Google Workspace / Microsoft Word Co-Editor (Light Mode)](./docs/screenshots/ge_luminous_coeditor_light.png)
 
 ---
 
 <a id="uc-2"></a>
 <a id="uc-2-integrated-word-processing--privacy-pro-legal-legos-docx"></a>
-### UC-2: Integrated Word Processing & Privacy Pro "Legal Legos" (`.docx`)
+### UC-2: Integrated Word Processing & Privacy Pro "Legal Legos" (`.docx` & Google Docs Format-Locked Dual Routing)
 * **Live Demo**: [`https://weil-redline-word-agent-254356041555.us-central1.run.app`](https://weil-redline-word-agent-254356041555.us-central1.run.app)
+* **Deep-Dive Document Integration Architecture (`Single Brain, Dual Surface`)**: [**`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`**](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md)
+* **Downloadable Format-Locked `.docx` Proof Samples (`SHA-256` Verified `word/styles.xml` = `c1350f2b2adb` & `word/numbering.xml` = `ab9e4c222c40`)**:
+  * [`docs/samples/01_Weil_M&A_SPA_Section_8_02_ORIGINAL_BEFORE_EDIT.docx`](./docs/samples/01_Weil_M&A_SPA_Section_8_02_ORIGINAL_BEFORE_EDIT.docx)
+  * [`docs/samples/02_Weil_M&A_SPA_Section_8_02_AFTER_SURGICAL_OPENXML_AST_FORMAT_LOCKED.docx`](./docs/samples/02_Weil_M&A_SPA_Section_8_02_AFTER_SURGICAL_OPENXML_AST_FORMAT_LOCKED.docx)
+  * [`docs/samples/03_Weil_M&A_SPA_Section_8_02_BROKEN_ROUNDTRIP_CONVERTED.docx`](./docs/samples/03_Weil_M&A_SPA_Section_8_02_BROKEN_ROUNDTRIP_CONVERTED.docx)
 * **Low-Level Design**:
-  * Preserves 15-year multi-level legal numbering (`ARTICLE I`, `Section 8.02(b)`) across OpenXML `.docx` files.
-  * Implements Weil's **Privacy Pro ("Legal Legos")** modular clause assembly engine (GDPR Art. 28, CCPA/CPRA, EU AI Act High-Risk Annex III, and FormSpec v06 NDA riders) with live `.docx` binary generation (`GET /api/legal-legos/docx`).
+  * Implements **"Single Brain, Dual Surface"** with **Format-Locked Dual Routing**: **Surface 1 (GE Web Canvas + Surgical OpenXML AST / Google Docs `batchUpdate`)** handles 80% of AI workflows (multi-contract redline triage, clause-by-clause `Accept`/`Reject`, and Legal Legos assembly), while **Surface 2 (Native `Office.js` Word Task Pane Add-in / Google Workspace Side Panel)** handles the remaining 20% (heavy freeform keyboard drafting) using the exact same Cloud Run backend.
+  * Preserves 15-year multi-level legal numbering (`ARTICLE VIII`, `Section 8.02(a)(i)`) across OpenXML `.docx` files (`w:numId="14"`) and Google Docs (`documents.batchUpdate` on `[startIndex, endIndex - 1]`).
+
+![Weil Document Integration & Format-Locked Dual-Routing Architecture](./docs/diagrams/04_weil_document_integration_dual_routing_architecture.png)
+
+![Weil Single Brain, Dual Surface Execution Swimlanes](./docs/diagrams/05_weil_single_brain_dual_surface_swimlanes.png)
+
+![Tab 1 — Native .docx OpenXML AST Output Proof](./docs/screenshots/ge_format_proof_tab1_docx.png)
+
+![Tab 2 — Native Google Doc batchUpdate Output Proof](./docs/screenshots/ge_format_proof_tab2_gdocs.png)
+
+![Tab 3 — Broken Round-Trip Conversion Anti-Pattern](./docs/screenshots/ge_format_proof_tab3_broken.png)
 
 ---
 
@@ -115,7 +136,7 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
   * Shared subroutine (`CUJ-4`) invoked from any Analysis Grid cell or Red-Flag Memo citation.
   * Clicking a numbered `CitationPillUI` badge opens the right-hand `EB Garamond` contract reader at `<15ms`, scrolls directly to the cited page and section (`bbox_json`), highlights the verbatim grounding clause in yellow, and supports instant row-to-row (`↑`/`↓`) navigation and original file download.
 
-![UC-3 & UC-5 Mike OSS Tabular Diligence Grid & Pin-Cite Reader](./docs/screenshots_v3/v3_studio1_tabular_1440px.png)
+![UC-3 & UC-5 Mike OSS Tabular Diligence Grid & Pin-Cite Reader (GE Luminous v23.0.0)](./docs/screenshots/ge_luminous_studio1_light.png)
 
 ---
 
@@ -127,7 +148,7 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
   * Triages partner deal emails (`EM-9901..9903`) by matching sender/recipient and attachment context to active Client-Matter Numbers (`CMN`), staging 1-tap `Approve & File to iManage` actions.
   * Detects hard calendar overlaps (`CAL-101`: *Brightwater Board SPA Approval Call* vs. *FTC HSR Second Request Meet & Confer*) via direct Calendar API / `.ics` inspection and executes 1-tap partner delegation.
 
-![UC-4 Partner Deal Inbox & Calendar Triage Studio](./docs/screenshots_v3/v3_studio5_inbox_1440px.png)
+![UC-4 Partner Deal Inbox & Calendar Triage Studio (GE Luminous v23.0.0)](./docs/screenshots/ge_luminous_studio5_light.png)
 
 ---
 
@@ -151,7 +172,7 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
 * **Low-Level Design**:
   * Demonstrates the GCP modernization path for Weil's homegrown Private Funds and Antitrust applications (**`FundGen`** LPA drafter, **`FundHQ`** LP Side-Letter Most-Favored-Nation [MFN] compendium, and **Antitrust HSR HHI** market-concentration simulator) alongside multimodal extraction of financial waterfall charts (`DOC-CHART-01/02`), J.Crew blocker org diagrams (`DOC-DIAG-01`), and wet-ink wire scans (`DOC-SCAN-01`).
 
-![UC-6 FundGen, FundHQ MFN & Antitrust HSR Lab](./docs/screenshots_v3/v3_studio3_funds_1440px.png)
+![UC-6 FundGen, FundHQ MFN & Antitrust HSR Lab (GE Luminous v23.0.0)](./docs/screenshots/ge_luminous_studio3_light.png)
 
 ---
 
@@ -172,4 +193,4 @@ All **8 Use Cases** from the Weil Executive Blueprint are implemented across **5
   * Binds every query and grid session to an active **Client-Matter Number (`CMN`)** and attorney identity (`L-001`..`L-005`).
   * Enforces **Intapp Ethical Walls (`Screen-Before-Rank`)** inside Cloud Spanner *before* vector or keyword scoring—mathematically blocking walled attorneys (`L-001` Sarah Jenkins) from restricted matters (`M-999` *Project Omega*) while managing 30-day `TeammateGrants` for unfiled deal emails (`EM-9901`).
 
-![UC-7 & UC-8 Intapp Ethical Wall & Cloud Spanner Graph Studio](./docs/screenshots_v3/v3_studio4_governance_1440px.png)
+![UC-7 & UC-8 Intapp Ethical Wall & Cloud Spanner Graph Studio (GE Luminous v23.0.0)](./docs/screenshots/ge_luminous_studio4_light.png)
