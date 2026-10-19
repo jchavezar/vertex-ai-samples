@@ -6,7 +6,7 @@
 | **Bespoke Application Title** | **Gemini Multimodal Live API // Real-Time Bidi Voice Portfolio Recapture Studio** (`gemini_live_bidi_voice_studio`) |
 | **Business Domain** | 3. Client Experience & Servicing (Mr. Cooper Portfolio, Escrow, Synopsis & Recapture) (`rocket-demo-servicing`) |
 | **Complexity Level** | `L300` |
-| **Active Model & Runtime** | **`gemini-3.8-flash`** — Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash |
+| **Active Model & Runtime** | **`gemini-3.8-flash`** — Vertex AI Live API (gemini-3.8-live) + gemini-3.8-flash |
 | **Live Interactive Demo** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/3.4](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/3.4) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/3.4](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/3.4) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |
@@ -85,6 +85,6 @@ python3 ./code/agent.py
   "monthly_savings": "$298.44/month ($3,581.28/yr)",
   "breakeven": "13.1 Months",
   "lifetime_saved": "$89,412.00",
-  "voice_model": "gemini-live-2.5-flash-native-audio (Real Bidi WebSocket)"
+  "voice_model": "gemini-3.8-live (Real Bidi WebSocket)"
 }
 ```

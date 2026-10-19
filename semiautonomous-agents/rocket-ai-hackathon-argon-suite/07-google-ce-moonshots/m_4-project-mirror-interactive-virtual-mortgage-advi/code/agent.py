@@ -2,7 +2,7 @@
 """
 Standalone Vertex AI Agent Runner for Square [M.4]: Project Mirror: Interactive Virtual Mortgage Advisor ('Astra Pro')
 Bespoke App Archetype: project_mirror_live_whiteboard_advisor (Project Mirror ('Astra Pro') // Interactive Live Voice & Dynamic Closing-Table Whiteboard)
-Default Model: gemini-3.8-flash (Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash)
+Default Model: gemini-3.8-flash (Vertex AI Live API (gemini-3.8-live) + gemini-3.8-flash)
 """
 import json
 import os
@@ -61,7 +61,7 @@ def execute_square_demo(custom_input: str | None = None, model_override: str | N
         "ui_archetype": payload.get("ui_archetype", "project_mirror_live_whiteboard_advisor"),
         "model_used": model_id,
         "live_vertex_called": live_called,
-        "runtime_badge": payload.get("runtime_badge", "Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash"),
+        "runtime_badge": payload.get("runtime_badge", "Vertex AI Live API (gemini-3.8-live) + gemini-3.8-flash"),
         "sandbox": sb_bundle["sandbox"],
         "bespoke_visual_artifact": sb_bundle["bespoke_artifact"],
         "structured_data": structured_out,

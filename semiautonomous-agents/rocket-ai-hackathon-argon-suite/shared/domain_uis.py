@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """7 Distinct Domain Applications + 33 Bespoke Use-Case App Canvases for the Rocket AI Hackathon Suite.
 Every single square (`1.1` through `M.5`) renders its own bespoke interactive UI archetype,
-custom sliders, structured visual output cards, real Gemini Live Audio WebSocket (`gemini-live-2.5-flash-native-audio`),
+custom sliders, structured visual output cards, real Gemini Live Audio WebSocket (`gemini-3.8-live`),
 real Gemini Enterprise `streamAssist` API + Web UI links, and automatic model routing (`gemini-3.8-flash` for ADK/Agent Engine)."""
 
 import json

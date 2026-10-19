@@ -3,7 +3,7 @@
 > **Dedicated Standalone Microservice Repository** (Separated from the 5-Pillar Flagship Studio)  
 > **Bespoke App:** **Project Mirror ('Astra Pro') // Interactive Live Voice & Dynamic Closing-Table Whiteboard** (`project_mirror_live_whiteboard_advisor`)  
 > **Department:** 7. Google Customer Engineering Moonshots (Disruptive Gemini 4 Argon Prototypes) (`L300`)  
-> **Default Model & Runtime:** `Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash`
+> **Default Model & Runtime:** `Vertex AI Live API (gemini-3.8-live) + gemini-3.8-flash`
 
 ---
 

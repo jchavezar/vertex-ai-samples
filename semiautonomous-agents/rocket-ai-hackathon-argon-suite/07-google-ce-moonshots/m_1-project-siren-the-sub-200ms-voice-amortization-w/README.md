@@ -3,7 +3,7 @@
 > **Dedicated Standalone Microservice Repository** (Separated from the 5-Pillar Flagship Studio)  
 > **Bespoke App:** **Project Siren // Real-Time Gemini Live Audio WebSocket (<200ms Barge-In Amortization)** (`project_siren_live_voice_amortization`)  
 > **Department:** 7. Google Customer Engineering Moonshots (Disruptive Gemini 4 Argon Prototypes) (`L300`)  
-> **Default Model & Runtime:** `Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash`
+> **Default Model & Runtime:** `Vertex AI Live API (gemini-3.8-live) + gemini-3.8-flash`
 
 ---
 

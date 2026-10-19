@@ -111,7 +111,7 @@ KEYNOTE_PRESENTATION = {
             {
                 "time": "01:45 – 02:00",
                 "title": "4. Google CE Moonshots & Hackathon Kickoff Blueprint",
-                "subtitle": "Project Siren, Spatial Close (3D Maps + Imagen 3), HiveMind Swarm & Air-Tight",
+                "subtitle": "Project Siren, Spatial Close (3D Maps + Imagen 4.0), HiveMind Swarm & Air-Tight",
                 "bullets": [
                     "How to clone any of the 33 live Cloud Run reference architectures using the Reproduction Blueprints on this portal.",
                     "Accessing your GCP Sandbox Project, Vertex AI `gemini-4-argon` & `gemini-3.8-flash` endpoints, and Antigravity MCP starter kits.",
@@ -235,7 +235,7 @@ TRANSLATOR_SERVICES = [
         "tags": ["claude", "chatgpt"]
     },
     {
-        "service": "Gemini Omni, Veo 3.1 & Imagen 3 (Nano Banana 2)",
+        "service": "Gemini Omni, Veo 3.1 & Imagen 4.0 (Nano Banana 2)",
         "level": "L200–L300",
         "url": "https://deepmind.google/technologies/gemini-omni/",
         "oneLiner": "Conversational virtual staging, localized ad typography rendering, and multi-format 9:16 & 16:9 video tour production with SynthID.",
@@ -309,7 +309,7 @@ GLOSSARY_SERVICES = [
         "desc2": "Powers Conversational Rocket Recapture (`3.4`), Project Siren (`M.1`), and Project Mirror Virtual Advisor (`M.4`) in under 200ms."
     },
     {
-        "name": "Gemini Omni, Veo 3.1 & Imagen 3",
+        "name": "Gemini Omni, Veo 3.1 & Imagen 4.0",
         "level": "L200 – L300",
         "desc1": "Google DeepMind's multimodal creative suite for conversational virtual staging (Nano Banana 2) and 9:16 / 16:9 video tour generation.",
         "desc2": "Transforms empty Redfin listing photos into staged homes and social video ads with crisp rate typography and SynthID watermarks."

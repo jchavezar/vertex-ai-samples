@@ -185,7 +185,7 @@
         {
           "time": "01:45 \u2013 02:00",
           "title": "4. Google CE Moonshots & Hackathon Kickoff Blueprint",
-          "subtitle": "Project Siren, Spatial Close (3D Maps + Imagen 3), HiveMind Swarm & Air-Tight",
+          "subtitle": "Project Siren, Spatial Close (3D Maps + Imagen 4.0), HiveMind Swarm & Air-Tight",
           "bullets": [
             "How to clone any of the 33 live Cloud Run reference architectures using the Reproduction Blueprints on this portal.",
             "Accessing your GCP Sandbox Project, Vertex AI `gemini-4-argon` & `gemini-3.8-flash` endpoints, and Antigravity MCP starter kits.",

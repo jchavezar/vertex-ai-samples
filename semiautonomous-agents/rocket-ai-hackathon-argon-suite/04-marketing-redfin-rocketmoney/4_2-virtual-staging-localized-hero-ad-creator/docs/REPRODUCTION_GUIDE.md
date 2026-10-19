@@ -34,7 +34,7 @@ Rather than displaying a generic text response, Square `[4.2]` renders **Nano Ba
 
 ## 3. Target GCP & Antigravity Architecture
 
-**Google Cloud Stack:** `Imagen 3 / Nano Banana 2` · `Gemini 4 Argon Creative Director` · `SynthID Watermarking`
+**Google Cloud Stack:** `Imagen 4.0 / Nano Banana 2` · `Gemini 4 Argon Creative Director` · `SynthID Watermarking`
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -46,7 +46,7 @@ Rather than displaying a generic text response, Square `[4.2]` renders **Nano Ba
 └───────────────────────────────────┬────────────────────────────────────┘
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│  [Imagen 3 / Nano Banana 2 Inpainting + Gemini 4 Argon Reg Z Check]    │
+│  [Imagen 4.0 / Nano Banana 2 Inpainting + Gemini 4 Argon Reg Z Check]    │
 │  ├─► Locks structural masks (windows, walls, ceiling beams)            │
 │  ├─► Renders furniture + crisp typography overlay + SynthID            │
 │  └─► Auto-appends TILA Reg Z APR disclosure for payment ads            │
@@ -61,7 +61,7 @@ Rather than displaying a generic text response, Square `[4.2]` renders **Nano Ba
 
 ## 4. Step-by-Step Reproduction Instructions
 
-1. Call Vertex AI Imagen 3 (`imagen-3.0-generate-002` / Nano Banana editing) with the room image and structural preservation mask.
+1. Call Vertex AI Imagen 4.0 (`imagen-4.0-generate-001` / Nano Banana editing) with the room image and structural preservation mask.
 2. Use `gemini-4-argon` to compute the exact monthly payment and automatically generate the mandatory TILA Regulation Z (12 CFR § 1026.24) APR footer whenever a monthly payment trigger term is rendered on the ad.
 
 ### Quick Start (Run Standalone from This Folder)

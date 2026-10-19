@@ -8,8 +8,8 @@
   "level": "L300",
   "tool_label": "Gemini Live API + Neural Lip-Sync Vectors",
   "routed_model": "gemini-3.8-flash",
-  "runtime_badge": "Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash",
-  "routing_note": "Real-time Bidi Audio via gemini-live-2.5-flash-native-audio + Reasoning via gemini-3.8-flash",
+  "runtime_badge": "Vertex AI Live API (gemini-3.8-live) + gemini-3.8-flash",
+  "routing_note": "Real-time Bidi Audio via gemini-3.8-live + Reasoning via gemini-3.8-flash",
   "gcp_stack": [
     "Gemini Live API",
     "Gemini 4 Argon",

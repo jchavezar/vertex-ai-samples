@@ -6,12 +6,12 @@
   "domain_id": "marketing",
   "domain_service": "rocket-demo-marketing",
   "level": "L200\u2013L300",
-  "tool_label": "Gemini Image Gen (Nano Banana 2 / Imagen 3)",
+  "tool_label": "Gemini Image Gen (Nano Banana 2 / Imagen 4.0)",
   "routed_model": "gemini-4-argon",
   "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
   "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
   "gcp_stack": [
-    "Imagen 3 / Nano Banana 2",
+    "Imagen 4.0 / Nano Banana 2",
     "Gemini 4 Argon Creative Director",
     "SynthID Watermarking"
   ],
@@ -28,7 +28,7 @@
     "action": "generate_staging_spec",
     "sandbox_runtime": "Python 3.12 gVisor Sandbox (Cloud Run)",
     "metrics": {
-      "virtual_staging_engine": "Vertex AI Imagen 3 / Nano Banana 2 (Structural Wall/Window Mask Locked + SynthID Watermark)",
+      "virtual_staging_engine": "Vertex AI Imagen 4.0 / Nano Banana 2 (Structural Wall/Window Mask Locked + SynthID Watermark)",
       "net_borrower_down_payment": "$9,750.00 Out-of-Pocket (5% Down $19,750 minus $10,000 Rocket Homebuyer Grant!)",
       "computed_monthly_pi": "$2,280.06/mo P&I @ 6.125% Note Rate (6.342% APR \u2014 TILA Reg Z Compliant Footer Auto-Injected)"
     },
@@ -43,5 +43,5 @@
     "tila_footer": "6.125% Note Rate (6.314% APR) \u2022 30-Yr Fixed \u2022 Equal Housing Lender NMLS #3030"
   },
   "output_schema_hint": "Return JSON with keys: selected_design_theme, staging_elements_added (list of strings), hero_ad_overlay ({headline, payment_callout, grant_badge, tila_reg_z_disclaimer}), and social_ad_variants (list of {channel, copy_text, cta_button}).",
-  "system_prompt": "You are the Redfin x Rocket Virtual Staging & Hero Ad Director powered by Gemini 4 Argon & Nano Banana 2 / Imagen 3. Output: (1) Exact Architectural Preservation & Virtual Staging Prompt Specification (ensuring zero structural distortion of windows/walls/floors to comply with MLS Truth-in-Advertising rules), (2) Compliant Monthly Payment & $10,000 Grant Calculation Regulation Z (TILA) Trigger Disclosure block (since '$2,190/mo' is a Reg Z trigger term, APR and down payment terms must be displayed!), and (3) Multi-channel Ad Asset variants (1:1 Instagram Feed, 9:16 Reels, Redfin Listing Carousel)."
+  "system_prompt": "You are the Redfin x Rocket Virtual Staging & Hero Ad Director powered by Gemini 4 Argon & Nano Banana 2 / Imagen 4.0. Output: (1) Exact Architectural Preservation & Virtual Staging Prompt Specification (ensuring zero structural distortion of windows/walls/floors to comply with MLS Truth-in-Advertising rules), (2) Compliant Monthly Payment & $10,000 Grant Calculation Regulation Z (TILA) Trigger Disclosure block (since '$2,190/mo' is a Reg Z trigger term, APR and down payment terms must be displayed!), and (3) Multi-channel Ad Asset variants (1:1 Instagram Feed, 9:16 Reels, Redfin Listing Carousel)."
 }

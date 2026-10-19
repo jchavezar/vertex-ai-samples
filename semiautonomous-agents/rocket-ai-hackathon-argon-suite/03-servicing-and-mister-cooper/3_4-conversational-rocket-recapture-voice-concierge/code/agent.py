@@ -2,7 +2,7 @@
 """
 Standalone Vertex AI Agent Runner for Square [3.4]: Conversational Rocket Recapture Voice Concierge
 Bespoke App Archetype: gemini_live_bidi_voice_studio (Gemini Multimodal Live API // Real-Time Bidi Voice Portfolio Recapture Studio)
-Default Model: gemini-3.8-flash (Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash)
+Default Model: gemini-3.8-flash (Vertex AI Live API (gemini-3.8-live) + gemini-3.8-flash)
 """
 import json
 import os
@@ -61,7 +61,7 @@ def execute_square_demo(custom_input: str | None = None, model_override: str | N
         "ui_archetype": payload.get("ui_archetype", "gemini_live_bidi_voice_studio"),
         "model_used": model_id,
         "live_vertex_called": live_called,
-        "runtime_badge": payload.get("runtime_badge", "Vertex AI Live API (gemini-live-2.5-flash-native-audio) + gemini-3.8-flash"),
+        "runtime_badge": payload.get("runtime_badge", "Vertex AI Live API (gemini-3.8-live) + gemini-3.8-flash"),
         "sandbox": sb_bundle["sandbox"],
         "bespoke_visual_artifact": sb_bundle["bespoke_artifact"],
         "structured_data": structured_out,

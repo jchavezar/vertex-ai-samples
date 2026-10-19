@@ -12,7 +12,7 @@ DOMAINS_PART2 = [
         "fullTitle": "4. Marketing, Growth & Client Acquisition (Redfin, Rocket Money & DTC Funnel)",
         "themeName": "Redfin x Rocket Money Creative Studio & Cross-Funnel Growth Hub (Editorial Real-Estate & Studio UI)",
         "mission": "Drive zero-CAC client acquisition across the full Rocket ecosystem (Rocket Money budgeting -> Redfin home search & virtual staging -> Rocket Mortgage pre-approval).",
-        "awsWinback": "Replaces fragmented Midjourney/Runway/Bedrock scripts with Google's unified GenMedia & Agentic stack: Imagen 3 / Nano Banana 2 (with crisp ad typography), Gemini Omni / Veo 3.1 video remixing, and Antigravity MCP cross-funnel automation.",
+        "awsWinback": "Replaces fragmented Midjourney/Runway/Bedrock scripts with Google's unified GenMedia & Agentic stack: Imagen 4.0 / Nano Banana 2 (with crisp ad typography), Gemini Omni / Veo 3.1 video remixing, and Antigravity MCP cross-funnel automation.",
         "projects": [
             {
                 "code": "4.1",
@@ -64,14 +64,14 @@ Target Audience: Renters in Rocket Money paying >$2,200/mo rent with $15k+ saved
                 "code": "4.2",
                 "level": "L200–L300",
                 "tags": ["L200", "L300"],
-                "tool": "Gemini Image Gen (Nano Banana 2 / Imagen 3)",
+                "tool": "Gemini Image Gen (Nano Banana 2 / Imagen 4.0)",
                 "project": "Virtual Staging & Localized Hero Ad Creator",
                 "focus": "Transform empty Redfin interior listing photos into virtually staged rooms with crisp rendered typography promoting local down-payment grants.",
                 "desc": "Give Redfin listing agents and Rocket marketers instant virtual staging (Detroit Industrial Loft, Mid-Century Warm Craftsman, Coastal Minimalist) plus localized ad banners with rendered rate & grant overlays.",
                 "url": "https://ai.google.dev/gemini-api/docs/image-generation",
-                "serviceText": "Vertex AI Imagen 3 & Nano Banana 2",
+                "serviceText": "Vertex AI Imagen 4.0 & Nano Banana 2",
                 "serviceUrl": "https://cloud.google.com/vertex-ai/generative-ai/docs/image/overview",
-                "gcpStack": ["Imagen 3 / Nano Banana 2", "Gemini 4 Argon Creative Director", "SynthID Watermarking"],
+                "gcpStack": ["Imagen 4.0 / Nano Banana 2", "Gemini 4 Argon Creative Director", "SynthID Watermarking"],
                 "competeEdge": "Native multi-turn conversational image editing (Nano Banana 2) preserves exact room geometry, window frames, and hardwood flooring while rendering pixel-perfect ad typography.",
                 "sampleInput": """Redfin Listing #MI-884120: Empty 1,850 sq ft brick-and-timber loft in Corktown, Detroit, MI ($395,000).
 Staging Request:
@@ -80,7 +80,7 @@ Staging Request:
 - Compliance Footer: "Rocket Mortgage, LLC • NMLS #3030 • Equal Housing Lender".""",
                 "sandboxAction": "generate_staging_spec",
                 "sandboxParams": {"list_price": 395000, "grant_amount": 10000, "down_pct": 5.0, "rate": 6.125, "style": "Warm Detroit Industrial Loft"},
-                "systemPrompt": "You are the Redfin x Rocket Virtual Staging & Hero Ad Director powered by Gemini 4 Argon & Nano Banana 2 / Imagen 3. Output: (1) Exact Architectural Preservation & Virtual Staging Prompt Specification (ensuring zero structural distortion of windows/walls/floors to comply with MLS Truth-in-Advertising rules), (2) Compliant Monthly Payment & $10,000 Grant Calculation Regulation Z (TILA) Trigger Disclosure block (since '$2,190/mo' is a Reg Z trigger term, APR and down payment terms must be displayed!), and (3) Multi-channel Ad Asset variants (1:1 Instagram Feed, 9:16 Reels, Redfin Listing Carousel).",
+                "systemPrompt": "You are the Redfin x Rocket Virtual Staging & Hero Ad Director powered by Gemini 4 Argon & Nano Banana 2 / Imagen 4.0. Output: (1) Exact Architectural Preservation & Virtual Staging Prompt Specification (ensuring zero structural distortion of windows/walls/floors to comply with MLS Truth-in-Advertising rules), (2) Compliant Monthly Payment & $10,000 Grant Calculation Regulation Z (TILA) Trigger Disclosure block (since '$2,190/mo' is a Reg Z trigger term, APR and down payment terms must be displayed!), and (3) Multi-channel Ad Asset variants (1:1 Instagram Feed, 9:16 Reels, Redfin Listing Carousel).",
                 "architectureDiagram": """┌────────────────────────────────────────────────────────────────────────┐
 │       4.2 VIRTUAL STAGING & LOCALIZED HERO AD CREATOR (L200-300)       │
 └───────────────────────────────────┬────────────────────────────────────┘
@@ -90,7 +90,7 @@ Staging Request:
 └───────────────────────────────────┬────────────────────────────────────┘
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│  [Imagen 3 / Nano Banana 2 Inpainting + Gemini 4 Argon Reg Z Check]    │
+│  [Imagen 4.0 / Nano Banana 2 Inpainting + Gemini 4 Argon Reg Z Check]    │
 │  ├─► Locks structural masks (windows, walls, ceiling beams)            │
 │  ├─► Renders furniture + crisp typography overlay + SynthID            │
 │  └─► Auto-appends TILA Reg Z APR disclosure for payment ads            │
@@ -100,11 +100,11 @@ Staging Request:
 │  [Interactive Before/After Staged Room + Compliant Paid Social Ads]    │
 └────────────────────────────────────────────────────────────────────────┘""",
                 "reproSteps": [
-                    "Call Vertex AI Imagen 3 (`imagen-3.0-generate-002` / Nano Banana editing) with the room image and structural preservation mask.",
+                    "Call Vertex AI Imagen 4.0 (`imagen-4.0-generate-001` / Nano Banana editing) with the room image and structural preservation mask.",
                     "Use `gemini-4-argon` to compute the exact monthly payment and automatically generate the mandatory TILA Regulation Z (12 CFR § 1026.24) APR footer whenever a monthly payment trigger term is rendered on the ad."
                 ],
                 "codeSnippet": """imagen_response = client.models.generate_images(
-    model="imagen-3.0-generate-002",
+    model="imagen-4.0-generate-001",
     prompt="Virtually stage this Corktown Detroit brick loft with a cognac leather sectional...",
     config=types.GenerateImagesConfig(number_of_images=2, aspect_ratio="16:9", add_watermark=True)
 )"""
@@ -790,22 +790,22 @@ while bal > 0 and months < 360:
                 "code": "M.2",
                 "level": "L300",
                 "tags": ["L300"],
-                "tool": "Gemini Omni + Imagen 3 + Google Maps 3D Tiles",
+                "tool": "Gemini Omni + Imagen 4.0 + Google Maps 3D Tiles",
                 "project": "Project Spatial Close: Immersive Virtual Staging & 3D Neighborhood Hub",
                 "focus": "Combine conversational 3D interior staging + solar/renovation ROI with Google Maps Photorealistic 3D neighborhood flybys and equity projections.",
                 "desc": "Let Redfin buyers remodel a fixer-upper with their voice ('Knock down this non-load-bearing kitchen wall, add a quartz waterfall island, and finance the $45,000 remodel into a Fannie Mae HomeStyle Renovation loan') while inspecting 5-year neighborhood appreciation.",
                 "url": "https://developers.google.com/maps/documentation/tile/3d-tiles",
-                "serviceText": "Gemini Omni, Imagen 3 & Google Maps 3D Platform",
+                "serviceText": "Gemini Omni, Imagen 4.0 & Google Maps 3D Platform",
                 "serviceUrl": "https://developers.google.com/maps/documentation/tile/3d-tiles",
-                "gcpStack": ["Gemini Omni", "Imagen 3", "Google Maps Photorealistic 3D Tiles API", "Gemini 4 Argon Renovation ROI Engine"],
-                "competeEdge": "Only Google combines frontier multimodal generation (Gemini Omni + Imagen 3) with First-Party Google Maps Photorealistic 3D Tiles and Solar API.",
+                "gcpStack": ["Gemini Omni", "Imagen 4.0", "Google Maps Photorealistic 3D Tiles API", "Gemini 4 Argon Renovation ROI Engine"],
+                "competeEdge": "Only Google combines frontier multimodal generation (Gemini Omni + Imagen 4.0) with First-Party Google Maps Photorealistic 3D Tiles and Solar API.",
                 "sampleInput": """Redfin Fixer-Upper Listing: 1128 Kensington Rd, Grosse Pointe Park, MI 48230.
 - As-Is Purchase Price: $385,000 (Built 1954, outdated galley kitchen & uninsulated sunroom).
 - Conversational Remodel Request: "Show us a modern open-concept chef's kitchen + 4-season sunroom addition ($55,000 renovation budget) financed inside a single Fannie Mae HomeStyle Renovation Loan at 95% LTV of After-Improved Value (AIV)."
 - Appraiser Comparable AIV Estimate: $485,000 (creating $45,000 in instant sweat/renovation equity!).""",
                 "sandboxAction": "calc_homestyle_renovation",
                 "sandboxParams": {"purchase_price": 385000.0, "renovation_cost": 55000.0, "after_improved_value": 485000.0, "down_pct": 5.0, "rate": 6.25},
-                "systemPrompt": "You are Project Spatial Close, the Immersive Virtual Staging & Fannie Mae HomeStyle Renovation Architect powered by Gemini 4 Argon, Imagen 3, and Google Maps 3D. Present: (1) Spatial Renovation & Staging Blueprint (Open-Concept Kitchen + 4-Season Sunroom), (2) Fannie Mae HomeStyle Renovation (B5-3.2-01) Math showing how Total Acquisition Cost ($385k + $55k = $440k) vs. After-Improved Value ($485k) creates +$45,000 in Day-1 Instant Equity while rolling the entire remodel into one 6.25% first mortgage (saving $480/mo vs a high-rate HELOC), and (3) Google Maps 3D & Solar API Neighborhood Telemetry for Grosse Pointe Park.",
+                "systemPrompt": "You are Project Spatial Close, the Immersive Virtual Staging & Fannie Mae HomeStyle Renovation Architect powered by Gemini 4 Argon, Imagen 4.0, and Google Maps 3D. Present: (1) Spatial Renovation & Staging Blueprint (Open-Concept Kitchen + 4-Season Sunroom), (2) Fannie Mae HomeStyle Renovation (B5-3.2-01) Math showing how Total Acquisition Cost ($385k + $55k = $440k) vs. After-Improved Value ($485k) creates +$45,000 in Day-1 Instant Equity while rolling the entire remodel into one 6.25% first mortgage (saving $480/mo vs a high-rate HELOC), and (3) Google Maps 3D & Solar API Neighborhood Telemetry for Grosse Pointe Park.",
                 "architectureDiagram": """┌────────────────────────────────────────────────────────────────────────┐
 │     M.2 PROJECT SPATIAL CLOSE: 3D STAGING & HOMESTYLE HUB (L300)       │
 └───────────────────────────────────┬────────────────────────────────────┘
@@ -815,7 +815,7 @@ while bal > 0 and months < 360:
 └───────────────────────────────────┬────────────────────────────────────┘
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│  [Imagen 3 Spatial Inpainting + Google Maps 3D Tiles + Argon Math]     │
+│  [Imagen 4.0 Spatial Inpainting + Google Maps 3D Tiles + Argon Math]     │
 │  ├─► Visualizes Remodeled Chef's Kitchen + 4-Season Sunroom            │
 │  ├─► Computes Fannie Mae HomeStyle AIV ($485k) -> +$45k Instant Equity │
 │  └─► Overlays Google Maps 3D Flyby & Rooftop Solar API Savings         │
@@ -826,7 +826,7 @@ while bal > 0 and months < 360:
 └────────────────────────────────────────────────────────────────────────┘""",
                 "reproSteps": [
                     "Enable Google Maps Photorealistic 3D Tiles API (`tile.googleapis.com`) and Solar API (`solar.googleapis.com`) alongside Vertex AI.",
-                    "Use Imagen 3 mask-free conversational editing to render the before/after kitchen renovation.",
+                    "Use Imagen 4.0 mask-free conversational editing to render the before/after kitchen renovation.",
                     "Run `gemini-4-argon` with the Fannie Mae HomeStyle Renovation (`B5-3.2-01`) calculator to compare a single-close renovation mortgage against a post-close HELOC."
                 ],
                 "codeSnippet": """# Fannie Mae HomeStyle Renovation Loan-to-Value (LTV based on lesser of Acquisition Cost or AIV)

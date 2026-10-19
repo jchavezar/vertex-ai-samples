@@ -12,7 +12,7 @@ Configured via SERVICE_MODE env var:
 
 Features:
 1. 33 Distinct Use-Case UI Archetypes & Structured Visual Outputs (Zero generic walls of text)
-2. Real Gemini Multimodal Live API WebSocket (`/ws/live-voice/{code}`) using `gemini-live-2.5-flash-native-audio`
+2. Real Gemini Multimodal Live API WebSocket (`/ws/live-voice/{code}`) using `gemini-3.8-live`
 3. Real Gemini Enterprise Discovery Engine `v1alpha` `streamAssist` API (`/api/stream-assist`) + Real UI Links
 4. Intelligent Model Routing: `gemini-3.8-flash` for Google ADK / Agent Engine Runtime / Live / StreamAssist; `gemini-4-argon` for Frontier Reasoning / CodeMender / Antigravity
 """
@@ -99,7 +99,7 @@ def _is_authenticated(request: Request) -> Optional[str]:
 
 @app.get("/healthz")
 async def healthz():
-    return {"status": "ok", "service_mode": SERVICE_MODE, "models": ["gemini-4-argon", "gemini-3.8-flash", "gemini-live-2.5-flash-native-audio"]}
+    return {"status": "ok", "service_mode": SERVICE_MODE, "models": ["gemini-4-argon", "gemini-3.8-flash", "gemini-3.8-live"]}
 
 
 @app.post("/login")
@@ -307,8 +307,8 @@ async def api_live_tts(request: Request):
             output_audio_transcription=types.AudioTranscriptionConfig(),
         )
 
-        # Cascade through gemini-3.8-live first, then gemini-live-2.5-flash-native-audio
-        candidates = ["gemini-3.8-live", "gemini-live-2.5-flash-native-audio"]
+        # Cascade through gemini-3.8-live first, then gemini-3.8-live
+        candidates = ["gemini-3.8-live", "gemini-3.8-live"]
         pcm_chunks = []
         tx_parts = []
         used_model = "gemini-3.8-live"
@@ -504,7 +504,7 @@ async def ws_live_voice(websocket: WebSocket, code: str):
                 conn_ctx = client.aio.live.connect(model="gemini-3.8-live", config=live_config)
                 session = await conn_ctx.__aenter__()
             except Exception:
-                active_model = "gemini-live-2.5-flash-native-audio"
+                active_model = "gemini-3.8-live"
                 conn_ctx = client.aio.live.connect(model=active_model, config=live_config)
                 session = await conn_ctx.__aenter__()
 

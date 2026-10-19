@@ -675,7 +675,7 @@ def get_rich_structured_artifact(code: str, sandbox_res: Dict[str, Any]) -> Dict
             "monthly_savings": m.get("monthly_payment_drop", "$298.44/month ($3,581.28/yr)"),
             "breakeven": m.get("net_closing_cost_breakeven", "13.1 Months"),
             "lifetime_saved": m.get("remaining_term_interest_saved", "$89,412.00"),
-            "voice_model": "gemini-live-2.5-flash-native-audio (Real Bidi WebSocket)",
+            "voice_model": "gemini-3.8-live (Real Bidi WebSocket)",
         }
     elif code == "3.5":
         return {

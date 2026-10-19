@@ -372,7 +372,7 @@ def run_sandbox_action(action: str, params: Dict[str, Any]) -> Dict[str, Any]:
         loan = price - down
         pi = _calc_monthly_pi(loan, 6.125)
         out["metrics"] = {
-            "virtual_staging_engine": "Vertex AI Imagen 3 / Nano Banana 2 (Structural Wall/Window Mask Locked + SynthID Watermark)",
+            "virtual_staging_engine": "Vertex AI Imagen 4.0 / Nano Banana 2 (Structural Wall/Window Mask Locked + SynthID Watermark)",
             "net_borrower_down_payment": f"${net_cash_down:,.2f} Out-of-Pocket (5% Down ${down:,.0f} minus ${grant:,.0f} Rocket Homebuyer Grant!)",
             "computed_monthly_pi": f"${pi:,.2f}/mo P&I @ 6.125% Note Rate (6.342% APR — TILA Reg Z Compliant Footer Auto-Injected)"
         }
@@ -642,7 +642,7 @@ def call_vertex_gemini(
 ) -> Dict[str, Any]:
     """Calls live Vertex AI `gemini-4-argon` or `gemini-3.8-flash` on `vtxdemos` (`location=global`)."""
     t0 = time.time()
-    chosen_model = model if model in ("gemini-4-argon", "gemini-3.8-flash", "gemini-3.5-flash", "gemini-2.5-flash") else "gemini-4-argon"
+    chosen_model = model if model in ("gemini-4-argon", "gemini-3.8-flash", "gemini-3.5-flash", "gemini-3.8-flash") else "gemini-4-argon"
 
     sandbox_context = ""
     if sandbox_result and sandbox_result.get("metrics"):
@@ -735,7 +735,7 @@ GEMINI_ENTERPRISE_ENGINES = {
 
 # Explicit Model Routing Policy per User Directive:
 # - Google ADK / Vertex AI Agent Engine Runtime use cases -> gemini-3.8-flash
-# - Gemini Multimodal Live API Bidi WebSocket use cases -> gemini-live-2.5-flash-native-audio
+# - Gemini Multimodal Live API Bidi WebSocket use cases -> gemini-3.8-live
 # - Gemini Enterprise Discovery Engine streamAssist use cases -> Discovery Engine v1alpha streamAssist + gemini-3.8-flash
 # - Direct Vertex AI Frontier Reasoning / CodeMender / Antigravity use cases -> gemini-4-argon
 ADK_RUNTIME_SQUARES = {"2.2", "3.2", "3.5", "4.1", "4.3", "5.4", "M.3", "M.5"}
@@ -760,9 +760,9 @@ def get_recommended_model_for_square(code: str, requested_model: Optional[str] =
         return {
             "model": chosen,
             "default_model": "gemini-3.8-flash",
-            "live_model": "gemini-live-2.5-flash-native-audio",
-            "runtime_badge": f"Vertex AI Live API (gemini-live-2.5-flash-native-audio) + {chosen}",
-            "routing_note": f"Real-time Bidi Audio via gemini-live-2.5-flash-native-audio + Reasoning via {chosen}",
+            "live_model": "gemini-3.8-live",
+            "runtime_badge": f"Vertex AI Live API (gemini-3.8-live) + {chosen}",
+            "routing_note": f"Real-time Bidi Audio via gemini-3.8-live + Reasoning via {chosen}",
         }
     if code in STREAM_ASSIST_SQUARES:
         return {
