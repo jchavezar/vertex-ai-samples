@@ -28,13 +28,13 @@ Rather than displaying a generic text response, Square `[M.2]` renders **Project
 
 ## 2. Competitive Win-Back Strategy (Displacing AWS Bedrock, Anthropic Claude & Sierra AI)
 
-> **Why Google Cloud Wins:** Only Google combines frontier multimodal generation (Gemini Omni + Imagen 3) with First-Party Google Maps Photorealistic 3D Tiles and Solar API.
+> **Why Google Cloud Wins:** Only Google combines frontier multimodal generation (Gemini Omni + Imagen 4.0) with First-Party Google Maps Photorealistic 3D Tiles and Solar API.
 
 ---
 
 ## 3. Target GCP & Antigravity Architecture
 
-**Google Cloud Stack:** `Gemini Omni` · `Imagen 3` · `Google Maps Photorealistic 3D Tiles API` · `Gemini 4 Argon Renovation ROI Engine`
+**Google Cloud Stack:** `Gemini Omni` · `Imagen 4.0` · `Google Maps Photorealistic 3D Tiles API` · `Gemini 4 Argon Renovation ROI Engine`
 
 ```text
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -46,7 +46,7 @@ Rather than displaying a generic text response, Square `[M.2]` renders **Project
 └───────────────────────────────────┬────────────────────────────────────┘
                                     ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│  [Imagen 3 Spatial Inpainting + Google Maps 3D Tiles + Argon Math]     │
+│  [Imagen 4.0 Spatial Inpainting + Google Maps 3D Tiles + Argon Math]     │
 │  ├─► Visualizes Remodeled Chef's Kitchen + 4-Season Sunroom            │
 │  ├─► Computes Fannie Mae HomeStyle AIV ($485k) -> +$45k Instant Equity │
 │  └─► Overlays Google Maps 3D Flyby & Rooftop Solar API Savings         │
@@ -62,7 +62,7 @@ Rather than displaying a generic text response, Square `[M.2]` renders **Project
 ## 4. Step-by-Step Reproduction Instructions
 
 1. Enable Google Maps Photorealistic 3D Tiles API (`tile.googleapis.com`) and Solar API (`solar.googleapis.com`) alongside Vertex AI.
-2. Use Imagen 3 mask-free conversational editing to render the before/after kitchen renovation.
+2. Use Imagen 4.0 mask-free conversational editing to render the before/after kitchen renovation.
 3. Run `gemini-4-argon` with the Fannie Mae HomeStyle Renovation (`B5-3.2-01`) calculator to compare a single-close renovation mortgage against a post-close HELOC.
 
 ### Quick Start (Run Standalone from This Folder)

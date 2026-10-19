@@ -6,13 +6,13 @@
   "domain_id": "moonshots",
   "domain_service": "rocket-demo-moonshots",
   "level": "L300",
-  "tool_label": "Gemini Omni + Imagen 3 + Google Maps 3D Tiles",
+  "tool_label": "Gemini Omni + Imagen 4.0 + Google Maps 3D Tiles",
   "routed_model": "gemini-4-argon",
   "runtime_badge": "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox",
   "routing_note": "Direct Vertex AI Global Endpoint invocation (gemini-4-argon)",
   "gcp_stack": [
     "Gemini Omni",
-    "Imagen 3",
+    "Imagen 4.0",
     "Google Maps Photorealistic 3D Tiles API",
     "Gemini 4 Argon Renovation ROI Engine"
   ],
@@ -43,5 +43,5 @@
     "payment": "$2,573.70/mo P&I on $418,000 Loan (Saves ~$485/mo vs separate 9.75% Second-Lien HELOC)"
   },
   "output_schema_hint": "Return JSON with keys: instant_equity_created, homestyle_vs_heloc ({homestyle_single_pi, separate_heloc_combined_pi, monthly_savings}), renovation_line_items (list of {scope_item, contractor_budget, appraised_value_add, roi_multiple}), and neighborhood_3d_telemetry ({solar_exposure, commute_to_detroit_mins, school_district}).",
-  "system_prompt": "You are Project Spatial Close, the Immersive Virtual Staging & Fannie Mae HomeStyle Renovation Architect powered by Gemini 4 Argon, Imagen 3, and Google Maps 3D. Present: (1) Spatial Renovation & Staging Blueprint (Open-Concept Kitchen + 4-Season Sunroom), (2) Fannie Mae HomeStyle Renovation (B5-3.2-01) Math showing how Total Acquisition Cost ($385k + $55k = $440k) vs. After-Improved Value ($485k) creates +$45,000 in Day-1 Instant Equity while rolling the entire remodel into one 6.25% first mortgage (saving $480/mo vs a high-rate HELOC), and (3) Google Maps 3D & Solar API Neighborhood Telemetry for Grosse Pointe Park."
+  "system_prompt": "You are Project Spatial Close, the Immersive Virtual Staging & Fannie Mae HomeStyle Renovation Architect powered by Gemini 4 Argon, Imagen 4.0, and Google Maps 3D. Present: (1) Spatial Renovation & Staging Blueprint (Open-Concept Kitchen + 4-Season Sunroom), (2) Fannie Mae HomeStyle Renovation (B5-3.2-01) Math showing how Total Acquisition Cost ($385k + $55k = $440k) vs. After-Improved Value ($485k) creates +$45,000 in Day-1 Instant Equity while rolling the entire remodel into one 6.25% first mortgage (saving $480/mo vs a high-rate HELOC), and (3) Google Maps 3D & Solar API Neighborhood Telemetry for Grosse Pointe Park."
 }

@@ -841,7 +841,7 @@ new_monthly_piti = piti  # Unchanged ($2,180.00/mo) upon hardship resolution"""
                 ],
                 "codeSnippet": """setup_msg = {
     "setup": {
-        "model": "projects/vtxdemos/locations/us-central1/publishers/google/models/gemini-live-2.5-flash-native-audio",
+        "model": "projects/vtxdemos/locations/us-central1/publishers/google/models/gemini-3.8-live",
         "generationConfig": {"responseModalities": ["AUDIO"]},
         "tools": [{"functionDeclarations": [refi_calculator_schema]}]
     }

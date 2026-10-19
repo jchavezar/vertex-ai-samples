@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """Client-side JavaScript Renderer for all 33 Bespoke Use-Case App Archetypes,
-Real Gemini Multimodal Live API WebSocket Audio (`gemini-live-2.5-flash-native-audio`),
+Real Gemini Multimodal Live API WebSocket Audio (`gemini-3.8-live`),
 and Real Gemini Enterprise Discovery Engine `streamAssist` UI + Console Links."""
 
 BESPOKE_RENDERER_JS = r"""
@@ -92,12 +92,12 @@ function toggleGeminiLiveSession(code) {
       statusBtn.className = 'px-4 py-2.5 rounded-xl font-bold text-xs mono bg-rose-600 text-white shadow-lg';
     }
     if (statusPill) {
-      statusPill.textContent = '● CONNECTED: gemini-live-2.5-flash-native-audio (24kHz PCM)';
+      statusPill.textContent = '● CONNECTED: gemini-3.8-live (24kHz PCM)';
       statusPill.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
     }
     const micBtn = document.getElementById('live-mic-btn');
     if (micBtn) micBtn.disabled = false;
-    appendLiveTranscript('SYSTEM', `Connected to Vertex AI Live API (gemini-live-2.5-flash-native-audio) for Square [${code}]. Click "Speak or Send Utterance" or enable 16kHz Mic!`);
+    appendLiveTranscript('SYSTEM', `Connected to Vertex AI Live API (gemini-3.8-live) for Square [${code}]. Click "Speak or Send Utterance" or enable 16kHz Mic!`);
   };
 
   liveWs.onmessage = (ev) => {
@@ -125,7 +125,7 @@ function toggleGeminiLiveSession(code) {
       statusBtn.className = 'px-4 py-2.5 rounded-xl font-bold text-xs mono bg-gradient-to-r from-teal-500 to-cyan-600 text-white shadow-lg';
     }
     if (statusPill) {
-      statusPill.textContent = '○ Standby (gemini-live-2.5-flash-native-audio)';
+      statusPill.textContent = '○ Standby (gemini-3.8-live)';
       statusPill.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold mono bg-slate-800 text-slate-400 border border-slate-700';
     }
     animateEqBars(false);
@@ -310,7 +310,7 @@ function renderBespokeAppCanvas(code, art, sandboxData) {
             <span class="text-xs font-extrabold mono uppercase text-teal-300">🎙️ REAL VERTEX AI GEMINI LIVE AUDIO WEBSOCKET STUDIO</span>
           </div>
           <span id="live-conn-pill" class="px-2.5 py-1 rounded-full text-[11px] font-bold mono bg-slate-800 text-slate-300 border border-slate-700">
-            ○ Standby (gemini-live-2.5-flash-native-audio)
+            ○ Standby (gemini-3.8-live)
           </span>
         </div>
 
@@ -352,7 +352,7 @@ function renderBespokeAppCanvas(code, art, sandboxData) {
 
         <!-- Live Audio Transcript & Stream Log -->
         <div id="live-voice-transcript-log" class="max-h-48 overflow-y-auto p-3 rounded-xl bg-black/50 border border-slate-800 space-y-2">
-          <div class="text-[11px] mono text-slate-400">👉 Click <strong>"⚡ Trigger Live 24kHz Voice Barge-In Turn Now"</strong> or <strong>"🎙️ Connect Real Gemini Live Audio WebSocket"</strong> to stream real 24kHz native audio directly from <code>gemini-live-2.5-flash-native-audio</code>!</div>
+          <div class="text-[11px] mono text-slate-400">👉 Click <strong>"⚡ Trigger Live 24kHz Voice Barge-In Turn Now"</strong> or <strong>"🎙️ Connect Real Gemini Live Audio WebSocket"</strong> to stream real 24kHz native audio directly from <code>gemini-3.8-live</code>!</div>
         </div>
       </div>`;
     return;

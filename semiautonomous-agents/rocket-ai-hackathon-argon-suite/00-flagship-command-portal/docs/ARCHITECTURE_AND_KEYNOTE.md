@@ -45,7 +45,7 @@ Rocket Companies operates a 5-pillar homeownership ecosystem:
   - CodeMender traces OWASP CWE-89 SQLi and CWE-639 IDOR vulnerabilities across Rocket LOS APIs, reproduces exploits in a gVisor sandbox, and commits verified patches.
   - AI Software Factory Swarm (`workspace='share'`) converts a Product Requirements Document (PRD) into a tested FastAPI/.NET 9 Pull Request automatically.
   - Legacy C#/.NET Framework 4.8 WCF SOAP services refactored into containerized Cloud Run microservices in seconds.
-- **01:45 – 02:00 — 4. Google CE Moonshots & Hackathon Kickoff Blueprint** (*Project Siren, Spatial Close (3D Maps + Imagen 3), HiveMind Swarm & Air-Tight*) — Demo Ref `[M.3]`
+- **01:45 – 02:00 — 4. Google CE Moonshots & Hackathon Kickoff Blueprint** (*Project Siren, Spatial Close (3D Maps + Imagen 4.0), HiveMind Swarm & Air-Tight*) — Demo Ref `[M.3]`
   - How to clone any of the 33 live Cloud Run reference architectures using the Reproduction Blueprints on this portal.
   - Accessing your GCP Sandbox Project, Vertex AI `gemini-4-argon` & `gemini-3.8-flash` endpoints, and Antigravity MCP starter kits.
   - Judging Rubric for Track 1 (CX), Track 2 (Ops/Underwriting), Track 3 (Mr. Cooper Servicing), and Track 4 (Wildcard Moonshots).
