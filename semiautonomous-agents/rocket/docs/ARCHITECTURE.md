@@ -12,7 +12,7 @@
 - **Vector SVG:** [`docs/diagrams/00_rocket_gcp_reference_architecture.svg`](diagrams/00_rocket_gcp_reference_architecture.svg)
 - **3x Retina PNG:** [`docs/diagrams/00_rocket_gcp_reference_architecture.png`](diagrams/00_rocket_gcp_reference_architecture.png)
 
-![Rocket GCP Reference Architecture Blueprint](diagrams/00_rocket_gcp_reference_architecture.png)
+<p align="center"><img src="diagrams/00_rocket_gcp_reference_architecture.png" width="100%" alt="Rocket GCP Reference Architecture Blueprint"></p>
 
 ### 1.2 Corporate `mermaid-designer` (`cl/987790103`, ELK + Neo `3x HiDPI`) Master Diagrams
 1. **Master 5-Pillar Architecture:** [`01_rocket_5pillar_master_architecture_padded.png`](diagrams/01_rocket_5pillar_master_architecture_padded.png) ([Source `.mmd`](diagrams/01_rocket_5pillar_master_architecture.mmd))
@@ -20,39 +20,13 @@
 3. **Pillar 4 Live Avatar & Out-of-Order Async Subagents:** [`03_pillar4_live_avatar_async_subagents_padded.png`](diagrams/03_pillar4_live_avatar_async_subagents_padded.png) ([Source `.mmd`](diagrams/03_pillar4_live_avatar_async_subagents.mmd))
 4. **Hackathon 8 Use Cases Reference Architecture:** [`04_hackathon_8_use_cases_architecture_padded.png`](diagrams/04_hackathon_8_use_cases_architecture_padded.png) ([Source `.mmd`](diagrams/04_hackathon_8_use_cases_architecture.mmd))
 
-![Master 5-Pillar Mermaid Architecture](diagrams/01_rocket_5pillar_master_architecture_padded.png)
+<p align="center"><img src="diagrams/01_rocket_5pillar_master_architecture_padded.png" width="100%" alt="Master 5-Pillar Mermaid Architecture"></p>
 
 ---
 
 ## 2. End-to-End Block-of-Component Walkthrough (`<= 78` Columns)
 
-```text
-┌──────────────────────────────────────────────────────────────────────────┐
-│ [BLOCK 1] BROWSER CLIENT & LATE-LOADED RUNTIME MODULES (`static/*.js`)   │
-│  • Single-Page Studio (`ui_studio.py`) + 12-Archetype Theme Switcher     │
-│  • `live_session.js` (`window.RocketLive` MSE fMP4 + 16kHz PCM16 Mic)    │
-│  • `p4_stage.js` (4:5 Live Video Avatar Stage) · `p3_chat.js` (NDJSON)   │
-│  • `p5_media.js` (Lightbox + Pre-Rendered Tours) · `gcp_strip.js`        │
-└────────────────────────────────────┬─────────────────────────────────────┘
-                                     │ HTTPS REST / NDJSON / WebSocket
-                                     ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│ [BLOCK 2] UNIFIED FASTAPI GATEWAY (`app.py` on Google Cloud Run)         │
-│  • HMAC-SHA256 Cookie & `?auth_token=` Gate (`ROCKET_SECRET`)            │
-│  • Customer Env Configuration (`GCP_PROJECT_ID`, `BQ_DATASET_ID`, etc.)  │
-│  • Out-of-Order Subagent Dispatcher (`/api/async-subagents/decompose`)   │
-└────────────────────────────────────┬─────────────────────────────────────┘
-                                     │
-         ┌───────────────┬───────────┴───┬───────────────┬───────────────┐
-         ▼               ▼               ▼               ▼               ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  [BLOCK 3]  │ │  [BLOCK 4]  │ │  [BLOCK 5]  │ │  [BLOCK 6]  │ │  [BLOCK 7]  │
-│  PILLAR 1   │ │  PILLAR 2   │ │  PILLAR 3   │ │  PILLAR 4   │ │  PILLAR 5   │
-│ BQML SQL    │ │ Veo 3.1 9:16│ │ Ask Redfin  │ │ Gemini 3.8  │ │ 108-Home RE │
-│ AI.FORECAST │ │ Reels Studio│ │ 2.0 Grounded│ │ Live Video  │ │ Multimodal  │
-│ (TimesFM 2) │ │ + Imagen 4  │ │ NDJSON Chat │ │ Avatars+VAD │ │ Vector+Judge│
-└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
-```
+
 
 ### Component Matrix & Low-Level Engineering Invariants
 

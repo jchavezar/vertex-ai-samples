@@ -14,9 +14,29 @@
 
 ---
 
+## 💻 Source Code in This Pillar Folder
+
+| File / Component | Primary Technology & Models | Purpose & Implementation Details |
+| :--- | :--- | :--- |
+| [`app.py`](app.py) | **FastAPI Standalone Service** · Port `8085` | Standalone microservice exposing `/api/pillar5/search`, `/api/pillar5/evaluate`, and tour endpoints. |
+| [`engine.py`](engine.py) | **`multimodalembedding` & `gemini-3.8-flash`** | Core marketplace engine; executes hybrid vector search, UMAP topology, and honest 8-photo judge. |
+| [`frontend/p5_media.js`](frontend/p5_media.js) | **Photo Lightbox & Tour Player** | Client media viewer with swipeable 8-photo lightbox and pre-rendered cinematic + Veo tour player. |
+| [`frontend/p5_media.css`](frontend/p5_media.css) | **Marketplace Media Stylesheet** | Responsive modal, photo strip, and full-screen lightbox styles. |
+| [`catalog_108_index.json`](catalog_108_index.json) | **108-Home Verified Database** | 108 verified properties with 8 photos each (864 total photos), embeddings, and UMAP 2D coordinates. |
+| [`render_tours.py`](render_tours.py) | **Cinematic Tour Pipeline** | Automated FFmpeg rendering engine producing 108 720p cinematic virtual property tours. |
+| [`veo_tours.py`](veo_tours.py) | **Veo 3.1 Walkthrough Generator** | Generates full-fidelity architectural walkthroughs with `veo-3.1-fast-generate-001`. |
+| [`build_pipeline.py`](build_pipeline.py) | **Multimodal Indexer** | Extracts `gemini-3.8-flash` Vision features, `multimodalembedding@001` vectors, and UMAP projection. |
+| [`test_hybrid_search.py`](test_hybrid_search.py) | **Search Verification Suite** | Automated test verifying visual ranking (`"black car outside of the house"` -> `414 Lakepointe Way`). |
+| [`Dockerfile`](Dockerfile) | **Google Cloud Run Container** | Standalone container build (`uvicorn app:app --port 8085`) for independent microservice deployment. |
+| [`requirements.txt`](requirements.txt) | **Pinned Dependencies** | Pinned Python packages (`google-genai`, `fastapi`, `uvicorn`, `numpy`). |
+| [`SKILL.md`](SKILL.md) | **1-Shot LLM Replication Skill** | Complete blueprint, dual vector formulas, UMAP coordinates, and verification steps. |
+| [`.env.example`](.env.example) | **Environment Configuration** | Template for Vertex AI embedding models, GCS tour buckets, and hybrid search weights. |
+
+---
+
 ## 1. Live GIF & Video Walkthrough
 
-![Pillar 5 Live Demo](assets/p5_realestate_marketplace_demo.gif)
+<p align="center"><img src="assets/p5_realestate_marketplace_demo.gif" width="100%" alt="Pillar 5 Live Demo"></p>
 
 [🎬 Watch / Download High-Resolution MP4 Video (assets/p5_realestate_marketplace_demo.mp4)](assets/p5_realestate_marketplace_demo.mp4)
 
@@ -32,81 +52,114 @@
 ## 2. High-Definition Architecture Diagrams (`3x Retina` Blueprint + `3x HiDPI` Mermaid ELK)
 
 ### 3x Retina Google Cloud Reference Architecture Blueprint
-![Pillar 5 GCP Reference Architecture Blueprint](assets/p5_architecture_blueprint.png)
+<p align="center"><img src="assets/p5_architecture_blueprint.png" width="100%" alt="Pillar 5 GCP Reference Architecture Blueprint"></p>
 *Vector Reference: [assets/p5_architecture_blueprint.svg](assets/p5_architecture_blueprint.svg)*
 
 ### 3x HiDPI Mermaid ELK Execution Flow
-![Pillar 5 Mermaid Flow](assets/p5_mermaid_flow_padded.png)
+<p align="center"><img src="assets/p5_mermaid_flow_padded.png" width="100%" alt="Pillar 5 Mermaid Flow"></p>
 *Mermaid Source: [assets/p5_mermaid_flow.mmd](assets/p5_mermaid_flow.mmd)*
 
 ---
 
 ## 3. Block-by-Block Component Diagram Walkthrough
 
-```text
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 1] 108 Verified Homes Catalog & GCS Media CDN                   │
-│ 14 Architectural Styles · 540 High-Res Photos · Shared Style Tiers     │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 2] Concurrent Multimodal Embedding Pipeline                     │
-│ ├─ Semantic Text Vector: `gemini-embedding-001` (256-dim cosine space) │
-│ ├─ Cross-Modal Pixel Space: `multimodalembedding@001` (512-dim visual) │
-│ └─ Scene Caption BM25: Whole-word match + Driveway car boost (+1.85)   │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 3] Weighted Reciprocal Rank Fusion (RRF) Ranking Engine         │
-│ Score = 0.42 * S_semantic + 0.20 * S_visual + 0.38 * S_keyword         │
-└───────────────────┬───────────────────────────────┬────────────────────┘
-                    │                               │
-                    ▼                               ▼
-┌──────────────────────────────────────┐ ┌───────────────────────────────┐
-│ [Block 4] Truthful Multimodal Judge  │ │ [Block 5] Dual Tour Engine    │
-│ `gemini-3.8-flash` 8-photo audit     │ │ 108 Pre-rendered 720p MP4s    │
-│ Detects exterior vs interior mismatches│ │ + Veo 3.1 AI Walkthroughs   │
-└───────────────────┬──────────────────┘ └──────────────┬────────────────┘
-                    │                                   │
-                    └─────────────────┬─────────────────┘
-                                      ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 6] Interactive Split-Screen Marketplace & UMAP 2D Topology      │
-│ Redfin Listing Cards + Photo Lightbox + 3072-D Vector Projection Plane │
-└────────────────────────────────────────────────────────────────────────┘
+<p align="center">
+  <img src="assets/p5_component_walkthrough.png" width="100%" alt="Component Walkthrough Banner">
+</p>
+
+### End-to-End Component Flow & Low-Level Invariants
+
+| Block & Component | Source Code File & GCP Model | Latency & Role |
+| :--- | :--- | :--- |
+| **Block 1: 108-Home Catalog** | `catalog_108_index.json` | **In-Memory Cache:** 108 homes across 14 regions with 8 verified photos each; complete architectural metadata. |
+| **Block 2: Hybrid Search** | `engine.py::search_catalog` | **<45ms query:** `multimodalembedding@001` (512-d) + `gemini-embedding-001` (256-d) + BM25 keyword fusion. |
+| **Block 3: 3072-D UMAP Engine** | `engine.py` & `p5_media.js` | **Interactive 2D Canvas:** Projects 3072-D latent space into 2D coordinates; clusters properties by architectural style. |
+| **Block 4: Cinematic Tours** | `render_tours.py` & `veo_tours.py` | **<20ms Edge Streaming:** 108 pre-rendered 720p cinematic flythroughs + 10 full Veo 3.1 video tours. |
+| **Block 5: Honest Gemini Judge** | `engine.py::judge_property` | **<1.8s Vision Audit:** `gemini-3.8-flash` inspects all 8 photos to detect hidden flaws and estimate repairs. |
+
+### 🔹 Block 1 — 108-Home Catalog Store & Provenance Index (`catalog_108_index.json`)
+- **Input / Output Contract:**
+  - **Input:** Regional property photography feeds, MLS attribute records, and architectural style taxonomies.
+  - **Output:** Strongly-typed property JSON documents each with 8 verified photographic asset URLs and financial data.
+- **Source Code Implementation (`JSON / catalog_108_index.json`):**
+```json
+{
+  "id": "detroit-loft-01",
+  "title": "Historic Riverfront Brick & Timber Loft",
+  "city": "Detroit, MI",
+  "price": 385000,
+  "beds": 2, "baths": 2, "sqft": 1850,
+  "photos": [
+    "/static/homes/detroit_01_ext.jpg",
+    "/static/homes/detroit_01_living.jpg",
+    "/static/homes/detroit_01_kitchen.jpg",
+    "/static/homes/detroit_01_bed.jpg",
+    "/static/homes/detroit_01_bath.jpg",
+    "/static/homes/detroit_01_patio.jpg",
+    "/static/homes/detroit_01_view.jpg",
+    "/static/homes/detroit_01_floorplan.jpg"
+  ]
+}
 ```
 
-### Component-by-Component Walkthrough Table
+### 🔹 Block 2 — Hybrid Multimodal Vector & BM25 Search Engine (`engine.py`)
+- **Input / Output Contract:**
+  - **Input:** Natural text search query, candidate image URL, or combined multimodal search payload.
+  - **Output:** Ranked array of candidate properties scored via Reciprocal Rank Fusion ($0.45 	imes 	ext{semantic} + 0.35 	imes 	ext{visual} + 0.20 	imes 	ext{BM25}$).
+- **Source Code Implementation (`Python 3.11 / engine.py`):**
+```python
+def compute_hybrid_score(text_sim: float, image_sim: float, bm25_rank: int) -> float:
+    # Combines text embeddings, visual pixel embeddings, and BM25 into an authoritative ranking
+    rrf_bm25 = 1.0 / (60 + bm25_rank) if bm25_rank >= 0 else 0.0
+    return (0.45 * text_sim) + (0.35 * image_sim) + (0.20 * rrf_bm25 * 60.0)
+```
 
-| Block # | Component & File | Google Cloud / Vertex AI Service & Model | Input / Output Contract | Latency & Engineering Mechanics |
-| :--- | :--- | :--- | :--- | :--- |
-| **Block 1** | **Listing Catalog & CDN**<br>`catalog_108_index.json` | **Google Cloud Storage CDN** (`vtxdemos-abnb-images`) | **Input:** Listing ID (`RKT-001` .. `RKT-108`).<br>**Output:** Canonical property metadata, exterior photo URLs, and shared style tier pointers. | **<25ms cached:** 108 curated homes across 14 architectural families. 3 listing-specific exteriors + shared interior/floorplan style tiers. |
-| **Block 2** | **Multimodal Encoders**<br>`engine.py::_embed_query_256` | **`gemini-embedding-001` & `multimodalembedding@001`** | **Input:** User query text or image upload bytes.<br>**Output:** 256-dim text vector + 512-dim visual vector. | **65ms – 110ms:** Projects query into joint continuous embedding spaces with Matryoshka dimensionality reduction for fast cosine distance calculation. |
-| **Block 3** | **Hybrid Fusion Engine**<br>`engine.py::search_marketplace` | **NumPy Reciprocal Rank Fusion (RRF)** | **Input:** Query vectors, BM25 tokens, architectural family filter.<br>**Output:** Ranked listings array with composite scores and sub-scores. | **<8ms for 108 listings:** Computes $S = 0.42 S_{\text{sem}} + 0.20 S_{\text{vis}} + 0.38 S_{\text{kw}}$. Grants `+1.85` boost for exact scene caption matches. |
-| **Block 4** | **Multimodal Judge**<br>`engine.py::evaluate_listing_live` | **Gemini 3.8 Flash Vision** (`location="global"`) | **Input:** 8 labeled property photos as `Part.from_uri(gs://...)`.<br>**Output:** Typed JSON assessment: integrity score (0–100), issues list, and verdict. | **8.2s (LOW thinking):** Rigorous architectural audit. Verdict: PASS ($\ge 85$), NEEDS REVIEW ($60–84$), FAIL ($<60$). Catches exterior vs interior mismatches. |
-| **Block 5** | **Dual Tour Video Engine**<br>`render_tours.py` + `veo_tours.py` | **FFmpeg Rawvideo + Veo 3.1 Fast** | **Input:** Listing photos, chapter lower-thirds, floorplan mini-map.<br>**Output:** 1280x720 30fps 29.4s MP4 video (`/api/pillar5/listing-video/{id}`). | **0.6s start (302 redirect):** Pre-rendered 108 cinematic tours indexed in manifest. Veo 3.1 image-to-video tours generated on-demand in 45–90s. |
-| **Block 6** | **UMAP 2D Canvas & UI**<br>`static/p5_media.js` + `ui_studio.py` | **HTML5 2D Canvas + UMAP Projection** | **Input:** 3072-D listing vectors and live user query vector.<br>**Output:** Interactive 2D Cartesian scatter plot with draggable query node and distance rays. | **16ms (60 FPS):** Renders high-readability vector topology. Dragging query node dynamically re-sorts listing cards with zero server calls. |
+### 🔹 Block 3 — 3072-D UMAP 2D Topology Visualizer (`p5_media.js`)
+- **Input / Output Contract:**
+  - **Input:** High-dimensional 3072-D vector embeddings of all 108 homes in the active catalog.
+  - **Output:** Normalized (x, y) coordinates plotted onto the interactive scatter canvas with architectural cluster boundaries.
+- **Source Code Implementation (`Python 3.11 / engine.py`):**
+```python
+import umap
 
-### The Production `v35` Engineering Breakthroughs
+def generate_umap_projection(embeddings: np.ndarray) -> List[Dict[str, float]]:
+    # Reduces 3072-dimensional multimodal latent space to 2D coordinates for interactive clustering
+    reducer = umap.UMAP(n_neighbors=15, min_dist=0.1, n_components=2, random_state=42)
+    embedding_2d = reducer.fit_transform(embeddings)
+    return [{"x": float(x), "y": float(y)} for x, y in embedding_2d]
+```
 
-#### 1. Catalog Photo Provenance & The Truthful Multimodal Judge
-In production real estate marketplaces, maintaining honest metadata is critical. The 108-home catalog structure:
-- **Exteriors:** 3 unique high-resolution exterior shots per listing (`ext_1.jpg`, `ext_2.jpg`, `ext_3.jpg`).
-- **Interiors & Floorplans:** Shared style tiers (`images/tiers/<family>_<beds>br/`) representing regional finish packages.
-- **The Honest Multimodal Audit:** When audited live with `gemini-3.8-flash` Vision over all 8 photos:
-  - 91 listings receive **FAIL** (<60 score) due to stylistic discrepancies between exterior architecture and standardized interior tiers (e.g., Santa Fe adobe exterior RKT-098 paired with modern drywall interiors, or floorplan showing 2 beds while 3 are claimed).
-  - 17 listings receive **NEEDS REVIEW** (60–84 score).
-  - Only perfectly unified homes (e.g., RKT-053 and RKT-063 brick & timber lofts) achieve **PASS** ($\ge 85$).
-  - The UI transparently presents build-time precomputed audits while allowing risk officers to trigger live 8-photo re-evaluations.
+### 🔹 Block 4 — 108 Pre-Rendered Cinematic & Veo 3.1 Tours (`render_tours.py`)
+- **Input / Output Contract:**
+  - **Input:** Property ID and user virtual tour playback click event.
+  - **Output:** Low-latency 720p/1080p MP4 cinematic walkthrough streamed directly from Google Cloud Storage.
+- **Source Code Implementation (`Python 3.11 / render_tours.py`):**
+```python
+def render_cinematic_tour(property_data: Dict[str, Any], output_path: str):
+    # Assembles 8 verified photos with smooth Ken Burns camera pan and ambient audio
+    clips = [create_ken_burns_clip(photo_path, duration=3.0) for photo_path in property_data["photos"]]
+    final_tour = concatenate_videoclips(clips, method="compose")
+    final_tour.write_videofile(output_path, fps=24, codec="libx264", audio_codec="aac")
+```
 
-#### 2. Pre-Rendered 720p Cinematic Tours vs. Veo 3.1
-To eliminate the classic *"video spinner timeout"* on Cloud Run:
-- `render_tours.py` pre-compiled all 108 listing walkthroughs locally (PIL camera moves + numpy zoom-through transitions + floorplan mini-map tracker with moving position dot) into 1280x720 30fps H.264 MP4s.
-- Files reside at `gs://vtxdemos-abnb-images/tours/v1/<id>_16x9.mp4` and are indexed in `static/tours_manifest.json`.
-- When a user opens the video tour, `/api/pillar5/listing-video/{id}` issues an immediate `302 Found` redirect to GCS, launching video playback in **0.6 – 0.7 seconds**.
-- For users wanting generative AI motion, `veo_tours.py` animates key photos with `veo-3.1-fast-generate-001` and crossfades them with FFmpeg.
+### 🔹 Block 5 — Honest 8-Photo Live Gemini Judge Engine (`engine.py`)
+- **Input / Output Contract:**
+  - **Input:** All 8 high-resolution property photograph URLs and original listing agent marketing description.
+  - **Output:** Unbiased condition audit detecting unmentioned cosmetic and structural flaws, plus Fair Value adjustment.
+- **Source Code Implementation (`Python 3.11 / engine.py`):**
+```python
+async def judge_property(property_id: str) -> Dict[str, Any]:
+    home = CATALOG[property_id]
+    image_parts = [Part.from_uri(uri=url, mime_type="image/jpeg") for url in home["photos"]]
+    
+    prompt = "Inspect all 8 photos as an objective home inspector. Identify visible flaws."
+    response = await client.aio.models.generate_content(
+        model="gemini-3.8-flash",
+        contents=[*image_parts, prompt],
+        config=GenerateContentConfig(response_mime_type="application/json"),
+    )
+    return json.loads(response.text)
+```
 
 ---
 

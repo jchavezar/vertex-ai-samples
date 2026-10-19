@@ -14,9 +14,24 @@
 
 ---
 
+## 💻 Source Code in This Pillar Folder
+
+| File / Component | Primary Technology & Models | Purpose & Implementation Details |
+| :--- | :--- | :--- |
+| [`app.py`](app.py) | **FastAPI Standalone Service** · Port `8081` | Standalone microservice exposing `POST /api/pillar1/forecast` and `GET /api/pillar1/catalog`. |
+| [`engine.py`](engine.py) | **BigQuery ML `AI.FORECAST`** · Python 3.11 | Core servicing forecast engine; executes zero-shot TimesFM 2.0 in BigQuery with rate-shock covariates. |
+| [`sql/timesfm_forecast.sql`](sql/timesfm_forecast.sql) | **BigQuery Standard SQL** · `TimesFM 2.0` | Parameterized DDL and `AI.FORECAST` CTE query over 9.5M Mr. Cooper + Rocket servicing loans. |
+| [`frontend/p1_chart.js`](frontend/p1_chart.js) | **Interactive SVG Fan Chart** · ES6 Module | Renders the dual-zone historical curve, P10–P90 confidence interval cone, and rate-shock slider. |
+| [`Dockerfile`](Dockerfile) | **Google Cloud Run Container** | Standalone container build (`uvicorn app:app --port 8081`) for independent microservice deployment. |
+| [`requirements.txt`](requirements.txt) | **Pinned Dependencies** | Pinned Python packages (`google-cloud-bigquery`, `fastapi`, `uvicorn`, `pydantic`). |
+| [`SKILL.md`](SKILL.md) | **1-Shot LLM Replication Skill** | Complete blueprint, schema, SQL CTEs, and verification steps for any AI coding assistant. |
+| [`.env.example`](.env.example) | **Environment Configuration** | Template for BigQuery dataset, table IDs, and default horizon/confidence hyperparameters. |
+
+---
+
 ## 1. Live GIF & Video Walkthrough
 
-![Pillar 1 Live Demo](assets/p1_bqml_timesfm_demo.gif)
+<p align="center"><img src="assets/p1_bqml_timesfm_demo.gif" width="100%" alt="Pillar 1 Live Demo"></p>
 
 [🎬 Watch / Download High-Resolution MP4 Video (assets/p1_bqml_timesfm_demo.mp4)](assets/p1_bqml_timesfm_demo.mp4)
 
@@ -32,73 +47,122 @@
 ## 2. High-Definition Architecture Diagrams (`3x Retina` Blueprint + `3x HiDPI` Mermaid ELK)
 
 ### 3x Retina Google Cloud Reference Architecture Blueprint
-![Pillar 1 GCP Reference Architecture Blueprint](assets/p1_architecture_blueprint.png)
+<p align="center"><img src="assets/p1_architecture_blueprint.png" width="100%" alt="Pillar 1 GCP Reference Architecture Blueprint"></p>
 *Vector Reference: [assets/p1_architecture_blueprint.svg](assets/p1_architecture_blueprint.svg)*
 
 ### 3x HiDPI Mermaid ELK Execution Flow
-![Pillar 1 Mermaid Flow](assets/p1_mermaid_flow_padded.png)
+<p align="center"><img src="assets/p1_mermaid_flow_padded.png" width="100%" alt="Pillar 1 Mermaid Flow"></p>
 *Mermaid Source: [assets/p1_mermaid_flow.mmd](assets/p1_mermaid_flow.mmd)*
 
 ---
 
 ## 3. Block-by-Block Component Diagram Walkthrough
 
-```text
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 1] Enterprise Servicing Data Lake (BigQuery Table)              │
-│ `vtxdemos.rocket_nextgen_timesfm.portfolio_metrics` (80 Weeks History) │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 2] Dynamic Rate-Shock Covariate Scaler (`engine.py`)            │
-│ Elasticity Model: -50 bps cut -> +21.0% volume surge ($4,850/loan)     │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 3] BigQuery ML Zero-Shot `AI.FORECAST` (TimesFM 2.0)            │
-│ SQL Foundation Inference (<1.2s), Horizon: 4-24 wks, 80%-95% CI        │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 4] Interactive Dual-Zone SVG Fan Chart & Recapture Calculator   │
-│ Historical baseline + P10/P90 prediction cone + LO staffing model      │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 5] REST API & Gemini Live Autonomous Ghost Cursor Hook          │
-│ `POST /api/pillar1/forecast` + `control_bqml_timesfm` tool binding     │
-└────────────────────────────────────────────────────────────────────────┘
+<p align="center">
+  <img src="assets/p1_component_walkthrough.png" width="100%" alt="Component Walkthrough Banner">
+</p>
+
+### End-to-End Component Flow & Low-Level Invariants
+
+| Block & Component | Source Code File & GCP Model | Latency & Role |
+| :--- | :--- | :--- |
+| **Block 1: Servicing Data Lake** | `portfolio_metrics` in BigQuery | **<15ms scan:** 80 weeks of partitioned loan history across 4 cohorts; zero data egress outside Google Cloud. |
+| **Block 2: Rate-Shock Scaler** | `engine.py::compute_multiplier` | **<1ms execution:** Evaluates Fed rate cuts (-150 to +100 bps) and computes empirical elasticity multiplier. |
+| **Block 3: TimesFM Forecaster** | `engine.py::run_timesfm_forecast` (BQML) | **850ms–1,250ms:** Zero-shot foundation model execution in BigQuery with P10–P90 prediction intervals. |
+| **Block 4: Dual-Zone SVG Engine** | `ui_studio.py` & `static/p1_stage.js` | **16ms (60 FPS):** Renders historical baseline polyline, TODAY divider marker, and glowing translucent fan. |
+| **Block 5: FastAPI & Live Hook** | `app.py::api_pillar1_forecast` | **<25ms overhead:** Exposes REST endpoint and binds `control_bqml_timesfm` tool for voice avatars. |
+
+### 🔹 Block 1 — Enterprise Servicing Data Lake (`BigQuery Table`)
+- **Input / Output Contract:**
+  - **Input:** Partitioned weekly time-series rows (`week_dt`, `metric_id`, `metric_value`, `avg_30yr_rate`).
+  - **Output:** Columnar BigQuery storage blocks scanned in under 15ms with zero data egress.
+- **Source Code Implementation (`BigQuery SQL`):**
+```sql
+SELECT
+  week_dt,
+  metric_value,
+  avg_30yr_rate
+FROM `vtxdemos.rocket_nextgen_timesfm.portfolio_metrics`
+WHERE metric_id = 'mrcooper_refi_locks'
+ORDER BY week_dt DESC
+LIMIT 80;
 ```
 
-### Component-by-Component Walkthrough Table
+### 🔹 Block 2 — Rate-Shock Elasticity Scaler (`engine.py`)
+- **Input / Output Contract:**
+  - **Input:** Target `metric_id` and Federal Reserve interest rate shock in basis points (`rate_shock_bps` from `-150` to `+100`).
+  - **Output:** Dynamic interest-rate elasticity multiplier and parameterized SQL CTE injection.
+- **Source Code Implementation (`Python 3.11 / engine.py`):**
+```python
+meta = METRIC_CATALOG[metric_id]
+rate_shock_bps = max(-150, min(100, int(rate_shock_bps)))
 
-| Block # | Component & File | Google Cloud / Vertex AI Service & Model | Input / Output Contract | Latency & Engineering Mechanics |
-| :--- | :--- | :--- | :--- | :--- |
-| **Block 1** | **Servicing Data Lake**<br>`vtxdemos.rocket_nextgen_timesfm.portfolio_metrics` | **Google Cloud BigQuery** (Multi-region US / Central) | **Input:** Partitioned weekly time-series rows (`week_dt`, `metric_id`, `metric_value`, `avg_30yr_rate`).<br>**Output:** Columnar BigQuery storage blocks. | **<15ms scan:** Zero data egress. Stores 80 consecutive weeks across 4 cohorts: Mr. Cooper refi locks, Redfin tours, Escrow outflow, and Warehouse lines. |
-| **Block 2** | **Rate-Shock Scaler**<br>`pillar-1-bqml-timesfm/engine.py` | **Python 3.11 Runtime / NumPy** | **Input:** `metric_id`, `rate_shock_bps` (-150 to +100).<br>**Output:** `shock_multiplier` and parameterized SQL CTE. | **<1ms execution:** Evaluates cohort elasticity (e.g., `-0.0042` for refi locks, `-0.0024` for Redfin tours). Injects `adjusted_metric_value` directly into query CTE. |
-| **Block 3** | **Zero-Shot Forecaster**<br>`engine.py::run_timesfm_forecast` | **BigQuery ML `AI.FORECAST`**<br>(Google Research TimesFM 2.0) | **Input:** `TABLE shocked_series`, `horizon` (4–24), `confidence_level` (0.80–0.95).<br>**Output:** `forecast_timestamp`, `forecast_value`, `prediction_interval_lower/upper_bound`. | **850ms – 1,250ms:** Executes pre-trained decoder-only time-series transformer weights directly in BigQuery Dremel workers. Zero model training or hyperparameter tuning. |
-| **Block 4** | **Dual-Zone SVG Engine**<br>`ui_studio.py` / `p1_stage` | **SVG Canvas & Client Math** | **Input:** Normalized historical points + forecast points with P10/P90 bounds.<br>**Output:** Responsive dual-zone SVG path with animated hover crosshairs and ROI pills. | **16ms (60 FPS):** Left zone renders solid polyline; center renders vertical dashed TODAY marker; right zone renders translucent polygon envelope and dashed trajectory. |
-| **Block 5** | **REST API & Live Hook**<br>`app.py` + `static/live_session.js` | **FastAPI Cloud Run + Gemini 3.8 Live API** | **Input:** `POST /api/pillar1/forecast` JSON payload or `control_bqml_timesfm` tool call.<br>**Output:** Structured JSON with `historical`, `forecast`, and `kpi_summary`. | **<25ms overhead:** Exposes live endpoints and allows Pillar 4 Voice Avatar (Kira/Marcus) to manipulate sliders and trigger forecasts autonomously. |
+# Empirical elasticity (e.g. -0.0042 for refi locks: -100 bps drop -> +42% volume surge)
+shock_multiplier = 1.0 + (rate_shock_bps * meta["rate_elasticity"])
+```
 
-### In-Depth Engineering Mechanics
+### 🔹 Block 3 — Zero-Shot TimesFM Forecaster (`engine.py::run_timesfm_forecast`)
+- **Input / Output Contract:**
+  - **Input:** Parameterized `shocked_series` CTE, forward forecast horizon (4 to 24 weeks), and confidence level (0.80 to 0.95).
+  - **Output:** Calibrated `forecast_value`, `prediction_interval_lower_bound` (P10), and `prediction_interval_upper_bound` (P90).
+- **Source Code Implementation (`BigQuery ML AI.FORECAST`):**
+```sql
+WITH shocked_series AS (
+  SELECT
+    week_dt,
+    ROUND(metric_value * 1.2100, 2) AS adjusted_metric_value,
+    avg_30yr_rate
+  FROM `vtxdemos.rocket_nextgen_timesfm.portfolio_metrics`
+  WHERE metric_id = 'mrcooper_refi_locks'
+)
+SELECT
+  forecast_timestamp,
+  ROUND(forecast_value, 2) AS forecast_value,
+  ROUND(prediction_interval_lower_bound, 2) AS lower_bound,
+  ROUND(prediction_interval_upper_bound, 2) AS upper_bound,
+  confidence_level
+FROM AI.FORECAST(
+  TABLE shocked_series,
+  data_col => 'adjusted_metric_value',
+  timestamp_col => 'week_dt',
+  horizon => 12,
+  confidence_level => 0.90
+)
+ORDER BY forecast_timestamp ASC;
+```
 
-#### The TimesFM In-Warehouse Architecture
-Unlike legacy ARIMA_PLUS, which fits separate statistical parameters per time series and requires periodic re-training jobs, TimesFM is a **pre-trained 200M+ parameter foundation model** developed by Google Research. Inside BigQuery ML:
-1. `AI.FORECAST` tokenizes the incoming sequence of floating-point values into time-series patches.
-2. The decoder transformer projects patch embeddings across the requested horizon ($H=4..24$) in a single forward pass.
-3. Quantile heads estimate calibrated probabilistic prediction intervals ($80\%$ to $95\%$ bounds), providing risk officers with conservative P10 and aggressive P90 scenario modeling.
+### 🔹 Block 4 — Dual-Zone SVG Fan Chart & ROI Synapse (`ui_studio.py` / `p1_stage.js`)
+- **Input / Output Contract:**
+  - **Input:** 28 weeks of normalized historical data points plus 12 forward forecast points with P10/P90 envelopes.
+  - **Output:** Responsive dual-zone SVG path with animated hover crosshairs, TODAY vertical divider, and ROI dollar metric badge.
+- **Source Code Implementation (`JavaScript / p1_stage.js`):**
+```javascript
+// Render historical solid line on left; render translucent confidence fan on right
+const histPath = historical.map((pt, i) => `${i === 0 ? 'M' : 'L'} ${scaleX(pt.date)} ${scaleY(pt.value)}`).join(' ');
+const fanPolygon = `M ${scaleX(forecast[0].date)} ${scaleY(forecast[0].lower)} ` +
+  forecast.map(pt => `L ${scaleX(pt.date)} ${scaleY(pt.upper)}`).join(' ') +
+  ` ` + forecast.slice().reverse().map(pt => `L ${scaleX(pt.date)} ${scaleY(pt.lower)}`).join(' ') + ' Z';
+```
 
-#### Rate-Shock Elasticity Matrix
-The production engine maps each Rocket business pillar to its empirical interest-rate elasticity coefficient:
-$$\text{Multiplier} = 1.0 + (\Delta_{\text{bps}} \times \text{Elasticity})$$
-- **Mr. Cooper Refi Locks:** Elasticity $=-0.0042$ ($-100\text{ bps} \implies +42\%$ lock surge; net unit margin: $\$4,850$).
-- **Redfin Tour Demand:** Elasticity $=-0.0024$ ($-100\text{ bps} \implies +24\%$ buyer tour surge; unit margin: $\$1,920$).
-- **Escrow Outflow:** Elasticity $=+0.0005$ (Treasury yield reduction shifts escrow float velocity; unit margin: $\$1\text{M}/\$M$).
-- **Warehouse Line Capacity:** Elasticity $=-0.0031$ ($-100\text{ bps} \implies +31\%$ liquidity draw; unit margin: $\$12\text{M}/\$B$).
+### 🔹 Block 5 — FastAPI Gateway & Live Voice Tool Hook (`app.py`)
+- **Input / Output Contract:**
+  - **Input:** HTTP `POST /api/pillar1/forecast` JSON payload or Gemini 3.8 Live API tool call `control_bqml_timesfm`.
+  - **Output:** Structured JSON containing historical series, forward forecast intervals, and executive margin calculations.
+- **Source Code Implementation (`Python 3.11 / app.py`):**
+```python
+@app.post("/api/pillar1/forecast")
+async def api_pillar1_forecast(payload: Dict[str, Any]):
+    metric_id = payload.get("metric_id", "mrcooper_refi_locks")
+    horizon = int(payload.get("horizon", 12))
+    confidence_level = float(payload.get("confidence_level", 0.90))
+    rate_shock_bps = int(payload.get("rate_shock_bps", -50))
+    return p1_engine.run_timesfm_forecast(
+        metric_id=metric_id,
+        horizon=horizon,
+        confidence_level=confidence_level,
+        rate_shock_bps=rate_shock_bps,
+    )
+```
 
 ---
 
