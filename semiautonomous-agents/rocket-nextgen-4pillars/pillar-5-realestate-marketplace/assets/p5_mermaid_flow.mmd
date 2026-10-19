@@ -1,0 +1,87 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_P5_INGEST["Tier 1: 108-Home GCS Catalog & Multimodal Vector Feature Extraction"]
+    GCSCatalog["108-Home GCS Property Catalog<br/>(540 High-Resolution Assets: Exteriors, Interiors & 3D Floorplans)"]:::gcpYellow
+    GCSCatalog@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    VisionExtractor["Gemini 3.8 Flash Vision Extractor<br/>(Extracts Driveways, Vehicles, Architectural Styles & Amenities)"]:::gcpBlue
+    VisionExtractor@{ icon: "gcp:vertexai", pos: "b" }
+
+    PixelVector["multimodalembedding@001<br/>(512-d Dense Visual Pixel Feature Vector)"]:::gcpGreen
+    PixelVector@{ icon: "gcp:vertexai", pos: "b" }
+
+    TextVector["gemini-embedding-001<br/>(256-d Semantic Property Metadata Vector)"]:::gcpGreen
+    TextVector@{ icon: "gcp:vertexai", pos: "b" }
+
+    wp_p5_a_out(((A))):::waypoint
+
+    GCSCatalog --> VisionExtractor
+    GCSCatalog --> PixelVector
+    VisionExtractor --> TextVector
+    PixelVector --> wp_p5_a_out
+    TextVector --> wp_p5_a_out
+  end
+
+  subgraph SG_P5_SEARCH["Tier 2: Weighted Hybrid Search & 3072-D UMAP 2D Topology Canvas"]
+    wp_p5_a_in(((A))):::waypoint
+
+    BM25Ranker["BM25 Lexical Keyword Ranker<br/>(Exact Submarket, Architectural Style & Structural Match)"]
+    BM25Ranker@{ icon: "azure:search", pos: "b" }
+
+    HybridFusion["Weighted Hybrid Search Engine<br/>(Score = 0.45 Semantic + 0.35 Visual + 0.20 Keyword)"]:::gcpBlue
+    HybridFusion@{ icon: "gcp:cloud-run", pos: "b" }
+
+    UMAPTopology["3072-D UMAP 2D Topology Space<br/>(Interactive Vector Canvas with Real-Time Cosine Rays)"]:::neutral
+    UMAPTopology@{ icon: "fa:chart-bar", pos: "b" }
+
+    wp_p5_b_out(((B))):::waypoint
+
+    wp_p5_a_in --> BM25Ranker
+    wp_p5_a_in --> HybridFusion
+    BM25Ranker --> HybridFusion
+    HybridFusion --> UMAPTopology
+    UMAPTopology --> wp_p5_b_out
+  end
+
+  subgraph SG_P5_DELIVERY["Tier 3: Cinematic Video, Veo 3.1 Tours & Honest 8-Photo Live Gemini Judge"]
+    wp_p5_b_in(((B))):::waypoint
+
+    CinematicTours["Pre-Rendered 720p Cinematic Tours<br/>(108 Walkthroughs · 8 Chapters · 30fps H.264 Video Stream)"]:::neutral
+    CinematicTours@{ icon: "fa:file-video", pos: "b" }
+
+    VeoTours["Veo 3.1 AI Walkthrough Tours<br/>(veo-3.1-fast Image-to-Video Camera Moves & Transitions)"]:::gcpGreen
+    VeoTours@{ icon: "gcp:vertexai", pos: "b" }
+
+    GeminiJudge["Honest 8-Photo Live Gemini Judge<br/>(Multi-Image Architectural Audit: PASS / REVIEW / FAIL Scoring)"]:::gcpRed
+    GeminiJudge@{ icon: "gcp:vertexai", pos: "b" }
+
+    wp_p5_b_in --> CinematicTours
+    wp_p5_b_in --> VeoTours
+    wp_p5_b_in --> GeminiJudge
+  end
+
+  SG_P5_INGEST ~~~ SG_P5_SEARCH ~~~ SG_P5_DELIVERY
+
+  style SG_P5_INGEST fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_P5_SEARCH fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_P5_DELIVERY fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold

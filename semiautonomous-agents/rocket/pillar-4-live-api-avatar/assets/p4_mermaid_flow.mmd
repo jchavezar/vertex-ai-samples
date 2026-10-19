@@ -1,0 +1,82 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_P4_INGEST["Tier 1: Browser 16kHz PCM Ingestion & Low-Latency WebSocket Transport"]
+    BrowserMic["Browser 16kHz PCM Audio Stream<br/>(Real-Time Microphone Ingestion via Web Audio Worklet)"]:::neutral
+    BrowserMic@{ icon: "fa:user", pos: "b" }
+
+    RocketLive["window.RocketLive Client Engine<br/>(Zero-Lag Audio Buffer, VAD Tracker & /ws/live-avatar Transport)"]:::gcpBlue
+    RocketLive@{ icon: "gcp:cloud-run", pos: "b" }
+
+    FastAPIProxy["Cloud Run Bidi Gateway Proxy<br/>(Low-Latency Async WebSocket Handler on Port 8080)"]:::gcpBlue
+    FastAPIProxy@{ icon: "gcp:cloud-run", pos: "b" }
+
+    wp_p4_a_out(((A))):::waypoint
+
+    BrowserMic --> RocketLive
+    RocketLive --> FastAPIProxy
+    FastAPIProxy --> wp_p4_a_out
+  end
+
+  subgraph SG_P4_ENGINE["Tier 2: Gemini 3.8 Live Engine, Server VAD & 40ms Native Barge-In"]
+    wp_p4_a_in(((A))):::waypoint
+
+    LiveModel["Gemini 3.8 Live Voice & Multimodal Engine<br/>(Vertex AI BidiGenerateContent Protocol with Live Thinking)"]:::gcpGreen
+    LiveModel@{ icon: "gcp:vertexai", pos: "b" }
+
+    BargeIn["Native 40ms Barge-In Controller<br/>(Server-Side VAD Interrupts Generation upon User Speech)"]:::gcpYellow
+    BargeIn@{ icon: "gcp:cloud-run", pos: "b" }
+
+    SubagentDispatch["Parallel Subagent Dispatcher<br/>(asyncio.as_completed Fan-Out on gemini-3.1-flash-lite)"]:::gcpGreen
+    SubagentDispatch@{ icon: "gcp:vertexai", pos: "b" }
+
+    wp_p4_b_out(((B))):::waypoint
+
+    wp_p4_a_in --> LiveModel
+    LiveModel --> BargeIn
+    LiveModel --> SubagentDispatch
+    BargeIn --> wp_p4_b_out
+    SubagentDispatch --> wp_p4_b_out
+  end
+
+  subgraph SG_P4_AVATAR["Tier 3: Continuous fMP4 Remuxing & 704x1280 24fps Video Avatars"]
+    wp_p4_b_in(((B))):::waypoint
+
+    RemuxCache["Continuous fMP4 Stream Remuxer<br/>(ftyp+moov Init Segment Cache & Persistent FFmpeg Pipeline)"]:::gcpBlue
+    RemuxCache@{ icon: "gcp:cloud-run", pos: "b" }
+
+    VideoAvatars["Official 704x1280 24fps Video Avatars<br/>(Photorealistic Kira, Sam, Ben, Vera & Leo Video Canvas)"]:::neutral
+    VideoAvatars@{ icon: "fa:file-video", pos: "b" }
+
+    FirstReadyYield["First-Ready Subagent Telemetry<br/>(Instant Card Yield for Rates, DTI & Property Insights)"]
+    FirstReadyYield@{ icon: "azure:code", pos: "b" }
+
+    wp_p4_b_in --> RemuxCache
+    RemuxCache --> VideoAvatars
+    wp_p4_b_in --> FirstReadyYield
+  end
+
+  SG_P4_INGEST ~~~ SG_P4_ENGINE ~~~ SG_P4_AVATAR
+
+  style SG_P4_INGEST fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_P4_ENGINE fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_P4_AVATAR fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold

@@ -1,0 +1,114 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_UC_1_4["Row 1: Consumer, Security & Broker Agents (Use Cases 1–4)"]
+    UC1["#1 Summon the Borrower<br/>(Gemini 3.8 Live + Vertex Search)"]:::gcpGreen
+    UC1@{ icon: "gcp:vertexai", pos: "b" }
+
+    UC2["#2 Physical Security Gate Pass<br/>(Document AI Classification)"]:::gcpBlue
+    UC2@{ icon: "gcp:document-ai", pos: "b" }
+
+    UC2_Vision["Security Scanner OCR<br/>(Cloud Vision API Ingestion)"]:::gcpBlue
+    UC2_Vision@{ icon: "gcp:cloud-vision-api", pos: "b" }
+
+    UC3["#3 Rocket Pro Command Deck<br/>(Global Async Pub/Sub Mesh)"]:::gcpYellow
+    UC3@{ icon: "gcp:pubsub", pos: "b" }
+
+    UC3_Store["Real-Time State Cache<br/>(Firestore Document DB)"]:::gcpYellow
+    UC3_Store@{ icon: "gcp:firestore", pos: "b" }
+
+    UC4["#4 Rocket Agent Passport<br/>(Cloud KMS Hardware Keys)"]:::gcpRed
+    UC4@{ icon: "gcp:key-management-service", pos: "b" }
+
+    UC4_Spanner["Agent Trust Ledger<br/>(Cloud Spanner Global DB)"]:::gcpBlue
+    UC4_Spanner@{ icon: "gcp:cloud-spanner", pos: "b" }
+
+    UC4_Secret["Secret Manager Vault<br/>(Automated Token Rotation)"]:::gcpRed
+    UC4_Secret@{ icon: "gcp:secret-manager", pos: "b" }
+
+    wp_A_out(((A))):::waypoint
+
+    UC2 --> UC2_Vision
+    UC3 --> UC3_Store
+    UC4 --> UC4_Spanner
+    UC4 --> UC4_Secret
+
+    UC1 --> wp_A_out
+    UC2_Vision --> wp_A_out
+    UC3_Store --> wp_A_out
+    UC4_Spanner --> wp_A_out
+  end
+
+  subgraph SG_UC_5_8["Row 2: Sentiment, Analytics, Team Brain & Vision (Use Cases 5–8)"]
+    wp_A_in(((A))):::waypoint
+
+    UC5["#5 Meaning of Home: LLM Arena<br/>(Gemini 4 Argon vs. Gemini 3.8 Flash)"]:::gcpGreen
+    UC5@{ icon: "gcp:vertexai", pos: "b" }
+
+    UC6["#6 Chart a Course: Forecast<br/>(BigQuery ML AI.FORECAST Engine)"]:::gcpBlue
+    UC6@{ icon: "gcp:bigquery", pos: "b" }
+
+    UC7["#7 Team Brain Constellation<br/>(Vertex AI Search & Enterprise Graph)"]:::gcpGreen
+    UC7@{ icon: "gcp:vertexai", pos: "b" }
+
+    UC7_DB["Team ACL & Metadata<br/>(Firestore Fast Lookup)"]:::gcpYellow
+    UC7_DB@{ icon: "gcp:firestore", pos: "b" }
+
+    UC8["#8 Not Hotdog: Property Vision<br/>(Gemini 4 Argon Extended Vision)"]:::gcpGreen
+    UC8@{ icon: "gcp:vertexai", pos: "b" }
+
+    wp_B_out(((B))):::waypoint
+
+    wp_A_in --> UC5
+    wp_A_in --> UC6
+    wp_A_in --> UC7
+    UC7 --> UC7_DB
+    wp_A_in --> UC8
+
+    UC5 --> wp_B_out
+    UC6 --> wp_B_out
+    UC7_DB --> wp_B_out
+    UC8 --> wp_B_out
+  end
+
+  subgraph SG_FOUNDATION["Row 3: Shared Cloud Run & Governance Foundation"]
+    wp_B_in(((B))):::waypoint
+
+    F_CloudRun["Cloud Run Serverless Runtime<br/>(v25 Microservices Fleet)"]:::gcpBlue
+    F_CloudRun@{ icon: "gcp:cloud-run", pos: "b" }
+
+    F_GCS["Cloud Storage Unified Bucket<br/>(Model Weights, Videos & Assets)"]:::gcpYellow
+    F_GCS@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    F_BQ["BigQuery Enterprise Warehouse<br/>(Analytics, Forecasting & Logs)"]:::gcpBlue
+    F_BQ@{ icon: "gcp:bigquery", pos: "b" }
+
+    wp_B_in --> F_CloudRun
+    wp_B_in --> F_GCS
+    wp_B_in --> F_BQ
+  end
+
+  SG_UC_1_4 ~~~ SG_UC_5_8 ~~~ SG_FOUNDATION
+
+  style SG_UC_1_4 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_UC_5_8 fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_FOUNDATION fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold

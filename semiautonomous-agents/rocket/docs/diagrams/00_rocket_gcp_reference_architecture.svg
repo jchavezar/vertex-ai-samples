@@ -1,0 +1,312 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1040" width="1600" height="1040" style="background:#F8FAFC;font-family:'Google Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <defs>
+    <filter id="gcp-shadow" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.08"/>
+    </filter>
+    <filter id="card-shadow" x="-1%" y="-1%" width="102%" height="104%">
+      <feDropShadow dx="0" dy="1" stdDeviation="2" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+    <marker id="arr-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#1A73E8"/>
+    </marker>
+    <marker id="arr-green" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#188038"/>
+    </marker>
+    <marker id="arr-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#E37400"/>
+    </marker>
+    <marker id="arr-purple" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#7C3AED"/>
+    </marker>
+    <marker id="arr-slate" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#0F172A"/>
+    </marker>
+    <pattern id="grid" width="24" height="24" patternUnits="userSpaceOnUse">
+      <path d="M 24 0 L 0 0 0 24" fill="none" stroke="#E2E8F0" stroke-width="0.7"/>
+    </pattern>
+  </defs>
+
+  <!-- Blueprint Grid Background -->
+  <rect width="1600" height="1040" fill="#F8FAFC"/>
+  <rect width="1600" height="1040" fill="url(#grid)"/>
+
+  <!-- ==================== HEADER ==================== -->
+  <rect x="20" y="16" width="1560" height="80" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="20" y="16" width="8" height="80" rx="4" fill="#1A73E8"/>
+
+  <!-- Google Cloud Logo -->
+  <g transform="translate(46, 36)">
+    <path d="M22.8 11.2l3.4-3.4c-.2-.2-.5-.4-.7-.6-2.2-1.6-4.9-2.5-7.8-2.5-5.6 0-10.4 3.5-12.3 8.5l4.2 3.1c1.1-3.3 4.3-5.7 8.1-5.7 1.9 0 3.7.7 5.1 1.6z" fill="#EA4335"/>
+    <path d="M30.4 15.6c-.8-3.1-2.6-5.8-5.1-7.7l-3.4 3.4c1.7 1.3 2.9 3.2 3.3 5.4v.5c2.4 0 4.3 1.9 4.3 4.3s-1.9 4.3-4.3 4.3h-8.5v5.8h8.5c5.6 0 10.1-4.5 10.1-10.1 0-2.3-.8-4.3-1.9-5.9z" fill="#4285F4"/>
+    <path d="M8.2 31.6h8.5v-5.8H8.2c-2.4 0-4.3-1.9-4.3-4.3 0-1.8 1.1-3.3 2.7-4l-4.2-3.1C.9 16.2 0 18.7 0 21.5c0 5.6 4.5 10.1 8.2 10.1z" fill="#FBBC04"/>
+    <path d="M16.7 31.6c2.8 0 5.4-1.1 7.3-2.9l-4.1-4.1c-.9.7-2 1.2-3.2 1.2-3.1 0-5.8-2.1-6.7-5l-4.2 3.1c1.9 4.5 6.1 7.7 10.9 7.7z" fill="#34A853"/>
+  </g>
+
+  <text x="96" y="47" fill="#202124" font-size="20.5" font-weight="800" letter-spacing="-0.3">Google Cloud Reference Architecture — Rocket Next-Gen 5-Pillar Studio (v35 demo-stable)</text>
+  <text x="96" y="70" fill="#5F6368" font-size="12" font-weight="500">Production Unified Topology: BigQuery ML TimesFM 2.0 · Veo 3.1 Vertical Reels · Trimodal Grounding · Gemini 3.8 Live Avatars · 108-Home Multimodal Vision</text>
+
+  <!-- Header Badges -->
+  <rect x="1170" y="26" width="190" height="24" rx="12" fill="#E8F0FE" stroke="#1A73E8"/>
+  <text x="1265" y="42" fill="#1967D2" font-size="10.5" font-weight="700" text-anchor="middle">Native Vector SVG · 3x Retina</text>
+  <rect x="1374" y="26" width="190" height="24" rx="12" fill="#E6F4EA" stroke="#188038"/>
+  <text x="1469" y="42" fill="#137333" font-size="10.5" font-weight="700" text-anchor="middle">2026 Next-Gen Model Registry</text>
+  <text x="1368" y="73" fill="#5F6368" font-size="11" font-weight="600" text-anchor="middle">Cloud Run: us-central1 · Revision: 00027-sr7 (demo-stable)</text>
+
+  <!-- ==================== PILLARS 1 TO 5 GRID ==================== -->
+
+  <!-- ZONE 1: PILLAR 1 - BQML & TIMESFM (x=20, w=300) -->
+  <rect x="20" y="110" width="300" height="660" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="20" y="110" width="300" height="36" rx="10" fill="#1A73E8"/>
+  <text x="36" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PILLAR 1 — BQML &amp; TIMESFM</text>
+
+  <rect x="34" y="156" width="272" height="135" rx="8" fill="#EFF6FF" stroke="#1A73E8" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="54" cy="178" r="12" fill="#1A73E8"/>
+  <text x="54" y="182" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">1A</text>
+  <text x="74" y="177" fill="#174EA6" font-size="13" font-weight="800">9.5M Loan Servicing Portfolio</text>
+  <text x="74" y="193" fill="#1A73E8" font-size="9" font-family="monospace">bigquery.portfolio_metrics</text>
+  <text x="44" y="213" fill="#1E293B" font-size="10.5">• Combined Mr. Cooper + Rocket Servicing</text>
+  <text x="44" y="229" fill="#1E293B" font-size="10.5">• CPR, CDR, Prepayment &amp; MSR Values</text>
+  <text x="44" y="245" fill="#1E293B" font-size="10.5">• Rate-shock scenario delta: -150 to +100 bps</text>
+  <rect x="44" y="255" width="252" height="22" rx="4" fill="#DBEAFE"/>
+  <text x="170" y="270" fill="#1E40AF" font-size="9.5" font-weight="700" text-anchor="middle">BigQuery In-Memory Storage API</text>
+
+  <line x1="170" y1="291" x2="170" y2="315" stroke="#1A73E8" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <rect x="34" y="318" width="272" height="155" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="54" cy="340" r="12" fill="#0F172A"/>
+  <text x="54" y="344" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">1B</text>
+  <text x="74" y="339" fill="#0F172A" font-size="13" font-weight="800">AI.FORECAST TimesFM 2.0</text>
+  <text x="74" y="355" fill="#64748B" font-size="9" font-family="monospace">pillar-1-bqml-timesfm/engine.py</text>
+  <text x="44" y="375" fill="#1E293B" font-size="10.5">• Zero-shot Foundation Time-Series</text>
+  <text x="44" y="391" fill="#1E293B" font-size="10.5">• Horizon: 24 months @ 95% CI</text>
+  <text x="44" y="407" fill="#1E293B" font-size="10.5">• Covariates: 10Y Treasury, CPI, Fed Funds</text>
+  <text x="44" y="423" fill="#1E293B" font-size="10.5">• SQL: ML.FORECAST(MODEL timesfm_2_0)</text>
+  <rect x="44" y="435" width="252" height="24" rx="4" fill="#E2E8F0"/>
+  <text x="170" y="451" fill="#334155" font-size="9.5" font-weight="700" text-anchor="middle">Latency: 1,840ms · 9.5M Records</text>
+
+  <line x1="170" y1="473" x2="170" y2="497" stroke="#1A73E8" stroke-width="2" marker-end="url(#arr-blue)"/>
+
+  <rect x="34" y="500" width="272" height="145" rx="8" fill="#EFF6FF" stroke="#1A73E8" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="54" cy="522" r="12" fill="#1A73E8"/>
+  <text x="54" y="526" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">1C</text>
+  <text x="74" y="521" fill="#174EA6" font-size="13" font-weight="800">Dynamic Fan Chart &amp; Allocator</text>
+  <text x="74" y="537" fill="#1A73E8" font-size="9" font-family="monospace">static/p1_timesfm.js</text>
+  <text x="44" y="557" fill="#1E293B" font-size="10.5">• Interactive SVG Confidence Band</text>
+  <text x="44" y="573" fill="#1E293B" font-size="10.5">• Rate-shock slider: -150bp to +100bp</text>
+  <text x="44" y="589" fill="#1E293B" font-size="10.5">• Real-time Capital Allocation Engine</text>
+  <rect x="44" y="602" width="252" height="24" rx="4" fill="#DBEAFE"/>
+  <text x="170" y="618" fill="#1E40AF" font-size="9.5" font-weight="700" text-anchor="middle">MSR Hedging Ratio: +$412M Delta</text>
+
+  <!-- ZONE 2: PILLAR 2 - VEO REELS STUDIO (x=330, w=300) -->
+  <rect x="330" y="110" width="300" height="660" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="330" y="110" width="300" height="36" rx="10" fill="#E37400"/>
+  <text x="346" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PILLAR 2 — VEO REELS STUDIO</text>
+
+  <rect x="344" y="156" width="272" height="135" rx="8" fill="#FFFBEB" stroke="#E37400" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="364" cy="178" r="12" fill="#E37400"/>
+  <text x="364" y="182" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">2A</text>
+  <text x="384" y="177" fill="#B45309" font-size="13" font-weight="800">Dynamic Script &amp; Keyframe</text>
+  <text x="384" y="193" fill="#D97706" font-size="9" font-family="monospace">gemini-3.8-flash + imagen-4.0</text>
+  <text x="354" y="213" fill="#1E293B" font-size="10.5">• Parallel 9:16 Storyboard Generation</text>
+  <text x="354" y="229" fill="#1E293B" font-size="10.5">• First-time Buyer &amp; Refi Hook generation</text>
+  <text x="354" y="245" fill="#1E293B" font-size="10.5">• Photorealistic First-Frame conditioning</text>
+  <rect x="354" y="255" width="252" height="22" rx="4" fill="#FEF3C7"/>
+  <text x="480" y="270" fill="#92400E" font-size="9.5" font-weight="700" text-anchor="middle">gemini-3.1-flash-image Synthesizer</text>
+
+  <line x1="480" y1="291" x2="480" y2="315" stroke="#E37400" stroke-width="2" marker-end="url(#arr-amber)"/>
+
+  <rect x="344" y="318" width="272" height="155" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="364" cy="340" r="12" fill="#0F172A"/>
+  <text x="364" y="344" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">2B</text>
+  <text x="384" y="339" fill="#0F172A" font-size="13" font-weight="800">Veo 3.1 Vertical Generation</text>
+  <text x="384" y="355" fill="#64748B" font-size="9" font-family="monospace">veo-3.1-fast-generate-001</text>
+  <text x="354" y="375" fill="#1E293B" font-size="10.5">• 720x1280 24fps 9:16 Vertical Video</text>
+  <text x="354" y="391" fill="#1E293B" font-size="10.5">• Camera motion: cinematic slow dolly</text>
+  <text x="354" y="407" fill="#1E293B" font-size="10.5">• Vertex AI PredictLongRunning API</text>
+  <text x="354" y="423" fill="#1E293B" font-size="10.5">• FFmpeg burned-in PITI Mortgage sticker</text>
+  <rect x="354" y="435" width="252" height="24" rx="4" fill="#E2E8F0"/>
+  <text x="480" y="451" fill="#334155" font-size="9.5" font-weight="700" text-anchor="middle">Generation: 45-75s / 6s Clip</text>
+
+  <line x1="480" y1="473" x2="480" y2="497" stroke="#E37400" stroke-width="2" marker-end="url(#arr-amber)"/>
+
+  <rect x="344" y="500" width="272" height="145" rx="8" fill="#FFFBEB" stroke="#E37400" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="364" cy="522" r="12" fill="#E37400"/>
+  <text x="364" y="526" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">2C</text>
+  <text x="384" y="521" fill="#B45309" font-size="13" font-weight="800">11-Reel Edge Vault &amp; Feed</text>
+  <text x="384" y="537" fill="#D97706" font-size="9" font-family="monospace">static/reels/ &amp; Cloud CDN</text>
+  <text x="354" y="557" fill="#1E293B" font-size="10.5">• Zero-latency pre-rendered edge buffer</text>
+  <text x="354" y="573" fill="#1E293B" font-size="10.5">• Live PITI recalculation HUD on tap</text>
+  <text x="354" y="589" fill="#1E293B" font-size="10.5">• Social syndication (TikTok/Shorts/Reels)</text>
+  <rect x="354" y="602" width="252" height="24" rx="4" fill="#FEF3C7"/>
+  <text x="480" y="618" fill="#92400E" font-size="9.5" font-weight="700" text-anchor="middle">100% Mobile 9:16 Native UX</text>
+
+  <!-- ZONE 3: PILLAR 3 - TRIMODAL GROUNDING (x=640, w=300) -->
+  <rect x="640" y="110" width="300" height="660" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="640" y="110" width="300" height="36" rx="10" fill="#188038"/>
+  <text x="656" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PILLAR 3 — TRIMODAL GROUNDING</text>
+
+  <rect x="654" y="156" width="272" height="135" rx="8" fill="#E6F4EA" stroke="#188038" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="674" cy="178" r="12" fill="#188038"/>
+  <text x="674" y="182" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">3A</text>
+  <text x="694" y="177" fill="#137333" font-size="13" font-weight="800">Zero-Latency Intent Router</text>
+  <text x="694" y="193" fill="#188038" font-size="9" font-family="monospace">pillar-3-trimodal-grounding/engine.py</text>
+  <text x="664" y="213" fill="#1E293B" font-size="10.5">• Question keyword &amp; geo-parser</text>
+  <text x="664" y="229" fill="#1E293B" font-size="10.5">• Trimodal routing: Maps / YouTube / Search</text>
+  <text x="664" y="245" fill="#1E293B" font-size="10.5">• 8s Dual-Flight Tail-Latency Guard</text>
+  <rect x="664" y="255" width="252" height="22" rx="4" fill="#CEEAD6"/>
+  <text x="790" y="270" fill="#0D652D" font-size="9.5" font-weight="700" text-anchor="middle">First Token: 3-5s (8-10s Trimodal)</text>
+
+  <line x1="790" y1="291" x2="790" y2="315" stroke="#188038" stroke-width="2" marker-end="url(#arr-green)"/>
+
+  <rect x="654" y="318" width="272" height="155" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="674" cy="340" r="12" fill="#0F172A"/>
+  <text x="674" y="344" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">3B</text>
+  <text x="694" y="339" fill="#0F172A" font-size="13" font-weight="800">Unified gemini-3.8-flash Call</text>
+  <text x="694" y="355" fill="#64748B" font-size="9" font-family="monospace">types.GoogleMaps + Search + YouTube</text>
+  <text x="664" y="375" fill="#1E293B" font-size="10.5">• Single API call with combined tools</text>
+  <text x="664" y="391" fill="#1E293B" font-size="10.5">• YouTube video understanding (Part.from_uri)</text>
+  <text x="664" y="407" fill="#1E293B" font-size="10.5">• Places API (New) fieldmask lat/lng</text>
+  <text x="664" y="423" fill="#1E293B" font-size="10.5">• Streaming NDJSON SSE events to UI</text>
+  <rect x="664" y="435" width="252" height="24" rx="4" fill="#E2E8F0"/>
+  <text x="790" y="451" fill="#334155" font-size="9.5" font-weight="700" text-anchor="middle">thinking_level=LOW · ADC OAuth</text>
+
+  <line x1="790" y1="473" x2="790" y2="497" stroke="#188038" stroke-width="2" marker-end="url(#arr-green)"/>
+
+  <rect x="654" y="500" width="272" height="145" rx="8" fill="#E6F4EA" stroke="#188038" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="674" cy="522" r="12" fill="#188038"/>
+  <text x="674" y="526" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">3C</text>
+  <text x="694" y="521" fill="#137333" font-size="13" font-weight="800">Interactive Redfin 2.0 Canvas</text>
+  <text x="694" y="537" fill="#188038" font-size="9" font-family="monospace">static/p3_chat.js + Leaflet Map</text>
+  <text x="664" y="557" fill="#1E293B" font-size="10.5">• Dynamic Leaflet GeoJSON property pins</text>
+  <text x="664" y="573" fill="#1E293B" font-size="10.5">• YouTube synchronized video player</text>
+  <text x="664" y="589" fill="#1E293B" font-size="10.5">• Streaming Markdown answer + citations</text>
+  <rect x="664" y="602" width="252" height="24" rx="4" fill="#CEEAD6"/>
+  <text x="790" y="618" fill="#0D652D" font-size="9.5" font-weight="700" text-anchor="middle">100% Grounded Neighborhood Intel</text>
+
+  <!-- ZONE 4: PILLAR 4 - LIVE API AVATAR (x=950, w=300) -->
+  <rect x="950" y="110" width="300" height="660" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="950" y="110" width="300" height="36" rx="10" fill="#7C3AED"/>
+  <text x="966" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PILLAR 4 — GEMINI 3.8 LIVE AVATAR</text>
+
+  <rect x="964" y="156" width="272" height="135" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="984" cy="178" r="12" fill="#7C3AED"/>
+  <text x="984" y="182" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">4A</text>
+  <text x="1004" y="177" fill="#6D28D9" font-size="13" font-weight="800">Browser Audio &amp; Video Sink</text>
+  <text x="1004" y="193" fill="#7C3AED" font-size="9" font-family="monospace">static/live_session.js (RocketLive)</text>
+  <text x="974" y="213" fill="#1E293B" font-size="10.5">• 16kHz PCM16 mic streaming over WS</text>
+  <text x="974" y="229" fill="#1E293B" font-size="10.5">• MediaSource Extensions (MSE) player</text>
+  <text x="974" y="245" fill="#1E293B" font-size="10.5">• 4:5 portrait stage + neutral idle crossfade</text>
+  <rect x="974" y="255" width="252" height="22" rx="4" fill="#EDE9FE"/>
+  <text x="1100" y="270" fill="#5B21B6" font-size="9.5" font-weight="700" text-anchor="middle">Avatars: Kira, Sam, Ben, Vera, Leo</text>
+
+  <line x1="1100" y1="291" x2="1100" y2="315" stroke="#7C3AED" stroke-width="2" marker-end="url(#arr-purple)"/>
+
+  <rect x="964" y="318" width="272" height="155" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="984" cy="340" r="12" fill="#0F172A"/>
+  <text x="984" y="344" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">4B</text>
+  <text x="1004" y="339" fill="#0F172A" font-size="13" font-weight="800">Continuous fMP4 &amp; VAD Server</text>
+  <text x="1004" y="355" fill="#64748B" font-size="9" font-family="monospace">pillar-4-live-api-avatar/engine.py</text>
+  <text x="974" y="375" fill="#1E293B" font-size="10.5">• gemini-3.8-live Bidi WebSocket</text>
+  <text x="974" y="391" fill="#1E293B" font-size="10.5">• ftyp+moov Init Segment Cache</text>
+  <text x="974" y="407" fill="#1E293B" font-size="10.5">• 40ms Native Barge-In / VAD Interrupt</text>
+  <text x="974" y="423" fill="#1E293B" font-size="10.5">• Single persistent FFmpeg remuxer</text>
+  <rect x="974" y="435" width="252" height="24" rx="4" fill="#E2E8F0"/>
+  <text x="1100" y="451" fill="#334155" font-size="9.5" font-weight="700" text-anchor="middle">Stream: 704x1280 24fps Continuous</text>
+
+  <line x1="1100" y1="473" x2="1100" y2="497" stroke="#7C3AED" stroke-width="2" marker-end="url(#arr-purple)"/>
+
+  <rect x="964" y="500" width="272" height="145" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="984" cy="522" r="12" fill="#7C3AED"/>
+  <text x="984" y="526" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">4C</text>
+  <text x="1004" y="521" fill="#6D28D9" font-size="13" font-weight="800">Async Subagent Swarm</text>
+  <text x="1004" y="537" fill="#7C3AED" font-size="9" font-family="monospace">gemini-3.1-flash-lite · asyncio</text>
+  <text x="974" y="557" fill="#1E293B" font-size="10.5">• Out-of-order parallel calculations</text>
+  <text x="974" y="573" fill="#1E293B" font-size="10.5">• Omni Screen Control Function Calling</text>
+  <text x="974" y="589" fill="#1E293B" font-size="10.5">• Instant UI synchronization &amp; chat log</text>
+  <rect x="974" y="602" width="252" height="24" rx="4" fill="#EDE9FE"/>
+  <text x="1100" y="618" fill="#5B21B6" font-size="9.5" font-weight="700" text-anchor="middle">First-Ready Rendering Architecture</text>
+
+  <!-- ZONE 5: PILLAR 5 - REAL ESTATE MARKETPLACE (x=1260, w=320) -->
+  <rect x="1260" y="110" width="320" height="660" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="1260" y="110" width="320" height="36" rx="10" fill="#0F172A"/>
+  <text x="1276" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PILLAR 5 — 108-HOME MARKETPLACE</text>
+
+  <rect x="1274" y="156" width="292" height="135" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="1294" cy="178" r="12" fill="#0F172A"/>
+  <text x="1294" y="182" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">5A</text>
+  <text x="1314" y="177" fill="#0F172A" font-size="13" font-weight="800">108 Distinct Architecture Homes</text>
+  <text x="1314" y="193" fill="#64748B" font-size="9" font-family="monospace">gs://vtxdemos-abnb-images</text>
+  <text x="1284" y="213" fill="#1E293B" font-size="10.5">• 3 unique exteriors per property (ext 1-3)</text>
+  <text x="1284" y="229" fill="#1E293B" font-size="10.5">• Shared interior style tiers &amp; 3D floorplans</text>
+  <text x="1284" y="245" fill="#1E293B" font-size="10.5">• 14 distinct American architectural regions</text>
+  <rect x="1284" y="255" width="272" height="22" rx="4" fill="#E2E8F0"/>
+  <text x="1420" y="270" fill="#334155" font-size="9.5" font-weight="700" text-anchor="middle">8 Photos Labeled per Property</text>
+
+  <line x1="1420" y1="291" x2="1420" y2="315" stroke="#0F172A" stroke-width="2" marker-end="url(#arr-slate)"/>
+
+  <rect x="1274" y="318" width="292" height="155" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="1294" cy="340" r="12" fill="#0F172A"/>
+  <text x="1294" y="344" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">5B</text>
+  <text x="1314" y="339" fill="#0F172A" font-size="13" font-weight="800">Hybrid Embedding &amp; Judge</text>
+  <text x="1314" y="355" fill="#64748B" font-size="9" font-family="monospace">multimodalembedding@001 + gemini-3.8</text>
+  <text x="1284" y="375" fill="#1E293B" font-size="10.5">• 512-d Visual + 256-d Semantic + BM25</text>
+  <text x="1284" y="391" fill="#1E293B" font-size="10.5">• 3072-D UMAP 2D Vector Topology Canvas</text>
+  <text x="1284" y="407" fill="#1E293B" font-size="10.5">• Honest Multimodal Gemini Judge (8 photos)</text>
+  <text x="1284" y="423" fill="#1E293B" font-size="10.5">• Typed schema: architectural consistency</text>
+  <rect x="1284" y="435" width="272" height="24" rx="4" fill="#E2E8F0"/>
+  <text x="1420" y="451" fill="#334155" font-size="9.5" font-weight="700" text-anchor="middle">Live Audit: 8-9s (PASS / REVIEW / FAIL)</text>
+
+  <line x1="1420" y1="473" x2="1420" y2="497" stroke="#0F172A" stroke-width="2" marker-end="url(#arr-slate)"/>
+
+  <rect x="1274" y="500" width="292" height="145" rx="8" fill="#F8FAFC" stroke="#64748B" stroke-width="1.5" filter="url(#card-shadow)"/>
+  <circle cx="1294" cy="522" r="12" fill="#0F172A"/>
+  <text x="1294" y="526" fill="#FFFFFF" font-size="11" font-weight="800" text-anchor="middle">5C</text>
+  <text x="1314" y="521" fill="#0F172A" font-size="13" font-weight="800">Pre-Rendered Tours &amp; Lightbox</text>
+  <text x="1314" y="537" fill="#64748B" font-size="9" font-family="monospace">static/p5_media.js + Cloud Storage</text>
+  <text x="1284" y="557" fill="#1E293B" font-size="10.5">• 108 Pre-rendered 720p 30fps Cinematic MP4s</text>
+  <text x="1284" y="573" fill="#1E293B" font-size="10.5">• Veo 3.1 AI-generated camera walkthroughs</text>
+  <text x="1284" y="589" fill="#1E293B" font-size="10.5">• Zero-spin GCS 302 stream (0.6s start)</text>
+  <rect x="1284" y="602" width="272" height="24" rx="4" fill="#E2E8F0"/>
+  <text x="1420" y="618" fill="#334155" font-size="9.5" font-weight="700" text-anchor="middle">Full Modal Lightbox &amp; Chapter Scrub</text>
+
+  <!-- ==================== HORIZONTAL OMNI CO-PILOT LAYER (y=785, h=88) ==================== -->
+  <rect x="20" y="785" width="1560" height="90" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  <rect x="20" y="785" width="8" height="90" rx="4" fill="#1A73E8"/>
+  <circle cx="48" cy="830" r="16" fill="#1A73E8"/>
+  <text x="48" y="836" fill="#FFFFFF" font-size="14" font-weight="800" text-anchor="middle">✦</text>
+
+  <text x="76" y="817" fill="#0F172A" font-size="14.5" font-weight="800">Omni-Channel Voice &amp; Screen Control Co-Pilot (Fixed Floating Bar across all 5 Pillars)</text>
+  <text x="76" y="836" fill="#475569" font-size="11.5">Universal Command &amp; Context Mesh: Spoken Intent ("Show me 4-bed colonials under 850k") → Function Call (control_realestate_marketplace) → 0ms Cross-Pillar DOM State Transition</text>
+  <text x="76" y="855" fill="#1A73E8" font-size="11" font-weight="700">Omni Dispatchers: switchPillar() · applyMortgageFilters() · startP4AvatarSession() · runPillar3Grounding() · triggerRateShock()</text>
+
+  <rect x="1330" y="805" width="234" height="48" rx="8" fill="#F1F5F9" stroke="#CBD5E1"/>
+  <text x="1447" y="824" fill="#0F172A" font-size="11" font-weight="800" text-anchor="middle">Real-Time Sync Latency</text>
+  <text x="1447" y="842" fill="#188038" font-size="13" font-weight="800" text-anchor="middle">&lt; 40ms Native Barge-In</text>
+
+  <!-- Cross-Pillar Connectors down to Omni Bar -->
+  <line x1="170" y1="645" x2="170" y2="785" stroke="#1A73E8" stroke-dasharray="4 4" stroke-width="1.5" marker-end="url(#arr-blue)"/>
+  <line x1="480" y1="645" x2="480" y2="785" stroke="#E37400" stroke-dasharray="4 4" stroke-width="1.5" marker-end="url(#arr-amber)"/>
+  <line x1="790" y1="645" x2="790" y2="785" stroke="#188038" stroke-dasharray="4 4" stroke-width="1.5" marker-end="url(#arr-green)"/>
+  <line x1="1100" y1="645" x2="1100" y2="785" stroke="#7C3AED" stroke-dasharray="4 4" stroke-width="1.5" marker-end="url(#arr-purple)"/>
+  <line x1="1420" y1="645" x2="1420" y2="785" stroke="#0F172A" stroke-dasharray="4 4" stroke-width="1.5" marker-end="url(#arr-slate)"/>
+
+  <!-- ==================== BUILT ON GOOGLE CLOUD STRIP & CONFIGURATION LAYER (y=890, h=135) ==================== -->
+  <rect x="20" y="890" width="1560" height="135" rx="10" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" filter="url(#gcp-shadow)"/>
+  
+  <text x="40" y="915" fill="#38BDF8" font-size="12" font-weight="800" letter-spacing="0.5">DYNAMIC "BUILT ON GOOGLE CLOUD" TELEMETRY STRIP &amp; CUSTOMER RUNTIME CONFIGURATION</text>
+  
+  <!-- Sub-block 1: Production Telemetry Metrics -->
+  <rect x="40" y="928" width="730" height="85" rx="6" fill="#1E293B" stroke="#334155"/>
+  <text x="56" y="948" fill="#F8FAFC" font-size="11.5" font-weight="700">Live GCP Resource Topology (vtxdemos-abnb-images · us-central1):</text>
+  <text x="56" y="968" fill="#94A3B8" font-size="10.5">• Cloud Run: rocket-polymorphic-search-00027-sr7 · min-instances=1 · memory=4Gi · cpu=2 · timeout=3600s</text>
+  <text x="56" y="986" fill="#94A3B8" font-size="10.5">• BigQuery: ML.FORECAST TimesFM 2.0 (9.5M loans, 1840ms) · Cloud Storage: 108 Pre-rendered Tours + 324 Hi-Res Photos</text>
+  <text x="56" y="1002" fill="#4ADE80" font-size="10.5" font-weight="700">✓ Production Rollback Checkpoint: tagged 'demo-stable' · Zero-Traffic Testing: https://demo-stable---rocket...run.app</text>
+
+  <!-- Sub-block 2: Environment Variables Layer -->
+  <rect x="790" y="928" width="770" height="85" rx="6" fill="#1E293B" stroke="#334155"/>
+  <text x="806" y="948" fill="#F8FAFC" font-size="11.5" font-weight="700">Customer Environment Variables &amp; Zero-Trust Secrets Layer:</text>
+  <text x="806" y="968" fill="#94A3B8" font-size="10.5">• GOOGLE_CLOUD_PROJECT=vtxdemos · GOOGLE_CLOUD_REGION=us-central1 · ROCKET_SECRET (ADC OAuth / Cookie Auth)</text>
+  <text x="806" y="986" fill="#94A3B8" font-size="10.5">• Vertex AI Endpoints: location="global" (gemini-3.8-flash, gemini-3.1-flash-lite, veo-3.1-fast) · us-central1 (gemini-3.8-live WS)</text>
+  <text x="806" y="1002" fill="#38BDF8" font-size="10.5" font-weight="700">✓ Places API (New) X-Goog-User-Project: vtxdemos · BigQuery Storage Read API · Vertex AI Video Prediction</text>
+
+</svg>

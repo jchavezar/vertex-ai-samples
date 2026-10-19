@@ -1,0 +1,386 @@
+/* =========================================================================
+   gcp_strip.css — Dynamic "Built on Google Cloud" strip
+   Pairs with static/gcp_strip.js. Chips live ONLY inside #gcp-arch-strip and
+   are re-rendered per active pillar tab; a chip pulses when its API is called.
+   Palette: Crystal Liquid White + Rocket Red #D81E28 + Google Blue #1A73E8 +
+   Emerald #059669. Supports [data-theme="dark"].
+   ========================================================================= */
+
+/* Safety net: never let GCP badges overwrite card headers outside the strip. */
+.gcp-svc-badge:not(#gcp-arch-strip .gcp-svc-badge):not(#gcp-arch-drawer .gcp-svc-badge),
+[id^="gcp-injected-badge-"] {
+  display: none !important;
+}
+
+#gcp-arch-strip {
+  --gs-blue: #1A73E8;
+  --gs-emerald: #059669;
+  --gs-red: #D81E28;
+  --gs-slate: #475569;
+  --gs-ink: #0F172A;
+  --gs-ink-2: #64748B;
+  --gs-chip-bg: rgba(255, 255, 255, 0.92);
+  --gs-chip-border: #E2E8F0;
+  --gs-ctx-bg: #F8FAFC;
+  --gs-used: #059669;
+  row-gap: 6px;
+}
+[data-theme="dark"] #gcp-arch-strip {
+  --gs-blue: #8AB4F8;
+  --gs-emerald: #34D399;
+  --gs-red: #F87171;
+  --gs-slate: #CBD5E1;
+  --gs-ink: #F8FAFC;
+  --gs-ink-2: #94A3B8;
+  --gs-chip-bg: rgba(30, 41, 59, 0.78);
+  --gs-chip-border: rgba(255, 255, 255, 0.12);
+  --gs-ctx-bg: rgba(15, 23, 42, 0.6);
+  --gs-used: #34D399;
+}
+
+#gcp-arch-strip .gcp-arch-pills.gstrip-pills {
+  flex: 1 1 0;           /* take the space left by brand + drawer button, wrap inside */
+  min-width: 0;
+  gap: 5px;
+  row-gap: 5px;
+  transition: opacity 0.11s ease, transform 0.11s ease;
+}
+@media (min-width: 1000px) {
+  /* Brand | chips (1–2 rows) | drawer button — always on one line */
+  #gcp-arch-strip { flex-wrap: nowrap; }
+}
+@media (max-width: 999px) {
+  #gcp-arch-strip .gcp-arch-pills.gstrip-pills { flex-basis: 100%; order: 2; }
+  #gcp-arch-strip #btn-gcp-arch-drawer { order: 1; margin-left: auto; }
+}
+#gcp-arch-strip .gcp-arch-pills.gstrip-pills.is-leaving {
+  opacity: 0;
+  transform: translateY(-3px);
+}
+
+/* ---- Context label: "P5 · Homes & Map" -------------------------------- */
+.gstrip-ctx {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 9px 0 4px;
+  border-radius: 999px;
+  background: var(--gs-ctx-bg);
+  border: 1px solid var(--gs-chip-border);
+  color: var(--gs-ink);
+  font-family: 'Plus Jakarta Sans', 'Google Sans', Inter, system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  animation: gstripIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.gstrip-ctx-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 16px;
+  min-width: 22px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--gs-red);
+  color: #FFFFFF;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+[data-theme="dark"] .gstrip-ctx-num { background: #D81E28; }
+.gstrip-ctx-name { letter-spacing: -0.005em; }
+.gstrip-ctx-sep {
+  color: var(--gs-ink-2);
+  font-weight: 600;
+}
+.gstrip-arrow {
+  display: inline-flex;
+  color: var(--gs-ink-2);
+  opacity: 0.7;
+  margin: 0 1px;
+  animation: gstripIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+.gstrip-arrow svg { width: 12px; height: 12px; }
+
+/* ---- Component chip ---------------------------------------------------- */
+.gstrip-chip {
+  --tone: var(--gs-slate);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 8px 0 6px;
+  border-radius: 999px;
+  border: 1px solid var(--gs-chip-border); /* fallback for browsers without color-mix() */
+  background: var(--gs-chip-bg);
+  border: 1px solid color-mix(in srgb, var(--tone) 32%, var(--gs-chip-border));
+  background: color-mix(in srgb, var(--tone) 5%, var(--gs-chip-bg));
+  color: var(--gs-ink);
+  font-family: 'Plus Jakarta Sans', 'Google Sans', Inter, system-ui, sans-serif;
+  font-size: 10.5px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease, background 0.14s ease;
+  animation: gstripIn 0.18s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+.gstrip-chip.tone-blue { --tone: var(--gs-blue); }
+.gstrip-chip.tone-emerald { --tone: var(--gs-emerald); }
+.gstrip-chip.tone-red { --tone: var(--gs-red); }
+.gstrip-chip.tone-slate { --tone: var(--gs-slate); }
+.gstrip-chip:hover,
+.gstrip-chip:focus-visible {
+  border-color: var(--tone);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--tone) 18%, transparent);
+}
+.gstrip-chip:focus-visible { box-shadow: 0 0 0 2px color-mix(in srgb, var(--tone) 35%, transparent); }
+.gstrip-ico {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--tone);
+}
+.gstrip-ico svg {
+  width: 13px;
+  height: 13px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.gstrip-lbl { letter-spacing: -0.005em; }
+.gstrip-meta {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  color: var(--gs-ink-2);
+}
+
+/* "used Xs ago" / LIVE / calling… indicator */
+.gstrip-used {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  margin-left: 1px;
+  padding-left: 6px;
+  border-left: 1px solid var(--gs-chip-border);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--gs-used);
+}
+.gstrip-used::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+.gstrip-chip.has-used .gstrip-used,
+.gstrip-chip.is-live .gstrip-used,
+.gstrip-chip.is-inflight .gstrip-used { display: inline-flex; }
+.gstrip-chip.has-used:not(.is-fresh):not(.is-live):not(.is-inflight) .gstrip-used { color: var(--gs-ink-2); }
+.gstrip-chip.is-live .gstrip-used::before { animation: gstripBlink 1.1s ease-in-out infinite; box-shadow: 0 0 0 3px color-mix(in srgb, var(--gs-used) 22%, transparent); }
+.gstrip-chip.is-inflight .gstrip-used { color: var(--tone); gap: 0; }
+.gstrip-chip.is-inflight .gstrip-used::before {
+  width: 7px;
+  height: 7px;
+  background: transparent;
+  border: 1.6px solid currentColor;
+  border-right-color: transparent;
+  animation: gstripSpin 0.7s linear infinite;
+}
+.gstrip-chip.is-live,
+.gstrip-chip.is-inflight {
+  border-color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 9%, var(--gs-chip-bg));
+}
+
+/* Pulse when the API behind the chip is actually called */
+.gstrip-chip.is-pulse::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: gstripPulse 0.95s cubic-bezier(0.2, 0.8, 0.2, 1) 1;
+}
+
+/* Always-on co-pilot chip: small & muted */
+.gstrip-sep {
+  width: 1px;
+  height: 16px;
+  margin: 0 3px;
+  background: var(--gs-chip-border);
+  flex-shrink: 0;
+}
+.gstrip-chip.gstrip-chip--muted {
+  height: 22px;
+  padding: 0 8px 0 6px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--gs-ink-2);
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--gs-chip-border);
+}
+.gstrip-chip.gstrip-chip--muted .gstrip-ico { color: var(--gs-ink-2); }
+.gstrip-chip.gstrip-chip--muted.is-live,
+.gstrip-chip.gstrip-chip--muted.is-inflight,
+.gstrip-chip.gstrip-chip--muted.is-fresh {
+  color: var(--gs-ink);
+  border-style: solid;
+  border-color: var(--gs-emerald);
+}
+.gstrip-chip.gstrip-chip--muted.is-live .gstrip-ico,
+.gstrip-chip.gstrip-chip--muted.is-fresh .gstrip-ico { color: var(--gs-emerald); }
+
+/* Compact the drawer toggle so chips get the space (behaviour untouched). */
+#gcp-arch-strip #btn-gcp-arch-drawer { flex-shrink: 0; font-size: 9.5px; }
+#gcp-arch-strip .gcp-arch-brand { flex-shrink: 0; }
+
+/* Narrower desktops (e.g. 1280): drop secondary meta text so tabs fit in ≤ 2 rows. */
+@media (max-width: 1360px) {
+  .gstrip-chip .gstrip-meta,
+  .gstrip-chip .gstrip-wide { display: none; }
+  .gstrip-ctx { padding-right: 8px; }
+}
+
+/* ---- Rich hover tooltip ------------------------------------------------ */
+.gstrip-tip {
+  position: fixed;
+  z-index: 100050;
+  top: 0;
+  left: 0;
+  width: 340px;
+  max-width: calc(100vw - 16px);
+  padding: 11px 13px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(18px) saturate(170%);
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.16), 0 2px 6px rgba(15, 23, 42, 0.06);
+  color: #0F172A;
+  font-family: 'Plus Jakarta Sans', 'Google Sans', Inter, system-ui, sans-serif;
+  font-size: 11.5px;
+  line-height: 1.45;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition: opacity 0.12s ease, transform 0.12s ease;
+}
+.gstrip-tip.is-on { opacity: 1; transform: translateY(0); }
+[data-theme="dark"] .gstrip-tip {
+  background: rgba(15, 23, 42, 0.97);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: #F8FAFC;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
+}
+.gstrip-tip-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+  font-size: 12.5px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.gstrip-tip-head .gstrip-ico svg { width: 15px; height: 15px; }
+.gstrip-tip-pill {
+  margin-left: auto;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(216, 30, 40, 0.08);
+  color: #D81E28;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+[data-theme="dark"] .gstrip-tip-pill { background: rgba(248, 113, 113, 0.14); color: #FCA5A5; }
+.gstrip-tip-row {
+  display: grid;
+  grid-template-columns: 58px 1fr;
+  gap: 8px;
+  padding: 3px 0;
+}
+.gstrip-tip-k {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #64748B;
+  padding-top: 2px;
+}
+[data-theme="dark"] .gstrip-tip-k { color: #94A3B8; }
+.gstrip-tip code {
+  display: block;
+  padding: 4px 7px;
+  border-radius: 6px;
+  background: #0F172A;
+  color: #7DD3FC;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  line-height: 1.45;
+  font-variant-ligatures: none; /* show => literally, not as an arrow glyph */
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+[data-theme="dark"] .gstrip-tip code { background: #020617; border: 1px solid rgba(255, 255, 255, 0.08); }
+.gstrip-tip-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 7px;
+  padding-top: 7px;
+  border-top: 1px solid #EEF2F6;
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748B;
+}
+[data-theme="dark"] .gstrip-tip-foot { border-top-color: rgba(255, 255, 255, 0.1); color: #94A3B8; }
+.gstrip-tip-foot .on { color: #059669; }
+[data-theme="dark"] .gstrip-tip-foot .on { color: #34D399; }
+
+/* Drawer card highlight when a chip is clicked */
+.gcp-svc-card.gstrip-card-hit {
+  border-color: #D81E28 !important;
+  box-shadow: 0 0 0 3px rgba(216, 30, 40, 0.14);
+}
+
+@keyframes gstripIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes gstripPulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--tone) 55%, transparent); }
+  70% { box-shadow: 0 0 0 7px color-mix(in srgb, var(--tone) 0%, transparent); }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes gstripBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+@keyframes gstripSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gstrip-chip, .gstrip-ctx, .gstrip-arrow { animation: none !important; }
+  .gstrip-chip.is-pulse::after { animation: none !important; }
+  #gcp-arch-strip .gcp-arch-pills.gstrip-pills { transition: none; }
+}

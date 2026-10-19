@@ -1,0 +1,76 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_P1_DATA["Tier 1: Enterprise Servicing Warehouse & Prepayment Data (9.5M Loans)"]
+    Warehouse["Rocket + Mr. Cooper Servicing Warehouse<br/>(9.5M Active Loans · $2.1T UPB Portfolio in BigQuery)"]:::gcpBlue
+    Warehouse@{ icon: "gcp:bigquery", pos: "b" }
+
+    FeatureStore["Servicing Feature Store & Payment Telemetry<br/>(FICO, LTV, Current Rate, DTI, Zip Macro Indicators)"]
+    FeatureStore@{ icon: "aws:res-database", pos: "b" }
+
+    wp_p1_a_out(((A))):::waypoint
+
+    Warehouse --> FeatureStore
+    FeatureStore --> wp_p1_a_out
+  end
+
+  subgraph SG_P1_MODEL["Tier 2: Rate-Shock Covariates & BigQuery ML TimesFM 2.0 Zero-Shot Forecasting"]
+    wp_p1_a_in(((A))):::waypoint
+
+    RateShock["Rate-Shock Covariate Scenario Scaler<br/>(-150 bps Refi Boom to +100 bps Extension Shock)"]:::gcpYellow
+
+    TimesFM["BigQuery ML AI.FORECAST Engine<br/>(Google Research TimesFM 2.0 500M Foundation Model)"]:::gcpGreen
+    TimesFM@{ icon: "gcp:bigquery", pos: "b" }
+
+    QuantileLoss["Probabilistic Quantile Inference Engine<br/>(P10 Bearish · P50 Median · P90 Refi Surge Cones)"]:::neutral
+    QuantileLoss@{ icon: "fa:chart-bar", pos: "b" }
+
+    wp_p1_b_out(((B))):::waypoint
+
+    wp_p1_a_in --> RateShock
+    RateShock --> TimesFM
+    TimesFM --> QuantileLoss
+    QuantileLoss --> wp_p1_b_out
+  end
+
+  subgraph SG_P1_OUTPUT["Tier 3: Confidence Interval Cones, Capital Markets Allocator & Refi Triggers"]
+    wp_p1_b_in(((B))):::waypoint
+
+    ConfidenceCone["P10-P90 Confidence Interval Cone<br/>(CPR Prepayment Trajectory vs. 10Y Treasury Curve)"]:::neutral
+    ConfidenceCone@{ icon: "fa:chart-bar", pos: "b" }
+
+    CapMarkets["Capital Markets Allocator & Hedging Desk<br/>(MSR Asset Valuation & Real-Time Hedging Signals)"]:::gcpRed
+    CapMarkets@{ icon: "gcp:vertexai", pos: "b" }
+
+    RefiTrigger["Autonomous Borrower Refi Trigger<br/>(1-Click Rate Drop Outreach to Qualified Homebuyers)"]:::gcpBlue
+    RefiTrigger@{ icon: "gcp:cloud-run", pos: "b" }
+
+    wp_p1_b_in --> ConfidenceCone
+    ConfidenceCone --> CapMarkets
+    ConfidenceCone --> RefiTrigger
+  end
+
+  SG_P1_DATA ~~~ SG_P1_MODEL ~~~ SG_P1_OUTPUT
+
+  style SG_P1_DATA fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_P1_MODEL fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_P1_OUTPUT fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold

@@ -1,0 +1,118 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_R1["Tier 1: Client Experience & Cloud Run Unified Gateway"]
+    User["Homebuyer & Mortgage Broker<br/>(Pixel 11 Pro Mobile & Desktop Web)"]:::neutral
+    User@{ icon: "fa:user", pos: "b" }
+
+    CloudRunGW["Cloud Run v25 Unified Gateway<br/>(FastAPI High-Concurrency Container)"]:::gcpBlue
+    CloudRunGW@{ icon: "gcp:cloud-run", pos: "b" }
+
+    DockBadges["Sticky Bottom Dock & Health Telemetry<br/>(Real-Time GCP Service Badges)"]:::neutral
+
+    wp_A_out(((A))):::waypoint
+    wp_B_out(((B))):::waypoint
+    wp_C_out(((C))):::waypoint
+
+    User --> CloudRunGW
+    CloudRunGW --> DockBadges
+    CloudRunGW --> wp_A_out
+    CloudRunGW --> wp_B_out
+    CloudRunGW --> wp_C_out
+  end
+
+  subgraph SG_R2["Tier 2: Pillars 1, 2 & 3 — ML Forecasting, Veo 3.1 Reels & Tri-Modal Grounding"]
+    wp_A_in(((A))):::waypoint
+
+    P1_BQ["Pillar 1: BQ ML Market Intelligence<br/>(AI.FORECAST & TimesFM 2.0 Engine)"]:::gcpBlue
+    P1_BQ@{ icon: "gcp:bigquery", pos: "b" }
+
+    P2_Veo["Pillar 2: Cinematic Property Reels<br/>(Veo 3.1 Video Generation Engine)"]:::gcpGreen
+    P2_Veo@{ icon: "gcp:vertexai", pos: "b" }
+
+    P2_GCS["Cloud Storage CDN<br/>(9:16 Vertical Video Storage)"]:::gcpYellow
+    P2_GCS@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    P2_Asset["11 Pre-Rendered GCS Reels<br/>(Instant Edge Streaming)"]:::neutral
+    P2_Asset@{ icon: "fa:file-video", pos: "b" }
+
+    P3_Hub["Pillar 3: Tri-Modal Grounding Hub<br/>(Multi-Engine Context Synthesizer)"]:::gcpGreen
+    P3_Hub@{ icon: "gcp:vertexai", pos: "b" }
+
+    P3_Maps["Google Maps Grounding<br/>(Places API & Commute Topology)"]
+    P3_Maps@{ icon: "logos:google-maps", pos: "b" }
+
+    P3_YouTube["YouTube Video Grounding<br/>(Neighborhood Video Analysis)"]
+    P3_YouTube@{ icon: "logos:youtube", pos: "b" }
+
+    P3_Search["Google Web Search Grounding<br/>(Real-Time Mortgage Rate Index)"]
+    P3_Search@{ icon: "logos:google", pos: "b" }
+
+    wp_A_in --> P1_BQ
+    wp_A_in --> P2_Veo
+    P2_Veo --> P2_GCS
+    P2_GCS --> P2_Asset
+
+    wp_A_in --> P3_Hub
+    P3_Hub --> P3_Maps
+    P3_Hub --> P3_YouTube
+    P3_Hub --> P3_Search
+  end
+
+  subgraph SG_R3["Tier 3: Pillars 4, 5 & Tab 6 — Live Avatar, Vector Marketplace & Super-Funnel"]
+    wp_B_in(((B))):::waypoint
+    wp_C_in(((C))):::waypoint
+
+    P4_Live["Pillar 4: Gemini 3.8 Live Avatar<br/>(Bidirectional 24kHz PCM Audio Stream)"]:::gcpGreen
+    P4_Live@{ icon: "gcp:vertexai", pos: "b" }
+
+    P4_Viseme["8-Frame Viseme Sprite Sheet<br/>(Synchronized Lip-Sync Canvas)"]:::neutral
+
+    P4_Subagents["Out-of-Order Async Subagents<br/>(Flash-Lite First-Ready Fan-Out)"]:::gcpBlue
+    P4_Subagents@{ icon: "gcp:vertexai", pos: "b" }
+
+    P5_Marketplace["Pillar 5: 108-Home Redfin Marketplace<br/>(Hybrid Reciprocal Rank Fusion)"]:::gcpBlue
+    P5_Marketplace@{ icon: "gcp:vertexai", pos: "b" }
+
+    P5_GCS["Cloud Storage Photo Catalog<br/>(540 High-Res Property Assets)"]:::gcpYellow
+    P5_GCS@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    P5_UMAP["3072-D UMAP Vector Space<br/>(Interactive 2D Topology Canvas)"]:::neutral
+
+    Tab6_Funnel["Tab 6: $2.1T National Loan Super-Funnel<br/>(BigQuery Engine & Claude Kill-Sheet)"]:::gcpRed
+    Tab6_Funnel@{ icon: "gcp:bigquery", pos: "b" }
+
+    wp_B_in --> P4_Live
+    P4_Live --> P4_Viseme
+    P4_Live --> P4_Subagents
+
+    wp_C_in --> P5_Marketplace
+    P5_Marketplace --> P5_GCS
+    P5_Marketplace --> P5_UMAP
+    wp_C_in --> Tab6_Funnel
+  end
+
+  SG_R1 ~~~ SG_R2 ~~~ SG_R3
+
+  style SG_R1 fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_R2 fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_R3 fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold

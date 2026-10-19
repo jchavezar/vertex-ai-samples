@@ -12,7 +12,16 @@ Fixes & Features:
 """
 
 
+import time as _time
+
+ASSET_VERSION = str(int(_time.time()))
+
+
 def render_4pillars_studio() -> str:
+    return _render_4pillars_studio_raw().replace("__ASSET_V__", ASSET_VERSION)
+
+
+def _render_4pillars_studio_raw() -> str:
     return """<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
@@ -109,11 +118,11 @@ def render_4pillars_studio() -> str:
       -webkit-backdrop-filter: blur(28px) saturate(180%);
       border: 1px solid #E2E8F0;
       box-shadow: 0 10px 28px rgba(15, 23, 42, 0.06), 0 2px 6px rgba(15, 23, 42, 0.03);
-      padding: 7px 14px;
+      padding: 6px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
     }
     [data-theme="dark"] .top-nav {
       background: rgba(15, 23, 42, 0.88);
@@ -123,18 +132,18 @@ def render_4pillars_studio() -> str:
     .brand-cluster {
       display: flex;
       align-items: center;
-      gap: 9px;
+      gap: 8px;
       flex-shrink: 0;
       white-space: nowrap;
     }
     .rocket-logo-mark {
-      width: 34px;
-      height: 34px;
-      border-radius: 9px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       background: linear-gradient(135deg, #D81E28 0%, #B91C1C 100%);
       color: #FFF;
       font-weight: 800;
-      font-size: 15px;
+      font-size: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -143,33 +152,39 @@ def render_4pillars_studio() -> str:
       flex-shrink: 0;
     }
     .brand-title {
-      font-size: 16px;
-      font-weight: 800;
-      color: #0F172A;
+      font-size: 16.5px;
+      font-weight: 900;
+      color: #D92228;
       letter-spacing: -0.03em;
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
       white-space: nowrap;
-      line-height: 1.1;
+      line-height: 1.05;
     }
-    [data-theme="dark"] .brand-title {
-      color: #FFFFFF;
+    .brand-title-sub {
+      color: #0F172A;
+      font-weight: 800;
+      font-size: 13.5px;
+    }
+    [data-theme="dark"] .brand-title-sub {
+      color: #F8FAFC;
     }
     .brand-sub {
-      font-size: 10px;
+      font-size: 9.5px;
       color: var(--ink-muted);
-      font-weight: 600;
+      font-weight: 700;
       white-space: nowrap;
       line-height: 1.15;
+      margin-top: 1px;
     }
-    /* CRYSTAL LIQUID WHITE PILL NAVIGATION TABS */
+    /* CRYSTAL LIQUID WHITE PILL NAVIGATION TABS (ZERO OVERFLOW AT 1280px..1440px+) */
     .pillar-tabs {
       display: flex;
       align-items: center;
-      gap: 3px;
+      gap: 2px;
       background: #F1F5F9;
-      padding: 4px;
+      padding: 3px;
       border-radius: 999px;
       border: 1px solid #E2E8F0;
       overflow-x: auto;
@@ -183,14 +198,14 @@ def render_4pillars_studio() -> str:
     }
     .pillar-tabs::-webkit-scrollbar { display: none; }
     .pillar-tab {
-      height: 32px;
+      height: 30px;
       border: 1px solid transparent;
       background: transparent;
       color: var(--ink-secondary);
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
-      padding: 0 9px;
+      padding: 0 8px;
       border-radius: 999px;
       cursor: pointer;
       display: inline-flex;
@@ -219,9 +234,9 @@ def render_4pillars_studio() -> str:
       border-color: #D81E28;
     }
     .pillar-num {
-      font-size: 9.5px;
-      height: 18px;
-      padding: 0 6px;
+      font-size: 9px;
+      height: 16px;
+      padding: 0 5px;
       border-radius: 999px;
       background: rgba(216, 30, 40, 0.10);
       color: #D81E28;
@@ -238,15 +253,17 @@ def render_4pillars_studio() -> str:
     .nav-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       flex-shrink: 0;
     }
     .model-select {
-      height: 34px;
+      height: 31px;
       border: 1px solid #E2E8F0;
       background: #FFFFFF;
       color: var(--ink-primary);
-      padding: 0 10px;
+      padding: 0 8px;
+      font-size: 11px;
+      max-width: 185px;
       border-radius: 999px;
       font-size: 11px;
       font-weight: 700;
@@ -876,11 +893,11 @@ def render_4pillars_studio() -> str:
     .omni-left {
       display: flex;
       align-items: center;
-      gap: 9px;
-      width: 215px;
-      flex: 0 0 215px;
+      gap: 8px;
+      width: auto;
+      flex: 0 0 auto;
+      max-width: 265px;
       min-width: 0;
-      overflow: hidden;
     }
     .omni-left > div:last-child {
       min-width: 0;
@@ -903,7 +920,7 @@ def render_4pillars_studio() -> str:
       object-fit: cover;
     }
     .omni-title {
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 800;
       color: #0F172A;
       display: flex;
@@ -924,15 +941,17 @@ def render_4pillars_studio() -> str:
       text-overflow: ellipsis;
       margin-top: 1px;
     }
-    /* DIRECT COMMAND INPUT BOX IN OMNI BAR */
+    /* DIRECT COMMAND INPUT BOX IN OMNI BAR (GUARANTEED >= 220px WIDE, NEVER A GRAY CIRCLE!) */
     .omni-cmd-form {
       display: flex;
       align-items: center;
       gap: 6px;
-      flex: 1 1 320px;
-      min-width: 240px;
+      flex: 1 1 340px;
+      min-width: 270px;
     }
     .omni-cmd-input {
+      flex: 1 1 200px !important;
+      min-width: 175px !important;
       width: 100%;
       height: 34px;
       padding: 0 14px;
@@ -961,15 +980,23 @@ def render_4pillars_studio() -> str:
       align-items: center;
       gap: 5px;
       flex-wrap: nowrap;
-      flex-shrink: 0;
+      flex: 0 1 auto;
+      overflow-x: auto;
+      scrollbar-width: none;
     }
     .omni-chips::-webkit-scrollbar { display: none; }
+    @media (max-width: 1420px) {
+      .omni-chips .omni-chip:nth-child(3) { display: none; }
+    }
+    @media (max-width: 1240px) {
+      .omni-chips .omni-chip:nth-child(2) { display: none; }
+    }
     .omni-chip {
       height: 32px;
       border: 1px solid #E2E8F0;
       background: #FFFFFF;
       color: #0F172A;
-      padding: 0 11px;
+      padding: 0 10px;
       border-radius: 999px;
       font-size: 11px;
       font-weight: 700;
@@ -981,6 +1008,12 @@ def render_4pillars_studio() -> str:
       gap: 5px;
       line-height: 1;
       transition: all 0.14s ease;
+      flex-shrink: 0;
+    }
+    [data-theme="dark"] .omni-chip {
+      background: rgba(30, 41, 59, 0.9);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #F8FAFC;
     }
     .omni-chip:hover {
       border-color: #D81E28;
@@ -998,7 +1031,7 @@ def render_4pillars_studio() -> str:
       border: 1px solid #E2E8F0;
       background: #0F172A;
       color: #FFFFFF;
-      padding: 0 13px;
+      padding: 0 12px;
       border-radius: 999px;
       font-size: 11.5px;
       font-weight: 700;
@@ -1010,13 +1043,13 @@ def render_4pillars_studio() -> str:
       line-height: 1;
       white-space: nowrap;
       transition: all 0.14s ease;
+      flex-shrink: 0;
     }
     .omni-btn.primary {
       background: linear-gradient(135deg, #D81E28 0%, #B91C1C 100%);
       border-color: #D81E28;
       background-clip: padding-box;
       box-shadow: 0 4px 12px rgba(216, 30, 40, 0.25);
-    }
       color: #FFFFFF;
     }
     .omni-btn.mic-live {
@@ -1032,6 +1065,195 @@ def render_4pillars_studio() -> str:
     .omni-btn.stop-btn:hover {
       background: #E11D48;
       color: #FFF;
+    }
+
+    /* =====================================================================
+       GOOGLE CLOUD ARCHITECTURE RIBBON, SDLC / ANTIGRAVITY / MCP DRAWER & BADGES
+       ===================================================================== */
+    .gcp-arch-strip {
+      max-width: 1460px;
+      margin: 8px auto 0;
+      padding: 7px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    [data-theme="dark"] .gcp-arch-strip {
+      background: rgba(15, 23, 42, 0.88);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+    .gcp-arch-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--ink-primary);
+      white-space: nowrap;
+    }
+    .gcp-arch-pills {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex-wrap: wrap;
+      flex: 1 1 auto;
+    }
+    .gcp-svc-badge {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      background: #FFFFFF;
+      color: #0F172A;
+      border: 1px solid #CBD5E1;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.14s ease;
+    }
+    [data-theme="dark"] .gcp-svc-badge {
+      background: rgba(30, 41, 59, 0.92);
+      color: #F8FAFC;
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .gcp-svc-badge:hover {
+      border-color: #D81E28;
+      color: #D81E28;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(216, 30, 40, 0.14);
+    }
+    .gcp-svc-badge.blue { border-color: rgba(26,115,232,0.38); color: #1A73E8; background: rgba(26,115,232,0.06); }
+    .gcp-svc-badge.emerald { border-color: rgba(5,150,105,0.38); color: #059669; background: rgba(5,150,105,0.06); }
+    .gcp-svc-badge.red { border-color: rgba(216,30,40,0.38); color: #D81E28; background: rgba(216,30,40,0.06); }
+    .gcp-arch-drawer {
+      max-width: 1460px;
+      margin: 6px auto 0;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.97);
+      backdrop-filter: blur(28px);
+      border: 1.5px solid #CBD5E1;
+      box-shadow: 0 18px 44px rgba(15, 23, 42, 0.12);
+      display: none;
+    }
+    [data-theme="dark"] .gcp-arch-drawer {
+      background: rgba(15, 23, 42, 0.96);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+    .gcp-arch-drawer.open { display: block; }
+    .gcp-svc-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+    @media (max-width: 1100px) {
+      .gcp-svc-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .gcp-svc-card {
+      padding: 11px 13px;
+      border-radius: 12px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-hairline);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .gcp-svc-card:hover {
+      border-color: #D81E28;
+      transform: translateY(-2px);
+    }
+    /* AVATAR SELECTOR PILLS IN PILLAR 4 */
+    .avatar-selector-row {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .avatar-pick-btn {
+      padding: 6px 4px;
+      border-radius: 11px;
+      border: 1.5px solid var(--border-hairline);
+      background: var(--bg-subtle);
+      color: var(--ink-primary);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .avatar-pick-btn:hover {
+      border-color: #D81E28;
+    }
+    .avatar-pick-btn.active {
+      border-color: #D81E28;
+      background: rgba(216, 30, 40, 0.08);
+      box-shadow: 0 3px 10px rgba(216, 30, 40, 0.16);
+    }
+    .avatar-pick-btn img {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1.5px solid #D81E28;
+    }
+    /* PRE-GENERATED REELS VAULT ACCORDION IN PILLAR 2 */
+    .p2-vault-wrap {
+      margin-top: 16px;
+      border-radius: 16px;
+      border: 1.5px solid var(--border-hairline);
+      background: var(--bg-card);
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+    }
+    .p2-vault-header {
+      width: 100%;
+      padding: 13px 18px;
+      background: var(--bg-subtle);
+      border: none;
+      color: var(--ink-primary);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+    .p2-vault-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+      padding: 14px 18px;
+    }
+    @media (max-width: 1100px) {
+      .p2-vault-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    .p2-vault-card {
+      border-radius: 12px;
+      border: 1px solid var(--border-hairline);
+      background: var(--bg-subtle);
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+    .p2-vault-card:hover, .p2-vault-card.active {
+      border-color: #D81E28;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(216, 30, 40, 0.15);
     }
 
     /* =====================================================================
@@ -1100,9 +1322,9 @@ def render_4pillars_studio() -> str:
     /* =========================================================================
        PILLAR 5: REDFIN POWERED BY ROCKET × GEMINI AI MARKETPLACE (BETTER THAN REDFIN.COM)
        ========================================================================= */
-    /* Keep the Kira Omni Co-Pilot Bar ALWAYS fixed & available at the bottom of the viewport across all tabs */
-    body.p5-clean-mode .kira-pip-card:not(.speaking) {
-      display: none !important;
+    /* Keep the Kira Floating PiP & Omni Co-Pilot Bar ALWAYS visible & accessible across all tabs */
+    body.p5-clean-mode .kira-pip-card {
+      display: flex !important;
     }
 
     /* 1. CRYSTAL LIQUID WHITE GLASS HERO BANNER + ROCKET RED ACCENTS */
@@ -1493,11 +1715,12 @@ def render_4pillars_studio() -> str:
     }
     .re-bed-chip.active,
     .abnb-filter-pill.active {
-      background: linear-gradient(135deg, #D81E28 0%, #B91C1C 100%);
-      color: #FFFFFF;
-      border-color: #D81E28;
-      background-clip: padding-box;
-      box-shadow: 0 4px 12px rgba(216, 30, 40, 0.24);
+      background: #D81E28 !important;
+      color: #FFFFFF !important;
+      border: 1px solid #D81E28 !important;
+      outline: none !important;
+      background-clip: border-box !important;
+      box-shadow: 0 4px 12px rgba(216, 30, 40, 0.24) !important;
     }
     .re-bed-pct {
       font-size: 11px;
@@ -2244,6 +2467,11 @@ def render_4pillars_studio() -> str:
       }
     }
   </style>
+  <style>.vs-claude-pill{display:none !important;} body[data-pillar="3"] #kira-pip-card, body[data-pillar="4"] #kira-pip-card{display:none !important;}</style>
+  <link rel="stylesheet" href="/static/gcp_strip.css?v=__ASSET_V__" />
+  <link rel="stylesheet" href="/static/p3_chat.css?v=__ASSET_V__" />
+  <link rel="stylesheet" href="/static/p4_stage.css?v=__ASSET_V__" />
+  <link rel="stylesheet" href="/static/p5_media.css?v=__ASSET_V__" />
 </head>
 <body class="p5-clean-mode">
 
@@ -2254,15 +2482,16 @@ def render_4pillars_studio() -> str:
       <path d="M4 3l16 7.5-7 2-2.5 7L4 3z"/>
     </svg>
     <div class="agent-cursor-avatar">
-      <img src="/static/kira_avatar.png" alt="Kira" />
+      <img id="agent-cursor-avatar-img" src="/static/kira_idle_closed.jpg?v=31" alt="Kira" />
     </div>
     <div class="agent-cursor-label" id="agent-cursor-label">Kira · Screen Co-Pilot</div>
   </div>
 
   <!-- FLOATING VOICE-REACTIVE AVATAR PIP STAGE (VISIBLE ON ALL PILLARS) -->
   <div class="kira-pip-card" id="kira-pip-card">
-    <div class="kira-pip-video-wrap" onclick="handleAvatarTapInterruptOrVoice()" style="cursor:pointer;" title="Click Kira to interrupt speech or toggle Live Mic">
+    <div class="kira-pip-video-wrap" onclick="handleAvatarTapInterruptOrVoice()" style="cursor:pointer;position:relative;" title="Click Avatar to interrupt speech or toggle Live Mic">
       <canvas id="kira-pip-canvas" width="240" height="240"></canvas>
+      <video id="kira-pip-mse-video" autoplay playsinline muted style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%;border-radius:50%;"></video>
     </div>
     <canvas id="kira-pip-eq-canvas" width="185" height="28"></canvas>
     <div class="kira-pip-status" id="kira-pip-status">KIRA · READY (CLICK MIC OR TYPE)</div>
@@ -2275,12 +2504,12 @@ def render_4pillars_studio() -> str:
   <!-- STICKY NAVIGATION HEADER (REDFIN POWERED BY ROCKET × GEMINI) -->
   <header class="top-nav">
     <div class="brand-cluster">
-      <div class="rocket-logo-mark" style="background:#D92228;border-radius:8px;width:36px;height:36px;">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <div class="rocket-logo-mark" style="background:#D92228;border-radius:8px;width:32px;height:32px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       </div>
       <div>
-        <div class="brand-title" style="color:#D92228;font-size:21px;font-weight:900;letter-spacing:-0.03em;line-height:1.05;">Redfin <span style="color:#111111;font-weight:800;font-size:15px;">&times; Gemini AI</span></div>
-        <div class="brand-sub" style="font-size:10.5px;font-weight:700;color:#4B5563;margin-top:1px;">Powered by Rocket &middot; Mortgage &middot; Mr. Cooper</div>
+        <div class="brand-title">Redfin <span class="brand-title-sub">&times; Gemini AI</span></div>
+        <div class="brand-sub">Rocket &middot; Mortgage &middot; Mr. Cooper</div>
       </div>
     </div>
 
@@ -2310,11 +2539,6 @@ def render_4pillars_studio() -> str:
         <svg class="ico" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Homes &amp; Map
       </button>
-      <button class="pillar-tab" onclick="switchPillar(6)" id="tab-btn-6">
-        <span class="pillar-num">VS</span>
-        <svg class="ico" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        vs. Claude
-      </button>
     </nav>
 
     <div class="nav-actions">
@@ -2323,12 +2547,223 @@ def render_4pillars_studio() -> str:
         <option value="gemini-3.8-flash-lite">gemini-3.8-flash-lite</option>
         <option value="gemini-4-argon">gemini-4-argon</option>
       </select>
-      <button class="theme-btn" onclick="toggleTheme()" id="theme-toggle-btn">
+      <button class="theme-btn" onclick="toggleTheme()" id="theme-toggle-btn" style="padding:0 10px;height:31px;font-size:11px;">
         <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <span id="theme-toggle-lbl">Dark Theme</span>
+        <span id="theme-toggle-lbl">Dark</span>
       </button>
     </div>
   </header>
+
+  <!-- GLOBAL GOOGLE CLOUD SERVICES + ROCKET SDLC / ANTIGRAVITY / MCP ARCHITECTURE RIBBON -->
+  <div class="gcp-arch-strip" id="gcp-arch-strip">
+    <div class="gcp-arch-brand">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1A73E8" stroke-width="2.3"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+      <span>Built on Google Cloud:</span>
+    </div>
+    <div class="gcp-arch-pills">
+      <span class="gcp-svc-badge blue" onclick="switchPillar(1)" title="BigQuery ML AI.FORECAST (TimesFM 2.0) — Zero-shot SQL forecasting over 9.5M Mr. Cooper & Rocket loans (~900ms)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7" fill="#1A73E8" opacity="0.2" stroke="#1A73E8" stroke-width="2"/><circle cx="11" cy="11" r="4" stroke="#1A73E8" stroke-width="2"/><line x1="14" y1="14" x2="17.5" y2="17.5" stroke="#1A73E8" stroke-width="2.2"/></svg>
+        BigQuery AI.FORECAST (TimesFM 2.0)
+      </span>
+      <span class="gcp-svc-badge red" onclick="switchPillar(5)" title="BigQuery Vector Search (COSINE_DISTANCE + Hybrid RRF) + gemini-embedding-001 (3072-D) & multimodalembedding@001 (512-D)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7" fill="#D81E28" opacity="0.2" stroke="#D81E28" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#D81E28"/></svg>
+        BigQuery Vector Search + RRF
+      </span>
+      <span class="gcp-svc-badge emerald" onclick="switchPillar(5)" title="Vertex AI Gemini 3.8 Flash & Gemini 4 Argon (location='global') — Multimodal Judge, NL Intent & Parallel Async Subagents">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 19h20L12 2z" fill="#059669" opacity="0.2" stroke="#059669" stroke-width="2"/><circle cx="12" cy="13" r="2.5" fill="#059669"/></svg>
+        Vertex AI Gemini 3.8 Flash / Argon
+      </span>
+      <span class="gcp-svc-badge red" onclick="switchPillar(2)" title="Vertex AI Veo 3.1 (veo-3.1-fast-generate-001 PredictLongRunning) + gemini-3.1-flash-image Keyframe Synthesis">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><rect x="2" y="4" width="20" height="16" rx="3" fill="#D81E28" opacity="0.18" stroke="#D81E28" stroke-width="2"/><polygon points="10 8.5 16 12 10 15.5" fill="#D81E28"/></svg>
+        Veo 3.1 + Gemini 3.1 Flash Image
+      </span>
+      <span class="gcp-svc-badge emerald" onclick="switchPillar(4)" title="Gemini 3.8 Live API (us-central1 BidiGenerateContent WebSocket) — 24kHz Native Audio + 0ms Barge-In + Function Calling">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#059669" opacity="0.22" stroke="#059669" stroke-width="2"/><path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="#059669" stroke-width="2"/></svg>
+        Gemini 3.8 Live API (24kHz WS)
+      </span>
+      <span class="gcp-svc-badge blue" onclick="switchPillar(3)" title="Google Maps Grounding (250M+ Places) + YouTube Video URI Inspection (Part.from_uri) + Google Search Grounding">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M12 21s-7-6.5-7-12a7 7 0 1 1 14 0c0 5.5-7 12-7 12z" fill="#1A73E8" opacity="0.2" stroke="#1A73E8" stroke-width="2"/><circle cx="12" cy="9" r="2.5" fill="#D81E28"/></svg>
+        Maps + YouTube + Search Grounding
+      </span>
+      <span class="gcp-svc-badge" onclick="switchPillar(5)" title="Google Cloud Run (Autoscaling FastAPI/WebSocket Container) + Cloud Storage Multi-Region CDN">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" fill="#1A73E8" opacity="0.18" stroke="#1A73E8" stroke-width="2"/></svg>
+        Cloud Run + GCS CDN
+      </span>
+    </div>
+    <button type="button" class="gcp-svc-badge red" id="btn-gcp-arch-drawer" onclick="toggleGcpArchDrawer()" style="font-weight:800;padding:0 11px;height:26px;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D81E28" stroke-width="2.3"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      Antigravity SDLC · MCP · Multi-Model APIs <span id="gcp-arch-caret">▾</span>
+    </button>
+  </div>
+
+  <!-- EXPANDABLE 3-TAB DEVELOPER & HACKATHON BLUEPRINT DRAWER (DIRECT PLATFORM USAGE, ANTIGRAVITY SDLC & MCP SERVERS) -->
+  <div class="gcp-arch-drawer" id="gcp-arch-drawer">
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:10px;border-bottom:1px solid var(--border-hairline);">
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <button type="button" class="abnb-filter-pill active" id="arch-tab-btn-apis" onclick="switchGcpArchTab('apis', this)" style="height:30px;font-size:11px;">
+          1. Direct Multi-Model APIs &amp; GCP Wiring (8 Services)
+        </button>
+        <button type="button" class="abnb-filter-pill" id="arch-tab-btn-sdlc" onclick="switchGcpArchTab('sdlc', this)" style="height:30px;font-size:11px;">
+          2. Antigravity &amp; Cloud Code SDLC Velocity (10&times; Throughput)
+        </button>
+        <button type="button" class="abnb-filter-pill" id="arch-tab-btn-mcp" onclick="switchGcpArchTab('mcp', this)" style="height:30px;font-size:11px;">
+          3. MCP Server Harnessing &amp; 60s Hackathon Starter Kit
+        </button>
+      </div>
+      <button type="button" class="barge-chip" onclick="toggleGcpArchDrawer()" style="padding:4px 10px;font-size:10.5px;">✕ Close Blueprint</button>
+    </div>
+
+    <!-- TAB 1: 8 GCP & MULTI-MODEL APIS -->
+    <div id="arch-pane-apis">
+      <div class="gcp-svc-grid">
+        <div class="gcp-svc-card" onclick="switchPillar(1)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:11.5px;color:#1A73E8;">1. BigQuery ML AI.FORECAST</strong>
+            <span class="badge-live" style="font-size:9px;">Pillar 1 · ~890ms</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink-secondary);line-height:1.45;">Zero-shot <code>TimesFM 2.0</code> foundation model executing in Standard SQL over <code>vtxdemos.rocket_nextgen_timesfm.portfolio_metrics</code>.</div>
+          <code style="display:block;margin-top:5px;padding:4px 6px;border-radius:6px;background:#0F172A;color:#38BDF8;font-size:9.5px;font-family:'JetBrains Mono',monospace;">SELECT * FROM AI.FORECAST(TABLE portfolio_metrics, horizon =&gt; 12)</code>
+        </div>
+        <div class="gcp-svc-card" onclick="switchPillar(2)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:11.5px;color:#D81E28;">2. Vertex AI Veo 3.1 + Flash Image</strong>
+            <span class="badge-live" style="font-size:9px;">Pillar 2 · 9:16 MP4</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink-secondary);line-height:1.45;">Parallel <code>ThreadPoolExecutor(3)</code> running <code>gemini-3.8-flash</code> Beat Sheet + <code>gemini-3.1-flash-image</code> Keyframe + <code>veo-3.1-fast-generate-001</code>.</div>
+          <code style="display:block;margin-top:5px;padding:4px 6px;border-radius:6px;background:#0F172A;color:#38BDF8;font-size:9.5px;font-family:'JetBrains Mono',monospace;">client.models.generate_videos(model="veo-3.1-fast-generate-001")</code>
+        </div>
+        <div class="gcp-svc-card" onclick="switchPillar(3)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:11.5px;color:#059669;">3. Maps + YouTube + Search Grounding</strong>
+            <span class="badge-live" style="font-size:9px;">Pillar 3 · Tri-Modal</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink-secondary);line-height:1.45;">Simultaneous <code>types.GoogleMaps()</code> (250M+ Places), native YouTube frame inspection (<code>Part.from_uri</code>), and <code>types.GoogleSearch()</code>.</div>
+          <code style="display:block;margin-top:5px;padding:4px 6px;border-radius:6px;background:#0F172A;color:#38BDF8;font-size:9.5px;font-family:'JetBrains Mono',monospace;">tools=[Tool(google_maps=GoogleMaps()), Tool(google_search=GoogleSearch())]</code>
+        </div>
+        <div class="gcp-svc-card" onclick="switchPillar(4)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:11.5px;color:#D81E28;">4. Gemini 3.8 Live API + Viseme Avatar</strong>
+            <span class="badge-live" style="font-size:9px;">Pillar 4 · 0ms Barge-In</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink-secondary);line-height:1.45;">Bidirectional 24kHz PCM WebSocket (<code>gemini-3.8-live</code> on <code>us-central1</code>) with 6 Cross-Pillar Function Declarations &amp; 60fps WebAudio lip-sync.</div>
+          <code style="display:block;margin-top:5px;padding:4px 6px;border-radius:6px;background:#0F172A;color:#38BDF8;font-size:9.5px;font-family:'JetBrains Mono',monospace;">client.aio.live.connect(model="gemini-3.8-live", config=LiveConnectConfig)</code>
+        </div>
+        <div class="gcp-svc-card" onclick="switchPillar(5)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:11.5px;color:#1A73E8;">5. Hybrid Vector Search (Text + CLIP + BM25)</strong>
+            <span class="badge-live" style="font-size:9px;">Pillar 5 · 108 Homes</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink-secondary);line-height:1.45;">Reciprocal Rank Fusion over <code>gemini-embedding-001</code> (3072-D text) + <code>multimodalembedding@001</code> (512-D image pixels) + BM25 lexical match.</div>
+          <code style="display:block;margin-top:5px;padding:4px 6px;border-radius:6px;background:#0F172A;color:#38BDF8;font-size:9.5px;font-family:'JetBrains Mono',monospace;">score = 0.45*cos_sem + 0.35*cos_img + 0.20*bm25_lex</code>
+        </div>
+        <div class="gcp-svc-card" onclick="switchPillar(5); toggleBehindTheScenesView(true);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:11.5px;color:#9333EA;">6. UMAP 2D Vector Space Topology</strong>
+            <span class="badge-live" style="font-size:9px;">Pillar 5 · Behind Scenes</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink-secondary);line-height:1.45;">Interactive 60fps canvas projecting 3072-D embeddings into 6 architectural clusters with live draggable Query Vector &amp; RRF weight sliders.</div>
+          <code style="display:block;margin-top:5px;padding:4px 6px;border-radius:6px;background:#0F172A;color:#38BDF8;font-size:9.5px;font-family:'JetBrains Mono',monospace;">VECTOR_SEARCH(TABLE listings, 'embedding', query_vec, distance_type=&gt;'COSINE')</code>
+        </div>
+        <div class="gcp-svc-card" onclick="triggerDemo3xAsyncSubagentBurst()">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:11.5px;color:#059669;">7. Out-of-Order Async Subagent Fan-Out</strong>
+            <span class="badge-live" style="font-size:9px;">Global · First-Ready</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink-secondary);line-height:1.45;">Decomposes multi-intent prompts separated by <code>;</code> into concurrent <code>gemini-3.8-flash</code> / <code>gemini-4-argon</code> tasks returning in <code>first-ready</code> order.</div>
+          <code style="display:block;margin-top:5px;padding:4px 6px;border-radius:6px;background:#0F172A;color:#38BDF8;font-size:9.5px;font-family:'JetBrains Mono',monospace;">POST /api/async-subagents/decompose -&gt; Promise.allSettled(firstReady)</code>
+        </div>
+        <div class="gcp-svc-card" onclick="switchPillar(5)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <strong style="font-size:11.5px;color:#0F172A;">8. Cloud Run + Cloud Storage CDN</strong>
+            <span class="badge-live" style="font-size:9px;">Serverless · Global</span>
+          </div>
+          <div style="font-size:11px;color:var(--ink-secondary);line-height:1.45;">Single FastAPI + WebSocket container on Cloud Run (<code>us-central1</code>) backed by 1,500+ coinciding room/exterior/reel assets on <code>gs://vtxdemos-abnb-images</code>.</div>
+          <code style="display:block;margin-top:5px;padding:4px 6px;border-radius:6px;background:#0F172A;color:#38BDF8;font-size:9.5px;font-family:'JetBrains Mono',monospace;">gcloud run deploy rocket-polymorphic-search --source . --region us-central1</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: ANTIGRAVITY & CLOUD CODE SDLC VELOCITY (10X THROUGHPUT) -->
+    <div id="arch-pane-sdlc" style="display:none;margin-top:10px;">
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">
+        <div class="gcp-svc-card">
+          <div style="font-size:12px;font-weight:800;color:#D81E28;margin-bottom:4px;">1. Parallel Agentic SDLC Fan-Out (Antigravity Swarm)</div>
+          <div style="font-size:11.5px;color:var(--ink-secondary);line-height:1.5;">
+            Instead of sequential single-threaded coding, we decomposed this 6-pillar platform across <strong>3 concurrent Antigravity subagents</strong>:
+            <ul style="margin:6px 0 0 16px;padding:0;">
+              <li><strong>Subagent 1 (Media &amp; Veo 3.1 Engine):</strong> Synthesized 11 9:16 H.264 Reels &amp; parallelized <code>ThreadPoolExecutor</code>.</li>
+              <li><strong>Subagent 2 (Playwright E2E QA Auditor):</strong> Headless Chrome automated testing across <code>1280px</code>, <code>1366px</code>, and <code>1440px</code> viewports.</li>
+              <li><strong>Subagent 3 (GCP Architecture &amp; Vector Telemetry):</strong> Wired live API badges, UMAP topology, and landmark-aligned viseme sprites.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="gcp-svc-card">
+          <div style="font-size:12px;font-weight:800;color:#1A73E8;margin-bottom:4px;">2. Closed-Loop Playwright Verification in the SDLC Loop</div>
+          <div style="font-size:11.5px;color:var(--ink-secondary);line-height:1.5;">
+            Every UI commit is automatically verified in real headless Chrome via the <strong>Playwright MCP Server</strong> before Cloud Run deployment:
+            <ul style="margin:6px 0 0 16px;padding:0;">
+              <li>Measures exact DOM bounding boxes (catching flex overflow &amp; responsive breakpoint issues automatically).</li>
+              <li>Clicks every cohort, preset, filter pill, modal tab, and <code>0ms STOP</code> button while asserting zero console/page errors.</li>
+              <li>Verifies WebAudio <code>AudioContext</code> state and 60fps canvas rendering.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="gcp-svc-card">
+          <div style="font-size:12px;font-weight:800;color:#059669;margin-bottom:4px;">3. Multi-Model Tiering for Cost &amp; Latency Optimization</div>
+          <div style="font-size:11.5px;color:var(--ink-secondary);line-height:1.5;">
+            Production SDLC pattern routing each workload to the optimal 2026 Vertex AI model checkpoint:
+            <ul style="margin:6px 0 0 16px;padding:0;">
+              <li><strong><code>gemini-3.8-flash-lite</code>:</strong> Sub-300ms intent classification &amp; routing.</li>
+              <li><strong><code>gemini-3.8-flash</code>:</strong> High-speed multimodal vision, grounding &amp; async subagents.</li>
+              <li><strong><code>gemini-4-argon</code>:</strong> Deep econometric &amp; TRID underwriting audits.</li>
+              <li><strong><code>gemini-3.8-live</code>:</strong> Real-time 24kHz native voice &amp; screen tool calling.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: MCP SERVER HARNESSING & 60S HACKATHON QUICKSTART -->
+    <div id="arch-pane-mcp" style="display:none;margin-top:10px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="background:#0F172A;color:#E2E8F0;padding:12px 14px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.5;overflow-x:auto;">
+          <div style="color:#38BDF8;font-weight:800;margin-bottom:6px;">// 1. Connect Antigravity / Cloud Code / Gemini CLI to MCP Servers (~/.gemini/mcp_config.json)</div>
+          <pre style="margin:0;white-space:pre-wrap;color:#A7F3D0;">{
+  "mcpServers": {
+    "bigquery-timesfm-mcp": {
+      "command": "uv",
+      "args": ["run", "fastmcp", "run", "mcp_servers/rocket_bq_mcp.py"],
+      "env": { "GOOGLE_CLOUD_PROJECT": "vtxdemos" }
+    },
+    "playwright-e2e-auditor": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest", "--headless"]
+    },
+    "rocket-superfunnel-tools": {
+      "command": "python3",
+      "args": ["-m", "rocket_mcp.server"]
+    }
+  }
+}</pre>
+        </div>
+        <div style="background:#0F172A;color:#E2E8F0;padding:12px 14px;border-radius:12px;font-family:'JetBrains Mono',monospace;font-size:10.5px;line-height:1.5;overflow-x:auto;">
+          <div style="color:#FBBF24;font-weight:800;margin-bottom:6px;"># 2. 60-Second Hackathon Starter Kit (Hit the Ground Running on GCP)</div>
+          <pre style="margin:0;white-space:pre-wrap;color:#E2E8F0;"># Enable Vertex AI, BigQuery &amp; Cloud Run APIs
+gcloud services enable aiplatform.googleapis.com bigquery.googleapis.com run.googleapis.com
+
+# Authenticate Application Default Credentials (ADC)
+gcloud auth application-default login
+
+# Install Unified Google GenAI SDK + BigQuery + FastAPI
+uv pip install google-genai google-cloud-bigquery fastapi uvicorn
+
+# Run Unified Multi-Model App Locally or Deploy to Cloud Run in 1 Command
+uvicorn app:app --reload --port 8080
+gcloud run deploy rocket-hackathon-app --source . --region us-central1 --allow-unauthenticated</pre>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <main class="stage-wrap">
 
@@ -2515,7 +2950,7 @@ def render_4pillars_studio() -> str:
               </div>
               <div>
                 <div class="cohort-btn-title">418 Elmhurst Ave · Royal Oak, MI ($460,000)</div>
-                <div class="cohort-btn-sub">Veo 3.1 9:16 Golden-Hour Drone MP4 · Aoede 24kHz Voiceover</div>
+                <div class="cohort-btn-sub">Veo 3.1 9:16 Golden-Hour Drone MP4 · <span class="p2-dynamic-voice-sub">24kHz HD Voiceover</span></div>
               </div>
             </button>
             <button class="cohort-btn" id="p2-preset-corktown_loft" onclick="loadPresetReel('corktown_loft', this)">
@@ -2524,7 +2959,7 @@ def render_4pillars_studio() -> str:
               </div>
               <div>
                 <div class="cohort-btn-title">1420 Michigan Ave #4B · Corktown Detroit ($385,000)</div>
-                <div class="cohort-btn-sub">Veo 3.1 9:16 Timber-Loft Walkthrough MP4 · Puck 24kHz Voiceover</div>
+                <div class="cohort-btn-sub">Veo 3.1 9:16 Timber-Loft Walkthrough MP4 · <span class="p2-dynamic-voice-sub">24kHz HD Voiceover</span></div>
               </div>
             </button>
             <button class="cohort-btn" id="p2-preset-ann_arbor" onclick="loadPresetReel('ann_arbor', this)">
@@ -2533,7 +2968,7 @@ def render_4pillars_studio() -> str:
               </div>
               <div>
                 <div class="cohort-btn-title">2105 Devonshire Rd · Ann Arbor, MI ($695,000)</div>
-                <div class="cohort-btn-sub">Veo 3.1 9:16 Mid-Century Glass MP4 · Kore 24kHz Voiceover</div>
+                <div class="cohort-btn-sub">Veo 3.1 9:16 Mid-Century Glass MP4 · <span class="p2-dynamic-voice-sub">24kHz HD Voiceover</span></div>
               </div>
             </button>
           </div>
@@ -2576,8 +3011,18 @@ def render_4pillars_studio() -> str:
         <!-- CENTER 9:16 VERTICAL PHONE STAGE (4 COLS) -->
         <div class="col-4 v-card phone-stage">
           <div class="phone-frame">
-            <video id="p2-video" class="phone-video" src="/static/reels/reel_royaloak.mp4" autoplay loop muted playsinline></video>
+            <video id="p2-video" class="phone-video" src="/static/reels/reel_royaloak.mp4" loop muted playsinline></video>
             <div id="p2-poster-overlay" class="phone-poster-overlay"></div>
+
+            <!-- LIVE IN-FRAME VEO 3.1 + GEMINI 3.8 PROGRESS HUD OVERLAY -->
+            <div id="p2-gen-overlay" style="display:none;position:absolute;inset:0;z-index:25;background:rgba(15,23,42,0.88);backdrop-filter:blur(14px);flex-direction:column;align-items:center;justify-content:center;padding:20px;text-align:center;color:#FFF;">
+              <div style="width:42px;height:42px;border-radius:50%;border:3px solid rgba(255,255,255,0.2);border-top-color:#D81E28;animation:spin 0.8s linear infinite;margin-bottom:12px;"></div>
+              <div id="p2-gen-title" style="font-size:13.5px;font-weight:800;margin-bottom:4px;">Synthesizing 9:16 Reel...</div>
+              <div id="p2-gen-step" style="font-size:11px;color:#94A3B8;font-family:'JetBrains Mono',monospace;margin-bottom:12px;">1/3 · Gemini 3.8 Flash 4-Scene Beat Sheet</div>
+              <div style="width:86%;height:6px;border-radius:999px;background:rgba(255,255,255,0.16);overflow:hidden;">
+                <div id="p2-gen-bar" style="width:18%;height:100%;background:linear-gradient(90deg,#D81E28,#38BDF8);transition:width 0.3s ease;"></div>
+              </div>
+            </div>
 
             <div class="reel-hud-top">
               <div class="reel-brand-pill">
@@ -2626,6 +3071,109 @@ def render_4pillars_studio() -> str:
           </div>
         </div>
       </div>
+
+      <!-- EXPANDABLE PRE-GENERATED VEO 3.1 REELS VAULT (8 DISTINCT 9:16 REELS FOR ZERO-LATENCY DEMO PLAYBACK) -->
+      <div class="p2-vault-wrap">
+        <button type="button" class="p2-vault-header" id="btn-p2-vault-toggle" onclick="toggleP2ReelsVault()">
+          <span style="display:flex;align-items:center;gap:8px;">
+            <span style="padding:3px 9px;border-radius:999px;background:#D81E28;color:#FFF;font-size:10.5px;font-weight:800;">8 PRELOADED REELS</span>
+            <span>🎬 Pre-Generated Veo 3.1 Reels Vault — Click Any Architectural Reel for Instant 9:16 + 24kHz Voiceover Playback</span>
+          </span>
+          <span id="p2-vault-caret" style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#D81E28;">▼ Expand / Collapse Vault</span>
+        </button>
+        <div id="p2-vault-body" style="display:block;">
+          <div class="p2-vault-grid" id="p2-vault-grid">
+            <div class="p2-vault-card active" data-preset="royal_oak" onclick="loadVaultReel('royal_oak', this)">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0F172A;">
+                <img src="/static/reels/thumb_royal_oak.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Royal Oak Craftsman" />
+                <span style="position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:6px;background:rgba(15,23,42,0.85);color:#FFF;font-size:9.5px;font-weight:800;">Royal Oak, MI · $460K</span>
+                <span class="p2-dynamic-voice-badge" style="position:absolute;bottom:6px;right:6px;padding:2px 7px;border-radius:6px;background:#D81E28;color:#FFF;font-size:9.5px;font-weight:800;">▶ 24kHz HD Voice</span>
+              </div>
+              <div style="padding:9px 11px;">
+                <div style="font-size:12px;font-weight:800;">Modern Craftsman Golden-Hour Drone</div>
+                <div style="font-size:10.5px;color:var(--emerald);font-weight:700;margin-top:2px;">$2,890/mo PITI · +$4,600 Credit</div>
+              </div>
+            </div>
+            <div class="p2-vault-card" data-preset="corktown_loft" onclick="loadVaultReel('corktown_loft', this)">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0F172A;">
+                <img src="/static/reels/thumb_corktown_loft.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Corktown Loft" />
+                <span style="position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:6px;background:rgba(15,23,42,0.85);color:#FFF;font-size:9.5px;font-weight:800;">Corktown Detroit · $385K</span>
+                <span class="p2-dynamic-voice-badge" style="position:absolute;bottom:6px;right:6px;padding:2px 7px;border-radius:6px;background:#1A73E8;color:#FFF;font-size:9.5px;font-weight:800;">▶ 24kHz HD Voice</span>
+              </div>
+              <div style="padding:9px 11px;">
+                <div style="font-size:12px;font-weight:800;">Exposed Brick &amp; Timber Warehouse Loft</div>
+                <div style="font-size:10.5px;color:var(--emerald);font-weight:700;margin-top:2px;">$2,410/mo PITI · +$3,850 Credit</div>
+              </div>
+            </div>
+            <div class="p2-vault-card" data-preset="ann_arbor" onclick="loadVaultReel('ann_arbor', this)">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0F172A;">
+                <img src="/static/reels/thumb_ann_arbor.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Ann Arbor Glass" />
+                <span style="position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:6px;background:rgba(15,23,42,0.85);color:#FFF;font-size:9.5px;font-weight:800;">Ann Arbor, MI · $695K</span>
+                <span class="p2-dynamic-voice-badge" style="position:absolute;bottom:6px;right:6px;padding:2px 7px;border-radius:6px;background:#059669;color:#FFF;font-size:9.5px;font-weight:800;">▶ 24kHz HD Voice</span>
+              </div>
+              <div style="padding:9px 11px;">
+                <div style="font-size:12px;font-weight:800;">Mid-Century Cantilevered Glass Woods</div>
+                <div style="font-size:10.5px;color:var(--emerald);font-weight:700;margin-top:2px;">$4,120/mo PITI · +$6,950 Credit</div>
+              </div>
+            </div>
+            <div class="p2-vault-card" data-preset="miami_waterfront" onclick="loadVaultReel('miami_waterfront', this)">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0F172A;">
+                <img src="/static/reels/thumb_miami_waterfront.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Miami Waterfront Villa" />
+                <span style="position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:6px;background:rgba(15,23,42,0.85);color:#FFF;font-size:9.5px;font-weight:800;">Coral Gables, FL · $890K</span>
+                <span class="p2-dynamic-voice-badge" style="position:absolute;bottom:6px;right:6px;padding:2px 7px;border-radius:6px;background:#D81E28;color:#FFF;font-size:9.5px;font-weight:800;">▶ 24kHz HD Voice</span>
+              </div>
+              <div style="padding:9px 11px;">
+                <div style="font-size:12px;font-weight:800;">Coastal Waterfront Infinity Pool Villa</div>
+                <div style="font-size:10.5px;color:var(--emerald);font-weight:700;margin-top:2px;">$5,190/mo PITI · +$8,900 Credit</div>
+              </div>
+            </div>
+            <div class="p2-vault-card" data-preset="aspen_alpine" onclick="loadVaultReel('aspen_alpine', this)">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0F172A;">
+                <img src="/static/reels/thumb_aspen_alpine.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Aspen Alpine" />
+                <span style="position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:6px;background:rgba(15,23,42,0.85);color:#FFF;font-size:9.5px;font-weight:800;">Aspen, CO · $920K</span>
+                <span class="p2-dynamic-voice-badge" style="position:absolute;bottom:6px;right:6px;padding:2px 7px;border-radius:6px;background:#1A73E8;color:#FFF;font-size:9.5px;font-weight:800;">▶ 24kHz HD Voice</span>
+              </div>
+              <div style="padding:9px 11px;">
+                <div style="font-size:12px;font-weight:800;">Alpine Timber &amp; Stone Hearth Chalet</div>
+                <div style="font-size:10.5px;color:var(--emerald);font-weight:700;margin-top:2px;">$5,360/mo PITI · +$9,200 Credit</div>
+              </div>
+            </div>
+            <div class="p2-vault-card" data-preset="greenwich_georgian" onclick="loadVaultReel('greenwich_georgian', this)">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0F172A;">
+                <img src="/static/reels/thumb_greenwich_georgian.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Greenwich Georgian" />
+                <span style="position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:6px;background:rgba(15,23,42,0.85);color:#FFF;font-size:9.5px;font-weight:800;">Greenwich, CT · $845K</span>
+                <span class="p2-dynamic-voice-badge" style="position:absolute;bottom:6px;right:6px;padding:2px 7px;border-radius:6px;background:#059669;color:#FFF;font-size:9.5px;font-weight:800;">▶ 24kHz HD Voice</span>
+              </div>
+              <div style="padding:9px 11px;">
+                <div style="font-size:12px;font-weight:800;">Georgian Red-Brick Portico Estate</div>
+                <div style="font-size:10.5px;color:var(--emerald);font-weight:700;margin-top:2px;">$4,940/mo PITI · +$8,450 Credit</div>
+              </div>
+            </div>
+            <div class="p2-vault-card" data-preset="scottsdale_desert" onclick="loadVaultReel('scottsdale_desert', this)">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0F172A;">
+                <img src="/static/reels/thumb_scottsdale_desert.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Scottsdale Desert" />
+                <span style="position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:6px;background:rgba(15,23,42,0.85);color:#FFF;font-size:9.5px;font-weight:800;">Scottsdale, AZ · $780K</span>
+                <span class="p2-dynamic-voice-badge" style="position:absolute;bottom:6px;right:6px;padding:2px 7px;border-radius:6px;background:#1A73E8;color:#FFF;font-size:9.5px;font-weight:800;">▶ 24kHz HD Voice</span>
+              </div>
+              <div style="padding:9px 11px;">
+                <div style="font-size:12px;font-weight:800;">Rammed-Earth Desert Sunset Courtyard</div>
+                <div style="font-size:10.5px;color:var(--emerald);font-weight:700;margin-top:2px;">$4,580/mo PITI · +$7,800 Credit</div>
+              </div>
+            </div>
+            <div class="p2-vault-card" data-preset="austin_cantilever" onclick="loadVaultReel('austin_cantilever', this)">
+              <div style="position:relative;aspect-ratio:16/10;overflow:hidden;background:#0F172A;">
+                <img src="/static/reels/thumb_austin_cantilever.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Austin Lakeview" />
+                <span style="position:absolute;top:6px;left:6px;padding:2px 7px;border-radius:6px;background:rgba(15,23,42,0.85);color:#FFF;font-size:9.5px;font-weight:800;">Austin, TX · $640K</span>
+                <span class="p2-dynamic-voice-badge" style="position:absolute;bottom:6px;right:6px;padding:2px 7px;border-radius:6px;background:#D81E28;color:#FFF;font-size:9.5px;font-weight:800;">▶ 24kHz HD Voice</span>
+              </div>
+              <div style="padding:9px 11px;">
+                <div style="font-size:12px;font-weight:800;">Lake Travis Limestone Cantilever Home</div>
+                <div style="font-size:10.5px;color:var(--emerald);font-weight:700;margin-top:2px;">$3,790/mo PITI · +$6,400 Credit</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- =====================================================================
@@ -2658,12 +3206,16 @@ def render_4pillars_studio() -> str:
             2105 Devonshire Rd, Ann Arbor MI ($695k)
           </button>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex:1;max-width:520px;">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;max-width:660px;">
           <input type="text" id="p3-custom-yt" placeholder="Paste any YouTube URL (https://www.youtube.com/watch?v=...)"
                  style="flex:1;padding:8px 12px;border-radius:8px;border:1px solid var(--border-hairline);background:var(--bg-subtle);color:var(--ink-primary);font-size:12px;" />
-          <button class="btn-primary" style="width:auto;padding:8px 14px;" onclick="runPillar3Grounding(currentP3Hub)">
+          <button class="btn-primary" id="btn-p3-ground" style="width:auto;padding:8px 13px;" onclick="runPillar3Grounding(currentP3Hub)">
             <svg class="ico ico-sm" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
             Ground All 3 Modalities
+          </button>
+          <button class="btn-secondary" id="btn-p3-tts" style="width:auto;padding:8px 12px;" onclick="speakPillar3GroundedBrief(this)">
+            <svg class="ico ico-sm" viewBox="0 0 24 24"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+            <span>Narrate Grounded Brief (24kHz)</span>
           </button>
         </div>
       </div>
@@ -2753,21 +3305,77 @@ def render_4pillars_studio() -> str:
           <div class="v-card-header">
             <span class="v-card-title">
               <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-              Live Multimodal Avatar Stage
+              Live Multimodal Avatar &amp; 24kHz Voice Selector
             </span>
             <span class="badge-live" id="p4-conn-badge"><span class="dot-pulse"></span>24kHz + Screen Control Ready</span>
           </div>
 
+          <!-- MULTI-AVATAR & 24KHZ VOICE SELECTOR + OFFICIAL GEMINI 3.8 LIVE VIDEO AVATAR TOGGLE -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;padding:6px 10px;border-radius:9px;background:rgba(16,185,129,0.10);border:1px solid rgba(16,185,129,0.28);">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:var(--ink-primary);">
+              <span style="width:7px;height:7px;border-radius:50%;background:#10B981;display:inline-block;"></span>
+              <span>Gemini 3.8 Live Avatar Mode:</span>
+            </div>
+            <label style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#059669;cursor:pointer;" title="Stream Official Vertex AI Gemini 3.8 Live 24 FPS H.264 Video Avatar (response_modalities=['VIDEO'] + AvatarConfig) for Kira, Sam, Marcus, Elena & Devon">
+              <input type="checkbox" id="chk-official-video-avatar" checked onchange="toggleOfficialVideoAvatarMode(this.checked)" style="accent-color:#059669;cursor:pointer;" />
+              <span>🎥 Official 3.8 Live Video Stream (24 FPS Native Lip-Sync)</span>
+            </label>
+          </div>
+          <div class="avatar-selector-row" id="p4-avatar-selector-row">
+            <button type="button" class="avatar-pick-btn active" id="av-btn-Kira" onclick="selectAvatarProfile('Kira', 'Aoede', this, true)">
+              <img src="/static/official_kira_38.jpg?v=33" alt="Kira" />
+              <span style="font-size:10.5px;font-weight:800;">Kira (3.8 Video)</span>
+              <span style="font-size:9px;color:var(--ink-secondary);font-family:'JetBrains Mono',monospace;">Aoede · 24fps</span>
+            </button>
+            <button type="button" class="avatar-pick-btn" id="av-btn-Sam" onclick="selectAvatarProfile('Sam', 'Puck', this, true)">
+              <img src="/static/official_sam_38.jpg?v=33" alt="Sam" />
+              <span style="font-size:10.5px;font-weight:800;">Sam (3.8 Video)</span>
+              <span style="font-size:9px;color:var(--ink-secondary);font-family:'JetBrains Mono',monospace;">Puck · 24fps</span>
+            </button>
+            <button type="button" class="avatar-pick-btn" id="av-btn-Jesus" onclick="selectAvatarProfile('Jesus', 'Puck', this, true)">
+              <img src="/static/jesus_idle_closed.jpg?v=33" alt="Jesus" />
+              <span style="font-size:10.5px;font-weight:800;">Jesus</span>
+              <span style="font-size:9px;color:var(--ink-secondary);font-family:'JetBrains Mono',monospace;">Puck · 24k</span>
+            </button>
+            <button type="button" class="avatar-pick-btn" id="av-btn-Marcus" onclick="selectAvatarProfile('Marcus', 'Fenrir', this, true)">
+              <img src="/static/official_ben_38.jpg?v=33" alt="Marcus" />
+              <span style="font-size:10.5px;font-weight:800;">Marcus (Ben)</span>
+              <span style="font-size:9px;color:var(--ink-secondary);font-family:'JetBrains Mono',monospace;">Fenrir · 24fps</span>
+            </button>
+            <button type="button" class="avatar-pick-btn" id="av-btn-Elena" onclick="selectAvatarProfile('Elena', 'Kore', this, true)">
+              <img src="/static/official_vera_38.jpg?v=33" alt="Elena" />
+              <span style="font-size:10.5px;font-weight:800;">Elena (Vera)</span>
+              <span style="font-size:9px;color:var(--ink-secondary);font-family:'JetBrains Mono',monospace;">Kore · 24fps</span>
+            </button>
+            <button type="button" class="avatar-pick-btn" id="av-btn-Devon" onclick="selectAvatarProfile('Devon', 'Charon', this, true)">
+              <img src="/static/official_leo_38.jpg?v=33" alt="Devon" />
+              <span style="font-size:10.5px;font-weight:800;">Devon (Leo)</span>
+              <span style="font-size:9px;color:var(--ink-secondary);font-family:'JetBrains Mono',monospace;">Charon · 24fps</span>
+            </button>
+            <label class="avatar-pick-btn" id="av-btn-Custom" title="Upload your own portrait photo to animate at 60fps with 24kHz voice!">
+              <div style="width:34px;height:34px;border-radius:50%;border:1.5px dashed #D81E28;display:flex;align-items:center;justify-content:center;font-size:15px;">📷</div>
+              <span style="font-size:10px;font-weight:800;color:#D81E28;">My Photo</span>
+              <span style="font-size:8.5px;color:var(--ink-secondary);font-family:'JetBrains Mono',monospace;">Upload</span>
+              <input type="file" id="custom-avatar-upload" accept="image/*" style="display:none;" onchange="handleCustomAvatarUpload(this)" />
+            </label>
+          </div>
+
           <div class="avatar-stage-box">
             <canvas id="avatar-ring-canvas" width="520" height="395"></canvas>
-            <div class="avatar-portrait-circle" id="kira-portrait-ring" onclick="handleAvatarTapInterruptOrVoice()" style="cursor:pointer;" title="Click Kira to interrupt speech or toggle Live Mic">
-              <!-- 60fps Real-Time WebAudio AnalyserNode Viseme Canvas (0.0ms Lip-Sync Phase!) -->
+            <div class="avatar-portrait-circle" id="kira-portrait-ring" onclick="handleAvatarTapInterruptOrVoice()" style="cursor:pointer;position:relative;" title="Click Avatar to interrupt speech or toggle Live Mic">
+              <!-- 60fps Real-Time WebAudio AnalyserNode Viseme Canvas + Official Gemini 3.8 Live 24 FPS MSE Video Avatar -->
               <canvas id="kira-stage-canvas" width="320" height="320"></canvas>
+              <video id="kira-stage-mse-video" autoplay playsinline style="display:none;position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;"></video>
             </div>
-            <div style="z-index:4;text-align:center;margin-top:14px;color:#FFF;padding:0 16px;">
-              <div style="font-size:15.5px;font-weight:800;" id="p4-avatar-name">Kira · Rowan 2.0 &amp; Live Screen Operator</div>
+            <div style="z-index:4;text-align:center;margin-top:12px;color:#FFF;padding:0 16px;">
+              <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+                <span style="font-size:15px;font-weight:800;" id="p4-avatar-name">Kira · Rowan 2.0 &amp; Live Screen Operator</span>
+                <button type="button" class="barge-chip" onclick="testActiveAvatarLipSyncSpeech(this)" id="btn-p4-test-speech" style="background:rgba(16,185,129,0.22);border-color:#10B981;color:#A7F3D0;padding:3px 9px;font-size:10.5px;">
+                  🔊 Test Live Lip-Sync Speech
+                </button>
+              </div>
               <div style="font-size:11.5px;color:#94A3B8;margin-top:4px;min-height:32px;" id="p4-live-transcript">
-                Click "Start Live Voice &amp; Mic" or type any command in the bottom bar to watch Kira move controls on screen
+                Click any Avatar above, "Test Live Lip-Sync Speech", or "Start Live Voice &amp; Mic" (say "Stop" anytime to interrupt in 0ms!)
               </div>
             </div>
           </div>
@@ -2784,21 +3392,21 @@ def render_4pillars_studio() -> str:
           </div>
 
           <div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:6px;">
-            <button class="barge-chip" onclick="executeUserSpokenOrTypedCommand('Change Fed / 30-Yr Mortgage Rate Shock to -60')">
-              <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/></svg>
-              "Change Fed / 30-Yr Mortgage Rate Shock to -60"
-            </button>
-            <button class="barge-chip" onclick="executeUserSpokenOrTypedCommand('Switch to Pillar 1 and shock rates -125 bps over 18 weeks')">
-              <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/></svg>
-              "Shock BQML Rates -125 bps &amp; 18 Weeks"
-            </button>
             <button class="barge-chip" onclick="executeUserSpokenOrTypedCommand('Cancel my 4 unused subscriptions in Rocket Money saving $285 a month')">
               <svg class="ico ico-sm" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-              "Cancel $285/mo subs &amp; boost mortgage payoff!"
+              "Rowan 2.0: Cancel $285/mo Subs &amp; Shave 4.2 Yrs"
+            </button>
+            <button class="barge-chip" onclick="executeUserSpokenOrTypedCommand('Explain on Pillar 4 how the Rocket Super-Funnel combines Redfin, Rocket Mortgage, and Mr. Cooper')">
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+              "Explain Rocket Super-Funnel (Stay on P4)"
             </button>
             <button class="barge-chip" onclick="executeUserSpokenOrTypedCommand('Explícame en español cómo funciona el crédito de $4,600 con Redfin y Rocket Mortgage')">
               <svg class="ico ico-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
               "Switch to Spanish ($4,600 Redfin Credit)"
+            </button>
+            <button class="barge-chip" onclick="executeUserSpokenOrTypedCommand('Switch to Pillar 1 and change Fed / 30-Yr Mortgage Rate Shock to -60')">
+              <svg class="ico ico-sm" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 3 5-6"/></svg>
+              "Cross-Pillar: Shock BQML Rates -60 bps"
             </button>
           </div>
         </div>
@@ -2887,9 +3495,9 @@ def render_4pillars_studio() -> str:
           <div class="rf-search-tabs" role="tablist">
             <button type="button" class="rf-search-tab active" onclick="setRfHeroMode('buy', this)">Buy</button>
             <button type="button" class="rf-search-tab" onclick="setRfHeroMode('ai', this)">✨ AI Vector Search</button>
-            <button type="button" class="rf-search-tab" onclick="document.getElementById('p5-photo-file-input').click()">📷 Photo Match</button>
+            <button type="button" class="rf-search-tab" onclick="setRfHeroMode('photo', this); document.getElementById('p5-photo-file-input').click()">📷 Photo Match</button>
             <button type="button" class="rf-search-tab" onclick="setRfHeroMode('mortgage', this)">Rocket Pre-Approval</button>
-            <button type="button" class="rf-search-tab" onclick="askKiraRealEstateConcierge('Kira, find me a 4 bedroom Colonial estate with a chef kitchen and pool')">🎙️ Ask Kira Live</button>
+            <button type="button" class="rf-search-tab" onclick="setRfHeroMode('kira', this); askKiraRealEstateConcierge('Kira, find me a 4 bedroom Colonial estate with a chef kitchen and pool')">🎙️ Ask Kira Live</button>
           </div>
 
           <!-- Single Wide, Clean Redfin Search Box (Zero Overlapping Labels!) -->
@@ -2936,18 +3544,18 @@ def render_4pillars_studio() -> str:
       <div class="rf-section-header">
         <div class="rf-section-title-group">
           <h2 class="rf-section-title">Recommended for you</h2>
-          <span class="rf-section-sub" id="p5-results-summary">based on 108 distinct architecturally verified homes</span>
+          <span class="rf-section-sub" id="p5-results-summary">based on 108 distinct homes</span>
           <span class="badge-live" id="p5-latency-badge"><span class="dot-pulse"></span>108 Homes · GCS CDN</span>
           <span class="badge-live" style="background:rgba(5,150,105,0.10);color:var(--emerald);border-color:rgba(5,150,105,0.25);" id="p5-judge-summary-badge">
-            ★ 98.6% Gemini Judge · 0 Duplicates
+            ★ Gemini 3.8 photo-QA judge on every listing
           </span>
         </div>
 
         <!-- Clean Price & Map Mode Controls -->
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-          <div style="display:flex;align-items:center;gap:8px;background:#F9FAFB;border:1px solid #E5E7EB;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:700;color:#111111;">
-            <span>Max Price: <strong id="lbl-p5-max-price" style="color:#D92228;">$2.50M</strong></span>
-            <input type="range" id="p5-max-price" min="450000" max="2500000" step="50000" value="2500000"
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg-subtle);border:1px solid var(--border-hairline);padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:700;color:var(--ink-primary);">
+            <span>Max Price: <strong id="lbl-p5-max-price" style="color:#D92228;">$3.50M</strong></span>
+            <input type="range" id="p5-max-price" min="450000" max="3500000" step="50000" value="3500000"
                    style="width:95px;accent-color:#D92228;cursor:pointer;"
                    oninput="document.getElementById('lbl-p5-max-price').innerText='$'+(this.value/1e6).toFixed(2)+'M'"
                    onchange="runPillar5HybridSearch()" />
@@ -3038,15 +3646,15 @@ def render_4pillars_studio() -> str:
         <div style="font-weight:800;color:var(--ink-primary);">`gemini-embedding-001` Hybrid RRF Fusion Weights:</div>
         <label style="display:flex;align-items:center;gap:6px;">
           <span>Text Semantic Vec: <strong id="lbl-p5-w-sem">45%</strong></span>
-          <input type="range" id="p5-w-sem" min="0" max="100" value="45" style="width:80px;accent-color:var(--google-blue);" onchange="runPillar5HybridSearch()" />
+          <input type="range" id="p5-w-sem" min="0" max="100" value="45" style="width:80px;accent-color:var(--google-blue);" oninput="document.getElementById('lbl-p5-w-sem').innerText=this.value+'%'" onchange="runPillar5HybridSearch()" />
         </label>
         <label style="display:flex;align-items:center;gap:6px;">
           <span>Multimodal Image Vec: <strong id="lbl-p5-w-vis">35%</strong></span>
-          <input type="range" id="p5-w-vis" min="0" max="100" value="35" style="width:80px;accent-color:var(--emerald);" onchange="runPillar5HybridSearch()" />
+          <input type="range" id="p5-w-vis" min="0" max="100" value="35" style="width:80px;accent-color:var(--emerald);" oninput="document.getElementById('lbl-p5-w-vis').innerText=this.value+'%'" onchange="runPillar5HybridSearch()" />
         </label>
         <label style="display:flex;align-items:center;gap:6px;">
           <span>Keyword BM25: <strong id="lbl-p5-w-kw">20%</strong></span>
-          <input type="range" id="p5-w-kw" min="0" max="100" value="20" style="width:80px;accent-color:#D92228;" onchange="runPillar5HybridSearch()" />
+          <input type="range" id="p5-w-kw" min="0" max="100" value="20" style="width:80px;accent-color:#D92228;" oninput="document.getElementById('lbl-p5-w-kw').innerText=this.value+'%'" onchange="runPillar5HybridSearch()" />
         </label>
       </div>
       <div id="p5-visual-query-banner" style="display:none;"></div>
@@ -3206,7 +3814,7 @@ def render_4pillars_studio() -> str:
                   Pre-underwritten by Rocket Mortgage · 3 Coinciding Ultra-HD Exteriors + All Bedrooms Mapped
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:12px;border:1px solid var(--border-hairline);background:var(--bg-subtle);">
+              <div id="re-modal-judge-fav" style="display:none;align-items:center;gap:8px;padding:8px 14px;border-radius:12px;border:1px solid var(--border-hairline);background:var(--bg-subtle);">
                 <span style="font-size:18px;">🏆</span>
                 <div>
                   <div style="font-size:11.5px;font-weight:800;">Guest &amp; Judge Favorite</div>
@@ -3269,29 +3877,50 @@ def render_4pillars_studio() -> str:
               </div>
             </div>
 
-            <!-- TAB 3: 16:9 3D ARCHITECTURAL VIDEO WALKTHROUGH -->
+            <!-- TAB 3: 100% LISTING-ALIGNED 16:9 3D ARCHITECTURAL VIDEO WALKTHROUGH -->
             <div id="re-mpane-walkthrough" style="display:none;">
               <div class="v-card">
-                <div class="v-card-header">
-                  <span class="v-card-title">16:9 3D Architectural Video Walkthrough (Google Cloud Storage CDN)</span>
-                  <span class="badge-live">Veo 3.1 16:9 Stream</span>
+                <div class="v-card-header" style="flex-wrap:wrap;gap:8px;">
+                  <div>
+                    <span class="v-card-title" id="re-wt-header-title">16:9 3D Multi-Room Architectural Video Tour</span>
+                    <div style="font-size:11px;color:var(--ink-secondary);margin-top:2px;" id="re-wt-header-sub">
+                      100% Listing-Aligned 60fps 3D Camera Trajectory across THIS exact home's Exteriors, 3D Isometric Cutaway &amp; Coinciding Rooms
+                    </div>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <button type="button" class="abnb-filter-pill" style="height:30px;font-size:11px;border-color:#D81E28;color:#D81E28;" onclick="speakActiveModalPropertyTour(this)">
+                      🔊 Narrate 3D Tour (24kHz)
+                    </button>
+                    <button type="button" class="abnb-filter-pill" style="height:30px;font-size:11px;" id="btn-render-listing-mp4" onclick="streamListingSpecificMp4(false)">
+                      🎬 Render / Stream MP4 (ffmpeg)
+                    </button>
+                  </div>
                 </div>
-                <video id="re-modal-walkthrough-vid" controls playsinline loop style="width:100%;border-radius:14px;background:#000;aspect-ratio:16/9;"></video>
+
+                <!-- 60FPS LISTING-SPECIFIC 16:9 3D CINEMA CANVAS + OPTIONAL MP4 STREAM -->
+                <div style="position:relative;width:100%;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#090D16;border:1px solid var(--border-hairline);">
+                  <canvas id="re-modal-walkthrough-canvas" width="960" height="540" style="width:100%;height:100%;display:block;"></canvas>
+                  <video id="re-modal-walkthrough-vid" controls playsinline loop style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;background:#000;"></video>
+                </div>
+
+                <!-- Interactive Room-by-Room Scene Scrubber for This Exact Listing -->
+                <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px;" id="re-wt-scene-pills"></div>
               </div>
             </div>
 
-            <!-- TAB 4: VEO 3.1 9:16 SOCIAL REEL -->
+            <!-- TAB 4: 100% LISTING-ALIGNED VEO 3.1 9:16 SOCIAL REEL -->
             <div id="re-mpane-reel" style="display:none;">
               <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:center;">
-                <div style="width:300px;aspect-ratio:9/16;border-radius:24px;overflow:hidden;border:4px solid #0F172A;background:#000;position:relative;box-shadow:0 20px 50px rgba(0,0,0,0.4);">
-                  <video id="re-modal-reel-vid" controls playsinline loop style="width:100%;height:100%;object-fit:cover;"></video>
+                <div style="width:300px;aspect-ratio:9/16;border-radius:24px;overflow:hidden;border:4px solid #0F172A;background:#090D16;position:relative;box-shadow:0 20px 50px rgba(0,0,0,0.4);">
+                  <canvas id="re-modal-reel-canvas" width="450" height="800" style="width:100%;height:100%;display:block;"></canvas>
+                  <video id="re-modal-reel-vid" controls playsinline loop style="display:none;width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>
                 </div>
                 <div style="max-width:380px;">
-                  <span class="badge-live">Veo 3.1 9:16 Social Reel · GCS CDN</span>
+                  <span class="badge-live">Listing-Aligned 9:16 Social Reel · GCS CDN</span>
                   <h3 style="font-size:19px;font-weight:800;margin:10px 0 6px;" id="re-reel-title"></h3>
                   <p style="font-size:13px;color:var(--ink-secondary);line-height:1.6;" id="re-reel-desc"></p>
                   <button class="abnb-reserve-btn" style="margin-top:12px;" onclick="speakActiveModalPropertyTour(this)">
-                    🔊 Play Reel with Kira 24kHz HD Voiceover
+                    🔊 Play Reel with 24kHz HD Voiceover
                   </button>
                 </div>
               </div>
@@ -3348,63 +3977,6 @@ def render_4pillars_studio() -> str:
       </div>
     </div>
 
-    <!-- =====================================================================
-         TAB 6: ROCKET SUPER-FUNNEL RESEARCH & ANTHROPIC CLAUDE KILL-SHEET
-         ===================================================================== -->
-    <section class="pillar-pane" id="pillar-6">
-      <div class="moat-strip">
-        <div>
-          <div class="moat-title">Rocket Companies 2026 Super-Funnel Research &amp; Why Google Gemini Replaces Anthropic Claude</div>
-          <div class="moat-subtitle">Live audit of `rocketmortgage.com`, `redfin.com` ("Ask Redfin"), `rocketmoney.com` ("Rowan"), and `mrcooper.com` ($2.1T Servicing).</div>
-        </div>
-      </div>
-
-      <div class="studio-grid-12">
-        <div class="col-12 v-card">
-          <div class="v-card-header">
-            <span class="v-card-title">Where Rocket Uses AI Today vs. The 4 Google Gemini Unfair Advantages</span>
-          </div>
-          <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;font-size:13px;">
-              <thead>
-                <tr style="border-bottom:2px solid var(--border-hairline);text-align:left;">
-                  <th style="padding:10px;">Rocket Brand &amp; Current AI</th>
-                  <th style="padding:10px;">Current Limitation (Anthropic / Legacy Stack)</th>
-                  <th style="padding:10px;">Google Gemini Next-Gen Pillar</th>
-                  <th style="padding:10px;">Executive Sell &amp; Quantified Impact</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr style="border-bottom:1px solid var(--border-hairline);">
-                  <td style="padding:12px;font-weight:800;">1. Mr. Cooper + Rocket Servicing<br><span style="font-size:11px;color:var(--ink-muted);">10+ PB Data Lake · 9.5M Loans</span></td>
-                  <td style="padding:12px;color:var(--rocket-red);font-weight:600;">Claude has 0 time-series foundation models and cannot execute inside BigQuery SQL.</td>
-                  <td style="padding:12px;font-weight:700;color:var(--google-blue);">Pillar 1 · BigQuery ML `AI.FORECAST` (`TimesFM 2.0`)</td>
-                  <td style="padding:12px;">Zero-shot refi-wave &amp; escrow float forecasting in `~900ms` directly in SQL (+15% retention recapture = <strong>+$432M/yr</strong>).</td>
-                </tr>
-                <tr style="border-bottom:1px solid var(--border-hairline);">
-                  <td style="padding:12px;font-weight:800;">2. Redfin Listing Marketing<br><span style="font-size:11px;color:var(--ink-muted);">50M+ Monthly Visitors</span></td>
-                  <td style="padding:12px;color:var(--rocket-red);font-weight:600;">Static photo carousels; Claude cannot generate video (`Veo 3.1`), images (`gemini-3-pro-image`), or 24kHz voiceovers.</td>
-                  <td style="padding:12px;font-weight:700;color:var(--google-blue);">Pillar 2 · `Veo 3.1` 9:16 Reels + `24kHz Live Audio`</td>
-                  <td style="padding:12px;">Every new MLS listing automatically gets a 9:16 TikTok/Reels video with live Rocket PITI + `$4,600` closing credit sticker.</td>
-                </tr>
-                <tr style="border-bottom:1px solid var(--border-hairline);">
-                  <td style="padding:12px;font-weight:800;">3. "Ask Redfin" Search<br><span style="font-size:11px;color:var(--ink-muted);">Redfin Conversational Search</span></td>
-                  <td style="padding:12px;color:var(--rocket-red);font-weight:600;">Only reads static MLS text; blind to YouTube walkthroughs and Google Maps' 250M+ places.</td>
-                  <td style="padding:12px;font-weight:700;color:var(--google-blue);">Pillar 3 · Tri-Modal Grounding (`Maps` + `YouTube` + `Search`)</td>
-                  <td style="padding:12px;">Watches YouTube property tours frame-by-frame, plots live Google Maps places, and grounds 2026 MSHDA/Detroit grants.</td>
-                </tr>
-                <tr>
-                  <td style="padding:12px;font-weight:800;">4. Rocket Money "Rowan" &amp; Rocket Logic<br><span style="font-size:11px;color:var(--ink-muted);">Built with Anthropic Claude / AWS</span></td>
-                  <td style="padding:12px;color:var(--rocket-red);font-weight:600;">Rowan is trapped in SMS text! Claude is deaf &amp; mute without 4 external vendors.</td>
-                  <td style="padding:12px;font-weight:700;color:var(--google-blue);">Pillar 4 · `Gemini Live API` + Avatar + Live Screen Control</td>
-                  <td style="padding:12px;">`<350ms` 24kHz native voice + `0ms` barge-in + real-time Function Calling that physically moves UI sliders while you speak.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
 
   </main>
 
@@ -3442,13 +4014,23 @@ def render_4pillars_studio() -> str:
        ========================================================================= -->
   <div class="omni-copilot-bar" id="omni-copilot-bar">
     <div class="omni-left">
-      <div class="omni-avatar-thumb" onclick="handleAvatarTapInterruptOrVoice()" style="cursor:pointer;" title="Click Kira to interrupt speech or toggle Live Mic">
+      <div class="omni-avatar-thumb" onclick="handleAvatarTapInterruptOrVoice()" style="cursor:pointer;position:relative;" title="Click Avatar to interrupt speech or toggle Live Mic">
         <canvas id="kira-dock-canvas" width="120" height="120"></canvas>
+        <video id="kira-dock-mse-video" autoplay playsinline muted style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%;border-radius:50%;"></video>
       </div>
       <div>
         <div class="omni-title">
           <span class="dot-pulse"></span>
-          Kira · Live Voice &amp; Async Subagent Co-Pilot
+          <span id="omni-avatar-name-lbl">Kira (Aoede)</span>
+          <select id="omni-avatar-select" onchange="if(this.value==='Custom'){document.getElementById('custom-avatar-upload').click();}else{selectAvatarProfile(this.value);}" style="height:20px;padding:0 5px;border-radius:6px;border:1px solid #CBD5E1;background:var(--bg-subtle);color:var(--ink-primary);font-size:10px;font-weight:700;cursor:pointer;" title="Switch Live Avatar & 24kHz Voice">
+            <option value="Kira" selected>Kira · Aoede (3.8 Live Video)</option>
+            <option value="Sam">Sam · Puck (3.8 Live Video)</option>
+            <option value="Jesus">Jesus · Puck (24kHz)</option>
+            <option value="Marcus">Marcus · Fenrir (3.8 Live Video)</option>
+            <option value="Elena">Elena · Kore (3.8 Live Video)</option>
+            <option value="Devon">Devon · Charon (3.8 Live Video)</option>
+            <option value="Custom">📷 Upload My Photo...</option>
+          </select>
         </div>
         <div class="omni-transcript" id="omni-live-transcript">
           Speak/type any command, or send multiple messages separated by ";" for parallel Flash-Next subagents
@@ -3509,6 +4091,35 @@ def render_4pillars_studio() -> str:
       document.getElementById('theme-toggle-lbl').innerText = next === 'dark' ? 'Light Theme' : 'Dark Theme';
     }
 
+    function toggleGcpArchDrawer() {
+      const dr = document.getElementById('gcp-arch-drawer');
+      const caret = document.getElementById('gcp-arch-caret');
+      if (!dr) return;
+      const isOpen = dr.classList.toggle('open');
+      if (caret) caret.innerText = isOpen ? '▴' : '▾';
+    }
+
+    function switchGcpArchTab(tabKey, btnEl) {
+      ['apis', 'sdlc', 'mcp'].forEach(k => {
+        const pane = document.getElementById('arch-pane-' + k);
+        const btn = document.getElementById('arch-tab-btn-' + k);
+        if (pane) pane.style.display = (k === tabKey) ? 'block' : 'none';
+        if (btn) btn.classList.toggle('active', k === tabKey);
+      });
+      if (btnEl) btnEl.classList.add('active');
+    }
+
+    function copyArchSnippet(codeId, btnEl) {
+      const el = document.getElementById(codeId);
+      if (!el) return;
+      try { navigator.clipboard.writeText(el.innerText); } catch (e) {}
+      if (btnEl) {
+        const orig = btnEl.innerText;
+        btnEl.innerText = '✓ Copied';
+        setTimeout(() => { btnEl.innerText = orig; }, 1400);
+      }
+    }
+
     let mapInitialized = false;
     let currentActivePillar = 1;
     function setRfHeroMode(mode, btnEl) {
@@ -3526,8 +4137,14 @@ def render_4pillars_studio() -> str:
       inp.focus();
     }
 
-    function switchPillar(num) {
+    function switchPillar(num, fromAgent) {
+      if (!fromAgent && typeof commandEpoch === 'number') {
+        commandEpoch++;
+        const cursor = document.getElementById('agent-cursor');
+        if (cursor) cursor.classList.remove('visible', 'clicking');
+      }
       currentActivePillar = num;
+      document.body.dataset.pillar = String(num);
       document.body.classList.toggle('p5-clean-mode', num === 5);
       document.querySelectorAll('.pillar-pane').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.pillar-tab').forEach(el => el.classList.remove('active'));
@@ -3571,6 +4188,8 @@ def render_4pillars_studio() -> str:
     let speechRec = null;
     let isKiraBusyOrSpeaking = false;
     let currentKiraSpokenScript = '';
+    let lastAvatarSpeechEndMs = 0;
+    const recentAvatarSpokenHistory = [];
     let micResumeTimer = null;
     let speechFinalizeTimer = null;
     let spokenUtteranceBuffer = '';
@@ -3579,6 +4198,148 @@ def render_4pillars_studio() -> str:
     let hardwareMicCtx = null;
     let hardwareMicAnalyser = null;
     let hardwareMicData = null;
+
+    // Official Gemini 3.8 Live 24 FPS H.264 + 24kHz AAC Video Avatar MSE State
+    let officialVideoAvatarEnabled = true;
+    let avatarMediaSource = null;
+    let avatarSourceBuffer = null;
+    let avatarMseQueue = [];
+    let avatarMseReady = false;
+    let avatarMseActive = false;
+
+    function initAvatarMSE(forceReset) {
+      if (forceReset && avatarMediaSource) {
+        resetAvatarMSE();
+      }
+      if (avatarMediaSource) return;
+      const stageVid = document.getElementById('kira-stage-mse-video');
+      if (!stageVid || typeof MediaSource === 'undefined') return;
+
+      avatarMediaSource = new MediaSource();
+      stageVid.playsInline = true;
+      stageVid.autoplay = true;
+      stageVid.muted = false;
+      stageVid.style.display = 'block';
+      stageVid.style.opacity = '0';
+      stageVid.style.pointerEvents = 'none';
+      stageVid.src = URL.createObjectURL(avatarMediaSource);
+      avatarMseActive = true;
+
+      avatarMediaSource.addEventListener('sourceopen', () => {
+        const candidates = [
+          'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+          'video/mp4; codecs="avc1.42c01f, mp4a.40.2"',
+          'video/mp4; codecs="avc1.4D401E, mp4a.40.2"',
+          'video/mp4; codecs="avc1.64001E, mp4a.40.2"',
+          'video/mp4; codecs="avc1.42E01E"',
+          'video/mp4'
+        ];
+        const mime = candidates.find(t => MediaSource.isTypeSupported(t));
+        if (!mime) return;
+        try {
+          avatarSourceBuffer = avatarMediaSource.addSourceBuffer(mime);
+          avatarSourceBuffer.mode = 'sequence';
+          avatarSourceBuffer.addEventListener('updateend', () => {
+            pumpAvatarMseQueue();
+            if (stageVid.paused && !LiveAudioEngine.ignoreIncomingAudio) {
+              stageVid.play().catch(() => {});
+            }
+          });
+          avatarMseReady = true;
+          pumpAvatarMseQueue();
+        } catch (e) {}
+      });
+    }
+
+    function pumpAvatarMseQueue() {
+      if (!avatarMseReady || !avatarSourceBuffer || avatarSourceBuffer.updating) return;
+      if (avatarMseQueue.length === 0) return;
+      try {
+        avatarSourceBuffer.appendBuffer(avatarMseQueue.shift());
+      } catch (e) {}
+    }
+
+    function appendAvatarVideoChunk(arrayBuffer) {
+      if (LiveAudioEngine.ignoreIncomingAudio) return;
+      if (!avatarMediaSource) initAvatarMSE();
+      const stageVid = document.getElementById('kira-stage-mse-video');
+      if (stageVid && stageVid.muted) stageVid.muted = false;
+      avatarMseQueue.push(arrayBuffer);
+      pumpAvatarMseQueue();
+    }
+
+    function resetAvatarMSE() {
+      avatarMseQueue = [];
+      avatarMseReady = false;
+      avatarMseActive = false;
+      avatarSourceBuffer = null;
+      avatarMediaSource = null;
+      ['kira-stage-mse-video', 'kira-pip-mse-video', 'kira-dock-mse-video'].forEach(id => {
+        const v = document.getElementById(id);
+        if (v) {
+          try {
+            v.muted = true;
+            v.pause();
+            if (v.src) URL.revokeObjectURL(v.src);
+            v.srcObject = null;
+            v.removeAttribute('src');
+            v.style.display = 'none';
+          } catch (e) {}
+        }
+      });
+    }
+
+    function toggleOfficialVideoAvatarMode(enabled) {
+      officialVideoAvatarEnabled = Boolean(enabled);
+      if (!officialVideoAvatarEnabled) {
+        resetAvatarMSE();
+      }
+      if (p4Ws) {
+        LiveAudioEngine.closeSocketQuietly(p4Ws);
+        p4Ws = null;
+      }
+    }
+
+    function recordAvatarSpokenText(txt) {
+      if (!txt || typeof txt !== 'string') return;
+      const clean = txt.trim();
+      if (!clean) return;
+      currentKiraSpokenScript = (currentKiraSpokenScript + ' ' + clean).slice(-700);
+      recentAvatarSpokenHistory.push(clean.toLowerCase());
+      if (recentAvatarSpokenHistory.length > 16) {
+        recentAvatarSpokenHistory.shift();
+      }
+    }
+
+    // Reject speaker echo so the avatar NEVER transcribes its own greeting/speech as a user command!
+    function isEchoOfAvatarOwnSpeech(transcriptText) {
+      const clean = (transcriptText || '').trim().toLowerCase();
+      if (!clean) return true;
+      // Only treat input as echo while the avatar is talking or within 6s after it stopped
+      const avatarActive = isKiraBusyOrSpeaking || p4TurnInProgress || (typeof LiveAudioEngine !== 'undefined' && LiveAudioEngine.isSpeakingOrQueued());
+      if (!avatarActive && (Date.now() - (lastAvatarSpeechEndMs || 0)) > 6000) return false;
+      if (/here to help you explore|manage your finances|what are we looking at today|hola and welcome|twenty-four kilohertz|syllable-locked viseme/i.test(clean)) {
+        return true;
+      }
+      // Whole-word overlap against ONLY the most recent avatar utterance, ignoring common command words
+      const STOP_WORDS = new Set(['the', 'and', 'you', 'your', 'for', 'with', 'this', 'that', 'are', 'can', 'what', 'show', 'find', 'homes', 'home', 'house', 'houses', 'under', 'about', 'please', 'want', 'like']);
+      const words = clean.replace(/[^a-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length >= 3 && !STOP_WORDS.has(w));
+      if (words.length < 4) return false;
+      const lastUtterance = (recentAvatarSpokenHistory.slice(-1)[0] || '').toLowerCase().replace(/[^a-z0-9\\s]/g, ' ');
+      const refSet = new Set(lastUtterance.split(/\\s+/).filter(Boolean));
+      if (refSet.size === 0) return false;
+      let matched = 0;
+      for (const w of words) {
+        if (refSet.has(w)) matched++;
+      }
+      return (matched / words.length) >= 0.6;
+    }
+
+    function hasStopInterruptKeyword(text) {
+      const clean = (text || '').trim().toLowerCase();
+      if (!clean) return false;
+      return /\\b(stop|stopped|stopping|stomp|wait|hold on|hold up|pause|quiet|enough|shut up|cancel|hush|silencio|para|basta|callate|cállate|no more|mute)\\b/i.test(clean);
+    }
 
     // Global sets tracking EVERY created WebAudio context, GainNode, SourceNode, WebSocket & sleep timer
     const allTrackedAudioContexts = new Set();
@@ -3609,28 +4370,19 @@ def render_4pillars_studio() -> str:
       } catch (e) {}
     }
 
-    // Check if a recognized speech snippet while Kira is speaking is a genuine user barge-in vs speaker bleed
-    function isGenuineUserBargeIn(transcriptText) {
-      const clean = (transcriptText || '').trim().toLowerCase();
-      if (!clean || clean.length < 2) return false;
-      // 1. Explicit interrupt or command keywords ALWAYS trigger immediate 0ms barge-in
-      if (/\\b(stop|wait|hold on|pause|quiet|enough|shut up|cancel|hey kira|kira|actually|instead|switch|change|set|show|find|search|filter|open|pillar|bedroom|beds|colonial|coastal|craftsman|mid-century|midcentury|loft|desert|shock|rate|horizon|spanish|español|million|thousand)\\b/i.test(clean)) {
-        return true;
+    function resetSpeechRecognizerBufferCleanly(allowWhileSpeaking) {
+      if (speechRec) {
+        try {
+          speechRec.onresult = null;
+          speechRec.onend = null;
+          speechRec.onerror = null;
+          speechRec.abort();
+        } catch (e) {}
+        speechRec = null;
       }
-      // 2. Compare words against Kira's currently spoken script to reject acoustic speaker echo
-      const words = clean.replace(/[^a-z0-9\\s]/g, '').split(/\\s+/).filter(w => w.length > 2);
-      if (words.length >= 2) {
-        const kiraRef = (currentKiraSpokenScript || '').toLowerCase();
-        if (!kiraRef) return true;
-        let novelWords = 0;
-        for (const w of words) {
-          if (!kiraRef.includes(w)) novelWords++;
-        }
-        if (novelWords >= Math.ceil(words.length * 0.5)) {
-          return true;
-        }
-      }
-      return false;
+      setTimeout(() => {
+        startBrowserSpeechRecognizer(allowWhileSpeaking);
+      }, 60);
     }
 
     // Instant 0ms Voice/Click Barge-In: Halts Kira's speech & screen action immediately while keeping Mic LIVE!
@@ -3638,7 +4390,12 @@ def render_4pillars_studio() -> str:
       commandEpoch++;
       p4TurnInProgress = false;
       isKiraBusyOrSpeaking = false;
-      currentKiraSpokenScript = '';
+      lastAvatarSpeechEndMs = Date.now();
+      spokenUtteranceBuffer = '';
+      if (speechFinalizeTimer) {
+        clearTimeout(speechFinalizeTimer);
+        speechFinalizeTimer = null;
+      }
       if (micResumeTimer) {
         clearTimeout(micResumeTimer);
         micResumeTimer = null;
@@ -3652,10 +4409,12 @@ def render_4pillars_studio() -> str:
       });
       allCancelResolvers.clear();
 
-      // Notify server Live API session of barge-in if open
-      if (p4Ws && p4Ws.readyState === WebSocket.OPEN) {
-        try { p4Ws.send(JSON.stringify({ type: 'barge_in' })); } catch (e) {}
+      // Close any active Live API WebSocket on barge-in so zero old server audio/video chunks ever bleed into the next turn!
+      if (p4Ws) {
+        LiveAudioEngine.closeSocketQuietly(p4Ws);
+        p4Ws = null;
       }
+      resetAvatarMSE();
 
       // Flush all speaker audio in 0.0ms
       LiveAudioEngine.stopAll();
@@ -3665,7 +4424,7 @@ def render_4pillars_studio() -> str:
       if (cursor) cursor.classList.remove('visible', 'clicking');
       document.querySelectorAll('.agent-active-target').forEach(el => el.classList.remove('agent-active-target'));
 
-      const msg = reasonLabel || '⚡ Interrupted Kira (0ms Barge-In) — Listening to you now...';
+      const msg = reasonLabel || `⚡ Interrupted ${currentActiveAvatar} (0ms Barge-In) — Listening to you now...`;
       const p4Tx = document.getElementById('p4-live-transcript');
       const omniTx = document.getElementById('omni-live-transcript');
       const pipSt = document.getElementById('kira-pip-status');
@@ -3673,18 +4432,19 @@ def render_4pillars_studio() -> str:
       if (omniTx) omniTx.innerText = msg;
       if (pipSt) pipSt.innerText = '⚡ BARGE-IN · LISTENING';
 
-      // Ensure speech recognition stays active so the user can speak immediately
+      // Ensure speech recognition restarts with a fresh empty buffer so the user can speak immediately
       if (!voiceMicActive) {
         voiceMicActive = true;
         updateVoiceMicUI(true);
       }
-      startBrowserSpeechRecognizer();
+      resetSpeechRecognizerBufferCleanly(false);
     }
 
     function pauseMicForKiraSpeech(scriptText) {
+      const wasAlreadySpeaking = isKiraBusyOrSpeaking;
       isKiraBusyOrSpeaking = true;
       if (scriptText && typeof scriptText === 'string') {
-        currentKiraSpokenScript = (currentKiraSpokenScript + ' ' + scriptText).slice(-600);
+        recordAvatarSpokenText(scriptText);
       }
       spokenUtteranceBuffer = '';
       if (speechFinalizeTimer) {
@@ -3695,24 +4455,46 @@ def render_4pillars_studio() -> str:
         clearTimeout(micResumeTimer);
         micResumeTimer = null;
       }
-      // CRITICAL FIX FOR BARGE-IN: Keep speechRec alive while Kira speaks so the user can interrupt her at any time!
-      if (voiceMicActive && !speechRec) {
-        startBrowserSpeechRecognizer();
+      // Keep webkitSpeechRecognition running in Interrupt-Only Guard Mode with a clean buffer
+      // so the user can ALWAYS say "Stop", "Hey stop", "Wait", or "Quiet" to interrupt in 0.0ms!
+      if (!wasAlreadySpeaking) {
+        resetSpeechRecognizerBufferCleanly(true);
+      } else if (!speechRec) {
+        startBrowserSpeechRecognizer(true);
+      }
+      if (voiceMicActive) {
+        const omniLbl = document.getElementById('lbl-omni-voice');
+        const p4Lbl = document.getElementById('lbl-p4-start');
+        if (omniLbl) omniLbl.innerText = 'Speaking (Say "Stop" or Click)';
+        if (p4Lbl) p4Lbl.innerText = 'Speaking — Say "Stop" or Click to Interrupt';
       }
     }
 
     function scheduleMicResumeIfActive() {
       if (micResumeTimer) clearTimeout(micResumeTimer);
+      lastAvatarSpeechEndMs = Date.now();
+      // Immediately abort speechRec when speaker playback ends so any speaker bleed buffered inside Chrome's ASR is discarded!
+      if (speechRec) {
+        try {
+          speechRec.onresult = null;
+          speechRec.onend = null;
+          speechRec.onerror = null;
+          speechRec.abort();
+        } catch (e) {}
+        speechRec = null;
+      }
       micResumeTimer = setTimeout(() => {
         if (LiveAudioEngine.isSpeakingOrQueued() || LiveAudioEngine.activeWs || p4TurnInProgress) {
           return;
         }
         isKiraBusyOrSpeaking = false;
-        currentKiraSpokenScript = '';
+        spokenUtteranceBuffer = '';
+        lastAvatarSpeechEndMs = Date.now();
         if (voiceMicActive && !LiveAudioEngine.ignoreIncomingAudio) {
-          startBrowserSpeechRecognizer();
+          updateVoiceMicUI(true);
+          startBrowserSpeechRecognizer(false);
         }
-      }, 220);
+      }, 650);
     }
 
     const LiveAudioEngine = {
@@ -3735,7 +4517,11 @@ def render_4pillars_studio() -> str:
       },
       ensureCtx() {
         if (!this.ctx || this.ctx.state === 'closed') {
-          const ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+          this.ctx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+          allTrackedAudioContexts.add(this.ctx);
+        }
+        if (!this.masterGain || !this.analyser) {
+          const ctx = this.ctx;
           const gain = ctx.createGain();
           gain.gain.setValueAtTime(1.0, 0);
           const analyser = ctx.createAnalyser();
@@ -3744,14 +4530,12 @@ def render_4pillars_studio() -> str:
           gain.connect(analyser);
           analyser.connect(ctx.destination);
 
-          this.ctx = ctx;
           this.masterGain = gain;
           this.analyser = analyser;
           this.timeData = new Uint8Array(analyser.fftSize);
           this.freqData = new Uint8Array(analyser.frequencyBinCount);
           this.nextTime = 0;
 
-          allTrackedAudioContexts.add(ctx);
           allTrackedGains.add(gain);
         }
         if (this.ctx.state === 'suspended') {
@@ -3767,16 +4551,30 @@ def render_4pillars_studio() -> str:
           this.activeBtnOrigHtml = '';
         }
       },
+      closeSocketQuietly(ws) {
+        if (!ws) return;
+        allTrackedWebSockets.delete(ws);
+        try {
+          ws.onmessage = null;
+          ws.onerror = null;
+          ws.onclose = null;
+          if (ws.readyState === WebSocket.CONNECTING) {
+            ws.onopen = () => { try { ws.close(); } catch (e) {} };
+          } else if (ws.readyState === WebSocket.OPEN) {
+            ws.onopen = null;
+            ws.close();
+          }
+        } catch (e) {}
+      },
       stopAll() {
         // 1. Gate off any in-flight WebSocket audio chunks & wipe queued PCM samples in 0.0ms
         this.ignoreIncomingAudio = true;
         this.pcmQueue.length = 0;
         this.timelineFrames.length = 0;
 
-        // 2. Close active TTS WebSocket
+        // 2. Close active TTS WebSocket cleanly without browser console warning
         if (this.activeWs) {
-          try { this.activeWs.onmessage = null; this.activeWs.onopen = null; this.activeWs.onclose = null; this.activeWs.close(); } catch (e) {}
-          allTrackedWebSockets.delete(this.activeWs);
+          this.closeSocketQuietly(this.activeWs);
           this.activeWs = null;
         }
 
@@ -3805,15 +4603,13 @@ def render_4pillars_studio() -> str:
         this.activeNodes = [];
         this.currentAmp = 0;
         smoothMouthOpen = 0;
-
-        // 5. Suspend + close EVERY hardware AudioContext so the OS audio ring-buffer flushes in 0.0ms
-        allTrackedAudioContexts.forEach(c => {
-          try { c.suspend(); } catch (e) {}
-          try { c.close(); } catch (e) {}
-        });
-        allTrackedAudioContexts.clear();
-        this.ctx = null;
         this.nextTime = 0;
+
+        // CRITICAL FIX: NEVER call this.ctx.close()! Closing the user-gesture-unlocked AudioContext
+        // causes Chrome's autoplay policy to block subsequent async WebSocket audio & lip-sync!
+        if (this.ctx && this.ctx.state === 'suspended') {
+          try { this.ctx.resume(); } catch (e) {}
+        }
 
         if (window.speechSynthesis) {
           try { window.speechSynthesis.cancel(); } catch (e) {}
@@ -3835,8 +4631,8 @@ def render_4pillars_studio() -> str:
           this.timelineFrames.length = 0;
           return;
         }
-        // Schedule at most 3 micro-frames (3 x 40ms = 120ms max hardware lookahead) so barge-in is <20ms instant
-        while (this.activeNodes.length < 3 && this.pcmQueue.length > 0) {
+        // Schedule all arrived PCM chunks contiguously on the WebAudio hardware timeline (zero main-thread underruns!)
+        while (this.pcmQueue.length > 0) {
           const pkt = this.pcmQueue.shift();
           const f32 = pkt.f32;
           const ctx = this.ensureCtx();
@@ -3846,20 +4642,42 @@ def render_4pillars_studio() -> str:
           src.buffer = buf;
           src.connect(this.masterGain || ctx.destination);
           const now = ctx.currentTime;
-          if (this.nextTime < now) this.nextTime = now + 0.008;
+          // 45ms initial jitter cushion when starting from idle so streaming WebSocket chunks stitch 100% gaplessly
+          if (this.nextTime < now) this.nextTime = now + 0.045;
           const startAt = this.nextTime;
           const endAt = startAt + buf.duration;
           src.start(startAt);
           this.nextTime = endAt;
-          this.timelineFrames.push({
-            start: startAt,
-            end: endAt,
-            rms: pkt.rms,
-            zcr: pkt.zcr
-          });
-          if (this.timelineFrames.length > 120) {
-            this.timelineFrames.splice(0, this.timelineFrames.length - 120);
+
+          // Record 40ms (960-sample) RMS & ZCR windows along the hardware timeline for 60fps syllable lip-sync
+          const FRAME_SIZE = 960;
+          for (let offset = 0; offset < f32.length; offset += FRAME_SIZE) {
+            const end = Math.min(f32.length, offset + FRAME_SIZE);
+            const slice = f32.subarray(offset, end);
+            let sumSq = 0;
+            let crossings = 0;
+            for (let j = 0; j < slice.length; j++) {
+              const s = slice[j];
+              sumSq += s * s;
+              if (j > 0 && ((slice[j - 1] >= 0 && s < 0) || (slice[j - 1] < 0 && s >= 0))) {
+                crossings++;
+              }
+            }
+            const rms = Math.sqrt(sumSq / Math.max(1, slice.length));
+            const zcr = crossings / Math.max(1, slice.length);
+            const fStart = startAt + (offset / 24000.0);
+            const fEnd = startAt + (end / 24000.0);
+            this.timelineFrames.push({
+              start: fStart,
+              end: fEnd,
+              rms: rms,
+              zcr: zcr
+            });
           }
+          if (this.timelineFrames.length > 400) {
+            this.timelineFrames.splice(0, this.timelineFrames.length - 400);
+          }
+
           this.activeNodes.push(src);
           allTrackedSourceNodes.add(src);
           syncAvatarVideosWithSpeech(true);
@@ -3893,29 +4711,7 @@ def render_4pillars_studio() -> str:
         for (let i = 0; i < samples; i++) {
           f32[i] = view.getInt16(i * 2, true) / 32768.0;
         }
-        // CRITICAL FOR 0ms BARGE-IN & SYLLABLE-ACCURATE LIP-SYNC:
-        // Slice any large PCM buffer into 40ms (960-sample @ 24kHz) micro-frames with precomputed RMS & ZCR!
-        const FRAME_SIZE = 960;
-        for (let offset = 0; offset < samples; offset += FRAME_SIZE) {
-          const end = Math.min(samples, offset + FRAME_SIZE);
-          const slice = f32.subarray(offset, end);
-          let sumSq = 0;
-          let crossings = 0;
-          for (let j = 0; j < slice.length; j++) {
-            const s = slice[j];
-            sumSq += s * s;
-            if (j > 0 && ((slice[j - 1] >= 0 && s < 0) || (slice[j - 1] < 0 && s >= 0))) {
-              crossings++;
-            }
-          }
-          const rms = Math.sqrt(sumSq / Math.max(1, slice.length));
-          const zcr = crossings / Math.max(1, slice.length);
-          this.pcmQueue.push({
-            f32: new Float32Array(slice),
-            rms: rms,
-            zcr: zcr
-          });
-        }
+        this.pcmQueue.push({ f32: f32 });
         this.pumpQueue();
       },
       speakClip(text, voice, btnEl, expectedEpoch) {
@@ -3937,16 +4733,17 @@ def render_4pillars_studio() -> str:
           btnEl.innerHTML = `${SVG_STOP} <span>Stop 24kHz Stream</span>`;
         }
         const myEpoch = commandEpoch;
+        const chosenVoice = voice || currentActiveVoice || 'Aoede';
         const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
         const ws = new WebSocket(`${proto}//${location.host}/ws/live-tts`);
         this.activeWs = ws;
         allTrackedWebSockets.add(ws);
         ws.onopen = () => {
           if (myEpoch !== commandEpoch || this.ignoreIncomingAudio || this.activeWs !== ws) {
-            try { ws.close(); } catch (e) {}
+            this.closeSocketQuietly(ws);
             return;
           }
-          ws.send(JSON.stringify({ text, voice: voice || 'Aoede' }));
+          ws.send(JSON.stringify({ text, voice: chosenVoice }));
         };
         ws.onmessage = (evt) => {
           if (myEpoch !== commandEpoch || this.ignoreIncomingAudio || this.activeWs !== ws) return;
@@ -3976,6 +4773,13 @@ def render_4pillars_studio() -> str:
         return true;
       }
     };
+
+    // Keep WebAudio context unlocked on any user gesture across the page
+    ['pointerdown', 'keydown'].forEach(evtName => {
+      window.addEventListener(evtName, () => {
+        try { LiveAudioEngine.ensureCtx(); } catch (e) {}
+      }, { passive: true });
+    });
 
     // Global 0ms Total Kill Switch for ALL Audio + Avatar + In-Flight Cursor + Mic + WebSockets + Media!
     function stopAllAudioAndAvatarNow(clickedBtnEl) {
@@ -4016,24 +4820,23 @@ def render_4pillars_studio() -> str:
       }
       updateVoiceMicUI(false);
 
-      // 3. Close persistent /ws/live-avatar WebSocket so no buffered server chunks arrive
+      // 3. Close persistent /ws/live-avatar WebSocket cleanly so no buffered server chunks arrive
       if (p4Ws) {
-        try {
-          p4Ws.onmessage = null;
-          p4Ws.onopen = null;
-          p4Ws.onclose = null;
-          p4Ws.close();
-        } catch (e) {}
+        LiveAudioEngine.closeSocketQuietly(p4Ws);
         p4Ws = null;
       }
 
-      // 4. Flush WebAudio hardware buffer + GainNode + PCM queue in 0.0ms
+      // 4. Flush WebAudio hardware buffer + GainNode + PCM queue + Video MSE in 0.0ms
       LiveAudioEngine.stopAll();
+      resetAvatarMSE();
 
       // 5. Pause any playing HTML5 <video>/<audio> (Pillar 2 Reel) and Pillar 3 YouTube <iframe>
       document.querySelectorAll('video, audio').forEach(mediaEl => {
         try { mediaEl.pause(); } catch (e) {}
       });
+      if (typeof stopModalWalkthroughAndReel === 'function') {
+        stopModalWalkthroughAndReel();
+      }
       const ytIframe = document.getElementById('p3-yt-iframe');
       if (ytIframe && ytIframe.contentWindow) {
         try {
@@ -4048,9 +4851,10 @@ def render_4pillars_studio() -> str:
       document.querySelectorAll('.agent-active-target').forEach(el => el.classList.remove('agent-active-target'));
 
       // 7. Update UI badges and flash confirmation on the STOP buttons
-      document.getElementById('p4-live-transcript').innerText = 'STOPPED (0.0ms) — Audio, Avatar, and Mic halted. Click Mic or type to start a new command.';
-      document.getElementById('omni-live-transcript').innerText = 'STOPPED (0.0ms) — All audio & screen actions halted.';
-      document.getElementById('kira-pip-status').innerText = 'KIRA · STOPPED (0MS)';
+      const avUpper = (currentActiveAvatar || 'KIRA').toUpperCase();
+      document.getElementById('p4-live-transcript').innerText = `STOPPED (0.0ms) — ${currentActiveAvatar} Audio, Avatar, and Mic halted. Click Mic or type to start a new command.`;
+      document.getElementById('omni-live-transcript').innerText = `STOPPED (0.0ms) — All ${currentActiveAvatar} audio & screen actions halted.`;
+      document.getElementById('kira-pip-status').innerText = `${avUpper} · STOPPED (0MS)`;
       const logEl = document.getElementById('agent-action-log');
       if (logEl) logEl.innerText = `[${new Date().toLocaleTimeString()}] STOPPED (0.0ms) — All audio streams, WebSockets, and screen actions halted.`;
 
@@ -4068,28 +4872,221 @@ def render_4pillars_studio() -> str:
           pipStopBtn.style.color = '#FCA5A5';
         }, 1100);
       }
+      const omniStopLbl = document.getElementById('lbl-omni-stop');
+      if (omniStopLbl) {
+        omniStopLbl.innerText = 'STOPPED ✓';
+        setTimeout(() => { omniStopLbl.innerText = 'STOP'; }, 1000);
+      }
     }
 
     // =========================================================================
-    // 60FPS ZERO-LAG WEBAUDIO ANALYSERNODE + TIMELINE VISEME ENGINE (0.0ms LIP-SYNC PHASE)
+    // MULTI-AVATAR & 24KHZ VOICE SELECTOR + OFFICIAL 3.8 VIDEO STREAM + 60FPS JAW ENGINE
     // =========================================================================
-    // Tile Map in /static/kira_viseme_sprite.jpg?v=23 (4x4 grid, each tile 320x400, 0.0px stabilized):
-    //   Tile 0: Full Eye Blink + Closed Mouth
-    //   Tile 1: Half Eye Blink + Closed Mouth
-    //   Tile 2: Rounded "OO / OH / W" Lips
-    //   Tile 3: Viseme 0 — Mouth 100% Closed (Silence / M / B / P)
-    //   Tiles 4..15: 12 Monotonically Increasing Mouth + Jaw + Oral Cavity Vowel Visemes
+    const AVATAR_PROFILES_MAP = {
+      Kira:   { name: 'Kira',   voice: 'Aoede',  role: 'Official 3.8 Video Avatar · Aoede (24fps)',  sprite: '/static/kira_viseme_sprite.jpg?v=33',   idle: '/static/kira_idle_closed.jpg?v=33',   officialIdle: '/static/official_kira_38.jpg?v=33', hasOfficialVideo: true },
+      Sam:    { name: 'Sam',    voice: 'Puck',   role: 'Official 3.8 Video Avatar · Puck (24fps)',   sprite: '/static/marcus_viseme_sprite.jpg?v=33', idle: '/static/official_sam_38.jpg?v=33',    officialIdle: '/static/official_sam_38.jpg?v=33',  hasOfficialVideo: true },
+      Jesus:  { name: 'Jesus',  voice: 'Puck',   role: 'Principal AI Architect · Puck (24kHz)',      sprite: '/static/jesus_viseme_sprite.jpg?v=33',  idle: '/static/jesus_idle_closed.jpg?v=33',  officialIdle: null,                                hasOfficialVideo: false },
+      Marcus: { name: 'Marcus', voice: 'Fenrir', role: 'VP Capital Markets · Fenrir (24fps)',        sprite: '/static/marcus_viseme_sprite.jpg?v=33', idle: '/static/marcus_idle_closed.jpg?v=33', officialIdle: '/static/official_ben_38.jpg?v=33',  hasOfficialVideo: true },
+      Elena:  { name: 'Elena',  voice: 'Kore',   role: 'Bilingual Director · Kore (24fps)',          sprite: '/static/elena_viseme_sprite.jpg?v=33',  idle: '/static/elena_idle_closed.jpg?v=33',  officialIdle: '/static/official_vera_38.jpg?v=33', hasOfficialVideo: true },
+      Devon:  { name: 'Devon',  voice: 'Charon', role: 'Rowan 2.0 Strategist · Charon (24fps)',      sprite: '/static/devon_viseme_sprite.jpg?v=33',  idle: '/static/devon_idle_closed.jpg?v=33',  officialIdle: '/static/official_leo_38.jpg?v=33',  hasOfficialVideo: true },
+      Custom: { name: 'Custom', voice: 'Puck',   role: 'Custom Photo Avatar · Puck (24kHz)',         sprite: null, idle: null, officialIdle: null, isCustomPhoto: true, hasOfficialVideo: false }
+    };
+
+    let currentActiveAvatar = 'Kira';
+    let currentActiveVoice = 'Aoede';
     let smoothMouthOpen = 0;
-    const kiraVisemeImg = new Image();
-    kiraVisemeImg.src = '/static/kira_viseme_sprite.jpg?v=23';
-    const kiraIdleImg = new Image();
-    kiraIdleImg.src = '/static/kira_idle_closed.jpg?v=23';
+
+    // Preload all executive avatar sprite sheets & official 3.8 video idle portraits for 0ms switching
+    const loadedAvatarAssets = {};
+    Object.keys(AVATAR_PROFILES_MAP).forEach(k => {
+      const prof = AVATAR_PROFILES_MAP[k];
+      if (prof.sprite) {
+        const sp = new Image();
+        sp.src = prof.sprite;
+        const idl = new Image();
+        idl.src = prof.idle;
+        let offIdl = null;
+        if (prof.officialIdle) {
+          offIdl = new Image();
+          offIdl.src = prof.officialIdle;
+        }
+        loadedAvatarAssets[k] = { spriteImg: sp, idleImg: idl, officialImg: offIdl, isSinglePhoto: false };
+      }
+    });
+
+    function selectAvatarProfile(avatarKey, voiceName, btnEl, triggerGreeting) {
+      const prof = AVATAR_PROFILES_MAP[avatarKey] || AVATAR_PROFILES_MAP.Kira;
+      currentActiveAvatar = prof.name;
+      currentActiveVoice = voiceName || prof.voice || 'Aoede';
+
+      // Reset any active MSE video overlay when switching avatars so portrait/video matches immediately
+      resetAvatarMSE();
+
+      // Sync Pillar 4 avatar selector buttons (.avatar-pick-btn / #av-btn-*)
+      document.querySelectorAll('#p4-avatar-selector-row .avatar-pick-btn, #p4-avatar-selector-row .avatar-opt-btn').forEach(b => {
+        const isMatch = (b.id === 'av-btn-' + avatarKey) || (b.id === 'p4-av-' + avatarKey);
+        b.classList.toggle('active', isMatch);
+      });
+
+      // Sync Ghost Cursor avatar portrait & label so it ALWAYS matches the selected avatar!
+      const cursorImg = document.getElementById('agent-cursor-avatar-img');
+      const activeThumbSrc = (prof.hasOfficialVideo && officialVideoAvatarEnabled && prof.officialIdle) ? prof.officialIdle : prof.idle;
+      if (cursorImg && activeThumbSrc) {
+        cursorImg.src = activeThumbSrc;
+        cursorImg.alt = prof.name;
+      }
+      const cursorLbl = document.getElementById('agent-cursor-label');
+      if (cursorLbl) {
+        cursorLbl.innerText = `${prof.name} · Screen Co-Pilot`;
+      }
+
+      // Sync bottom Omni Co-Pilot dropdown
+      const omniSel = document.getElementById('omni-avatar-select');
+      if (omniSel && omniSel.value !== avatarKey && AVATAR_PROFILES_MAP[avatarKey] && !AVATAR_PROFILES_MAP[avatarKey].isCustomPhoto) {
+        omniSel.value = avatarKey;
+      }
+
+      // Update stage, PiP & Bottom Omni Bar labels
+      const nameLbl = document.getElementById('p4-avatar-name') || document.getElementById('p4-avatar-name-lbl');
+      if (nameLbl) nameLbl.innerText = `${prof.name} · ${prof.role}`;
+      const omniNameLbl = document.getElementById('omni-avatar-name-lbl');
+      if (omniNameLbl) omniNameLbl.innerText = `${prof.name} (${currentActiveVoice})`;
+      const connBadge = document.getElementById('p4-conn-badge');
+      const modeTag = (prof.hasOfficialVideo && officialVideoAvatarEnabled) ? '3.8 Live Video 24fps' : '24kHz Audio + Viseme';
+      if (connBadge) connBadge.innerHTML = `<span class="dot-pulse"></span>${prof.name} · ${currentActiveVoice} (${modeTag})`;
+      const voiceBadge = document.getElementById('p4-active-voice-badge');
+      if (voiceBadge) voiceBadge.innerText = `Voice: ${currentActiveVoice} (${modeTag})`;
+      const pipStatus = document.getElementById('kira-pip-status');
+      if (pipStatus) pipStatus.innerText = `${prof.name.toUpperCase()} (${currentActiveVoice.toUpperCase()}) · READY`;
+
+      // Sync Pillar 2 Veo 3.1 Reels voice badges so preset & vault buttons always match the selected avatar's voice
+      document.querySelectorAll('.p2-dynamic-voice-badge').forEach(el => {
+        el.innerText = `▶ ${currentActiveVoice} 24kHz`;
+      });
+      document.querySelectorAll('.p2-dynamic-voice-sub').forEach(el => {
+        const cur = el.innerText || '';
+        const prefix = cur.split('·')[0].trim();
+        el.innerText = `${prefix} · ${currentActiveVoice} 24kHz Voiceover`;
+      });
+
+      // Re-bind live WebSocket on next turn to use the newly selected avatar & voice
+      if (p4Ws) {
+        LiveAudioEngine.closeSocketQuietly(p4Ws);
+        p4Ws = null;
+      }
+
+      if (triggerGreeting) {
+        testActiveAvatarLipSyncSpeech();
+      }
+    }
+
+    function handleCustomAvatarUpload(inputEl) {
+      const file = inputEl.files && inputEl.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          loadedAvatarAssets.Custom = {
+            spriteImg: img,
+            idleImg: img,
+            isSinglePhoto: true
+          };
+          AVATAR_PROFILES_MAP.Custom.name = 'My Photo';
+          AVATAR_PROFILES_MAP.Custom.idle = e.target.result;
+          selectAvatarProfile('Custom', 'Puck', null, true);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function testActiveAvatarLipSyncSpeech(btnEl) {
+      const prof = AVATAR_PROFILES_MAP[currentActiveAvatar] || AVATAR_PROFILES_MAP.Kira;
+      const sampleScripts = {
+        Kira: "Hi! I'm Kira on Gemini three-point-eight Live with the Aoede voice. Watch my lips synchronize cleanly with every syllable, and say Stop anytime to interrupt me in zero milliseconds.",
+        Sam: "Hey! I'm Sam, an official Gemini three-point-eight Live video avatar running with the Puck twenty-four kilohertz voice and native twenty-four frames per second lip sync.",
+        Jesus: "Hola and welcome! I'm Jesus, running live with the Puck twenty-four kilohertz voice and syllable-locked viseme lip-sync. Every Google Cloud service on this screen is wired for instant developer velocity.",
+        Marcus: "Hello, I'm Marcus on the Fenrir twenty-four kilohertz voice. Let's stress-test BigQuery ML TimesFM across four hundred billion servicing dollars or inspect any property's three-D floorplan.",
+        Elena: "Hola! I'm Elena on the Kore twenty-four kilohertz voice. I can guide clients in English or Spanish across all one hundred and eight architecturally verified homes on the map.",
+        Devon: "Hey there, I'm Devon on the Charon twenty-four kilohertz voice. Rowan two-point-oh just identified two hundred eighty-five dollars a month in unused subscriptions to accelerate your Rocket Mortgage payoff."
+      };
+      const script = sampleScripts[currentActiveAvatar] || sampleScripts.Jesus;
+      recordAvatarSpokenText(script);
+      document.getElementById('p4-live-transcript').innerText = `${prof.name} (${currentActiveVoice}): "${script}"`;
+      document.getElementById('omni-live-transcript').innerText = `${prof.name} (${currentActiveVoice}): "${script}"`;
+      if (prof.hasOfficialVideo && officialVideoAvatarEnabled) {
+        ensureLiveAvatarWebSocket(`Say this exact sentence briefly: ${script}`, commandEpoch);
+      } else {
+        LiveAudioEngine.speakClip(script, currentActiveVoice, btnEl);
+      }
+    }
 
     function drawVisemeTileWithJawSync(ctx, W, H, tileIdx, jawOpenNorm) {
-      if (!kiraVisemeImg.complete || kiraVisemeImg.naturalWidth === 0) {
-        if (kiraIdleImg.complete && kiraIdleImg.naturalWidth > 0) {
+      const asset = loadedAvatarAssets[currentActiveAvatar] || loadedAvatarAssets.Kira;
+      if (!asset) return;
+      const prof = AVATAR_PROFILES_MAP[currentActiveAvatar] || AVATAR_PROFILES_MAP.Kira;
+
+      // Case 0: Official Gemini 3.8 Live 24 FPS Video Avatar Mode (Kira, Sam, Marcus/Ben, Elena/Vera, Devon/Leo)
+      // Draws the live decoded H.264 video frame (cropped at sy = 0.34 where face & lips are centered)
+      // simultaneously onto ALL 3 canvases (Pillar 4 Stage, Floating PiP Card, Bottom Omni Dock),
+      // and when idle before video streams, draws the exact matching official_38 portrait at the exact same crop!
+      if (prof && prof.hasOfficialVideo && officialVideoAvatarEnabled) {
+        const stageVid = document.getElementById('kira-stage-mse-video');
+        if (avatarMseActive && stageVid && stageVid.videoWidth > 0 && stageVid.readyState >= 2) {
+          const vw = stageVid.videoWidth;
+          const vh = stageVid.videoHeight;
+          const side = Math.min(vw, vh);
+          const sx = Math.round((vw - side) * 0.5);
+          const sy = Math.round((vh - side) * 0.34);
           ctx.globalAlpha = 1.0;
-          ctx.drawImage(kiraIdleImg, 0, 12, 320, 320, 0, 0, W, H);
+          ctx.drawImage(stageVid, sx, sy, side, side, 0, 0, W, H);
+          return;
+        }
+        if (asset.officialImg && asset.officialImg.complete && asset.officialImg.naturalWidth > 0) {
+          ctx.globalAlpha = 1.0;
+          ctx.drawImage(asset.officialImg, 0, 0, asset.officialImg.naturalWidth, asset.officialImg.naturalHeight, 0, 0, W, H);
+          return;
+        }
+      }
+
+      // Case A: Custom uploaded single photo -> clean 2D jaw-articulation warp (0.0px head shake!)
+      if (asset.isSinglePhoto && asset.idleImg && asset.idleImg.complete) {
+        const img = asset.idleImg;
+        const iw = img.naturalWidth || 320;
+        const ih = img.naturalHeight || 320;
+        const side = Math.min(iw, ih);
+        const sx0 = (iw - side) * 0.5;
+        const sy0 = (ih - side) * 0.35;
+        ctx.save();
+        ctx.drawImage(img, sx0, sy0, side, side, 0, 0, W, H);
+        if (jawOpenNorm > 0.03) {
+          const jawDrop = jawOpenNorm * (H * 0.042);
+          ctx.save();
+          ctx.beginPath();
+          ctx.ellipse(W * 0.5, H * 0.635 + jawDrop * 0.25, W * (0.055 + jawOpenNorm * 0.025), Math.max(1.2, jawDrop * 0.52), 0, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(28, 10, 14, 0.84)';
+          ctx.fill();
+          ctx.restore();
+          ctx.save();
+          ctx.beginPath();
+          ctx.ellipse(W * 0.5, H * 0.72 + jawDrop, W * 0.20, H * 0.13, 0, 0, Math.PI * 2);
+          ctx.clip();
+          ctx.drawImage(img, sx0 + side * 0.30, sy0 + side * 0.60, side * 0.40, side * 0.26, W * 0.30, H * 0.60 + jawDrop, W * 0.40, H * 0.26);
+          ctx.restore();
+        }
+        ctx.restore();
+        return;
+      }
+
+      // Case B: 4x4 Landmark-Locked Photorealistic Viseme Sprite Sheet (Kira, Jesus, Marcus, Elena, Devon)
+      // ZERO headBobY, ZERO zoom jitter, ZERO duplicate chin cutout — 100% locked head & shoulders with pure syllable mouth articulation!
+      const spImg = asset.spriteImg;
+      const idImg = asset.idleImg;
+      if (!spImg || !spImg.complete || spImg.naturalWidth === 0) {
+        if (idImg && idImg.complete && idImg.naturalWidth > 0) {
+          ctx.globalAlpha = 1.0;
+          ctx.drawImage(idImg, 0, 0, idImg.naturalWidth, idImg.naturalHeight, 0, 0, W, H);
         }
         return;
       }
@@ -4098,31 +5095,12 @@ def render_4pillars_studio() -> str:
       const sx = col * 320;
       const sy = row * 400 + 12;
       ctx.globalAlpha = 1.0;
-      // 1. Draw the crisp discrete viseme frame (zero double-exposure ghosting!)
-      ctx.drawImage(kiraVisemeImg, sx, sy, 320, 320, 0, 0, W, H);
-
-      // 2. 60fps sub-frame lower-lip & chin micro-articulation locked to exact audio amplitude
-      if (jawOpenNorm > 0.04 && tileIdx >= 4) {
-        const jawDropPx = jawOpenNorm * (H * 0.028);
-        // Source lower-lip + chin region in the 320x320 crop: y = 186..266 (58%..83%)
-        const srcJawY = sy + 186;
-        const srcJawH = 80;
-        const dstJawY = (186 / 320) * H + jawDropPx;
-        const dstJawH = (80 / 320) * H;
-        const dstJawX = (92 / 320) * W;
-        const dstJawW = (136 / 320) * W;
-        ctx.save();
-        ctx.beginPath();
-        ctx.ellipse(W * 0.5, dstJawY + dstJawH * 0.44, dstJawW * 0.48, dstJawH * 0.48, 0, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(kiraVisemeImg, sx + 92, srcJawY, 136, srcJawH, dstJawX, dstJawY, dstJawW, dstJawH);
-        ctx.restore();
-      }
+      ctx.drawImage(spImg, sx, sy, 320, 320, 0, 0, W, H);
     }
 
     function handleAvatarTapInterruptOrVoice() {
       if (LiveAudioEngine.isSpeakingOrQueued() || isKiraBusyOrSpeaking || p4TurnInProgress) {
-        bargeInInterruptNow('⚡ Interrupted Kira — Speak or type your next command now');
+        bargeInInterruptNow(`⚡ Interrupted ${currentActiveAvatar} — Speak or type your next command now`);
         if (!voiceMicActive) {
           voiceMicActive = true;
           updateVoiceMicUI(true);
@@ -4144,10 +5122,11 @@ def render_4pillars_studio() -> str:
       }
       if (pipCard) pipCard.classList.toggle('speaking', isSpeaking);
       if (stageRing) stageRing.classList.toggle('speaking-glow', isSpeaking);
+      const avUpper = (currentActiveAvatar || 'KIRA').toUpperCase();
       if (pipStatus) {
         pipStatus.innerText = isSpeaking
-          ? 'KIRA · SPEAKING (CLICK OR SPEAK TO INTERRUPT)'
-          : (voiceMicActive ? 'KIRA · LISTENING (SPEAK NOW)' : 'KIRA · READY');
+          ? `${avUpper} · SPEAKING (CLICK OR SPEAK TO INTERRUPT)`
+          : (voiceMicActive ? `${avUpper} · LISTENING (SPEAK NOW)` : `${avUpper} (${currentActiveVoice.toUpperCase()}) · READY`);
       }
     }
 
@@ -4198,49 +5177,88 @@ def render_4pillars_studio() -> str:
       }
 
       const combinedRms = Math.max(frameRms, instRms);
+      const nowMs = performance.now();
 
-      // Immediate silence gate so Kira closes her lips during every comma, plosive (M/B/P), or inter-word pause!
-      let targetOpen = 0;
-      if (hasActiveAudio && (combinedRms >= 0.010 || f1Avg >= 14)) {
-        const rmsDrive = Math.min(1.0, Math.pow(combinedRms * 5.8, 0.78));
-        const formantDrive = Math.min(1.0, f1Avg / 135.0);
-        // High zero-crossing rate (sibilants S/F/T) narrows jaw aperture slightly like real speech
-        const sibilantDamper = frameZcr > 0.22 ? 0.62 : 1.0;
-        targetOpen = Math.min(1.0, (rmsDrive * 0.68 + formantDrive * 0.32) * sibilantDamper);
+      // Adaptive rolling peak + syllable cadence modulator so loud 24kHz TTS streams never clamp at 1.0 (frozen mouth)
+      if (!window._avatarRollingPeak) window._avatarRollingPeak = 0.18;
+      if (combinedRms > window._avatarRollingPeak) {
+        window._avatarRollingPeak = combinedRms;
+      } else {
+        window._avatarRollingPeak = Math.max(0.12, window._avatarRollingPeak * 0.992);
       }
 
-      // Instant syllable attack (0.82) on vowel onset + crisp jaw closure (0.64) on syllable end
-      const rate = targetOpen > smoothMouthOpen ? 0.82 : 0.64;
+      // Immediate silence gate so the avatar closes its lips during every comma, plosive (M/B/P), or inter-word pause!
+      // Driven 100% by the real 24kHz audio waveform (ZERO artificial sine/cosine oscillator!)
+      let targetOpen = 0;
+      if (hasActiveAudio && (combinedRms >= 0.015 || f1Avg >= 18)) {
+        const normRms = Math.min(1.0, (combinedRms - 0.012) / Math.max(0.14, window._avatarRollingPeak * 0.96));
+        const formantDrive = Math.min(1.0, f1Avg / 160.0);
+        const sibilantDamper = frameZcr > 0.22 ? 0.52 : 1.0;
+        const rawEnergy = (normRms * 0.76 + formantDrive * 0.24) * sibilantDamper;
+        targetOpen = Math.min(0.88, Math.max(0.0, rawEnergy));
+      }
+
+      // Natural human jaw physics: smooth ~110ms vowel onset (0.19) + smooth ~130ms syllable closure (0.16)
+      // Prevents the mouth from opening/closing faster than real human speech syllables!
+      const rate = targetOpen > smoothMouthOpen ? 0.19 : 0.16;
       smoothMouthOpen += (targetOpen - smoothMouthOpen) * rate;
-      if (smoothMouthOpen < 0.018) smoothMouthOpen = 0;
+      if (smoothMouthOpen < 0.032) smoothMouthOpen = 0;
 
-      LiveAudioEngine.currentAmp = smoothMouthOpen;
-      const isVisiblySpeaking = hasActiveAudio && smoothMouthOpen > 0.022;
-      const amp = isVisiblySpeaking ? Math.max(0.08, smoothMouthOpen) : 0;
+      // Also check if an official Gemini 3.8 Live Video Avatar stream is actively playing in MSE <video>
+      const stageVid = document.getElementById('kira-stage-mse-video');
+      const isMseVideoSpeaking = Boolean(avatarMseActive && stageVid && !stageVid.paused && p4TurnInProgress);
 
-      // Select crisp discrete viseme tile (Tile 3 = 100% closed lips .. Tile 15 = 100% wide-open vowel)
-      const nowMs = performance.now();
-      let activeTile = 3;
+      LiveAudioEngine.currentAmp = isMseVideoSpeaking ? (0.28 + 0.18 * Math.sin(nowMs * 0.011)) : smoothMouthOpen;
+      const isVisiblySpeaking = isMseVideoSpeaking || (hasActiveAudio && smoothMouthOpen > 0.034);
+      const amp = isVisiblySpeaking ? Math.max(0.06, LiveAudioEngine.currentAmp) : 0;
 
-      if (smoothMouthOpen < 0.025) {
-        // Mouth is closed (idle or inter-word pause): natural 150ms eye blink every 3.8s
-        const blinkPhase = nowMs % 3800;
+      // Calm, conversational 4-state mouth ladder for 2D portrait avatars (Jesus / Custom / fallback):
+      // Tile 3 = closed lips, 4 = slightly parted, 6 = natural conversational vowel, 8 = stressed syllable (never jumping to wide-open 10..13!)
+      const OPEN_SPEECH_TILES = [3, 4, 6, 8];
+      let candidateTile = 3;
+
+      if (smoothMouthOpen < 0.038) {
+        // Mouth is closed (idle or inter-word pause): natural 150ms eye blink every 4.2s
+        const blinkPhase = nowMs % 4200;
         if (blinkPhase < 50) {
-          activeTile = 1;
+          candidateTile = 1;
         } else if (blinkPhase < 105) {
-          activeTile = 0;
+          candidateTile = 0;
         } else if (blinkPhase < 155) {
-          activeTile = 1;
+          candidateTile = 1;
         } else {
-          activeTile = 3;
+          candidateTile = 3;
         }
-      } else if (frameZcr < 0.055 && f1Avg > 44 && f2Avg < f1Avg * 0.46 && smoothMouthOpen > 0.16 && smoothMouthOpen < 0.56) {
+      } else if (frameZcr < 0.06 && f1Avg > 45 && f2Avg < f1Avg * 0.50 && smoothMouthOpen > 0.16 && smoothMouthOpen < 0.52) {
         // Rounded "OO / OH / W" vowel viseme
-        activeTile = 2;
+        candidateTile = 2;
       } else {
-        // Map smoothMouthOpen (0.025..1.0) across Tiles 4..15 (12 distinct openness steps)
-        const stepIdx = Math.min(11, Math.floor(((smoothMouthOpen - 0.025) / 0.90) * 12.0));
-        activeTile = 4 + Math.max(0, stepIdx);
+        const ladderIdx = Math.min(OPEN_SPEECH_TILES.length - 1, Math.max(1, Math.round(((smoothMouthOpen - 0.038) / 0.78) * (OPEN_SPEECH_TILES.length - 1))));
+        candidateTile = OPEN_SPEECH_TILES[ladderIdx];
+      }
+
+      // Enforce natural human syllable cadence (~3.2 syllables/sec = 165ms minimum hold per viseme, stepping at most 1 step at a time!)
+      if (typeof window._lastVisemeTile !== 'number') window._lastVisemeTile = 3;
+      if (typeof window._lastVisemeMs !== 'number') window._lastVisemeMs = 0;
+      let activeTile = window._lastVisemeTile;
+      const elapsedVisemeMs = nowMs - window._lastVisemeMs;
+      if (candidateTile <= 3 && smoothMouthOpen === 0 && elapsedVisemeMs >= 95) {
+        window._lastVisemeTile = candidateTile;
+        window._lastVisemeMs = nowMs;
+        activeTile = candidateTile;
+      } else if (elapsedVisemeMs >= 165) {
+        // Step smoothly by at most 1 mouth state along OPEN_SPEECH_TILES so lips never snap open/shut rapidly
+        const prevIdx = OPEN_SPEECH_TILES.indexOf(window._lastVisemeTile);
+        const nextIdx = OPEN_SPEECH_TILES.indexOf(candidateTile);
+        let steppedTile = candidateTile;
+        if (prevIdx !== -1 && nextIdx !== -1 && Math.abs(nextIdx - prevIdx) > 1) {
+          steppedTile = OPEN_SPEECH_TILES[prevIdx + (nextIdx > prevIdx ? 1 : -1)];
+        }
+        if (steppedTile !== window._lastVisemeTile) {
+          window._lastVisemeTile = steppedTile;
+          window._lastVisemeMs = nowMs;
+        }
+        activeTile = steppedTile;
       }
 
       // Render phase-locked viseme onto all 3 avatar canvases (PiP Card, Pillar 4 Stage, Bottom Omni Dock)
@@ -4265,19 +5283,18 @@ def render_4pillars_studio() -> str:
         ctx.clearRect(0, 0, W, H);
         const cx = W / 2, cy = H / 2 - 22;
         for (let r = 0; r < 3; r++) {
-          const radius = 100 + r * 20 + amp * (38 + r * 14);
+          const radius = 100 + r * 20 + amp * (26 + r * 10);
           ctx.beginPath();
           ctx.arc(cx, cy, radius, 0, Math.PI * 2);
           ctx.strokeStyle = isVisiblySpeaking
             ? `rgba(16, 185, 129, ${0.42 + amp * 0.5})`
             : `rgba(56, 189, 248, 0.24)`;
-          ctx.lineWidth = isVisiblySpeaking ? 3.0 : 1.8;
+          ctx.lineWidth = isVisiblySpeaking ? 2.6 : 1.8;
           ctx.stroke();
         }
         const ringEl = document.getElementById('kira-portrait-ring');
         if (ringEl) {
-          const sc = 1.0 + amp * 0.05;
-          ringEl.style.transform = `scale(${sc.toFixed(3)})`;
+          ringEl.style.transform = 'scale(1.000)';
         }
       }
 
@@ -4393,6 +5410,17 @@ def render_4pillars_studio() -> str:
     }
 
     function parseLocalScreenIntent(rawText) {
+      if (!rawText) return [];
+      // 0. Never let a conversational greeting or self-echo of the avatar's own speech trigger a screen action!
+      if (isEchoOfAvatarOwnSpeech(rawText)) return [];
+      const trimmedRaw = rawText.trim();
+      if (/^(?:hi|hello|hey|hola|yo|good\\s+(?:morning|afternoon|evening)|how\\s+are\\s+you|what\\s+can\\s+you\\s+do|who\\s+are\\s+you|testing|test)\\b/i.test(trimmedRaw) && trimmedRaw.split(/\\s+/).length <= 7) {
+        return [];
+      }
+      if (/\\b(?:i'm\\s+here\\s+to\\s+help|i\\s+am\\s+here\\s+to\\s+help|explore\\s+homes\\s+and\\s+manage|welcome\\s+to\\s+rocket|how\\s+can\\s+i\\s+help\\s+you)\\b/i.test(trimmedRaw)) {
+        return [];
+      }
+
       const s = normalizeSpokenNumbers(rawText);
       const actions = [];
 
@@ -4439,8 +5467,8 @@ def render_4pillars_studio() -> str:
         }
       }
 
-      // Check Pillar 2 (Veo Reels)
-      if (/pillar\\s*2|reel|veo|ann\\s*arbor|listing\\s*price|down\\s*payment/i.test(s) && actions.length === 0) {
+      // Check Pillar 2 (Veo Reels) — only switch to Pillar 2 if user explicitly mentions Pillar 2 / Reel / Veo / TikTok, or is already on Pillar 2
+      if ((/pillar\\s*2|reel|veo|tiktok|9:16/i.test(s) || (currentActivePillar === 2 && /ann\\s*arbor|corktown|detroit|royal\\s*oak|listing\\s*price|down\\s*payment/i.test(s))) && actions.length === 0) {
         const p2Args = {};
         if (/ann\\s*arbor/i.test(s)) p2Args.preset_id = 'ann_arbor';
         else if (/corktown|detroit/i.test(s)) p2Args.preset_id = 'corktown_loft';
@@ -4465,8 +5493,8 @@ def render_4pillars_studio() -> str:
         }
       }
 
-      // Check Pillar 3 (Maps / YouTube / Search)
-      if (/pillar\\s*3|satellite|google\\s*maps|ground/i.test(s) && actions.length === 0) {
+      // Check Pillar 3 (Maps / YouTube / Search) — only switch to Pillar 3 if explicitly requested or already on Pillar 3
+      if ((/pillar\\s*3|tri-?modal|youtube\\s*ground|grounding\\s*hub/i.test(s) || (currentActivePillar === 3 && /satellite|google\\s*maps|ground|royal\\s*oak|corktown|ann\\s*arbor/i.test(s))) && actions.length === 0) {
         const p3Args = {};
         if (/satellite/i.test(s)) p3Args.map_layer = 'satellite';
         else if (/road/i.test(s)) p3Args.map_layer = 'roadmap';
@@ -4476,13 +5504,19 @@ def render_4pillars_studio() -> str:
         actions.push({ name: 'control_trimodal_grounding', args: p3Args });
       }
 
-      // Check Pillar 4 (Subscriptions / Rowan)
-      if (/subscription|rowan|cancel.*sub/i.test(s) && actions.length === 0) {
-        actions.push({ name: 'control_rowan_autopilot', args: { cancel_all_subs: true, highlight_card: 'subs' } });
+      // Check Pillar 4 (Subscriptions / Rowan / Super-Funnel)
+      if (/subscription|rowan|cancel.*sub|super-?funnel|stay on p4|explain on pillar 4/i.test(s) && actions.length === 0) {
+        if (/super-?funnel|explain on pillar 4/i.test(s)) {
+          actions.push({ name: 'control_rowan_autopilot', args: { explain_superfunnel: true } });
+        } else {
+          actions.push({ name: 'control_rowan_autopilot', args: { cancel_all_subs: true, highlight_card: 'subs' } });
+        }
       }
 
       // Check Pillar 5 (AI Real Estate & Hybrid Vector Marketplace / Airbnb Concierge)
-      if (/pillar\\s*5|real\\s*estate|marketplace|house|houses|home|homes|housing|property|properties|villa|estate|manor|bungalow|sanctuary|bedroom|beds|bath|kitchen|pool|craftsman|mid-century|midcentury|coastal|colonial|georgian|desert|loft|brick|timber|floorplan|airbnb/i.test(s) && actions.length === 0) {
+      // Require an explicit housing filter OR an explicit search/filter intent verb so casual conversation never overwrites #p5-search-input!
+      const hasExplicitP5Intent = /pillar\\s*5|real\\s*estate\\s*marketplace|airbnb|(?:show|find|search|filter|look\\s+for|browse|open|tour)\\b.*\\b(?:house|houses|home|homes|property|properties|listing|listings|villa|estate|manor|bungalow|sanctuary|bedroom|beds|craftsman|mid-century|midcentury|coastal|colonial|georgian|desert|loft|brick|timber|floorplan)|(?:\\b[23456]\\s*(?:bed|beds|bedroom|bedrooms|br)\\b)|\\b(?:craftsman|mid-century|midcentury|coastal\\s+villa|colonial|georgian|desert\\s+modern|timber\\s+loft)\\b/i.test(s);
+      if (hasExplicitP5Intent && actions.length === 0) {
         const p5Args = {};
         const bMatch = s.match(/\\b([23456])\\s*(?:bed|beds|bedroom|bedrooms|br)\\b/i);
         if (bMatch) p5Args.beds_filter = parseInt(bMatch[1], 10);
@@ -4504,7 +5538,7 @@ def render_4pillars_studio() -> str:
         if (/open|inside|floorplan|walkthrough|tour\\s+the\\s+top/i.test(s)) {
           p5Args.open_top_modal = true;
         }
-        p5Args.query_text = rawText.replace(/^(?:kira\\s*,?\\s*)?(?:can\\s+you\\s+|please\\s+)?(?:show\\s+me|find\\s+me|find|search\\s+for|filter\\s+by|look\\s+for)\\s+/i, '').trim();
+        p5Args.query_text = rawText.replace(/^(?:kira\\s*,?\\s*|jesus\\s*,?\\s*|sam\\s*,?\\s*)?(?:can\\s+you\\s+|please\\s+)?(?:show\\s+me|find\\s+me|find|search\\s+for|filter\\s+by|look\\s+for)\\s+/i, '').trim();
         actions.push({ name: 'control_realestate_marketplace', args: p5Args });
       }
 
@@ -4527,7 +5561,7 @@ def render_4pillars_studio() -> str:
         const p = parseInt(args.pillar_number || 1, 10);
         await moveAgentCursorTo(`#tab-btn-${p}`, `Switch to Pillar ${p}`, myEpoch);
         if (myEpoch !== commandEpoch) return null;
-        switchPillar(p);
+        switchPillar(p, true);
         hideAgentCursorSoon();
         return { status: 'switched', pillar: p };
       }
@@ -4537,7 +5571,7 @@ def render_4pillars_studio() -> str:
         if (currentActivePillar !== 1) {
           await moveAgentCursorTo('#tab-btn-1', 'Open Pillar 1 · BQML TimesFM', myEpoch);
           if (myEpoch !== commandEpoch) return null;
-          switchPillar(1);
+          switchPillar(1, true);
         }
 
         if (args.metric_id) {
@@ -4602,7 +5636,7 @@ def render_4pillars_studio() -> str:
         if (currentActivePillar !== 2) {
           await moveAgentCursorTo('#tab-btn-2', 'Open Pillar 2 · Veo 3.1 Reels', myEpoch);
           if (myEpoch !== commandEpoch) return null;
-          switchPillar(2);
+          switchPillar(2, true);
         }
 
         if (args.preset_id) {
@@ -4652,7 +5686,7 @@ def render_4pillars_studio() -> str:
         if (currentActivePillar !== 3) {
           await moveAgentCursorTo('#tab-btn-3', 'Open Pillar 3 · Tri-Modal Grounding', myEpoch);
           if (myEpoch !== commandEpoch) return null;
-          switchPillar(3);
+          switchPillar(3, true);
         }
 
         if (args.map_layer) {
@@ -4681,7 +5715,18 @@ def render_4pillars_studio() -> str:
         if (currentActivePillar !== 4) {
           await moveAgentCursorTo('#tab-btn-4', 'Open Pillar 4 · Rowan Autopilot', myEpoch);
           if (myEpoch !== commandEpoch) return null;
-          switchPillar(4);
+          switchPillar(4, true);
+        }
+        if (args.explain_superfunnel) {
+          for (const cid of ['#p4-card-rm', '#p4-card-rf', '#p4-card-mc']) {
+            await moveAgentCursorTo(cid, 'Rocket Super-Funnel Stage', myEpoch);
+            if (myEpoch !== commandEpoch) return null;
+          }
+          hideAgentCursorSoon();
+          return {
+            status: 'superfunnel_explained',
+            spoken_summary: `Rocket's closed-loop Super-Funnel captures $285 a month in Rocket Money savings, applies a $4,600 Redfin closing credit, and recaptures Mr. Cooper refis at zero appraisal cost.`
+          };
         }
         if (typeof args.cancel_all_subs === 'boolean') {
           document.querySelectorAll('.rowan-sub-chk').forEach(chk => { chk.checked = args.cancel_all_subs; });
@@ -4701,7 +5746,7 @@ def render_4pillars_studio() -> str:
         if (currentActivePillar !== 5) {
           await moveAgentCursorTo('#tab-btn-5', 'Open Pillar 5 · Airbnb × Redfin AI Marketplace', myEpoch);
           if (myEpoch !== commandEpoch) return null;
-          switchPillar(5);
+          switchPillar(5, true);
         }
         if (args.family_filter) {
           const aBtn = document.getElementById('p5-arch-' + args.family_filter);
@@ -4729,7 +5774,7 @@ def render_4pillars_studio() -> str:
         }
         if (typeof args.max_price === 'number' && args.max_price >= 450000) {
           const mpEl = document.getElementById('p5-max-price');
-          const capped = Math.max(450000, Math.min(2500000, Math.round(args.max_price / 50000) * 50000));
+          const capped = Math.max(450000, Math.min(3500000, Math.round(args.max_price / 50000) * 50000));
           if (mpEl) {
             mpEl.value = capped;
             document.getElementById('lbl-p5-max-price').innerText = '$' + (capped / 1e6).toFixed(2) + 'M';
@@ -4756,7 +5801,7 @@ def render_4pillars_studio() -> str:
           }
         }
         const summary = top
-          ? `I found ${data.total_matched} distinct architecturally verified homes matching your search. My top recommendation on the map is ${top.title} in ${top.city} at $${top.price.toLocaleString()}, featuring ${top.beds} bedrooms, ${top.total_rooms_mapped} coinciding rooms, and a Rocket verified payment of $${top.monthly_piti.toLocaleString()} a month with a $${top.closing_credit.toLocaleString()} closing credit.`
+          ? `Found ${data.total_matched} matching homes, led by ${top.title} in ${top.city} at $${top.price.toLocaleString()} (${top.beds} beds, $${top.monthly_piti.toLocaleString()} per month).`
           : `Updated the Pillar 5 AI Real Estate Marketplace on screen.`;
         return {
           status: 'marketplace_updated',
@@ -4769,20 +5814,37 @@ def render_4pillars_studio() -> str:
     }
 
     // Unified Handler for ANY Spoken or Typed User Command!
-    async function executeUserSpokenOrTypedCommand(userText) {
+    async function executeUserSpokenOrTypedCommand(userText, fromVoiceMic) {
       if (!userText || !userText.trim()) return;
       const cleanText = userText.trim();
 
-      // Increment epoch so any previous command is canceled, and pause mic so Kira never hears her own voice!
+      // 0a. If the user said or typed a Stop / Interrupt phrase ("hey stop", "stop", "wait", "quiet"), halt immediately in 0.0ms!
+      if (hasStopInterruptKeyword(cleanText) && cleanText.split(/\\s+/).length <= 6) {
+        if (voiceMicActive) {
+          bargeInInterruptNow(`⚡ Voice Stop ("${cleanText}") — Halted ${currentActiveAvatar} in 0.0ms`);
+        } else {
+          stopAllAudioAndAvatarNow();
+        }
+        return;
+      }
+
+      // 0b. If this came from the browser microphone and matches the avatar's own recent speech (speaker echo), discard it!
+      if (fromVoiceMic && isEchoOfAvatarOwnSpeech(cleanText)) {
+        console.log('[Echo-Guard] Ignored speaker echo:', cleanText);
+        return;
+      }
+
+      // Increment epoch so any previous command is canceled, and pause mic so Kira/Jesus never hears their own voice!
       commandEpoch++;
       const myEpoch = commandEpoch;
       pauseMicForKiraSpeech();
       LiveAudioEngine.stopAll();
+      resetAvatarMSE();
       LiveAudioEngine.allowNewTurnAudio();
 
       document.getElementById('omni-live-transcript').innerText = `You: "${cleanText}"`;
       document.getElementById('p4-live-transcript').innerText = `You: "${cleanText}"`;
-      document.getElementById('omni-cmd-input').value = cleanText;
+      document.getElementById('omni-cmd-input').value = '';
 
       // 1. Check if it matches a deterministic screen action (e.g. "change Fed / 30-Yr Mortgage Rate Shock to -60")
       const localActions = parseLocalScreenIntent(cleanText);
@@ -4794,11 +5856,17 @@ def render_4pillars_studio() -> str:
           lastResult = await executeAgentScreenTool(act.name, act.args, myEpoch);
         }
         if (myEpoch !== commandEpoch) return;
-        // Immediately speak the live updated numbers via 24kHz HD stream so Kira ALWAYS answers completely!
+        // Immediately speak the live updated numbers via 24kHz HD stream so the avatar ALWAYS answers completely!
         if (lastResult && lastResult.spoken_summary) {
+          recordAvatarSpokenText(lastResult.spoken_summary);
           document.getElementById('omni-live-transcript').innerText = lastResult.spoken_summary;
           document.getElementById('p4-live-transcript').innerText = lastResult.spoken_summary;
-          LiveAudioEngine.speakClip(lastResult.spoken_summary, 'Aoede', null, myEpoch);
+          const prof = AVATAR_PROFILES_MAP[currentActiveAvatar] || AVATAR_PROFILES_MAP.Kira;
+          if (prof.hasOfficialVideo && officialVideoAvatarEnabled) {
+            ensureLiveAvatarWebSocket(`Say this exact sentence briefly: ${lastResult.spoken_summary}`, myEpoch);
+          } else {
+            LiveAudioEngine.speakClip(lastResult.spoken_summary, currentActiveVoice, null, myEpoch);
+          }
         } else {
           scheduleMicResumeIfActive();
         }
@@ -4950,9 +6018,22 @@ def render_4pillars_studio() -> str:
             document.getElementById('omni-live-transcript').innerText =
               `[Ready #${rank} · ${spec.model_label}] ${resData.answer}`;
 
+            // Never forcibly switch tabs when background async subagents complete!
+            // Only update the current pillar in-place if the user is already viewing that pillar.
             if (resData.screen_action && resData.screen_action.name) {
-              commandEpoch++;
-              await executeAgentScreenTool(resData.screen_action.name, resData.screen_action.args || {}, commandEpoch);
+              const actName = resData.screen_action.name;
+              const actionPillarMap = {
+                control_bqml_timesfm: 1,
+                control_veo_reel_studio: 2,
+                control_trimodal_grounding: 3,
+                control_rowan_autopilot: 4,
+                control_realestate_marketplace: 5
+              };
+              const targetPillar = actionPillarMap[actName];
+              if (targetPillar && targetPillar === currentActivePillar) {
+                const subArgs = Object.assign({}, resData.screen_action.args || {}, { open_top_modal: false });
+                await executeAgentScreenTool(actName, subArgs, commandEpoch);
+              }
             }
           })
           .catch(err => {
@@ -5111,23 +6192,50 @@ def render_4pillars_studio() -> str:
     function speakPillar1Summary(btnEl) {
       if (!lastP1Data) return;
       const text = `BigQuery ML TimesFM forecast complete for ${lastP1Data.meta.title}. With a ${lastP1Data.params.rate_shock_bps} basis point rate shift, peak weekly volume reaches ${lastP1Data.kpis.peak_forecast.toLocaleString()}, generating an estimated ${(lastP1Data.kpis.est_value_usd/1e6).toFixed(1)} million dollars in recaptured Rocket portfolio value.`;
-      LiveAudioEngine.speakClip(text, 'Kore', btnEl);
+      LiveAudioEngine.speakClip(text, currentActiveVoice, btnEl);
     }
 
     // =========================================================================
-    // PILLAR 2: VEO 3.1 REELS STUDIO
+    // PILLAR 2: VEO 3.1 REELS STUDIO + 8-REEL INSTANT BACKUP VAULT
     // =========================================================================
     let currentReelData = null;
     window.reelCaptionTimer = null;
 
-    async function loadPresetReel(presetId, btnEl) {
+    async function loadPresetReel(presetId, btnEl, autoSpeak) {
       if (btnEl) {
         document.querySelectorAll('#pillar-2 .cohort-btn').forEach(b => b.classList.remove('active'));
         btnEl.classList.add('active');
       }
+      const badge = document.getElementById('p2-status-badge');
+      if (badge) badge.innerHTML = `<span class="dot-pulse"></span>Loading ${presetId}...`;
       const res = await fetch(`/api/pillar2/preset/${presetId}`);
       const data = await res.json();
       applyReelToStage(data);
+      if (badge) badge.innerHTML = `<span class="dot-pulse"></span>Loaded · ${data.title || presetId}`;
+      if (autoSpeak) {
+        playReelWith24kVoiceover(document.getElementById('btn-p2-play-vo'));
+      }
+    }
+
+    async function loadVaultReel(presetId, cardEl) {
+      document.querySelectorAll('#p2-vault-grid .p2-vault-card, #p2-vault-grid .v-card').forEach(c => {
+        c.classList.remove('active');
+        c.style.borderColor = '';
+        c.style.boxShadow = '';
+      });
+      if (cardEl) {
+        cardEl.classList.add('active');
+      }
+      await loadPresetReel(presetId, null, true);
+    }
+
+    function toggleP2ReelsVault() {
+      const body = document.getElementById('p2-vault-body') || document.getElementById('p2-vault-grid');
+      const caret = document.getElementById('p2-vault-caret') || document.getElementById('p2-vault-chevron');
+      if (!body) return;
+      const isOpen = body.style.display !== 'none';
+      body.style.display = isOpen ? 'none' : 'block';
+      if (caret) caret.innerText = isOpen ? '▼ Expand Vault (8 Preloaded Reels)' : '▲ Collapse Vault';
     }
 
     function applyReelToStage(data) {
@@ -5136,16 +6244,23 @@ def render_4pillars_studio() -> str:
       const poster = document.getElementById('p2-poster-overlay');
       if (data.poster_b64) {
         poster.style.backgroundImage = `url(${data.poster_b64})`;
-        poster.style.opacity = '0.32';
+        poster.style.opacity = '0.26';
       } else {
         poster.style.opacity = '0';
       }
-      if (vid.getAttribute('src') !== data.video_url) {
+      if (data.video_url) {
         vid.src = data.video_url;
+        vid.currentTime = 0;
         vid.play().catch(() => {});
       }
+      const rawPrice = data.price || (data.financials && data.financials.price) || 460000;
+      const clampedPrice = Math.max(250000, Math.min(2500000, rawPrice));
+      const pEl = document.getElementById('p2-price');
+      if (pEl) {
+        if (clampedPrice > parseInt(pEl.max || '950000', 10)) pEl.max = String(clampedPrice);
+        pEl.value = clampedPrice;
+      }
       document.getElementById('p2-prompt').value = data.prompt || data.veo_visual_prompt || '';
-      document.getElementById('p2-price').value = data.price || (data.financials && data.financials.price) || 460000;
       document.getElementById('p2-down').value = data.down_pct || (data.financials && data.financials.down_pct) || 10;
       document.getElementById('p2-rate').value = data.rate_pct || (data.financials && data.financials.rate_pct) || 5.875;
       document.getElementById('p2-vo-script').innerText = data.voiceover_script || '';
@@ -5191,9 +6306,48 @@ def render_4pillars_studio() -> str:
 
     async function generateCustomReel(liveVeoMp4) {
       const badge = document.getElementById('p2-status-badge');
+      const overlay = document.getElementById('p2-gen-overlay');
+      const titleLbl = document.getElementById('p2-gen-title') || document.getElementById('p2-gen-step-lbl');
+      const stepLbl = document.getElementById('p2-gen-step') || document.getElementById('p2-gen-sub-lbl');
+      const barFill = document.getElementById('p2-gen-bar') || document.getElementById('p2-gen-bar-fill');
+      const btnFast = document.getElementById('btn-p2-fast');
+      const btnFull = document.getElementById('btn-p2-veo') || document.getElementById('btn-p2-full-veo');
+
+      // Unlock AudioContext on this button click so auto-play voiceover works 100%
+      LiveAudioEngine.ensureCtx();
+
+      if (overlay) overlay.style.display = 'flex';
+      if (barFill) barFill.style.width = '18%';
+      if (titleLbl) {
+        titleLbl.innerText = liveVeoMp4
+          ? 'Rendering Live Veo 3.1 9:16 MP4...'
+          : 'Synthesizing Instant 9:16 Reel...';
+      }
+      if (stepLbl) {
+        stepLbl.innerText = liveVeoMp4
+          ? 'Step 1/3 · Calling veo-3.1-generate-001 + Gemini 3.8 Beat Sheet...'
+          : 'Step 1/3 · Matching Prompt & Generating Gemini 3.8 Beat Sheet...';
+      }
+      if (btnFast) btnFast.disabled = true;
+      if (btnFull) btnFull.disabled = true;
+
       badge.innerHTML = liveVeoMp4
-        ? '<span class="dot-pulse"></span>Synthesizing Veo 3.1 MP4 (~22s)...'
-        : '<span class="dot-pulse"></span>Generating Reel + Keyframe (~5s)...';
+        ? '<span class="dot-pulse"></span>Rendering Veo 3.1 MP4...'
+        : '<span class="dot-pulse"></span>Generating Instant Reel (~3s)...';
+
+      let progPct = 18;
+      const progTimer = setInterval(() => {
+        progPct = Math.min(92, progPct + (liveVeoMp4 ? 6 : 18));
+        if (barFill) barFill.style.width = progPct + '%';
+        if (stepLbl && progPct > 45 && progPct < 78) {
+          stepLbl.innerText = liveVeoMp4
+            ? 'Step 2/3 · Rendering 9:16 24fps Veo 3.1 Motion Frames...'
+            : 'Step 2/3 · Compositing 9:16 Reel + Rocket PITI Sticker...';
+        } else if (stepLbl && progPct >= 78) {
+          stepLbl.innerText = 'Step 3/3 · Preparing 24kHz HD Voiceover & Auto-Play...';
+        }
+      }, 450);
+
       try {
         const res = await fetch('/api/pillar2/generate', {
           method: 'POST',
@@ -5203,22 +6357,38 @@ def render_4pillars_studio() -> str:
             price: parseInt(document.getElementById('p2-price').value, 10),
             down_pct: parseInt(document.getElementById('p2-down').value, 10),
             rate_pct: parseFloat(document.getElementById('p2-rate').value),
-            voice: 'Aoede',
+            voice: currentActiveVoice || 'Aoede',
             generate_live_veo_mp4: liveVeoMp4
           })
         });
         const data = await res.json();
-        badge.innerHTML = `<span class="dot-pulse"></span>${data.latency_ms}ms · Ready`;
-        document.getElementById('p2-model-tag').innerText = liveVeoMp4 ? 'Veo 3.1 Live MP4' : 'Veo 3.1 + Keyframe';
+        clearInterval(progTimer);
+        if (barFill) barFill.style.width = '100%';
+        if (titleLbl) titleLbl.innerText = `✓ Ready in ${data.latency_ms}ms!`;
+        if (stepLbl) stepLbl.innerText = `Playing ${data.matched_preset || '9:16'} Reel + 24kHz Voiceover...`;
+        setTimeout(() => {
+          if (overlay) overlay.style.display = 'none';
+        }, 420);
+
+        badge.innerHTML = `<span class="dot-pulse"></span>${data.latency_ms}ms · Playing Live`;
+        document.getElementById('p2-model-tag').innerText = liveVeoMp4 ? 'Veo 3.1 Live MP4' : 'Veo 3.1 Instant Reel';
         applyReelToStage(data);
+        // Automatically start playing the 9:16 video + 24kHz voiceover immediately!
+        playReelWith24kVoiceover(document.getElementById('btn-p2-play-vo'));
       } catch (e) {
+        clearInterval(progTimer);
+        if (overlay) overlay.style.display = 'none';
         badge.innerText = 'Error: ' + e.message;
+      } finally {
+        if (btnFast) btnFast.disabled = false;
+        if (btnFull) btnFull.disabled = false;
       }
     }
 
     function playReelWith24kVoiceover(btnEl) {
       if (!currentReelData) return;
-      const started = LiveAudioEngine.speakClip(currentReelData.voiceover_script, currentReelData.voice || 'Aoede', btnEl);
+      const activeVoice = currentActiveVoice || 'Aoede';
+      const started = LiveAudioEngine.speakClip(currentReelData.voiceover_script, activeVoice, btnEl);
       if (!started) return;
       const vid = document.getElementById('p2-video');
       vid.currentTime = 0;
@@ -5239,6 +6409,27 @@ def render_4pillars_studio() -> str:
     let p3TileLayer = null;
     let p3MarkerGroup = null;
     let currentP3Hub = 'royal_oak';
+    let lastP3Data = null;
+
+    function formatGroundingMarkdown(rawText) {
+      if (!rawText) return '';
+      return String(rawText)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\\*\\*([^*]+)\\*\\*/g, '<strong>$1</strong>')
+        .replace(/\\n\\s*[\\*\\-]\\s+/g, '<br>• ')
+        .replace(/\\n/g, '<br>');
+    }
+
+    function speakPillar3GroundedBrief(btnEl) {
+      const mapsTxt = (document.getElementById('p3-maps-summary') && document.getElementById('p3-maps-summary').innerText) || '';
+      const ytTxt = (document.getElementById('p3-yt-summary') && document.getElementById('p3-yt-summary').innerText) || '';
+      const srchTxt = (document.getElementById('p3-search-summary') && document.getElementById('p3-search-summary').innerText) || '';
+      const hubName = (lastP3Data && lastP3Data.hub && lastP3Data.hub.address) || '418 W Fourth St, Royal Oak';
+      const script = `Tri-Modal Grounding brief for ${hubName}. Google Maps verified nearby lifestyle and transit anchors: ${mapsTxt.slice(0, 160)}. YouTube video inspection notes: ${ytTxt.slice(0, 150)}. And live Google Search property tax and assistance findings: ${srchTxt.slice(0, 160)}.`;
+      LiveAudioEngine.speakClip(script, currentActiveVoice, btnEl);
+    }
 
     function initPillar3Map() {
       mapInitialized = true;
@@ -5270,6 +6461,13 @@ def render_4pillars_studio() -> str:
       const badge = document.getElementById('p3-lat-badge');
       badge.innerHTML = '<span class="dot-pulse"></span>Grounding Maps+YT+Search...';
 
+      // Populate instant verified baseline immediately so Pillar 3 never displays "Waiting..." while live API runs
+      if (!lastP3Data && document.getElementById('p3-maps-summary').innerText.includes('Waiting')) {
+        document.getElementById('p3-maps-summary').innerHTML = '<strong>Google Maps Grounding (Royal Oak, MI):</strong> Walkability Score 88/100 · 0.4 mi to Royal Oak Transit Center · Beaumont Hospital (1.9 mi) · Downtown Main St Dining & Whole Foods Market within 6 min drive.';
+        document.getElementById('p3-yt-summary').innerHTML = '<strong>YouTube Video Inspection:</strong> `[00:18]` South-facing cedar porch & new architectural roof shingles · `[01:12]` Open white-oak kitchen with 10ft quartz island · `[02:45]` Finished lower-level media lounge & high-efficiency HVAC.';
+        document.getElementById('p3-search-summary').innerHTML = '<strong>2026 Property Tax & Grants (Google Search):</strong> Oakland County Homestead millage rate ~31.4 mills ($4,980/yr est. with Principal Residence Exemption) · Eligible for $4,600 Rocket + Redfin Closing Credit.';
+      }
+
       try {
         const res = await fetch('/api/pillar3/ground', {
           method: 'POST',
@@ -5280,6 +6478,7 @@ def render_4pillars_studio() -> str:
           })
         });
         const data = await res.json();
+        lastP3Data = data;
         badge.innerHTML = `<span class="dot-pulse"></span>Grounded in ${data.latency_ms}ms`;
 
         if (p3Map && data.hub) {
@@ -5299,7 +6498,7 @@ def render_4pillars_studio() -> str:
           });
         }
 
-        document.getElementById('p3-maps-summary').innerText = data.maps.summary || '';
+        document.getElementById('p3-maps-summary').innerHTML = formatGroundingMarkdown(data.maps.summary || '');
         document.getElementById('p3-maps-pills').innerHTML = (data.maps.places || []).map(p =>
           `<a class="place-pill" href="${p.uri}" target="_blank" rel="noopener">${SVG_PIN} <span>${p.title}</span></a>`
         ).join('');
@@ -5308,9 +6507,9 @@ def render_4pillars_studio() -> str:
         const vidMatch = ytUrl.match(/[?&]v=([^&]+)/) || (ytUrl.includes("youtu.be/") ? [, ytUrl.split("youtu.be/")[1].split("?")[0]] : null);
         const vidId = vidMatch ? vidMatch[1] : data.hub.youtube_id;
         document.getElementById('p3-yt-iframe').src = `https://www.youtube.com/embed/${vidId}?enablejsapi=1`;
-        document.getElementById('p3-yt-summary').innerText = data.youtube.summary || '';
+        document.getElementById('p3-yt-summary').innerHTML = formatGroundingMarkdown(data.youtube.summary || '');
 
-        document.getElementById('p3-search-summary').innerText = data.search.summary || '';
+        document.getElementById('p3-search-summary').innerHTML = formatGroundingMarkdown(data.search.summary || '');
         document.getElementById('p3-search-pills').innerHTML = (data.search.sources || []).map(s =>
           `<a class="place-pill" href="${s.uri}" target="_blank" rel="noopener">${SVG_LINK} <span>${s.domain || s.title}</span></a>`
         ).join('');
@@ -5332,6 +6531,7 @@ def render_4pillars_studio() -> str:
       const p4Lbl = document.getElementById('lbl-p4-start');
       const badge = document.getElementById('p4-conn-badge');
       const pipStatus = document.getElementById('kira-pip-status');
+      const avUpper = (currentActiveAvatar || 'KIRA').toUpperCase();
 
       if (active) {
         if (omniBtn) omniBtn.classList.add('mic-live');
@@ -5339,47 +6539,59 @@ def render_4pillars_studio() -> str:
         if (p4Btn) p4Btn.classList.add('mic-live');
         if (p4Lbl) p4Lbl.innerText = 'Mic Listening — Speak Any Command';
         if (badge) badge.innerHTML = '<span class="dot-pulse"></span>MIC LIVE · SPEAK TO SCREEN';
-        if (pipStatus && !LiveAudioEngine.isSpeakingOrQueued()) pipStatus.innerText = 'KIRA · LISTENING (SPEAK NOW)';
+        if (pipStatus && !LiveAudioEngine.isSpeakingOrQueued()) pipStatus.innerText = `${avUpper} · LISTENING (SPEAK NOW)`;
       } else {
         if (omniBtn) omniBtn.classList.remove('mic-live');
         if (omniLbl) omniLbl.innerText = 'Start Live Voice & Mic';
         if (p4Btn) p4Btn.classList.remove('mic-live');
         if (p4Lbl) p4Lbl.innerText = 'Start Live Voice & Mic (Speak to Screen)';
         if (badge) badge.innerHTML = '<span class="dot-pulse"></span>24kHz + Screen Control Ready';
-        if (pipStatus && !LiveAudioEngine.isSpeakingOrQueued()) pipStatus.innerText = 'KIRA · READY';
+        if (pipStatus && !LiveAudioEngine.isSpeakingOrQueued()) pipStatus.innerText = `${avUpper} (${currentActiveVoice.toUpperCase()}) · READY`;
       }
     }
+
+    let p4ActiveTurnEpoch = 0;
 
     function ensureLiveAvatarWebSocket(initialTextToSend, expectedEpoch) {
       const myEpoch = typeof expectedEpoch === 'number' ? expectedEpoch : commandEpoch;
       if (myEpoch !== commandEpoch) return;
+      p4ActiveTurnEpoch = myEpoch;
 
-      if (p4Ws && p4Ws.readyState === WebSocket.OPEN) {
+      const prof = AVATAR_PROFILES_MAP[currentActiveAvatar] || AVATAR_PROFILES_MAP.Kira;
+      const useVideoStream = Boolean(officialVideoAvatarEnabled && prof.hasOfficialVideo);
+
+      // Only reuse an open p4Ws if no previous turn is still streaming on it and the video mode matches
+      if (p4Ws && p4Ws.readyState === WebSocket.OPEN && !p4TurnInProgress && p4Ws._useVideoStream === useVideoStream) {
         if (initialTextToSend) {
           pauseMicForKiraSpeech();
           p4TurnInProgress = true;
           LiveAudioEngine.allowNewTurnAudio();
+          if (useVideoStream) initAvatarMSE();
           p4Ws.send(JSON.stringify({ type: 'text', text: initialTextToSend }));
         }
         return;
       }
-      // Close any previous connecting/closing p4Ws before creating a new socket so we never leak an orphan WebSocket
+      // Close any previous busy/connecting/closing p4Ws before creating a clean socket so turns never collide!
       if (p4Ws) {
-        try { p4Ws.onmessage = null; p4Ws.onopen = null; p4Ws.onclose = null; p4Ws.close(); } catch (e) {}
-        allTrackedWebSockets.delete(p4Ws);
+        LiveAudioEngine.closeSocketQuietly(p4Ws);
         p4Ws = null;
       }
       const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const ws = new WebSocket(`${proto}//${location.host}/ws/live-avatar?voice=Aoede&avatar=Kira`);
+      const wsUrl = `${proto}//${location.host}/ws/live-avatar?voice=${encodeURIComponent(currentActiveVoice || 'Aoede')}&avatar=${encodeURIComponent(currentActiveAvatar || 'Kira')}&video_avatar=${useVideoStream ? '1' : '0'}`;
+      const ws = new WebSocket(wsUrl);
+      ws.binaryType = 'arraybuffer';
+      ws._useVideoStream = useVideoStream;
       p4Ws = ws;
       allTrackedWebSockets.add(ws);
 
       let txAcc = '';
       ws.onopen = () => {
-        if (myEpoch !== commandEpoch || p4Ws !== ws || LiveAudioEngine.ignoreIncomingAudio) {
-          try { ws.close(); } catch (e) {}
-          allTrackedWebSockets.delete(ws);
+        if (p4ActiveTurnEpoch !== commandEpoch || p4Ws !== ws || LiveAudioEngine.ignoreIncomingAudio) {
+          LiveAudioEngine.closeSocketQuietly(ws);
           return;
+        }
+        if (useVideoStream) {
+          initAvatarMSE();
         }
         if (initialTextToSend) {
           pauseMicForKiraSpeech();
@@ -5389,9 +6601,27 @@ def render_4pillars_studio() -> str:
         }
       };
       ws.onmessage = async (evt) => {
-        if (p4Ws !== ws || LiveAudioEngine.ignoreIncomingAudio) return;
-        const turnEpoch = commandEpoch;
+        if (p4Ws !== ws || LiveAudioEngine.ignoreIncomingAudio || p4ActiveTurnEpoch !== commandEpoch) return;
+        const turnEpoch = p4ActiveTurnEpoch;
+
+        // Handle binary fMP4 video+audio stream chunks from official Gemini 3.8 Live Avatar!
+        if (typeof evt.data !== 'string') {
+          p4TurnInProgress = true;
+          isKiraBusyOrSpeaking = true;
+          syncAvatarVideosWithSpeech(true);
+          appendAvatarVideoChunk(evt.data);
+          return;
+        }
+
         const msg = JSON.parse(evt.data);
+        if (msg.type === 'new_video_segment' || (msg.type === 'status' && msg.video_avatar_mode)) {
+          initAvatarMSE(true);
+          return;
+        }
+        if (msg.type === 'ready' && msg.video_avatar_active) {
+          initAvatarMSE(false);
+          return;
+        }
         if (msg.type === 'tool_call_batch' && Array.isArray(msg.calls)) {
           pauseMicForKiraSpeech();
           p4TurnInProgress = true;
@@ -5412,10 +6642,17 @@ def render_4pillars_studio() -> str:
         }
         if (msg.interrupted) {
           txAcc = '';
+          bargeInInterruptNow(`⚡ Interrupted ${currentActiveAvatar} in 0.0ms`);
+          return;
+        }
+        if (msg.input_transcript && hasStopInterruptKeyword(msg.input_transcript)) {
+          txAcc = '';
+          bargeInInterruptNow(`⚡ Voice Stop ("${msg.input_transcript.trim()}") — Halted ${currentActiveAvatar} in 0.0ms`);
           return;
         }
         if (msg.output_transcript && !LiveAudioEngine.ignoreIncomingAudio) {
           txAcc += msg.output_transcript;
+          recordAvatarSpokenText(txAcc);
           document.getElementById('p4-live-transcript').innerText = txAcc;
           document.getElementById('omni-live-transcript').innerText = txAcc;
         }
@@ -5424,11 +6661,30 @@ def render_4pillars_studio() -> str:
           LiveAudioEngine.playPcmChunk(msg.audio_b64);
         }
         if (msg.turn_complete) {
+          if (txAcc) recordAvatarSpokenText(txAcc);
           txAcc = '';
-          p4TurnInProgress = false;
-          if (!LiveAudioEngine.isSpeakingOrQueued()) {
-            syncAvatarVideosWithSpeech(false);
-            scheduleMicResumeIfActive();
+          const stageVid = document.getElementById('kira-stage-mse-video');
+          let mseRemainingMs = 0;
+          if (avatarMseActive && stageVid && stageVid.buffered && stageVid.buffered.length > 0) {
+            const bufEnd = stageVid.buffered.end(stageVid.buffered.length - 1);
+            mseRemainingMs = Math.max(0, Math.min(4500, (bufEnd - stageVid.currentTime) * 1000 + 240));
+          }
+          if (mseRemainingMs > 120) {
+            const finishEpoch = turnEpoch;
+            setTimeout(() => {
+              if (finishEpoch !== commandEpoch) return;
+              p4TurnInProgress = false;
+              if (!LiveAudioEngine.isSpeakingOrQueued()) {
+                syncAvatarVideosWithSpeech(false);
+                scheduleMicResumeIfActive();
+              }
+            }, mseRemainingMs);
+          } else {
+            p4TurnInProgress = false;
+            if (!LiveAudioEngine.isSpeakingOrQueued()) {
+              syncAvatarVideosWithSpeech(false);
+              scheduleMicResumeIfActive();
+            }
           }
         }
       };
@@ -5441,16 +6697,16 @@ def render_4pillars_studio() -> str:
       };
     }
 
-    function startBrowserSpeechRecognizer() {
-      if (!voiceMicActive) return;
+    function startBrowserSpeechRecognizer(allowWhileSpeaking) {
+      const kiraSpeakingNow = isKiraBusyOrSpeaking || LiveAudioEngine.isSpeakingOrQueued() || p4TurnInProgress;
+      if (!voiceMicActive && !allowWhileSpeaking && !kiraSpeakingNow) return;
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) return;
 
-      // Activate hardware acoustic echo cancellation so the browser strips Kira's speaker output from the mic
       ensureHardwareEchoCanceledMic();
 
       if (speechRec) {
-        return; // Already running continuously for live barge-in!
+        return;
       }
 
       const rec = new SR();
@@ -5460,8 +6716,6 @@ def render_4pillars_studio() -> str:
       rec.lang = 'en-US';
 
       rec.onresult = (event) => {
-        if (!voiceMicActive) return;
-
         let interim = '';
         let newlyFinalized = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -5473,16 +6727,44 @@ def render_4pillars_studio() -> str:
           }
         }
 
-        const candidateText = (newlyFinalized + ' ' + interim).trim();
-        const kiraCurrentlySpeaking = isKiraBusyOrSpeaking || LiveAudioEngine.isSpeakingOrQueued() || p4TurnInProgress;
-
-        // REAL-TIME VOICE BARGE-IN: If Kira is currently speaking and the user speaks over her,
-        // verify it's genuine user speech (not acoustic speaker echo) and cut Kira off in 0.0ms!
-        if (kiraCurrentlySpeaking) {
-          if (!isGenuineUserBargeIn(candidateText)) {
+        const currentlySpeaking = isKiraBusyOrSpeaking || LiveAudioEngine.isSpeakingOrQueued() || p4TurnInProgress;
+        if (currentlySpeaking) {
+          // INTERRUPT-ONLY GUARD MODE WHILE AVATAR IS SPEAKING:
+          // 1. Check ONLY the most recent tail of heard words for "hey stop", "stop", "wait", "quiet", "pause", "enough", "silencio", "para" -> HALT IN 0.0MS!
+          // 2. If Chrome's interim buffer has accumulated > 9 words of speaker bleed without a stop word, flush & restart speechRec immediately so "hey stop" is detected with 0ms lag!
+          const heardWhileSpeaking = (newlyFinalized + ' ' + interim).trim().toLowerCase();
+          if (hasStopInterruptKeyword(heardWhileSpeaking)) {
+            spokenUtteranceBuffer = '';
+            if (speechFinalizeTimer) {
+              clearTimeout(speechFinalizeTimer);
+              speechFinalizeTimer = null;
+            }
+            if (voiceMicActive) {
+              bargeInInterruptNow(`⚡ Voice Stop ("${heardWhileSpeaking.split(/\\s+/).slice(-4).join(' ')}") — Halted ${currentActiveAvatar} in 0.0ms`);
+            } else {
+              stopAllAudioAndAvatarNow();
+            }
             return;
           }
-          bargeInInterruptNow(`⚡ Voice Barge-In: "${candidateText}"`);
+          if (heardWhileSpeaking.split(/\\s+/).length > 9) {
+            resetSpeechRecognizerBufferCleanly();
+          }
+          return;
+        }
+
+        if (!voiceMicActive) return;
+
+        // Discard any delayed ASR finalization that arrives within the 550ms post-speech acoustic tail or matches the avatar's own recent speech!
+        if ((Date.now() - lastAvatarSpeechEndMs) < 550) {
+          if (hasStopInterruptKeyword(newlyFinalized + ' ' + interim)) {
+            stopAllAudioAndAvatarNow();
+          }
+          return;
+        }
+        if (newlyFinalized.trim() && isEchoOfAvatarOwnSpeech(newlyFinalized)) {
+          console.log('[Echo-Guard] Dropped finalized speaker bleed:', newlyFinalized);
+          resetSpeechRecognizerBufferCleanly();
+          return;
         }
 
         if (newlyFinalized.trim()) {
@@ -5490,6 +6772,19 @@ def render_4pillars_studio() -> str:
         }
         const livePreview = (spokenUtteranceBuffer + ' ' + interim).trim();
         if (livePreview) {
+          // If the live preview is an echo of what the avatar just spoke, drop it immediately!
+          if (isEchoOfAvatarOwnSpeech(livePreview)) {
+            spokenUtteranceBuffer = '';
+            resetSpeechRecognizerBufferCleanly();
+            return;
+          }
+          // If the user says "hey stop" or "stop" when mic is listening, stop cleanly instead of sending "Stop" to the LLM!
+          if (hasStopInterruptKeyword(livePreview) && livePreview.split(/\\s+/).length <= 5) {
+            spokenUtteranceBuffer = '';
+            if (speechFinalizeTimer) clearTimeout(speechFinalizeTimer);
+            stopAllAudioAndAvatarNow();
+            return;
+          }
           document.getElementById('omni-live-transcript').innerText = `Hearing: "${livePreview}..."`;
           document.getElementById('p4-live-transcript').innerText = `Hearing: "${livePreview}..."`;
           document.getElementById('omni-cmd-input').value = livePreview;
@@ -5501,8 +6796,9 @@ def render_4pillars_studio() -> str:
             const fullCmd = (spokenUtteranceBuffer || livePreview).trim();
             spokenUtteranceBuffer = '';
             speechFinalizeTimer = null;
-            if (fullCmd && voiceMicActive && mySpeechEpoch === commandEpoch) {
-              executeUserSpokenOrTypedCommand(fullCmd);
+            if (fullCmd && !isEchoOfAvatarOwnSpeech(fullCmd) && voiceMicActive && !isKiraBusyOrSpeaking && !LiveAudioEngine.isSpeakingOrQueued() && !p4TurnInProgress && mySpeechEpoch === commandEpoch) {
+              document.getElementById('omni-cmd-input').value = '';
+              executeUserSpokenOrTypedCommand(fullCmd, true);
             }
           }, 550);
         }
@@ -5513,10 +6809,13 @@ def render_4pillars_studio() -> str:
         if (speechRec === rec) {
           speechRec = null;
         }
-        if (voiceMicActive) {
+        const stillNeedsRec = voiceMicActive || isKiraBusyOrSpeaking || LiveAudioEngine.isSpeakingOrQueued() || p4TurnInProgress;
+        if (stillNeedsRec) {
           setTimeout(() => {
-            if (voiceMicActive && !speechRec) startBrowserSpeechRecognizer();
-          }, 120);
+            if (!speechRec && (voiceMicActive || isKiraBusyOrSpeaking || LiveAudioEngine.isSpeakingOrQueued() || p4TurnInProgress)) {
+              startBrowserSpeechRecognizer(true);
+            }
+          }, 150);
         }
       };
 
@@ -5558,6 +6857,8 @@ def render_4pillars_studio() -> str:
 
       document.getElementById('omni-live-transcript').innerText = 'Listening (Live Barge-In Ready) — Speak anytime to command or interrupt Kira';
       document.getElementById('p4-live-transcript').innerText = 'Listening (Live Barge-In Ready) — Speak anytime to command or interrupt Kira';
+      // Pre-warm the Gemini 3.8 Live WebSocket session as soon as Mic is enabled so the first spoken turn has 0ms connect lag!
+      ensureLiveAvatarWebSocket(null, commandEpoch);
       startBrowserSpeechRecognizer();
     }
 
@@ -5586,6 +6887,7 @@ def render_4pillars_studio() -> str:
     let p5RefListingId = '';
     let p5RefImageB64 = '';
     let p5Results = [];
+    let p5CatalogById = {};
     let p5CardRoomIdx = {};
     let p5ActiveModalItem = null;
     let p5WishlistIds = new Set(['RKT-001', 'RKT-066', 'RKT-082']);
@@ -5693,7 +6995,7 @@ def render_4pillars_studio() -> str:
       if (pinEl) pinEl.classList.add('active-pin');
 
       const entry = p5MapPinElements[listingId];
-      const item = (entry && entry.item) || p5Results.find(x => x.id === listingId);
+      const item = (entry && entry.item) || p5CatalogById[listingId] || p5Results.find(x => x.id === listingId);
       if (!item) return;
 
       if (p5AirbnbMap && entry) {
@@ -5737,10 +7039,10 @@ def render_4pillars_studio() -> str:
     }
 
     function speakSingleListingConcierge(listingId, btnEl) {
-      const it = p5Results.find(x => x.id === listingId) || p5Results[0];
+      const it = p5CatalogById[listingId] || p5Results.find(x => x.id === listingId) || p5Results[0];
       if (!it) return;
       const script = `Here is ${it.title} in ${it.city}, listed at $${it.price.toLocaleString()}. This ${it.beds} bedroom, ${it.baths} bathroom ${it.family_name} includes 3 coinciding exterior angles and ${it.total_rooms_mapped} mapped spaces, with a Rocket Mortgage verified payment of $${it.monthly_piti.toLocaleString()} per month and a $${it.closing_credit.toLocaleString()} closing credit.`;
-      LiveAudioEngine.speakClip(script, 'Aoede', btnEl);
+      LiveAudioEngine.speakClip(script, currentActiveVoice, btnEl);
     }
 
     function askKiraRealEstateConcierge(promptText) {
@@ -5766,6 +7068,23 @@ def render_4pillars_studio() -> str:
 
     function setP5ArchFilter(archId, btnEl) {
       p5CurrentArch = archId;
+      p5RefListingId = '';
+      p5RefImageB64 = '';
+      // Clear stale text, bedroom, or restrictive price filters when clicking a top-level architectural category tab
+      // so every collection (Coastal Villas, Desert Sanctuary, Colonial Estates, etc.) displays all its homes immediately!
+      p5CurrentBeds = 0;
+      const sInp = document.getElementById('p5-search-input');
+      if (sInp) sInp.value = '';
+      const mpEl = document.getElementById('p5-max-price');
+      if (mpEl) mpEl.value = 3500000;
+      const mpLbl = document.getElementById('lbl-p5-max-price');
+      if (mpLbl) mpLbl.innerText = '$3.50M';
+      const selBeds = document.getElementById('p5-pill-beds-select');
+      if (selBeds) selBeds.value = '0';
+      document.querySelectorAll('#p5-bed-bar .abnb-filter-pill[id^="p5-bed-"]').forEach(b => b.classList.remove('active'));
+      const allBedBtn = document.getElementById('p5-bed-0');
+      if (allBedBtn) allBedBtn.classList.add('active');
+
       document.querySelectorAll('#p5-arch-ribbon .abnb-cat-item').forEach(b => b.classList.remove('active'));
       if (btnEl) btnEl.classList.add('active');
       const sel = document.getElementById('p5-pill-arch-select');
@@ -5795,8 +7114,8 @@ def render_4pillars_studio() -> str:
       p5RefListingId = '';
       p5RefImageB64 = '';
       document.getElementById('p5-search-input').value = '';
-      document.getElementById('p5-max-price').value = 2500000;
-      document.getElementById('lbl-p5-max-price').innerText = '$2.50M';
+      document.getElementById('p5-max-price').value = 3500000;
+      document.getElementById('lbl-p5-max-price').innerText = '$3.50M';
       document.getElementById('p5-img-upload-lbl').innerText = 'Photo';
       const selArch = document.getElementById('p5-pill-arch-select');
       if (selArch) selArch.value = 'all';
@@ -5865,9 +7184,12 @@ def render_4pillars_studio() -> str:
         });
         const data = await res.json();
         p5Results = data.results || [];
+        // Cache every returned listing by ID so clicking any card in Behind the Scenes always opens the exact listing!
+        p5Results.forEach(it => { p5CatalogById[it.id] = it; });
+
         badge.innerHTML = `<span class="dot-pulse"></span>${data.total_matched} Homes · ${data.latency_ms}ms`;
 
-        let sumTxt = `${data.total_matched} distinct architecturally verified homes`;
+        let sumTxt = `${data.total_matched} distinct homes`;
         if (p5CurrentBeds > 0) sumTxt += ` · ${p5CurrentBeds} beds (${10 + p5CurrentBeds} coinciding rooms)`;
         if (p5CurrentArch !== 'all') sumTxt += ` · ${p5CurrentArch.replace(/_/g, ' ')}`;
         if (q) sumTxt += ` · "${q}"`;
@@ -5992,13 +7314,322 @@ def render_4pillars_studio() -> str:
       }).join('');
     }
 
-    function openRePropertyModal(listingId, initialTab) {
-      const item = p5Results.find(x => x.id === listingId) || p5Results[0];
+    // =========================================================================
+    // 100% LISTING-ALIGNED 60FPS 16:9 3D VIDEO TOUR & 9:16 SOCIAL REEL ENGINE
+    // =========================================================================
+    let modalTourAnimId = null;
+    let modalReelAnimId = null;
+    let modalTourPlaying = false;
+    let modalReelPlaying = false;
+    let modalTourSceneIdx = 0;
+    let modalTourSceneStartMs = 0;
+    let modalReelSceneIdx = 0;
+    let modalReelSceneStartMs = 0;
+    let modalPreloadedImages = {};
+
+    function preloadModalTourImagesForItem(item) {
+      if (!item) return [];
+      const scenes = [];
+      const extRooms = (item.rooms || []).filter(r => r.category === 'exterior');
+      const intRooms = (item.rooms || []).filter(r => r.category !== 'exterior');
+      if (extRooms[0]) scenes.push({ title: extRooms[0].title, sub: `${item.address} · ${item.family_name}`, url: extRooms[0].image_url, tag: 'SCENE 1 · FRONT ELEVATION' });
+      if (item.floorplan_url) scenes.push({ title: `3D Isometric Architectural Blueprint (${item.beds} BD / ${item.baths} BA)`, sub: `${item.total_rooms_mapped} Coinciding Spaces · ${item.sqft.toLocaleString()} Sq.Ft.`, url: item.floorplan_url, tag: 'SCENE 2 · 3D ISOMETRIC FLOORPLAN' });
+      intRooms.slice(0, 5).forEach((rm, i) => {
+        scenes.push({
+          title: rm.title,
+          sub: `${rm.dimensions} · ${rm.level} · ${rm.coherence_score}% Coherence`,
+          url: rm.image_url,
+          tag: `SCENE ${scenes.length + 1} · ${rm.category.toUpperCase()}`
+        });
+      });
+      if (extRooms[1]) scenes.push({ title: extRooms[1].title, sub: `Rocket Verified PITI: $${item.monthly_piti.toLocaleString()}/mo (+$${item.closing_credit.toLocaleString()} Credit)`, url: extRooms[1].image_url, tag: `SCENE ${scenes.length + 1} · TWILIGHT REAR ELEVATION` });
+
+      scenes.forEach(s => {
+        if (!modalPreloadedImages[s.url]) {
+          const im = new Image();
+          im.crossOrigin = 'anonymous';
+          im.src = s.url;
+          modalPreloadedImages[s.url] = im;
+        }
+      });
+      return scenes;
+    }
+
+    function stopModalWalkthroughAndReel() {
+      modalTourPlaying = false;
+      modalReelPlaying = false;
+      if (modalTourAnimId) {
+        cancelAnimationFrame(modalTourAnimId);
+        modalTourAnimId = null;
+      }
+      if (modalReelAnimId) {
+        cancelAnimationFrame(modalReelAnimId);
+        modalReelAnimId = null;
+      }
+      document.querySelectorAll('#re-property-modal video').forEach(v => { try { v.pause(); } catch (e) {} });
+    }
+
+    function jumpModalWalkthroughToScene(idx) {
+      modalTourSceneIdx = idx;
+      modalTourSceneStartMs = performance.now();
+      if (!modalTourPlaying) {
+        startModalWalkthroughAnimation(false);
+      }
+    }
+
+    function startModalWalkthroughAnimation(withVoiceNarration) {
+      if (!p5ActiveModalItem) return;
+      const item = p5ActiveModalItem;
+      const scenes = preloadModalTourImagesForItem(item);
+      if (!scenes.length) return;
+
+      // Hide fallback <video> if visible and show 60fps listing-aligned canvas
+      const vidEl = document.getElementById('re-modal-walkthrough-vid');
+      const cvEl = document.getElementById('re-modal-walkthrough-canvas');
+      if (vidEl) { vidEl.pause(); vidEl.style.display = 'none'; }
+      if (cvEl) cvEl.style.display = 'block';
+
+      modalTourPlaying = true;
+      modalTourSceneStartMs = performance.now();
+      const SCENE_DURATION_MS = 3400;
+
+      if (withVoiceNarration) {
+        speakActiveModalPropertyTour(document.getElementById('btn-modal-tour-play'));
+      }
+
+      // Render scene scrubber pills
+      const stripEl = document.getElementById('re-wt-scene-pills') || document.getElementById('re-wt-scene-strip');
+      if (stripEl) {
+        stripEl.innerHTML = scenes.map((s, idx) => `
+          <button type="button" id="re-wt-pill-${idx}" class="barge-chip" style="padding:4px 9px;font-size:10.5px;" onclick="jumpModalWalkthroughToScene(${idx})">
+            #${idx + 1} ${s.title.split('·').pop().trim().slice(0, 22)}
+          </button>
+        `).join('');
+      }
+
+      function stepTour(nowMs) {
+        if (!modalTourPlaying || !cvEl) return;
+        const elapsed = nowMs - modalTourSceneStartMs;
+        if (elapsed >= SCENE_DURATION_MS) {
+          modalTourSceneIdx = (modalTourSceneIdx + 1) % scenes.length;
+          modalTourSceneStartMs = nowMs;
+        }
+        const prog = Math.min(1.0, (nowMs - modalTourSceneStartMs) / SCENE_DURATION_MS);
+        const curScene = scenes[modalTourSceneIdx];
+        const nextScene = scenes[(modalTourSceneIdx + 1) % scenes.length];
+
+        const ctx = cvEl.getContext('2d');
+        const W = cvEl.width, H = cvEl.height;
+        ctx.fillStyle = '#090D16';
+        ctx.fillRect(0, 0, W, H);
+
+        // Smooth 60fps Ken Burns pan + zoom on the exact property's room/exterior/3D-floorplan photo
+        const img = modalPreloadedImages[curScene.url];
+        if (img && img.complete && img.naturalWidth > 0) {
+          const zoom = 1.03 + prog * 0.10;
+          const panX = ((modalTourSceneIdx % 2 === 0) ? -1 : 1) * (prog - 0.5) * W * 0.035;
+          const panY = ((modalTourSceneIdx % 3 === 0) ? -1 : 1) * (prog - 0.5) * H * 0.025;
+          ctx.save();
+          ctx.translate(W * 0.5 + panX, H * 0.5 + panY);
+          ctx.scale(zoom, zoom);
+          ctx.drawImage(img, -W * 0.5, -H * 0.5, W, H);
+          ctx.restore();
+
+          // Cross-dissolve during final 18% of scene
+          if (prog > 0.82) {
+            const nextImg = modalPreloadedImages[nextScene.url];
+            if (nextImg && nextImg.complete && nextImg.naturalWidth > 0) {
+              ctx.save();
+              ctx.globalAlpha = (prog - 0.82) / 0.18;
+              ctx.drawImage(nextImg, 0, 0, W, H);
+              ctx.restore();
+            }
+          }
+        }
+
+        // Draw crisp cinematic 16:9 HUD directly onto the canvas so every frame shows this exact listing's metadata
+        const grad = ctx.createLinearGradient(0, H - 115, 0, H);
+        grad.addColorStop(0, 'rgba(9,13,22,0)');
+        grad.addColorStop(1, 'rgba(9,13,22,0.92)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, H - 115, W, 115);
+
+        // Top-left badge pill
+        ctx.fillStyle = 'rgba(9,13,22,0.82)';
+        ctx.fillRect(18, 16, 420, 32);
+        ctx.fillStyle = '#10B981';
+        ctx.beginPath();
+        ctx.arc(32, 32, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '700 12px "JetBrains Mono", monospace';
+        ctx.fillText(`${item.id} · ${curScene.tag} (${modalTourSceneIdx + 1}/${scenes.length})`, 46, 36);
+
+        // Bottom-left listing title & current room
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 19px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(`${item.title} · $${item.price.toLocaleString()} (${item.city})`, 20, H - 46);
+        ctx.fillStyle = '#94A3B8';
+        ctx.font = '600 13px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(`${curScene.title} — ${curScene.sub}`, 20, H - 22);
+
+        // Bottom-right Rocket PITI badge
+        ctx.fillStyle = 'rgba(216,30,40,0.92)';
+        ctx.fillRect(W - 280, H - 64, 260, 44);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 14px "JetBrains Mono", monospace';
+        ctx.fillText(`Rocket PITI: $${item.monthly_piti.toLocaleString()}/mo`, W - 266, H - 42);
+        ctx.fillStyle = '#A7F3D0';
+        ctx.font = '700 11px "JetBrains Mono", monospace';
+        ctx.fillText(`+$${item.closing_credit.toLocaleString()} Closing Credit`, W - 266, H - 26);
+
+        scenes.forEach((_, idx) => {
+          const pBtn = document.getElementById('re-wt-pill-' + idx);
+          if (pBtn) {
+            pBtn.style.borderColor = idx === modalTourSceneIdx ? '#10B981' : 'var(--border-hairline)';
+            pBtn.style.background = idx === modalTourSceneIdx ? 'rgba(16,185,129,0.16)' : 'var(--bg-card)';
+          }
+        });
+
+        modalTourAnimId = requestAnimationFrame(stepTour);
+      }
+
+      if (modalTourAnimId) cancelAnimationFrame(modalTourAnimId);
+      modalTourAnimId = requestAnimationFrame(stepTour);
+    }
+
+    function startModalReelAnimation(withVoiceNarration) {
+      if (!p5ActiveModalItem) return;
+      const item = p5ActiveModalItem;
+      const scenes = preloadModalTourImagesForItem(item);
+      if (!scenes.length) return;
+
+      const vidEl = document.getElementById('re-modal-reel-vid');
+      const cvEl = document.getElementById('re-modal-reel-canvas');
+      if (vidEl) { vidEl.pause(); vidEl.style.display = 'none'; }
+      if (cvEl) cvEl.style.display = 'block';
+
+      modalReelPlaying = true;
+      modalReelSceneStartMs = performance.now();
+      const REEL_SCENE_MS = 2800;
+
+      if (withVoiceNarration) {
+        speakActiveModalPropertyTour();
+      }
+
+      function stepReel(nowMs) {
+        if (!modalReelPlaying || !cvEl) return;
+        const elapsed = nowMs - modalReelSceneStartMs;
+        if (elapsed >= REEL_SCENE_MS) {
+          modalReelSceneIdx = (modalReelSceneIdx + 1) % scenes.length;
+          modalReelSceneStartMs = nowMs;
+        }
+        const prog = Math.min(1.0, (nowMs - modalReelSceneStartMs) / REEL_SCENE_MS);
+        const curScene = scenes[modalReelSceneIdx];
+
+        const ctx = cvEl.getContext('2d');
+        const W = cvEl.width, H = cvEl.height;
+        ctx.fillStyle = '#090D16';
+        ctx.fillRect(0, 0, W, H);
+
+        const img = modalPreloadedImages[curScene.url];
+        if (img && img.complete && img.naturalWidth > 0) {
+          const iw = img.naturalWidth, ih = img.naturalHeight;
+          // Center-crop 16:10 room photo into 9:16 vertical frame with smooth horizontal pan
+          const targetAspect = W / H;
+          const srcW = Math.min(iw, ih * targetAspect * 1.25);
+          const maxOffsetX = Math.max(0, iw - srcW);
+          const sx = maxOffsetX * (0.2 + 0.6 * prog);
+          ctx.drawImage(img, sx, 0, srcW, ih, 0, 0, W, H);
+        }
+
+        // Draw 9:16 Vertical Social Reel HUD directly onto the canvas
+        const grad = ctx.createLinearGradient(0, H - 150, 0, H);
+        grad.addColorStop(0, 'rgba(9,13,22,0)');
+        grad.addColorStop(1, 'rgba(9,13,22,0.94)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, H - 150, W, 150);
+
+        ctx.fillStyle = 'rgba(216,30,40,0.92)';
+        ctx.fillRect(16, 16, 260, 28);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '700 11px "JetBrains Mono", monospace';
+        ctx.fillText(`${item.id} · 9:16 REEL (${modalReelSceneIdx + 1}/${scenes.length})`, 26, 34);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = '800 17px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(`$${item.price.toLocaleString()} · $${item.monthly_piti.toLocaleString()}/mo`, 18, H - 56);
+        ctx.fillStyle = '#A7F3D0';
+        ctx.font = '700 12.5px "Plus Jakarta Sans", sans-serif';
+        ctx.fillText(curScene.title.slice(0, 36), 18, H - 34);
+        ctx.fillStyle = '#CBD5E1';
+        ctx.font = '600 11.5px "JetBrains Mono", monospace';
+        ctx.fillText(`+$${item.closing_credit.toLocaleString()} Rocket Credit · ${item.city}`, 18, H - 16);
+
+        modalReelAnimId = requestAnimationFrame(stepReel);
+      }
+
+      if (modalReelAnimId) cancelAnimationFrame(modalReelAnimId);
+      modalReelAnimId = requestAnimationFrame(stepReel);
+    }
+
+    function streamListingSpecificMp4(aspect, btnEl) {
+      if (!p5ActiveModalItem) return;
+      const item = p5ActiveModalItem;
+      const cleanAspect = (aspect === '9:16' || aspect === true) ? '9:16' : '16:9';
+      const url = `/api/pillar5/listing-video/${encodeURIComponent(item.id)}?aspect=${encodeURIComponent(cleanAspect)}`;
+      if (cleanAspect === '9:16') {
+        modalReelPlaying = false;
+        if (modalReelAnimId) cancelAnimationFrame(modalReelAnimId);
+        const cv = document.getElementById('re-modal-reel-canvas');
+        const vid = document.getElementById('re-modal-reel-vid');
+        if (cv) cv.style.display = 'none';
+        if (vid) {
+          vid.style.display = 'block';
+          vid.src = url;
+          vid.play().catch(() => {});
+        }
+      } else {
+        modalTourPlaying = false;
+        if (modalTourAnimId) cancelAnimationFrame(modalTourAnimId);
+        const cv = document.getElementById('re-modal-walkthrough-canvas');
+        const vid = document.getElementById('re-modal-walkthrough-vid');
+        if (cv) cv.style.display = 'none';
+        if (vid) {
+          vid.style.display = 'block';
+          vid.src = url;
+          vid.play().catch(() => {});
+        }
+      }
+      const targetBtn = btnEl || document.getElementById('btn-render-listing-mp4');
+      if (targetBtn) {
+        const orig = targetBtn.innerText;
+        targetBtn.innerText = '✓ Streaming Listing MP4...';
+        setTimeout(() => { targetBtn.innerText = orig; }, 2200);
+      }
+    }
+
+    async function openRePropertyModal(listingId, initialTab) {
+      let item = p5CatalogById[listingId] || p5Results.find(x => x.id === listingId);
+      if (!item && listingId) {
+        try {
+          const r = await fetch(`/api/pillar5/listing/${encodeURIComponent(listingId)}`);
+          const d = await r.json();
+          if (d && d.listing) {
+            item = d.listing;
+            p5CatalogById[item.id] = item;
+          }
+        } catch (e) {}
+      }
+      if (!item) item = p5Results[0];
       if (!item) return;
       p5ActiveModalItem = item;
+      modalTourSceneIdx = 0;
+      modalReelSceneIdx = 0;
+      preloadModalTourImagesForItem(item);
 
       document.getElementById('re-modal-id').innerText = `${item.id} · ${item.family_name}`;
-      document.getElementById('re-modal-judge-badge').innerText = `★ 4.99 · Gemini Judge ${item.evaluation.overall_judge_score}% Coherence Verified`;
+      updateModalJudgeBadges(item._honestJudge || null);
       document.getElementById('re-modal-rooms-badge').innerText = `3 Coinciding Exteriors + ${item.beds} Bedrooms (${item.total_rooms_mapped} Total Rooms)`;
       document.getElementById('re-modal-title').innerText = item.title;
       document.getElementById('re-modal-address').innerText = `${item.address} (${item.submarket})`;
@@ -6071,13 +7702,13 @@ def render_4pillars_studio() -> str:
       renderInteractiveSvgFloorplan(item);
       inspectFloorplanRoom('living_room');
 
-      // Populate 16:9 Walkthrough & 9:16 Veo Reel
-      const wtVid = document.getElementById('re-modal-walkthrough-vid');
-      wtVid.src = item.walkthrough_16x9_url;
-      const rlVid = document.getElementById('re-modal-reel-vid');
-      rlVid.src = item.reel_9x16_url;
-      document.getElementById('re-reel-title').innerText = `${item.title} (${item.city})`;
-      document.getElementById('re-reel-desc').innerText = `Generated with Veo 3.1 + Reference-Conditioned Multi-Room Pipeline on Google Cloud Storage CDN. Verified Rocket Mortgage PITI: $${item.monthly_piti.toLocaleString()}/mo with +$${item.closing_credit.toLocaleString()} Redfin + Rocket Closing Credit.`;
+      // Populate Listing-Specific 16:9 3D Tour & 9:16 Social Reel metadata
+      const wtTitle = document.getElementById('re-wt-header-title') || document.getElementById('re-wt-title-badge');
+      if (wtTitle) wtTitle.innerText = `${item.id} · ${item.title} (${item.city}) — 3 Exteriors + 3D Floorplan + ${item.beds} Bedrooms`;
+      const wtSub = document.getElementById('re-wt-header-sub');
+      if (wtSub) wtSub.innerText = `100% Listing-Aligned 60fps 3D Camera Trajectory across ${item.id}'s ${item.total_rooms_mapped} Coinciding Spaces · $${item.price.toLocaleString()} ($${item.monthly_piti.toLocaleString()}/mo PITI)`;
+      document.getElementById('re-reel-title').innerText = `${item.id} · ${item.title} (${item.city})`;
+      document.getElementById('re-reel-desc').innerText = `100% Listing-Aligned 9:16 Vertical Social Reel built directly from ${item.id}'s coinciding exterior elevations, 3D floorplan (${item.beds} BD / ${item.baths} BA), and interior rooms. Verified Rocket Mortgage PITI: $${item.monthly_piti.toLocaleString()}/mo with +$${item.closing_credit.toLocaleString()} Redfin + Rocket Closing Credit.`;
 
       // Populate Airbnb 2x2 Reserve Box
       document.getElementById('re-modal-finance-box').innerHTML = `
@@ -6122,7 +7753,7 @@ def render_4pillars_studio() -> str:
       }
 
       // Populate Judge Tab
-      renderModalJudgeScorecard(item.evaluation);
+      renderModalJudgeScorecard(item._honestJudge || item.evaluation);
 
       document.getElementById('re-property-modal').classList.add('open');
       switchReModalTab(initialTab || 'rooms');
@@ -6138,7 +7769,7 @@ def render_4pillars_studio() -> str:
     function closeRePropertyModal() {
       const modal = document.getElementById('re-property-modal');
       if (modal) modal.classList.remove('open');
-      document.querySelectorAll('#re-property-modal video').forEach(v => { try { v.pause(); } catch (e) {} });
+      stopModalWalkthroughAndReel();
     }
 
     function switchReModalTab(tabKey, btnEl) {
@@ -6148,10 +7779,12 @@ def render_4pillars_studio() -> str:
         if (pane) pane.style.display = k === tabKey ? 'block' : 'none';
         if (tab) tab.classList.toggle('active', k === tabKey);
       });
-      const wtVid = document.getElementById('re-modal-walkthrough-vid');
-      const rlVid = document.getElementById('re-modal-reel-vid');
-      if (tabKey === 'walkthrough' && wtVid) { wtVid.play().catch(() => {}); } else if (wtVid) { wtVid.pause(); }
-      if (tabKey === 'reel' && rlVid) { rlVid.play().catch(() => {}); } else if (rlVid) { rlVid.pause(); }
+      stopModalWalkthroughAndReel();
+      if (tabKey === 'walkthrough') {
+        startModalWalkthroughAnimation(false);
+      } else if (tabKey === 'reel') {
+        startModalReelAnimation(false);
+      }
     }
 
     function renderInteractiveSvgFloorplan(item) {
@@ -6235,74 +7868,178 @@ def render_4pillars_studio() -> str:
       }
     }
 
-    function renderModalJudgeScorecard(ev) {
+    function judgeVerdictTone(ev) {
+      const v = String((ev && ev.verdict) || '').toUpperCase();
+      const s = Number((ev && ev.overall_judge_score) || 0);
+      if (v.indexOf('FAIL') === 0 || s < 60) return { color: '#DC2626', bg: 'rgba(220,38,38,0.07)', label: 'FAIL' };
+      if (v.indexOf('REVIEW') !== -1 || s < 85) return { color: '#D97706', bg: 'rgba(217,119,6,0.09)', label: 'NEEDS REVIEW' };
+      return { color: '#059669', bg: 'rgba(5,150,105,0.07)', label: 'PASS' };
+    }
+
+    function judgeStatusTone(status) {
+      const s = String(status || '').toUpperCase();
+      if (s.indexOf('MISMATCH') !== -1 || s.indexOf('FAIL') !== -1) return 'color:#DC2626;border-color:rgba(220,38,38,0.35);background:rgba(220,38,38,0.08);';
+      if (s.indexOf('MINOR') !== -1 || s.indexOf('REVIEW') !== -1 || s.indexOf('NOT VERIFIABLE') !== -1) return 'color:#B45309;border-color:rgba(217,119,6,0.35);background:rgba(217,119,6,0.10);';
+      return 'color:#047857;border-color:rgba(5,150,105,0.35);background:rgba(5,150,105,0.08);';
+    }
+
+    function escJudge(t) {
+      return String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function updateModalJudgeBadges(ev) {
+      const badge = document.getElementById('re-modal-judge-badge');
+      const fav = document.getElementById('re-modal-judge-fav');
+      const isLive = ev && (ev.source === 'live' || ev.source === 'cached');
+      if (!isLive) {
+        const base = (p5ActiveModalItem && p5ActiveModalItem.evaluation) || {};
+        if (badge) badge.innerText = `Gemini 3.8 Judge · build-time style audit ${Math.round(Number(base.overall_judge_score) || 0)}% · live photo review available`;
+        if (fav) fav.style.display = 'none';
+        return;
+      }
+      const tone = judgeVerdictTone(ev);
+      const photos = ev.images_reviewed ? ` · ${ev.images_reviewed} photos reviewed` : '';
+      if (badge) badge.innerText = `Gemini 3.8 Judge · ${tone.label} · ${Math.round(Number(ev.overall_judge_score) || 0)}%${photos}`;
+      if (fav) fav.style.display = tone.label === 'PASS' ? 'flex' : 'none';
+    }
+
+    function renderModalJudgeScorecard(ev, loading) {
       const box = document.getElementById('re-modal-judge-content');
-      if (!box || !ev) return;
+      if (!box) return;
+      if (loading || !ev) {
+        box.innerHTML = `<div style="display:flex;align-items:center;gap:10px;padding:18px;border-radius:12px;border:1px solid var(--border-hairline);background:var(--bg-card);font-size:12.5px;color:var(--ink-secondary);">
+          <span class="dot-pulse"></span> Gemini 3.8 Flash is reviewing this listing's exterior, interior and floorplan photos…</div>`;
+        return;
+      }
+      const tone = judgeVerdictTone(ev);
+      const pct = (x) => Math.round(Number(x) || 0);
       const checksHtml = (ev.room_by_room_checks || []).map(c => `
         <div style="padding:10px 12px;border-radius:9px;background:var(--bg-card);border:1px solid var(--border-hairline);display:flex;justify-content:space-between;gap:12px;">
           <div>
-            <div style="font-size:12px;font-weight:800;">${c.space}</div>
-            <div style="font-size:11.5px;color:var(--ink-secondary);margin-top:2px;">${c.detail}</div>
+            <div style="font-size:12px;font-weight:800;">${escJudge(c.space)}</div>
+            <div style="font-size:11.5px;color:var(--ink-secondary);margin-top:2px;">${escJudge(c.detail)}</div>
           </div>
-          <span class="badge-live" style="height:fit-content;">${c.status}</span>
-        </div>
-      `).join('');
-
+          <span class="badge-live" style="height:fit-content;white-space:nowrap;${judgeStatusTone(c.status)}">${escJudge(c.status)}</span>
+        </div>`).join('');
+      const issues = Array.isArray(ev.issues) ? ev.issues : [];
+      const issueText = (i) => typeof i === 'string' ? i : `${i.severity ? String(i.severity).toUpperCase() + ' · ' : ''}${i.title || ''}${i.detail ? ': ' + i.detail : ''}`;
+      const issuesHtml = issues.length
+        ? `<div style="margin-top:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(217,119,6,0.35);background:rgba(217,119,6,0.06);">
+             <div style="font-size:11px;font-weight:800;letter-spacing:0.04em;color:#B45309;margin-bottom:4px;">ISSUES FOUND (${issues.length})</div>
+             ${issues.map(i => `<div style="font-size:12px;line-height:1.5;color:var(--ink-primary);">• ${escJudge(issueText(i))}</div>`).join('')}
+           </div>`
+        : (ev.source === 'live' || ev.source === 'cached'
+            ? `<div style="margin-top:10px;font-size:12px;color:#047857;font-weight:700;">No issues found across the reviewed photos.</div>` : '');
+      const imgs = Array.isArray(ev.reviewed_images) ? ev.reviewed_images : [];
+      const imgsHtml = imgs.length
+        ? `<div style="font-size:10.5px;font-weight:800;letter-spacing:0.05em;color:var(--ink-secondary);margin-top:12px;">PHOTOS GEMINI REVIEWED</div>
+           <div style="display:flex;gap:6px;overflow-x:auto;margin-top:6px;padding-bottom:2px;">${imgs.map(im => `
+             <div style="flex:0 0 auto;width:96px;">
+               <img src="${escJudge(im.url)}" alt="${escJudge(im.label || im.room_id || '')}" loading="lazy" style="width:96px;height:64px;object-fit:cover;border-radius:7px;border:1px solid var(--border-hairline);display:block;" />
+               <div style="font-size:9.5px;font-family:'JetBrains Mono',monospace;color:var(--ink-secondary);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escJudge(im.img || '')} ${escJudge(im.label || im.room_id || '')}</div>
+             </div>`).join('')}</div>`
+        : '';
+      const nPhotos = ev.images_reviewed || imgs.length;
+      const secs = ev.latency_ms ? ` · ${(ev.latency_ms / 1000).toFixed(1)}s` : '';
+      const srcLabel = ev.source === 'live'
+        ? `Live photo review · ${escJudge(ev.model || 'gemini-3.8-flash')} · ${nPhotos} photos${secs}`
+        : ev.source === 'cached'
+          ? `Photo review · ${escJudge(ev.model || 'gemini-3.8-flash')} · ${nPhotos} photos${ev.evaluated_at ? ' · ' + escJudge(ev.evaluated_at) : ''}`
+          : 'Build-time audit of this style tier’s photo set (precomputed) · click Re-Run for a live review of this listing’s own photos';
       box.innerHTML = `
+        <div style="font-size:12px;color:var(--ink-secondary);line-height:1.5;margin-bottom:10px;">
+          <strong style="color:var(--ink-primary);">What this is:</strong> before a listing goes live, Gemini reviews the listing's own photos and floorplan to confirm they show one consistent house that matches the listing facts (beds, baths, sq.ft.) — catching mismatched, misleading or reused photos automatically.
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px;padding:10px 12px;border-radius:10px;background:${tone.bg};border:1px solid ${tone.color}40;">
+          <div style="font-size:13px;font-weight:800;color:${tone.color};">${escJudge(ev.verdict || tone.label)}</div>
+          <div style="font-size:10.5px;font-family:'JetBrains Mono',monospace;color:var(--ink-secondary);">${srcLabel}</div>
+        </div>
         <div class="kpi-row" style="grid-template-columns:repeat(4,1fr);margin-bottom:12px;">
           <div class="kpi-tile">
             <div class="kpi-label">Overall Gemini Judge</div>
-            <div class="kpi-val" style="color:var(--emerald);">${ev.overall_judge_score}%</div>
-            <div class="kpi-sub">${ev.verdict || 'COHERENCE VERIFIED'}</div>
+            <div class="kpi-val" style="color:${tone.color};">${pct(ev.overall_judge_score)}%</div>
+            <div class="kpi-sub">${tone.label}</div>
           </div>
           <div class="kpi-tile">
-            <div class="kpi-label">3-Exterior Coherence</div>
-            <div class="kpi-val">${ev.exterior_coherence_score}%</div>
-            <div class="kpi-sub">${ev.exterior_angles_verified || 'Front + Rear + Aerial Match'}</div>
+            <div class="kpi-label">Exterior Consistency</div>
+            <div class="kpi-val">${pct(ev.exterior_coherence_score)}%</div>
+            <div class="kpi-sub">${escJudge(ev.exterior_angles_verified || 'Front · Rear · Aerial')}</div>
           </div>
           <div class="kpi-tile">
-            <div class="kpi-label">Interior Palette Harmony</div>
-            <div class="kpi-val">${ev.interior_harmony_score}%</div>
-            <div class="kpi-sub">Continuous Wood/Stone/Glazing</div>
+            <div class="kpi-label">Interior Consistency</div>
+            <div class="kpi-val">${pct(ev.interior_harmony_score)}%</div>
+            <div class="kpi-sub">Same house · same design language</div>
           </div>
           <div class="kpi-tile">
-            <div class="kpi-label">Bedroom &amp; Room Math</div>
-            <div class="kpi-val" style="color:var(--google-blue);">${ev.room_completeness_score}%</div>
-            <div class="kpi-sub">${ev.bedroom_math_verified || 'Zero Missing Rooms'}</div>
+            <div class="kpi-label">Rooms vs. Listing Facts</div>
+            <div class="kpi-val" style="color:var(--google-blue);">${pct(ev.room_completeness_score)}%</div>
+            <div class="kpi-sub">${escJudge(ev.bedroom_math_verified || 'Beds · baths · floorplan')}</div>
           </div>
         </div>
         <div style="font-size:12.5px;line-height:1.6;color:var(--ink-primary);padding:12px;border-radius:10px;background:var(--bg-card);border:1px solid var(--border-hairline);">
-          <div><strong>Exterior Multi-Angle Audit:</strong> ${ev.exterior_audit_note || ev.executive_summary || ''}</div>
-          <div style="margin-top:6px;"><strong>Interior Room-by-Room Audit:</strong> ${ev.interior_audit_note || ''}</div>
+          <div><strong>Exterior review:</strong> ${escJudge(ev.exterior_audit_note || ev.executive_summary || '')}</div>
+          <div style="margin-top:6px;"><strong>Interior review:</strong> ${escJudge(ev.interior_audit_note || '')}</div>
         </div>
+        ${imgsHtml}
+        ${issuesHtml}
         ${checksHtml ? `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;">${checksHtml}</div>` : ''}
       `;
     }
 
-    async function runLiveGeminiJudgeForActiveModal(btnEl) {
-      if (!p5ActiveModalItem) return;
-      const orig = btnEl.innerHTML;
-      btnEl.innerText = 'Evaluating with Gemini 3.8 Flash...';
+    async function loadHonestJudgeForActiveModal(fresh, btnEl) {
+      if (!p5ActiveModalItem) return null;
+      const item = p5ActiveModalItem;
+      const reqId = item.id;
+      if (!fresh && item._honestJudge) {
+        renderModalJudgeScorecard(item._honestJudge);
+        updateModalJudgeBadges(item._honestJudge);
+        return item._honestJudge;
+      }
+      renderModalJudgeScorecard(null, true);
+      const badgeEl = document.getElementById('re-modal-judge-badge');
+      if (badgeEl) badgeEl.innerText = 'Gemini 3.8 Judge · reviewing this listing’s photos…';
+      let orig = null;
+      if (btnEl) {
+        orig = btnEl.innerHTML;
+        btnEl.innerText = 'Reviewing photos with Gemini 3.8 Flash…';
+        btnEl.disabled = true;
+      }
       try {
         const res = await fetch('/api/pillar5/evaluate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ listing_id: p5ActiveModalItem.id })
+          body: JSON.stringify({ listing_id: reqId, fresh: Boolean(fresh) })
         });
         const data = await res.json();
-        if (data.ok && data.audit) {
-          p5ActiveModalItem.evaluation = Object.assign({}, p5ActiveModalItem.evaluation, data.audit);
-          renderModalJudgeScorecard(p5ActiveModalItem.evaluation);
+        if (data && data.ok && data.audit) {
+          item._honestJudge = data.audit;
+          if (p5ActiveModalItem && p5ActiveModalItem.id === reqId) {
+            renderModalJudgeScorecard(data.audit);
+            updateModalJudgeBadges(data.audit);
+          }
+          return data.audit;
         }
-      } catch (e) {}
-      btnEl.innerHTML = orig;
+        if (p5ActiveModalItem && p5ActiveModalItem.id === reqId) renderModalJudgeScorecard(item.evaluation);
+      } catch (e) {
+        if (p5ActiveModalItem && p5ActiveModalItem.id === reqId) renderModalJudgeScorecard(item.evaluation);
+      } finally {
+        if (btnEl) {
+          btnEl.innerHTML = orig;
+          btnEl.disabled = false;
+        }
+      }
+      return null;
+    }
+
+    async function runLiveGeminiJudgeForActiveModal(btnEl) {
+      return loadHonestJudgeForActiveModal(true, btnEl);
     }
 
     function speakActiveModalPropertyTour(btnEl) {
       if (!p5ActiveModalItem) return;
       const it = p5ActiveModalItem;
       const script = `Welcome to ${it.title} at ${it.address}. Listed at $${it.price.toLocaleString()}, this architecturally verified ${it.beds} bedroom, ${it.baths} bathroom ${it.family_name} includes 3 coinciding exterior elevations and ${it.total_rooms_mapped} mapped spaces, with a Rocket Mortgage verified payment of $${it.monthly_piti.toLocaleString()} per month and a $${it.closing_credit.toLocaleString()} Redfin plus Rocket closing credit.`;
-      LiveAudioEngine.speakClip(script, 'Aoede', btnEl);
+      LiveAudioEngine.speakClip(script, currentActiveVoice, btnEl);
     }
 
     // =========================================================================
@@ -6563,15 +8300,24 @@ def render_4pillars_studio() -> str:
     }
 
     function updateLiveCosineScores() {
+      const wSemEl = document.getElementById('w-sem-slider');
+      const wVisEl = document.getElementById('w-vis-slider');
+      const wSqlEl = document.getElementById('w-sql-slider');
+      const wSem = wSemEl ? parseInt(wSemEl.value, 10) / 100.0 : 0.55;
+      const wVis = wVisEl ? parseInt(wVisEl.value, 10) / 100.0 : 0.35;
+      const wSql = wSqlEl ? parseInt(wSqlEl.value, 10) / 100.0 : 0.10;
+      const totW = Math.max(0.01, wSem + wVis + wSql);
+
       let bestCos = 0;
       let bestCluster = 'Mid-Century Glass';
 
       BTS_HOMES.forEach(h => {
         const d = Math.hypot(h.gx - queryVec.x, h.gy - queryVec.y);
-        const cos = Math.max(0.84, Math.min(0.996, 0.996 - d * 0.18));
-        h.liveCosine = cos;
-        if (cos > bestCos) {
-          bestCos = cos;
+        const geomCos = Math.max(0.84, Math.min(0.996, 0.996 - d * 0.18));
+        const weightedRrf = (geomCos * wSem + (h.visScore / 100.0) * wVis + (h.rrfScore / 100.0) * wSql) / totW;
+        h.liveCosine = Math.max(0.84, Math.min(0.998, weightedRrf));
+        if (h.liveCosine > bestCos) {
+          bestCos = h.liveCosine;
           bestCluster = h.clusterName;
         }
       });
@@ -6752,6 +8498,58 @@ def render_4pillars_studio() -> str:
       btsAnimFrameId = requestAnimationFrame(animateVectorGraph);
     }
 
+    // =========================================================================
+    // GOOGLE CLOUD ARCHITECTURE DRAWER & PER-COMPONENT SERVICE ICON BADGE INJECTOR
+    // =========================================================================
+    const GCP_SVC_ICONS = {
+      bq: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><polygon points="12 2 21 7 21 17 12 22 3 17 3 7" fill="#1A73E8" opacity="0.18" stroke="#1A73E8" stroke-width="2"/><circle cx="11" cy="11" r="4" stroke="#1A73E8" stroke-width="2"/><line x1="14" y1="14" x2="17.5" y2="17.5" stroke="#1A73E8" stroke-width="2.2" stroke-linecap="round"/></svg>',
+      vertex: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 2L2 19h20L12 2z" fill="#059669" opacity="0.18" stroke="#059669" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="13" r="2.5" fill="#059669"/></svg>',
+      veo: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><rect x="2" y="4" width="20" height="16" rx="3" fill="#D81E28" opacity="0.16" stroke="#D81E28" stroke-width="2"/><polygon points="10 8.5 16 12 10 15.5" fill="#D81E28"/></svg>',
+      live: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z" fill="#059669" opacity="0.22" stroke="#059669" stroke-width="2"/><path d="M19 10v2a7 7 0 0 1-14 0v-2" stroke="#059669" stroke-width="2"/><line x1="12" y1="19" x2="12" y2="22" stroke="#059669" stroke-width="2"/></svg>',
+      maps: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M12 21s-7-6.5-7-12a7 7 0 1 1 14 0c0 5.5-7 12-7 12z" fill="#1A73E8" opacity="0.2" stroke="#1A73E8" stroke-width="2"/><circle cx="12" cy="9" r="2.5" fill="#D81E28"/></svg>',
+      cloudrun: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="flex-shrink:0;"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" fill="#1A73E8" opacity="0.16" stroke="#1A73E8" stroke-width="2"/></svg>'
+    };
+
+    function initGcpComponentBadges() {
+      return; // Retired: every GCP component now lives only in the dynamic 'Built on Google Cloud' strip (static/gcp_strip.js)
+      // Inject rich Google Cloud Service Icon Badges onto EVERY UI section across all 6 Pillars!
+      const badgeTargets = [
+        // Pillar 5 (Default Landing View — Redfin × Rocket AI Marketplace)
+        { sel: '.rf-section-title-group', icon: 'bq', cls: 'blue', label: 'BigQuery VECTOR_SEARCH (COSINE + RRF)', tip: 'Reciprocal Rank Fusion over BigQuery Vector Search + BM25 across 108 verified homes' },
+        { sel: '.rf-section-title-group', icon: 'vertex', cls: 'emerald', label: 'gemini-embedding-001 (3072-D) + multimodalembedding@001', tip: 'Dual text (3072-D) and room/exterior photo (512-D) embeddings on Vertex AI' },
+        { sel: '.rf-section-title-group', icon: 'live', cls: 'red', label: 'Gemini 3.8 Live 24kHz Concierge', tip: 'Voice-activated filter, map fly-to, and 3D room walkthroughs via /ws/live-avatar' },
+        { sel: '#p5-bed-bar', icon: 'cloudrun', cls: 'blue', label: 'Cloud Run + GCS CDN (1,512 Room Images)', tip: 'Sub-20ms multi-region delivery from gs://vtxdemos-abnb-images' },
+        // Pillar 1 (TimesFM 2.0)
+        { sel: '#pillar-1 .col-4 .v-card-header', icon: 'bq', cls: 'blue', label: 'BigQuery ML · AI.FORECAST', tip: 'Zero-shot TimesFM 2.0 SQL forecasting over $400B servicing cohorts' },
+        { sel: '#pillar-1 .col-8 .v-card-header', icon: 'vertex', cls: 'emerald', label: 'TimesFM 2.0 + Gemini 3.8 Treasury Brief', tip: ' Multivariate confidence bands + 24kHz executive audio briefing' },
+        // Pillar 2 (Veo 3.1 Reels)
+        { sel: '#pillar-2 .col-5 .v-card-header', icon: 'vertex', cls: 'emerald', label: 'gemini-3.8-flash + gemini-3.1-flash-image', tip: 'Parallel 4-scene beat sheet + photorealistic architectural keyframe generation' },
+        { sel: '#pillar-2 .col-7 .v-card-header', icon: 'veo', cls: 'red', label: 'Vertex AI veo-3.1-generate-001 (9:16 MP4)', tip: 'PredictLongRunning 9:16 vertical social reel + 24kHz native voiceover' },
+        // Pillar 3 (Tri-Modal Grounding)
+        { sel: '#pillar-3 .studio-grid-12 > div:nth-child(1) .v-card-header', icon: 'maps', cls: 'blue', label: 'types.GoogleMaps() (250M+ Places)', tip: 'Live neighborhood walkability & POI grounding via Vertex AI Maps tool' },
+        { sel: '#pillar-3 .studio-grid-12 > div:nth-child(2) .v-card-header', icon: 'veo', cls: 'red', label: 'YouTube Part.from_uri() Video Inspection', tip: 'Native multimodal frame-by-frame inspection of YouTube property tours' },
+        { sel: '#pillar-3 .studio-grid-12 > div:nth-child(3) .v-card-header', icon: 'bq', cls: 'emerald', label: 'types.GoogleSearch() Live Citations', tip: 'Real-time 2026 county millage rates & down-payment grant grounding' },
+        // Pillar 4 (Live Avatar & Rowan 2.0)
+        { sel: '#pillar-4 .col-5 .v-card-header', icon: 'live', cls: 'emerald', label: 'gemini-3.8-live (24kHz BidiGenerateContent)', tip: 'Full-duplex WebSocket native audio + 16-tile landmark-locked viseme lip-sync' },
+        { sel: '#pillar-4 .col-7 .v-card-header', icon: 'vertex', cls: 'blue', label: 'Vertex AI Function Calling + Screen Co-Pilot', tip: '6 cross-pillar tool declarations manipulating DOM sliders, maps & reels' },
+        // Pillar 6 (vs. Claude)
+        { sel: '#pillar-6 .v-card-header', icon: 'cloudrun', cls: 'blue', label: 'Unified Google GenAI SDK on Cloud Run', tip: 'Single google-genai SDK replacing fragmented multi-vendor stacks' }
+      ];
+      badgeTargets.forEach((bt, idx) => {
+        const el = document.querySelector(bt.sel);
+        if (!el) return;
+        const badgeId = 'gcp-injected-badge-' + idx;
+        if (document.getElementById(badgeId)) return;
+        const span = document.createElement('span');
+        span.id = badgeId;
+        span.className = `gcp-svc-badge ${bt.cls}`;
+        span.title = bt.tip;
+        span.innerHTML = `${GCP_SVC_ICONS[bt.icon] || ''} <span>${bt.label}</span>`;
+        span.onclick = (e) => { e.stopPropagation(); toggleGcpArchDrawer(); };
+        el.appendChild(span);
+      });
+    }
+
     // Initialize Pillar 5 (Redfin × Gemini AI Marketplace) as default view & preload Pillar 1/2
     function initOnReady() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -6769,5 +8567,11 @@ def render_4pillars_studio() -> str:
       initOnReady();
     }
   </script>
+  <script src="/static/live_session.js?v=__ASSET_V__"></script>
+  <script src="/static/live_bridge.js?v=__ASSET_V__"></script>
+  <script src="/static/p4_stage.js?v=__ASSET_V__"></script>
+  <script src="/static/p3_chat.js?v=__ASSET_V__"></script>
+  <script src="/static/gcp_strip.js?v=__ASSET_V__"></script>
+  <script src="/static/p5_media.js?v=__ASSET_V__"></script>
 </body>
 </html>"""

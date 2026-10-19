@@ -1,0 +1,5726 @@
+{
+ "RKT-001": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-001_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-001_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6895000,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-002": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-002_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-002_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6852530,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-003": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-003_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-003_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6641369,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-004": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-004_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-004_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8011225,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-005": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-005_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-005_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7436774,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-006": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-006_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-006_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7155585,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-007": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-007_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-007_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7533227,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-008": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-008_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-008_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7612244,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-009": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-009_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-009_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7081761,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-010": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-010_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-010_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8039508,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-011": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-011_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-011_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8197338,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-012": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-012_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-012_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6782771,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-013": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-013_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-013_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7789659,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-014": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-014_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-014_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7023944,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-015": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-015_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-015_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7575494,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-016": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-016_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-016_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8219981,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-017": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-017_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-017_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7113775,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-018": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-018_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-018_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6724011,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-019": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-019_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-019_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7960097,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-020": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-020_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-020_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7001114,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-021": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-021_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-021_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7146736,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-022": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-022_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-022_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6338328,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-023": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-023_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-023_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6671194,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-024": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-024_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-024_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7674214,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-025": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-025_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-025_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8097658,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-026": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-026_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-026_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7144919,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-027": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-027_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-027_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7963096,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-028": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-028_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-028_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7277592,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-029": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-029_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-029_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7392717,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-030": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-030_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-030_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6918470,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-031": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-031_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-031_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7582006,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-032": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-032_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-032_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6495275,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-033": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-033_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-033_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7299258,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-034": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-034_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-034_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7281665,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-035": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-035_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-035_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6514645,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-036": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-036_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-036_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6834220,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-037": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-037_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-037_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7331097,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-038": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-038_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-038_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6053036,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-039": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-039_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-039_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7117278,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-040": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-040_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-040_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7582061,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-041": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-041_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-041_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6736220,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-042": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-042_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-042_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6602754,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-043": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-043_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-043_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7516393,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-044": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-044_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-044_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7296698,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-045": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-045_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-045_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7222257,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-046": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-046_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-046_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6722998,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-047": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-047_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-047_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6535510,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-048": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-048_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-048_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7517565,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-049": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-049_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-049_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6339136,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-050": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-050_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-050_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8951986,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-051": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-051_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-051_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8207996,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-052": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-052_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-052_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7879218,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-053": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-053_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-053_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8441761,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-054": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-054_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-054_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8183602,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-055": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-055_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-055_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7848304,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-056": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-056_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-056_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8386750,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-057": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-057_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-057_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8917942,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-058": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-058_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-058_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7598301,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-059": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-059_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-059_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8752713,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-060": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-060_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-060_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8371968,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-061": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-061_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-061_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 9197998,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-062": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-062_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-062_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7865480,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-063": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-063_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-063_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8356042,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-064": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-064_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-064_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 8166342,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-065": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-065_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-065_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7731680,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-066": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-066_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-066_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6652155,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-067": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-067_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-067_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7344850,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-068": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-068_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-068_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7242569,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-069": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-069_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-069_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6922894,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-070": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-070_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-070_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7125404,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-071": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-071_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-071_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6965616,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-072": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-072_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-072_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6985104,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-073": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-073_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-073_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7790424,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-074": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-074_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-074_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7832758,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-075": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-075_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-075_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7493925,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-076": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-076_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-076_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7858387,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-077": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-077_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-077_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6782888,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-078": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-078_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-078_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6929179,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-079": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-079_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-079_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6193036,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-080": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-080_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-080_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7582965,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-081": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-081_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-081_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7616766,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-082": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-082_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-082_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 5914820,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-083": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-083_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-083_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 4974724,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-084": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-084_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-084_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6893067,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-085": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-085_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-085_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 5979264,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-086": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-086_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-086_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 5936122,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-087": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-087_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-087_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6439693,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-088": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-088_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-088_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6362139,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-089": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-089_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-089_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7071076,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-090": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-090_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-090_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 5414491,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-091": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-091_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-091_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6002372,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-092": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-092_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-092_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6900229,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-093": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-093_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-093_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6354722,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-094": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-094_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-094_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7217640,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-095": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-095_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-095_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 5531249,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-096": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-096_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-096_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6318551,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-097": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-097_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-097_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 5180024,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-098": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-098_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-098_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6103252,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-099": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-099_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-099_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 7317074,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-100": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-100_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-100_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6354724,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-101": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-101_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-101_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6113077,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-102": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-102_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-102_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6326972,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-103": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-103_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-103_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6287035,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-104": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-104_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-104_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6231000,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-105": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-105_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-105_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6677279,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-106": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-106_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-106_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6447407,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-107": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-107_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-107_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6344790,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ },
+ "RKT-108": {
+  "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-108_16x9.mp4?v=202610161520",
+  "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/v1/RKT-108_poster.jpg?v=202610161520",
+  "duration_s": 29.4,
+  "kind": "cinematic",
+  "model": "rocket-cinematic-tour-v1",
+  "width": 1280,
+  "height": 720,
+  "fps": 30,
+  "bytes": 6584791,
+  "chapters": [
+   {
+    "room_id": "ext_front",
+    "title": "Front Exterior",
+    "t": 0.0
+   },
+   {
+    "room_id": "living_room",
+    "title": "Great Room",
+    "t": 3.9
+   },
+   {
+    "room_id": "chef_kitchen",
+    "title": "Kitchen",
+    "t": 7.5
+   },
+   {
+    "room_id": "dining_room",
+    "title": "Dining",
+    "t": 11.1
+   },
+   {
+    "room_id": "primary_bedroom",
+    "title": "Primary Suite",
+    "t": 14.7
+   },
+   {
+    "room_id": "primary_bathroom",
+    "title": "Primary Bath",
+    "t": 18.3
+   },
+   {
+    "room_id": "ext_rear",
+    "title": "Rear Patio & Pool",
+    "t": 21.9
+   },
+   {
+    "room_id": "ext_aerial",
+    "title": "Aerial",
+    "t": 25.5
+   }
+  ]
+ }
+}
