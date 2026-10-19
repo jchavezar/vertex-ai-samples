@@ -32,7 +32,7 @@
 
     
     <rect x="1349.5" y="32" width="226.5" height="26" rx="13" fill="#FEF7E0" stroke="#F9AB00" stroke-width="1.2"/>
-    <text x="1462.75" y="49" fill="#B06000" font-size="11.5" font-weight="700" text-anchor="middle">P10–P90 Calibration: <900ms</text>
+    <text x="1462.75" y="49" fill="#B06000" font-size="11.5" font-weight="700" text-anchor="middle">P10–P90 Calibration: &lt;900ms</text>
 
     <rect x="1096.0" y="32" width="241.5" height="26" rx="13" fill="#E6F4EA" stroke="#188038" stroke-width="1.2"/>
     <text x="1216.75" y="49" fill="#137333" font-size="11.5" font-weight="700" text-anchor="middle">TimesFM 2.0 (Google Research)</text>
@@ -59,7 +59,7 @@
       <!-- STEP COUNTER -->
       <text x="298" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 1 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Servicing Data Lake</text>
       <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">portfolio_metrics in BigQuery</text>
 
@@ -84,7 +84,7 @@
 
         <g transform="translate(38, 262)">
           <circle cx="5" cy="5" r="3" fill="#1A73E8"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Zero egress & zero data movement</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Zero egress &amp; zero data movement</text>
         </g>
 
 
@@ -100,7 +100,7 @@
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="36" y="462" width="264" height="28" rx="14" fill="#E8F0FE" stroke="#1A73E8" stroke-width="1"/>
-      <text x="168.0" y="480" fill="#1967D2" font-size="11" font-weight="700" text-anchor="middle"><15ms Partition Scan</text>
+      <text x="168.0" y="480" fill="#1967D2" font-size="11" font-weight="700" text-anchor="middle">&lt;15ms Partition Scan</text>
     </g>
 
     <!-- FLOW ARROW 1 -> 2 -->
@@ -124,7 +124,7 @@
       <!-- STEP COUNTER -->
       <text x="614" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 2 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="354" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Rate-Shock Scaler</text>
       <text x="354" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::compute_multiplier</text>
 
@@ -161,11 +161,11 @@
       <text x="382" y="412" fill="#475569" font-size="10" font-weight="500">metric_id, rate_shock_bps (-150..+100)</text>
 
       <text x="360" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
-      <text x="388" y="434" fill="#475569" font-size="10" font-weight="500">shock_multiplier & SQL CTE injection</text>
+      <text x="388" y="434" fill="#475569" font-size="10" font-weight="500">shock_multiplier &amp; SQL CTE injection</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="352" y="462" width="264" height="28" rx="14" fill="#FEF7E0" stroke="#1A73E8" stroke-width="1"/>
-      <text x="484.0" y="480" fill="#B06000" font-size="11" font-weight="700" text-anchor="middle"><1ms Python / NumPy</text>
+      <text x="484.0" y="480" fill="#B06000" font-size="11" font-weight="700" text-anchor="middle">&lt;1ms Python / NumPy</text>
     </g>
 
     <!-- FLOW ARROW 2 -> 3 -->
@@ -189,7 +189,7 @@
       <!-- STEP COUNTER -->
       <text x="930" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 3 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">TimesFM Forecaster</text>
       <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::run_timesfm_forecast</text>
 
@@ -254,9 +254,9 @@
       <!-- STEP COUNTER -->
       <text x="1246" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 4 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Dual-Zone SVG Engine</text>
-      <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">ui_studio.py & p1_stage.js</text>
+      <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">ui_studio.py &amp; p1_stage.js</text>
 
       <line x1="986" y1="184" x2="1246" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -304,7 +304,7 @@
       <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#1A73E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <!-- CARD 5: FastAPI & Live Hook -->
+    <!-- CARD 5: FastAPI &amp; Live Hook -->
     <g filter="url(#card-shadow)">
       <rect x="1288" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -319,8 +319,8 @@
       <!-- STEP COUNTER -->
       <text x="1562" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 5 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">FastAPI & Live Hook</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">FastAPI &amp; Live Hook</text>
       <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">app.py::api_pillar1_forecast</text>
 
       <line x1="1302" y1="184" x2="1562" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
@@ -334,7 +334,7 @@
 
         <g transform="translate(1302, 218)">
           <circle cx="5" cy="5" r="3" fill="#1A73E8"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">JSON serialization of history & KPIs</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">JSON serialization of history &amp; KPIs</text>
         </g>
 
         <g transform="translate(1302, 240)">
@@ -360,7 +360,7 @@
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="1300" y="462" width="264" height="28" rx="14" fill="#E0F2FE" stroke="#1A73E8" stroke-width="1"/>
-      <text x="1432.0" y="480" fill="#0284C7" font-size="11" font-weight="700" text-anchor="middle"><25ms Gateway Dispatch</text>
+      <text x="1432.0" y="480" fill="#0284C7" font-size="11" font-weight="700" text-anchor="middle">&lt;25ms Gateway Dispatch</text>
     </g>
 
 </svg>

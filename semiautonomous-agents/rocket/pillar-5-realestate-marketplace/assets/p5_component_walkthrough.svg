@@ -28,11 +28,11 @@
     <rect x="24" y="16" width="6" height="60" rx="3" fill="#6366F1"/>
     
     <text x="44" y="39" fill="#0F172A" font-size="17" font-weight="800" letter-spacing="-0.3">Pillar 5 Component Walkthrough — 108-Home Multimodal Vector Marketplace</text>
-    <text x="44" y="59" fill="#64748B" font-size="11.5" font-weight="500">Dual 512-d/256-d Embeddings · 3072-D UMAP 2D Topology · 108 Pre-Rendered Cinematic & Veo Tours · Honest Gemini Judge</text>
+    <text x="44" y="59" fill="#64748B" font-size="11.5" font-weight="500">Dual 512-d/256-d Embeddings · 3072-D UMAP 2D Topology · 108 Pre-Rendered Cinematic &amp; Veo Tours · Honest Gemini Judge</text>
 
     
     <rect x="1357.0" y="32" width="219.0" height="26" rx="13" fill="#FCE8E6" stroke="#EA4335" stroke-width="1.2"/>
-    <text x="1466.5" y="49" fill="#C5221F" font-size="11.5" font-weight="700" text-anchor="middle">Honest Gemini Judge: <1.8s</text>
+    <text x="1466.5" y="49" fill="#C5221F" font-size="11.5" font-weight="700" text-anchor="middle">Honest Gemini Judge: &lt;1.8s</text>
 
     <rect x="1088.5" y="32" width="256.5" height="26" rx="13" fill="#E6F4EA" stroke="#188038" stroke-width="1.2"/>
     <text x="1216.75" y="49" fill="#137333" font-size="11.5" font-weight="700" text-anchor="middle">108 Homes · 864 Verified Photos</text>
@@ -59,7 +59,7 @@
       <!-- STEP COUNTER -->
       <text x="298" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 1 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">108-Home Catalog Store</text>
       <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">catalog_108_index.json</text>
 
@@ -79,12 +79,12 @@
 
         <g transform="translate(38, 240)">
           <circle cx="5" cy="5" r="3" fill="#6366F1"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Architectural, HOA, tax, & price data</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Architectural, HOA, tax, &amp; price data</text>
         </g>
 
         <g transform="translate(38, 262)">
           <circle cx="5" cy="5" r="3" fill="#6366F1"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">School district & amenities metadata</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">School district &amp; amenities metadata</text>
         </g>
 
 
@@ -93,7 +93,7 @@
       <text x="44" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="44" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="66" y="412" fill="#475569" font-size="10" font-weight="500">Regional property feeds & photography</text>
+      <text x="66" y="412" fill="#475569" font-size="10" font-weight="500">Regional property feeds &amp; photography</text>
 
       <text x="44" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="72" y="434" fill="#475569" font-size="10" font-weight="500">Structured 108-home JSON catalog</text>
@@ -109,7 +109,7 @@
       <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <!-- CARD 2: Hybrid Vector & BM25 -->
+    <!-- CARD 2: Hybrid Vector &amp; BM25 -->
     <g filter="url(#card-shadow)">
       <rect x="340" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -124,8 +124,8 @@
       <!-- STEP COUNTER -->
       <text x="614" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 2 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="354" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Hybrid Vector & BM25</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="354" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Hybrid Vector &amp; BM25</text>
       <text x="354" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::search_catalog</text>
 
       <line x1="354" y1="184" x2="614" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
@@ -165,7 +165,7 @@
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="352" y="462" width="264" height="28" rx="14" fill="#EEF2FF" stroke="#6366F1" stroke-width="1"/>
-      <text x="484.0" y="480" fill="#4338CA" font-size="11" font-weight="700" text-anchor="middle"><45ms Vector Query</text>
+      <text x="484.0" y="480" fill="#4338CA" font-size="11" font-weight="700" text-anchor="middle">&lt;45ms Vector Query</text>
     </g>
 
     <!-- FLOW ARROW 2 -> 3 -->
@@ -189,9 +189,9 @@
       <!-- STEP COUNTER -->
       <text x="930" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 3 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">3072-D UMAP 2D Topology</text>
-      <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py & p5_media.js</text>
+      <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py &amp; p5_media.js</text>
 
       <line x1="670" y1="184" x2="930" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -226,7 +226,7 @@
       <text x="698" y="412" fill="#475569" font-size="10" font-weight="500">High-dimensional property embeddings</text>
 
       <text x="676" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
-      <text x="704" y="434" fill="#475569" font-size="10" font-weight="500">Normalized 2D coordinates & clusters</text>
+      <text x="704" y="434" fill="#475569" font-size="10" font-weight="500">Normalized 2D coordinates &amp; clusters</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="668" y="462" width="264" height="28" rx="14" fill="#FEF7E0" stroke="#6366F1" stroke-width="1"/>
@@ -239,7 +239,7 @@
       <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <!-- CARD 4: 108 Cinematic & Veo Tours -->
+    <!-- CARD 4: 108 Cinematic &amp; Veo Tours -->
     <g filter="url(#card-shadow)">
       <rect x="972" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -254,9 +254,9 @@
       <!-- STEP COUNTER -->
       <text x="1246" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 4 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">108 Cinematic & Veo Tours</text>
-      <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">render_tours.py & veo_tours.py</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">108 Cinematic &amp; Veo Tours</text>
+      <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">render_tours.py &amp; veo_tours.py</text>
 
       <line x1="986" y1="184" x2="1246" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -288,7 +288,7 @@
       <text x="992" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="992" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="1014" y="412" fill="#475569" font-size="10" font-weight="500">Property ID & tour playback event</text>
+      <text x="1014" y="412" fill="#475569" font-size="10" font-weight="500">Property ID &amp; tour playback event</text>
 
       <text x="992" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="1020" y="434" fill="#475569" font-size="10" font-weight="500">Smooth 720p/1080p MP4 tour streams</text>
@@ -319,7 +319,7 @@
       <!-- STEP COUNTER -->
       <text x="1562" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 5 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Honest Gemini Judge</text>
       <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::judge_property</text>
 
@@ -344,7 +344,7 @@
 
         <g transform="translate(1302, 262)">
           <circle cx="5" cy="5" r="3" fill="#6366F1"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Computes honest Fair Value & repair est</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Computes honest Fair Value &amp; repair est</text>
         </g>
 
 
@@ -353,7 +353,7 @@
       <text x="1308" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="1308" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="1330" y="412" fill="#475569" font-size="10" font-weight="500">8 property photos & listing description</text>
+      <text x="1330" y="412" fill="#475569" font-size="10" font-weight="500">8 property photos &amp; listing description</text>
 
       <text x="1308" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="1336" y="434" fill="#475569" font-size="10" font-weight="500">Honest audit report, flaw score, repairs</text>

@@ -27,7 +27,7 @@
     <rect x="24" y="16" width="1552" height="60" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
     <rect x="24" y="16" width="6" height="60" rx="3" fill="#188038"/>
     
-    <text x="44" y="39" fill="#0F172A" font-size="17" font-weight="800" letter-spacing="-0.3">Pillar 4 Component Walkthrough — Gemini 3.8 Live Video Avatar Stage & Async Subagents</text>
+    <text x="44" y="39" fill="#0F172A" font-size="17" font-weight="800" letter-spacing="-0.3">Pillar 4 Component Walkthrough — Gemini 3.8 Live Video Avatar Stage &amp; Async Subagents</text>
     <text x="44" y="59" fill="#64748B" font-size="11.5" font-weight="500">Native 16kHz PCM Voice · Continuous-fMP4 704×1280 24fps Avatars · 40ms Barge-In · Out-of-Order Subagent Swarm</text>
 
     
@@ -44,7 +44,7 @@
 
   <!-- 5 HORIZONTAL CARDS -->
   
-    <!-- CARD 1: WebAudio Mic & MSE Stage -->
+    <!-- CARD 1: WebAudio Mic &amp; MSE Stage -->
     <g filter="url(#card-shadow)">
       <rect x="24" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -59,9 +59,9 @@
       <!-- STEP COUNTER -->
       <text x="298" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 1 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">WebAudio Mic & MSE Stage</text>
-      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">p4_stage.js & live_session.js</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">WebAudio Mic &amp; MSE Stage</text>
+      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">p4_stage.js &amp; live_session.js</text>
 
       <line x1="38" y1="184" x2="298" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -93,10 +93,10 @@
       <text x="44" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="44" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="66" y="412" fill="#475569" font-size="10" font-weight="500">Microphone stream & user controls</text>
+      <text x="66" y="412" fill="#475569" font-size="10" font-weight="500">Microphone stream &amp; user controls</text>
 
       <text x="44" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
-      <text x="72" y="434" fill="#475569" font-size="10" font-weight="500">16kHz Int16 PCM chunks & UI state</text>
+      <text x="72" y="434" fill="#475569" font-size="10" font-weight="500">16kHz Int16 PCM chunks &amp; UI state</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="36" y="462" width="264" height="28" rx="14" fill="#E8F0FE" stroke="#188038" stroke-width="1"/>
@@ -124,7 +124,7 @@
       <!-- STEP COUNTER -->
       <text x="614" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 2 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="354" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">WebSocket Gateway</text>
       <text x="354" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">app.py::ws_live_avatar</text>
 
@@ -139,7 +139,7 @@
 
         <g transform="translate(354, 218)">
           <circle cx="5" cy="5" r="3" fill="#188038"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Client & server Voice Activity Detection</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Client &amp; server Voice Activity Detection</text>
         </g>
 
         <g transform="translate(354, 240)">
@@ -149,7 +149,7 @@
 
         <g transform="translate(354, 262)">
           <circle cx="5" cy="5" r="3" fill="#188038"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Session lifecycle & auth verification</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Session lifecycle &amp; auth verification</text>
         </g>
 
 
@@ -165,7 +165,7 @@
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="352" y="462" width="264" height="28" rx="14" fill="#FEF7E0" stroke="#188038" stroke-width="1"/>
-      <text x="484.0" y="480" fill="#B06000" font-size="11" font-weight="700" text-anchor="middle"><10ms WebSocket SLA</text>
+      <text x="484.0" y="480" fill="#B06000" font-size="11" font-weight="700" text-anchor="middle">&lt;10ms WebSocket SLA</text>
     </g>
 
     <!-- FLOW ARROW 2 -> 3 -->
@@ -189,7 +189,7 @@
       <!-- STEP COUNTER -->
       <text x="930" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 3 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Gemini 3.8 Live Core</text>
       <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::RocketLiveClient</text>
 
@@ -214,7 +214,7 @@
 
         <g transform="translate(670, 262)">
           <circle cx="5" cy="5" r="3" fill="#188038"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Modulates facial cues & speaking tone</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Modulates facial cues &amp; speaking tone</text>
         </g>
 
 
@@ -223,10 +223,10 @@
       <text x="676" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="676" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="698" y="412" fill="#475569" font-size="10" font-weight="500">16kHz audio stream & tool outputs</text>
+      <text x="698" y="412" fill="#475569" font-size="10" font-weight="500">16kHz audio stream &amp; tool outputs</text>
 
       <text x="676" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
-      <text x="704" y="434" fill="#475569" font-size="10" font-weight="500">24kHz synthesized audio & tool calls</text>
+      <text x="704" y="434" fill="#475569" font-size="10" font-weight="500">24kHz synthesized audio &amp; tool calls</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="668" y="462" width="264" height="28" rx="14" fill="#E6F4EA" stroke="#188038" stroke-width="1"/>
@@ -254,7 +254,7 @@
       <!-- STEP COUNTER -->
       <text x="1246" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 4 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Continuous-fMP4 Init Cache</text>
       <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::AvatarConfig</text>
 
@@ -288,7 +288,7 @@
       <text x="992" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="992" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="1014" y="412" fill="#475569" font-size="10" font-weight="500">Avatar video assets & state changes</text>
+      <text x="1014" y="412" fill="#475569" font-size="10" font-weight="500">Avatar video assets &amp; state changes</text>
 
       <text x="992" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="1020" y="434" fill="#475569" font-size="10" font-weight="500">Seamless fMP4 chunks to client MSE</text>
@@ -319,7 +319,7 @@
       <!-- STEP COUNTER -->
       <text x="1562" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 5 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Async Subagent Swarm</text>
       <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::decompose_and_delegate</text>
 

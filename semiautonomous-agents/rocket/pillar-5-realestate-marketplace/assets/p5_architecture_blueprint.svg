@@ -40,7 +40,7 @@
   <text x="1474" y="42" fill="#1967D2" font-size="10.5" font-weight="700" text-anchor="middle">Honest Multimodal Judge</text>
   <text x="1368" y="73" fill="#5F6368" font-size="11" font-weight="600" text-anchor="middle">Pre-rendered 720p MP4s · GCS 302 Fast Start</text>
 
-  <!-- COLUMN 1: CATALOG PROVENANCE & MEDIA ASSETS (x=20, w=480) -->
+  <!-- COLUMN 1: CATALOG PROVENANCE &amp; MEDIA ASSETS (x=20, w=480) -->
   <rect x="20" y="110" width="480" height="770" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
   <rect x="20" y="110" width="480" height="36" rx="10" fill="#0F172A"/>
   <text x="36" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PHASE 1 — CATALOG PROVENANCE &amp; STORAGE</text>
@@ -89,7 +89,7 @@
   <text x="62" y="798" fill="#F8FAFC" font-size="10" font-family="monospace">Resolution: 720p · Format: H.264 MP4 · Audio: Ambient Room Tone</text>
   <text x="62" y="816" fill="#4ADE80" font-size="10" font-family="monospace">Status: Production CDN Mirrored · 0ms Start Time</text>
 
-  <!-- COLUMN 2: HYBRID EMBEDDINGS & HONEST JUDGE (x=520, w=540) -->
+  <!-- COLUMN 2: HYBRID EMBEDDINGS &amp; HONEST JUDGE (x=520, w=540) -->
   <rect x="520" y="110" width="540" height="770" rx="10" fill="#FFFFFF" stroke="#0F172A" stroke-width="2" filter="url(#gcp-shadow)"/>
   <rect x="520" y="110" width="540" height="36" rx="10" fill="#0F172A"/>
   <text x="536" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PHASE 2 — HYBRID SEARCH &amp; HONEST MULTIMODAL JUDGE</text>
@@ -142,7 +142,7 @@
   <text x="550" y="805" fill="#1E293B" font-size="10.5">• UI Transparency: Clear labels indicate "Build-time audit of style tier photos"</text>
   <text x="550" y="822" fill="#188038" font-size="10.5" font-weight="700">✓ Customer Trust: Real estate brokers value honest flag detection over fake perfection</text>
 
-  <!-- COLUMN 3: PHOTO LIGHTBOX & INTERACTIVE MODAL (x=1080, w=500) -->
+  <!-- COLUMN 3: PHOTO LIGHTBOX &amp; INTERACTIVE MODAL (x=1080, w=500) -->
   <rect x="1080" y="110" width="500" height="770" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
   <rect x="1080" y="110" width="500" height="36" rx="10" fill="#0F172A"/>
   <text x="1096" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PHASE 3 — MEDIA LIGHTBOX &amp; UI WORKSPACE</text>

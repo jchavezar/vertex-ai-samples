@@ -27,12 +27,12 @@
     <rect x="24" y="16" width="1552" height="60" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
     <rect x="24" y="16" width="6" height="60" rx="3" fill="#EA4335"/>
     
-    <text x="44" y="39" fill="#0F172A" font-size="17" font-weight="800" letter-spacing="-0.3">Pillar 2 Component Walkthrough — Veo 3.1 & Imagen 4 Vertical 9:16 Social Reels Studio</text>
+    <text x="44" y="39" fill="#0F172A" font-size="17" font-weight="800" letter-spacing="-0.3">Pillar 2 Component Walkthrough — Veo 3.1 &amp; Imagen 4 Vertical 9:16 Social Reels Studio</text>
     <text x="44" y="59" fill="#64748B" font-size="11.5" font-weight="500">Cinematic Text-to-Video Generation · 24kHz Audio Narration · Burned-in Rocket PITI Stickers · 11-Reel Instant Edge Vault</text>
 
     
     <rect x="1304.5" y="32" width="271.5" height="26" rx="13" fill="#E6F4EA" stroke="#188038" stroke-width="1.2"/>
-    <text x="1440.25" y="49" fill="#137333" font-size="11.5" font-weight="700" text-anchor="middle">11 Pre-Rendered Edge Reels: <20ms</text>
+    <text x="1440.25" y="49" fill="#137333" font-size="11.5" font-weight="700" text-anchor="middle">11 Pre-Rendered Edge Reels: &lt;20ms</text>
 
     <rect x="1103.5" y="32" width="189.0" height="26" rx="13" fill="#E8F0FE" stroke="#1A73E8" stroke-width="1.2"/>
     <text x="1198.0" y="49" fill="#1967D2" font-size="11.5" font-weight="700" text-anchor="middle">gemini-3.1-flash-image</text>
@@ -44,7 +44,7 @@
 
   <!-- 5 HORIZONTAL CARDS -->
   
-    <!-- CARD 1: Reel Brief & Studio Inputs -->
+    <!-- CARD 1: Reel Brief &amp; Studio Inputs -->
     <g filter="url(#card-shadow)">
       <rect x="24" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -59,9 +59,9 @@
       <!-- STEP COUNTER -->
       <text x="298" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 1 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Reel Brief & Studio Inputs</text>
-      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">ui_studio.py & p2_stage.js</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Reel Brief &amp; Studio Inputs</text>
+      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">ui_studio.py &amp; p2_stage.js</text>
 
       <line x1="38" y1="184" x2="298" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -69,7 +69,7 @@
       
         <g transform="translate(38, 196)">
           <circle cx="5" cy="5" r="3" fill="#EA4335"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Listing address, price, & target audience</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Listing address, price, &amp; target audience</text>
         </g>
 
         <g transform="translate(38, 218)">
@@ -79,7 +79,7 @@
 
         <g transform="translate(38, 240)">
           <circle cx="5" cy="5" r="3" fill="#EA4335"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Rocket PITI interest & tax parameters</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Rocket PITI interest &amp; tax parameters</text>
         </g>
 
         <g transform="translate(38, 262)">
@@ -93,7 +93,7 @@
       <text x="44" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="44" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="66" y="412" fill="#475569" font-size="10" font-weight="500">Property metadata & tone directives</text>
+      <text x="66" y="412" fill="#475569" font-size="10" font-weight="500">Property metadata &amp; tone directives</text>
 
       <text x="44" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="72" y="434" fill="#475569" font-size="10" font-weight="500">Structured generation brief payload</text>
@@ -124,7 +124,7 @@
       <!-- STEP COUNTER -->
       <text x="614" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 2 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="354" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Gemini Script Director</text>
       <text x="354" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::generate_reel_script</text>
 
@@ -139,12 +139,12 @@
 
         <g transform="translate(354, 218)">
           <circle cx="5" cy="5" r="3" fill="#EA4335"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">3-scene camera storyboard & timing</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">3-scene camera storyboard &amp; timing</text>
         </g>
 
         <g transform="translate(354, 240)">
           <circle cx="5" cy="5" r="3" fill="#EA4335"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Cinematic lighting & angle prompts</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Cinematic lighting &amp; angle prompts</text>
         </g>
 
         <g transform="translate(354, 262)">
@@ -158,7 +158,7 @@
       <text x="360" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="360" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="382" y="412" fill="#475569" font-size="10" font-weight="500">Structured property brief & tone</text>
+      <text x="382" y="412" fill="#475569" font-size="10" font-weight="500">Structured property brief &amp; tone</text>
 
       <text x="360" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="388" y="434" fill="#475569" font-size="10" font-weight="500">3-scene script, camera prompts, voice</text>
@@ -174,7 +174,7 @@
       <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <!-- CARD 3: Parallel Veo 3.1 & Imagen -->
+    <!-- CARD 3: Parallel Veo 3.1 &amp; Imagen -->
     <g filter="url(#card-shadow)">
       <rect x="656" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -189,8 +189,8 @@
       <!-- STEP COUNTER -->
       <text x="930" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 3 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Parallel Veo 3.1 & Imagen</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Parallel Veo 3.1 &amp; Imagen</text>
       <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::generate_veo_reel</text>
 
       <line x1="670" y1="184" x2="930" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
@@ -226,7 +226,7 @@
       <text x="698" y="412" fill="#475569" font-size="10" font-weight="500">Scene prompts, 9:16 aspect, camera path</text>
 
       <text x="676" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
-      <text x="704" y="434" fill="#475569" font-size="10" font-weight="500">Raw 1080x1920 video clips & stills</text>
+      <text x="704" y="434" fill="#475569" font-size="10" font-weight="500">Raw 1080x1920 video clips &amp; stills</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="668" y="462" width="264" height="28" rx="14" fill="#FEF7E0" stroke="#EA4335" stroke-width="1"/>
@@ -239,7 +239,7 @@
       <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <!-- CARD 4: Audio & PITI Compositor -->
+    <!-- CARD 4: Audio &amp; PITI Compositor -->
     <g filter="url(#card-shadow)">
       <rect x="972" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -254,8 +254,8 @@
       <!-- STEP COUNTER -->
       <text x="1246" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 4 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Audio & PITI Compositor</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Audio &amp; PITI Compositor</text>
       <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::composite_reel_media</text>
 
       <line x1="986" y1="184" x2="1246" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
@@ -279,7 +279,7 @@
 
         <g transform="translate(986, 262)">
           <circle cx="5" cy="5" r="3" fill="#EA4335"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Composites video, audio, & graphics</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Composites video, audio, &amp; graphics</text>
         </g>
 
 
@@ -319,9 +319,9 @@
       <!-- STEP COUNTER -->
       <text x="1562" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 5 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Reels Edge Vault</text>
-      <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">static/reels/ & app.py</text>
+      <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">static/reels/ &amp; app.py</text>
 
       <line x1="1302" y1="184" x2="1562" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -334,12 +334,12 @@
 
         <g transform="translate(1302, 218)">
           <circle cx="5" cy="5" r="3" fill="#EA4335"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Instant <20ms playback from edge storage</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Instant &lt;20ms playback from edge storage</text>
         </g>
 
         <g transform="translate(1302, 240)">
           <circle cx="5" cy="5" r="3" fill="#EA4335"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Vertical player with auto-loop & mute</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Vertical player with auto-loop &amp; mute</text>
         </g>
 
         <g transform="translate(1302, 262)">
@@ -356,11 +356,11 @@
       <text x="1330" y="412" fill="#475569" font-size="10" font-weight="500">Client reel selection or render done</text>
 
       <text x="1308" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
-      <text x="1336" y="434" fill="#475569" font-size="10" font-weight="500">Instant 9:16 video stream & download</text>
+      <text x="1336" y="434" fill="#475569" font-size="10" font-weight="500">Instant 9:16 video stream &amp; download</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="1300" y="462" width="264" height="28" rx="14" fill="#E6F4EA" stroke="#EA4335" stroke-width="1"/>
-      <text x="1432.0" y="480" fill="#137333" font-size="11" font-weight="700" text-anchor="middle"><20ms Vault Playback</text>
+      <text x="1432.0" y="480" fill="#137333" font-size="11" font-weight="700" text-anchor="middle">&lt;20ms Vault Playback</text>
     </g>
 
 </svg>

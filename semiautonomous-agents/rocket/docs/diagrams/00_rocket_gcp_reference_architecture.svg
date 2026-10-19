@@ -54,7 +54,7 @@
 
   <!-- ==================== PILLARS 1 TO 5 GRID ==================== -->
 
-  <!-- ZONE 1: PILLAR 1 - BQML & TIMESFM (x=20, w=300) -->
+  <!-- ZONE 1: PILLAR 1 - BQML &amp; TIMESFM (x=20, w=300) -->
   <rect x="20" y="110" width="300" height="660" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#gcp-shadow)"/>
   <rect x="20" y="110" width="300" height="36" rx="10" fill="#1A73E8"/>
   <text x="36" y="133" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">PILLAR 1 — BQML &amp; TIMESFM</text>
@@ -290,7 +290,7 @@
   <line x1="1100" y1="645" x2="1100" y2="785" stroke="#7C3AED" stroke-dasharray="4 4" stroke-width="1.5" marker-end="url(#arr-purple)"/>
   <line x1="1420" y1="645" x2="1420" y2="785" stroke="#0F172A" stroke-dasharray="4 4" stroke-width="1.5" marker-end="url(#arr-slate)"/>
 
-  <!-- ==================== BUILT ON GOOGLE CLOUD STRIP & CONFIGURATION LAYER (y=890, h=135) ==================== -->
+  <!-- ==================== BUILT ON GOOGLE CLOUD STRIP &amp; CONFIGURATION LAYER (y=890, h=135) ==================== -->
   <rect x="20" y="890" width="1560" height="135" rx="10" fill="#0F172A" stroke="#1E293B" stroke-width="1.5" filter="url(#gcp-shadow)"/>
   
   <text x="40" y="915" fill="#38BDF8" font-size="12" font-weight="800" letter-spacing="0.5">DYNAMIC "BUILT ON GOOGLE CLOUD" TELEMETRY STRIP &amp; CUSTOMER RUNTIME CONFIGURATION</text>
