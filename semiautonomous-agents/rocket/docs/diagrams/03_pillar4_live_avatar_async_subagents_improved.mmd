@@ -1,0 +1,73 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_LIVE["Cluster 1: Bidirectional 24kHz Live Audio & Viseme Lip-Sync"]
+    Borrower["Borrower Client (Mic & WebCam)<br/>(16kHz Audio Stream & Video Frames)"]:::neutral
+    Borrower@{ icon: "fa:user", pos: "b" }
+
+    WS_Proxy["Cloud Run WebSocket Proxy<br/>(Low-Latency Bidi Audio Relay)"]:::gcpBlue
+    WS_Proxy@{ icon: "gcp:cloud-run", pos: "b" }
+
+    LiveModel["Gemini 3.8 Live & Extended Thinking<br/>(Real-Time Multimodal Voice Reasoning)"]:::gcpGreen
+    LiveModel@{ icon: "gcp:vertexai", pos: "b" }
+
+    AudioOut["24kHz High-Fidelity Audio Stream<br/>(Low-Latency PCM Chunks)"]:::neutral
+
+    VisemeSync["8-Frame Viseme Sprite Lip-Sync<br/>(kira_viseme_sprite.jpg Canvas Animator)"]:::neutral
+
+    GhostCursor["Ghost Cursor Tool Calling<br/>(Autonomous DOM Navigation & Form Fill)"]:::gcpBlue
+    GhostCursor@{ icon: "gcp:cloud-run", pos: "b" }
+
+    Borrower <--> WS_Proxy
+    WS_Proxy <--> LiveModel
+    LiveModel --> AudioOut
+    LiveModel --> VisemeSync
+    LiveModel --> GhostCursor
+  end
+
+  subgraph SG_SUB["Cluster 2: Out-of-Order Concurrent Subagent Dispatcher"]
+    IntentDecomp["Gemini 3.1 Flash-Lite Intent Decomposer<br/>(Decomposes Multi-Part Complex Inquiries)"]:::gcpGreen
+    IntentDecomp@{ icon: "gcp:vertexai", pos: "b" }
+
+    Sub1["Subagent #1: Rate Qualification<br/>(Gemini 3.1 Flash-Lite Engine)"]:::gcpGreen
+    Sub1@{ icon: "gcp:vertexai", pos: "b" }
+
+    Sub2["Subagent #2: Property Insights<br/>(Gemini 3.8 Flash Multimodal Engine)"]:::gcpBlue
+    Sub2@{ icon: "gcp:vertexai", pos: "b" }
+
+    Sub3["Subagent #3: Amortization & Taxes<br/>(BigQuery SQL Analytical Engine)"]:::gcpBlue
+    Sub3@{ icon: "gcp:bigquery", pos: "b" }
+
+    FirstReady["asyncio.as_completed Stream<br/>(First-Ready Yield, 0ms Head-of-Line Blocking)"]:::neutral
+
+    IntentDecomp --> Sub1
+    IntentDecomp --> Sub2
+    IntentDecomp --> Sub3
+    Sub1 --> FirstReady
+    Sub2 --> FirstReady
+    Sub3 --> FirstReady
+  end
+
+  LiveModel --> IntentDecomp
+  FirstReady --> WS_Proxy
+
+  style SG_LIVE fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_SUB fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b

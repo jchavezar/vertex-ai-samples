@@ -1,0 +1,83 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_P2_INPUT["Tier 1: MLS Listing Data, Borrower Equity Prompts & Script Generation"]
+    BuyerPrompt["MLS Listing & Borrower Equity Brief<br/>(e.g., 'Modern Craftsman $850k with $120k cash-out refi')"]:::neutral
+    BuyerPrompt@{ icon: "fa:user", pos: "b" }
+
+    FastScript["Gemini 3.8 Flash Scriptwriter<br/>(15s Viral Storyboard & 24kHz Voiceover Narration)"]:::gcpBlue
+    FastScript@{ icon: "gcp:vertexai", pos: "b" }
+
+    KeyframeGen["Keyframe Generation Engine<br/>(Gemini 3.1 Flash-Image & Imagen 4.0 Seed Frames)"]:::gcpGreen
+    KeyframeGen@{ icon: "gcp:vertexai", pos: "b" }
+
+    wp_p2_a_out(((A))):::waypoint
+
+    BuyerPrompt --> FastScript
+    BuyerPrompt --> KeyframeGen
+    FastScript --> wp_p2_a_out
+    KeyframeGen --> wp_p2_a_out
+  end
+
+  subgraph SG_P2_VEO["Tier 2: Veo 3.1 Video Generation & Multimodal Audio Synthesis"]
+    wp_p2_a_in(((A))):::waypoint
+
+    VeoEngine["Veo 3.1 Video Generation Engine<br/>(veo-3.1-generate-001 & veo-3.1-fast 720p 9:16 Vertical)"]:::gcpGreen
+    VeoEngine@{ icon: "gcp:vertexai", pos: "b" }
+
+    VoiceoverAudio["24kHz Neural Voiceover Synthesizer<br/>(Natural Cadence Audio Stream & Acoustic Score)"]:::neutral
+    VoiceoverAudio@{ icon: "fa:file-audio", pos: "b" }
+
+    FFmpegMux["Cloud Run Video Remuxing Pipeline<br/>(FFmpeg Multi-Layer Compositor & Audio Sync)"]:::gcpBlue
+    FFmpegMux@{ icon: "gcp:cloud-run", pos: "b" }
+
+    wp_p2_b_out(((B))):::waypoint
+
+    wp_p2_a_in --> VeoEngine
+    wp_p2_a_in --> VoiceoverAudio
+    VeoEngine --> FFmpegMux
+    VoiceoverAudio --> FFmpegMux
+    FFmpegMux --> wp_p2_b_out
+  end
+
+  subgraph SG_P2_VAULT["Tier 3: Burned-in PITI Stickers & 11-Reel Cloud Storage Edge Vault"]
+    wp_p2_b_in(((B))):::waypoint
+
+    PitiSticker["Burned-in Dynamic PITI Sticker<br/>(Principal, Interest, Taxes, Insurance & Equity Calc)"]:::gcpYellow
+    PitiSticker@{ icon: "gcp:cloud-run", pos: "b" }
+
+    EdgeVault["Cloud Storage 11-Reel Edge Vault<br/>(gs://vtxdemos-abnb-images/tours/veo/ Public CDN)"]:::gcpYellow
+    EdgeVault@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    MobilePlayer["Pixel 11 Pro Reels Feed & Player<br/>(0ms Edge Buffering, Vertical Touch Swipe & 1-Click Refi CTA)"]:::neutral
+    MobilePlayer@{ icon: "fa:file-video", pos: "b" }
+
+    wp_p2_b_in --> PitiSticker
+    PitiSticker --> EdgeVault
+    EdgeVault --> MobilePlayer
+  end
+
+  SG_P2_INPUT ~~~ SG_P2_VEO ~~~ SG_P2_VAULT
+
+  style SG_P2_INPUT fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_P2_VEO fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_P2_VAULT fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold

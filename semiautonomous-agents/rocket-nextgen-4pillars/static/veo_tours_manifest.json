@@ -1,0 +1,422 @@
+{
+  "RKT-098": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-098_walkthrough.mp4?v=1792163639",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-098/ext_front.jpg?v=2",
+    "duration_s": 16.83,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "exterior",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 5.4
+      },
+      {
+        "room_id": "ext_aerial",
+        "title": "Aerial View",
+        "t": 10.8
+      }
+    ],
+    "title": "3-Bed Santa Fe Authentic Adobe Pueblo Revival with Timber Vigas",
+    "generated_at": "2026-10-16T15:13:59+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-098/ext_front.jpg?v=2",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-098/ext_rear.jpg?v=2",
+      "ext_aerial": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-098/ext_aerial.jpg?v=2"
+    }
+  },
+  "RKT-100": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-100_walkthrough.mp4?v=1792163722",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-100/ext_front.jpg?v=2",
+    "duration_s": 33.0,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "full",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "living_room",
+        "title": "Great Room",
+        "t": 5.4
+      },
+      {
+        "room_id": "chef_kitchen",
+        "title": "Chef's Kitchen",
+        "t": 10.8
+      },
+      {
+        "room_id": "dining_room",
+        "title": "Dining Room",
+        "t": 16.2
+      },
+      {
+        "room_id": "primary_bedroom",
+        "title": "Primary Suite",
+        "t": 21.6
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 27.0
+      }
+    ],
+    "title": "3-Bed Sedona Red-Rock Rim Cantilevered Oxidized-Corten Steel Sanctuary",
+    "generated_at": "2026-10-16T15:15:22+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-100/ext_front.jpg?v=2",
+      "living_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/desert_mountain_3br/living_room.jpg",
+      "chef_kitchen": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/desert_mountain_3br/chef_kitchen.jpg",
+      "dining_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/desert_mountain_3br/dining_room.jpg",
+      "primary_bedroom": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/desert_mountain_3br/primary_bedroom.jpg",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-100/ext_rear.jpg?v=2"
+    }
+  },
+  "RKT-095": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-095_walkthrough.mp4?v=1792163770",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-095/ext_front.jpg?v=2",
+    "duration_s": 16.83,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "exterior",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 5.4
+      },
+      {
+        "room_id": "ext_aerial",
+        "title": "Aerial View",
+        "t": 10.8
+      }
+    ],
+    "title": "2-Bed Miami Venetian Islands Tropical Modern White-Concrete & Ipe Villa",
+    "generated_at": "2026-10-16T15:16:10+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-095/ext_front.jpg?v=2",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-095/ext_rear.jpg?v=2",
+      "ext_aerial": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-095/ext_aerial.jpg?v=2"
+    }
+  },
+  "RKT-084": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-084_walkthrough.mp4?v=1792163791",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-084/ext_front.jpg?v=2",
+    "duration_s": 16.83,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "exterior",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 5.4
+      },
+      {
+        "room_id": "ext_aerial",
+        "title": "Aerial View",
+        "t": 10.8
+      }
+    ],
+    "title": "3-Bed Key West Conch-Style Pastel Seafoam-Green & White Louvered Villa",
+    "generated_at": "2026-10-16T15:16:31+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-084/ext_front.jpg?v=2",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-084/ext_rear.jpg?v=2",
+      "ext_aerial": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-084/ext_aerial.jpg?v=2"
+    }
+  },
+  "RKT-034": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-034_walkthrough.mp4?v=1792163797",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-034/ext_front.jpg?v=2",
+    "duration_s": 16.83,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "exterior",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 5.4
+      },
+      {
+        "room_id": "ext_aerial",
+        "title": "Aerial View",
+        "t": 10.8
+      }
+    ],
+    "title": "2-Bed Pacific Northwest Wooded Glass-Box Treehouse Pavilion",
+    "generated_at": "2026-10-16T15:16:37+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-034/ext_front.jpg?v=2",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-034/ext_rear.jpg?v=2",
+      "ext_aerial": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-034/ext_aerial.jpg?v=2"
+    }
+  },
+  "RKT-006": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-006_walkthrough.mp4?v=1792163807",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-006/ext_front.jpg?v=2",
+    "duration_s": 33.0,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "full",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "living_room",
+        "title": "Great Room",
+        "t": 5.4
+      },
+      {
+        "room_id": "chef_kitchen",
+        "title": "Chef's Kitchen",
+        "t": 10.8
+      },
+      {
+        "room_id": "dining_room",
+        "title": "Dining Room",
+        "t": 16.2
+      },
+      {
+        "room_id": "primary_bedroom",
+        "title": "Primary Suite",
+        "t": 21.6
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 27.0
+      }
+    ],
+    "title": "3-Bed Boulder Mountain Rusticated Stone & Heavy Timber Lodge Craftsman",
+    "generated_at": "2026-10-16T15:16:47+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-006/ext_front.jpg?v=2",
+      "living_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/modern_craftsman_3br/living_room.jpg",
+      "chef_kitchen": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/modern_craftsman_3br/chef_kitchen.jpg",
+      "dining_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/modern_craftsman_3br/dining_room.jpg",
+      "primary_bedroom": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/modern_craftsman_3br/primary_bedroom.jpg",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-006/ext_rear.jpg?v=2"
+    }
+  },
+  "RKT-082": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-082_walkthrough.mp4?v=1792163808",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-082/ext_front.jpg?v=2",
+    "duration_s": 33.0,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "full",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "living_room",
+        "title": "Great Room",
+        "t": 5.4
+      },
+      {
+        "room_id": "chef_kitchen",
+        "title": "Chef's Kitchen",
+        "t": 10.8
+      },
+      {
+        "room_id": "dining_room",
+        "title": "Dining Room",
+        "t": 16.2
+      },
+      {
+        "room_id": "primary_bedroom",
+        "title": "Primary Suite",
+        "t": 21.6
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 27.0
+      }
+    ],
+    "title": "3-Bed East Hampton Weathered Cedar-Shake Gambrel Shingle Estate",
+    "generated_at": "2026-10-16T15:16:48+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-082/ext_front.jpg?v=2",
+      "living_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/coastal_villa_3br/living_room.jpg",
+      "chef_kitchen": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/coastal_villa_3br/chef_kitchen.jpg",
+      "dining_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/coastal_villa_3br/dining_room.jpg",
+      "primary_bedroom": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/coastal_villa_3br/primary_bedroom.jpg",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-082/ext_rear.jpg?v=2"
+    }
+  },
+  "RKT-070": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-070_walkthrough.mp4?v=1792163812",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-070/ext_front.jpg?v=2",
+    "duration_s": 16.83,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "exterior",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 5.4
+      },
+      {
+        "room_id": "ext_aerial",
+        "title": "Aerial View",
+        "t": 10.8
+      }
+    ],
+    "title": "4-Bed Dutch Colonial Revival with Flared Gambrel Roof & Slate Shingles",
+    "generated_at": "2026-10-16T15:16:52+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-070/ext_front.jpg?v=2",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-070/ext_rear.jpg?v=2",
+      "ext_aerial": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-070/ext_aerial.jpg?v=2"
+    }
+  },
+  "RKT-053": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-053_walkthrough.mp4?v=1792163842",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-053/ext_front.jpg?v=2",
+    "duration_s": 33.0,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "full",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "living_room",
+        "title": "Great Room",
+        "t": 5.4
+      },
+      {
+        "room_id": "chef_kitchen",
+        "title": "Chef's Kitchen",
+        "t": 10.8
+      },
+      {
+        "room_id": "dining_room",
+        "title": "Dining Room",
+        "t": 16.2
+      },
+      {
+        "room_id": "primary_bedroom",
+        "title": "Primary Suite",
+        "t": 21.6
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 27.0
+      }
+    ],
+    "title": "3-Bed Detroit Corktown Sawtooth-Roof Industrial Brick & Timber Sanctuary",
+    "generated_at": "2026-10-16T15:17:22+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-053/ext_front.jpg?v=2",
+      "living_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/brick_timber_loft_3br/living_room.jpg",
+      "chef_kitchen": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/brick_timber_loft_3br/chef_kitchen.jpg",
+      "dining_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/brick_timber_loft_3br/dining_room.jpg",
+      "primary_bedroom": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/brick_timber_loft_3br/primary_bedroom.jpg",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-053/ext_rear.jpg?v=2"
+    }
+  },
+  "RKT-063": {
+    "url": "https://storage.googleapis.com/vtxdemos-abnb-images/tours/veo/RKT-063_walkthrough.mp4?v=1792163852",
+    "poster": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-063/ext_front.jpg?v=2",
+    "duration_s": 33.0,
+    "model": "veo-3.1-fast-generate-001",
+    "route": "full",
+    "chapters": [
+      {
+        "room_id": "ext_front",
+        "title": "Front Exterior",
+        "t": 0.0
+      },
+      {
+        "room_id": "living_room",
+        "title": "Great Room",
+        "t": 5.4
+      },
+      {
+        "room_id": "chef_kitchen",
+        "title": "Chef's Kitchen",
+        "t": 10.8
+      },
+      {
+        "room_id": "dining_room",
+        "title": "Dining Room",
+        "t": 16.2
+      },
+      {
+        "room_id": "primary_bedroom",
+        "title": "Primary Suite",
+        "t": 21.6
+      },
+      {
+        "room_id": "ext_rear",
+        "title": "Rear Patio & Pool",
+        "t": 27.0
+      }
+    ],
+    "title": "2-Bed Toronto Distillery-Style Victorian Red-Brick & Glass-Atrium Loft",
+    "generated_at": "2026-10-16T15:17:32+00:00",
+    "width": 1280,
+    "height": 720,
+    "source_images": {
+      "ext_front": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-063/ext_front.jpg?v=2",
+      "living_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/brick_timber_loft_2br/living_room.jpg",
+      "chef_kitchen": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/brick_timber_loft_2br/chef_kitchen.jpg",
+      "dining_room": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/brick_timber_loft_2br/dining_room.jpg",
+      "primary_bedroom": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/tiers/brick_timber_loft_2br/primary_bedroom.jpg",
+      "ext_rear": "https://storage.googleapis.com/vtxdemos-abnb-images/rocket_re_cdn/v1/images/listings/RKT-063/ext_rear.jpg?v=2"
+    }
+  }
+}

@@ -1,0 +1,81 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_INDEX["Stage 1: Offline 108-Home Multimodal Feature Extraction & Indexing"]
+    PhotosGCS["540 Property Photos<br/>(GCS High-Resolution CDN)"]:::gcpYellow
+    PhotosGCS@{ icon: "gcp:cloud-storage", pos: "b" }
+
+    FlashVision["Gemini 3.8 Flash Vision<br/>(Extracts Driveways, Cars, Roofs, Styles)"]:::gcpBlue
+    FlashVision@{ icon: "gcp:vertexai", pos: "b" }
+
+    MM_Embed["Multimodal Embedding @001<br/>(512-d Dense Pixel Feature Vector)"]:::gcpGreen
+    MM_Embed@{ icon: "gcp:vertexai", pos: "b" }
+
+    Text_Embed["Gemini Embedding 001<br/>(256-d Semantic Property Metadata Vector)"]:::gcpGreen
+    Text_Embed@{ icon: "gcp:vertexai", pos: "b" }
+
+    IndexStore["Vector Catalog & Topology Coordinates<br/>(catalog_108_index.json + UMAP 2D Layout)"]:::neutral
+
+    PhotosGCS --> FlashVision
+    PhotosGCS --> MM_Embed
+    FlashVision --> Text_Embed
+    MM_Embed --> IndexStore
+    Text_Embed --> IndexStore
+  end
+
+  subgraph SG_QUERY["Stage 2: Real-Time Multi-Modal Query & Weighted RRF Fusion"]
+    BuyerQuery["Buyer Multi-Modal Query<br/>e.g., 'black car outside of the house'"]:::neutral
+    BuyerQuery@{ icon: "fa:user", pos: "b" }
+
+    Q_Text["Semantic Query Embedding<br/>(256-d Dense Vector)"]:::gcpGreen
+    Q_Text@{ icon: "gcp:vertexai", pos: "b" }
+
+    Q_Cross["Visual Cross-Modal Projection<br/>(512-d Pixel Embedding Space)"]:::gcpGreen
+    Q_Cross@{ icon: "gcp:vertexai", pos: "b" }
+
+    Q_BM25["BM25 Lexical Keyword Ranker<br/>(Exact Token Match Weight: 0.38)"]:::neutral
+
+    RRF_Engine["Weighted Reciprocal Rank Fusion Engine<br/>(Score = 0.42*Text + 0.20*Visual + 0.38*BM25)"]:::gcpBlue
+    RRF_Engine@{ icon: "gcp:vertexai", pos: "b" }
+
+    BuyerQuery --> Q_Text
+    BuyerQuery --> Q_Cross
+    BuyerQuery --> Q_BM25
+    Q_Text --> RRF_Engine
+    Q_Cross --> RRF_Engine
+    Q_BM25 --> RRF_Engine
+  end
+
+  subgraph SG_UI["Stage 3: Dual-Mode Interactive Visualization & Vector Topology"]
+    RedfinMap["Consumer Redfin Split-Screen Map<br/>(Geocoded Property Cards & Filters)"]
+    RedfinMap@{ icon: "logos:google-maps", pos: "b" }
+
+    UMAP_Canvas["Behind-the-Scenes 3072-D UMAP Canvas<br/>(Draggable Query Vector & Live Cosine Rays)"]:::gcpBlue
+    UMAP_Canvas@{ icon: "gcp:cloud-run", pos: "b" }
+  end
+
+  IndexStore --> RRF_Engine
+  RRF_Engine --> RedfinMap
+  RRF_Engine --> UMAP_Canvas
+
+  style SG_INDEX fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_QUERY fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_UI fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b

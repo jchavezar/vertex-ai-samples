@@ -1,0 +1,87 @@
+---
+config:
+  layout: elk
+  elk:
+    mergeEdges: false
+    nodePlacementStrategy: BRANDES_KOEPF
+  look: neo
+  theme: default
+  themeVariables:
+    fontFamily: "'Google Sans', 'Roboto', 'Inter', sans-serif"
+    fontSize: "14px"
+    lineColor: "#475569"
+    edgeLabelBackground: "#ffffff"
+---
+flowchart TD
+  subgraph SG_P3_INGEST["Tier 1: 'Ask Redfin 2.0' Query Ingestion, Keyword Router & 8s Race Guard"]
+    UserQuery["Homebuyer Query via 'Ask Redfin 2.0'<br/>(e.g., 'Homes near top schools in Ann Arbor with video walkthrough')"]:::neutral
+    UserQuery@{ icon: "fa:user", pos: "b" }
+
+    FastRouter["Zero-Latency Keyword Router<br/>(FastAPI Microservice: Dispatches Maps, YouTube & Search Intents)"]:::gcpBlue
+    FastRouter@{ icon: "gcp:cloud-run", pos: "b" }
+
+    RaceGuard["8s Tail-Latency Race Guard<br/>(Spawns Concurrent Twin Worker at 8s; First Emitted Token Wins)"]:::gcpYellow
+    RaceGuard@{ icon: "gcp:cloud-run", pos: "b" }
+
+    wp_p3_a_out(((A))):::waypoint
+
+    UserQuery --> FastRouter
+    FastRouter --> RaceGuard
+    RaceGuard --> wp_p3_a_out
+  end
+
+  subgraph SG_P3_GROUNDING["Tier 2: Concurrent Gemini 3.8 Flash Tri-Modal Grounding Call"]
+    wp_p3_a_in(((A))):::waypoint
+
+    GeminiStream["Gemini 3.8 Flash Streaming Engine<br/>(generate_content_stream on Vertex AI with Unified Tool Context)"]:::gcpGreen
+    GeminiStream@{ icon: "gcp:vertexai", pos: "b" }
+
+    MapsTool["types.GoogleMaps Tool<br/>(Retrieves Verified Place IDs & Neighborhood Context)"]
+    MapsTool@{ icon: "logos:google-maps", pos: "b" }
+
+    YouTubeTool["YouTube Part.from_uri<br/>(Ingests Video Transcripts & Multimodal Visual Scenes)"]
+    YouTubeTool@{ icon: "logos:youtube", pos: "b" }
+
+    SearchTool["types.GoogleSearch Tool<br/>(Grounds Live Municipal Grants, School Scores & Rates)"]
+    SearchTool@{ icon: "logos:google", pos: "b" }
+
+    wp_p3_b_out(((B))):::waypoint
+
+    wp_p3_a_in --> GeminiStream
+    GeminiStream --> MapsTool
+    GeminiStream --> YouTubeTool
+    GeminiStream --> SearchTool
+    MapsTool --> wp_p3_b_out
+    YouTubeTool --> wp_p3_b_out
+    SearchTool --> wp_p3_b_out
+  end
+
+  subgraph SG_P3_DELIVERY["Tier 3: Places API (New) Coordinate Resolution, NDJSON Streaming & UI Pins"]
+    wp_p3_b_in(((B))):::waypoint
+
+    PlacesResolver["Places API (New) Lat/Lng Resolver<br/>(Resolves place_id to Lat/Lng via ADC + X-Goog-User-Project)"]:::gcpBlue
+    PlacesResolver@{ icon: "gcp:cloud-run", pos: "b" }
+
+    NDJSONStream["Real-Time NDJSON Event Stream<br/>(Dispatches: route, status, delta, sources, done)"]
+    NDJSONStream@{ icon: "azure:code", pos: "b" }
+
+    LeafletUI["Interactive Leaflet Map & Video Seeker<br/>(Interactive Map Pins + Citation Pills + Video Timestamp Seeker)"]:::neutral
+    LeafletUI@{ icon: "fa:map", pos: "b" }
+
+    wp_p3_b_in --> PlacesResolver
+    PlacesResolver --> NDJSONStream
+    NDJSONStream --> LeafletUI
+  end
+
+  SG_P3_INGEST ~~~ SG_P3_GROUNDING ~~~ SG_P3_DELIVERY
+
+  style SG_P3_INGEST fill:#f8fafc,stroke:#cbd5e1,stroke-width:1.5px,color:#0f172a
+  style SG_P3_GROUNDING fill:#f0fdf4,stroke:#86efac,stroke-width:1.5px,color:#0f172a
+  style SG_P3_DELIVERY fill:#f0f7ff,stroke:#93c5fd,stroke-width:1.5px,color:#0f172a
+
+  classDef gcpBlue fill:#e8f0fe,stroke:#1a73e8,stroke-width:2px,color:#174ea6
+  classDef gcpGreen fill:#e6f4ea,stroke:#1e8e3e,stroke-width:2px,color:#0d652d
+  classDef gcpYellow fill:#fef7e0,stroke:#f9ab00,stroke-width:2px,color:#b06000
+  classDef gcpRed fill:#fce8e6,stroke:#d93025,stroke-width:2px,color:#a50e0e
+  classDef neutral fill:#f8fafc,stroke:#64748b,stroke-width:1.5px,color:#1e293b
+  classDef waypoint fill:#1e293b,stroke:#0f172a,stroke-width:2px,color:#ffffff,font-weight:bold
