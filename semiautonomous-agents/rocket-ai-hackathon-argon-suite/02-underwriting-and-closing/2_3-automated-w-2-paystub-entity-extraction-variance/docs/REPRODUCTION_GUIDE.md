@@ -7,7 +7,7 @@
 | **Business Domain** | 2. Operations, Underwriting & Closing (Rocket Logic Fulfillment & Rocket Close Title) (`rocket-demo-underwriting`) |
 | **Complexity Level** | `L200–L300` |
 | **Active Model & Runtime** | **`gemini-4-argon`** — Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox |
-| **Live Interactive Demo** | [https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.3](https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.3) *(Username: `rocket` / Password: `Argon2026!`)* |
+| **Live Interactive Demo** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/2.3](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/2.3) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.3](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.3) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |
 | **Agent Reproduction Skill** | [`skills/SKILL.md`](../skills/SKILL.md) |

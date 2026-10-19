@@ -7,7 +7,7 @@
 | **Business Domain** | 2. Operations, Underwriting & Closing (Rocket Logic Fulfillment & Rocket Close Title) (`rocket-demo-underwriting`) |
 | **Complexity Level** | `L100–L200` |
 | **Active Model & Runtime** | **`gemini-3.8-flash`** — Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash |
-| **Live Interactive Demo** | [https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.1](https://rocket-demo-underwriting-254356041555.us-central1.run.app/?case=2.1) *(Username: `rocket` / Password: `Argon2026!`)* |
+| **Live Interactive Demo** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/2.1](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/2.1) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.1](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/2.1) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |
 | **Agent Reproduction Skill** | [`skills/SKILL.md`](../skills/SKILL.md) |

@@ -7,7 +7,7 @@
 | **Business Domain** | 5. Risk, Compliance & Legal (CFPB, TRID, Model Armor PII Firewall & Fair Lending) (`rocket-demo-compliance`) |
 | **Complexity Level** | `L100–L200` |
 | **Active Model & Runtime** | **`gemini-4-argon`** — Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox |
-| **Live Interactive Demo** | [https://rocket-demo-compliance-254356041555.us-central1.run.app/?case=5.2](https://rocket-demo-compliance-254356041555.us-central1.run.app/?case=5.2) *(Username: `rocket` / Password: `Argon2026!`)* |
+| **Live Interactive Demo** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/5.2](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/5.2) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.2](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/5.2) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |
 | **Agent Reproduction Skill** | [`skills/SKILL.md`](../skills/SKILL.md) |
