@@ -14,9 +14,26 @@
 
 ---
 
+## 💻 Source Code in This Pillar Folder
+
+| File / Component | Primary Technology & Models | Purpose & Implementation Details |
+| :--- | :--- | :--- |
+| [`app.py`](app.py) | **FastAPI + WebSocket Service** · Port `8084` | Standalone microservice exposing `WS /ws/live-avatar` and `POST /api/async-subagents/decompose`. |
+| [`engine.py`](engine.py) | **`gemini-3.8-live`** · Python 3.11 | Bidirectional voice & avatar engine; manages persistent WebSockets, continuous fMP4, and subagents. |
+| [`frontend/live_session.js`](frontend/live_session.js) | **WebAudio & MSE Video Core** | Client WebAudio 16kHz PCM capture and MediaSource continuous-fMP4 (`ftyp+moov`) rendering engine. |
+| [`frontend/p4_stage.js`](frontend/p4_stage.js) | **4:5 Live Avatar Stage UI** | Portrait `704×1280` video stage (`Kira`, `Sam`, `Ben`, `Vera`, `Leo`) with waveform and subagent cards. |
+| [`frontend/live_bridge.js`](frontend/live_bridge.js) | **Omni Ghost Cursor Bridge** | Dispatches Live API function calls (`control_bqml_timesfm`, `control_realestate_marketplace`) to UI controls. |
+| [`frontend/p4_stage.css`](frontend/p4_stage.css) | **Avatar Stage Stylesheet** | Styling for the 4:5 portrait stage, live status beacon, and out-of-order subagent HUD. |
+| [`Dockerfile`](Dockerfile) | **Google Cloud Run Container** | Standalone container build (`uvicorn app:app --port 8084` with `ffmpeg`) for independent deployment. |
+| [`requirements.txt`](requirements.txt) | **Pinned Dependencies** | Pinned Python packages (`google-genai`, `fastapi`, `uvicorn`, `websockets`). |
+| [`SKILL.md`](SKILL.md) | **1-Shot LLM Replication Skill** | Complete blueprint, WebSocket frames, VAD configurations, and subagent schemas. |
+| [`.env.example`](.env.example) | **Environment Configuration** | Template for Live API endpoint (`us-central1`), avatar persona selections, and credentials. |
+
+---
+
 ## 1. Live GIF & Video Walkthrough
 
-![Pillar 4 Live Demo](assets/p4_live_avatar_demo.gif)
+<p align="center"><img src="assets/p4_live_avatar_demo.gif" width="100%" alt="Pillar 4 Live Demo"></p>
 
 [🎬 Watch / Download High-Resolution MP4 Video (assets/p4_live_avatar_demo.mp4)](assets/p4_live_avatar_demo.mp4)
 
@@ -32,81 +49,117 @@
 ## 2. High-Definition Architecture Diagrams (`3x Retina` Blueprint + `3x HiDPI` Mermaid ELK)
 
 ### 3x Retina Google Cloud Reference Architecture Blueprint
-![Pillar 4 GCP Reference Architecture Blueprint](assets/p4_architecture_blueprint.png)
+<p align="center"><img src="assets/p4_architecture_blueprint.png" width="100%" alt="Pillar 4 GCP Reference Architecture Blueprint"></p>
 *Vector Reference: [assets/p4_architecture_blueprint.svg](assets/p4_architecture_blueprint.svg)*
 
 ### 3x HiDPI Mermaid ELK Execution Flow
-![Pillar 4 Mermaid Flow](assets/p4_mermaid_flow_padded.png)
+<p align="center"><img src="assets/p4_mermaid_flow_padded.png" width="100%" alt="Pillar 4 Mermaid Flow"></p>
 *Mermaid Source: [assets/p4_mermaid_flow.mmd](assets/p4_mermaid_flow.mmd)*
 
 ---
 
 ## 3. Block-by-Block Component Diagram Walkthrough
 
-```text
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 1] Borrower 16kHz PCM Audio Stream (`window.RocketLive`)        │
-│ Native WebAudio mic streaming + Instant Click-to-Interrupt Barge-in    │
-└───────────────────────────────────┬────────────────────────────────────┘
-                                    │ WebSocket (`/ws/live-avatar`)
-                                    ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 2] Vertex AI Gemini 3.8 Live Engine (`gemini-3.8-live`)         │
-│ Bidirectional Live Session, Native Server-Side VAD (<350ms TTFA)       │
-└───────────────────┬───────────────────────────────┬────────────────────┘
-                    │                               │
-                    ▼                               ▼
-┌──────────────────────────────────────┐ ┌───────────────────────────────┐
-│ [Block 3] Continuous-fMP4 Remuxer    │ │ [Block 5] Autonomous Tools    │
-│ Caches `ftyp+moov` init segment      │ │ Ghost Cursor DOM manipulation │
-│ Streams 704x1280 30fps video avatar  │ │ `control_bqml_timesfm`, etc.  │
-└───────────────────┬──────────────────┘ └──────────────┬────────────────┘
-                    │                                   │
-                    ▼                                   ▼
-┌──────────────────────────────────────┐ ┌───────────────────────────────┐
-│ [Block 4] 8-Frame Viseme Fallback    │ │ [Block 6] Async Subagent Swarm│
-│ Client-side RMS audio envelope sync  │ │ Concurrent `gemini-3.1-flash` │
-│ 60fps mouth phoneme animation        │ │ Out-of-order stream (<250ms)  │
-└───────────────────┬──────────────────┘ └──────────────┬────────────────┘
-                    │                                   │
-                    └─────────────────┬─────────────────┘
-                                      ▼
-┌────────────────────────────────────────────────────────────────────────┐
-│ [Block 7] Interactive Conversation Stage (`static/p4_stage.js`)        │
-│ 4:5 Portrait Video + Live Captions + Omni Copilot Integration          │
-└────────────────────────────────────────────────────────────────────────┘
-```
+<p align="center">
+  <img src="assets/p4_component_walkthrough.png" width="100%" alt="Component Walkthrough Banner">
+</p>
 
-### Component-by-Component Walkthrough Table
+### End-to-End Component Flow & Low-Level Invariants
 
-| Block # | Component & File | Google Cloud / Vertex AI Service & Model | Input / Output Contract | Latency & Engineering Mechanics |
-| :--- | :--- | :--- | :--- | :--- |
-| **Block 1** | **Client Audio Ingestion**<br>`static/live_session.js` | **WebAudio AudioContext / ScriptProcessor** | **Input:** User microphone 48kHz PCM.<br>**Output:** Downsampled 16kHz linear PCM base64 chunks (`{type: "audio", pcm16_b64}`). | **<12ms:** Native client-side downsampling. Employs zero-allocation buffer pools for glitch-free continuous streaming. |
-| **Block 2** | **Gemini Live Bidi Engine**<br>`pillar-4-live-api-avatar/engine.py` | **Gemini 3.8 Live API** (`location="us-central1"`) | **Input:** Bidirectional WebSocket audio/tool stream.<br>**Output:** Real-time 24kHz PCM audio, function calls, and avatar video chunks. | **280ms – 350ms TTFA:** Native audio-to-audio foundation model. Automatic activity detection triggers server-side barge-in interrupts in ~40ms. |
-| **Block 3** | **Continuous-fMP4 Remuxer**<br>`engine.py::GeminiLiveAvatarSession` | **FFmpeg Subprocess & Init Segment Cache** | **Input:** Fragmented MP4 stream (`moof`/`mdat`).<br>**Output:** Continuous WebM/H.264 MSE video chunks (`704x1280` @ 30 FPS). | **<18ms frame remuxing:** Caches `ftyp`+`moov` headers from turn 1. Re-injects cached headers post-barge-in to prevent MSE decoder freezes. |
-| **Block 4** | **Viseme Sprite Lip-Sync**<br>`static/kira_viseme_sprite.jpg` | **Client-Side HTML5 Canvas & RMS Engine** | **Input:** 24kHz incoming PCM audio stream.<br>**Output:** 60 FPS mouth phoneme mapping across 8 sprite sheet cells. | **16ms (60 FPS):** Lightweight fallback for mobile/low-bandwidth devices. WebAudio analyser computes spectral energy to animate jaw and lips. |
-| **Block 5** | **Ghost Cursor Controller**<br>`static/p4_stage.js` | **DOM Mutation & Tool Execution Engine** | **Input:** Model tool calls (`control_realestate_marketplace`, `control_bqml_timesfm`).<br>**Output:** Smooth quadratic Bezier cursor animation and synthetic DOM events. | **120ms total travel:** Moves animated visual pointer to target sliders, buttons, and input bars in sync with Kira's verbal explanations. |
-| **Block 6** | **Async Subagent Swarm**<br>`app.py::api_async_subagents` | **Gemini 3.1 Flash-Lite & Gemini 3.8 Flash** | **Input:** Multi-intent prompt string.<br>**Output:** Out-of-order parallel JSON streams via `asyncio.as_completed`. | **180ms – 240ms initial yield:** Splits question into 3 discrete tasks (Credit/Rates, MLS Vision, Subscriptions) and streams results first-ready. |
-| **Block 7** | **Portrait Stage UI**<br>`static/p4_stage.js` + `p4_stage.css` | **CSS Grid Stage & MSE Video Sink** | **Input:** Live video, dynamic captions, and tool status.<br>**Output:** 4:5 portrait conversational stage with auto-scrolling transcript and crossfade posters. | **16ms render:** Parks legacy DOM safely in hidden shim. `contain: size` preserves layout geometry regardless of transcript expansion. |
+| Block & Component | Source Code File & GCP Model | Latency & Role |
+| :--- | :--- | :--- |
+| **Block 1: WebAudio & MSE** | `p4_stage.js` & `live_session.js` | **16ms (60 FPS):** Captures 16kHz PCM audio from mic; plays continuous 704×1280 24fps fMP4 video via MSE. |
+| **Block 2: WebSocket Gateway** | `app.py::ws_live_avatar` | **<10ms overhead:** Bidirectional WebSocket routing binary PCM frames, text, and 40ms barge-in resets. |
+| **Block 3: Live API Core** | `engine.py::RocketLiveClient` | **Sub-Second Latency:** `gemini-3.8-live` speech-to-speech with natural inflection and multi-tool calling. |
+| **Block 4: Continuous fMP4** | `engine.py::AvatarConfig` | **0ms flicker:** Caches `ftyp+moov` initialization headers across turns, streaming pure `moof+mdat` chunks. |
+| **Block 5: Subagent Swarm** | `engine.py::decompose_and_delegate` | **Parallel Execution:** Dispatches complex queries to Flash-Lite subagents with out-of-order return. |
 
-### The Production `v35` Engineering Breakthroughs
-
-#### 1. Continuous-fMP4 `ftyp+moov` Init Segment Caching
-A critical challenge in Gemini 3.8 Live video avatars is that the API emits **one continuous fragmented MP4 stream per session**:
-- Only the very first media packet contains the initialization segment (`ftyp` and `moov` atoms).
-- All subsequent packets across speech, idle listening, and barge-in turns contain exclusively `moof` and `mdat` movie fragments (streaming at $\approx 0.8\text{ MB/s}$).
-- If an FFmpeg remuxer or MediaSource decoder restarts mid-conversation (e.g., after an interruption or avatar persona switch), it receives no initialization segment and crashes with `appendBuffer failed InvalidStateError`, freezing the avatar.
-- **The v35 Solution:** The engine intercepts the first chunk, extracts and caches the `ftyp+moov` byte header in memory, and keeps a single persistent remuxer alive. Upon any barge-in or stream restart, the cached init segment is prepended to the new stream, guaranteeing continuous, uninterrupted video playback.
-
-#### 2. Speaking State Detection via Decoded Audio Energy
-Because Gemini 3.8 Live continuously sends video fragments during both speech and silent listening, checking *"is media arriving"* cannot determine if the avatar is speaking. The engine utilizes client-side WebAudio:
+### 🔹 Block 1 — WebAudio 16kHz PCM Microphone & MSE Video Stage (`live_session.js`)
+- **Input / Output Contract:**
+  - **Input:** Raw microphone stream via `navigator.mediaDevices.getUserMedia` and user persona selections (`Kira`, `Sam`).
+  - **Output:** Downsampled 16,000 Hz 16-bit linear PCM audio chunks and MediaSource video buffer append calls.
+- **Source Code Implementation (`JavaScript / static/live_session.js`):**
 ```javascript
-const stream = videoEl.captureStream();
-const audioTrack = stream.getAudioTracks()[0];
-const analyser = audioCtx.createAnalyser();
-// Compute RMS amplitude: speaking state is true only when RMS > 0.015
+// WebAudio downsampler: captures mic input and emits 16kHz PCM16 binary chunks
+const audioCtx = new AudioContext({ sampleRate: 16000 });
+const source = audioCtx.createMediaStreamSource(micStream);
+const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+processor.onaudioprocess = (e) => {
+    const inputData = e.inputBuffer.getChannelData(0);
+    const pcm16 = floatTo16BitPCM(inputData);
+    websocket.send(pcm16.buffer);
+};
 ```
-This drives lip synchronization, transcript captioning, and listening indicators with zero false positives.
+
+### 🔹 Block 2 — Bidirectional WebSocket Gateway & Barge-In Watchdog (`app.py`)
+- **Input / Output Contract:**
+  - **Input:** Continuous binary PCM chunks and JSON client control frames over `ws://.../ws/live-avatar`.
+  - **Output:** Server Voice Activity Detection (VAD) events, synthesized 24kHz audio, and video fragment streams.
+- **Source Code Implementation (`Python 3.11 / app.py`):**
+```python
+@app.websocket("/ws/live-avatar")
+async def ws_live_avatar(websocket: WebSocket):
+    await websocket.accept()
+    session = p4_engine.create_live_session(websocket)
+    try:
+        async for message in websocket.iter_bytes():
+            if session.is_barge_in_active():
+                await session.abort_active_synthesis()
+            await session.send_audio_chunk(message)
+    finally:
+        await session.close()
+```
+
+### 🔹 Block 3 — Gemini 3.8 Live Multimodal Session Client (`engine.py`)
+- **Input / Output Contract:**
+  - **Input:** 16kHz audio stream, tool execution return values, and prompt context.
+  - **Output:** 24,000 Hz PCM audio response stream, real-time function calls, and avatar sentiment indicators.
+- **Source Code Implementation (`Python 3.11 / engine.py`):**
+```python
+live_config = LiveConnectConfig(
+    response_modalities=["AUDIO"],
+    speech_config=SpeechConfig(
+        voice_config=VoiceConfig(prebuilt_voice_config=PrebuiltVoiceConfig(voice_name="Kore"))
+    ),
+    system_instruction="You are Kira, Rocket's Senior Loan Underwriter. Respond with natural voice inflection.",
+)
+async with client.aio.live.connect(model="gemini-3.8-live", config=live_config) as session:
+    await session.send(input=audio_bytes, end_of_turn=False)
+```
+
+### 🔹 Block 4 — Continuous-fMP4 Init Segment Caching Engine (`engine.py`)
+- **Input / Output Contract:**
+  - **Input:** Pre-rendered avatar gesture segments and transition cues (`listening`, `talking`, `thinking`).
+  - **Output:** Seamless fragmented MP4 media stream with `ftyp+moov` sent exactly once, eliminating browser video flicker.
+- **Source Code Implementation (`Python 3.11 / engine.py`):**
+```python
+class AvatarStreamer:
+    def __init__(self, avatar_id="kira"):
+        # Load and cache initialization segment once
+        self.init_segment = load_avatar_ftyp_moov(avatar_id)
+        
+    def stream_segment(self, state="speaking"):
+        # Stream only subsequent moof + mdat movie fragments
+        return load_avatar_fragment(self.avatar_id, state)
+```
+
+### 🔹 Block 5 — Out-of-Order Async Subagent Swarm (`engine.py`)
+- **Input / Output Contract:**
+  - **Input:** Multi-variable financial query (e.g. *"What is my rate if I buy 2 points and add an escrow waiver?"*).
+  - **Output:** Decomposed tasks dispatched in parallel to Flash-Lite specialist subagents, yielding results in first-ready order.
+- **Source Code Implementation (`Python 3.11 / engine.py`):**
+```python
+async def decompose_and_delegate(query: str):
+    tasks = [
+        run_subagent("points_calc", query),
+        run_subagent("escrow_waiver", query),
+        run_subagent("secondary_mbs", query)
+    ]
+    # Yield each result immediately as it completes (first-ready out-of-order)
+    for completed in asyncio.as_completed(tasks):
+        result = await completed
+        yield result
+```
 
 ---
 

@@ -1,0 +1,366 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 520" width="1600" height="520" style="background:#F8FAFC;font-family:'Google Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  
+    <defs>
+      <filter id="card-shadow" x="-3%" y="-2%" width="106%" height="106%">
+        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.08"/>
+      </filter>
+      <filter id="header-shadow" x="-1%" y="-2%" width="102%" height="106%">
+        <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0F172A" flood-opacity="0.06"/>
+      </filter>
+      <marker id="arr-flow" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+        <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#94A3B8"/>
+      </marker>
+    </defs>
+
+
+  <!-- BACKGROUND -->
+  <rect width="1600" height="520" fill="#F8FAFC"/>
+  
+  <!-- GRID PATTERN -->
+  <g opacity="0.6">
+    <path d="M 0 0 L 1600 0 M 0 40 L 1600 40 M 0 80 L 1600 80 M 0 120 L 1600 120 M 0 160 L 1600 160 M 0 200 L 1600 200 M 0 240 L 1600 240 M 0 280 L 1600 280 M 0 320 L 1600 320 M 0 360 L 1600 360 M 0 400 L 1600 400 M 0 440 L 1600 440 M 0 480 L 1600 480" stroke="#E2E8F0" stroke-width="0.5"/>
+    <path d="M 0 0 L 0 520 M 40 0 L 40 520 M 80 0 L 80 520 M 120 0 L 120 520 M 160 0 L 160 520 M 200 0 L 200 520 M 240 0 L 240 520 M 280 0 L 280 520 M 320 0 L 320 520 M 360 0 L 360 520 M 400 0 L 400 520 M 440 0 L 440 520 M 480 0 L 480 520 M 520 0 L 520 520 M 560 0 L 560 520 M 600 0 L 600 520 M 640 0 L 640 520 M 680 0 L 680 520 M 720 0 L 720 520 M 760 0 L 760 520 M 800 0 L 800 520 M 840 0 L 840 520 M 880 0 L 880 520 M 920 0 L 920 520 M 960 0 L 960 520 M 1000 0 L 1000 520 M 1040 0 L 1040 520 M 1080 0 L 1080 520 M 1120 0 L 1120 520 M 1160 0 L 1160 520 M 1200 0 L 1200 520 M 1240 0 L 1240 520 M 1280 0 L 1280 520 M 1320 0 L 1320 520 M 1360 0 L 1360 520 M 1400 0 L 1400 520 M 1440 0 L 1440 520 M 1480 0 L 1480 520 M 1520 0 L 1520 520 M 1560 0 L 1560 520" stroke="#E2E8F0" stroke-width="0.5"/>
+  </g>
+
+  <!-- TOP HEADER CARD -->
+  <g filter="url(#header-shadow)">
+    <rect x="24" y="16" width="1552" height="60" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+    <rect x="24" y="16" width="6" height="60" rx="3" fill="#EA4335"/>
+    
+    <text x="44" y="39" fill="#0F172A" font-size="17" font-weight="800" letter-spacing="-0.3">Pillar 2 Component Walkthrough — Veo 3.1 & Imagen 4 Vertical 9:16 Social Reels Studio</text>
+    <text x="44" y="59" fill="#64748B" font-size="11.5" font-weight="500">Cinematic Text-to-Video Generation · 24kHz Audio Narration · Burned-in Rocket PITI Stickers · 11-Reel Instant Edge Vault</text>
+
+    
+    <rect x="1304.5" y="32" width="271.5" height="26" rx="13" fill="#E6F4EA" stroke="#188038" stroke-width="1.2"/>
+    <text x="1440.25" y="49" fill="#137333" font-size="11.5" font-weight="700" text-anchor="middle">11 Pre-Rendered Edge Reels: <20ms</text>
+
+    <rect x="1103.5" y="32" width="189.0" height="26" rx="13" fill="#E8F0FE" stroke="#1A73E8" stroke-width="1.2"/>
+    <text x="1198.0" y="49" fill="#1967D2" font-size="11.5" font-weight="700" text-anchor="middle">gemini-3.1-flash-image</text>
+
+    <rect x="917.5" y="32" width="174.0" height="26" rx="13" fill="#FCE8E6" stroke="#EA4335" stroke-width="1.2"/>
+    <text x="1004.5" y="49" fill="#C5221F" font-size="11.5" font-weight="700" text-anchor="middle">veo-3.1-generate-001</text>
+
+  </g>
+
+  <!-- 5 HORIZONTAL CARDS -->
+  
+    <!-- CARD 1: Reel Brief & Studio Inputs -->
+    <g filter="url(#card-shadow)">
+      <rect x="24" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+      
+      <!-- CARD HEADER BAR -->
+      <path d="M 24 102 Q 24 90 36 90 L 300 90 Q 312 90 312 102 L 312 128 L 24 128 Z" fill="#F8FAFC"/>
+      <line x1="24" y1="128" x2="312" y2="128" stroke="#E2E8F0" stroke-width="1.2"/>
+      
+      <!-- BLOCK BADGE -->
+      <rect x="36" y="99" width="72" height="20" rx="10" fill="#EA4335" opacity="0.12"/>
+      <text x="72" y="113" fill="#EA4335" font-size="10.5" font-weight="800" text-anchor="middle" letter-spacing="0.5">BLOCK 1</text>
+      
+      <!-- STEP COUNTER -->
+      <text x="298" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 1 of 5</text>
+
+      <!-- TITLE & FILE -->
+      <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Reel Brief & Studio Inputs</text>
+      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">ui_studio.py & p2_stage.js</text>
+
+      <line x1="38" y1="184" x2="298" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
+
+      <!-- BULLETS -->
+      
+        <g transform="translate(38, 196)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Listing address, price, & target audience</text>
+        </g>
+
+        <g transform="translate(38, 218)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Tone selection (luxury, family, modern)</text>
+        </g>
+
+        <g transform="translate(38, 240)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Rocket PITI interest & tax parameters</text>
+        </g>
+
+        <g transform="translate(38, 262)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">1-click quick preset templates</text>
+        </g>
+
+
+      <!-- CONTRACT BOX -->
+      <rect x="36" y="374" width="264" height="76" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="44" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
+      
+      <text x="44" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
+      <text x="66" y="412" fill="#475569" font-size="10" font-weight="500">Property metadata & tone directives</text>
+
+      <text x="44" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
+      <text x="72" y="434" fill="#475569" font-size="10" font-weight="500">Structured generation brief payload</text>
+
+      <!-- LATENCY / ROLE BADGE -->
+      <rect x="36" y="462" width="264" height="28" rx="14" fill="#E8F0FE" stroke="#EA4335" stroke-width="1"/>
+      <text x="168.0" y="480" fill="#1967D2" font-size="11" font-weight="700" text-anchor="middle">0ms Client Assembly</text>
+    </g>
+
+    <!-- FLOW ARROW 1 -> 2 -->
+    <g transform="translate(315, 286.0)">
+      <circle cx="11" cy="10" r="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+      <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- CARD 2: Gemini Script Director -->
+    <g filter="url(#card-shadow)">
+      <rect x="340" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+      
+      <!-- CARD HEADER BAR -->
+      <path d="M 340 102 Q 340 90 352 90 L 616 90 Q 628 90 628 102 L 628 128 L 340 128 Z" fill="#F8FAFC"/>
+      <line x1="340" y1="128" x2="628" y2="128" stroke="#E2E8F0" stroke-width="1.2"/>
+      
+      <!-- BLOCK BADGE -->
+      <rect x="352" y="99" width="72" height="20" rx="10" fill="#EA4335" opacity="0.12"/>
+      <text x="388" y="113" fill="#EA4335" font-size="10.5" font-weight="800" text-anchor="middle" letter-spacing="0.5">BLOCK 2</text>
+      
+      <!-- STEP COUNTER -->
+      <text x="614" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 2 of 5</text>
+
+      <!-- TITLE & FILE -->
+      <text x="354" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Gemini Script Director</text>
+      <text x="354" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::generate_reel_script</text>
+
+      <line x1="354" y1="184" x2="614" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
+
+      <!-- BULLETS -->
+      
+        <g transform="translate(354, 196)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Gemini 3.8 Flash multi-scene director</text>
+        </g>
+
+        <g transform="translate(354, 218)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">3-scene camera storyboard & timing</text>
+        </g>
+
+        <g transform="translate(354, 240)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Cinematic lighting & angle prompts</text>
+        </g>
+
+        <g transform="translate(354, 262)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">15s persuasive narrative voiceover</text>
+        </g>
+
+
+      <!-- CONTRACT BOX -->
+      <rect x="352" y="374" width="264" height="76" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="360" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
+      
+      <text x="360" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
+      <text x="382" y="412" fill="#475569" font-size="10" font-weight="500">Structured property brief & tone</text>
+
+      <text x="360" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
+      <text x="388" y="434" fill="#475569" font-size="10" font-weight="500">3-scene script, camera prompts, voice</text>
+
+      <!-- LATENCY / ROLE BADGE -->
+      <rect x="352" y="462" width="264" height="28" rx="14" fill="#FCE8E6" stroke="#EA4335" stroke-width="1"/>
+      <text x="484.0" y="480" fill="#C5221F" font-size="11" font-weight="700" text-anchor="middle">450ms–700ms Flash SLA</text>
+    </g>
+
+    <!-- FLOW ARROW 2 -> 3 -->
+    <g transform="translate(631, 286.0)">
+      <circle cx="11" cy="10" r="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+      <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- CARD 3: Parallel Veo 3.1 & Imagen -->
+    <g filter="url(#card-shadow)">
+      <rect x="656" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+      
+      <!-- CARD HEADER BAR -->
+      <path d="M 656 102 Q 656 90 668 90 L 932 90 Q 944 90 944 102 L 944 128 L 656 128 Z" fill="#F8FAFC"/>
+      <line x1="656" y1="128" x2="944" y2="128" stroke="#E2E8F0" stroke-width="1.2"/>
+      
+      <!-- BLOCK BADGE -->
+      <rect x="668" y="99" width="72" height="20" rx="10" fill="#EA4335" opacity="0.12"/>
+      <text x="704" y="113" fill="#EA4335" font-size="10.5" font-weight="800" text-anchor="middle" letter-spacing="0.5">BLOCK 3</text>
+      
+      <!-- STEP COUNTER -->
+      <text x="930" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 3 of 5</text>
+
+      <!-- TITLE & FILE -->
+      <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Parallel Veo 3.1 & Imagen</text>
+      <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::generate_veo_reel</text>
+
+      <line x1="670" y1="184" x2="930" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
+
+      <!-- BULLETS -->
+      
+        <g transform="translate(670, 196)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">veo-3.1-generate-001 9:16 video clips</text>
+        </g>
+
+        <g transform="translate(670, 218)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">gemini-3.1-flash-image keyframe stills</text>
+        </g>
+
+        <g transform="translate(670, 240)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Drone flyover, master suite, kitchen pan</text>
+        </g>
+
+        <g transform="translate(670, 262)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Parallel generation across cloud workers</text>
+        </g>
+
+
+      <!-- CONTRACT BOX -->
+      <rect x="668" y="374" width="264" height="76" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="676" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
+      
+      <text x="676" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
+      <text x="698" y="412" fill="#475569" font-size="10" font-weight="500">Scene prompts, 9:16 aspect, camera path</text>
+
+      <text x="676" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
+      <text x="704" y="434" fill="#475569" font-size="10" font-weight="500">Raw 1080x1920 video clips & stills</text>
+
+      <!-- LATENCY / ROLE BADGE -->
+      <rect x="668" y="462" width="264" height="28" rx="14" fill="#FEF7E0" stroke="#EA4335" stroke-width="1"/>
+      <text x="800.0" y="480" fill="#B06000" font-size="11" font-weight="700" text-anchor="middle">Vertex AI Long-Running</text>
+    </g>
+
+    <!-- FLOW ARROW 3 -> 4 -->
+    <g transform="translate(947, 286.0)">
+      <circle cx="11" cy="10" r="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+      <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- CARD 4: Audio & PITI Compositor -->
+    <g filter="url(#card-shadow)">
+      <rect x="972" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+      
+      <!-- CARD HEADER BAR -->
+      <path d="M 972 102 Q 972 90 984 90 L 1248 90 Q 1260 90 1260 102 L 1260 128 L 972 128 Z" fill="#F8FAFC"/>
+      <line x1="972" y1="128" x2="1260" y2="128" stroke="#E2E8F0" stroke-width="1.2"/>
+      
+      <!-- BLOCK BADGE -->
+      <rect x="984" y="99" width="72" height="20" rx="10" fill="#EA4335" opacity="0.12"/>
+      <text x="1020" y="113" fill="#EA4335" font-size="10.5" font-weight="800" text-anchor="middle" letter-spacing="0.5">BLOCK 4</text>
+      
+      <!-- STEP COUNTER -->
+      <text x="1246" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 4 of 5</text>
+
+      <!-- TITLE & FILE -->
+      <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Audio & PITI Compositor</text>
+      <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::composite_reel_media</text>
+
+      <line x1="986" y1="184" x2="1246" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
+
+      <!-- BULLETS -->
+      
+        <g transform="translate(986, 196)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Synthesizes 24kHz voiceover narration</text>
+        </g>
+
+        <g transform="translate(986, 218)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Burns Rocket Mortgage PITI pill overlay</text>
+        </g>
+
+        <g transform="translate(986, 240)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">30-yr fixed loan amortization badge</text>
+        </g>
+
+        <g transform="translate(986, 262)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Composites video, audio, & graphics</text>
+        </g>
+
+
+      <!-- CONTRACT BOX -->
+      <rect x="984" y="374" width="264" height="76" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="992" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
+      
+      <text x="992" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
+      <text x="1014" y="412" fill="#475569" font-size="10" font-weight="500">Video clips, voice text, PITI numbers</text>
+
+      <text x="992" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
+      <text x="1020" y="434" fill="#475569" font-size="10" font-weight="500">Composite 9:16 MP4 reel with audio</text>
+
+      <!-- LATENCY / ROLE BADGE -->
+      <rect x="984" y="462" width="264" height="28" rx="14" fill="#F3E8FD" stroke="#EA4335" stroke-width="1"/>
+      <text x="1116.0" y="480" fill="#7B1FA2" font-size="11" font-weight="700" text-anchor="middle">FFmpeg / Media Engine</text>
+    </g>
+
+    <!-- FLOW ARROW 4 -> 5 -->
+    <g transform="translate(1263, 286.0)">
+      <circle cx="11" cy="10" r="12" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+      <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#EA4335" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <!-- CARD 5: Reels Edge Vault -->
+    <g filter="url(#card-shadow)">
+      <rect x="1288" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
+      
+      <!-- CARD HEADER BAR -->
+      <path d="M 1288 102 Q 1288 90 1300 90 L 1564 90 Q 1576 90 1576 102 L 1576 128 L 1288 128 Z" fill="#F8FAFC"/>
+      <line x1="1288" y1="128" x2="1576" y2="128" stroke="#E2E8F0" stroke-width="1.2"/>
+      
+      <!-- BLOCK BADGE -->
+      <rect x="1300" y="99" width="72" height="20" rx="10" fill="#EA4335" opacity="0.12"/>
+      <text x="1336" y="113" fill="#EA4335" font-size="10.5" font-weight="800" text-anchor="middle" letter-spacing="0.5">BLOCK 5</text>
+      
+      <!-- STEP COUNTER -->
+      <text x="1562" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 5 of 5</text>
+
+      <!-- TITLE & FILE -->
+      <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Reels Edge Vault</text>
+      <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">static/reels/ & app.py</text>
+
+      <line x1="1302" y1="184" x2="1562" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
+
+      <!-- BULLETS -->
+      
+        <g transform="translate(1302, 196)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">11 pre-rendered production-grade reels</text>
+        </g>
+
+        <g transform="translate(1302, 218)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Instant <20ms playback from edge storage</text>
+        </g>
+
+        <g transform="translate(1302, 240)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Vertical player with auto-loop & mute</text>
+        </g>
+
+        <g transform="translate(1302, 262)">
+          <circle cx="5" cy="5" r="3" fill="#EA4335"/>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">1-click social export (TikTok/Instagram)</text>
+        </g>
+
+
+      <!-- CONTRACT BOX -->
+      <rect x="1300" y="374" width="264" height="76" rx="8" fill="#F8FAFC" stroke="#E2E8F0" stroke-width="1"/>
+      <text x="1308" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
+      
+      <text x="1308" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
+      <text x="1330" y="412" fill="#475569" font-size="10" font-weight="500">Client reel selection or render done</text>
+
+      <text x="1308" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
+      <text x="1336" y="434" fill="#475569" font-size="10" font-weight="500">Instant 9:16 video stream & download</text>
+
+      <!-- LATENCY / ROLE BADGE -->
+      <rect x="1300" y="462" width="264" height="28" rx="14" fill="#E6F4EA" stroke="#EA4335" stroke-width="1"/>
+      <text x="1432.0" y="480" fill="#137333" font-size="11" font-weight="700" text-anchor="middle"><20ms Vault Playback</text>
+    </g>
+
+</svg>

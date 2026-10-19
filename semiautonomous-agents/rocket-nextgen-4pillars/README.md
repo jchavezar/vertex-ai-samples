@@ -23,23 +23,23 @@ Each pillar resides in its own self-contained subfolder with its own **`README.m
 ## 🎬 1. Live GIF & Video Examples Across All 5 Pillars
 
 ### Pillar 1 · BigQuery ML `AI.FORECAST` (`TimesFM 2.0`)
-![Pillar 1 Live Demo](pillar-1-bqml-timesfm/assets/p1_bqml_timesfm_demo.gif)  
+<p align="center"><img src="pillar-1-bqml-timesfm/assets/p1_bqml_timesfm_demo.gif" width="100%" alt="Pillar 1 Live Demo"></p>  
 *🎥 [Download High-Res MP4 (`pillar-1-bqml-timesfm/assets/p1_bqml_timesfm_demo.mp4`)](pillar-1-bqml-timesfm/assets/p1_bqml_timesfm_demo.mp4) · 📖 [Full Pillar 1 Documentation](pillar-1-bqml-timesfm/README.md)*
 
 ### Pillar 2 · Text-to-9:16 Reels Studio (`Veo 3.1` + `Imagen 4` + `24kHz Audio`)
-![Pillar 2 Live Demo](pillar-2-veo-reels-studio/assets/p2_veo_reels_demo.gif)  
+<p align="center"><img src="pillar-2-veo-reels-studio/assets/p2_veo_reels_demo.gif" width="100%" alt="Pillar 2 Live Demo"></p>  
 *🎥 [Download High-Res MP4 (`pillar-2-veo-reels-studio/assets/p2_veo_reels_demo.mp4`)](pillar-2-veo-reels-studio/assets/p2_veo_reels_demo.mp4) · 📖 [Full Pillar 2 Documentation](pillar-2-veo-reels-studio/README.md)*
 
 ### Pillar 3 · "Ask Redfin 2.0" Streaming Tri-Modal Grounded Chat (`Maps` + `YouTube` + `Search`)
-![Pillar 3 Live Demo](pillar-3-trimodal-grounding/assets/p3_trimodal_grounding_demo.gif)  
+<p align="center"><img src="pillar-3-trimodal-grounding/assets/p3_trimodal_grounding_demo.gif" width="100%" alt="Pillar 3 Live Demo"></p>  
 *🎥 [Download High-Res MP4 (`pillar-3-trimodal-grounding/assets/p3_trimodal_grounding_demo.mp4`)](pillar-3-trimodal-grounding/assets/p3_trimodal_grounding_demo.mp4) · 📖 [Full Pillar 3 Documentation](pillar-3-trimodal-grounding/README.md)*
 
 ### Pillar 4 · `gemini-3.8-live` Video Avatar Stage & Out-of-Order Async Subagents
-![Pillar 4 Live Demo](pillar-4-live-api-avatar/assets/p4_live_avatar_demo.gif)  
+<p align="center"><img src="pillar-4-live-api-avatar/assets/p4_live_avatar_demo.gif" width="100%" alt="Pillar 4 Live Demo"></p>  
 *🎥 [Download High-Res MP4 (`pillar-4-live-api-avatar/assets/p4_live_avatar_demo.mp4`)](pillar-4-live-api-avatar/assets/p4_live_avatar_demo.mp4) · 📖 [Full Pillar 4 Documentation](pillar-4-live-api-avatar/README.md)*
 
 ### Pillar 5 · 108-Home Multimodal Vector Marketplace, UMAP Topology, Tours & Honest Judge
-![Pillar 5 Live Demo](pillar-5-realestate-marketplace/assets/p5_realestate_marketplace_demo.gif)  
+<p align="center"><img src="pillar-5-realestate-marketplace/assets/p5_realestate_marketplace_demo.gif" width="100%" alt="Pillar 5 Live Demo"></p>  
 *🎥 [Download High-Res MP4 (`pillar-5-realestate-marketplace/assets/p5_realestate_marketplace_demo.mp4`)](pillar-5-realestate-marketplace/assets/p5_realestate_marketplace_demo.mp4) · 📖 [Full Pillar 5 Documentation](pillar-5-realestate-marketplace/README.md)*
 
 ---
@@ -50,17 +50,17 @@ Each pillar resides in its own self-contained subfolder with its own **`README.m
 - **Infinite-Resolution Vector SVG:** [`docs/diagrams/00_rocket_gcp_reference_architecture.svg`](docs/diagrams/00_rocket_gcp_reference_architecture.svg)
 - **3x Retina PNG (`4800px` wide):** [`docs/diagrams/00_rocket_gcp_reference_architecture.png`](docs/diagrams/00_rocket_gcp_reference_architecture.png)
 
-![Rocket Master Google Cloud Reference Architecture](docs/diagrams/00_rocket_gcp_reference_architecture.png)
+<p align="center"><img src="docs/diagrams/00_rocket_gcp_reference_architecture.png" width="100%" alt="Rocket Master Google Cloud Reference Architecture"></p>
 
 ### 2.2 Master Corporate `mermaid-designer` (`cl/987790103`, `3x HiDPI` ELK + Neo) Diagrams
 1. **Master 5-Pillar Architecture (`3x HiDPI`):**
-   ![01 Rocket 5-Pillar Master Architecture](docs/diagrams/01_rocket_5pillar_master_architecture_padded.png)  
+   <p align="center"><img src="docs/diagrams/01_rocket_5pillar_master_architecture_padded.png" width="100%" alt="01 Rocket 5-Pillar Master Architecture"></p>  
    *Mermaid Source: [`docs/diagrams/01_rocket_5pillar_master_architecture.mmd`](docs/diagrams/01_rocket_5pillar_master_architecture.mmd)*
 2. **Pillar 5 Multimodal Vector Search Pipeline (`3x HiDPI`):**
-   ![02 Pillar 5 Multimodal Vector Pipeline](docs/diagrams/02_pillar5_multimodal_vector_pipeline_padded.png)  
+   <p align="center"><img src="docs/diagrams/02_pillar5_multimodal_vector_pipeline_padded.png" width="100%" alt="02 Pillar 5 Multimodal Vector Pipeline"></p>  
    *Mermaid Source: [`docs/diagrams/02_pillar5_multimodal_vector_pipeline.mmd`](docs/diagrams/02_pillar5_multimodal_vector_pipeline.mmd)*
 3. **Pillar 4 Live Avatar & Out-of-Order Async Subagents (`3x HiDPI`):**
-   ![03 Pillar 4 Live Avatar Async Subagents](docs/diagrams/03_pillar4_live_avatar_async_subagents_padded.png)  
+   <p align="center"><img src="docs/diagrams/03_pillar4_live_avatar_async_subagents_padded.png" width="100%" alt="03 Pillar 4 Live Avatar Async Subagents"></p>  
    *Mermaid Source: [`docs/diagrams/03_pillar4_live_avatar_async_subagents.mmd`](docs/diagrams/03_pillar4_live_avatar_async_subagents.mmd)*
 4. **Per-Pillar Blueprints & Mermaid Diagrams:**
    - **Pillar 1:** [`p1_architecture_blueprint.png`](pillar-1-bqml-timesfm/assets/p1_architecture_blueprint.png) · [`p1_mermaid_flow_padded.png`](pillar-1-bqml-timesfm/assets/p1_mermaid_flow_padded.png)
@@ -73,46 +73,19 @@ Each pillar resides in its own self-contained subfolder with its own **`README.m
 
 ## 🧩 3. Block-of-Component Diagram Walkthrough
 
-```text
-┌──────────────────────────────────────────────────────────────────────────┐
-│ [BLOCK 1] BROWSER STUDIO SHELL & MODULAR IIFE RUNTIME (`static/*.js`)    │
-│  • `ui_studio.py`: Single-Page 5-Pillar Shell + 12-Archetype UI Studio   │
-│  • `live_session.js`: `window.RocketLive` (16kHz PCM Mic + fMP4 MSE)     │
-│  • `p4_stage.js`: 4:5 Portrait Live Video Avatar Stage (Kira/Sam/Ben...) │
-│  • `p3_chat.js`: Streaming NDJSON Chat + Leaflet Pins + YouTube Seeker   │
-│  • `p5_media.js`: Photo Lightbox + Pre-Rendered 720p & Veo 3.1 Tours     │
-│  • `gcp_strip.js`: Dynamic Per-Tab "Built on Google Cloud" Beacons       │
-└────────────────────────────────────┬─────────────────────────────────────┘
-                                     │ HTTPS REST / NDJSON / WebSocket
-                                     ▼
-┌──────────────────────────────────────────────────────────────────────────┐
-│ [BLOCK 2] FASTAPI HIGH-CONCURRENCY GATEWAY (`app.py` on Cloud Run)       │
-│  • HMAC-SHA256 Cookie & `?auth_token=` Security Gate (`ROCKET_SECRET`)   │
-│  • Customer Env Loader (`GCP_PROJECT_ID`, `BQ_DATASET_ID`, `GCS_...`)    │
-│  • Startup Pre-Warmer (`p4_engine.get_warm_live_client`, `get_catalog`)  │
-│  • Out-of-Order Subagent Router (`/api/async-subagents/decompose`)       │
-└────────────────────────────────────┬─────────────────────────────────────┘
-                                     │
-         ┌───────────────┬───────────┴───┬───────────────┬───────────────┐
-         ▼               ▼               ▼               ▼               ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  [BLOCK 3]  │ │  [BLOCK 4]  │ │  [BLOCK 5]  │ │  [BLOCK 6]  │ │  [BLOCK 7]  │
-│  PILLAR 1   │ │  PILLAR 2   │ │  PILLAR 3   │ │  [PILLAR 4] │ │  PILLAR 5   │
-│ BQML SQL    │ │ Veo 3.1 9:16│ │ Ask Redfin  │ │ Gemini 3.8  │ │ 108-Home RE │
-│ AI.FORECAST │ │ Reels Studio│ │ 2.0 Grounded│ │ Live Video  │ │ Multimodal  │
-│ (TimesFM 2) │ │ + Imagen 4  │ │ NDJSON Chat │ │ Avatars+VAD │ │ Vector+Judge│
-└─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘ └─────────────┘
-```
+<p align="center"><img src="docs/diagrams/05_rocket_component_walkthrough_banner.png" width="100%" alt="Rocket 5-Block Component Walkthrough Banner"></p>
 
-| Block | Component & Primary Files | Google Cloud Services & Models | What It Does & Why It Matters |
-| :---: | :--- | :--- | :--- |
-| **Block 1** | **Frontend Runtime Modules** (`ui_studio.py`, `static/live_session.js`, `live_bridge.js`, `p4_stage.js`, `p3_chat.js`, `p5_media.js`, `gcp_strip.js`) | Cloud Run Static Assets + WebAudio API + MediaSource Extensions (MSE) | Wraps `window.switchPillar` cleanly before `DOMContentLoaded`, streams 16kHz PCM mic audio to `/ws/live-avatar`, renders 704×1280 24fps fMP4 avatar video with zero flicker, and lights up active GCP services in `#gcp-arch-strip`. |
-| **Block 2** | **Unified FastAPI Gateway** (`app.py`) | Cloud Run (`us-central1`, `--timeout 3600`) | Authenticates sessions via HMAC-SHA256 tokens, reads customer environment variables (`GCP_PROJECT_ID`, `BQ_DATASET_ID`, `GCS_MEDIA_BUCKET`), and dispatches REST, NDJSON streaming, and bidirectional WebSocket calls. |
-| **Block 3** | **Pillar 1 Engine** (`pillar-1-bqml-timesfm/engine.py`) | BigQuery ML `AI.FORECAST` (`TimesFM 2.0`) | Runs zero-shot foundation time-series forecasting directly in SQL over `portfolio_metrics` in `~900ms`, applying cohort rate-shock elasticity (`-150` to `+100 bps`) with P10–P90 confidence intervals. |
-| **Block 4** | **Pillar 2 Engine** (`pillar-2-veo-reels-studio/engine.py`) | `veo-3.1-generate-001` + `gemini-3.1-flash-image` + `gemini-3.8-flash` | Generates vertical `9:16` property reels with parallel script + keyframe generation, 24kHz audio narration, burned-in Rocket Mortgage PITI stickers, and 11 instant pre-rendered reels (`static/reels/`). |
-| **Block 5** | **Pillar 3 Engine** (`pillar-3-trimodal-grounding/engine.py`) | `gemini-3.8-flash` (`global`) + `GoogleMaps` + `YouTube` + `GoogleSearch` + Places API (New) | Streams grounded NDJSON answers (`POST /api/pillar3/chat`) using a zero-latency keyword router, an 8s tail-latency dual-flight race guard, and Places API (New) lat/lng pin resolution on Leaflet. |
-| **Block 6** | **Pillar 4 Engine** (`pillar-4-live-api-avatar/engine.py`) | `gemini-3.8-live` (`us-central1`) + `AvatarConfig` + `gemini-3.1-flash-lite` | Streams native bidirectional voice & 704×1280 24fps official video avatars (`Kira`, `Sam`, `Ben`, `Vera`, `Leo`) by caching the `ftyp+moov` fMP4 init segment across turns and barge-in interrupts (`40ms`), paired with `asyncio.as_completed` subagents. |
-| **Block 7** | **Pillar 5 Engine** (`pillar-5-realestate-marketplace/engine.py`, `render_tours.py`, `veo_tours.py`) | `gemini-3.8-flash` Vision + `multimodalembedding@001` (512-d) + `gemini-embedding-001` (256-d) + `veo-3.1-fast-generate-001` | Powers hybrid pixel + semantic + BM25 search across 108 homes, interactive 3072-D UMAP 2D topology (`#btn-toggle-behind-scenes`), 108 pre-rendered 720p cinematic tours, 10 Veo 3.1 walkthroughs, photo lightbox, and an honest 8-photo live Gemini Judge. |
+*Infinite-Resolution Vector SVG: [`docs/diagrams/05_rocket_component_walkthrough_banner.svg`](docs/diagrams/05_rocket_component_walkthrough_banner.svg)*
+
+| Block & Component | Source Code File & GCP Model | Latency & Architectural Role |
+| :--- | :--- | :--- |
+| **Block 1 · Frontend Runtime Modules** | [`ui_studio.py`](ui_studio.py), [`static/live_session.js`](static/live_session.js), [`static/p4_stage.js`](static/p4_stage.js), [`static/p3_chat.js`](static/p3_chat.js), [`static/p5_media.js`](static/p5_media.js) | **0ms Switch · 24fps MSE** — Wraps `window.switchPillar`, streams 16kHz PCM mic audio to `/ws/live-avatar`, renders 704×1280 fMP4 avatar video, and updates `#gcp-arch-strip`. |
+| **Block 2 · Unified & Per-Pillar FastAPI Gateways** | [`app.py`](app.py) (`:8080`) + standalone `pillar-*/app.py` (`:8081–:8085`) on **Google Cloud Run** | **`<5ms` Overhead** — Authenticates HMAC-SHA256 sessions, injects customer `.env` variables, and routes REST, NDJSON streaming, and bidirectional WebSockets. |
+| **Block 3 · Pillar 1 Servicing Forecast Engine** | [`pillar-1-bqml-timesfm/engine.py`](pillar-1-bqml-timesfm/engine.py) + [`timesfm_forecast.sql`](pillar-1-bqml-timesfm/sql/timesfm_forecast.sql) · **BigQuery ML `AI.FORECAST` (`TimesFM 2.0`)** | **`~900ms` SQL Inference** — Runs zero-shot foundation forecasting over 9.5M Mr. Cooper + Rocket loans with rate-shock elasticity (`-150` to `+100 bps`) and P10–P90 cones. |
+| **Block 4 · Pillar 2 Social Reels Engine** | [`pillar-2-veo-reels-studio/engine.py`](pillar-2-veo-reels-studio/engine.py) · **`veo-3.1-generate-001`** + **`gemini-3.1-flash-image`** + **`gemini-3.8-flash`** | **`<100ms` Vault / Parallel Gen** — Synthesizes 9:16 property reels with parallel script + keyframe generation, 24kHz voiceover, burned-in PITI stickers, and 11 cached reels. |
+| **Block 5 · Pillar 3 Tri-Modal Grounded Chat** | [`pillar-3-trimodal-grounding/engine.py`](pillar-3-trimodal-grounding/engine.py) · **`gemini-3.8-flash`** + **`GoogleMaps`** + **`YouTube`** + **`GoogleSearch`** | **`<1.8s` First Token (8s Race Guard)** — Streams grounded NDJSON answers (`POST /api/pillar3/chat`) with a zero-latency keyword router and Places API (New) Leaflet pins. |
+| **Block 6 · Pillar 4 Live Avatar & Async Swarm** | [`pillar-4-live-api-avatar/engine.py`](pillar-4-live-api-avatar/engine.py) · **`gemini-3.8-live`** + **`AvatarConfig`** + **`gemini-3.1-flash-lite`** | **`40ms` Barge-In · `24kHz` Audio** — Streams official 704×1280 video avatars (`Kira`, `Sam`, `Ben`, `Vera`, `Leo`) via cached `ftyp+moov` fMP4 segments + `asyncio.as_completed` subagents. |
+| **Block 7 · Pillar 5 Multimodal Vector Marketplace** | [`pillar-5-realestate-marketplace/engine.py`](pillar-5-realestate-marketplace/engine.py), [`render_tours.py`](pillar-5-realestate-marketplace/render_tours.py), [`veo_tours.py`](pillar-5-realestate-marketplace/veo_tours.py) · **`multimodalembedding@001`** | **`<180ms` Hybrid Search** — Combines 512-d pixel + 256-d text + BM25 search across 108 homes, 3072-D UMAP 2D topology, 108 720p cinematic tours, 10 Veo tours, and an 8-photo Gemini Judge. |
 
 ---
 
@@ -204,36 +177,52 @@ semiautonomous-agents/rocket/
 │   ├── tours_manifest.json / veo_tours_manifest.json
 │   └── reels/                                 # 11 Pre-Rendered 9:16 Vertical Veo 3.1 Reels
 ├── pillar-1-bqml-timesfm/                     # Pillar 1: BigQuery ML AI.FORECAST (TimesFM 2.0)
-│   ├── README.md                              # GIF/MP4, HD Diagrams, Component Walkthrough & Env Guide
+│   ├── README.md                              # Full-Width GIF/MP4, 3x Retina Diagrams, Code Walkthrough
 │   ├── SKILL.md                               # Standalone LLM Skill to Replicate Pillar 1 From Scratch
 │   ├── .env.example                           # Pillar 1 Customer Environment Variables
+│   ├── app.py                                 # Standalone FastAPI Microservice (Port 8081)
 │   ├── engine.py                              # BigQuery ML AI.FORECAST Engine
-│   └── assets/                                # p1_bqml_timesfm_demo.{gif,mp4}, Blueprint & Mermaid
+│   ├── sql/timesfm_forecast.sql               # Parameterized TimesFM 2.0 SQL Query & DDL
+│   ├── frontend/p1_chart.js                   # Interactive SVG Fan Chart & Rate-Shock Slider
+│   ├── Dockerfile & requirements.txt          # Standalone Container & Dependencies
+│   └── assets/                                # 2x-Retina GIF/MP4, 3x Retina Blueprint, Walkthrough & Mermaid
 ├── pillar-2-veo-reels-studio/                 # Pillar 2: Text-to-9:16 Reels Studio (Veo 3.1 + Imagen 4)
-│   ├── README.md                              # GIF/MP4, HD Diagrams, Component Walkthrough & Env Guide
+│   ├── README.md                              # Full-Width GIF/MP4, 3x Retina Diagrams, Code Walkthrough
 │   ├── SKILL.md                               # Standalone LLM Skill to Replicate Pillar 2 From Scratch
 │   ├── .env.example                           # Pillar 2 Customer Environment Variables
+│   ├── app.py                                 # Standalone FastAPI Microservice (Port 8082)
 │   ├── engine.py                              # Veo 3.1 + Keyframe + 24kHz Audio Engine
-│   └── assets/                                # p2_veo_reels_demo.{gif,mp4}, Blueprint & Mermaid
+│   ├── frontend/p2_reels_player.js            # 9:16 Vertical Reels Player & PITI Sticker HUD
+│   ├── Dockerfile & requirements.txt          # Standalone Container & Dependencies
+│   └── assets/                                # 2x-Retina GIF/MP4, 3x Retina Blueprint, Walkthrough & Mermaid
 ├── pillar-3-trimodal-grounding/               # Pillar 3: "Ask Redfin 2.0" Tri-Modal Grounding
-│   ├── README.md                              # GIF/MP4, HD Diagrams, Component Walkthrough & Env Guide
+│   ├── README.md                              # Full-Width GIF/MP4, 3x Retina Diagrams, Code Walkthrough
 │   ├── SKILL.md                               # Standalone LLM Skill to Replicate Pillar 3 From Scratch
 │   ├── .env.example                           # Pillar 3 Customer Environment Variables
+│   ├── app.py                                 # Standalone FastAPI Microservice (Port 8083)
 │   ├── engine.py                              # Maps + YouTube + Search NDJSON Streaming Engine
-│   └── assets/                                # p3_trimodal_grounding_demo.{gif,mp4}, Blueprint & Mermaid
+│   ├── frontend/p3_chat.js & p3_chat.css      # Grounded Streaming Chat, Map Pins & Video Seeker
+│   ├── Dockerfile & requirements.txt          # Standalone Container & Dependencies
+│   └── assets/                                # 2x-Retina GIF/MP4, 3x Retina Blueprint, Walkthrough & Mermaid
 ├── pillar-4-live-api-avatar/                  # Pillar 4: Gemini 3.8 Live Video Avatar + Async Subagents
-│   ├── README.md                              # GIF/MP4, HD Diagrams, Component Walkthrough & Env Guide
+│   ├── README.md                              # Full-Width GIF/MP4, 3x Retina Diagrams, Code Walkthrough
 │   ├── SKILL.md                               # Standalone LLM Skill to Replicate Pillar 4 From Scratch
 │   ├── .env.example                           # Pillar 4 Customer Environment Variables
+│   ├── app.py                                 # Standalone FastAPI + WebSocket Service (Port 8084)
 │   ├── engine.py                              # Bidi WebSocket + Continuous-fMP4 + Subagent Engine
-│   └── assets/                                # p4_live_avatar_demo.{gif,mp4}, Blueprint & Mermaid
+│   ├── frontend/live_session.js & p4_stage.js # 16kHz PCM Mic, MSE fMP4 Sink & 4:5 Avatar Stage
+│   ├── Dockerfile & requirements.txt          # Standalone Container & Dependencies
+│   └── assets/                                # 2x-Retina GIF/MP4, 3x Retina Blueprint, Walkthrough & Mermaid
 └── pillar-5-realestate-marketplace/           # Pillar 5: 108-Home Multimodal Vector Marketplace
-    ├── README.md                              # GIF/MP4, HD Diagrams, Component Walkthrough & Env Guide
+    ├── README.md                              # Full-Width GIF/MP4, 3x Retina Diagrams, Code Walkthrough
     ├── SKILL.md                               # Standalone LLM Skill to Replicate Pillar 5 From Scratch
     ├── .env.example                           # Pillar 5 Customer Environment Variables
+    ├── app.py                                 # Standalone FastAPI Microservice (Port 8085)
     ├── engine.py                              # Hybrid Vector Search + Honest Live Gemini Judge
+    ├── frontend/p5_media.js & p5_media.css    # Photo Lightbox & Pre-Rendered Cinematic/Veo Tour Player
     ├── render_tours.py / veo_tours.py         # Pre-Rendered 720p Cinematic & Veo 3.1 Tour Builders
     ├── build_pipeline.py / test_hybrid_search.py
     ├── catalog_108_index.json                 # 108-Home Embeddings & 3072-D UMAP 2D Coordinates
-    └── assets/                                # p5_realestate_marketplace_demo.{gif,mp4}, Blueprint & Mermaid
+    ├── Dockerfile & requirements.txt          # Standalone Container & Dependencies
+    └── assets/                                # 2x-Retina GIF/MP4, 3x Retina Blueprint, Walkthrough & Mermaid
 ```
