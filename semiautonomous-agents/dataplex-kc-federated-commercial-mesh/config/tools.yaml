@@ -1,28 +1,26 @@
 # ============================================================================
 # Google MCP Toolbox for Databases (genai-toolbox) Configuration
+# Dataset: `vtxdemos.commercial_mesh_gold` (Location: US)
 # Enterprise Federated Commercial Intelligence Mesh
 # ============================================================================
 sources:
-  enterprise-commercial-bq:
+  vtxdemos-commercial-bq:
     kind: bigquery
-    project: ${GCP_PROJECT_ID:enterprise-commercial-mesh-prod}
+    project: ${GCP_PROJECT_ID:vtxdemos}
     location: US
 
 tools:
-  get_stalled_stage_opportunities:
+  get_stage2b_stalled_deals:
     kind: bigquery-sql
-    source: enterprise-commercial-bq
+    source: vtxdemos-commercial-bq
     description: >-
-      Fetch active pipeline opportunities stalled in a specified stage (e.g.,
-      Stage 3 - Solutioning) for more than min_days, ordered by TCV descending.
-      Backed by v_gold_opportunity_spine in CRM_Opportunity_Spine.
+      Fetch active pipeline opportunities in Stage 2B - Solutioning stalled for
+      more than min_days, ordered by TCV descending. Backed by
+      vtxdemos.commercial_mesh_gold.v_gold_stage2b_stalled_deals.
     parameters:
-      - name: stage_prefix
-        type: string
-        description: Pipeline stage filter prefix (e.g., 'Stage 3').
       - name: min_days
         type: integer
-        description: Minimum days stalled in current stage (default 90).
+        description: Minimum days stalled in Stage 2B - Solutioning (default 90).
     statement: |
       SELECT
         opp_id,
@@ -31,213 +29,211 @@ tools:
         region,
         industry,
         service_line,
-        stage_name,
-        ROUND(tcv_usd / 1e6, 2) AS tcv_millions,
-        ROUND(acv_usd / 1e6, 2) AS acv_millions,
-        stage_age_days,
-        ROUND(win_prob * 100, 1) AS win_prob_pct,
-        deal_owner,
-        markov_regime
-      FROM `enterprise_commercial_gold.v_gold_opportunity_spine`
-      WHERE stage_name LIKE CONCAT(@stage_prefix, '%')
-        AND stage_age_days >= @min_days
-      ORDER BY tcv_usd DESC;
+        stage_code,
+        days_at_current_stage,
+        days_since_last_activity,
+        tcv_millions,
+        acv_millions,
+        ROUND(win_probability * 100, 1) AS win_prob_pct,
+        markov_regime,
+        primary_competitor,
+        ROUND(cci_excluding_be_pct * 100, 1) AS cci_excl_be_pct,
+        ROUND(adjusted_yield_v4_sigma_capped * 100, 1) AS adjusted_yield_v4_pct
+      FROM `vtxdemos.commercial_mesh_gold.v_gold_stage2b_stalled_deals`
+      WHERE days_at_current_stage > @min_days
+      ORDER BY tcv_millions DESC;
 
   get_regional_win_rate_trends:
     kind: bigquery-sql
-    source: enterprise-commercial-bq
+    source: vtxdemos-commercial-bq
     description: >-
-      Aggregate total pipeline TCV, weighted bookings, average win probability,
-      and average Adjusted Yield v4 across geographic regions.
-    parameters:
-      - name: min_win_prob
-        type: float
-        description: Optional minimum win probability filter (0.0 to 1.0).
-    statement: |
-      SELECT
-        region,
-        COUNT(opp_id) AS active_deal_count,
-        ROUND(SUM(tcv_usd) / 1e6, 2) AS total_tcv_millions,
-        ROUND(SUM(tcv_usd * win_prob) / 1e6, 2) AS weighted_bookings_millions,
-        ROUND(AVG(win_prob) * 100, 1) AS avg_win_prob_pct,
-        ROUND(AVG(adjusted_yield_v4) * 100, 1) AS avg_adjusted_yield_v4_pct
-      FROM `enterprise_commercial_gold.v_gold_opportunity_spine`
-      WHERE win_prob >= @min_win_prob
-      GROUP BY region
-      ORDER BY total_tcv_millions DESC;
-
-  get_top_tcv_deals_by_region:
-    kind: bigquery-sql
-    source: enterprise-commercial-bq
-    description: >-
-      Return the top N highest-TCV active opportunities filtered by region
-      (or 'ALL' for global ranking) with gross margin and Adjusted Yield v4.
+      Compute 8-quarter regional win rates, total TCV, weighted bookings,
+      and average Adjusted Yield v4 across NA, EMEA, APAC, and LATAM.
     parameters:
       - name: region_filter
         type: string
-        description: Geographic region name or 'ALL'.
-      - name: limit_n
-        type: integer
-        description: Number of top deals to return (default 10).
+        description: Geographic region ('NA', 'EMEA', 'APAC', 'LATAM', or 'ALL').
+    statement: |
+      SELECT
+        region,
+        fiscal_quarter,
+        COUNT(opp_id) AS deal_count,
+        ROUND(SUM(tcv_usd) / 1e6, 2) AS total_tcv_millions,
+        ROUND(AVG(win_probability) * 100, 1) AS avg_win_prob_pct,
+        ROUND(
+          SAFE_DIVIDE(
+            COUNTIF(stage_code = 'Closed Won'),
+            NULLIF(COUNTIF(stage_code IN ('Closed Won', 'Closed Lost')), 0)
+          ) * 100,
+          1
+        ) AS closed_win_rate_pct
+      FROM `vtxdemos.commercial_mesh_gold.crm_opportunities`
+      WHERE (@region_filter = 'ALL' OR region = @region_filter)
+      GROUP BY region, fiscal_quarter
+      ORDER BY region, fiscal_quarter;
+
+  get_pricing_yield_dax_metrics:
+    kind: bigquery-sql
+    source: vtxdemos-commercial-bq
+    description: >-
+      Query canonical DAX pricing metrics from v_gold_pricing_yield_dax including
+      CCI excluding billable expenses, Adjusted Yield v1/v3/v4, ADR ($), and
+      AMS AI task substitutability %.
+    parameters:
+      - name: service_line_filter
+        type: string
+        description: Service line filter or 'ALL'.
     statement: |
       SELECT
         opp_id,
         account_name,
         region,
-        industry,
-        stage_name,
+        service_line,
+        pricing_construct,
         ROUND(tcv_usd / 1e6, 2) AS tcv_millions,
-        ROUND(gross_margin_pct * 100, 1) AS gross_margin_pct,
-        ROUND(adjusted_yield_v4 * 100, 1) AS adjusted_yield_v4_pct,
-        deal_owner
-      FROM `enterprise_commercial_gold.v_gold_opportunity_spine`
-      WHERE (@region_filter = 'ALL' OR region = @region_filter)
+        ROUND(cci_including_be_pct * 100, 2) AS cci_incl_be_pct,
+        ROUND(cci_excluding_be_pct * 100, 2) AS cci_excl_be_pct,
+        ROUND(adr_usd, 0) AS adr_usd,
+        ROUND(adjusted_yield_v3_trimmed * 100, 2) AS adj_yield_v3_pct,
+        ROUND(adjusted_yield_v4_sigma_capped * 100, 2) AS adj_yield_v4_pct,
+        ROUND(ams_ai_task_substitutable_pct * 100, 1) AS ai_substitutable_pct
+      FROM `vtxdemos.commercial_mesh_gold.v_gold_pricing_yield_dax`
+      WHERE (@service_line_filter = 'ALL' OR service_line = @service_line_filter)
       ORDER BY tcv_usd DESC
-      LIMIT @limit_n;
+      LIMIT 25;
 
-  get_account_360_composite_health:
+  get_markov_regime_analytics:
     kind: bigquery-sql
-    source: enterprise-commercial-bq
+    source: vtxdemos-commercial-bq
     description: >-
-      Retrieve unified pre-sales commercial pricing yield (Deal_Pricing_Engine)
-      joined with post-sales delivery SLA health and EAC margin variance
-      (Delivery_Governance_Hub & ERP_Financials_Ledger).
+      Retrieve Hidden Markov Commercial Regime distribution, average duration days,
+      and 6-lever PWin drivers from v_gold_markov_regime_analytics.
+    parameters:
+      - name: regime_filter
+        type: string
+        description: Markov regime ('Expansion_Velocity', 'Pressured_Margin', 'Stalled_Procurement', or 'ALL').
+    statement: |
+      SELECT
+        markov_regime,
+        COUNT(opp_id) AS deal_count,
+        ROUND(SUM(tcv_usd) / 1e6, 2) AS total_tcv_millions,
+        ROUND(AVG(regime_duration_days), 1) AS avg_regime_days,
+        ROUND(AVG(win_probability) * 100, 1) AS avg_win_prob_pct,
+        ROUND(AVG(cci_excluding_be_pct) * 100, 2) AS avg_cci_excl_be_pct,
+        ROUND(AVG(adjusted_yield_v4_sigma_capped) * 100, 2) AS avg_adj_yield_v4_pct
+      FROM `vtxdemos.commercial_mesh_gold.v_gold_markov_regime_analytics`
+      WHERE (@regime_filter = 'ALL' OR markov_regime = @regime_filter)
+      GROUP BY markov_regime
+      ORDER BY total_tcv_millions DESC;
+
+  get_account_360_health:
+    kind: bigquery-sql
+    source: vtxdemos-commercial-bq
+    description: >-
+      Retrieve unified pre-sales commercial pricing yield joined with post-sales
+      delivery RAG status, EAC margin variance (bps), and external market signals.
     parameters:
       - name: rag_filter
         type: string
-        description: Filter by delivery RAG status ('RED', 'AMBER', 'GREEN', or 'ALL').
+        description: Delivery RAG status ('RED', 'AMBER', 'GREEN', or 'ALL').
     statement: |
       SELECT
         account_id,
         account_name,
-        opp_id,
-        stage_name,
-        ROUND(tcv_usd / 1e6, 2) AS tcv_millions,
-        rag_status,
-        milestone_delays,
-        sla_slippage_days,
-        ROUND(sold_adjusted_yield_v4 * 100, 1) AS sold_yield_v4_pct,
-        ROUND(eac_margin_variance_pct * 100, 1) AS eac_margin_variance_pct,
-        csat_score,
-        delivery_commentary
-      FROM `enterprise_commercial_gold.v_gold_account_360_health`
-      WHERE (@rag_filter = 'ALL' OR rag_status = @rag_filter)
-      ORDER BY eac_margin_variance_pct ASC;
-
-  simulate_portfolio_margin_cull:
-    kind: bigquery-sql
-    source: enterprise-commercial-bq
-    description: >-
-      Counterfactual baseline query over v_gold_adjusted_yield_dax to evaluate
-      the blended portfolio margin uplift of exiting or repricing the bottom
-      cull_percentile (e.g. 0.20) of deals ranked by Adjusted Yield v4.
-    parameters:
-      - name: cull_percentile
-        type: float
-        description: Bottom percentile threshold to exit/reprice (e.g., 0.20 for bottom 20%).
-    statement: |
-      WITH ranked_portfolio AS (
-        SELECT
-          opp_id,
-          account_name,
-          tcv_usd,
-          net_service_rev_usd,
-          adjusted_yield_v4_sigma_capped AS adj_yield_v4,
-          PERCENT_RANK() OVER (ORDER BY adjusted_yield_v4_sigma_capped ASC) AS yield_pct_rank
-        FROM `enterprise_commercial_gold.v_gold_adjusted_yield_dax`
-      )
-      SELECT
-        ROUND(AVG(adj_yield_v4) * 100, 2) AS baseline_blended_yield_pct,
-        ROUND(AVG(IF(yield_pct_rank >= @cull_percentile, adj_yield_v4, NULL)) * 100, 2) AS post_cull_blended_yield_pct,
-        ROUND((AVG(IF(yield_pct_rank >= @cull_percentile, adj_yield_v4, NULL)) - AVG(adj_yield_v4)) * 10000, 0) AS margin_uplift_bps,
-        ROUND(SUM(IF(yield_pct_rank < @cull_percentile, tcv_usd, 0)) / 1e6, 2) AS pruned_tcv_millions,
-        ROUND(SUM(IF(yield_pct_rank >= @cull_percentile, tcv_usd, 0)) / 1e6, 2) AS retained_tcv_millions
-      FROM ranked_portfolio;
-
-  get_deal_win_lever_elasticity:
-    kind: bigquery-sql
-    source: enterprise-commercial-bq
-    description: >-
-      Retrieve 6-lever commercial win-probability drivers (Price Competitiveness,
-      Sponsor Alignment, Delivery CSAT, Stage Velocity, Discount Giveaway) and
-      compute logit win-rate sensitivity.
-    parameters:
-      - name: opp_id_filter
-        type: string
-        description: Specific opportunity ID or 'ALL'.
-    statement: |
-      SELECT
-        o.opp_id,
-        o.account_name,
-        o.stage_name,
-        ROUND(o.tcv_usd / 1e6, 2) AS tcv_millions,
-        ROUND(o.win_prob * 100, 1) AS baseline_win_prob_pct,
-        ROUND(o.client_Temp_score * 100, 1) AS executive_sponsor_score,
-        ROUND(p.price_competitiveness_score * 100, 1) AS price_competitiveness_score,
-        ROUND(p.discount_giveaway_pct * 100, 1) AS discount_giveaway_pct,
-        ROUND(LEAST(0.96, o.win_prob + 0.085 * (1.0 - o.win_prob)) * 100, 1) AS simulated_win_prob_plus10_price_pct
-      FROM `enterprise_commercial_gold.v_gold_opportunity_spine` o
-      JOIN `enterprise_commercial_gold.v_gold_adjusted_yield_dax` p
-        ON o.opp_id = p.opp_id
-      WHERE (@opp_id_filter = 'ALL' OR o.opp_id = @opp_id_filter)
-      ORDER BY o.tcv_usd DESC;
-
-  get_stale_owner_opportunities:
-    kind: bigquery-sql
-    source: enterprise-commercial-bq
-    description: >-
-      Identify pipeline hygiene violations where opportunities have had zero
-      deal-owner CRM activity for at least inactive_days_threshold days.
-    parameters:
-      - name: inactive_days_threshold
-        type: integer
-        description: Minimum days without owner activity (default 14).
-    statement: |
-      SELECT
-        opp_id,
-        account_name,
         region,
-        stage_name,
-        deal_owner,
-        last_owner_activity_date,
-        DATE_DIFF(CURRENT_DATE(), DATE(last_owner_activity_date), DAY) AS inactive_days,
-        ROUND(tcv_usd / 1e6, 2) AS tcv_millions
-      FROM `enterprise_commercial_gold.v_gold_opportunity_spine`
-      WHERE DATE_DIFF(CURRENT_DATE(), DATE(last_owner_activity_date), DAY) >= @inactive_days_threshold
-      ORDER BY inactive_days DESC, tcv_usd DESC;
+        industry,
+        rag_status,
+        csat_score,
+        nps_score,
+        sla_slippage_days,
+        eac_margin_variance_bps,
+        open_staffing_roles,
+        total_pipeline_tcv_millions,
+        avg_cci_excl_be_pct,
+        avg_adjusted_yield_v4_pct,
+        ai_self_sufficiency_index,
+        buyer_intent_surge_score,
+        unstructured_director_review_notes
+      FROM `vtxdemos.commercial_mesh_gold.v_gold_account_360_health`
+      WHERE (@rag_filter = 'ALL' OR rag_status = @rag_filter)
+      ORDER BY eac_margin_variance_bps ASC
+      LIMIT 25;
 
   check_source_genai_compliance:
     kind: bigquery-sql
-    source: enterprise-commercial-bq
+    source: vtxdemos-commercial-bq
     description: >-
       Pre-flight Dataplex Knowledge Catalog Governance Guard. Verifies whether
-      a requested data source carries GenAI_Usage_Rights = True before allowing
+      a requested data source carries genai_usage_rights = TRUE before allowing
       any rows or snippets to enter an LLM prompt or RAG context window.
     parameters:
       - name: source_name
         type: string
-        description: Canonical source name registered in Dataplex Governance catalog.
+        description: Canonical source name registered in dataplex_source_governance.
     statement: |
       SELECT
         source_id,
         source_name,
         category,
-        storage_engine,
         genai_usage_rights,
         pii_classification,
         dataplex_aspect_uri,
         steward_team,
-        notes
-      FROM `enterprise_commercial_gold.data_source_governance`
+        governance_notes
+      FROM `vtxdemos.commercial_mesh_gold.dataplex_source_governance`
       WHERE source_name = @source_name;
+
+  # --------------------------------------------------------------------------
+  # Dynamic Built-in BigQuery MCP Tools (Solves the "Fixed SQL" Limitation
+  # for Unscripted Econometric / Statistical Queries over Certified Gold Views)
+  # --------------------------------------------------------------------------
+  execute_sql:
+    kind: bigquery-execute-sql
+    source: vtxdemos-commercial-bq
+    description: >-
+      Execute any read-only BigQuery Standard SQL or econometric query
+      (CORR, COVAR_SAMP, VAR_SAMP, APPROX_QUANTILES, PERCENTILE_CONT)
+      preferentially targeting certified Gold Views in vtxdemos.commercial_mesh_gold
+      (v_gold_pricing_yield_dax, v_gold_stage2b_stalled_deals,
+      v_gold_markov_regime_analytics, v_gold_account_360_health).
+
+  get_table_info:
+    kind: bigquery-get-table-info
+    source: vtxdemos-commercial-bq
+    description: >-
+      Retrieve column schema and metadata for any table or Gold View in
+      vtxdemos.commercial_mesh_gold before writing custom SQL.
+
+  list_table_ids:
+    kind: bigquery-list-table-ids
+    source: vtxdemos-commercial-bq
+    description: >-
+      List all tables and certified Gold Views in vtxdemos.commercial_mesh_gold.
+
+  ask_data_insights:
+    kind: bigquery-conversational-analytics
+    source: vtxdemos-commercial-bq
+    description: >-
+      Run BigQuery Conversational Analytics (Gemini Data Analytics) over
+      specified tables or Gold Views in vtxdemos.commercial_mesh_gold.
+
+  forecast:
+    kind: bigquery-forecast
+    source: vtxdemos-commercial-bq
+    description: >-
+      Forecast time-series metrics in vtxdemos.commercial_mesh_gold using
+      BigQuery built-in AI.FORECAST (TimesFM).
 
 toolsets:
   commercial_mesh_core_toolset:
-    - get_stalled_stage_opportunities
+    - get_stage2b_stalled_deals
     - get_regional_win_rate_trends
-    - get_top_tcv_deals_by_region
-    - get_account_360_composite_health
-    - simulate_portfolio_margin_cull
-    - get_deal_win_lever_elasticity
-    - get_stale_owner_opportunities
+    - get_pricing_yield_dax_metrics
+    - get_markov_regime_analytics
+    - get_account_360_health
     - check_source_genai_compliance
+    - execute_sql
+    - get_table_info
+    - list_table_ids
+    - ask_data_insights
+    - forecast

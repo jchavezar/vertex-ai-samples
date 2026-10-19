@@ -27,7 +27,7 @@ BRAIN_DIR = os.path.join(JETSKI_DIR, "brain")
 # Vertex AI Embedding Config
 EMBED_PROJECT = os.environ.get("JETSKI_EMBED_PROJECT", "vtxdemos")
 EMBED_LOCATION = os.environ.get("GOOGLE_CLOUD_LOCATION", "us-central1")
-EMBED_MODEL = "text-embedding-005"
+EMBED_MODEL = "gemini-embedding-001"
 BATCH_SIZE = 20
 
 

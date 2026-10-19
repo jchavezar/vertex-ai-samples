@@ -27,7 +27,7 @@
     <rect x="24" y="16" width="1552" height="60" rx="10" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
     <rect x="24" y="16" width="6" height="60" rx="3" fill="#1A73E8"/>
     
-    <text x="44" y="39" fill="#0F172A" font-size="17" font-weight="800" letter-spacing="-0.3">Rocket × Gemini Studio — End-to-End 5-Pillar Architecture & Request Lifecycle</text>
+    <text x="44" y="39" fill="#0F172A" font-size="17" font-weight="800" letter-spacing="-0.3">Rocket × Gemini Studio — End-to-End 5-Pillar Architecture &amp; Request Lifecycle</text>
     <text x="44" y="59" fill="#64748B" font-size="11.5" font-weight="500">Cloud Run · BigQuery ML TimesFM · Veo 3.1 Reels · Streaming Tri-Modal Grounding · Gemini 3.8 Live Avatars · 108-Home Multimodal Vector Engine</text>
 
     
@@ -59,9 +59,9 @@
       <!-- STEP COUNTER -->
       <text x="298" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 1 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Client Runtime UI</text>
-      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">ui_studio.py & static/*.js</text>
+      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">ui_studio.py &amp; static/*.js</text>
 
       <line x1="38" y1="184" x2="298" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -84,7 +84,7 @@
 
         <g transform="translate(38, 262)">
           <circle cx="5" cy="5" r="3" fill="#1A73E8"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Dual-zone SVG fan charts & 3072-D UMAP</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Dual-zone SVG fan charts &amp; 3072-D UMAP</text>
         </g>
 
 
@@ -124,7 +124,7 @@
       <!-- STEP COUNTER -->
       <text x="614" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 2 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="354" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">FastAPI Gateway</text>
       <text x="354" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">app.py on Cloud Run</text>
 
@@ -134,7 +134,7 @@
       
         <g transform="translate(354, 196)">
           <circle cx="5" cy="5" r="3" fill="#1A73E8"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">HMAC-SHA256 session & token gatekeeper</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">HMAC-SHA256 session &amp; token gatekeeper</text>
         </g>
 
         <g transform="translate(354, 218)">
@@ -161,11 +161,11 @@
       <text x="382" y="412" fill="#475569" font-size="10" font-weight="500">HTTP REST, NDJSON, WebSockets (/ws)</text>
 
       <text x="360" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
-      <text x="388" y="434" fill="#475569" font-size="10" font-weight="500">Authenticated dispatch & streams</text>
+      <text x="388" y="434" fill="#475569" font-size="10" font-weight="500">Authenticated dispatch &amp; streams</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="352" y="462" width="264" height="28" rx="14" fill="#FEF7E0" stroke="#1A73E8" stroke-width="1"/>
-      <text x="484.0" y="480" fill="#B06000" font-size="11" font-weight="700" text-anchor="middle">Cloud Run · <25ms Overhead</text>
+      <text x="484.0" y="480" fill="#B06000" font-size="11" font-weight="700" text-anchor="middle">Cloud Run · &lt;25ms Overhead</text>
     </g>
 
     <!-- FLOW ARROW 2 -> 3 -->
@@ -174,7 +174,7 @@
       <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#1A73E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <!-- CARD 3: Pillar 1 & 2: Quant & Creative -->
+    <!-- CARD 3: Pillar 1 &amp; 2: Quant &amp; Creative -->
     <g filter="url(#card-shadow)">
       <rect x="656" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -189,9 +189,9 @@
       <!-- STEP COUNTER -->
       <text x="930" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 3 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Pillar 1 & 2: Quant & Creative</text>
-      <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">BQML TimesFM & Veo 3.1</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Pillar 1 &amp; 2: Quant &amp; Creative</text>
+      <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">BQML TimesFM &amp; Veo 3.1</text>
 
       <line x1="670" y1="184" x2="930" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -230,7 +230,7 @@
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="668" y="462" width="264" height="28" rx="14" fill="#E6F4EA" stroke="#1A73E8" stroke-width="1"/>
-      <text x="800.0" y="480" fill="#137333" font-size="11" font-weight="700" text-anchor="middle">SQL <900ms · 11 Edge Reels</text>
+      <text x="800.0" y="480" fill="#137333" font-size="11" font-weight="700" text-anchor="middle">SQL &lt;900ms · 11 Edge Reels</text>
     </g>
 
     <!-- FLOW ARROW 3 -> 4 -->
@@ -239,7 +239,7 @@
       <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#1A73E8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <!-- CARD 4: Pillar 3 & 4: Grounding & Live -->
+    <!-- CARD 4: Pillar 3 &amp; 4: Grounding &amp; Live -->
     <g filter="url(#card-shadow)">
       <rect x="972" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -254,9 +254,9 @@
       <!-- STEP COUNTER -->
       <text x="1246" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 4 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Pillar 3 & 4: Grounding & Live</text>
-      <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">Gemini 3.8 Flash & Live API</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Pillar 3 &amp; 4: Grounding &amp; Live</text>
+      <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">Gemini 3.8 Flash &amp; Live API</text>
 
       <line x1="986" y1="184" x2="1246" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -319,7 +319,7 @@
       <!-- STEP COUNTER -->
       <text x="1562" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 5 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Pillar 5: Vector Marketplace</text>
       <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">multimodalembedding + Gemini 3.8</text>
 

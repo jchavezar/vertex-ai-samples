@@ -32,7 +32,7 @@
 
     
     <rect x="1304.5" y="32" width="271.5" height="26" rx="13" fill="#E6F4EA" stroke="#188038" stroke-width="1.2"/>
-    <text x="1440.25" y="49" fill="#137333" font-size="11.5" font-weight="700" text-anchor="middle">Places API (New) Pins: <50ms TTFT</text>
+    <text x="1440.25" y="49" fill="#137333" font-size="11.5" font-weight="700" text-anchor="middle">Places API (New) Pins: &lt;50ms TTFT</text>
 
     <rect x="1021.0" y="32" width="271.5" height="26" rx="13" fill="#FEF7E0" stroke="#F9AB00" stroke-width="1.2"/>
     <text x="1156.75" y="49" fill="#B06000" font-size="11.5" font-weight="700" text-anchor="middle">Maps + YouTube + Search Grounding</text>
@@ -44,7 +44,7 @@
 
   <!-- 5 HORIZONTAL CARDS -->
   
-    <!-- CARD 1: User Query & Intent -->
+    <!-- CARD 1: User Query &amp; Intent -->
     <g filter="url(#card-shadow)">
       <rect x="24" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -59,9 +59,9 @@
       <!-- STEP COUNTER -->
       <text x="298" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 1 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">User Query & Intent</text>
-      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">p3_chat.js & engine.py</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="38" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">User Query &amp; Intent</text>
+      <text x="38" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">p3_chat.js &amp; engine.py</text>
 
       <line x1="38" y1="184" x2="298" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -79,7 +79,7 @@
 
         <g transform="translate(38, 240)">
           <circle cx="5" cy="5" r="3" fill="#FBBC04"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Extracts neighborhood & budget entities</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Extracts neighborhood &amp; budget entities</text>
         </g>
 
         <g transform="translate(38, 262)">
@@ -96,11 +96,11 @@
       <text x="66" y="412" fill="#475569" font-size="10" font-weight="500">Natural language user message</text>
 
       <text x="44" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
-      <text x="72" y="434" fill="#475569" font-size="10" font-weight="500">Normalized query & routing directives</text>
+      <text x="72" y="434" fill="#475569" font-size="10" font-weight="500">Normalized query &amp; routing directives</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="36" y="462" width="264" height="28" rx="14" fill="#E8F0FE" stroke="#FBBC04" stroke-width="1"/>
-      <text x="168.0" y="480" fill="#1967D2" font-size="11" font-weight="700" text-anchor="middle"><5ms Client Router</text>
+      <text x="168.0" y="480" fill="#1967D2" font-size="11" font-weight="700" text-anchor="middle">&lt;5ms Client Router</text>
     </g>
 
     <!-- FLOW ARROW 1 -> 2 -->
@@ -124,7 +124,7 @@
       <!-- STEP COUNTER -->
       <text x="614" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 2 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="354" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Tri-Modal Grounding Router</text>
       <text x="354" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::stream_grounded_chat</text>
 
@@ -134,7 +134,7 @@
       
         <g transform="translate(354, 196)">
           <circle cx="5" cy="5" r="3" fill="#FBBC04"/>
-          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Binds Google Maps, YouTube & Search</text>
+          <text x="14" y="9" fill="#334155" font-size="11.5" font-weight="500">Binds Google Maps, YouTube &amp; Search</text>
         </g>
 
         <g transform="translate(354, 218)">
@@ -189,7 +189,7 @@
       <!-- STEP COUNTER -->
       <text x="930" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 3 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="670" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Dual-Flight Race Guard</text>
       <text x="670" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py (8s Race Guard)</text>
 
@@ -223,7 +223,7 @@
       <text x="676" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="676" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="698" y="412" fill="#475569" font-size="10" font-weight="500">Gemini stream request & 8s timer</text>
+      <text x="698" y="412" fill="#475569" font-size="10" font-weight="500">Gemini stream request &amp; 8s timer</text>
 
       <text x="676" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="704" y="434" fill="#475569" font-size="10" font-weight="500">Resilient chunk stream with URLs</text>
@@ -254,7 +254,7 @@
       <!-- STEP COUNTER -->
       <text x="1246" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 4 of 5</text>
 
-      <!-- TITLE & FILE -->
+      <!-- TITLE &amp; FILE -->
       <text x="986" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">Places API Pin Resolver</text>
       <text x="986" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">engine.py::resolve_places_metadata</text>
 
@@ -288,7 +288,7 @@
       <text x="992" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="992" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="1014" y="412" fill="#475569" font-size="10" font-weight="500">Place names & addresses from stream</text>
+      <text x="1014" y="412" fill="#475569" font-size="10" font-weight="500">Place names &amp; addresses from stream</text>
 
       <text x="992" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="1020" y="434" fill="#475569" font-size="10" font-weight="500">GeoJSON pins, photo URLs, ratings</text>
@@ -304,7 +304,7 @@
       <path d="M 7 10 L 15 10 M 11 6 L 15 10 L 11 14" fill="none" stroke="#FBBC04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </g>
 
-    <!-- CARD 5: NDJSON Stream & Canvas -->
+    <!-- CARD 5: NDJSON Stream &amp; Canvas -->
     <g filter="url(#card-shadow)">
       <rect x="1288" y="90" width="288" height="412" rx="12" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.5"/>
       
@@ -319,9 +319,9 @@
       <!-- STEP COUNTER -->
       <text x="1562" y="114" fill="#94A3B8" font-size="11" font-weight="700" text-anchor="end">Step 5 of 5</text>
 
-      <!-- TITLE & FILE -->
-      <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">NDJSON Stream & Canvas</text>
-      <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">p3_chat.js & Leaflet Map</text>
+      <!-- TITLE &amp; FILE -->
+      <text x="1302" y="152" fill="#0F172A" font-size="15" font-weight="800" letter-spacing="-0.2">NDJSON Stream &amp; Canvas</text>
+      <text x="1302" y="170" fill="#64748B" font-size="11" font-weight="600" font-family="monospace">p3_chat.js &amp; Leaflet Map</text>
 
       <line x1="1302" y1="184" x2="1562" y2="184" stroke="#F1F5F9" stroke-width="1.5"/>
 
@@ -353,14 +353,14 @@
       <text x="1308" y="392" fill="#475569" font-size="10" font-weight="800" letter-spacing="0.5">INPUT / OUTPUT CONTRACT</text>
       
       <text x="1308" y="412" fill="#1E293B" font-size="10" font-weight="700">IN:</text>
-      <text x="1330" y="412" fill="#475569" font-size="10" font-weight="500">NDJSON stream chunks & pin events</text>
+      <text x="1330" y="412" fill="#475569" font-size="10" font-weight="500">NDJSON stream chunks &amp; pin events</text>
 
       <text x="1308" y="434" fill="#1E293B" font-size="10" font-weight="700">OUT:</text>
       <text x="1336" y="434" fill="#475569" font-size="10" font-weight="500">Rich chat UI, map pins, video cards</text>
 
       <!-- LATENCY / ROLE BADGE -->
       <rect x="1300" y="462" width="264" height="28" rx="14" fill="#F3E8FD" stroke="#FBBC04" stroke-width="1"/>
-      <text x="1432.0" y="480" fill="#7B1FA2" font-size="11" font-weight="700" text-anchor="middle">Streaming <50ms TTFT</text>
+      <text x="1432.0" y="480" fill="#7B1FA2" font-size="11" font-weight="700" text-anchor="middle">Streaming &lt;50ms TTFT</text>
     </g>
 
 </svg>

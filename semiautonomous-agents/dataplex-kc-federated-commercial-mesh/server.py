@@ -4,11 +4,14 @@ FastAPI Backend Server for the Dataplex Knowledge Catalog & Federated Commercial
 
 Exposes:
   - GET  /api/health
+  - GET  /api/bq-explorer       (Live BigQuery metadata, row counts: 500, 500, 120, 150, 120, 14 & sample rows from vtxdemos.commercial_mesh_gold)
+  - GET  /api/demo-parts        (5 concise Python walkthrough parts, code, architectural explanations, and pre-verified outputs)
+  - POST /api/run-demo-part     (Executes part1..part5 live against vtxdemos.commercial_mesh_gold + gemini-3.8-flash @ global)
   - GET  /api/catalog           (24 benchmark questions, confidence %, missing artifacts, tier summary, blockers, governance table)
   - GET  /api/questions         (alias for frontend hydration)
   - GET  /api/artifacts         (returns config/tools.yaml and config/bigquery_gold_views.sql)
-  - POST /api/simulate-question (4-tier federated router over commercial_spine_mock.db + Python counterfactual simulator)
-  - POST /api/copilot/chat      (Vertex AI Gemini 2.5 Flash Architect Copilot)
+  - POST /api/simulate-question (4-tier federated router + Python counterfactual simulator)
+  - POST /api/copilot/chat      (Vertex AI Gemini 3.8 Flash Architect Copilot @ global)
   - POST /api/antigravity/send  (Dispatches architectural blueprints into Antigravity IDE via agentapi)
 """
 
@@ -34,6 +37,8 @@ from pydantic import BaseModel, Field
 
 from agent.mesh_orchestrator import (
     BASE_DIR,
+    BQ_DATASET_ID,
+    BQ_PROJECT_ID,
     GOLD_VIEWS_SQL_PATH,
     TOOLS_YAML_PATH,
     FederatedCommercialMeshOrchestrator,
@@ -47,11 +52,11 @@ from data.synthetic_topology_seed import (
 
 app = FastAPI(
     title="Dataplex Knowledge Catalog & Federated Commercial Mesh API",
-    version="2026.10.1",
+    version="2026.10.2",
     description=(
         "Enterprise B2B Commercial Intelligence Reference Architecture: "
-        "Dataplex Knowledge Catalog + Google MCP Toolbox + BigQuery Gold Views + "
-        "Vertex AI ADK Federated Multi-Tool Agent."
+        "BigQuery `vtxdemos.commercial_mesh_gold` + Dataplex Knowledge Catalog + "
+        "Google MCP Toolbox + Vertex AI Gemini 3.8 Flash Federated Multi-Tool Agent."
     ),
 )
 
@@ -83,6 +88,10 @@ class SimulateQuestionRequest(BaseModel):
     custom_params: Optional[Dict[str, Any]] = None
 
 
+class RunDemoPartRequest(BaseModel):
+    part_id: str = Field(default="part1", description="Demo part identifier ('part1'..'part5')")
+
+
 class CopilotChatRequest(BaseModel):
     message: str = Field(..., description="User question or instruction for the AI Architect Copilot")
     question_id: Optional[str] = Field(default=None, description="Selected benchmark question ID")
@@ -111,10 +120,32 @@ def health_check() -> Dict[str, Any]:
     return {
         "status": "ok",
         "service": "dataplex-kc-federated-commercial-mesh",
+        "bigquery_dataset": f"{BQ_PROJECT_ID}.{BQ_DATASET_ID}",
         "sqlite_db_ready": DB_PATH.exists(),
         "catalog_ready": CATALOG_PATH.exists(),
         "model": orchestrator.model_name,
+        "location": orchestrator.location,
     }
+
+
+@app.get("/api/bq-explorer")
+def get_bq_explorer(refresh: bool = False) -> Dict[str, Any]:
+    return orchestrator.get_bq_explorer_data(force_refresh=refresh)
+
+
+@app.get("/api/demo-parts")
+def get_demo_parts() -> Dict[str, Any]:
+    return orchestrator.get_demo_parts_catalog()
+
+
+@app.post("/api/run-demo-part")
+def run_demo_part(req: RunDemoPartRequest) -> Dict[str, Any]:
+    try:
+        return orchestrator.run_demo_part_live(part_id=req.part_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @app.get("/api/catalog")
