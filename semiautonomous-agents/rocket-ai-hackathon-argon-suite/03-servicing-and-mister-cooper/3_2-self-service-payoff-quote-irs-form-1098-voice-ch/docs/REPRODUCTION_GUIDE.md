@@ -7,7 +7,7 @@
 | **Business Domain** | 3. Client Experience & Servicing (Mr. Cooper Portfolio, Escrow, Synopsis & Recapture) (`rocket-demo-servicing`) |
 | **Complexity Level** | `L200` |
 | **Active Model & Runtime** | **`gemini-3.8-flash`** — Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash) |
-| **Live Interactive Demo** | [https://rocket-demo-servicing-254356041555.us-central1.run.app/?case=3.2](https://rocket-demo-servicing-254356041555.us-central1.run.app/?case=3.2) *(Username: `rocket` / Password: `Argon2026!`)* |
+| **Live Interactive Demo** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/3.2](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/3.2) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/3.2](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/3.2) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |
 | **Agent Reproduction Skill** | [`skills/SKILL.md`](../skills/SKILL.md) |

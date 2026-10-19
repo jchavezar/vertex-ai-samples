@@ -1,59 +1,75 @@
 #!/usr/bin/env python3
 """
-Rocket Companies AI Hackathon (Oct 2026) — Square [6.3]: Legacy .NET Framework / WCF to Cloud Run Microservice Modernizer
+Standalone Vertex AI Agent Runner for Square [6.3]: Legacy .NET Framework / WCF to Cloud Run Microservice Modernizer
 Bespoke App Archetype: legacy_dotnet_wcf_transpiler (Antigravity Legacy Modernizer // C# .NET 4.8 WCF SOAP -> .NET 9 Cloud Run Transpiler)
-Routed Model: gemini-4-argon (Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox)
+Default Model: gemini-4-argon (Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox)
 """
 import json
 import os
-import sys
 from pathlib import Path
+from typing import Any, Dict
 
-ROOT_DIR = Path(__file__).resolve().parents[3]
-if str(ROOT_DIR) not in sys.path:
-    sys.path.insert(0, str(ROOT_DIR))
-
-from shared.auth_and_vertex import call_vertex_structured_and_executive, run_sandbox_action
-from shared.bespoke_apps import get_rich_structured_artifact
+from code.sandbox_tool import load_payload, run_deterministic_sandbox
 
 
-def load_mock_data() -> dict:
-    mock_path = Path(__file__).resolve().parent.parent / "mock_data" / "sample_payload.json"
-    with open(mock_path, "r", encoding="utf-8") as f:
-        return json.load(f)
+def execute_square_demo(custom_input: str | None = None, model_override: str | None = None) -> Dict[str, Any]:
+    payload = load_payload()
+    sb_bundle = run_deterministic_sandbox()
+    model_id = model_override or os.environ.get("ROCKET_MODEL") or payload.get("routed_model", "gemini-4-argon")
+    user_prompt = custom_input or payload.get("sample_input", "")
+    sys_instruction = payload.get("system_prompt", "You are a Rocket Companies AI specialist.")
+    schema_hint = payload.get("output_schema_hint", "Return structured JSON.")
 
+    structured_out = payload.get("sample_structured_output", {})
+    raw_text = ""
+    live_called = False
 
-def execute_square_demo(custom_input: str | None = None, model_override: str | None = None) -> dict:
-    payload = load_mock_data()
-    user_input = custom_input or payload["sample_input"]
-    sandbox_result = run_sandbox_action(
-        payload.get("sandbox_action", "default"),
-        payload.get("sandbox_params", {}),
-    )
-    bespoke_art = get_rich_structured_artifact("6.3", sandbox_result)
-    vertex_res = call_vertex_structured_and_executive(
-        code="6.3",
-        requested_model=model_override or payload["routed_model"],
-        system_prompt=payload["system_prompt"],
-        user_input=user_input,
-        sandbox_result=sandbox_result,
-        output_schema_hint=payload["output_schema_hint"],
-    )
+    if os.environ.get("LIVE_VERTEX", "0") == "1":
+        try:
+            from google import genai
+            from google.genai import types
+
+            client = genai.Client(
+                vertexai=True,
+                project=os.environ.get("GOOGLE_CLOUD_PROJECT", "vtxdemos"),
+                location=os.environ.get("GOOGLE_CLOUD_LOCATION", "global"),
+            )
+            full_prompt = (
+                f"{user_prompt}\n\n"
+                f"Verified Deterministic Sandbox Metrics:\n{json.dumps(sb_bundle['sandbox'], indent=2)}\n\n"
+                f"Output Schema Requirement: {schema_hint}"
+            )
+            resp = client.models.generate_content(
+                model=model_id,
+                contents=full_prompt,
+                config=types.GenerateContentConfig(
+                    system_instruction=sys_instruction,
+                    temperature=0.2,
+                    response_mime_type="application/json",
+                ),
+            )
+            raw_text = resp.text or ""
+            structured_out = json.loads(raw_text)
+            live_called = True
+        except Exception as exc:
+            raw_text = f"Fallback to verified precomputed payload ({exc})"
+
     return {
-        "ok": vertex_res.get("ok", True),
+        "ok": True,
         "square": "6.3",
-        "project": payload["project_title"],
-        "ui_archetype": payload["ui_archetype"],
-        "model_used": vertex_res.get("model_used"),
-        "runtime_badge": payload["runtime_badge"],
-        "sandbox": sandbox_result,
-        "bespoke_visual_artifact": bespoke_art,
-        "structured_data": vertex_res.get("structured_data", {}),
-        "output": vertex_res.get("response_markdown", ""),
+        "project": payload.get("project_title", "Legacy .NET Framework / WCF to Cloud Run Microservice Modernizer"),
+        "ui_archetype": payload.get("ui_archetype", "legacy_dotnet_wcf_transpiler"),
+        "model_used": model_id,
+        "live_vertex_called": live_called,
+        "runtime_badge": payload.get("runtime_badge", "Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox"),
+        "sandbox": sb_bundle["sandbox"],
+        "bespoke_visual_artifact": sb_bundle["bespoke_artifact"],
+        "structured_data": structured_out,
+        "raw_response": raw_text,
     }
 
 
 if __name__ == "__main__":
-    result = execute_square_demo()
-    print(f"=== Square [6.3] {result['project']} | Archetype: {result['ui_archetype']} | Model: {result['model_used']} ===")
-    print(json.dumps(result["structured_data"], indent=2))
+    res = execute_square_demo()
+    print(f"=== Square [6.3] {res['project']} | Archetype: {res['ui_archetype']} | Model: {res['model_used']} ===")
+    print(json.dumps(res, indent=2))

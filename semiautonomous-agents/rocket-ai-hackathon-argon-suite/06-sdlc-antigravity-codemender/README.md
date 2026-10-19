@@ -5,7 +5,7 @@
 > **AWS / Anthropic / Sierra Win-Back:** Directly displaces Anthropic Claude Code on AWS Bedrock: Google Antigravity + Gemini 4 Argon + CodeMender runs inside Rocket's GCP VPC-SC perimeter with isolated gVisor sandboxes, unlimited OneQuota enterprise capacity, and native Model Choice.
 
 ## Live Cloud Run Service & Shared Private Login
-- **Live Domain Cloud Run App:** [https://rocket-demo-sdlc-254356041555.us-central1.run.app](https://rocket-demo-sdlc-254356041555.us-central1.run.app)
+- **Live Domain Cloud Run App:** [https://rocket-hackathon-portal-254356041555.us-central1.run.app/domain/sdlc](https://rocket-hackathon-portal-254356041555.us-central1.run.app/domain/sdlc)
 - **Real Gemini Enterprise Web UI:** [https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023)
 - **Shared Username:** `rocket`
 - **Shared Password:** `Argon2026!`
@@ -14,6 +14,6 @@
 
 | Code | Level | Bespoke UI Archetype | Active Model Routing | Live Demo URL | Cloud Blueprint | GitHub Subfolder (`docs/`, `code/`, `skills/`, `mock_data/`) |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **`[6.1]`** | `L300` | `codemender_gvisor_security_ide` | `gemini-4-argon` | [Launch `6.1`](https://rocket-demo-sdlc-254356041555.us-central1.run.app/?case=6.1) | [Blueprint `/docs/6.1`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.1) | [`6_1-autonomous-vulnerability-trace-repair-agent-owas/`](./6_1-autonomous-vulnerability-trace-repair-agent-owas/) |
-| **`[6.2]`** | `L300` | `antigravity_swarm_software_factory` | `gemini-4-argon` | [Launch `6.2`](https://rocket-demo-sdlc-254356041555.us-central1.run.app/?case=6.2) | [Blueprint `/docs/6.2`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.2) | [`6_2-ai-software-factory-autonomous-prd-to-pull-reque/`](./6_2-ai-software-factory-autonomous-prd-to-pull-reque/) |
-| **`[6.3]`** | `L200–L300` | `legacy_dotnet_wcf_transpiler` | `gemini-4-argon` | [Launch `6.3`](https://rocket-demo-sdlc-254356041555.us-central1.run.app/?case=6.3) | [Blueprint `/docs/6.3`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.3) | [`6_3-legacy-net-framework-wcf-to-cloud-run-microservi/`](./6_3-legacy-net-framework-wcf-to-cloud-run-microservi/) |
+| **`[6.1]`** | `L300` | `codemender_gvisor_security_ide` | `gemini-4-argon` | [Launch `6.1`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/6.1) | [Blueprint `/docs/6.1`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.1) | [`6_1-autonomous-vulnerability-trace-repair-agent-owas/`](./6_1-autonomous-vulnerability-trace-repair-agent-owas/) |
+| **`[6.2]`** | `L300` | `antigravity_swarm_software_factory` | `gemini-4-argon` | [Launch `6.2`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/6.2) | [Blueprint `/docs/6.2`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.2) | [`6_2-ai-software-factory-autonomous-prd-to-pull-reque/`](./6_2-ai-software-factory-autonomous-prd-to-pull-reque/) |
+| **`[6.3]`** | `L200–L300` | `legacy_dotnet_wcf_transpiler` | `gemini-4-argon` | [Launch `6.3`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/6.3) | [Blueprint `/docs/6.3`](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/6.3) | [`6_3-legacy-net-framework-wcf-to-cloud-run-microservi/`](./6_3-legacy-net-framework-wcf-to-cloud-run-microservi/) |

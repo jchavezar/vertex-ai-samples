@@ -7,7 +7,7 @@
 | **Business Domain** | 1. Loan Origination & Mortgage Banking (Rocket Mortgage Production & Pro TPO) (`rocket-demo-origination`) |
 | **Complexity Level** | `L200–L300` |
 | **Active Model & Runtime** | **`gemini-4-argon`** — Vertex AI Global Endpoint (gemini-4-argon) + Antigravity gVisor Sandbox |
-| **Live Interactive Demo** | [https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.4](https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.4) *(Username: `rocket` / Password: `Argon2026!`)* |
+| **Live Interactive Demo** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/1.4](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/1.4) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.4](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.4) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |
 | **Agent Reproduction Skill** | [`skills/SKILL.md`](../skills/SKILL.md) |

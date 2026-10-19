@@ -7,7 +7,7 @@
 | **Business Domain** | 1. Loan Origination & Mortgage Banking (Rocket Mortgage Production & Pro TPO) (`rocket-demo-origination`) |
 | **Complexity Level** | `L100–L200` |
 | **Active Model & Runtime** | **`gemini-3.8-flash`** — Gemini Enterprise streamAssist API (v1alpha) + gemini-3.8-flash |
-| **Live Interactive Demo** | [https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.3](https://rocket-demo-origination-254356041555.us-central1.run.app/?case=1.3) *(Username: `rocket` / Password: `Argon2026!`)* |
+| **Live Interactive Demo** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/1.3](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/1.3) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.3](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/1.3) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |
 | **Agent Reproduction Skill** | [`skills/SKILL.md`](../skills/SKILL.md) |

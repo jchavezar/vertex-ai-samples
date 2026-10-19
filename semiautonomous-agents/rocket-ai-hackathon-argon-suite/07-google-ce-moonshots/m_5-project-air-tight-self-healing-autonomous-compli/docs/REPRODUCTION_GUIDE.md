@@ -7,7 +7,7 @@
 | **Business Domain** | 7. Google Customer Engineering Moonshots (Disruptive Gemini 4 Argon Prototypes) (`rocket-demo-moonshots`) |
 | **Complexity Level** | `L300` |
 | **Active Model & Runtime** | **`gemini-3.8-flash`** — Google ADK + Vertex AI Agent Engine Runtime (gemini-3.8-flash) |
-| **Live Interactive Demo** | [https://rocket-demo-moonshots-254356041555.us-central1.run.app/?case=M.5](https://rocket-demo-moonshots-254356041555.us-central1.run.app/?case=M.5) *(Username: `rocket` / Password: `Argon2026!`)* |
+| **Live Interactive Demo** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/M.5](https://rocket-hackathon-portal-254356041555.us-central1.run.app/square/M.5) *(Username: `rocket` / Password: `Argon2026!`)* |
 | **Hosted Cloud Blueprint** | [https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/M.5](https://rocket-hackathon-portal-254356041555.us-central1.run.app/docs/M.5) |
 | **Real Gemini Enterprise UI** | [Open Real Gemini Enterprise Web UI (`gemini-enterprise-17877637_1787763712023`)](https://vertexaisearch.cloud.google.com/home/cid/gemini-enterprise-17877637_1787763712023) · [Open Sobi (`/work`)](https://gemini.google.com/work) |
 | **Agent Reproduction Skill** | [`skills/SKILL.md`](../skills/SKILL.md) |
