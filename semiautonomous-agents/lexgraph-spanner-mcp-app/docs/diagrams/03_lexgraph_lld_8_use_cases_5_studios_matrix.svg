@@ -1,0 +1,130 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 760" width="1400" height="760" style="background:#F8FAFC;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <defs>
+    <filter id="sh3" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+  </defs>
+
+  <!-- Header -->
+  <rect x="24" y="20" width="1352" height="68" rx="10" fill="#0F172A"/>
+  <text x="48" y="48" fill="#F8FAFC" font-size="20" font-weight="700">LOW-LEVEL DESIGN (LLD) — 8 LEXGRAPH LEGAL USE CASES MAPPED TO 5 GEMINI ENTERPRISE MCP APP STUDIOS</text>
+  <text x="48" y="71" fill="#94A3B8" font-size="13" font-weight="500">SEP-1865 Sandboxed Iframe Architecture (about:srcdoc SSR + postMessage PiP Handshake) · Google ADK (gemini-3.8-flash) · Cloud Spanner LexGraphLegalGraph</text>
+
+  <!-- Top Protocol Bar: Gemini Enterprise SEP-1865 Integration Mechanics -->
+  <rect x="24" y="104" width="1352" height="96" rx="10" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.5" filter="url(#sh3)"/>
+  <rect x="24" y="104" width="1352" height="28" rx="10" fill="#EFF6FF"/>
+  <text x="44" y="123" fill="#1E3A8A" font-size="11.5" font-weight="800" letter-spacing="0.5">GEMINI ENTERPRISE CUSTOM MCP APP PROTOCOL (SEP-1865 · vertexaisearch.cloud.google.com)</text>
+  <text x="44" y="150" fill="#0F172A" font-size="11.5" font-weight="700">1. Discovery &amp; Tool Call:</text>
+  <text x="195" y="150" fill="#334155" font-size="11.5">Each custom_mcp DataStore exposes 1 readOnlyHint:true primary tool -&gt; returns _meta.ui.resourceUri (ui://mike-gcp/*.html)</text>
+  <text x="44" y="170" fill="#0F172A" font-size="11.5" font-weight="700">2. Sandboxed srcdoc SSR:</text>
+  <text x="195" y="170" fill="#334155" font-size="11.5">Pre-renders initial table rows in &lt;tbody&gt; + embeds INITIAL_BOOTSTRAP_DATA + routes live fetches via absolute Cloud Run API_BASE</text>
+  <text x="44" y="190" fill="#0F172A" font-size="11.5" font-weight="700">3. Bidirectional Bridge:</text>
+  <text x="195" y="190" fill="#334155" font-size="11.5">Sends ui/initialize, ui/notifications/size-changed (760px), and ui/request-display-mode (mode:"pip") to dock in GE Side Panel or 1440px Max</text>
+
+  <!-- 8 Use Cases Grid (2 Rows x 4 Columns matching Slide 3 Bento Matrix) -->
+  <!-- Row 1: UC-1, UC-2, UC-3, UC-4 -->
+  <rect x="24" y="218" width="326" height="246" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#sh3)"/>
+  <rect x="24" y="218" width="326" height="32" rx="10" fill="#334155"/>
+  <text x="40" y="239" fill="#FFFFFF" font-size="12" font-weight="800">UC-1 · Document Redlining</text>
+  <text x="40" y="268" fill="#0F172A" font-size="11.5" font-weight="700">Studio 2: lexgraph-redline-word-agent</text>
+  <text x="40" y="288" fill="#334155" font-size="11">• Word-level &lt;del&gt;/&lt;ins&gt; diff engine across</text>
+  <text x="40" y="304" fill="#334155" font-size="11">  4 contract pairs (LexGraph v3 vs Skadden v4)</text>
+  <text x="40" y="324" fill="#334155" font-size="11">• Playbook deviation benchmark against</text>
+  <text x="40" y="340" fill="#334155" font-size="11">  Spanner M-215 &amp; M-518 indemnity caps</text>
+  <text x="40" y="360" fill="#334155" font-size="11">• Interactive EditCardUI Accept / Reject</text>
+  <text x="40" y="384" fill="#475569" font-size="10.5" font-family="monospace">Tool: run_deterministic_redline</text>
+  <text x="40" y="402" fill="#475569" font-size="10.5" font-family="monospace">URI:  ui://mike-gcp/redline-studio.html</text>
+  <text x="40" y="424" fill="#2563EB" font-size="10.5" font-weight="700">Data Source: Unstructured .docx / PDF Index</text>
+
+  <rect x="366" y="218" width="326" height="246" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#sh3)"/>
+  <rect x="366" y="218" width="326" height="32" rx="10" fill="#334155"/>
+  <text x="382" y="239" fill="#FFFFFF" font-size="12" font-weight="800">UC-2 · Integrated Word &amp; Legal Legos</text>
+  <text x="382" y="268" fill="#0F172A" font-size="11.5" font-weight="700">Studio 2: lexgraph-redline-word-agent</text>
+  <text x="382" y="288" fill="#334155" font-size="11">• Preserves 15-yr multi-level numbering</text>
+  <text x="382" y="304" fill="#334155" font-size="11">  (ARTICLE I..XII, Section 8.02(b)) in .docx</text>
+  <text x="382" y="324" fill="#334155" font-size="11">• Privacy Pro "Legal Legos" assembly:</text>
+  <text x="382" y="340" fill="#334155" font-size="11">  GDPR Art.28, CCPA, EU AI Act, NDA v06</text>
+  <text x="382" y="360" fill="#334155" font-size="11">• Live OpenXML binary .docx download</text>
+  <text x="382" y="384" fill="#475569" font-size="10.5" font-family="monospace">API:  GET /api/legal-legos/docx</text>
+  <text x="382" y="402" fill="#475569" font-size="10.5" font-family="monospace">URI:  ui://mike-gcp/redline-studio.html</text>
+  <text x="382" y="424" fill="#2563EB" font-size="10.5" font-weight="700">Data Source: Spanner Clause Blocks + .docx</text>
+
+  <rect x="708" y="218" width="326" height="246" rx="10" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" filter="url(#sh3)"/>
+  <rect x="708" y="218" width="326" height="32" rx="10" fill="#1D4ED8"/>
+  <text x="724" y="239" fill="#FFFFFF" font-size="12" font-weight="800">UC-3 · Side-by-Side Citation Review ★</text>
+  <text x="724" y="268" fill="#0F172A" font-size="11.5" font-weight="700">Studio 1: mike-gcp-platform (CUJ-4)</text>
+  <text x="724" y="288" fill="#334155" font-size="11">• Shared subroutine across Grid &amp; Memo</text>
+  <text x="724" y="304" fill="#334155" font-size="11">• Clicking CitationPillUI opens right-hand</text>
+  <text x="724" y="320" fill="#334155" font-size="11">  EB Garamond reader in &lt;15ms</text>
+  <text x="724" y="340" fill="#334155" font-size="11">• Scrolls to exact page_number &amp; bbox_json</text>
+  <text x="724" y="356" fill="#334155" font-size="11">  with yellow verbatim passage highlight</text>
+  <text x="724" y="384" fill="#475569" font-size="10.5" font-family="monospace">Tool: open_legal_analysis_grid</text>
+  <text x="724" y="402" fill="#475569" font-size="10.5" font-family="monospace">URI:  ui://mike-gcp/workspace.html</text>
+  <text x="724" y="424" fill="#1D4ED8" font-size="10.5" font-weight="700">★ Depends on Unstructured BBox Indexing</text>
+
+  <rect x="1050" y="218" width="326" height="246" rx="10" fill="#FFFFFF" stroke="#D97706" stroke-width="2" filter="url(#sh3)"/>
+  <rect x="1050" y="218" width="326" height="32" rx="10" fill="#B45309"/>
+  <text x="1066" y="239" fill="#FFFFFF" font-size="12" font-weight="800">UC-4 · Email &amp; Calendar Automation</text>
+  <text x="1066" y="268" fill="#0F172A" font-size="11.5" font-weight="700">Studio 5: lexgraph-inbox-calendar-agent</text>
+  <text x="1066" y="288" fill="#334155" font-size="11">• Partner Deal Inbox triage (EM-9901..9903)</text>
+  <text x="1066" y="304" fill="#334155" font-size="11">• 1-Tap Approve &amp; Auto-File to iManage CMN</text>
+  <text x="1066" y="324" fill="#334155" font-size="11">• Calendar conflict detection (CAL-101 Board</text>
+  <text x="1066" y="340" fill="#334155" font-size="11">  Call vs FTC HSR) + 1-Tap Partner Delegate</text>
+  <text x="1066" y="360" fill="#334155" font-size="11">• Verbatim .eml &amp; .ics source modal</text>
+  <text x="1066" y="384" fill="#475569" font-size="10.5" font-family="monospace">Tool: triage_inbox_and_cmn_wall</text>
+  <text x="1066" y="402" fill="#475569" font-size="10.5" font-family="monospace">URI:  ui://mike-gcp/inbox-calendar.html</text>
+  <text x="1066" y="424" fill="#B45309" font-size="10.5" font-weight="700">★ Evaluating Direct API vs Envelope Graph</text>
+
+  <!-- Row 2: UC-5, UC-6, UC-7, UC-8 -->
+  <rect x="24" y="484" width="326" height="250" rx="10" fill="#FFFFFF" stroke="#2563EB" stroke-width="2" filter="url(#sh3)"/>
+  <rect x="24" y="484" width="326" height="32" rx="10" fill="#1D4ED8"/>
+  <text x="40" y="505" fill="#FFFFFF" font-size="12" font-weight="800">UC-5 · Document Analysis Grids ★</text>
+  <text x="40" y="534" fill="#0F172A" font-size="11.5" font-weight="700">Studio 1: mike-gcp-platform (CUJ-1/2/3)</text>
+  <text x="40" y="554" fill="#334155" font-size="11">• Mike OSS Tabular Diligence Grid in GE</text>
+  <text x="40" y="570" fill="#334155" font-size="11">• Scales across 46 multimodal files (1,293</text>
+  <text x="40" y="586" fill="#334155" font-size="11">  indexed clauses) + Kestrel CoC matrix</text>
+  <text x="40" y="606" fill="#334155" font-size="11">• Live '+ Add column' parallel Gemini 3.8</text>
+  <text x="40" y="622" fill="#334155" font-size="11">  Flash extraction + Cell Locking + CSV</text>
+  <text x="40" y="650" fill="#475569" font-size="10.5" font-family="monospace">Tool: add_dynamic_grid_column</text>
+  <text x="40" y="668" fill="#475569" font-size="10.5" font-family="monospace">URI:  ui://mike-gcp/workspace.html</text>
+  <text x="40" y="692" fill="#1D4ED8" font-size="10.5" font-weight="700">★ Depends on Unstructured Indexing Pipeline</text>
+
+  <rect x="366" y="484" width="326" height="250" rx="10" fill="#FFFFFF" stroke="#059669" stroke-width="1.5" filter="url(#sh3)"/>
+  <rect x="366" y="484" width="326" height="32" rx="10" fill="#059669"/>
+  <text x="382" y="505" fill="#FFFFFF" font-size="12" font-weight="800">UC-6 · Workflow Builder &amp; Homegrown IP</text>
+  <text x="382" y="534" fill="#0F172A" font-size="11.5" font-weight="700">Studio 3: lexgraph-funds-antitrust-agent</text>
+  <text x="382" y="554" fill="#334155" font-size="11">• Self-service Playbook &amp; Grid templates</text>
+  <text x="382" y="570" fill="#334155" font-size="11">• Homegrown Private Funds apps: FundGen</text>
+  <text x="382" y="586" fill="#334155" font-size="11">  (LPA) &amp; FundHQ (LP MFN Tier Compendium)</text>
+  <text x="382" y="606" fill="#334155" font-size="11">• Antitrust HSR ΔHHI Remedy Simulator</text>
+  <text x="382" y="622" fill="#334155" font-size="11">• 4 Multimodal Chart/Diagram/Scan Exhibits</text>
+  <text x="382" y="650" fill="#475569" font-size="10.5" font-family="monospace">Tool: analyze_fundgen_and_antitrust</text>
+  <text x="382" y="668" fill="#475569" font-size="10.5" font-family="monospace">URI:  ui://mike-gcp/funds-antitrust.html</text>
+  <text x="382" y="692" fill="#059669" font-size="10.5" font-weight="700">Data Source: Spanner + 2-Pass Chart OCR</text>
+
+  <rect x="708" y="484" width="326" height="250" rx="10" fill="#FFFFFF" stroke="#DC2626" stroke-width="1.5" filter="url(#sh3)"/>
+  <rect x="708" y="484" width="326" height="32" rx="10" fill="#B91C1C"/>
+  <text x="724" y="505" fill="#FFFFFF" font-size="12" font-weight="800">UC-7 · Matter &amp; Knowledge Workspaces</text>
+  <text x="724" y="534" fill="#0F172A" font-size="11.5" font-weight="700">Studio 4: lexgraph-governance-wall-agent (CUJ-0)</text>
+  <text x="724" y="554" fill="#334155" font-size="11">• Cross-Matter Set Assembly (CUJ-0 Path B)</text>
+  <text x="724" y="570" fill="#334155" font-size="11">• Cloud Spanner Hybrid GraphRAG over</text>
+  <text x="724" y="586" fill="#334155" font-size="11">  Matters, Documents, Clauses &amp; Precedents</text>
+  <text x="724" y="606" fill="#334155" font-size="11">• 3-Way RRF (3072-d Vector + TOKENLIST</text>
+  <text x="724" y="622" fill="#334155" font-size="11">  BM25 + ISO GQL CitesPrecedent traversal)</text>
+  <text x="724" y="650" fill="#475569" font-size="10.5" font-family="monospace">Tool: hybrid_search_legal_graph</text>
+  <text x="724" y="668" fill="#475569" font-size="10.5" font-family="monospace">URI:  ui://mike-gcp/governance-wall.html</text>
+  <text x="724" y="692" fill="#B91C1C" font-size="10.5" font-weight="700">★ Depends on Spanner Graph + Unstructured</text>
+
+  <rect x="1050" y="484" width="326" height="250" rx="10" fill="#FFFFFF" stroke="#DC2626" stroke-width="1.5" filter="url(#sh3)"/>
+  <rect x="1050" y="484" width="326" height="32" rx="10" fill="#B91C1C"/>
+  <text x="1066" y="505" fill="#FFFFFF" font-size="12" font-weight="800">UC-8 · Dynamic Client-Matter &amp; Walls</text>
+  <text x="1066" y="534" fill="#0F172A" font-size="11.5" font-weight="700">Studio 4: lexgraph-governance-wall-agent</text>
+  <text x="1066" y="554" fill="#334155" font-size="11">• Real-time Client-Matter Number (CMN)</text>
+  <text x="1066" y="570" fill="#334155" font-size="11">  &amp; Attorney context switcher (L-001..L-005)</text>
+  <text x="1066" y="590" fill="#334155" font-size="11">• Intapp Ethical Wall Screen-Before-Rank</text>
+  <text x="1066" y="606" fill="#334155" font-size="11">  (blocks L-001 from M-999 Project Omega)</text>
+  <text x="1066" y="622" fill="#334155" font-size="11">• 30-Day TeammateGrants for unfiled EM-9901</text>
+  <text x="1066" y="650" fill="#475569" font-size="10.5" font-family="monospace">Tool: traverse_precedent_graph</text>
+  <text x="1066" y="668" fill="#475569" font-size="10.5" font-family="monospace">URI:  ui://mike-gcp/governance-wall.html</text>
+  <text x="1066" y="692" fill="#B91C1C" font-size="10.5" font-weight="700">Data Source: Spanner IntappWalls + CMN</text>
+</svg>

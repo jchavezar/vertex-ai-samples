@@ -1,32 +1,32 @@
-<!-- WEIL_V3_HLD_LLD_START -->
-# Weil Enterprise Legal AI MVP — High-Level Design (HLD), Low-Level Design (LLD) & 8-Use-Case Live Demos (`v3.2.0` · GE Luminous v23.0.0)
+<!-- LEXGRAPH_V3_HLD_LLD_START -->
+# LexGraph Enterprise Legal AI MVP — High-Level Design (HLD), Low-Level Design (LLD) & 8-Use-Case Live Demos (`v3.2.0` · GE Luminous v23.0.0)
 
-> 📄 **Full HLD & LLD Architecture Blueprint:** [**`WEIL_HLD_LLD_ARCHITECTURE.md`**](./WEIL_HLD_LLD_ARCHITECTURE.md) · 📝 **Document Integration & Format-Locked Co-Editing Guide (`Single Brain, Dual Surface`):** [**`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`**](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) · 🔗 **Live Google Doc Format-Lock Proof (`documents.batchUpdate`):** [**Open Live Google Doc**](https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit) · 🔌 **GE MCP App Integration Guide:** [**`GEMINI_ENTERPRISE_MCP_APP_INTEGRATION_GUIDE.md`**](./GEMINI_ENTERPRISE_MCP_APP_INTEGRATION_GUIDE.md) · 🎙️ **Presenter Guide:** [**`WEIL_DEMO_PRESENTER_GUIDE.md`**](./WEIL_DEMO_PRESENTER_GUIDE.md) · 💻 **Unified 5-Studio Platform Source:** [**`weil-5studio-platform/`**](./weil-5studio-platform/)
+> 📄 **Full HLD & LLD Architecture Blueprint:** [**`LEXGRAPH_HLD_LLD_ARCHITECTURE.md`**](./LEXGRAPH_HLD_LLD_ARCHITECTURE.md) · 📝 **Document Integration & Format-Locked Co-Editing Guide (`Single Brain, Dual Surface`):** [**`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`**](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) · 🔗 **Live Google Doc Format-Lock Proof (`documents.batchUpdate`):** [**Open Live Google Doc**](https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit) · 🔌 **GE MCP App Integration Guide:** [**`GEMINI_ENTERPRISE_MCP_APP_INTEGRATION_GUIDE.md`**](./GEMINI_ENTERPRISE_MCP_APP_INTEGRATION_GUIDE.md) · 🎙️ **Presenter Guide:** [**`LEXGRAPH_DEMO_PRESENTER_GUIDE.md`**](./LEXGRAPH_DEMO_PRESENTER_GUIDE.md) · 💻 **Unified 5-Studio Platform Source:** [**`lexgraph-5studio-platform/`**](./lexgraph-5studio-platform/)
 
 ### 🏛️ 1. High-Level Design (HLD) — End-to-End Enterprise Legal AI Platform
-![Weil Google Cloud Reference Architecture (HLD & LLD with Official GCP Icons)](./docs/diagrams/00_weil_gcp_reference_architecture.png)
+![LexGraph Google Cloud Reference Architecture (HLD & LLD with Official GCP Icons)](./docs/diagrams/00_lexgraph_gcp_reference_architecture.png)
 
-![Weil Enterprise Legal AI High-Level Design (HLD)](./docs/diagrams/01_weil_hld_end_to_end_architecture.svg)
+![LexGraph Enterprise Legal AI High-Level Design (HLD)](./docs/diagrams/01_lexgraph_hld_end_to_end_architecture.svg)
 
 ### ⚙️ 2. Low-Level Design (LLD-1 & LLD-2) — Unstructured Multimodal Indexing Pipeline vs. Direct API Evaluation (Email, Calendar, Chat)
-![Weil Low-Level Design: Unstructured Indexing Pipeline vs. Direct API Evaluation](./docs/diagrams/02_weil_lld_unstructured_indexing_vs_direct_api.svg)
+![LexGraph Low-Level Design: Unstructured Indexing Pipeline vs. Direct API Evaluation](./docs/diagrams/02_lexgraph_lld_unstructured_indexing_vs_direct_api.svg)
 
 ### 🧩 3. Low-Level Design (LLD-3) — All 8 Legal Use Cases Mapped to 5 Gemini Enterprise Custom MCP App Studios (`SEP-1865`)
-![Weil Low-Level Design: 8 Legal Use Cases Mapped to 5 Gemini Enterprise MCP App Studios](./docs/diagrams/03_weil_lld_8_use_cases_5_studios_matrix.svg)
+![LexGraph Low-Level Design: 8 Legal Use Cases Mapped to 5 Gemini Enterprise MCP App Studios](./docs/diagrams/03_lexgraph_lld_8_use_cases_5_studios_matrix.svg)
 
 ### 📄 4. Document Integration & Format-Locked Co-Editing (`Single Brain, Dual Surface`: `.docx` OpenXML AST & Google Docs `batchUpdate`)
 > Full architectural guide, SHA-256 verified `.docx` samples, and live Google Doc proof: [**`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`**](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md)
 
-![Weil Document Integration & Format-Locked Dual-Routing Architecture](./docs/diagrams/04_weil_document_integration_dual_routing_architecture.png)
+![LexGraph Document Integration & Format-Locked Dual-Routing Architecture](./docs/diagrams/04_lexgraph_document_integration_dual_routing_architecture.png)
 
-![Weil Single Brain, Dual Surface Execution Swimlanes](./docs/diagrams/05_weil_single_brain_dual_surface_swimlanes.png)
+![LexGraph Single Brain, Dual Surface Execution Swimlanes](./docs/diagrams/05_lexgraph_single_brain_dual_surface_swimlanes.png)
 
 | Format-Lock Proof Artifact | Download / Live Link | `word/styles.xml` SHA-256 | `word/numbering.xml` SHA-256 | Litera Compare Verdict |
 | :--- | :--- | :--- | :--- | :--- |
-| **1. Original Counterparty `.docx` (Before Edit)** | [`docs/samples/01_Weil_M&A_SPA_Section_8_02_ORIGINAL_BEFORE_EDIT.docx`](./docs/samples/01_Weil_M&A_SPA_Section_8_02_ORIGINAL_BEFORE_EDIT.docx) | `c1350f2b2adb` | `ab9e4c222c40` | Baseline Counterparty v4 |
-| **2. After Gemini Surgical OpenXML AST Redline (`.docx`)** | [`docs/samples/02_Weil_M&A_SPA_Section_8_02_AFTER_SURGICAL_OPENXML_AST_FORMAT_LOCKED.docx`](./docs/samples/02_Weil_M&A_SPA_Section_8_02_AFTER_SURGICAL_OPENXML_AST_FORMAT_LOCKED.docx) | `c1350f2b2adb` (**100% Identical**) | `ab9e4c222c40` (**100% Identical**) | **PASS (`0` False Diffs)** |
-| **3. Broken Round-Trip (`.docx → GDocs → .docx`)** | [`docs/samples/03_Weil_M&A_SPA_Section_8_02_BROKEN_ROUNDTRIP_CONVERTED.docx`](./docs/samples/03_Weil_M&A_SPA_Section_8_02_BROKEN_ROUNDTRIP_CONVERTED.docx) | `c64b59c3c6f1` (**Overwritten**) | `377983a8764a` (**Destroyed**) | **FAIL (120 Pages Corrupted)** |
-| **4. Live Google Doc Proof (`documents.batchUpdate`)** | [`https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit`](https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit) | `HEADING_1` / `HEADING_2` Intact | `listId: kix.weil9level` Intact | **PASS (In-Place `batchUpdate` on `§ 8.02(a)`)** |
+| **1. Original Counterparty `.docx` (Before Edit)** | [`docs/samples/01_LexGraph_M&A_SPA_Section_8_02_ORIGINAL_BEFORE_EDIT.docx`](./docs/samples/01_LexGraph_M&A_SPA_Section_8_02_ORIGINAL_BEFORE_EDIT.docx) | `c1350f2b2adb` | `ab9e4c222c40` | Baseline Counterparty v4 |
+| **2. After Gemini Surgical OpenXML AST Redline (`.docx`)** | [`docs/samples/02_LexGraph_M&A_SPA_Section_8_02_AFTER_SURGICAL_OPENXML_AST_FORMAT_LOCKED.docx`](./docs/samples/02_LexGraph_M&A_SPA_Section_8_02_AFTER_SURGICAL_OPENXML_AST_FORMAT_LOCKED.docx) | `c1350f2b2adb` (**100% Identical**) | `ab9e4c222c40` (**100% Identical**) | **PASS (`0` False Diffs)** |
+| **3. Broken Round-Trip (`.docx → GDocs → .docx`)** | [`docs/samples/03_LexGraph_M&A_SPA_Section_8_02_BROKEN_ROUNDTRIP_CONVERTED.docx`](./docs/samples/03_LexGraph_M&A_SPA_Section_8_02_BROKEN_ROUNDTRIP_CONVERTED.docx) | `c64b59c3c6f1` (**Overwritten**) | `377983a8764a` (**Destroyed**) | **FAIL (120 Pages Corrupted)** |
+| **4. Live Google Doc Proof (`documents.batchUpdate`)** | [`https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit`](https://docs.google.com/document/d/1bFWf6s-sqOeBP7X3J3i_uB2KD6cjhckhLSaEWwFgqVI/edit) | `HEADING_1` / `HEADING_2` Intact | `listId: kix.lexgraph9level` Intact | **PASS (In-Place `batchUpdate` on `§ 8.02(a)`)** |
 
 ![Tab 1 — Native .docx OpenXML AST Output Proof](./docs/screenshots/ge_format_proof_tab1_docx.png)
 
@@ -36,17 +36,17 @@
 
 | Use Case # | Legal Capability | Architecture & Data Dependency | Live Cloud Run Demo (`us-central1`) | Documentation File |
 | :-: | :--- | :--- | :--- | :--- |
-| **UC-1** | **Document Redlining & Playbook Risk Deviation** | Unstructured `.docx`/PDF Indexing + Spanner Precedent Caps | [`weil-redline-word-agent`](https://weil-redline-word-agent-254356041555.us-central1.run.app) | [`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) |
-| **UC-2** | **Integrated Word Processing & Privacy Pro "Legal Legos"** | OpenXML 15-Yr Numbering Tree + Modular Clause Blocks | [`weil-redline-word-agent`](https://weil-redline-word-agent-254356041555.us-central1.run.app) | [`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) |
-| **UC-3** | **Side-by-Side Pin-Cite Citation Review (★ Priority)** | **Critical Path:** Unstructured Clause + Page/BBox Indexing | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
-| **UC-4** | **Email, Calendar & Chat Triage Automation** | **Evaluating:** Direct Runtime API / MCP vs. Envelope Graph | [`weil-inbox-calendar-agent`](https://weil-inbox-calendar-agent-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
-| **UC-5** | **Multi-Document Tabular Analysis Grids (★ Priority)** | **Critical Path:** Unstructured Multimodal Indexing + Spanner RRF | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
-| **UC-6** | **Workflow & Grid Builder + Homegrown Apps (`FundGen`/`FundHQ`/HSR)** | Spanner Precedent Graph + 2-Pass Chart/Waterfall OCR | [`weil-funds-antitrust-agent`](https://weil-funds-antitrust-agent-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
-| **UC-7** | **Matter & Knowledge Workspaces (Cross-Matter `CUJ-0`)** | Cloud Spanner ISO GQL Property Graph (`WeilLegalGraph`) | [`weil-governance-wall-agent`](https://weil-governance-wall-agent-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
-| **UC-8** | **Dynamic Client-Matter Tracking & Intapp Ethical Walls** | Spanner `IntappWalls` (`Screen-Before-Rank`) + `TeammateGrants` | [`weil-governance-wall-agent`](https://weil-governance-wall-agent-254356041555.us-central1.run.app) | [`WEIL_HLD_LLD_ARCHITECTURE.md`](./WEIL_HLD_LLD_ARCHITECTURE.md) |
+| **UC-1** | **Document Redlining & Playbook Risk Deviation** | Unstructured `.docx`/PDF Indexing + Spanner Precedent Caps | [`lexgraph-redline-word-agent`](https://lexgraph-redline-word-agent-254356041555.us-central1.run.app) | [`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) |
+| **UC-2** | **Integrated Word Processing & Privacy Pro "Legal Legos"** | OpenXML 15-Yr Numbering Tree + Modular Clause Blocks | [`lexgraph-redline-word-agent`](https://lexgraph-redline-word-agent-254356041555.us-central1.run.app) | [`DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md`](./DOCX_AND_GDOCS_COEDITING_ARCHITECTURE.md) |
+| **UC-3** | **Side-by-Side Pin-Cite Citation Review (★ Priority)** | **Critical Path:** Unstructured Clause + Page/BBox Indexing | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [`LEXGRAPH_HLD_LLD_ARCHITECTURE.md`](./LEXGRAPH_HLD_LLD_ARCHITECTURE.md) |
+| **UC-4** | **Email, Calendar & Chat Triage Automation** | **Evaluating:** Direct Runtime API / MCP vs. Envelope Graph | [`lexgraph-inbox-calendar-agent`](https://lexgraph-inbox-calendar-agent-254356041555.us-central1.run.app) | [`LEXGRAPH_HLD_LLD_ARCHITECTURE.md`](./LEXGRAPH_HLD_LLD_ARCHITECTURE.md) |
+| **UC-5** | **Multi-Document Tabular Analysis Grids (★ Priority)** | **Critical Path:** Unstructured Multimodal Indexing + Spanner RRF | [`mike-gcp-platform`](https://mike-gcp-platform-254356041555.us-central1.run.app) | [`LEXGRAPH_HLD_LLD_ARCHITECTURE.md`](./LEXGRAPH_HLD_LLD_ARCHITECTURE.md) |
+| **UC-6** | **Workflow & Grid Builder + Homegrown Apps (`FundGen`/`FundHQ`/HSR)** | Spanner Precedent Graph + 2-Pass Chart/Waterfall OCR | [`lexgraph-funds-antitrust-agent`](https://lexgraph-funds-antitrust-agent-254356041555.us-central1.run.app) | [`LEXGRAPH_HLD_LLD_ARCHITECTURE.md`](./LEXGRAPH_HLD_LLD_ARCHITECTURE.md) |
+| **UC-7** | **Matter & Knowledge Workspaces (Cross-Matter `CUJ-0`)** | Cloud Spanner ISO GQL Property Graph (`LexGraphLegalGraph`) | [`lexgraph-governance-wall-agent`](https://lexgraph-governance-wall-agent-254356041555.us-central1.run.app) | [`LEXGRAPH_HLD_LLD_ARCHITECTURE.md`](./LEXGRAPH_HLD_LLD_ARCHITECTURE.md) |
+| **UC-8** | **Dynamic Client-Matter Tracking & Intapp Ethical Walls** | Spanner `IntappWalls` (`Screen-Before-Rank`) + `TeammateGrants` | [`lexgraph-governance-wall-agent`](https://lexgraph-governance-wall-agent-254356041555.us-central1.run.app) | [`LEXGRAPH_HLD_LLD_ARCHITECTURE.md`](./LEXGRAPH_HLD_LLD_ARCHITECTURE.md) |
 
 ---
-<!-- WEIL_V3_HLD_LLD_END -->
+<!-- LEXGRAPH_V3_HLD_LLD_END -->
 
 # LexGraph Spanner GraphRAG & Interactive Legal Grid MCP App (`SEP-1865`)
 

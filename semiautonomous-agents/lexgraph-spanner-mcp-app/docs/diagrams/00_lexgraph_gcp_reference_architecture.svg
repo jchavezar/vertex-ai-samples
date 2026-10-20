@@ -1,0 +1,304 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1560 980" width="1560" height="980" style="background:#F8FAFC;font-family:'Google Sans','Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <defs>
+    <filter id="card-sh" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+    <marker id="arr-gcp" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1A73E8"/>
+    </marker>
+    <marker id="arr-grn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#1E8E3E"/>
+    </marker>
+    <marker id="arr-amb" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#E37400"/>
+    </marker>
+    <marker id="arr-red" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#D93025"/>
+    </marker>
+  </defs>
+
+  <!-- Subtle IT Blueprint Grid -->
+  <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+    <path d="M 32 0 L 0 0 0 32" fill="none" stroke="#E2E8F0" stroke-width="0.6"/>
+  </pattern>
+  <rect width="1560" height="980" fill="url(#grid)"/>
+
+  <!-- TOP TITLE BAR (Google Cloud Reference Architecture Style) -->
+  <rect x="24" y="18" width="1512" height="74" rx="10" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#card-sh)"/>
+  <g transform="translate(42,32)"><rect x="0" y="0" width="48" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="36" height="36" viewBox="0 0 256 206"><path fill="#ea4335" d="m170.252 56.819l22.253-22.253l1.483-9.37C153.437-11.677 88.976-7.496 52.42 33.92C42.267 45.423 34.734 59.764 30.717 74.573l7.97-1.123l44.505-7.34l3.436-3.513c19.797-21.742 53.27-24.667 76.128-6.168z"/><path fill="#4285f4" d="M224.205 73.918a100.25 100.25 0 0 0-30.217-48.722l-31.232 31.232a55.52 55.52 0 0 1 20.379 44.037v5.544c15.35 0 27.797 12.445 27.797 27.796c0 15.352-12.446 27.485-27.797 27.485h-55.671l-5.466 5.934v33.34l5.466 5.231h55.67c39.93.311 72.553-31.494 72.864-71.424a72.3 72.3 0 0 0-31.793-60.453"/><path fill="#34a853" d="M71.87 205.796h55.593V161.29H71.87a27.3 27.3 0 0 1-11.399-2.498l-7.887 2.42l-22.409 22.253l-1.952 7.574c12.567 9.489 27.9 14.825 43.647 14.757"/><path fill="#fbbc05" d="M71.87 61.426C31.94 61.663-.237 94.227.001 134.158a72.3 72.3 0 0 0 28.222 56.88l32.248-32.246c-13.99-6.322-20.208-22.786-13.887-36.776s22.786-20.208 36.775-13.888a27.8 27.8 0 0 1 13.887 13.888l32.248-32.248A72.22 72.22 0 0 0 71.87 61.427"/></svg></g>
+  <text x="104" y="49" fill="#202124" font-size="21" font-weight="700" letter-spacing="-0.3">Apex Law Partners LLP — Google Cloud Enterprise Legal AI Reference Architecture (HLD &amp; LLD)</text>
+  <text x="104" y="72" fill="#5F6368" font-size="13" font-weight="500">Unstructured Multimodal Document Indexing Pipeline (Critical Path) · Cloud Spanner Hybrid GraphRAG · Direct API vs. Indexing Gate · 5 Gemini Enterprise MCP Apps</text>
+  <rect x="1290" y="34" width="226" height="42" rx="8" fill="#E8F0FE" stroke="#1A73E8" stroke-width="1.2"/>
+  <text x="1403" y="52" fill="#174EA6" font-size="11.5" font-weight="700" text-anchor="middle">GCP PROJECT: vtxdemos (us-central1)</text>
+  <text x="1403" y="68" fill="#1A73E8" font-size="10.5" font-weight="600" text-anchor="middle">8 Use Cases · 5 Cloud Run MCP Studios</text>
+
+  <!-- ===================================================================== -->
+  <!-- ZONE 1 (LEFT COLUMN): LEXGRAPH ENTERPRISE SOURCES & CHANNELS              -->
+  <!-- ===================================================================== -->
+  <rect x="24" y="108" width="320" height="848" rx="12" fill="#FFFFFF" stroke="#9AA0A6" stroke-width="1.5" stroke-dasharray="6,4" filter="url(#card-sh)"/>
+  <rect x="24" y="108" width="320" height="34" rx="10" fill="#F1F3F4"/>
+  <text x="40" y="130" fill="#202124" font-size="12" font-weight="800" letter-spacing="0.5">1. LEXGRAPH DATA SOURCES &amp; CHANNELS</text>
+
+  <!-- Box 1A: Unstructured Legal Documents (Critical Path) -->
+  <rect x="40" y="156" width="288" height="240" rx="10" fill="#E8F0FE" stroke="#1A73E8" stroke-width="2"/>
+  <rect x="52" y="168" width="188" height="20" rx="4" fill="#1A73E8"/>
+  <text x="146" y="182" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">CRITICAL PATH FOR MVP INDEXING</text>
+  <g transform="translate(52,198)"><rect x="0" y="0" width="42" height="42" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="30" height="30" viewBox="0 0 24 24"><path fill="#aecbfa" d="M2 4h20v7H2z"/><path fill="#669df6" d="M20 4h2v7h-2z"/><path fill="#4285f4" d="M22 4h-2v7z"/><path fill="#669df6" d="M2 4h2v7H2z"/><path fill="#fff" d="M6 7h6v1H6z"/><rect width="3" height="3" x="15" y="6" fill="#fff" rx="1.5"/><path fill="#aecbfa" d="M2 13h20v7H2z"/><path fill="#669df6" d="M20 13h2v7h-2z"/><path fill="#4285f4" d="M22 13h-2v7z"/><path fill="#669df6" d="M2 13h2v7H2z"/><path fill="#fff" d="M6 16h6v1H6z"/><rect width="3" height="3" x="15" y="15" fill="#fff" rx="1.5"/></svg></g>
+  <text x="106" y="216" fill="#174EA6" font-size="13.5" font-weight="700">Unstructured Deal Corpus</text>
+  <text x="106" y="233" fill="#1A73E8" font-size="11" font-weight="600">GCS CMEK / Matter Data Rooms</text>
+  <text x="52" y="262" fill="#202124" font-size="11.5" font-weight="600">• Executed Legal PDFs (30+ Deals):</text>
+  <text x="62" y="278" fill="#3C4043" font-size="11">M&amp;A SPAs, Credit, FundGen LPA, HSR</text>
+  <text x="52" y="298" fill="#202124" font-size="11.5" font-weight="600">• Hierarchical Word Contracts (.docx):</text>
+  <text x="62" y="314" fill="#3C4043" font-size="11">15-yr numbering tree + Redline pairs</text>
+  <text x="52" y="334" fill="#202124" font-size="11.5" font-weight="600">• Multimodal Visual Exhibits:</text>
+  <text x="62" y="350" fill="#3C4043" font-size="11">EBITDA Waterfalls, J.Crew Org</text>
+  <text x="62" y="365" fill="#3C4043" font-size="11">Diagrams &amp; Wet-Ink Wire Scans</text>
+  <text x="52" y="385" fill="#174EA6" font-size="10.5" font-weight="700">→ Feeds Path A Indexing Pipeline</text>
+
+  <!-- Box 1B: Governance, Metadata & Homegrown Apps -->
+  <rect x="40" y="412" width="288" height="218" rx="10" fill="#E6F4EA" stroke="#1E8E3E" stroke-width="1.5"/>
+  <rect x="52" y="424" width="168" height="20" rx="4" fill="#1E8E3E"/>
+  <text x="136" y="438" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">GOVERNANCE &amp; HOMEGROWN IP</text>
+  <g transform="translate(52,454)"><rect x="0" y="0" width="42" height="42" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="30" height="30" viewBox="0 0 24 24"><path fill="#4285f4" d="M11.85 7a5.1 5.1 0 1 0 5.1 5.1a5.1 5.1 0 0 0-5.1-5.1m0 9.08a4 4 0 1 1 4-4a4 4 0 0 1-4 4.01Z"/><path fill="#669df6" d="M13.77 12.71a2 2 0 0 0-.28-.22a3.11 3.11 0 0 0-2.61-.28a2.3 2.3 0 0 0-.89.47a.86.86 0 0 0-.37.65v1h4.47v-.82a1 1 0 0 0-.32-.8m-1.92-1.18a1.16 1.16 0 1 0-1.17-1.15a1.17 1.17 0 0 0 1.17 1.15"/><path fill="#aecbfa" d="M20.78 10.72h-1.04l.77.77H18.3v.9h2.21l-.77.78h1.04L22 11.94z"/><path fill="#669df6" d="m17.54 8.5l.64.64l.98-.97v1.09l.73-.74V6.79h-1.73l-.73.74h1.09zm1.62 7.33l-.98-.97l-.64.63l.98.98h-1.09l.73.73h1.73v-1.73l-.73-.73zM3.35 10.65A1.35 1.35 0 1 0 4.71 12a1.35 1.35 0 0 0-1.36-1.35m0 2.1a.76.76 0 1 1 .76-.75a.76.76 0 0 1-.76.75"/></svg></g>
+  <text x="106" y="472" fill="#0D652D" font-size="13.5" font-weight="700">Intapp Walls, CMN &amp; Apps</text>
+  <text x="106" y="489" fill="#1E8E3E" font-size="11" font-weight="600">SQL Server CDC &amp; On-Prem Postgres</text>
+  <text x="52" y="518" fill="#202124" font-size="11.5" font-weight="600">• Intapp Ethical Walls:</text>
+  <text x="62" y="534" fill="#3C4043" font-size="11">Inclusionary/Exclusionary ACLs</text>
+  <text x="52" y="554" fill="#202124" font-size="11.5" font-weight="600">• Client-Matter Numbers (CMN):</text>
+  <text x="62" y="570" fill="#3C4043" font-size="11">5-digit Client . 4-digit Matter ID</text>
+  <text x="52" y="590" fill="#202124" font-size="11.5" font-weight="600">• Homegrown Apps (Postgres):</text>
+  <text x="62" y="606" fill="#3C4043" font-size="11">FundGen, FundHQ (MFN), Antitrust</text>
+
+  <!-- Box 1C: Email, Calendar & Chat (Evaluating Direct API vs Indexing) -->
+  <rect x="40" y="646" width="288" height="292" rx="10" fill="#FEF7E0" stroke="#E37400" stroke-width="2"/>
+  <rect x="52" y="658" width="212" height="20" rx="4" fill="#E37400"/>
+  <text x="158" y="672" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">EVALUATING DIRECT API VS. INDEXING</text>
+  <g transform="translate(52,688)"><rect x="0" y="0" width="42" height="42" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="30" height="30" viewBox="0 0 256 256"><path fill="#f1511b" d="M121.666 121.666H0V0h121.666z"/><path fill="#80cc28" d="M256 121.666H134.335V0H256z"/><path fill="#00adef" d="M121.663 256.002H0V134.336h121.663z"/><path fill="#fbbc09" d="M256 256.002H134.335V134.336H256z"/></svg></g>
+  <text x="106" y="706" fill="#B06000" font-size="13.5" font-weight="700">Email, Calendar &amp; Chat</text>
+  <text x="106" y="723" fill="#E37400" font-size="11" font-weight="600">M365 Exchange / Workspace BCP</text>
+  <text x="52" y="752" fill="#202124" font-size="11.5" font-weight="600">• Enterprise Email (~150M msgs):</text>
+  <text x="62" y="768" fill="#3C4043" font-size="11">Partner deal inbox (EM-9901..9903)</text>
+  <text x="52" y="788" fill="#202124" font-size="11.5" font-weight="600">• Partner &amp; Deal Calendars (.ics):</text>
+  <text x="62" y="804" fill="#3C4043" font-size="11">Closing calls vs FTC hearings (CAL-101)</text>
+  <text x="52" y="824" fill="#202124" font-size="11.5" font-weight="600">• Enterprise Chat Spaces:</text>
+  <text x="62" y="840" fill="#3C4043" font-size="11">Google Chat / MS Teams deal rooms</text>
+  <rect x="52" y="856" width="264" height="68" rx="6" fill="#FFFFFF" stroke="#F9AB00"/>
+  <text x="62" y="874" fill="#B06000" font-size="10.5" font-weight="700">Architectural Decision Under Evaluation:</text>
+  <text x="62" y="890" fill="#3C4043" font-size="10">Call APIs directly at runtime (zero vector</text>
+  <text x="62" y="904" fill="#3C4043" font-size="10">cost/lag) vs. selective metadata graphing</text>
+
+  <!-- ===================================================================== -->
+  <!-- ZONE 2 (CENTER-LEFT): GCP INGESTION PIPELINE & API EVALUATION GATE    -->
+  <!-- ===================================================================== -->
+  <rect x="368" y="108" width="768" height="848" rx="12" fill="#FFFFFF" stroke="#1A73E8" stroke-width="2" filter="url(#card-sh)"/>
+  <rect x="368" y="108" width="768" height="34" rx="10" fill="#E8F0FE"/>
+  <g transform="translate(382,113)"><rect x="0" y="0" width="28" height="28" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="16" height="16" viewBox="0 0 256 206"><path fill="#ea4335" d="m170.252 56.819l22.253-22.253l1.483-9.37C153.437-11.677 88.976-7.496 52.42 33.92C42.267 45.423 34.734 59.764 30.717 74.573l7.97-1.123l44.505-7.34l3.436-3.513c19.797-21.742 53.27-24.667 76.128-6.168z"/><path fill="#4285f4" d="M224.205 73.918a100.25 100.25 0 0 0-30.217-48.722l-31.232 31.232a55.52 55.52 0 0 1 20.379 44.037v5.544c15.35 0 27.797 12.445 27.797 27.796c0 15.352-12.446 27.485-27.797 27.485h-55.671l-5.466 5.934v33.34l5.466 5.231h55.67c39.93.311 72.553-31.494 72.864-71.424a72.3 72.3 0 0 0-31.793-60.453"/><path fill="#34a853" d="M71.87 205.796h55.593V161.29H71.87a27.3 27.3 0 0 1-11.399-2.498l-7.887 2.42l-22.409 22.253l-1.952 7.574c12.567 9.489 27.9 14.825 43.647 14.757"/><path fill="#fbbc05" d="M71.87 61.426C31.94 61.663-.237 94.227.001 134.158a72.3 72.3 0 0 0 28.222 56.88l32.248-32.246c-13.99-6.322-20.208-22.786-13.887-36.776s22.786-20.208 36.775-13.888a27.8 27.8 0 0 1 13.887 13.888l32.248-32.248A72.22 72.22 0 0 0 71.87 61.427"/></svg></g>
+  <text x="416" y="130" fill="#174EA6" font-size="12" font-weight="800" letter-spacing="0.5">2. GOOGLE CLOUD PLATFORM — UNSTRUCTURED INDEXING PIPELINE, SPANNER GRAPHRAG &amp; AGENT GATEWAY</text>
+
+  <!-- SUB-BOX 2A: UNSTRUCTURED DOCUMENT INDEXING PIPELINE (TOP) -->
+  <rect x="386" y="156" width="732" height="222" rx="10" fill="#F8FAFC" stroke="#1A73E8" stroke-width="1.8"/>
+  <rect x="386" y="156" width="732" height="28" rx="8" fill="#1A73E8"/>
+  <text x="402" y="175" fill="#FFFFFF" font-size="11.5" font-weight="700">PATH A (MVP CRITICAL PATH) — UNSTRUCTURED MULTIMODAL DOCUMENT INDEXING PIPELINE</text>
+
+  <!-- Step 1: Multimodal Extractor -->
+  <rect x="402" y="196" width="226" height="166" rx="8" fill="#FFFFFF" stroke="#DADCE0" filter="url(#card-sh)"/>
+  <g transform="translate(414,206)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><g fill="none" fill-rule="evenodd"><g fill="#4285f4" transform="translate(5 3)"><path fill-rule="nonzero" d="M7 0v2H2.022v14H7v2H1.654c-.866 0-1.576-.727-1.648-1.645L0 16.2V1.8C0 .81.748 0 1.663 0z"/><path fill-rule="nonzero" d="M4 12.5h3V14H4zm0-3h3V11H4zm0-3h3V8H4z"/><circle cx="11.5" cy="16.5" r="1.5" transform="matrix(1 0 0 -1 0 33)"/><circle cx="13.5" cy="7.5" r="1.5" transform="matrix(1 0 0 -1 0 15)"/><circle cx="10.5" cy="2.5" r="1.5"/></g><path stroke="#4285f4" d="M13 10.5h.814c1.916 0 1.676-.703 1.676-4M13 13.494h.813c3.777 0 4.733.221 4.685-1.994M13 16.508h.517c2.78-.006 3.011-.221 2.98 1.992"/></g></svg></g>
+  <text x="464" y="222" fill="#202124" font-size="12" font-weight="700">Multimodal Extractor</text>
+  <text x="464" y="237" fill="#1A73E8" font-size="10.5" font-weight="600">Cloud Run (docparse) + Tasks</text>
+  <text x="414" y="262" fill="#3C4043" font-size="10.5">• PDF &amp; .docx 15-yr Clause Tree</text>
+  <text x="414" y="278" fill="#3C4043" font-size="10.5">• Exact Page &amp; BBox Coordinates</text>
+  <text x="414" y="294" fill="#3C4043" font-size="10.5">• 2-Pass Chart/Waterfall Schema</text>
+  <text x="414" y="310" fill="#3C4043" font-size="10.5">• J.Crew Org Diagram -> Mermaid</text>
+  <text x="414" y="326" fill="#3C4043" font-size="10.5">• Wet-Ink Signature &amp; Wire OCR</text>
+  <text x="414" y="346" fill="#174EA6" font-size="10" font-weight="700" font-family="monospace">&gt; 1,293 Atomic Clauses</text>
+
+  <!-- Step 2: Vertex AI Embeddings + Gemini -->
+  <rect x="644" y="196" width="222" height="166" rx="8" fill="#FFFFFF" stroke="#DADCE0" filter="url(#card-sh)"/>
+  <g transform="translate(656,206)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><path fill="#669df6" d="M20 13.89a.77.77 0 0 0-1-.16l-7 5.14v.22a.72.72 0 1 1 0 1.43a.74.74 0 0 0 .45-.15l7.41-5.47a.76.76 0 0 0 .14-1.01"/><path fill="#aecbfa" d="M12 20.52a.72.72 0 0 1 0-1.43v-.22l-7-5.14a.76.76 0 0 0-1 .16a.74.74 0 0 0 .16 1l7.41 5.47a.73.73 0 0 0 .44.15Z"/><path fill="#4285f4" d="M12 18.34a1.47 1.47 0 1 0 1.47 1.47A1.47 1.47 0 0 0 12 18.34m0 2.18a.72.72 0 1 1 .72-.71a.71.71 0 0 1-.72.71"/><path fill="#aecbfa" d="M6 6.11a.76.76 0 0 1-.75-.75V3.48a.76.76 0 1 1 1.51 0v1.88a.76.76 0 0 1-.76.75"/><circle cx="5.98" cy="12" r=".76" fill="#aecbfa"/><circle cx="5.98" cy="9.79" r=".76" fill="#aecbfa"/><circle cx="5.98" cy="7.57" r=".76" fill="#aecbfa"/><path fill="#4285f4" d="M18 8.31a.76.76 0 0 1-.75-.76V5.67a.75.75 0 1 1 1.5 0v1.88a.75.75 0 0 1-.75.76"/><circle cx="18.02" cy="12.01" r=".76" fill="#4285f4"/><circle cx="18.02" cy="9.76" r=".76" fill="#4285f4"/><circle cx="18.02" cy="3.48" r=".76" fill="#4285f4"/><path fill="#669df6" d="M12 15a.76.76 0 0 1-.75-.75v-1.91a.76.76 0 0 1 1.51 0v1.89A.76.76 0 0 1 12 15"/><circle cx="12" cy="16.45" r=".76" fill="#669df6"/><circle cx="12" cy="10.14" r=".76" fill="#669df6"/><circle cx="12" cy="7.92" r=".76" fill="#669df6"/><path fill="#4285f4" d="M15 10.54a.76.76 0 0 1-.75-.75V7.91a.76.76 0 1 1 1.51 0v1.88a.76.76 0 0 1-.76.75"/><circle cx="15.01" cy="5.69" r=".76" fill="#4285f4"/><circle cx="15.01" cy="14.19" r=".76" fill="#4285f4"/><circle cx="15.01" cy="11.97" r=".76" fill="#4285f4"/><circle cx="8.99" cy="14.19" r=".76" fill="#aecbfa"/><circle cx="8.99" cy="7.92" r=".76" fill="#aecbfa"/><circle cx="8.99" cy="5.69" r=".76" fill="#aecbfa"/><path fill="#aecbfa" d="M9 12.73a.76.76 0 0 1-.76-.73v-1.9a.75.75 0 1 1 1.5 0V12a.75.75 0 0 1-.74.73"/></svg></g>
+  <text x="706" y="222" fill="#202124" font-size="12" font-weight="700">Vertex AI Embeddings</text>
+  <text x="706" y="237" fill="#1A73E8" font-size="10.5" font-weight="600">gemini-embedding-001 (3072-D)</text>
+  <text x="656" y="262" fill="#3C4043" font-size="10.5">• RETRIEVAL_DOCUMENT vectors</text>
+  <text x="656" y="278" fill="#3C4043" font-size="10.5">• L2-normalized FLOAT32[3072]</text>
+  <text x="656" y="294" fill="#3C4043" font-size="10.5">• Paired with TOKENIZE_FULLTEXT</text>
+  <text x="656" y="310" fill="#3C4043" font-size="10.5">  for exact legal citation BM25</text>
+  <text x="656" y="326" fill="#3C4043" font-size="10.5">• Gemini 3.8 Flash (global) for</text>
+  <text x="656" y="342" fill="#3C4043" font-size="10.5">  parallel grid cell inference</text>
+
+  <!-- Step 3: Batch / Streaming Loader -->
+  <rect x="882" y="196" width="220" height="166" rx="8" fill="#FFFFFF" stroke="#DADCE0" filter="url(#card-sh)"/>
+  <g transform="translate(894,206)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><path fill="#669df6" d="M11 5h2v7h-2z"/><path fill="#4285f4" d="M11 12h2v7h-2z"/><path fill="#669df6" d="M15 5h2v7h-2z"/><path fill="#4285f4" d="M15 12h2v7h-2z"/><path fill="#669df6" d="M19 5h2v7h-2z"/><path fill="#4285f4" d="M19 12h2v7h-2z"/><path fill="#669df6" d="M7 5h2v7H7z"/><path fill="#4285f4" d="M7 12h2v7H7z"/><path fill="#669df6" d="M3 5h2v7H3z"/><path fill="#4285f4" d="M3 12h2v7H3z"/></svg></g>
+  <text x="944" y="222" fill="#202124" font-size="12" font-weight="700">Graph &amp; ACL Indexer</text>
+  <text x="944" y="237" fill="#1A73E8" font-size="10.5" font-weight="600">Metadata + Precedent Edges</text>
+  <text x="894" y="262" fill="#3C4043" font-size="10.5">• Binds Document -&gt; Matter (CMN)</text>
+  <text x="894" y="278" fill="#3C4043" font-size="10.5">• Links CitesPrecedent edges</text>
+  <text x="894" y="294" fill="#3C4043" font-size="10.5">  (M-331 -&gt; M-215 Kestrel)</text>
+  <text x="894" y="310" fill="#3C4043" font-size="10.5">• Attaches Intapp Wall ACLs</text>
+  <text x="894" y="326" fill="#3C4043" font-size="10.5">• Enables CUJ-0 Cross-Matter</text>
+  <text x="894" y="342" fill="#3C4043" font-size="10.5">  Set Assembly &amp; Pin-Cites</text>
+
+  <line x1="628" y1="278" x2="642" y2="278" stroke="#1A73E8" stroke-width="2" marker-end="url(#arr-gcp)"/>
+  <line x1="866" y1="278" x2="880" y2="278" stroke="#1A73E8" stroke-width="2" marker-end="url(#arr-gcp)"/>
+
+  <!-- SUB-BOX 2B: CLOUD SPANNER HYBRID GRAPHRAG (CENTER) -->
+  <rect x="386" y="396" width="732" height="236" rx="10" fill="#F8FAFC" stroke="#1E8E3E" stroke-width="2"/>
+  <rect x="386" y="396" width="732" height="28" rx="8" fill="#1E8E3E"/>
+  <text x="402" y="415" fill="#FFFFFF" font-size="11.5" font-weight="700">UNIFIED DATA LAYER — CLOUD SPANNER HYBRID GRAPHRAG (lexgraph-legal-spanner / LexGraphLegalGraph)</text>
+
+  <g transform="translate(404,436)"><rect x="0" y="0" width="48" height="48" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="36" height="36" viewBox="0 0 24 24"><g fill-rule="evenodd"><path fill="#669df6" d="M13.34 12.76V8.4h-2.68v4.36l-3.77 2.18l1.34 2.32L12 15.08l3.77 2.18l1.34-2.32z"/><path fill="#4285f4" d="M13.34 12.76V8.4H12v5.12L7.56 16.1l.67 1.16L12 15.08l3.77 2.18l1.34-2.32z"/><path fill="#aecbfa" d="M10.65 2.77L8.62 3.99v3.73L12 9.55V6.44l-1.35-.62z"/><path fill="#669df6" d="M13.35 5.82L12 6.44v3.11l3.38-1.83V3.99l-2.03-1.22zm4.79 11.26l-.08 1.39l2.7 1.53l-2.18 1.2l-3.24-1.87l.11-3.83l3.27-2L22 15.38v2.49l-2.69-1.55Zm-12.28 0l-1.17-.76L2 17.87v-2.49l3.23-1.87l3.27 2l.11 3.83l-3.19 1.89L3.24 20l2.7-1.56Z"/><path fill="#aecbfa" d="m22 17.87l-.05-2.49l-3.23-1.86l-3.27 2.01l2.69 1.55l1.16-.76zm-20 0l2.7-1.55l1.16.76l2.69-1.55l-3.27-2.01l-3.23 1.86z"/></g></svg></g>
+  <text x="464" y="454" fill="#0D652D" font-size="14" font-weight="800">Cloud Spanner (Relational + 3072-D Vector + Full-Text BM25 + ISO GQL Property Graph)</text>
+  <text x="464" y="472" fill="#3C4043" font-size="11.5">Instance: projects/vtxdemos/instances/lexgraph-legal-spanner/databases/lexgraph-legal-context (47 Docs · 1,293 Clauses · 14 Matters)</text>
+
+  <!-- 3 Internal Spanner Pillars -->
+  <rect x="404" y="488" width="228" height="128" rx="8" fill="#FFFFFF" stroke="#CEEAD6"/>
+  <text x="416" y="508" fill="#0D652D" font-size="11.5" font-weight="700">1. Interleaved Schema &amp; Graph</text>
+  <text x="416" y="525" fill="#3C4043" font-size="10.5" font-family="monospace">• Nodes: Matters, Documents,</text>
+  <text x="416" y="540" fill="#3C4043" font-size="10.5" font-family="monospace">  Clauses, Lawyers, Emails</text>
+  <text x="416" y="556" fill="#3C4043" font-size="10.5" font-family="monospace">• Edges: BelongsToMatter,</text>
+  <text x="416" y="571" fill="#3C4043" font-size="10.5" font-family="monospace">  ContainsClause, CitesPrecedent</text>
+  <text x="416" y="587" fill="#3C4043" font-size="10.5" font-family="monospace">  IntappWalls, TeammateGrants</text>
+  <text x="416" y="604" fill="#1E8E3E" font-size="10" font-weight="700">✓ Zero external graph sync lag</text>
+
+  <rect x="644" y="488" width="228" height="128" rx="8" fill="#FEF2F2" stroke="#FAD2CF"/>
+  <text x="656" y="508" fill="#C5221F" font-size="11.5" font-weight="700">2. Gate 0: Screen-Before-Rank</text>
+  <text x="656" y="525" fill="#3C4043" font-size="10.5">• Enforces IntappWalls ALLOW/DENY</text>
+  <text x="656" y="540" fill="#3C4043" font-size="10.5">  BEFORE vector or BM25 scoring</text>
+  <text x="656" y="556" fill="#3C4043" font-size="10.5">• Walled attorneys (L-001) cannot</text>
+  <text x="656" y="571" fill="#3C4043" font-size="10.5">  see restricted Matter M-999</text>
+  <text x="656" y="587" fill="#3C4043" font-size="10.5">• 30-Day TTL TeammateGrants for</text>
+  <text x="656" y="602" fill="#3C4043" font-size="10.5">  unfiled partner email EM-9901</text>
+
+  <rect x="884" y="488" width="218" height="128" rx="8" fill="#FFFFFF" stroke="#CEEAD6"/>
+  <text x="896" y="508" fill="#174EA6" font-size="11.5" font-weight="700">3. 3-Way Hybrid RRF Fusion</text>
+  <text x="896" y="525" fill="#3C4043" font-size="10.5">• Leg 1: COSINE_DISTANCE(3072-d)</text>
+  <text x="896" y="541" fill="#3C4043" font-size="10.5">• Leg 2: SEARCH(ClauseFtsIndex)</text>
+  <text x="896" y="557" fill="#3C4043" font-size="10.5">• Leg 3: ISO GQL Multi-Hop Boost</text>
+  <text x="896" y="575" fill="#174EA6" font-size="10" font-family="monospace">RRF = 1/(60+r_v) + 1/(60+r_f)</text>
+  <text x="896" y="592" fill="#3C4043" font-size="10.5">• Returns exact page &amp; bbox_json</text>
+
+  <!-- SUB-BOX 2C: PATH B — DIRECT API vs. SELECTIVE INDEXING GATE + AGENT PLATFORM (BOTTOM) -->
+  <rect x="386" y="650" width="732" height="290" rx="10" fill="#FFFDF7" stroke="#E37400" stroke-width="2"/>
+  <rect x="386" y="650" width="732" height="28" rx="8" fill="#E37400"/>
+  <text x="402" y="669" fill="#FFFFFF" font-size="11.5" font-weight="700">PATH B — DIRECT RUNTIME API vs. SELECTIVE INDEXING GATE (EMAIL, CALENDAR, CHAT) &amp; AGENT GATEWAY</text>
+
+  <!-- Left Half of 2C: Direct API / Federated MCP Router -->
+  <rect x="402" y="690" width="346" height="234" rx="8" fill="#FFFFFF" stroke="#F9AB00" filter="url(#card-sh)"/>
+  <g transform="translate(414,700)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><path fill="#aecbfa" d="M8.999 7.013h2v4h-2zm4 0h2v4h-2z"/><path fill="#aecbfa" d="M8 18.93a7.993 7.993 0 0 1 4-14.917v-2a10 10 0 0 0-4 19.159Z"/><path fill="#4285f4" d="M10.999 17.012h2v5h-2z"/><path fill="#4285f4" d="M16.99 10.013H7v2.937a5 5 0 1 0 10.008 0Z"/><path fill="#669df6" d="M12 18.012a5.04 5.04 0 0 1-5-5.062v-2.937h5"/><path fill="#4285f4" d="M12 2.012a10 10 0 0 1 4 19.163v-2.244a7.994 7.994 0 0 0-4-14.919Z"/></svg></g>
+  <text x="464" y="716" fill="#B06000" font-size="12.5" font-weight="700">Direct API / Federated MCP Evaluation</text>
+  <text x="464" y="732" fill="#E37400" font-size="10.5" font-weight="600">For Email, Calendar &amp; Chat (No Bulk Vector Tax)</text>
+  <text x="414" y="756" fill="#202124" font-size="11" font-weight="700">1. Calendar &amp; Scheduling (Direct API):</text>
+  <text x="424" y="772" fill="#3C4043" font-size="10.5">Call Outlook / Google Calendar freeBusy &amp; VEVENT</text>
+  <text x="424" y="786" fill="#3C4043" font-size="10.5">APIs directly at runtime for conflict resolution (CAL-101)</text>
+  <text x="414" y="806" fill="#202124" font-size="11" font-weight="700">2. Enterprise Chat (Direct MCP API):</text>
+  <text x="424" y="822" fill="#3C4043" font-size="10.5">Query live workspace threads on demand via API</text>
+  <text x="414" y="842" fill="#202124" font-size="11" font-weight="700">3. Email (~150M msgs — Hybrid Evaluation):</text>
+  <text x="424" y="858" fill="#3C4043" font-size="10.5">• Live Inbox Triage: Call Exchange/Gmail API directly</text>
+  <text x="424" y="873" fill="#3C4043" font-size="10.5">• Deal Provenance: Graph ONLY envelope metadata</text>
+  <text x="424" y="888" fill="#3C4043" font-size="10.5">  (Sender, Recipient, CMN) in Spanner; only attachments</text>
+  <text x="424" y="903" fill="#3C4043" font-size="10.5">  filed to a matter enter Path A Unstructured Indexing</text>
+
+  <!-- Right Half of 2C: Agent Registry, Gateway, ADK & Cloud Trace -->
+  <rect x="762" y="690" width="340" height="234" rx="8" fill="#FFFFFF" stroke="#1A73E8" filter="url(#card-sh)"/>
+  <g transform="translate(774,700)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><path fill="#4285f4" fill-rule="evenodd" d="M12.346 2c.71 0 1.31.393 1.8 1.057c.4.541.745 1.287 1.03 2.203c.563 1.8.88 4.205.88 6.764c0 2.558-.317 4.963-.88 6.763c-.285.916-.63 1.662-1.03 2.203c-.49.664-1.09 1.057-1.8 1.057c-1.623 0-2.627-1.418-3.162-3.838a.7.7 0 0 1-.014-.219h1.63c.22.98.496 1.941.803 2.26c.205.212.413.288.743.288l.026-.005a.4.4 0 0 0 .087-.045c.1-.066.218-.182.341-.35c.288-.39.568-.996.81-1.77c.517-1.654.816-3.92.816-6.344s-.3-4.691-.816-6.345c-.242-.774-.522-1.38-.81-1.77a1.5 1.5 0 0 0-.341-.35a.4.4 0 0 0-.087-.044l-.026-.006c-.265 0-.5.125-.756.464c-.326.432-.61 1.137-.83 2.13H9.099c.265-1.333.645-2.32 1.155-2.995C10.802 2.382 11.522 2 12.346 2m.22 12.5v1.51H4.642a.755.755 0 0 1 0-1.51zm8.68-1.604a.755.755 0 1 1 0 1.51h-3.744q.093-.738.132-1.51zm-8.68-1.604v1.51H2.755a.755.755 0 0 1 0-1.51zm4.985-1.604h3.694a.755.755 0 0 1 .103 1.503l-.103.007h-3.594a21 21 0 0 0-.1-1.51m-4.985-1.603v1.51H4.642a.755.755 0 0 1-.103-1.503l.103-.007z"/></svg></g>
+  <text x="824" y="716" fill="#174EA6" font-size="12.5" font-weight="700">Agent Platform, Gateway &amp; ADK</text>
+  <text x="824" y="732" fill="#1A73E8" font-size="10.5" font-weight="600">Google ADK (gemini-3.8-flash) + MCP Server</text>
+  <text x="774" y="756" fill="#202124" font-size="11" font-weight="700">• Agent Registry (v1alpha):</text>
+  <text x="784" y="772" fill="#3C4043" font-size="10.5" font-family="monospace">services/mike-legal-mcp (JSONRPC)</text>
+  <text x="774" y="792" fill="#202124" font-size="11" font-weight="700">• Agent Gateway (my-agent-gateway):</text>
+  <text x="784" y="808" fill="#3C4043" font-size="10.5">Door 1: IAP Egressor (roles/iap.egressor)</text>
+  <text x="784" y="823" fill="#3C4043" font-size="10.5">Door 2: Agent Identity SPIFFE mTLS &amp; 3LO</text>
+  <g transform="translate(774,836)"><rect x="0" y="0" width="36" height="36" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="24" height="24" viewBox="0 0 24 24"><path fill="#4285f4" d="M12 14h10v-4H12zm0 8h10v-4H12z"/><path fill="#669df6" d="M8 22h4v-4H8zM2 2h6v4H2zm0 8h10v4H2z"/></svg></g>
+  <text x="816" y="852" fill="#202124" font-size="11" font-weight="700">Cloud Trace (Zero-Content-Leak):</text>
+  <text x="816" y="867" fill="#3C4043" font-size="10.5" font-family="monospace">CAPTURE_MESSAGE_CONTENT=NO_CONTENT</text>
+  <text x="774" y="896" fill="#174EA6" font-size="10.5" font-weight="700">• 7 MCP Tools + 5 SEP-1865 UI Resources</text>
+
+  <!-- Internal Arrows inside Zone 2 -->
+  <line x1="990" y1="362" x2="990" y2="394" stroke="#1A73E8" stroke-width="2.2" marker-end="url(#arr-gcp)"/>
+  <line x1="328" y1="265" x2="384" y2="265" stroke="#1A73E8" stroke-width="2.5" marker-end="url(#arr-gcp)"/>
+  <line x1="328" y1="515" x2="384" y2="515" stroke="#1E8E3E" stroke-width="2.5" marker-end="url(#arr-grn)"/>
+  <line x1="328" y1="780" x2="398" y2="780" stroke="#E37400" stroke-width="2.5" marker-end="url(#arr-amb)"/>
+  <line x1="575" y1="690" x2="575" y2="634" stroke="#E37400" stroke-width="1.8" stroke-dasharray="4,3" marker-end="url(#arr-amb)"/>
+  <line x1="748" y1="805" x2="760" y2="805" stroke="#E37400" stroke-width="2" marker-end="url(#arr-amb)"/>
+  <line x1="930" y1="632" x2="930" y2="688" stroke="#1E8E3E" stroke-width="2.2" marker-end="url(#arr-grn)"/>
+
+  <!-- ===================================================================== -->
+  <!-- ZONE 3 (RIGHT COLUMN): GEMINI ENTERPRISE & 5 CLOUD RUN MCP STUDIOS    -->
+  <!-- ===================================================================== -->
+  <rect x="1160" y="108" width="376" height="848" rx="12" fill="#FFFFFF" stroke="#1A73E8" stroke-width="2" filter="url(#card-sh)"/>
+  <rect x="1160" y="108" width="376" height="34" rx="10" fill="#174EA6"/>
+  <text x="1178" y="130" fill="#FFFFFF" font-size="12" font-weight="800" letter-spacing="0.5">3. GEMINI ENTERPRISE + 5 CLOUD RUN MCP APPS</text>
+
+  <!-- Gemini Enterprise Header Card -->
+  <rect x="1176" y="154" width="344" height="74" rx="8" fill="#E8F0FE" stroke="#1A73E8" stroke-width="1.5"/>
+  <g transform="translate(1188,166)"><rect x="0" y="0" width="42" height="42" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="30" height="30" viewBox="0 0 24 24"><path fill="#4285f4" d="m12.68 2.246l6.206 3.624c.41.24.66.675.66 1.147v7.957c0 .471-.25.907-.66 1.146L12 20.141l-.02-.011l.014.011l-2.97 1.75a.337.337 0 0 1-.506-.285l-.007-3.502l-3.397-1.984a1.33 1.33 0 0 1-.66-1.146V7.017c0-.472.25-.908.66-1.147l6.206-3.624a1.35 1.35 0 0 1 1.36 0M12 6.175c-2.273 0-4.116 1.757-4.116 3.925v3.053c0 .724.612 1.308 1.372 1.308h1.372v-3.489h-1.83v-.746a3.203 3.203 0 0 1 3.106-3.18C13.72 7 15.202 8.382 15.202 10.1v.872h-1.83v3.489h1.83v.436h-2.745v.872h2.745c.503 0 .914-.392.914-.872V10.1c0-2.168-1.843-3.925-4.116-3.925m-2.287 5.67v1.744h-.457a.45.45 0 0 1-.458-.436v-1.309zm5.489 0v1.744h-.915v-1.745z"/></svg></g>
+  <text x="1240" y="178" fill="#174EA6" font-size="13" font-weight="800">Gemini Enterprise for Legal</text>
+  <text x="1240" y="195" fill="#1A73E8" font-size="10.5" font-weight="600">Engine: lexgraph-legal-spanner-ge (SEP-1865)</text>
+  <text x="1240" y="212" fill="#3C4043" font-size="10">5 ACTIVE custom_mcp DataStores · Side-Panel &amp; 1440px Max</text>
+
+  <!-- Studio 1 Card -->
+  <rect x="1176" y="242" width="344" height="130" rx="8" fill="#FFFFFF" stroke="#1A73E8" stroke-width="2" filter="url(#card-sh)"/>
+  <g transform="translate(1188,254)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><g fill-rule="evenodd"><path fill="#aecbfa" d="M8.9 2.63L12.02 12h9.36z"/><path fill="#4285f4" d="M21.38 12h-9.36L8.9 21.38zM3.44 21.38l3.13-1.57L8.9 12H5.78z"/><path fill="#aecbfa" d="M3.44 2.63L5.78 12H8.9L6.57 4.19z"/></g></svg></g>
+  <rect x="1426" y="250" width="84" height="18" rx="4" fill="#1A73E8"/>
+  <text x="1468" y="263" fill="#FFFFFF" font-size="9" font-weight="700" text-anchor="middle">UC-3 &amp; UC-5 ★</text>
+  <text x="1236" y="269" fill="#202124" font-size="11.5" font-weight="800">Studio 1: Mike OSS Diligence Grid</text>
+  <text x="1238" y="286" fill="#1A73E8" font-size="10.5" font-weight="600">mike-gcp-platform (*.run.app)</text>
+  <text x="1188" y="308" fill="#3C4043" font-size="10.5">• UC-5: Multi-Doc Tabular Review Grid (46 files / 1,293 clauses)</text>
+  <text x="1188" y="324" fill="#3C4043" font-size="10.5">• Live '+ Add column' parallel Gemini 3.8 Flash + Cell Lock</text>
+  <text x="1188" y="340" fill="#3C4043" font-size="10.5">• UC-3: Side-by-Side Pin-Cite Reader (&lt;15ms yellow BBox)</text>
+  <text x="1188" y="358" fill="#174EA6" font-size="10" font-weight="700" font-family="monospace">DataStore: mike-oss-legal-grid-mcp_mcp_data</text>
+
+  <!-- Studio 2 Card -->
+  <rect x="1176" y="384" width="344" height="126" rx="8" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#card-sh)"/>
+  <g transform="translate(1188,396)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><g fill-rule="evenodd"><path fill="#aecbfa" d="M8.9 2.63L12.02 12h9.36z"/><path fill="#4285f4" d="M21.38 12h-9.36L8.9 21.38zM3.44 21.38l3.13-1.57L8.9 12H5.78z"/><path fill="#aecbfa" d="M3.44 2.63L5.78 12H8.9L6.57 4.19z"/></g></svg></g>
+  <rect x="1430" y="392" width="80" height="18" rx="4" fill="#5F6368"/>
+  <text x="1470" y="405" fill="#FFFFFF" font-size="9" font-weight="700" text-anchor="middle">UC-1 &amp; UC-2</text>
+  <text x="1236" y="411" fill="#202124" font-size="11.5" font-weight="800">Studio 2: Redline &amp; Legal Legos</text>
+  <text x="1238" y="428" fill="#1A73E8" font-size="10.5" font-weight="600">lexgraph-redline-word-agent (*.run.app)</text>
+  <text x="1188" y="450" fill="#3C4043" font-size="10.5">• UC-1: Deterministic Word-Level Redline + Playbook Risk</text>
+  <text x="1188" y="466" fill="#3C4043" font-size="10.5">• UC-2: 15-Yr Numbering + Privacy Pro Legal Legos .docx</text>
+  <text x="1188" y="482" fill="#3C4043" font-size="10.5">• Interactive EditCardUI (Accept LexGraph v3 / Reject Markup)</text>
+  <text x="1188" y="498" fill="#174EA6" font-size="10" font-weight="700" font-family="monospace">DataStore: lexgraph-redline-legos-mcp_mcp_data</text>
+
+  <!-- Studio 3 Card -->
+  <rect x="1176" y="522" width="344" height="126" rx="8" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#card-sh)"/>
+  <g transform="translate(1188,534)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><g fill-rule="evenodd"><path fill="#aecbfa" d="M8.9 2.63L12.02 12h9.36z"/><path fill="#4285f4" d="M21.38 12h-9.36L8.9 21.38zM3.44 21.38l3.13-1.57L8.9 12H5.78z"/><path fill="#aecbfa" d="M3.44 2.63L5.78 12H8.9L6.57 4.19z"/></g></svg></g>
+  <rect x="1414" y="530" width="96" height="18" rx="4" fill="#1E8E3E"/>
+  <text x="1462" y="543" fill="#FFFFFF" font-size="9" font-weight="700" text-anchor="middle">UC-6 · FUNDS IP</text>
+  <text x="1236" y="549" fill="#202124" font-size="11.5" font-weight="800">Studio 3: FundGen &amp; Antitrust</text>
+  <text x="1238" y="566" fill="#1A73E8" font-size="10.5" font-weight="600">lexgraph-funds-antitrust-agent (*.run.app)</text>
+  <text x="1188" y="588" fill="#3C4043" font-size="10.5">• UC-6: Self-Service Workflow &amp; Grid Template Builder</text>
+  <text x="1188" y="604" fill="#3C4043" font-size="10.5">• FundGen LPA + FundHQ LP MFN Tier Compendium</text>
+  <text x="1188" y="620" fill="#3C4043" font-size="10.5">• Antitrust HSR ΔHHI Simulator + 4 Multimodal Charts</text>
+  <text x="1188" y="636" fill="#174EA6" font-size="10" font-weight="700" font-family="monospace">DataStore: lexgraph-funds-antitrust-mcp_mcp_data</text>
+
+  <!-- Studio 4 Card -->
+  <rect x="1176" y="660" width="344" height="126" rx="8" fill="#FFFFFF" stroke="#DADCE0" stroke-width="1.5" filter="url(#card-sh)"/>
+  <g transform="translate(1188,672)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><g fill-rule="evenodd"><path fill="#aecbfa" d="M8.9 2.63L12.02 12h9.36z"/><path fill="#4285f4" d="M21.38 12h-9.36L8.9 21.38zM3.44 21.38l3.13-1.57L8.9 12H5.78z"/><path fill="#aecbfa" d="M3.44 2.63L5.78 12H8.9L6.57 4.19z"/></g></svg></g>
+  <rect x="1414" y="668" width="96" height="18" rx="4" fill="#D93025"/>
+  <text x="1462" y="681" fill="#FFFFFF" font-size="9" font-weight="700" text-anchor="middle">UC-7/8 &amp; CUJ-0</text>
+  <text x="1236" y="687" fill="#202124" font-size="11.5" font-weight="800">Studio 4: Intapp Wall &amp; Graph</text>
+  <text x="1238" y="704" fill="#1A73E8" font-size="10.5" font-weight="600">lexgraph-governance-wall-agent (*.run.app)</text>
+  <text x="1188" y="726" fill="#3C4043" font-size="10.5">• UC-7: Cross-Matter Precedent GraphRAG (CUJ-0 Path B)</text>
+  <text x="1188" y="742" fill="#3C4043" font-size="10.5">• UC-8: Dynamic CMN Switcher + Intapp Screen-Before-Rank</text>
+  <text x="1188" y="758" fill="#3C4043" font-size="10.5">• 30-Day TeammateGrants for Unfiled Deal Email EM-9901</text>
+  <text x="1188" y="774" fill="#174EA6" font-size="10" font-weight="700" font-family="monospace">DataStore: lexgraph-intapp-wall-graph-mcp_mcp_data</text>
+
+  <!-- Studio 5 Card -->
+  <rect x="1176" y="798" width="344" height="138" rx="8" fill="#FFFFFF" stroke="#E37400" stroke-width="1.8" filter="url(#card-sh)"/>
+  <g transform="translate(1188,810)"><rect x="0" y="0" width="40" height="40" rx="8" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="1.2"/><svg x="6" y="6" width="28" height="28" viewBox="0 0 24 24"><g fill-rule="evenodd"><path fill="#aecbfa" d="M8.9 2.63L12.02 12h9.36z"/><path fill="#4285f4" d="M21.38 12h-9.36L8.9 21.38zM3.44 21.38l3.13-1.57L8.9 12H5.78z"/><path fill="#aecbfa" d="M3.44 2.63L5.78 12H8.9L6.57 4.19z"/></g></svg></g>
+  <rect x="1410" y="806" width="100" height="18" rx="4" fill="#E37400"/>
+  <text x="1460" y="819" fill="#FFFFFF" font-size="9" font-weight="700" text-anchor="middle">UC-4 · DIRECT API</text>
+  <text x="1236" y="825" fill="#202124" font-size="11.5" font-weight="800">Studio 5: Inbox &amp; Calendar</text>
+  <text x="1238" y="842" fill="#1A73E8" font-size="10.5" font-weight="600">lexgraph-inbox-calendar-agent (*.run.app)</text>
+  <text x="1188" y="864" fill="#3C4043" font-size="10.5">• UC-4: Partner Deal Inbox Triage (EM-9901..9903)</text>
+  <text x="1188" y="880" fill="#3C4043" font-size="10.5">• 1-Tap Approve &amp; File to iManage + Auto-Grant EM-9901</text>
+  <text x="1188" y="896" fill="#3C4043" font-size="10.5">• Calendar Conflict Detection &amp; Delegation (CAL-101)</text>
+  <text x="1188" y="912" fill="#B06000" font-size="10" font-weight="700">★ Evaluates Direct Runtime API vs. Envelope Graph</text>
+  <text x="1188" y="926" fill="#174EA6" font-size="10" font-weight="700" font-family="monospace">DataStore: lexgraph-inbox-calendar-mcp_mcp_data</text>
+
+  <!-- Connector Arrows Zone 2 -> Zone 3 -->
+  <line x1="1102" y1="800" x2="1174" y2="800" stroke="#1A73E8" stroke-width="2.5" marker-end="url(#arr-gcp)"/>
+  <line x1="1118" y1="510" x2="1174" y2="310" stroke="#1E8E3E" stroke-width="2" marker-end="url(#arr-grn)"/>
+  <line x1="1118" y1="510" x2="1174" y2="445" stroke="#1E8E3E" stroke-width="2" marker-end="url(#arr-grn)"/>
+  <line x1="1118" y1="510" x2="1174" y2="585" stroke="#1E8E3E" stroke-width="2" marker-end="url(#arr-grn)"/>
+  <line x1="1118" y1="510" x2="1174" y2="720" stroke="#1E8E3E" stroke-width="2" marker-end="url(#arr-grn)"/>
+</svg>

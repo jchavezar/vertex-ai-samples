@@ -23,16 +23,16 @@ From sessions [`0bd60a3c-3c3e-4f18-8b6f-f41857734688`](conversation://0bd60a3c-3
 | **Screencast Video 1** | **MCP App in Gemini Enterprise (`SEP-1865` Dual-Surface PiP Demo)** — Shows how a Cloud Run `/mcp` server mounts an interactive UI inside Gemini Enterprise's Default Assistant side panel (`<ucs-mcp-apps>`). | [**Open Screencast 1**](https://screencast.googleplex.com/cast/NjQ5MDg4MTU4MTM4MzY4MHwyNzNlNzgyMS02MQ) |
 | **Screencast Video 2** | **Colleague Reference MCP App Walkthrough (`go/fde-mcp-apps`)** — Shows the `New chat` connector toggle, tool call execution, and Picture-in-Picture (`PiP`) / Fullscreen docking inside Gemini Enterprise. | [**Open Screencast 2**](https://screencast.googleplex.com/cast/NTMwODg4MDc1MzAwMDQ0OHxkZDk5NDQyNi1kMA) |
 | **Slide Deck** | **`go/build-mcp-app-in-ge` (Slide 11 — Custom MCP Server Connector Setup)** — Official engineering guide for registering `dataSource: "custom_mcp"` connectors and binding `_meta.ui.resourceUri`. | [**Open Slide Deck (Slide 11)**](https://docs.google.com/presentation/d/1SdAGwbGYT7TZe9reXY61dV-GqaSfuAqDjqbsqisxwV8/edit?slide=id.p11) |
-| **Video 3 (Local MP4 + Transcript)** | **`legal_governance_v6_demo.mp4` (10:24)** — *Gemini Enterprise for Legal: One request, governed end to end* (`vtxw-legal` Model Armor, VPC-SC, Agent Registry, Agent Gateway, Cloud Trace). | • **Video**: [`media_1790796176555.mp4`](file:///usr/local/google/home/jesusarguelles/.gemini/jetski/brain/0bd60a3c-3c3e-4f18-8b6f-f41857734688/.tempmediaStorage/media_1790796176555.mp4)<br>• **Transcript**: [`2026-09-25_Video_Transcript_Legal_Governance_v6_Demo.txt`](file:///usr/local/google/home/jesusarguelles/weil-grounding-rag/corpus/2026-09-25_Video_Transcript_Legal_Governance_v6_Demo.txt) |
-| **Video 4 (Local MP4 + Transcript)** | **`GE_for_Legal_Insights_from_Field_20260928.mp4` (05:50)** — Field readout (Tony Ensinger, Rahul Somanagoudar, Hemal, Ben Carlson) on why law firms need auto-orchestrated Canvas/MCP App UIs instead of manual `/skill` slash commands. | • **Video**: [`media_1790796250274.mp4`](file:///usr/local/google/home/jesusarguelles/.gemini/jetski/brain/0bd60a3c-3c3e-4f18-8b6f-f41857734688/.tempmediaStorage/media_1790796250274.mp4)<br>• **Transcript**: [`2026-09-28_Video_Transcript_GE_for_Legal_Insights_from_Field.txt`](file:///usr/local/google/home/jesusarguelles/weil-grounding-rag/corpus/2026-09-28_Video_Transcript_GE_for_Legal_Insights_from_Field.txt) |
+| **Video 3 (Local MP4 + Transcript)** | **`legal_governance_v6_demo.mp4` (10:24)** — *Gemini Enterprise for Legal: One request, governed end to end* (`vtxw-legal` Model Armor, VPC-SC, Agent Registry, Agent Gateway, Cloud Trace). | • **Video**: [`media_1790796176555.mp4`](file:///usr/local/google/home/jesusarguelles/.gemini/jetski/brain/0bd60a3c-3c3e-4f18-8b6f-f41857734688/.tempmediaStorage/media_1790796176555.mp4)<br>• **Transcript**: [`2026-09-25_Video_Transcript_Legal_Governance_v6_Demo.txt`](file:///usr/local/google/home/jesusarguelles/lexgraph-grounding-rag/corpus/2026-09-25_Video_Transcript_Legal_Governance_v6_Demo.txt) |
+| **Video 4 (Local MP4 + Transcript)** | **`GE_for_Legal_Insights_from_Field_20260928.mp4` (05:50)** — Field readout (Tony Ensinger, Rahul Somanagoudar, Hemal, Ben Carlson) on why law firms need auto-orchestrated Canvas/MCP App UIs instead of manual `/skill` slash commands. | • **Video**: [`media_1790796250274.mp4`](file:///usr/local/google/home/jesusarguelles/.gemini/jetski/brain/0bd60a3c-3c3e-4f18-8b6f-f41857734688/.tempmediaStorage/media_1790796250274.mp4)<br>• **Transcript**: [`2026-09-28_Video_Transcript_GE_for_Legal_Insights_from_Field.txt`](file:///usr/local/google/home/jesusarguelles/lexgraph-grounding-rag/corpus/2026-09-28_Video_Transcript_GE_for_Legal_Insights_from_Field.txt) |
 
 ---
 
 ## 2. Good News: All 5 Studios Are Already Integrated & `ACTIVE` in Gemini Enterprise!
 
-Via [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusarguelles/weil/register_all_5_mcp_datastores.py), all **5 Cloud Run services (`:v3.3.0`)** are registered as **5 separate `custom_mcp` DataStores** with `ActionState=ACTIVE` and `dynamicTools[].enabled = True` inside both of your Gemini Enterprise engines:
+Via [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusarguelles/lexgraph/register_all_5_mcp_datastores.py), all **5 Cloud Run services (`:v3.3.0`)** are registered as **5 separate `custom_mcp` DataStores** with `ActionState=ACTIVE` and `dynamicTools[].enabled = True` inside both of your Gemini Enterprise engines:
 
-- **Primary Legal Engine (`weil-legal-spanner-ge`)**:
+- **Primary Legal Engine (`lexgraph-legal-spanner-ge`)**:
   [**https://vertexaisearch.cloud.google.com/home/cid/ed20fa6b-3ad3-42e3-8fcf-0c8cc1af065f**](https://vertexaisearch.cloud.google.com/home/cid/ed20fa6b-3ad3-42e3-8fcf-0c8cc1af065f)
 - **Secondary Enterprise Engine (`gemini-enterprise-17877637_1787763712023`)**:
   [**https://vertexaisearch.cloud.google.com/home/cid/b9298b3d-d513-4be8-b33a-971d8d3a0965**](https://vertexaisearch.cloud.google.com/home/cid/b9298b3d-d513-4be8-b33a-971d8d3a0965)
@@ -46,10 +46,10 @@ Via [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusargu
 | Studio # | Connector Name in Gemini Enterprise Menu | MCP Tool & UI Resource URI | Copy-Paste Prompt to Type in Gemini Enterprise (`✎ New chat`) |
 | :---: | :--- | :--- | :--- |
 | **1** | **`Mike OSS — Tabular Diligence Grid & Pin-Cite Reader (MCP App)`**<br>(`mike-oss-legal-grid-mcp`) | • Tool: `open_legal_analysis_grid`<br>• UI: `ui://mike-gcp/workspace.html` | `Open the Project Kestrel legal analysis grid for Matter M-331 and compare Change of Control provisions across all contracts.` |
-| **2** | **`Weil Deterministic Redline & Word Legal Legos Studio (MCP App)`**<br>(`weil-redline-legos-mcp`) | • Tool: `run_deterministic_redline`<br>• UI: `ui://mike-gcp/redline-studio.html` | `Run a deterministic redline comparing the Weil v3 Playbook against the Skadden v4 counterparty markup for Project Kestrel SPA Section 8.02(b) and open the redline studio.` |
-| **3** | **`Weil FundGen / FundHQ MFN & Antitrust HSR Lab (MCP App)`**<br>(`weil-funds-antitrust-mcp`) | • Tool: `analyze_fundgen_and_antitrust`<br>• UI: `ui://mike-gcp/funds-antitrust.html` | `Analyze the Weil Private Equity Partners XII FundGen LP side-letter MFN tiers and the Antitrust HSR Second Request HHI market concentration.` |
-| **4** | **`Weil Intapp Ethical Wall, CMN Switcher & Spanner Graph (MCP App)`**<br>(`weil-intapp-wall-graph-mcp`) | • Tool: `traverse_precedent_graph`<br>• UI: `ui://mike-gcp/governance-wall.html` | `Traverse the Cloud Spanner WeilLegalGraph for Matter M-331-KESTREL as lawyer L-001 and verify Intapp Ethical Wall Screen-Before-Rank enforcement.` |
-| **5** | **`Weil Partner Deal Inbox, CMN Auto-Filer & Calendar Triage (MCP App)`**<br>(`weil-inbox-calendar-mcp`) | • Tool: `triage_inbox_and_cmn_wall`<br>• UI: `ui://mike-gcp/inbox-calendar.html` | `Triage Partner Sarah Jenkins's unfiled deal emails EM-9901, EM-9902, EM-9903 and calendar conflict CAL-101.` |
+| **2** | **`LexGraph Deterministic Redline & Word Legal Legos Studio (MCP App)`**<br>(`lexgraph-redline-legos-mcp`) | • Tool: `run_deterministic_redline`<br>• UI: `ui://mike-gcp/redline-studio.html` | `Run a deterministic redline comparing the LexGraph v3 Playbook against the Skadden v4 counterparty markup for Project Kestrel SPA Section 8.02(b) and open the redline studio.` |
+| **3** | **`LexGraph FundGen / FundHQ MFN & Antitrust HSR Lab (MCP App)`**<br>(`lexgraph-funds-antitrust-mcp`) | • Tool: `analyze_fundgen_and_antitrust`<br>• UI: `ui://mike-gcp/funds-antitrust.html` | `Analyze the LexGraph Private Equity Partners XII FundGen LP side-letter MFN tiers and the Antitrust HSR Second Request HHI market concentration.` |
+| **4** | **`LexGraph Intapp Ethical Wall, CMN Switcher & Spanner Graph (MCP App)`**<br>(`lexgraph-intapp-wall-graph-mcp`) | • Tool: `traverse_precedent_graph`<br>• UI: `ui://mike-gcp/governance-wall.html` | `Traverse the Cloud Spanner LexGraphLegalGraph for Matter M-331-KESTREL as lawyer L-001 and verify Intapp Ethical Wall Screen-Before-Rank enforcement.` |
+| **5** | **`LexGraph Partner Deal Inbox, CMN Auto-Filer & Calendar Triage (MCP App)`**<br>(`lexgraph-inbox-calendar-mcp`) | • Tool: `triage_inbox_and_cmn_wall`<br>• UI: `ui://mike-gcp/inbox-calendar.html` | `Triage Partner Sarah Jenkins's unfiled deal emails EM-9901, EM-9902, EM-9903 and calendar conflict CAL-101.` |
 
 ---
 
@@ -64,7 +64,7 @@ Via [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusargu
 ┌──────────────────────────────────────────────────────────────────────────┐
 │  2. DISCOVERY ENGINE CALLS CLOUD RUN `POST /mcp` (`method: tools/call`)  │
 │     • Executes tool (`open_legal_analysis_grid`, `run_deterministic...`) │
-│     • Queries Cloud Spanner (`weil-legal-spanner`) + `gemini-3.8-flash`  │
+│     • Queries Cloud Spanner (`lexgraph-legal-spanner`) + `gemini-3.8-flash`  │
 │     • Returns JSON-RPC 2.0 response with:                                │
 │       - `content`: Executive markdown summary for the chat stream        │
 │       - `structuredContent`: Hydrated state payload                      │
@@ -91,13 +91,13 @@ Via [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusargu
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-### The 5 Engineering Gotchas We Solved (From [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusarguelles/weil/register_all_5_mcp_datastores.py) & [`app.py`](file:///usr/local/google/home/jesusarguelles/weil/app.py))
+### The 5 Engineering Gotchas We Solved (From [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusarguelles/lexgraph/register_all_5_mcp_datastores.py) & [`app.py`](file:///usr/local/google/home/jesusarguelles/lexgraph/app.py))
 1. **Why `setUpDataConnector` Alone Leaves Tools Invisible**:
-   - Creating a `custom_mcp` connector via REST leaves `dynamicTools` empty in Discovery Engine's Spanner table until `DataConnectorService.RefreshDataConnectorTools` is called via `stubby` (lines 145–176 of [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusarguelles/weil/register_all_5_mcp_datastores.py)).
+   - Creating a `custom_mcp` connector via REST leaves `dynamicTools` empty in Discovery Engine's Spanner table until `DataConnectorService.RefreshDataConnectorTools` is called via `stubby` (lines 145–176 of [`register_all_5_mcp_datastores.py`](file:///usr/local/google/home/jesusarguelles/lexgraph/register_all_5_mcp_datastores.py)).
 2. **Eliminating the Human-in-the-Loop Confirmation Blocker**:
-   - Setting `"readOnlyHint": True` in `annotations` on each primary tool in [`app.py`](file:///usr/local/google/home/jesusarguelles/weil/app.py) allows Gemini Enterprise to immediately execute the tool and pop open the MCP App without blocking on a `"Review: [Send] [Cancel]"` card.
+   - Setting `"readOnlyHint": True` in `annotations` on each primary tool in [`app.py`](file:///usr/local/google/home/jesusarguelles/lexgraph/app.py) allows Gemini Enterprise to immediately execute the tool and pop open the MCP App without blocking on a `"Review: [Send] [Cancel]"` card.
 3. **Why Relative `fetch("/api/...")` Fails Inside Gemini Enterprise**:
-   - Gemini Enterprise mounts MCP Apps in `<iframe sandbox="allow-scripts" srcdoc="...">` where `window.location.origin === "null"`. Every `fetch()` in [`ui_template.py`](file:///usr/local/google/home/jesusarguelles/weil/ui_template.py) uses the injected absolute Cloud Run `API_BASE` URL, and initial data is server-side pre-rendered into the HTML.
+   - Gemini Enterprise mounts MCP Apps in `<iframe sandbox="allow-scripts" srcdoc="...">` where `window.location.origin === "null"`. Every `fetch()` in [`ui_template.py`](file:///usr/local/google/home/jesusarguelles/lexgraph/ui_template.py) uses the injected absolute Cloud Run `API_BASE` URL, and initial data is server-side pre-rendered into the HTML.
 4. **Expanding the Iframe from `180px` to `760px` & Docking to the Side Panel**:
    - Sending `ui/notifications/size-changed` (`{ height: 760 }`) and `ui/request-display-mode` (`{ mode: "pip" }`) via `window.parent.postMessage` on load automatically expands the widget and docks it into Gemini Enterprise's right-hand panel.
 5. **1-to-1 Disjoint Tool Routing Across All 5 Studios**:

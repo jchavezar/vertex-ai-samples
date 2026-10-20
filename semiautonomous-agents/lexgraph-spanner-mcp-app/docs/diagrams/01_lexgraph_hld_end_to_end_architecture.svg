@@ -1,0 +1,196 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 900" width="1400" height="900" style="background:#F8FAFC;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;">
+  <defs>
+    <filter id="shadow" x="-2%" y="-2%" width="104%" height="106%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#0F172A" flood-opacity="0.06"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#475569"/>
+    </marker>
+    <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563EB"/>
+    </marker>
+    <marker id="arrow-emerald" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669"/>
+    </marker>
+    <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#D97706"/>
+    </marker>
+  </defs>
+
+  <!-- Header Banner -->
+  <rect x="24" y="20" width="1352" height="68" rx="10" fill="#0F172A"/>
+  <text x="48" y="48" fill="#F8FAFC" font-size="20" font-weight="700" letter-spacing="-0.3">HIGH-LEVEL DESIGN (HLD) — LEXGRAPH ENTERPRISE LEGAL AI PLATFORM ON GOOGLE CLOUD</text>
+  <text x="48" y="71" fill="#94A3B8" font-size="13" font-weight="500">Unstructured Multimodal Indexing Pipeline (Critical Path) · Cloud Spanner Hybrid GraphRAG · Direct API vs. Indexing Gate · 5 Gemini Enterprise MCP App Studios (8 Use Cases)</text>
+  <rect x="1150" y="34" width="204" height="36" rx="6" fill="#1E293B" stroke="#334155"/>
+  <text x="1252" y="57" fill="#38BDF8" font-size="12" font-weight="700" text-anchor="middle">vtxdemos · Gemini 3.8 Flash</text>
+
+  <!-- SWIMLANE 1: DATA SOURCES -->
+  <rect x="24" y="104" width="1352" height="162" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="24" y="104" width="1352" height="30" rx="10" fill="#F1F5F9"/>
+  <text x="44" y="124" fill="#0F172A" font-size="12" font-weight="800" letter-spacing="0.6">LAYER 1 — ENTERPRISE LEGAL DATA SOURCES (UNSTRUCTURED DATA ROOMS, GOVERNANCE METADATA &amp; LIVE COMMUNICATION CHANNELS)</text>
+
+  <!-- Source Box 1A: Unstructured -->
+  <rect x="44" y="146" width="440" height="106" rx="8" fill="#EFF6FF" stroke="#3B82F6" stroke-width="1.5"/>
+  <rect x="56" y="156" width="168" height="20" rx="4" fill="#2563EB"/>
+  <text x="140" y="170" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">CRITICAL PATH FOR MVP</text>
+  <text x="56" y="194" fill="#1E3A8A" font-size="14" font-weight="700">1A. Unstructured Deal &amp; Precedent Documents</text>
+  <text x="56" y="213" fill="#1E40AF" font-size="11.5">• Executed Legal PDFs (M&amp;A SPAs, Credit Agreements, LPAs, HSR Filings)</text>
+  <text x="56" y="229" fill="#1E40AF" font-size="11.5">• Hierarchical Word Contracts (.docx with 15-yr multi-level numbering)</text>
+  <text x="56" y="245" fill="#1E40AF" font-size="11.5">• Multimodal Exhibits: Financial Waterfalls, Org Diagrams &amp; Wet-Ink Scans</text>
+
+  <!-- Source Box 1B: Structured & Homegrown Apps -->
+  <rect x="504" y="146" width="410" height="106" rx="8" fill="#ECFDF5" stroke="#10B981" stroke-width="1.5"/>
+  <rect x="516" y="156" width="160" height="20" rx="4" fill="#059669"/>
+  <text x="596" y="170" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">GOVERNANCE &amp; APPS</text>
+  <text x="516" y="194" fill="#065F46" font-size="14" font-weight="700">1B. Matter Metadata, Intapp Walls &amp; Homegrown IP</text>
+  <text x="516" y="213" fill="#047857" font-size="11.5">• Client-Matter Number (CMN: XXXXX.XXXX) &amp; PE Deal-Tracking Metadata</text>
+  <text x="516" y="229" fill="#047857" font-size="11.5">• Intapp Ethical Walls (Inclusionary / Exclusionary ACL Rules)</text>
+  <text x="516" y="245" fill="#047857" font-size="11.5">• Homegrown Postgres Apps: FundGen (LPA), FundHQ (LP MFN), Antitrust</text>
+
+  <!-- Source Box 1C: Email, Calendar, Chat -->
+  <rect x="934" y="146" width="422" height="106" rx="8" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.5"/>
+  <rect x="946" y="156" width="210" height="20" rx="4" fill="#D97706"/>
+  <text x="1051" y="170" fill="#FFFFFF" font-size="10" font-weight="700" text-anchor="middle">EVALUATING DIRECT API VS. INDEX</text>
+  <text x="946" y="194" fill="#92400E" font-size="14" font-weight="700">1C. High-Volume Communication &amp; Schedule Channels</text>
+  <text x="946" y="213" fill="#B45309" font-size="11.5">• Email (~150M M365 Exchange / Google Workspace BCP Messages)</text>
+  <text x="946" y="229" fill="#B45309" font-size="11.5">• Partner &amp; Deal Team Calendars (Outlook / Google Calendar .ics)</text>
+  <text x="946" y="245" fill="#B45309" font-size="11.5">• Enterprise Chat &amp; Collaboration Threads (Google Chat / Teams)</text>
+
+  <!-- SWIMLANE 2: INGESTION PIPELINE VS DIRECT API GATE -->
+  <rect x="24" y="286" width="1352" height="176" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="24" y="286" width="1352" height="30" rx="10" fill="#F1F5F9"/>
+  <text x="44" y="306" fill="#0F172A" font-size="12" font-weight="800" letter-spacing="0.6">LAYER 2 — UNSTRUCTURED MULTIMODAL INDEXING PIPELINE vs. RUNTIME DIRECT API ROUTING</text>
+
+  <!-- Box 2A: Multimodal Extraction & Indexing Pipeline -->
+  <rect x="44" y="328" width="620" height="120" rx="8" fill="#F8FAFC" stroke="#2563EB" stroke-width="2"/>
+  <text x="60" y="350" fill="#1E3A8A" font-size="13.5" font-weight="800">2A. Unstructured Multimodal Document Indexing Pipeline (docparse + Layout Parser)</text>
+  <text x="60" y="370" fill="#334155" font-size="11.5">1. Hierarchy &amp; Pin-Cite Chunker: Extracts Preamble/Article/Section tree + exact Page &amp; Bounding Box (bbox_json)</text>
+  <text x="60" y="388" fill="#334155" font-size="11.5">2. 2-Pass Visual Extraction (Gemini 3.8 Flash): ChartSchemaOnly -&gt; ChartData (Waterfalls), Org Diagrams, Wet-Ink OCR</text>
+  <text x="60" y="406" fill="#334155" font-size="11.5">3. Hybrid Vector + Lexical Encoding: Vertex AI gemini-embedding-001 (3072-dim FLOAT32) + TOKENLIST Full-Text</text>
+  <text x="60" y="424" fill="#1D4ED8" font-size="11.5" font-weight="700">★ MVP Dependency: Required so Tabular Analysis Grids (UC-5) &amp; Pin-Cites (UC-3) ground on exact clauses</text>
+
+  <!-- Box 2B: Metadata & Wall Sync -->
+  <rect x="680" y="328" width="234" height="120" rx="8" fill="#F8FAFC" stroke="#059669" stroke-width="1.5"/>
+  <text x="694" y="350" fill="#065F46" font-size="13" font-weight="800">2B. CMN &amp; Intapp Sync</text>
+  <text x="694" y="370" fill="#334155" font-size="11.5">• Syncs 5-digit Client + 4-digit</text>
+  <text x="694" y="386" fill="#334155" font-size="11.5">  Matter IDs (CMN) to Spanner</text>
+  <text x="694" y="404" fill="#334155" font-size="11.5">• Syncs Intapp Wall ALLOW/DENY</text>
+  <text x="694" y="420" fill="#334155" font-size="11.5">  &amp; 30-day TeammateGrants</text>
+
+  <!-- Box 2C: Direct API vs Index Evaluation Gate -->
+  <rect x="934" y="328" width="422" height="120" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="2" stroke-dasharray="6,3"/>
+  <text x="950" y="350" fill="#92400E" font-size="13.5" font-weight="800">2C. Architecture Evaluation: Direct API vs. Indexing</text>
+  <text x="950" y="370" fill="#78350F" font-size="11.5">• Option 1 — Direct API / Federated MCP (No Indexing):</text>
+  <text x="962" y="386" fill="#334155" font-size="11">Query live Email, Calendar (.ics/freeBusy) &amp; Chat via API at runtime</text>
+  <text x="950" y="406" fill="#78350F" font-size="11.5">• Option 2 — Selective Envelope Graphing (Zero Vector Tax):</text>
+  <text x="962" y="422" fill="#334155" font-size="11">Graph only (Sender, Recipient, CMN, Attachment URI) in Spanner;</text>
+  <text x="962" y="437" fill="#334155" font-size="11">never vector-embed 150M raw emails</text>
+
+  <!-- Arrows Layer 1 -> Layer 2 -->
+  <line x1="264" y1="252" x2="264" y2="324" stroke="#2563EB" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <line x1="709" y1="252" x2="797" y2="324" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+  <line x1="1145" y1="252" x2="1145" y2="324" stroke="#D97706" stroke-width="2" marker-end="url(#arrow-amber)"/>
+
+  <!-- SWIMLANE 3: CLOUD SPANNER HYBRID GRAPHRAG -->
+  <rect x="24" y="482" width="1352" height="158" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="24" y="482" width="1352" height="30" rx="10" fill="#F1F5F9"/>
+  <text x="44" y="502" fill="#0F172A" font-size="12" font-weight="800" letter-spacing="0.6">LAYER 3 — CLOUD SPANNER HYBRID GRAPHRAG &amp; SCREEN-BEFORE-RANK GOVERNANCE (lexgraph-legal-spanner / LexGraphLegalGraph)</text>
+
+  <!-- Spanner Box Left: Schema & Storage -->
+  <rect x="44" y="522" width="460" height="104" rx="8" fill="#F8FAFC" stroke="#475569" stroke-width="1.5"/>
+  <text x="60" y="542" fill="#0F172A" font-size="13" font-weight="800">3A. Unified Spanner Schema (47 Docs · 1,293 Clauses · 14 Matters)</text>
+  <text x="60" y="561" fill="#334155" font-size="11.5">• Relational Tables: Clients, Matters, Lawyers, Documents, Clauses, Emails</text>
+  <text x="60" y="578" fill="#334155" font-size="11.5">• Dense Vector Index: embedding ARRAY&lt;FLOAT32&gt;(3072) (Cosine Distance)</text>
+  <text x="60" y="595" fill="#334155" font-size="11.5">• Full-Text Index: SEARCH INDEX ClauseFtsIndex (TOKENLIST BM25)</text>
+  <text x="60" y="612" fill="#334155" font-size="11.5">• ISO GQL Graph: BELONGS_TO_MATTER, CONTAINS_CLAUSE, CITES_PRECEDENT</text>
+
+  <!-- Spanner Box Center: Screen-Before-Rank + RRF -->
+  <rect x="524" y="522" width="440" height="104" rx="8" fill="#FEF2F2" stroke="#DC2626" stroke-width="1.5"/>
+  <text x="540" y="542" fill="#991B1B" font-size="13" font-weight="800">3B. Gate 0: Screen-Before-Rank + 3-Way Hybrid RRF</text>
+  <text x="540" y="561" fill="#7F1D1D" font-size="11.5">1. Pre-Filter (IntappWalls &amp; TeammateGrants): Mathematically excludes</text>
+  <text x="540" y="577" fill="#7F1D1D" font-size="11.5">   walled matters (e.g. M-999 Omega) &amp; ungranted emails BEFORE scoring</text>
+  <text x="540" y="595" fill="#7F1D1D" font-size="11.5">2. 3-Way RRF Fusion: 1/(60+rank_vec) + 1/(60+rank_fts) + GQL Graph Boost</text>
+  <text x="540" y="612" fill="#7F1D1D" font-size="11.5">3. Cross-Matter Set Assembly (CUJ-0): Resolves deal metadata -&gt; Grid rows</text>
+
+  <!-- Box Right: Agent Platform & Gateway -->
+  <rect x="984" y="522" width="372" height="104" rx="8" fill="#F0FDF4" stroke="#16A34A" stroke-width="1.5"/>
+  <text x="1000" y="542" fill="#14532D" font-size="13" font-weight="800">3C. Agent Registry, Gateway &amp; Direct API Bridge</text>
+  <text x="1000" y="561" fill="#166534" font-size="11.5">• Registered in Google Cloud Agent Registry (v1alpha)</text>
+  <text x="1000" y="578" fill="#166534" font-size="11.5">• Governed by my-agent-gateway (SPIFFE mTLS + IAP)</text>
+  <text x="1000" y="595" fill="#166534" font-size="11.5">• Zero-Leak OpenTelemetry Tracing (NO_CONTENT)</text>
+  <text x="1000" y="612" fill="#166534" font-size="11.5">• Direct API Router for Email/Calendar/Chat calls</text>
+
+  <!-- Arrows Layer 2 -> Layer 3 -->
+  <line x1="354" y1="448" x2="274" y2="518" stroke="#2563EB" stroke-width="2" marker-end="url(#arrow-blue)"/>
+  <line x1="797" y1="448" x2="744" y2="518" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+  <line x1="1145" y1="448" x2="1170" y2="518" stroke="#D97706" stroke-width="2" marker-end="url(#arrow-amber)"/>
+
+  <!-- SWIMLANE 4: 5 GEMINI ENTERPRISE MCP APP STUDIOS (8 USE CASES) -->
+  <rect x="24" y="660" width="1352" height="216" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="24" y="660" width="1352" height="30" rx="10" fill="#0F172A"/>
+  <text x="44" y="680" fill="#F8FAFC" font-size="12" font-weight="800" letter-spacing="0.6">LAYER 4 — GEMINI ENTERPRISE + 5 LIVE CLOUD RUN CUSTOM MCP APP STUDIOS (SEP-1865) COVERING ALL 8 LEGAL USE CASES</text>
+
+  <!-- Studio 1 -->
+  <rect x="40" y="702" width="256" height="158" rx="8" fill="#F8FAFC" stroke="#2563EB" stroke-width="2"/>
+  <rect x="52" y="712" width="136" height="18" rx="4" fill="#2563EB"/>
+  <text x="120" y="725" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">UC-3 &amp; UC-5 ★ PRIORITY</text>
+  <text x="52" y="746" fill="#0F172A" font-size="12.5" font-weight="800">Studio 1: Mike OSS Grid &amp;</text>
+  <text x="52" y="762" fill="#0F172A" font-size="12.5" font-weight="800">Pin-Cite Diligence Cockpit</text>
+  <text x="52" y="782" fill="#334155" font-size="10.5">• Multi-Doc Tabular Grid (CUJ-1/2)</text>
+  <text x="52" y="797" fill="#334155" font-size="10.5">• +Add Column (Gemini 3.8 Flash)</text>
+  <text x="52" y="812" fill="#334155" font-size="10.5">• Side-by-Side Yellow Pin-Cite (CUJ-4)</text>
+  <text x="52" y="827" fill="#334155" font-size="10.5">• Red-Flag Memo Synthesis (CUJ-3)</text>
+  <text x="52" y="848" fill="#2563EB" font-size="10" font-weight="700">mike-gcp-platform (*.run.app)</text>
+
+  <!-- Studio 2 -->
+  <rect x="308" y="702" width="256" height="158" rx="8" fill="#F8FAFC" stroke="#475569" stroke-width="1.5"/>
+  <rect x="320" y="712" width="90" height="18" rx="4" fill="#475569"/>
+  <text x="365" y="725" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">UC-1 &amp; UC-2</text>
+  <text x="320" y="746" fill="#0F172A" font-size="12.5" font-weight="800">Studio 2: Contract Redline &amp;</text>
+  <text x="320" y="762" fill="#0F172A" font-size="12.5" font-weight="800">Word "Legal Legos" Studio</text>
+  <text x="320" y="782" fill="#334155" font-size="10.5">• Deterministic Word-Level Redline</text>
+  <text x="320" y="797" fill="#334155" font-size="10.5">• Playbook Risk Deviation vs Spanner</text>
+  <text x="320" y="812" fill="#334155" font-size="10.5">• Privacy Pro "Legal Legos" Builder</text>
+  <text x="320" y="827" fill="#334155" font-size="10.5">• Live 15-Yr Numbering .docx Export</text>
+  <text x="320" y="848" fill="#2563EB" font-size="10" font-weight="700">lexgraph-redline-word-agent (*.run.app)</text>
+
+  <!-- Studio 3 -->
+  <rect x="576" y="702" width="256" height="158" rx="8" fill="#F8FAFC" stroke="#475569" stroke-width="1.5"/>
+  <rect x="588" y="712" width="130" height="18" rx="4" fill="#059669"/>
+  <text x="653" y="725" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">UC-6 &amp; HOMEGROWN IP</text>
+  <text x="588" y="746" fill="#0F172A" font-size="12.5" font-weight="800">Studio 3: FundGen, FundHQ</text>
+  <text x="588" y="762" fill="#0F172A" font-size="12.5" font-weight="800">MFN &amp; Antitrust HSR Lab</text>
+  <text x="588" y="782" fill="#334155" font-size="10.5">• Workflow &amp; Grid Template Builder</text>
+  <text x="588" y="797" fill="#334155" font-size="10.5">• FundGen LPA &amp; FundHQ LP MFN Tier</text>
+  <text x="588" y="812" fill="#334155" font-size="10.5">• Antitrust HSR ΔHHI Remedy Sim</text>
+  <text x="588" y="827" fill="#334155" font-size="10.5">• 4 Multimodal Chart/Diagram Exhibits</text>
+  <text x="588" y="848" fill="#2563EB" font-size="10" font-weight="700">lexgraph-funds-antitrust-agent (*.run.app)</text>
+
+  <!-- Studio 4 -->
+  <rect x="844" y="702" width="256" height="158" rx="8" fill="#F8FAFC" stroke="#475569" stroke-width="1.5"/>
+  <rect x="856" y="712" width="130" height="18" rx="4" fill="#DC2626"/>
+  <text x="921" y="725" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">UC-7, UC-8 &amp; CUJ-0</text>
+  <text x="856" y="746" fill="#0F172A" font-size="12.5" font-weight="800">Studio 4: Intapp Wall, CMN</text>
+  <text x="856" y="762" fill="#0F172A" font-size="12.5" font-weight="800">Switcher &amp; Spanner Graph</text>
+  <text x="856" y="782" fill="#334155" font-size="10.5">• Cross-Matter Set Query (CUJ-0)</text>
+  <text x="856" y="797" fill="#334155" font-size="10.5">• Intapp Screen-Before-Rank Proof</text>
+  <text x="856" y="812" fill="#334155" font-size="10.5">• Live CMN &amp; Attorney Context Switch</text>
+  <text x="856" y="827" fill="#334155" font-size="10.5">• 30-Day TeammateGrant (EM-9901)</text>
+  <text x="856" y="848" fill="#2563EB" font-size="10" font-weight="700">lexgraph-governance-wall-agent (*.run.app)</text>
+
+  <!-- Studio 5 -->
+  <rect x="1112" y="702" width="248" height="158" rx="8" fill="#F8FAFC" stroke="#D97706" stroke-width="1.5"/>
+  <rect x="1124" y="712" width="124" height="18" rx="4" fill="#D97706"/>
+  <text x="1186" y="725" fill="#FFFFFF" font-size="9.5" font-weight="700" text-anchor="middle">UC-4 · DIRECT API</text>
+  <text x="1124" y="746" fill="#0F172A" font-size="12.5" font-weight="800">Studio 5: Partner Inbox &amp;</text>
+  <text x="1124" y="762" fill="#0F172A" font-size="12.5" font-weight="800">Calendar Conflict Triage</text>
+  <text x="1124" y="782" fill="#334155" font-size="10.5">• Deal Email Triage (EM-9901..9903)</text>
+  <text x="1124" y="797" fill="#334155" font-size="10.5">• 1-Tap Approve &amp; File to iManage</text>
+  <text x="1124" y="812" fill="#334155" font-size="10.5">• Calendar Conflict Delegate (CAL-101)</text>
+  <text x="1124" y="827" fill="#334155" font-size="10.5">• Direct API vs Index Evaluation Lab</text>
+  <text x="1124" y="848" fill="#2563EB" font-size="10" font-weight="700">lexgraph-inbox-calendar-agent (*.run.app)</text>
+
+  <!-- Arrows Layer 3 -> Layer 4 -->
+  <line x1="744" y1="626" x2="700" y2="658" stroke="#475569" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="1170" y1="626" x2="1236" y2="698" stroke="#D97706" stroke-width="2" marker-end="url(#arrow-amber)"/>
+</svg>
