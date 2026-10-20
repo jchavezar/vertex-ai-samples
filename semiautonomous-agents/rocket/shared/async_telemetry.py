@@ -1804,9 +1804,13 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       box-shadow:
         0 26px 65px -15px rgba(0, 0, 0, 0.85),
         var(--ti-rim);
-      transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
-      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      transform: perspective(1400px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+      transition: transform 0.08s ease-out, border-color 0.14s ease, box-shadow 0.14s ease;
       overflow: hidden;
+    }}
+    /* Keep large tables and multi-column panels flat and rock-solid (specular spotlight only, no table skew) */
+    .titanium-slab.panel {{
+      transform: none !important;
     }}
     .titanium-slab::after {{
       content: '';
@@ -2547,21 +2551,27 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
   <!-- INTERACTIVE 3D TITANIUM TILT + ROBINHOOD SCRUBBER SCRIPT -->
   <script>
     (function() {{
-      // 1. Vision Pro Titanium 3D Perspective Tilt + Specular Glare Tracking
+      // 1. Vision Pro Titanium 3D Perspective Tilt (Compact KPI Cards Only) + Specular Glare Tracking on All Slabs
       var slabs = document.querySelectorAll('.titanium-slab');
       slabs.forEach(function(card) {{
+        var isLargePanel = card.classList.contains('panel') || card.classList.contains('hdr') || card.querySelector('table');
         card.addEventListener('mousemove', function(e) {{
           var rect = card.getBoundingClientRect();
           var x = e.clientX - rect.left;
           var y = e.clientY - rect.top;
           var px = (x / rect.width) * 100;
           var py = (y / rect.height) * 100;
-          var ry = ((x - rect.width / 2) / (rect.width / 2)) * 2.2;
-          var rx = -((y - rect.height / 2) / (rect.height / 2)) * 1.8;
           card.style.setProperty('--mx', px.toFixed(1) + '%');
           card.style.setProperty('--my', py.toFixed(1) + '%');
-          card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
-          card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+          if (!isLargePanel && rect.width < 420) {{
+            var ry = ((x - rect.width / 2) / (rect.width / 2)) * 0.75;
+            var rx = -((y - rect.height / 2) / (rect.height / 2)) * 0.65;
+            card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+            card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+          }} else {{
+            card.style.setProperty('--rx', '0deg');
+            card.style.setProperty('--ry', '0deg');
+          }}
         }});
         card.addEventListener('mouseleave', function() {{
           card.style.setProperty('--rx', '0deg');
