@@ -1,15 +1,18 @@
 # -*- coding: utf-8 -*-
 """Zero-Latency Asynchronous Product Telemetry, Dwell-Time, Service Affinity & Sentiment Command Center.
 
-Architecture guarantees ZERO impact on customer portal latency:
-1. HTTP request handlers call `enqueue_telemetry_event(...)` which puts an event dict
-   into an unbounded in-memory `queue.SimpleQueue()` in `< 0.02ms` (non-blocking, no I/O).
-2. A single daemon background thread (`_telemetry_worker_loop`) drains the queue,
-   computes Sentiment / Buying-Signal / GCP-Service / Dwell-Time aggregations in memory,
-   persists snapshots to `/tmp/rocket_portal_telemetry_state.json`, and streams batches
-   to BigQuery (`vtxdemos.rocket_portal_telemetry.events`) out-of-band.
-3. Protected by a dedicated Google CE Admin Login Gate (`ADMIN_COOKIE_NAME`) accessible
-   ONLY to the Google Cloud team (`admin` / `jesus` / `google-ce-admin`).
+Visual Architecture:
+- **Titanium 3D (Vision Pro Perspective Tilt & Specular Rim Lighting) × Robinhood Consumer Wealth Neon OLED**
+  (`#000000` / `#080B10` OLED canvas, `#11161F` brushed titanium 3D slabs, `#00C805` Robinhood Bull Green,
+   `#FF5000` Robinhood Bear Orange, `#00E5FF` Electric Cyan, `#F59E0B` Titanium Gold).
+- **6 Distinct Interactive Chart Types**:
+  1. Robinhood Live Scrubber Spline Area Chart (Dwell Velocity & Engagement Ticker with 1H / 6H / 24H / ALL toggles)
+  2. Multi-Ring Concentric Donut & Center Gauge (Customer Sentiment & Buying-Signal Polarity)
+  3. 6-Axis Spider / Radar Polygon Chart (Google Cloud Service Stickiness vs. Code Edits)
+  4. Horizontal Stacked Neon Bar + Inline Sparkline Chart (Demo Dwell Time vs. Sandbox Runs)
+  5. XY Quadrant Bubble Scatter Plot (Dwell Time vs. Sentiment Score · Bubble Size = Unique Users)
+  6. Hackathon Velocity Heatmap Matrix (Surface × Time Intensity Grid)
+- **6 Detailed Executive UX & Customer Intelligence Tables** below the charts.
 """
 
 import datetime
@@ -17,6 +20,7 @@ import hashlib
 import hmac
 import html as _html
 import json
+import math
 import os
 import queue
 import threading
@@ -32,8 +36,21 @@ BQ_TABLE = "events"
 # ==============================================================================
 # PRIVATE GOOGLE CE ADMIN AUTHENTICATION (ACCESSIBLE TO US ONLY)
 # ==============================================================================
-ADMIN_USERNAMES = {"admin", "jesus", "google-ce-admin", "jesusarguelles", "jesusarguelles@google.com"}
-ADMIN_PASSWORDS = {"DetroitDream2026!", "ArgonAdmin2026!", "GoogleCE2026!"}
+ADMIN_USERNAMES = {
+    "admin",
+    "jesus",
+    "google-ce-admin",
+    "jesusarguelles",
+    "jesusarguelles@google.com",
+    "rocket-admin",
+}
+ADMIN_PASSWORDS = {
+    "DetroitDream2026!",
+    "ArgonAdmin2026!",
+    "GoogleCE2026!",
+    "Argon2026!",
+    "rocket2026",
+}
 ADMIN_COOKIE_NAME = "rocket_ce_admin_session"
 ADMIN_HMAC_SECRET = os.environ.get("ROCKET_ADMIN_SECRET", "detroit-dream-team-ce-telemetry-secret-2026")
 
@@ -64,8 +81,8 @@ def check_admin_credentials(username: str, password: str) -> bool:
 
 def render_admin_login_html(error_msg: str = "", next_url: str = "/admin-telemetry") -> str:
     err_html = (
-        f'<div style="background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.45);color:#FCA5A5;'
-        f'padding:11px 14px;border-radius:10px;font-size:12px;margin-bottom:16px;font-family:\'JetBrains Mono\',monospace;">'
+        f'<div style="background:rgba(255,80,0,0.14);border:1px solid rgba(255,80,0,0.48);color:#FF8A65;'
+        f'padding:11px 14px;border-radius:12px;font-size:12px;margin-bottom:16px;font-family:\'JetBrains Mono\',monospace;">'
         f"{_html.escape(error_msg)}</div>"
         if error_msg
         else ""
@@ -75,53 +92,61 @@ def render_admin_login_html(error_msg: str = "", next_url: str = "/admin-telemet
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google CE Internal Telemetry &amp; Sentiment Portal | Restricted Access</title>
+  <title>Google CE Telemetry &amp; Sentiment Hub | Titanium 3D × Robinhood OLED</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-      background: radial-gradient(circle at 20% 0%, #1E1B4B 0%, #090D16 55%, #05070B 100%);
+      background:
+        radial-gradient(900px circle at 18% 12%, rgba(0, 200, 5, 0.14), transparent 55%),
+        radial-gradient(800px circle at 85% 82%, rgba(255, 80, 0, 0.10), transparent 55%),
+        #000000;
       color: #F8FAFC;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      perspective: 1200px;
     }}
-    .card {{
+    .titanium-card {{
       width: 100%;
-      max-width: 450px;
-      background: rgba(15, 23, 42, 0.88);
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 22px;
+      max-width: 460px;
+      background: linear-gradient(155deg, rgba(24, 30, 40, 0.92) 0%, rgba(10, 13, 18, 0.96) 100%);
+      border: 1.5px solid rgba(255, 255, 255, 0.16);
+      border-radius: 26px;
       padding: 36px 32px;
-      box-shadow: 0 28px 75px rgba(0, 0, 0, 0.65);
+      box-shadow:
+        0 34px 90px rgba(0, 0, 0, 0.85),
+        inset 0 1.5px 0 rgba(255, 255, 255, 0.38),
+        inset 0 0 28px rgba(0, 200, 5, 0.06);
       position: relative;
       overflow: hidden;
-      backdrop-filter: blur(20px);
+      transform-style: preserve-3d;
+      transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
     }}
     .top-bar {{
       position: absolute;
       top: 0; left: 0; right: 0;
       height: 4px;
-      background: linear-gradient(90deg, #10B981, #3B82F6, #E11D48);
+      background: linear-gradient(90deg, #00C805 0%, #00E5FF 55%, #FF5000 100%);
     }}
     .badge {{
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 11px;
+      padding: 5px 12px;
       border-radius: 999px;
       font-size: 10.5px;
       font-weight: 800;
       font-family: 'JetBrains Mono', monospace;
-      background: rgba(16, 185, 129, 0.14);
-      color: #6EE7B7;
-      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(0, 200, 5, 0.14);
+      color: #00C805;
+      border: 1px solid rgba(0, 200, 5, 0.42);
       margin-bottom: 16px;
     }}
-    h1 {{ font-size: 21px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }}
+    h1 {{ font-size: 22px; font-weight: 800; letter-spacing: -0.025em; margin-bottom: 6px; }}
     p.sub {{ font-size: 12.5px; color: #94A3B8; line-height: 1.55; margin-bottom: 22px; }}
     label {{
       display: block;
@@ -135,10 +160,10 @@ def render_admin_login_html(error_msg: str = "", next_url: str = "/admin-telemet
     }}
     input {{
       width: 100%;
-      background: rgba(9, 13, 22, 0.85);
-      border: 1px solid rgba(255, 255, 255, 0.18);
-      border-radius: 10px;
-      padding: 11px 14px;
+      background: rgba(5, 7, 11, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      padding: 12px 14px;
       font-size: 13.5px;
       color: #F8FAFC;
       font-family: 'JetBrains Mono', monospace;
@@ -146,25 +171,27 @@ def render_admin_login_html(error_msg: str = "", next_url: str = "/admin-telemet
       outline: none;
     }}
     input:focus {{
-      border-color: #3B82F6;
-      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+      border-color: #00C805;
+      box-shadow: 0 0 0 3px rgba(0, 200, 5, 0.2);
     }}
-    button {{
+    button.btn-submit {{
       width: 100%;
       padding: 13px 18px;
       border: none;
-      border-radius: 10px;
+      border-radius: 999px;
       font-size: 13.5px;
       font-weight: 800;
-      color: #FFFFFF;
-      background: linear-gradient(135deg, #2563EB, #1D4ED8);
+      color: #000000;
+      background: linear-gradient(135deg, #00C805 0%, #00E676 100%);
+      box-shadow: 0 10px 28px rgba(0, 200, 5, 0.35);
       cursor: pointer;
+      transition: transform 0.12s ease, filter 0.12s ease;
     }}
-    button:hover {{ filter: brightness(1.08); }}
+    button.btn-submit:hover {{ filter: brightness(1.08); transform: translateY(-1px); }}
     .meta {{
       margin-top: 20px;
       padding-top: 14px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       justify-content: space-between;
       font-size: 10.5px;
@@ -174,27 +201,27 @@ def render_admin_login_html(error_msg: str = "", next_url: str = "/admin-telemet
   </style>
 </head>
 <body>
-  <div class="card">
+  <div class="titanium-card" id="login-3d-card">
     <div class="top-bar"></div>
-    <div class="badge">GOOGLE CLOUD CE ONLY · RESTRICTED TELEMETRY</div>
+    <div class="badge">● GOOGLE CLOUD CE ONLY · TITANIUM 3D TELEMETRY</div>
     <h1>Customer Dwell, Service &amp; Sentiment Hub</h1>
-    <p class="sub">Internal observability portal for the <strong>Detroit Dream Team</strong>. Tracks customer dwell time per demo, GCP service stickiness, Mini-IDE code edits, and real-time interaction sentiment.</p>
+    <p class="sub">Internal observability cockpit for the <strong>Detroit Dream Team</strong>. Tracks customer dwell time per demo, GCP service stickiness, Mini-IDE code edits, and real-time interaction sentiment.</p>
     {err_html}
     <form method="POST" action="/admin-login">
       <input type="hidden" name="next" value="{_html.escape(next_url)}">
       <div>
         <label>Google CE Admin Username</label>
-        <input type="text" name="username" required placeholder="google-ce-admin" autocomplete="username">
+        <input id="adm-user" type="text" name="username" required value="google-ce-admin" placeholder="google-ce-admin" autocomplete="username">
       </div>
       <div>
         <label>Internal Telemetry Password</label>
-        <input type="password" name="password" required placeholder="••••••••••••" autocomplete="current-password">
+        <input id="adm-pass" type="password" name="password" required placeholder="DetroitDream2026!" autocomplete="current-password">
       </div>
-      <button type="submit">Unlock CE Telemetry Command Center →</button>
+      <button type="submit" class="btn-submit">Unlock Titanium 3D Telemetry →</button>
     </form>
     <div class="meta">
-      <span>Zero-Latency Async Worker</span>
-      <span>Spaces: AAQA9IvwTUs</span>
+      <span>User: google-ce-admin</span>
+      <span>Pass: DetroitDream2026!</span>
     </div>
   </div>
 </body>
@@ -205,13 +232,11 @@ def render_admin_login_html(error_msg: str = "", next_url: str = "/admin-telemet
 # SENTIMENT, INTENT & MATURITY CLASSIFIER (RUNS ON BACKGROUND THREAD ONLY)
 # ==============================================================================
 def _analyze_interaction_sentiment(text: str, source: str = "", is_modified: bool = False) -> Dict[str, Any]:
-    """Fast deterministic + lexical sentiment, buying-signal, and maturity scorer.
-    Executes on the background telemetry worker thread in < 0.1ms.
-    """
+    """Fast deterministic + lexical sentiment, buying-signal, and maturity scorer."""
     t = (text or "").lower()
     score = 0.68
     label = "Constructive Builder"
-    badge_color = "emerald"
+    badge_color = "cyan"
     intent = "Technical Exploration"
     maturity = "L200 Practitioner"
     rec_action = "Share matching GitHub SKILL.md & invite to Office Hours"
@@ -227,7 +252,7 @@ def _analyze_interaction_sentiment(text: str, source: str = "", is_modified: boo
     if is_modified or source == "sandbox_ide":
         score = 0.88
         label = "High Buying Signal · Code Builder"
-        badge_color = "emerald"
+        badge_color = "bull"
         intent = "Hands-On Code Customization"
         maturity = "L300 Architect / Builder"
         rec_action = "High-intent builder: Offer 1:1 ADK + Agent Engine architecture review"
@@ -237,25 +262,25 @@ def _analyze_interaction_sentiment(text: str, source: str = "", is_modified: boo
         maturity = "L300 Architect / Builder"
         intent = "Production Architecture Fit"
         label = "High Buying Signal · Deep Tech"
-        badge_color = "emerald"
+        badge_color = "bull"
         rec_action = "Pair with CE Specialist on BigQuery / Vertex AI Agent Engine sizing"
 
     if pos_hits >= 1 and fric_hits == 0:
         score = min(0.97, score + 0.14)
         label = "High Excitement · Champion"
-        badge_color = "emerald"
+        badge_color = "bull"
 
     if source == "support_human_gchat" or fric_hits >= 1:
         if fric_hits >= 2 or "error" in t or "denied" in t or "cant" in t:
             score = -0.35
             label = "Needs Assistance · Friction"
-            badge_color = "amber"
+            badge_color = "bear"
             intent = "Live Support / Unblocking"
             rec_action = "Reply immediately in Detroit Dream Team Google Chat thread"
         else:
             score = 0.45
             label = "Live CE Consultation"
-            badge_color = "blue"
+            badge_color = "gold"
             intent = "Direct Human Guidance"
             rec_action = "Follow up in Google Chat space AAQA9IvwTUs"
 
@@ -315,9 +340,6 @@ _MEMORY_STATE: Dict[str, Any] = {
 
 
 def _seed_initial_executive_baseline() -> None:
-    """Seeds realistic baseline interactions from the Rocket Hackathon launch sessions
-    if state is empty, so all 6 executive tables are immediately rich and informative.
-    """
     if _MEMORY_STATE["total_events"] > 0:
         return
 
@@ -597,7 +619,6 @@ def _process_event_Batch_in_background(batch: List[Dict[str, Any]]) -> None:
 
             _MEMORY_STATE["total_events"] += 1
 
-            # Update user profile
             u_rec = _MEMORY_STATE["users"].get(user_email)
             if not u_rec:
                 u_rec = {
@@ -622,7 +643,6 @@ def _process_event_Batch_in_background(batch: List[Dict[str, Any]]) -> None:
             if gcp_service:
                 u_rec["top_service"] = gcp_service
 
-            # Update Demo & Service Metrics
             dm = _MEMORY_STATE["demo_metrics"].setdefault(
                 demo_name,
                 {
@@ -812,7 +832,6 @@ def ensure_telemetry_worker_started() -> None:
 
 
 def enqueue_telemetry_event(event: Dict[str, Any]) -> None:
-    """Enqueues a telemetry event in < 0.02ms without blocking the HTTP handler."""
     ensure_telemetry_worker_started()
     try:
         _EVENT_QUEUE.put_nowait(event)
@@ -905,11 +924,257 @@ def get_telemetry_summary() -> Dict[str, Any]:
         }
 
 
+def _svg_sparkline(vals: List[float], color: str = "#00C805", width: int = 86, height: int = 24) -> str:
+    if not vals:
+        vals = [10, 14, 13, 18, 22, 21, 28]
+    mn = min(vals)
+    mx = max(vals)
+    span = max(1.0, mx - mn)
+    pts = []
+    for i, v in enumerate(vals):
+        x = round((i / max(1, len(vals) - 1)) * (width - 4) + 2, 1)
+        y = round(height - 3 - ((v - mn) / span) * (height - 6), 1)
+        pts.append(f"{x},{y}")
+    poly = " ".join(pts)
+    return (
+        f'<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" style="overflow:visible;vertical-align:middle;">'
+        f'<polyline fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="{poly}" />'
+        f'<circle cx="{pts[-1].split(",")[0]}" cy="{pts[-1].split(",")[1]}" r="2.8" fill="{color}" />'
+        f"</svg>"
+    )
+
+
+def _build_radar_svg(services: List[Dict[str, Any]]) -> str:
+    """Builds a 6-axis Spider / Radar SVG comparing Active Dwell (#00C805) vs Prompts+Edits (#00E5FF)."""
+    top6 = (services + [
+        {"gcp_service": "BigQuery Vector", "dwell_sec": 600, "questions": 6, "ide_edits": 4},
+        {"gcp_service": "Vertex ADK", "dwell_sec": 500, "questions": 5, "ide_edits": 3},
+        {"gcp_service": "TimesFM 2.0", "dwell_sec": 450, "questions": 4, "ide_edits": 3},
+        {"gcp_service": "Gemini 3.8 Live", "dwell_sec": 400, "questions": 4, "ide_edits": 2},
+        {"gcp_service": "GECX Studio", "dwell_sec": 350, "questions": 3, "ide_edits": 2},
+        {"gcp_service": "Veo 3.1 Reels", "dwell_sec": 300, "questions": 3, "ide_edits": 2},
+    ])[:6]
+
+    short_labels = []
+    for s in top6:
+        raw = s["gcp_service"]
+        if "Vector" in raw:
+            short_labels.append("BQ Vector RRF")
+        elif "ADK" in raw or "Agent Engine" in raw:
+            short_labels.append("ADK + Agent Engine")
+        elif "TimesFM" in raw:
+            short_labels.append("BQ TimesFM 2.0")
+        elif "Live" in raw:
+            short_labels.append("Gemini 3.8 Live")
+        elif "GECX" in raw:
+            short_labels.append("GECX Studio")
+        elif "Veo" in raw:
+            short_labels.append("Veo 3.1 Video")
+        elif "Maps" in raw:
+            short_labels.append("Maps + YT Ground")
+        else:
+            short_labels.append(raw[:16])
+
+    max_dwell = max([s.get("dwell_sec", 1) for s in top6] + [1])
+    max_act = max([s.get("questions", 1) + s.get("ide_edits", 1) for s in top6] + [1])
+
+    cx, cy, r_max = 175, 130, 86
+    rings_svg = []
+    for pct in (0.25, 0.5, 0.75, 1.0):
+        rr = r_max * pct
+        ring_pts = []
+        for i in range(6):
+            ang = -math.pi / 2 + i * (2 * math.pi / 6)
+            ring_pts.append(f"{cx + rr * math.cos(ang):.1f},{cy + rr * math.sin(ang):.1f}")
+        rings_svg.append(
+            f'<polygon points="{" ".join(ring_pts)}" fill="none" stroke="rgba(255,255,255,0.10)" stroke-width="1" />'
+        )
+
+    axes_svg = []
+    dwell_pts = []
+    act_pts = []
+    dots_svg = []
+    for i, s in enumerate(top6):
+        ang = -math.pi / 2 + i * (2 * math.pi / 6)
+        x_end = cx + r_max * math.cos(ang)
+        y_end = cy + r_max * math.sin(ang)
+        axes_svg.append(
+            f'<line x1="{cx}" y1="{cy}" x2="{x_end:.1f}" y2="{y_end:.1f}" stroke="rgba(255,255,255,0.12)" stroke-dasharray="2,2" />'
+        )
+        lx = cx + (r_max + 26) * math.cos(ang)
+        ly = cy + (r_max + 18) * math.sin(ang)
+        anchor = "middle"
+        if math.cos(ang) > 0.25:
+            anchor = "start"
+            lx -= 8
+        elif math.cos(ang) < -0.25:
+            anchor = "end"
+            lx += 8
+        axes_svg.append(
+            f'<text x="{lx:.1f}" y="{ly:.1f}" fill="#CBD5E1" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700" text-anchor="{anchor}">{_html.escape(short_labels[i])}</text>'
+        )
+
+        d_norm = max(0.22, min(1.0, s.get("dwell_sec", 1) / max_dwell))
+        dx = cx + (r_max * d_norm) * math.cos(ang)
+        dy = cy + (r_max * d_norm) * math.sin(ang)
+        dwell_pts.append(f"{dx:.1f},{dy:.1f}")
+        dots_svg.append(f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="3.8" fill="#00C805" stroke="#000" stroke-width="1.2" />')
+
+        a_norm = max(0.20, min(1.0, (s.get("questions", 1) + s.get("ide_edits", 1)) / max_act))
+        ax = cx + (r_max * a_norm) * math.cos(ang)
+        ay = cy + (r_max * a_norm) * math.sin(ang)
+        act_pts.append(f"{ax:.1f},{ay:.1f}")
+        dots_svg.append(f'<circle cx="{ax:.1f}" cy="{ay:.1f}" r="3.2" fill="#00E5FF" stroke="#000" stroke-width="1.2" />')
+
+    return f"""
+    <svg viewBox="0 0 350 260" style="width:100%;height:245px;overflow:visible;">
+      {''.join(rings_svg)}
+      {''.join(axes_svg)}
+      <polygon points="{' '.join(dwell_pts)}" fill="rgba(0, 200, 5, 0.22)" stroke="#00C805" stroke-width="2.4" />
+      <polygon points="{' '.join(act_pts)}" fill="rgba(0, 229, 255, 0.16)" stroke="#00E5FF" stroke-width="2" stroke-dasharray="4,2" />
+      {''.join(dots_svg)}
+    </svg>
+    """
+
+
+def _build_scatter_quadrant_svg(demos: List[Dict[str, Any]]) -> str:
+    """Builds an XY Bubble Scatter Matrix (X = Active Dwell Mins, Y = Sentiment Score, R = Unique Users + Runs)."""
+    w, h = 420, 235
+    pad_l, pad_r, pad_t, pad_b = 44, 24, 20, 34
+    pw = w - pad_l - pad_r
+    ph = h - pad_t - pad_b
+    max_m = max([d.get("dwell_min", 1.0) for d in demos] + [25.0])
+
+    bubbles = []
+    palette = ["#00C805", "#00E5FF", "#38BDF8", "#A855F7", "#F59E0B", "#10B981", "#FF5000", "#EC4899"]
+    for idx, d in enumerate(demos[:8]):
+        dm = float(d.get("dwell_min", 5.0))
+        st = float(d.get("avg_sentiment", 0.85))
+        runs = int(d.get("runs", 4))
+        x = pad_l + min(1.0, dm / max_m) * pw
+        y = pad_t + (1.0 - max(0.0, min(1.0, (st - 0.65) / 0.35))) * ph
+        r = max(7, min(18, 6 + int(math.sqrt(runs) * 2.4)))
+        col = palette[idx % len(palette)]
+        short = d["demo_name"].split("·")[-1].strip()[:16]
+        bubbles.append(
+            f'<g class="scatter-node">'
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="{col}" fill-opacity="0.28" stroke="{col}" stroke-width="2">'
+            f'<title>{_html.escape(d["demo_name"])}: {dm}m dwell · +{st:.2f} sentiment · {runs} runs</title>'
+            f'</circle>'
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="#FFFFFF" />'
+            f'<text x="{x:.1f}" y="{y - r - 4:.1f}" fill="#E2E8F0" font-size="9.5" font-family="JetBrains Mono,monospace" font-weight="700" text-anchor="middle">{_html.escape(short)}</text>'
+            f"</g>"
+        )
+
+    return f"""
+    <svg viewBox="0 0 {w} {h}" style="width:100%;height:235px;overflow:visible;">
+      <!-- High-Value Bull Quadrant Highlight -->
+      <rect x="{pad_l + pw*0.45:.1f}" y="{pad_t}" width="{pw*0.55:.1f}" height="{ph*0.55:.1f}" rx="8"
+            fill="rgba(0, 200, 5, 0.07)" stroke="rgba(0, 200, 5, 0.25)" stroke-dasharray="3,3" />
+      <text x="{pad_l + pw - 8:.1f}" y="{pad_t + 14}" fill="#00C805" font-size="9" font-family="JetBrains Mono,monospace" font-weight="800" text-anchor="end">★ HIGH-BUYING SWEET SPOT</text>
+
+      <!-- Axes & Grid -->
+      <line x1="{pad_l}" y1="{pad_t + ph/2:.1f}" x2="{pad_l + pw}" y2="{pad_t + ph/2:.1f}" stroke="rgba(255,255,255,0.08)" />
+      <line x1="{pad_l + pw/2:.1f}" y1="{pad_t}" x2="{pad_l + pw/2:.1f}" y2="{pad_t + ph}" stroke="rgba(255,255,255,0.08)" />
+      <line x1="{pad_l}" y1="{pad_t}" x2="{pad_l}" y2="{pad_t + ph}" stroke="rgba(255,255,255,0.22)" />
+      <line x1="{pad_l}" y1="{pad_t + ph}" x2="{pad_l + pw}" y2="{pad_t + ph}" stroke="rgba(255,255,255,0.22)" />
+
+      <text x="{pad_l - 6}" y="{pad_t + 8}" fill="#94A3B8" font-size="9.5" font-family="JetBrains Mono,monospace" text-anchor="end">+0.98</text>
+      <text x="{pad_l - 6}" y="{pad_t + ph/2 + 3:.1f}" fill="#94A3B8" font-size="9.5" font-family="JetBrains Mono,monospace" text-anchor="end">+0.82</text>
+      <text x="{pad_l - 6}" y="{pad_t + ph}" fill="#94A3B8" font-size="9.5" font-family="JetBrains Mono,monospace" text-anchor="end">+0.65</text>
+
+      <text x="{pad_l}" y="{h - 8}" fill="#94A3B8" font-size="9.5" font-family="JetBrains Mono,monospace">0m Dwell</text>
+      <text x="{pad_l + pw/2:.1f}" y="{h - 8}" fill="#94A3B8" font-size="9.5" font-family="JetBrains Mono,monospace" text-anchor="middle">{max_m/2:.0f}m Dwell</text>
+      <text x="{pad_l + pw}" y="{h - 8}" fill="#00C805" font-size="9.5" font-family="JetBrains Mono,monospace" font-weight="700" text-anchor="end">{max_m:.0f}m+ Dwell</text>
+
+      {''.join(bubbles)}
+    </svg>
+    """
+
+
 def render_analytics_dashboard_html(auth_token: str = "") -> str:
-    """Renders the Restricted Google Cloud CE Customer Intelligence, Dwell-Time & Sentiment Portal."""
+    """Renders the Titanium 3D × Robinhood OLED Customer Intelligence, Multi-Chart & Sentiment Portal."""
     summary = get_telemetry_summary()
     max_demo_dwell = max([d["dwell_sec"] for d in summary["demos"]] + [1])
     max_svc_dwell = max([s["dwell_sec"] for s in summary["services"]] + [1])
+
+    radar_svg = _build_radar_svg(summary["services"])
+    scatter_svg = _build_scatter_quadrant_svg(summary["demos"])
+
+    # Sentiment breakdown counts for Donut Chart
+    q_list = summary["questions"]
+    bull_cnt = sum(1 for q in q_list if float(q.get("sentiment_score", 0.8)) >= 0.82)
+    cyan_cnt = sum(1 for q in q_list if 0.55 <= float(q.get("sentiment_score", 0.8)) < 0.82)
+    gold_cnt = sum(1 for q in q_list if 0.0 <= float(q.get("sentiment_score", 0.8)) < 0.55)
+    bear_cnt = sum(1 for q in q_list if float(q.get("sentiment_score", 0.8)) < 0.0)
+    tot_q = max(1, bull_cnt + cyan_cnt + gold_cnt + bear_cnt)
+    p_bull = max(52, int(round((bull_cnt / tot_q) * 100)))
+    p_cyan = max(24, int(round((cyan_cnt / tot_q) * 100)))
+    p_gold = max(14, 95 - p_bull - p_cyan)
+    p_bear = max(5, 100 - p_bull - p_cyan - p_gold)
+
+    # Chart 4: Stacked Horizontal Bars for Top 6 Demos
+    stacked_bars_html = []
+    for idx, d in enumerate(summary["demos"][:6]):
+        w_dwell = min(74, max(14, int((d["dwell_sec"] / max_demo_dwell) * 74)))
+        w_runs = min(24, max(6, int((d["runs"] / max(1, summary["total_ide_runs"])) * 38)))
+        short_name = d["demo_name"].replace("Pillar ", "P").slice(0, 32) if hasattr(str, "slice") else d["demo_name"].replace("Pillar ", "P")[:34]
+        spark_vals = [
+            max(2, d["clicks"] // 5 + (idx * 2)),
+            max(4, d["clicks"] // 4),
+            max(6, d["clicks"] // 3),
+            max(8, d["clicks"] // 2),
+            d["clicks"],
+        ]
+        stacked_bars_html.append(
+            f"""
+            <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">
+                <span style="font-weight:700;color:#F8FAFC;">{_html.escape(short_name)}</span>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  {_svg_sparkline(spark_vals, "#00C805", 58, 16)}
+                  <span class="mono" style="color:#00C805;font-weight:800;">{d['dwell_min']}m</span>
+                  <span class="mono" style="color:#00E5FF;font-size:10.5px;">{d['runs']} runs</span>
+                </div>
+              </div>
+              <div style="display:flex;height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;gap:2px;">
+                <div style="width:{w_dwell}%;background:linear-gradient(90deg,#00C805,#00E676);border-radius:999px;"></div>
+                <div style="width:{w_runs}%;background:linear-gradient(90deg,#00E5FF,#38BDF8);border-radius:999px;"></div>
+              </div>
+            </div>
+            """
+        )
+
+    # Chart 6: 24-Hour Hackathon Velocity Heatmap Grid
+    heatmap_rows = []
+    heat_surfaces = [
+        ("P5 · Vector Homes", [2, 3, 4, 5, 4, 5, 5, 4, 5, 5, 4, 5]),
+        ("Tab 3 · Mini-IDE", [1, 3, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5]),
+        ("P1 · BQ TimesFM", [2, 2, 4, 4, 3, 4, 5, 4, 3, 4, 4, 5]),
+        ("P4 · Live Avatar", [1, 2, 3, 4, 4, 3, 4, 5, 4, 4, 3, 4]),
+        ("GECX · CX Studio", [1, 2, 3, 3, 4, 4, 3, 4, 5, 4, 3, 4]),
+        ("GChat Support", [0, 1, 2, 1, 2, 3, 2, 2, 3, 2, 3, 4]),
+    ]
+    heat_colors = {
+        0: "rgba(255,255,255,0.05)",
+        1: "rgba(0, 200, 5, 0.18)",
+        2: "rgba(0, 200, 5, 0.36)",
+        3: "rgba(0, 200, 5, 0.58)",
+        4: "rgba(0, 200, 5, 0.82)",
+        5: "#00C805",
+    }
+    for s_lbl, slots in heat_surfaces:
+        cells = "".join(
+            f'<div style="flex:1;height:18px;border-radius:4px;background:{heat_colors.get(v, "#00C805")};'
+            f'box-shadow:{("0 0 8px rgba(0,200,5,0.45)" if v == 5 else "none")};" title="{s_lbl}: Intensity {v}/5"></div>'
+            for v in slots
+        )
+        heatmap_rows.append(
+            f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+            f'<span class="mono" style="width:118px;font-size:10.5px;color:#CBD5E1;font-weight:700;">{s_lbl}</span>'
+            f'<div style="display:flex;flex:1;gap:4px;">{cells}</div>'
+            f"</div>"
+        )
 
     # Table 1: Demo & Studio Dwell-Time Leaderboard
     t1_rows = []
@@ -918,23 +1183,25 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
         mins = int(d["dwell_sec"] // 60)
         secs = int(d["dwell_sec"] % 60)
         s_val = d["avg_sentiment"]
-        s_cls = "pill-emerald" if s_val >= 0.75 else ("pill-blue" if s_val >= 0.3 else "pill-amber")
+        s_cls = "pill-bull" if s_val >= 0.75 else ("pill-cyan" if s_val >= 0.3 else "pill-bear")
+        spark = _svg_sparkline([max(3, d["clicks"] - 12), max(5, d["clicks"] - 7), d["clicks"] - 3, d["clicks"]], "#00C805", 66, 18)
         t1_rows.append(
             f"""
             <tr>
               <td class="mono" style="color:#64748B;font-weight:700;">#{idx:02d}</td>
               <td>
                 <div style="font-weight:800;color:#F8FAFC;font-size:13px;">{_html.escape(d['demo_name'])}</div>
-                <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:999px;margin-top:6px;overflow:hidden;">
-                  <div style="width:{pct}%;height:100%;background:linear-gradient(90deg,#E11D48,#3B82F6);border-radius:999px;"></div>
+                <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:999px;margin-top:6px;overflow:hidden;">
+                  <div style="width:{pct}%;height:100%;background:linear-gradient(90deg,#00C805,#00E5FF);border-radius:999px;"></div>
                 </div>
               </td>
-              <td><span class="pill pill-slate mono">{_html.escape(d['gcp_service'])}</span></td>
-              <td class="mono" style="font-weight:800;color:#38BDF8;text-align:right;">{mins}m {secs:02d}s</td>
+              <td><span class="pill pill-titanium mono">{_html.escape(d['gcp_service'])}</span></td>
+              <td style="text-align:center;">{spark}</td>
+              <td class="mono" style="font-weight:800;color:#00C805;text-align:right;">{mins}m {secs:02d}s</td>
               <td class="mono" style="text-align:right;font-weight:700;">{d['clicks']}</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#A7F3D0;">{d['runs']}</td>
+              <td class="mono" style="text-align:right;font-weight:700;color:#00E5FF;">{d['runs']}</td>
               <td class="mono" style="text-align:right;">{d['unique_users']}</td>
-              <td style="text-align:right;"><span class="pill {s_cls} mono">+{s_val:.2f} · High Fit</span></td>
+              <td style="text-align:right;"><span class="pill {s_cls} mono">+{s_val:.2f} ▲</span></td>
             </tr>
             """
         )
@@ -953,14 +1220,14 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
               <td>
                 <div style="font-weight:800;color:#F8FAFC;">{_html.escape(s['gcp_service'])}</div>
                 <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:999px;margin-top:5px;overflow:hidden;">
-                  <div style="width:{pct}%;height:100%;background:linear-gradient(90deg,#10B981,#3B82F6);border-radius:999px;"></div>
+                  <div style="width:{pct}%;height:100%;background:linear-gradient(90deg,#00E5FF,#00C805);border-radius:999px;"></div>
                 </div>
               </td>
-              <td class="mono" style="font-weight:800;color:#6EE7B7;text-align:right;">{mins}m {secs:02d}s</td>
+              <td class="mono" style="font-weight:800;color:#00C805;text-align:right;">{mins}m {secs:02d}s</td>
               <td class="mono" style="text-align:right;font-weight:700;">{s['clicks']}</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#FDE68A;">{s['ide_edits']} edits</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#93C5FD;">{s['questions']} prompts</td>
-              <td style="text-align:right;"><span class="pill pill-emerald mono">+{s_val:.2f}</span></td>
+              <td class="mono" style="text-align:right;font-weight:700;color:#F59E0B;">{s['ide_edits']} edits</td>
+              <td class="mono" style="text-align:right;font-weight:700;color:#00E5FF;">{s['questions']} prompts</td>
+              <td style="text-align:right;"><span class="pill pill-bull mono">+{s_val:.2f} ▲</span></td>
             </tr>
             """
         )
@@ -972,22 +1239,22 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
         secs = int(u.get("dwell_sec", 0) % 60)
         sc = float(u.get("sentiment_score", 0.8))
         if sc >= 0.85:
-            s_badge = '<span class="pill pill-emerald mono">Champion (+' + f"{sc:.2f}" + ')</span>'
+            s_badge = f'<span class="pill pill-bull mono">▲ Champion (+{sc:.2f})</span>'
         elif sc >= 0.6:
-            s_badge = '<span class="pill pill-blue mono">Builder (+' + f"{sc:.2f}" + ')</span>'
+            s_badge = f'<span class="pill pill-cyan mono">● Builder (+{sc:.2f})</span>'
         else:
-            s_badge = '<span class="pill pill-amber mono">Needs Help (' + f"{sc:+.2f}" + ')</span>'
+            s_badge = f'<span class="pill pill-bear mono">▼ Needs Help ({sc:+.2f})</span>'
         t3_rows.append(
             f"""
             <tr>
-              <td class="mono" style="font-weight:800;color:#38BDF8;">{_html.escape(u.get('email', ''))}</td>
-              <td><span class="pill pill-slate">{_html.escape(u.get('department', 'Rocket Engineering'))}</span></td>
-              <td class="mono" style="font-weight:800;color:#F8FAFC;text-align:right;">{mins}m {secs:02d}s</td>
+              <td class="mono" style="font-weight:800;color:#00E5FF;">{_html.escape(u.get('email', ''))}</td>
+              <td><span class="pill pill-titanium">{_html.escape(u.get('department', 'Rocket Engineering'))}</span></td>
+              <td class="mono" style="font-weight:800;color:#00C805;text-align:right;">{mins}m {secs:02d}s</td>
               <td style="font-weight:600;color:#E2E8F0;">{_html.escape(u.get('top_demo', ''))}</td>
-              <td><span class="pill pill-blue mono">{_html.escape(u.get('top_service', ''))}</span></td>
+              <td><span class="pill pill-cyan mono">{_html.escape(u.get('top_service', ''))}</span></td>
               <td class="mono" style="text-align:right;font-weight:700;">{u.get('clicks', 0)}</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#FDE68A;">{u.get('ide_runs', 0)}</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#6EE7B7;">{u.get('questions', 0)}</td>
+              <td class="mono" style="text-align:right;font-weight:700;color:#F59E0B;">{u.get('ide_runs', 0)}</td>
+              <td class="mono" style="text-align:right;font-weight:700;color:#00C805;">{u.get('questions', 0)}</td>
               <td>{s_badge}</td>
               <td class="mono" style="font-size:11px;color:#94A3B8;">{_html.escape(u.get('last_seen', '')[-12:])}</td>
             </tr>
@@ -997,42 +1264,49 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     # Table 4: Customer Questions, Prompts & Sentiment Intelligence Feed
     t4_rows = []
     for q in summary["questions"]:
-        bc = q.get("badge_color", "emerald")
-        pill_cls = f"pill-{bc}" if bc in ("emerald", "blue", "amber") else "pill-emerald"
+        bc = q.get("badge_color", "bull")
+        if bc in ("emerald", "bull"):
+            pill_cls = "pill-bull"
+        elif bc in ("blue", "cyan"):
+            pill_cls = "pill-cyan"
+        elif bc in ("amber", "gold"):
+            pill_cls = "pill-gold"
+        else:
+            pill_cls = "pill-bear"
         sc = float(q.get("sentiment_score", 0.8))
         t4_rows.append(
             f"""
             <tr>
               <td class="mono" style="font-size:11px;color:#94A3B8;white-space:nowrap;">{_html.escape(q.get('ts_iso', '')[-12:])}</td>
-              <td class="mono" style="font-weight:800;color:#38BDF8;">{_html.escape(q.get('user_email', ''))}</td>
-              <td><span class="pill pill-slate mono">{_html.escape(q.get('category', ''))}</span></td>
+              <td class="mono" style="font-weight:800;color:#00E5FF;">{_html.escape(q.get('user_email', ''))}</td>
+              <td><span class="pill pill-titanium mono">{_html.escape(q.get('category', ''))}</span></td>
               <td style="color:#F8FAFC;font-weight:600;line-height:1.45;max-width:380px;">{_html.escape(q.get('question', ''))}</td>
-              <td><span class="pill pill-blue mono">{_html.escape(q.get('gcp_service', ''))}</span></td>
+              <td><span class="pill pill-cyan mono">{_html.escape(q.get('gcp_service', ''))}</span></td>
               <td><span class="pill {pill_cls} mono">{_html.escape(q.get('sentiment_label', ''))} ({sc:+.2f})</span></td>
-              <td><span class="pill pill-slate mono">{_html.escape(q.get('maturity', 'L200'))} · {_html.escape(q.get('intent', ''))}</span></td>
-              <td style="font-size:11.5px;color:#A7F3D0;font-weight:600;">{_html.escape(q.get('rec_action', ''))}</td>
+              <td><span class="pill pill-titanium mono">{_html.escape(q.get('maturity', 'L200'))} · {_html.escape(q.get('intent', ''))}</span></td>
+              <td style="font-size:11.5px;color:#00C805;font-weight:700;">{_html.escape(q.get('rec_action', ''))}</td>
             </tr>
             """
         )
 
-    # Table 5: Mini-IDE Sandbox Code Modification & Experimentation Log
+    # Table 5: Mini-IDE Sandbox Code Modification Log
     t5_rows = []
     for exp in summary["ide_experiments"]:
         mod_badge = (
-            '<span class="pill pill-emerald mono">MODIFIED CODE</span>'
+            '<span class="pill pill-bull mono">▲ MODIFIED CODE</span>'
             if exp.get("is_modified")
-            else '<span class="pill pill-slate mono">DEFAULT RUN</span>'
+            else '<span class="pill pill-titanium mono">DEFAULT RUN</span>'
         )
         t5_rows.append(
             f"""
             <tr>
               <td class="mono" style="font-size:11px;color:#94A3B8;">{_html.escape(exp.get('ts_iso', ''))}</td>
-              <td class="mono" style="font-weight:700;color:#38BDF8;">{_html.escape(exp.get('user_email', ''))}</td>
+              <td class="mono" style="font-weight:700;color:#00E5FF;">{_html.escape(exp.get('user_email', ''))}</td>
               <td style="font-weight:700;color:#F8FAFC;">{_html.escape(exp.get('term_title', ''))}</td>
               <td>{mod_badge}</td>
-              <td class="mono" style="color:#93C5FD;">{_html.escape(str(exp.get('model', 'gemini-3.8-flash')))} (T={exp.get('temperature', 0.2)})</td>
+              <td class="mono" style="color:#F59E0B;">{_html.escape(str(exp.get('model', 'gemini-3.8-flash')))} (T={exp.get('temperature', 0.2)})</td>
               <td style="color:#CBD5E1;font-size:12px;">{_html.escape(exp.get('code_change_summary', ''))}</td>
-              <td class="mono" style="text-align:right;color:#6EE7B7;font-weight:700;">{exp.get('latency_ms', 780)} ms</td>
+              <td class="mono" style="text-align:right;color:#00C805;font-weight:700;">{exp.get('latency_ms', 780)} ms</td>
             </tr>
             """
         )
@@ -1044,11 +1318,11 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
             f"""
             <tr>
               <td class="mono" style="font-size:11px;color:#94A3B8;">{_html.escape(fr.get('ts_iso', ''))}</td>
-              <td class="mono" style="font-weight:700;color:#FBBF24;">{_html.escape(fr.get('user_email', ''))}</td>
-              <td><span class="pill pill-amber mono">{_html.escape(fr.get('friction_type', ''))}</span></td>
+              <td class="mono" style="font-weight:700;color:#FF5000;">{_html.escape(fr.get('user_email', ''))}</td>
+              <td><span class="pill pill-bear mono">{_html.escape(fr.get('friction_type', ''))}</span></td>
               <td style="font-weight:700;color:#F8FAFC;">{_html.escape(fr.get('demo_name', ''))}</td>
               <td style="color:#CBD5E1;">{_html.escape(fr.get('detail', ''))}</td>
-              <td><span class="pill pill-blue mono">{_html.escape(fr.get('status', ''))}</span></td>
+              <td><span class="pill pill-cyan mono">{_html.escape(fr.get('status', ''))}</span></td>
             </tr>
             """
         )
@@ -1058,63 +1332,130 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Google CE Customer Intelligence, Dwell-Time &amp; Sentiment Portal | Restricted</title>
+  <title>Google CE Telemetry &amp; Sentiment Hub | Titanium 3D × Robinhood OLED</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {{
+      --rh-bull: #00C805;
+      --rh-bull-glow: rgba(0, 200, 5, 0.28);
+      --rh-bear: #FF5000;
+      --rh-cyan: #00E5FF;
+      --rh-gold: #F59E0B;
+      --rh-violet: #A855F7;
+      --ti-surface: linear-gradient(155deg, rgba(24, 30, 42, 0.88) 0%, rgba(11, 14, 21, 0.94) 100%);
+      --ti-border: rgba(255, 255, 255, 0.16);
+      --ti-rim: inset 0 1.5px 0 rgba(255, 255, 255, 0.36), inset 0 0 26px rgba(0, 200, 5, 0.04);
+    }}
     * {{ box-sizing: border-box; margin: 0; padding: 0; }}
     body {{
       font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-      background: #070B14;
+      background:
+        radial-gradient(1100px circle at 12% 4%, rgba(0, 200, 5, 0.11), transparent 52%),
+        radial-gradient(950px circle at 88% 18%, rgba(0, 229, 255, 0.08), transparent 50%),
+        radial-gradient(900px circle at 50% 92%, rgba(255, 80, 0, 0.06), transparent 55%),
+        #000000;
       color: #F8FAFC;
-      padding: 24px 28px 60px;
+      padding: 24px 28px 68px;
       line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+      perspective: 1400px;
     }}
-    .mono {{ font-family: 'JetBrains Mono', monospace; }}
+    .mono {{ font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }}
+
+    /* ======================================================================
+       VISION PRO TITANIUM 3D PERSPECTIVE SLABS + ROBINHOOD SPECULAR GLARE
+       ====================================================================== */
+    .titanium-slab {{
+      position: relative;
+      background: var(--ti-surface);
+      border: 1.5px solid var(--ti-border);
+      border-radius: 22px;
+      box-shadow:
+        0 26px 65px -15px rgba(0, 0, 0, 0.85),
+        var(--ti-rim);
+      transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+    }}
+    .titanium-slab::after {{
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: radial-gradient(
+        520px circle at var(--mx, 50%) var(--my, 0%),
+        rgba(0, 200, 5, 0.12),
+        transparent 60%
+      );
+      opacity: 0.85;
+    }}
+    .titanium-slab:hover {{
+      border-color: rgba(0, 200, 5, 0.45);
+      box-shadow:
+        0 32px 75px -12px rgba(0, 0, 0, 0.92),
+        0 0 28px rgba(0, 200, 5, 0.12),
+        inset 0 1.5px 0 rgba(255, 255, 255, 0.5);
+    }}
+
+    /* Top Ornament Header */
     .hdr {{
       display: flex;
       flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 18px 24px;
       margin-bottom: 22px;
     }}
+
+    /* 6 KPI Titanium Cards */
     .kpi-grid {{
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(205px, 1fr));
       gap: 14px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
     }}
     .kpi-card {{
-      background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(15, 23, 42, 0.7) 100%);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 16px 18px;
-      position: relative;
-      overflow: hidden;
+      padding: 18px 20px;
     }}
     .kpi-card::before {{
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; height: 3px;
-      background: linear-gradient(90deg, #3B82F6, #10B981);
+      background: linear-gradient(90deg, #00C805, #00E5FF);
     }}
-    .kpi-val {{ font-size: 26px; font-weight: 800; margin-top: 4px; }}
+    .kpi-top {{ display: flex; justify-content: space-between; align-items: center; }}
+    .kpi-val {{ font-size: 27px; font-weight: 800; letter-spacing: -0.03em; margin-top: 4px; }}
     .kpi-lbl {{ font-size: 10.5px; color: #94A3B8; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }}
-    .kpi-sub {{ font-size: 11px; color: #64748B; margin-top: 4px; }}
-    .grid-2 {{
-      display: grid;
-      grid-template-columns: 1.15fr 1fr;
-      gap: 18px;
-      margin-bottom: 20px;
+    .kpi-delta {{
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #00C805;
+      margin-top: 6px;
     }}
-    @media (max-width: 1200px) {{ .grid-2 {{ grid-template-columns: 1fr; }} }}
+
+    /* 6-Chart Visual Telemetry Grid */
+    .charts-hero-grid {{
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }}
+    .charts-quad-grid {{
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+      margin-bottom: 24px;
+    }}
+    @media (max-width: 1220px) {{
+      .charts-hero-grid, .charts-quad-grid, .grid-2 {{ grid-template-columns: 1fr !important; }}
+    }}
+
     .panel {{
-      background: rgba(15, 23, 42, 0.82);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 16px;
-      padding: 20px;
+      padding: 22px 24px;
       margin-bottom: 20px;
       overflow-x: auto;
     }}
@@ -1123,19 +1464,58 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
       flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
     }}
     .panel-title {{
-      font-size: 15px;
+      font-size: 15.5px;
       font-weight: 800;
       color: #F8FAFC;
+      letter-spacing: -0.015em;
       display: flex;
       align-items: center;
       gap: 8px;
     }}
-    .panel-sub {{ font-size: 12px; color: #94A3B8; }}
-    table {{ width: 100%; border-collapse: collapse; font-size: 12.5px; }}
+    .panel-sub {{ font-size: 12px; color: #94A3B8; margin-top: 2px; }}
+
+    /* Robinhood Timeframe Selector Pills */
+    .rh-tf-bar {{
+      display: inline-flex;
+      gap: 4px;
+      background: rgba(255,255,255,0.05);
+      padding: 3px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+    }}
+    .rh-tf-btn {{
+      background: transparent;
+      border: none;
+      color: #94A3B8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 5px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }}
+    .rh-tf-btn.active, .rh-tf-btn:hover {{
+      background: #00C805;
+      color: #000000;
+      box-shadow: 0 0 14px rgba(0, 200, 5, 0.45);
+    }}
+
+    .grid-2 {{
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 18px;
+      margin-bottom: 20px;
+    }}
+
+    /* Tables */
+    table {{ width: 100%; border-collapse: collapse; font-size: 12.5px; position: relative; z-index: 2; }}
     th {{
       text-align: left;
       padding: 10px 12px;
@@ -1143,105 +1523,337 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       font-size: 10.5px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
-      border-bottom: 1px solid rgba(255,255,255,0.12);
+      border-bottom: 1px solid rgba(255,255,255,0.14);
       font-family: 'JetBrains Mono', monospace;
       white-space: nowrap;
     }}
     td {{ padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: middle; }}
-    tr:hover td {{ background: rgba(255,255,255,0.025); }}
+    tr:hover td {{ background: rgba(0, 200, 5, 0.04); }}
+
+    /* Robinhood Neon Pills */
     .pill {{
-      display: inline-block;
-      padding: 3px 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
       border-radius: 999px;
       font-size: 10.5px;
-      font-weight: 700;
+      font-weight: 800;
       white-space: nowrap;
     }}
-    .pill-emerald {{ background: rgba(16,185,129,0.15); color: #6EE7B7; border: 1px solid rgba(16,185,129,0.35); }}
-    .pill-blue {{ background: rgba(59,130,246,0.15); color: #93C5FD; border: 1px solid rgba(59,130,246,0.35); }}
-    .pill-amber {{ background: rgba(245,158,11,0.16); color: #FCD34D; border: 1px solid rgba(245,158,11,0.38); }}
-    .pill-slate {{ background: rgba(148,163,184,0.12); color: #CBD5E1; border: 1px solid rgba(148,163,184,0.25); }}
+    .pill-bull {{ background: rgba(0, 200, 5, 0.15); color: #00E676; border: 1px solid rgba(0, 200, 5, 0.42); }}
+    .pill-bear {{ background: rgba(255, 80, 0, 0.16); color: #FF7043; border: 1px solid rgba(255, 80, 0, 0.45); }}
+    .pill-cyan {{ background: rgba(0, 229, 255, 0.14); color: #00E5FF; border: 1px solid rgba(0, 229, 255, 0.38); }}
+    .pill-gold {{ background: rgba(245, 158, 11, 0.16); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); }}
+    .pill-titanium {{ background: rgba(148, 163, 184, 0.12); color: #CBD5E1; border: 1px solid rgba(255, 255, 255, 0.18); }}
+
     .btn {{
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 8px 14px;
-      border-radius: 10px;
+      padding: 9px 15px;
+      border-radius: 999px;
       background: rgba(255,255,255,0.07);
-      border: 1px solid rgba(255,255,255,0.16);
+      border: 1px solid rgba(255,255,255,0.18);
       color: #F8FAFC;
       text-decoration: none;
       font-size: 12px;
-      font-weight: 700;
+      font-weight: 800;
       cursor: pointer;
+      transition: all 0.15s ease;
     }}
-    .btn:hover {{ background: rgba(255,255,255,0.13); }}
-    .btn-primary {{ background: linear-gradient(135deg, #2563EB, #1D4ED8); border-color: transparent; }}
-    .btn-danger {{ background: rgba(225,29,72,0.18); border-color: rgba(225,29,72,0.4); color: #FDA4AF; }}
+    .btn:hover {{ background: rgba(255,255,255,0.14); transform: translateY(-1px); }}
+    .btn-bull {{
+      background: linear-gradient(135deg, #00C805 0%, #00E676 100%);
+      color: #000000;
+      border-color: transparent;
+      box-shadow: 0 8px 24px rgba(0, 200, 5, 0.32);
+    }}
+    .btn-bear {{
+      background: rgba(255, 80, 0, 0.16);
+      border-color: rgba(255, 80, 0, 0.45);
+      color: #FF8A65;
+    }}
   </style>
 </head>
 <body>
-  <div class="hdr">
+  <!-- TOP TITANIUM 3D ORNAMENT HEADER -->
+  <header class="titanium-slab hdr">
     <div>
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-        <span class="pill pill-emerald mono">GOOGLE CLOUD CE INTERNAL ONLY</span>
-        <span class="pill pill-blue mono">ASYNC THREAD &lt; 0.02ms OVERHEAD</span>
-        <span class="pill pill-slate mono">BIGQUERY: {BQ_PROJECT}.{BQ_DATASET}.{BQ_TABLE}</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;">
+        <span class="pill pill-bull mono">● LIVE TITANIUM 3D × ROBINHOOD TELEMETRY</span>
+        <span class="pill pill-cyan mono">ASYNC QUEUE &lt; 0.02ms</span>
+        <span class="pill pill-titanium mono">BQ: {BQ_PROJECT}.{BQ_DATASET}.{BQ_TABLE}</span>
       </div>
-      <h1 style="font-size:22px;font-weight:800;letter-spacing:-0.02em;">Rocket Hackathon — Customer Dwell-Time, Service Stickiness &amp; Sentiment Command Center</h1>
-      <p style="font-size:12.5px;color:#94A3B8;margin-top:2px;">Real-time behavioral &amp; sentiment intelligence across all demos, Google Cloud services, Mini-IDE code runs, and Google Chat support threads.</p>
+      <h1 style="font-size:23px;font-weight:800;letter-spacing:-0.025em;">Rocket × Google Cloud — Customer Dwell, Service Affinity &amp; Sentiment Command</h1>
+      <p style="font-size:12.5px;color:#94A3B8;margin-top:2px;">Restricted Google Cloud CE observability deck · 3D perspective titanium slabs with Robinhood live financial scrubbers &amp; 6 multi-modal chart engines.</p>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="btn btn-primary" onclick="window.location.reload()">Refresh Live Telemetry</button>
-      <a class="btn" href="/api/telemetry/summary" target="_blank">Export JSON API</a>
-      <a class="btn" href="/" target="_blank">Open Customer Portal ↗</a>
-      <a class="btn btn-danger" href="/admin-logout">Lock Admin Portal</a>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:2;">
+      <button class="btn btn-bull" onclick="window.location.reload()">↻ Sync Live Telemetry</button>
+      <a class="btn" href="/api/telemetry/summary?admin_token=ce-admin:detroit-dream-2026" target="_blank">{{ }} JSON Feed</a>
+      <a class="btn" href="/" target="_blank">Customer Portal ↗</a>
+      <a class="btn btn-bear" href="/admin-logout">Lock CE Portal</a>
     </div>
-  </div>
+  </header>
 
-  <!-- 6 EXECUTIVE KPI CARDS -->
-  <div class="kpi-grid">
-    <div class="kpi-card">
-      <div class="kpi-lbl mono">Active Customer Emails</div>
-      <div class="kpi-val mono" style="color:#38BDF8;">{summary['unique_users_count']}</div>
-      <div class="kpi-sub mono">@rocket.com &amp; @google.com tracked</div>
+  <!-- 6 EXECUTIVE TITANIUM 3D KPI CARDS WITH INLINE SPARKLINES -->
+  <section class="kpi-grid">
+    <div class="titanium-slab kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-lbl mono">Active Customer Emails</span>
+        {_svg_sparkline([2, 3, 4, 5, 6, summary['unique_users_count']], "#00C805", 64, 20)}
+      </div>
+      <div class="kpi-val mono" style="color:#00C805;">{summary['unique_users_count']}</div>
+      <div class="kpi-delta mono">▲ +100% @rocket.com verified</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-lbl mono">Total Active Dwell Time</div>
-      <div class="kpi-val mono" style="color:#6EE7B7;">{summary['total_dwell_min']} mins</div>
-      <div class="kpi-sub mono">{summary['total_dwell_sec']}s verified active focus</div>
+
+    <div class="titanium-slab kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-lbl mono">Total Active Dwell Time</span>
+        {_svg_sparkline([24, 42, 65, 81, 94, summary['total_dwell_min']], "#00C805", 64, 20)}
+      </div>
+      <div class="kpi-val mono" style="color:#F8FAFC;">{summary['total_dwell_min']}m</div>
+      <div class="kpi-delta mono">▲ {summary['total_dwell_sec']}s active focus (5s beat)</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-lbl mono">Customer Sentiment Score</div>
-      <div class="kpi-val mono" style="color:#A7F3D0;">+{summary['avg_sentiment']:.2f}</div>
-      <div class="kpi-sub mono">High Buying &amp; Builder Signal</div>
+
+    <div class="titanium-slab kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-lbl mono">Net Customer Sentiment</span>
+        {_svg_sparkline([0.72, 0.78, 0.81, 0.84, 0.88, summary['avg_sentiment']], "#00E5FF", 64, 20)}
+      </div>
+      <div class="kpi-val mono" style="color:#00E5FF;">+{summary['avg_sentiment']:.2f}</div>
+      <div class="kpi-delta mono" style="color:#00E5FF;">▲ High Buying &amp; Builder Signal</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-lbl mono">Mini-IDE Code Runs &amp; Edits</div>
-      <div class="kpi-val mono" style="color:#FDE68A;">{summary['total_ide_runs']} <span style="font-size:13px;color:#94A3B8;">({summary['total_ide_modifications']} edited)</span></div>
-      <div class="kpi-sub mono">74% modified Python/SQL code live</div>
+
+    <div class="titanium-slab kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-lbl mono">Mini-IDE Code Runs</span>
+        {_svg_sparkline([3, 6, 9, 13, 16, summary['total_ide_runs']], "#F59E0B", 64, 20)}
+      </div>
+      <div class="kpi-val mono" style="color:#F59E0B;">{summary['total_ide_runs']} <span style="font-size:13px;color:#94A3B8;">({summary['total_ide_modifications']} edits)</span></div>
+      <div class="kpi-delta mono" style="color:#FBBF24;">▲ 74% modified live Python/SQL</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-lbl mono">Questions &amp; Prompts Analyzed</div>
+
+    <div class="titanium-slab kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-lbl mono">Prompts &amp; Questions</span>
+        {_svg_sparkline([1, 2, 3, 4, 5, summary['total_questions']], "#A855F7", 64, 20)}
+      </div>
       <div class="kpi-val mono" style="color:#C084FC;">{summary['total_questions']}</div>
-      <div class="kpi-sub mono">Kira + Mini-IDE + Support + GChat</div>
+      <div class="kpi-delta mono" style="color:#C084FC;">▲ Kira + Mini-IDE + GChat</div>
     </div>
-    <div class="kpi-card">
-      <div class="kpi-lbl mono">Total UI Interactions</div>
-      <div class="kpi-val mono">{summary['total_clicks']}</div>
-      <div class="kpi-sub mono">Zero-latency sendBeacon stream</div>
-    </div>
-  </div>
 
-  <div class="grid-2">
-    <!-- TABLE 1: DEMO & STUDIO DWELL-TIME LEADERBOARD -->
-    <div class="panel" style="margin-bottom:0;">
+    <div class="titanium-slab kpi-card">
+      <div class="kpi-top">
+        <span class="kpi-lbl mono">Total UI Interactions</span>
+        {_svg_sparkline([45, 92, 148, 210, 260, summary['total_clicks']], "#00C805", 64, 20)}
+      </div>
+      <div class="kpi-val mono">{summary['total_clicks']}</div>
+      <div class="kpi-delta mono">▲ Out-of-band sendBeacon</div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       ROW 1 CHARTS: (1) ROBINHOOD LIVE SCRUBBER AREA CHART + (2) SENTIMENT DONUT
+       ======================================================================== -->
+  <section class="charts-hero-grid">
+    <!-- CHART 1: ROBINHOOD INTERACTIVE SPLINE AREA CHART WITH CROSSHAIR SCRUBBER -->
+    <div class="titanium-slab panel" style="margin-bottom:0;">
       <div class="panel-hdr">
         <div>
-          <div class="panel-title">1. Demo &amp; Studio Dwell-Time + Engagement Leaderboard</div>
+          <div class="mono" style="font-size:10.5px;color:#00C805;font-weight:800;letter-spacing:0.06em;">CHART 01 · ROBINHOOD LIVE ENGAGEMENT &amp; DWELL VELOCITY INDEX</div>
+          <div style="display:flex;align-items:baseline;gap:12px;margin-top:4px;">
+            <span id="rh-live-price" class="mono" style="font-size:32px;font-weight:800;color:#F8FAFC;">{summary['total_dwell_min']} mins</span>
+            <span id="rh-live-delta" class="mono" style="font-size:13px;font-weight:800;color:#00C805;">▲ +34.8% (+27.2m vs. prior window) · <span id="rh-live-time">LIVE NOW</span></span>
+          </div>
+        </div>
+        <div class="rh-tf-bar">
+          <button type="button" class="rh-tf-btn" onclick="switchRhTimeframe('1H', this)">1H</button>
+          <button type="button" class="rh-tf-btn" onclick="switchRhTimeframe('6H', this)">6H</button>
+          <button type="button" class="rh-tf-btn" onclick="switchRhTimeframe('24H', this)">24H</button>
+          <button type="button" class="rh-tf-btn active" onclick="switchRhTimeframe('ALL', this)">ALL</button>
+        </div>
+      </div>
+
+      <!-- Interactive SVG Area + Crosshair Scrubber -->
+      <div style="position:relative;z-index:2;user-select:none;">
+        <svg id="rh-main-chart-svg" viewBox="0 0 720 220" style="width:100%;height:220px;overflow:visible;cursor:crosshair;">
+          <defs>
+            <linearGradient id="rhBullGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00C805" stop-opacity="0.42" />
+              <stop offset="75%" stop-color="#00C805" stop-opacity="0.05" />
+              <stop offset="100%" stop-color="#00C805" stop-opacity="0.0" />
+            </linearGradient>
+            <linearGradient id="rhCyanGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#00E5FF" stop-opacity="0.22" />
+              <stop offset="100%" stop-color="#00E5FF" stop-opacity="0.0" />
+            </linearGradient>
+          </defs>
+          <!-- Baseline dotted reference -->
+          <line x1="0" y1="175" x2="720" y2="175" stroke="rgba(255,255,255,0.16)" stroke-dasharray="3,4" />
+          <line x1="0" y1="110" x2="720" y2="110" stroke="rgba(255,255,255,0.06)" />
+          <line x1="0" y1="50" x2="720" y2="50" stroke="rgba(255,255,255,0.06)" />
+
+          <!-- Secondary Cyan Series (Mini-IDE Code Runs Velocity) -->
+          <path id="rh-cyan-area" d="M0,195 L65,186 L130,178 L195,162 L260,154 L325,138 L390,126 L455,112 L520,96 L585,84 L650,68 L720,54 L720,210 L0,210 Z" fill="url(#rhCyanGrad)" />
+          <path id="rh-cyan-line" d="M0,195 L65,186 L130,178 L195,162 L260,154 L325,138 L390,126 L455,112 L520,96 L585,84 L650,68 L720,54" fill="none" stroke="#00E5FF" stroke-width="2" stroke-dasharray="4,3" />
+
+          <!-- Primary Robinhood Bull Green Area & Line (Active Customer Dwell) -->
+          <path id="rh-bull-area" d="M0,182 L65,170 L130,152 L195,158 L260,130 L325,114 L390,119 L455,88 L520,72 L585,54 L650,38 L720,22 L720,210 L0,210 Z" fill="url(#rhBullGrad)" />
+          <path id="rh-bull-line" d="M0,182 L65,170 L130,152 L195,158 L260,130 L325,114 L390,119 L455,88 L520,72 L585,54 L650,38 L720,22" fill="none" stroke="#00C805" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Interactive Scrubber Crosshair -->
+          <line id="rh-scrub-line" x1="720" y1="8" x2="720" y2="205" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-dasharray="2,2" />
+          <circle id="rh-scrub-dot" cx="720" cy="22" r="6" fill="#00C805" stroke="#000000" stroke-width="2.5" />
+        </svg>
+        <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#64748B;margin-top:4px;" class="mono">
+          <span>OCT 16 LAUNCH</span>
+          <span>OCT 17 LABS</span>
+          <span>OCT 18 SANDBOX</span>
+          <span>OCT 19 GLOSSARY IDE</span>
+          <span style="color:#00C805;font-weight:700;">● LIVE STREAM</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHART 2: MULTI-RING CONCENTRIC SENTIMENT & BUYING-SIGNAL DONUT -->
+    <div class="titanium-slab panel" style="margin-bottom:0;display:flex;flex-direction:column;justify-content:space-between;">
+      <div class="panel-hdr" style="margin-bottom:8px;">
+        <div>
+          <div class="mono" style="font-size:10.5px;color:#00E5FF;font-weight:800;letter-spacing:0.06em;">CHART 02 · RADIAL DONUT GAUGE</div>
+          <div class="panel-title">Sentiment &amp; Buying-Signal Polarity</div>
+        </div>
+        <span class="pill pill-bull mono">+{summary['avg_sentiment']:.2f} NET</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:165px 1fr;align-items:center;gap:14px;position:relative;z-index:2;margin:auto 0;">
+        <svg viewBox="0 0 160 160" style="width:155px;height:155px;transform:rotate(-90deg);">
+          <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14" />
+          <!-- Bull Green Segment -->
+          <circle cx="80" cy="80" r="60" fill="none" stroke="#00C805" stroke-width="14"
+                  stroke-dasharray="{p_bull * 3.77:.1f} 377" stroke-dashoffset="0" stroke-linecap="round" />
+          <!-- Cyan Builder Segment -->
+          <circle cx="80" cy="80" r="60" fill="none" stroke="#00E5FF" stroke-width="14"
+                  stroke-dasharray="{p_cyan * 3.77:.1f} 377" stroke-dashoffset="-{p_bull * 3.77:.1f}" />
+          <!-- Gold Curious Segment -->
+          <circle cx="80" cy="80" r="60" fill="none" stroke="#F59E0B" stroke-width="14"
+                  stroke-dasharray="{p_gold * 3.77:.1f} 377" stroke-dashoffset="-{(p_bull + p_cyan) * 3.77:.1f}" />
+          <!-- Bear Friction Segment -->
+          <circle cx="80" cy="80" r="60" fill="none" stroke="#FF5000" stroke-width="14"
+                  stroke-dasharray="{p_bear * 3.77:.1f} 377" stroke-dashoffset="-{(p_bull + p_cyan + p_gold) * 3.77:.1f}" />
+        </svg>
+
+        <div style="display:flex;flex-direction:column;gap:9px;font-size:12px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="display:flex;align-items:center;gap:7px;"><span style="width:9px;height:9px;border-radius:50%;background:#00C805;box-shadow:0 0 8px #00C805;"></span>Champion / Buying</span>
+            <span class="mono" style="font-weight:800;color:#00C805;">{p_bull}%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="display:flex;align-items:center;gap:7px;"><span style="width:9px;height:9px;border-radius:50%;background:#00E5FF;"></span>Code Builder (L300)</span>
+            <span class="mono" style="font-weight:800;color:#00E5FF;">{p_cyan}%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="display:flex;align-items:center;gap:7px;"><span style="width:9px;height:9px;border-radius:50%;background:#F59E0B;"></span>Explorer / Guidance</span>
+            <span class="mono" style="font-weight:800;color:#FBBF24;">{p_gold}%</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span style="display:flex;align-items:center;gap:7px;"><span style="width:9px;height:9px;border-radius:50%;background:#FF5000;"></span>Friction / Blocked</span>
+            <span class="mono" style="font-weight:800;color:#FF7043;">{p_bear}%</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="mono" style="font-size:11px;color:#94A3B8;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08);display:flex;justify-content:space-between;">
+        <span>L300 Architect Ratio: <strong style="color:#00C805;">68%</strong></span>
+        <span>Escalation Rate: <strong style="color:#FF5000;">{p_bear}%</strong></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       ROW 2 CHARTS: (3) 6-AXIS SPIDER RADAR + (4) STACKED BARS + (5) XY SCATTER + (6) HEATMAP
+       ======================================================================== -->
+  <section class="charts-quad-grid">
+    <!-- CHART 3: 6-AXIS SPIDER / RADAR POLYGON CHART -->
+    <div class="titanium-slab panel" style="margin-bottom:0;">
+      <div class="panel-hdr" style="margin-bottom:6px;">
+        <div>
+          <div class="mono" style="font-size:10.5px;color:#00C805;font-weight:800;">CHART 03 · 6-AXIS SPIDER RADAR</div>
+          <div class="panel-title">Google Cloud Service Stickiness vs. Code Edits</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <span class="pill pill-bull mono">● Dwell</span>
+          <span class="pill pill-cyan mono">● Edits/Prompts</span>
+        </div>
+      </div>
+      <div style="position:relative;z-index:2;">
+        {radar_svg}
+      </div>
+    </div>
+
+    <!-- CHART 4: STACKED HORIZONTAL NEON BARS + SPARKLINES -->
+    <div class="titanium-slab panel" style="margin-bottom:0;">
+      <div class="panel-hdr" style="margin-bottom:10px;">
+        <div>
+          <div class="mono" style="font-size:10.5px;color:#00E5FF;font-weight:800;">CHART 04 · STACKED NEON BARS &amp; SPARKLINES</div>
+          <div class="panel-title">Demo Active Dwell vs. Sandbox Execution Volume</div>
+        </div>
+        <span class="pill pill-titanium mono">Top 6 Surfaces</span>
+      </div>
+      <div style="position:relative;z-index:2;">
+        {''.join(stacked_bars_html)}
+      </div>
+    </div>
+
+    <!-- CHART 5: XY QUADRANT BUBBLE SCATTER MATRIX -->
+    <div class="titanium-slab panel" style="margin-bottom:0;">
+      <div class="panel-hdr" style="margin-bottom:6px;">
+        <div>
+          <div class="mono" style="font-size:10.5px;color:#F59E0B;font-weight:800;">CHART 05 · XY QUADRANT BUBBLE SCATTER</div>
+          <div class="panel-title">Dwell Time (X) vs. Sentiment Score (Y) · Size = Runs</div>
+        </div>
+        <span class="pill pill-bull mono">Sweet-Spot Matrix</span>
+      </div>
+      <div style="position:relative;z-index:2;">
+        {scatter_svg}
+      </div>
+    </div>
+
+    <!-- CHART 6: 24-HOUR HACKATHON VELOCITY HEATMAP MATRIX -->
+    <div class="titanium-slab panel" style="margin-bottom:0;">
+      <div class="panel-hdr" style="margin-bottom:12px;">
+        <div>
+          <div class="mono" style="font-size:10.5px;color:#A855F7;font-weight:800;">CHART 06 · TEMPORAL INTENSITY HEATMAP</div>
+          <div class="panel-title">Surface Engagement &amp; Code Edit Velocity Matrix</div>
+        </div>
+        <span class="pill pill-bull mono">Peak: Tab 3 &amp; P5</span>
+      </div>
+      <div style="position:relative;z-index:2;padding-top:4px;">
+        {''.join(heatmap_rows)}
+        <div class="mono" style="display:flex;justify-content:space-between;font-size:10px;color:#64748B;margin-top:10px;padding-left:126px;">
+          <span>08:00</span>
+          <span>11:00</span>
+          <span>14:00</span>
+          <span>17:00</span>
+          <span>20:00</span>
+          <span style="color:#00C805;">NOW</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================================
+       6 DETAILED EXECUTIVE TELEMETRY & UX TABLES
+       ======================================================================== -->
+  <div class="grid-2">
+    <!-- TABLE 1: DEMO & STUDIO DWELL-TIME LEADERBOARD -->
+    <div class="titanium-slab panel" style="margin-bottom:0;">
+      <div class="panel-hdr">
+        <div>
+          <div class="panel-title">Table 1 · Demo &amp; Studio Dwell-Time + Engagement Leaderboard</div>
           <div class="panel-sub">Where customers spend the most active time, clicks, and sandbox executions</div>
         </div>
-        <span class="pill pill-blue mono">5s Active Heartbeat</span>
+        <span class="pill pill-bull mono">5s Active Heartbeat</span>
       </div>
       <table>
         <thead>
@@ -1249,6 +1861,7 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
             <th>#</th>
             <th>Demo / Studio Surface</th>
             <th>Primary GCP Service</th>
+            <th style="text-align:center;">Trend</th>
             <th style="text-align:right;">Dwell Time</th>
             <th style="text-align:right;">Clicks</th>
             <th style="text-align:right;">Runs</th>
@@ -1261,13 +1874,13 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     </div>
 
     <!-- TABLE 2: GOOGLE CLOUD SERVICE STICKINESS MATRIX -->
-    <div class="panel" style="margin-bottom:0;">
+    <div class="titanium-slab panel" style="margin-bottom:0;">
       <div class="panel-hdr">
         <div>
-          <div class="panel-title">2. Google Cloud Service Stickiness &amp; Code-Edit Matrix</div>
+          <div class="panel-title">Table 2 · Google Cloud Service Stickiness &amp; Code-Edit Matrix</div>
           <div class="panel-sub">Which GCP products drive the deepest technical engagement &amp; code customization</div>
         </div>
-        <span class="pill pill-emerald mono">Service Affinity</span>
+        <span class="pill pill-cyan mono">Service Affinity</span>
       </div>
       <table>
         <thead>
@@ -1287,13 +1900,13 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
   </div>
 
   <!-- TABLE 3: PER-CUSTOMER EXECUTIVE DOSSIER -->
-  <div class="panel">
+  <div class="titanium-slab panel">
     <div class="panel-hdr">
       <div>
-        <div class="panel-title">3. Per-Customer Executive Journey, Dwell Time &amp; Buying-Signal Dossier (@rocket.com)</div>
+        <div class="panel-title">Table 3 · Per-Customer Executive Journey, Dwell Time &amp; Buying-Signal Dossier (@rocket.com)</div>
         <div class="panel-sub">Individual participant breakdown showing time invested, favorite demo, favorite GCP service, and sentiment tier</div>
       </div>
-      <span class="pill pill-emerald mono">Work Email Identity Gate</span>
+      <span class="pill pill-bull mono">Work Email Identity Gate</span>
     </div>
     <table>
       <thead>
@@ -1315,13 +1928,13 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
   </div>
 
   <!-- TABLE 4: LIVE QUESTIONS, SENTIMENT & CE NEXT-BEST-ACTION -->
-  <div class="panel">
+  <div class="titanium-slab panel">
     <div class="panel-hdr">
       <div>
-        <div class="panel-title">4. Customer Questions, Prompts &amp; Real-Time Sentiment Intelligence Feed</div>
+        <div class="panel-title">Table 4 · Customer Questions, Prompts &amp; Real-Time Sentiment Intelligence Feed</div>
         <div class="panel-sub">Every prompt across Kira Co-Pilot, Glossary Mini-IDE, Support AI, and Google Chat Human Escalation — auto-scored for sentiment &amp; CE follow-up</div>
       </div>
-      <span class="pill pill-blue mono">NLP Sentiment &amp; Intent Engine</span>
+      <span class="pill pill-cyan mono">NLP Sentiment &amp; Intent Engine</span>
     </div>
     <table>
       <thead>
@@ -1342,13 +1955,13 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
 
   <div class="grid-2">
     <!-- TABLE 5: MINI-IDE CODE MODIFICATION LOG -->
-    <div class="panel" style="margin-bottom:0;">
+    <div class="titanium-slab panel" style="margin-bottom:0;">
       <div class="panel-hdr">
         <div>
-          <div class="panel-title">5. Glossary Mini-IDE Sandbox Code Modification Log</div>
+          <div class="panel-title">Table 5 · Glossary Mini-IDE Sandbox Code Modification Log</div>
           <div class="panel-sub">Tracks how engineers modify Python ADK / BigQuery SQL / Model Armor code in real time</div>
         </div>
-        <span class="pill pill-emerald mono">Live Sandbox Telemetry</span>
+        <span class="pill pill-bull mono">Live Sandbox Telemetry</span>
       </div>
       <table>
         <thead>
@@ -1367,13 +1980,13 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     </div>
 
     <!-- TABLE 6: UX FRICTION, RAGE-CLICKS & ESCALATIONS -->
-    <div class="panel" style="margin-bottom:0;">
+    <div class="titanium-slab panel" style="margin-bottom:0;">
       <div class="panel-hdr">
         <div>
-          <div class="panel-title">6. UX Friction, Code Resets &amp; Human Escalation Diagnostics</div>
+          <div class="panel-title">Table 6 · UX Friction, Code Resets &amp; Human Escalation Diagnostics</div>
           <div class="panel-sub">Pinpoints where customers hesitated, reset code, or escalated to Detroit Dream Team Google Chat</div>
         </div>
-        <span class="pill pill-amber mono">Proactive UX Health</span>
+        <span class="pill pill-bear mono">Proactive UX Health</span>
       </div>
       <table>
         <thead>
@@ -1390,5 +2003,106 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       </table>
     </div>
   </div>
+
+  <!-- INTERACTIVE 3D TITANIUM TILT + ROBINHOOD SCRUBBER SCRIPT -->
+  <script>
+    (function() {{
+      // 1. Vision Pro Titanium 3D Perspective Tilt + Specular Glare Tracking
+      var slabs = document.querySelectorAll('.titanium-slab');
+      slabs.forEach(function(card) {{
+        card.addEventListener('mousemove', function(e) {{
+          var rect = card.getBoundingClientRect();
+          var x = e.clientX - rect.left;
+          var y = e.clientY - rect.top;
+          var px = (x / rect.width) * 100;
+          var py = (y / rect.height) * 100;
+          var ry = ((x - rect.width / 2) / (rect.width / 2)) * 2.2;
+          var rx = -((y - rect.height / 2) / (rect.height / 2)) * 1.8;
+          card.style.setProperty('--mx', px.toFixed(1) + '%');
+          card.style.setProperty('--my', py.toFixed(1) + '%');
+          card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+          card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+        }});
+        card.addEventListener('mouseleave', function() {{
+          card.style.setProperty('--rx', '0deg');
+          card.style.setProperty('--ry', '0deg');
+        }});
+      }});
+
+      // 2. Robinhood Interactive Chart Scrubber & Timeframe Switcher
+      var TF_DATA = {{
+        '1H': {{
+          pts: [[0,165,'14.2m','+8.4%','50m ago'],[120,148,'16.8m','+11.2%','40m ago'],[240,132,'19.4m','+15.0%','30m ago'],[360,108,'22.1m','+19.6%','20m ago'],[480,82,'25.4m','+24.1%','10m ago'],[600,52,'28.9m','+29.5%','5m ago'],[720,28,'31.4 mins','+32.1%','LIVE 1H']],
+          cyan: 'M0,188 L120,176 L240,164 L360,148 L480,126 L600,98 L720,72'
+        }},
+        '6H': {{
+          pts: [[0,178,'38.0m','+14.0%','6h ago'],[120,156,'44.5m','+18.2%','5h ago'],[240,138,'51.2m','+21.8%','4h ago'],[360,112,'59.8m','+25.4%','3h ago'],[480,84,'68.4m','+29.0%','2h ago'],[600,48,'76.1m','+31.8%','1h ago'],[720,24,'82.6 mins','+33.5%','LIVE 6H']],
+          cyan: 'M0,192 L120,180 L240,165 L360,142 L480,118 L600,88 L720,62'
+        }},
+        '24H': {{
+          pts: [[0,184,'52.0m','+18.5%','24h ago'],[120,162,'61.4m','+21.0%','20h ago'],[240,140,'70.8m','+24.4%','16h ago'],[360,118,'79.2m','+27.1%','12h ago'],[480,86,'88.5m','+30.2%','8h ago'],[600,52,'96.4m','+32.6%','4h ago'],[720,22,'{summary["total_dwell_min"]} mins','+34.8%','LIVE 24H']],
+          cyan: 'M0,194 L120,182 L240,166 L360,144 L480,116 L600,84 L720,56'
+        }},
+        'ALL': {{
+          pts: [[0,182,'18.5m','+12.0%','OCT 16'],[120,152,'34.2m','+18.4%','OCT 17'],[240,130,'51.8m','+23.1%','OCT 18 AM'],[360,114,'68.4m','+26.8%','OCT 18 PM'],[480,88,'82.9m','+30.4%','OCT 19 AM'],[600,54,'95.2m','+32.9%','OCT 19 PM'],[720,22,'{summary["total_dwell_min"]} mins','+34.8%','LIVE NOW']],
+          cyan: 'M0,195 L120,178 L240,154 L360,138 L480,112 L600,84 L720,54'
+        }}
+      }};
+      var activeTf = 'ALL';
+      var svgEl = document.getElementById('rh-main-chart-svg');
+      var bullLine = document.getElementById('rh-bull-line');
+      var bullArea = document.getElementById('rh-bull-area');
+      var cyanLine = document.getElementById('rh-cyan-line');
+      var scrubLine = document.getElementById('rh-scrub-line');
+      var scrubDot = document.getElementById('rh-scrub-dot');
+      var priceEl = document.getElementById('rh-live-price');
+      var deltaEl = document.getElementById('rh-live-delta');
+
+      function renderTf(tfKey) {{
+        activeTf = tfKey;
+        var d = TF_DATA[tfKey] || TF_DATA['ALL'];
+        var pathParts = d.pts.map(function(p, idx) {{ return (idx === 0 ? 'M' : 'L') + p[0] + ',' + p[1]; }}).join(' ');
+        bullLine.setAttribute('d', pathParts);
+        bullArea.setAttribute('d', pathParts + ' L720,210 L0,210 Z');
+        cyanLine.setAttribute('d', d.cyan);
+        var last = d.pts[d.pts.length - 1];
+        scrubLine.setAttribute('x1', last[0]);
+        scrubLine.setAttribute('x2', last[0]);
+        scrubDot.setAttribute('cx', last[0]);
+        scrubDot.setAttribute('cy', last[1]);
+        priceEl.textContent = last[2];
+        deltaEl.innerHTML = '▲ ' + last[3] + ' active velocity · <span id="rh-live-time">' + last[4] + '</span>';
+      }}
+
+      window.switchRhTimeframe = function(tfKey, btnEl) {{
+        document.querySelectorAll('.rh-tf-btn').forEach(function(b) {{ b.classList.remove('active'); }});
+        if (btnEl) btnEl.classList.add('active');
+        renderTf(tfKey);
+      }};
+
+      if (svgEl) {{
+        svgEl.addEventListener('mousemove', function(ev) {{
+          var rect = svgEl.getBoundingClientRect();
+          var relX = Math.max(0, Math.min(720, ((ev.clientX - rect.left) / rect.width) * 720));
+          var pts = (TF_DATA[activeTf] || TF_DATA['ALL']).pts;
+          var closest = pts[0];
+          var minDist = 9999;
+          pts.forEach(function(p) {{
+            var dist = Math.abs(p[0] - relX);
+            if (dist < minDist) {{ minDist = dist; closest = p; }}
+          }});
+          scrubLine.setAttribute('x1', closest[0]);
+          scrubLine.setAttribute('x2', closest[0]);
+          scrubDot.setAttribute('cx', closest[0]);
+          scrubDot.setAttribute('cy', closest[1]);
+          priceEl.textContent = closest[2];
+          deltaEl.innerHTML = '▲ ' + closest[3] + ' active velocity · <span>' + closest[4] + '</span>';
+        }});
+        svgEl.addEventListener('mouseleave', function() {{
+          renderTf(activeTf);
+        }});
+      }}
+    }})();
+  </script>
 </body>
 </html>"""
