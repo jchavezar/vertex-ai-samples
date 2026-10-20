@@ -38,24 +38,15 @@ BQ_TABLE = "events"
 # ==============================================================================
 ADMIN_USERNAMES = {
     "admin",
-    "jesus",
-    "google-ce-admin",
-    "jesusarguelles",
-    "jesusarguelles@google.com",
-    "rocket-admin",
 }
 ADMIN_PASSWORDS = {
     "DetroitDream2026!",
-    "ArgonAdmin2026!",
-    "GoogleCE2026!",
-    "Argon2026!",
-    "rocket2026",
 }
 ADMIN_COOKIE_NAME = "rocket_ce_admin_session"
 ADMIN_HMAC_SECRET = os.environ.get("ROCKET_ADMIN_SECRET", "detroit-dream-team-ce-telemetry-secret-2026")
 
 
-def generate_admin_token(username: str = "google-ce-admin") -> str:
+def generate_admin_token(username: str = "admin") -> str:
     msg = f"{username}:ce_admin_telemetry:2026".encode("utf-8")
     sig = hmac.new(ADMIN_HMAC_SECRET.encode("utf-8"), msg, hashlib.sha256).hexdigest()
     return f"{username}.{sig[:32]}"
@@ -64,11 +55,11 @@ def generate_admin_token(username: str = "google-ce-admin") -> str:
 def verify_admin_token(token: Optional[str]) -> bool:
     if not token:
         return False
-    if token == "ce-admin:detroit-dream-2026":
-        return True
     if "." not in token:
         return False
     user, _ = token.split(".", 1)
+    if user not in ADMIN_USERNAMES:
+        return False
     expected = generate_admin_token(user)
     return hmac.compare_digest(token, expected)
 
@@ -91,7 +82,17 @@ def render_admin_login_html(error_msg: str = "", next_url: str = "/admin-telemet
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CE Telemetry">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/telemetry-manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/telemetry_icon_192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/static/telemetry_icon_512.png">
+  <link rel="icon" type="image/svg+xml" href="/telemetry-icon.svg">
+  <link rel="apple-touch-icon" href="/static/telemetry_icon_192.png">
   <title>Google CE Telemetry &amp; Sentiment Hub | Titanium 3D × Robinhood OLED</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -211,17 +212,17 @@ def render_admin_login_html(error_msg: str = "", next_url: str = "/admin-telemet
       <input type="hidden" name="next" value="{_html.escape(next_url)}">
       <div>
         <label>Google CE Admin Username</label>
-        <input id="adm-user" type="text" name="username" required value="google-ce-admin" placeholder="google-ce-admin" autocomplete="username">
+        <input id="adm-user" type="text" name="username" required placeholder="Enter admin username" autocomplete="username">
       </div>
       <div>
         <label>Internal Telemetry Password</label>
-        <input id="adm-pass" type="password" name="password" required placeholder="DetroitDream2026!" autocomplete="current-password">
+        <input id="adm-pass" type="password" name="password" required placeholder="••••••••••••" autocomplete="current-password">
       </div>
       <button type="submit" class="btn-submit">Unlock Titanium 3D Telemetry →</button>
     </form>
     <div class="meta">
-      <span>User: google-ce-admin</span>
-      <span>Pass: DetroitDream2026!</span>
+      <span>Restricted Access</span>
+      <span>Authorized Google CE Only</span>
     </div>
   </div>
 </body>
@@ -313,11 +314,148 @@ def _infer_department_from_email_or_activity(email: str, top_demo: str = "") -> 
 
 
 # ==============================================================================
+# ASYNC BACKGROUND EXECUTIVE IDENTITY, LINKEDIN & GOOGLE SEARCH GROUNDING ENGINE
+# ==============================================================================
+_KNOWN_EXECUTIVE_PROFILES: Dict[str, Dict[str, str]] = {
+    "jeremydrager@rocket.com": {
+        "full_name": "Jeremy Drager",
+        "linkedin_title": "Principal Cloud & Security Architect · GCP Admin @ Rocket Companies",
+        "department": "Rocket Cloud InfoSec & IAM Governance",
+        "linkedin_url": "https://www.linkedin.com/search/results/people/?keywords=Jeremy%20Drager%20Rocket%20Companies",
+        "google_search_url": "https://www.google.com/search?q=%22Jeremy+Drager%22+%22Rocket%22+LinkedIn+Cloud",
+        "bio_summary": "Rocket GCP Administrator (dev-233554-hllwn26-hack-f1f8), IAM/PAM Governance Lead & InfoSec point of contact.",
+        "enrichment_source": "Verified Rocket GCP Admin",
+        "enrichment_status": "ENRICHED",
+        "role_badge": "GCP ADMIN · INFOSEC",
+        "followup_exec": "Hi Jeremy — Google Cloud Detroit Dream Team is here to support you and Rocket teams with VPC-SC, IAM/PAM, and Model Armor guardrails for the hackathon.",
+        "followup_herbalife": "Hey Jeremy! Fueling Rocket's cloud architecture reviews with Google Cloud and good energy from the Detroit team.",
+    },
+    "jordanpeterson@rocket.com": {
+        "full_name": "Jordan Peterson",
+        "linkedin_title": "Lead Cloud Platform & IAM Engineer · GCP Admin @ Rocket Companies",
+        "department": "Rocket Cloud Platform & IAM",
+        "linkedin_url": "https://www.linkedin.com/search/results/people/?keywords=Jordan%20Peterson%20Rocket%20Companies",
+        "google_search_url": "https://www.google.com/search?q=%22Jordan+Peterson%22+%22Rocket+Companies%22+LinkedIn+Cloud",
+        "bio_summary": "Rocket GCP Administrator co-leading project dev-233554-hllwn26-hack-f1f8, platform enablement, and hackathon environment configuration.",
+        "enrichment_source": "Verified Rocket GCP Admin",
+        "enrichment_status": "ENRICHED",
+        "role_badge": "GCP ADMIN · PLATFORM",
+        "followup_exec": "Hi Jordan — Detroit Dream Team is on standby to help with Cloud Run, Private Service Connect, and Vertex AI Agent Engine configurations.",
+        "followup_herbalife": "Hey Jordan! Ready to partner on high-performance platform architecture throughout the hackathon.",
+    },
+    "niteshbhusal@rocket.com": {
+        "full_name": "Nitesh Bhusal",
+        "linkedin_title": "Staff Cloud & AI Platform Engineer @ Rocket Companies",
+        "department": "Rocket Data Science & Capital Markets",
+        "linkedin_url": "https://www.linkedin.com/search/results/people/?keywords=Nitesh%20Bhusal%20Rocket%20Companies",
+        "google_search_url": "https://www.google.com/search?q=%22Nitesh+Bhusal%22+%22Rocket%22+LinkedIn",
+        "bio_summary": "Rocket Cloud & Data Platform Lead focused on BigQuery ML TimesFM 2.0 forecasting and capital markets modeling.",
+        "enrichment_source": "Verified Rocket Lead",
+        "enrichment_status": "ENRICHED",
+        "role_badge": "STAFF AI / BQ LEAD",
+        "followup_exec": "Hi Nitesh — Detroit Dream Team is here to support your team with BigQuery ML AI.FORECAST (TimesFM 2.0) and model tuning.",
+        "followup_herbalife": "Hey Nitesh! Excited to see Rocket's capital markets modeling come alive on Google Cloud.",
+    },
+    "sundarchellappa@rocket.com": {
+        "full_name": "Sundar Chellappa",
+        "linkedin_title": "Director of Data & AI Engineering @ Rocket Companies",
+        "department": "Rocket Enterprise AI Architecture",
+        "linkedin_url": "https://www.linkedin.com/search/results/people/?keywords=Sundar%20Chellappa%20Rocket%20Companies",
+        "google_search_url": "https://www.google.com/search?q=%22Sundar+Chellappa%22+%22Rocket%22+LinkedIn",
+        "bio_summary": "Enterprise AI & Data Engineering Leader at Rocket focused on multi-agent orchestration and customer experience modernization.",
+        "enrichment_source": "Verified Rocket Director",
+        "enrichment_status": "ENRICHED",
+        "role_badge": "DIRECTOR · DATA & AI",
+        "followup_exec": "Hi Sundar — Detroit Dream Team is thrilled to collaborate with Rocket on Google ADK multi-agent orchestration and CX Agent Studio.",
+        "followup_herbalife": "Hi Sundar! Great collaborating on next-gen AI with Rocket and the Detroit team.",
+    },
+    "jesusarguelles@google.com": {
+        "full_name": "Jesus Chavez",
+        "linkedin_title": "Lead AI Customer Engineer · Detroit Dream Team @ Google Cloud",
+        "department": "Google Cloud CE / Specialist",
+        "linkedin_url": "https://www.linkedin.com/in/jchavezar/",
+        "google_search_url": "https://www.google.com/search?q=%22Jesus+Chavez%22+%22Google+Cloud%22+LinkedIn",
+        "bio_summary": "Lead AI Customer Engineer for the Rocket Companies × Google Cloud Hackathon and 5-Pillar AI Studio.",
+        "enrichment_source": "Verified Google Cloud CE",
+        "enrichment_status": "ENRICHED",
+        "role_badge": "GOOGLE CLOUD CE LEAD",
+        "followup_exec": "Internal Google Cloud CE Lead — Detroit Dream Team (Rocket Halloween Hackathon 2026).",
+        "followup_herbalife": "Detroit Dream Team Lead — partnering with Rocket on next-gen Google Cloud architectures.",
+    },
+}
+
+
+def _infer_name_and_company_from_email(email: str) -> Dict[str, str]:
+    """Parses any work email (e.g. firstname.lastname@rocket.com or jsmith@redfin.com) into human-readable name & company."""
+    import urllib.parse
+    e = (email or "anonymous@rocket.com").strip().lower()
+    if e in _KNOWN_EXECUTIVE_PROFILES:
+        return dict(_KNOWN_EXECUTIVE_PROFILES[e])
+
+    local, _, domain = e.partition("@")
+    company = "Rocket Companies"
+    if "redfin" in domain:
+        company = "Redfin"
+    elif "cooper" in domain:
+        company = "Mr. Cooper"
+    elif "google" in domain:
+        company = "Google Cloud"
+    elif domain:
+        company = domain.split(".")[0].capitalize()
+
+    clean_local = local.replace(".", " ").replace("_", " ").replace("-", " ").strip()
+    parts = [p.capitalize() for p in clean_local.split() if p]
+    if len(parts) >= 2:
+        full_name = " ".join(parts)
+    elif len(parts) == 1 and len(parts[0]) > 7:
+        # Handle concatenated names like jeremydrager -> Title case heuristic or fallback
+        full_name = parts[0]
+    else:
+        full_name = clean_local.title() or "Rocket Builder"
+
+    li_q = urllib.parse.quote(f"{full_name} {company}")
+    gs_q = urllib.parse.quote(f'"{full_name}" "{company}" LinkedIn')
+    return {
+        "full_name": full_name,
+        "linkedin_title": f"AI & Cloud Builder @ {company}",
+        "department": _infer_department_from_email_or_activity(e),
+        "linkedin_url": f"https://www.linkedin.com/search/results/people/?keywords={li_q}",
+        "google_search_url": f"https://www.google.com/search?q={gs_q}",
+        "bio_summary": f"Active participant from {company} exploring Vertex AI, BigQuery ML, and Agentic workflows.",
+        "enrichment_source": "Async LinkedIn + Google Search Queue",
+        "enrichment_status": "QUEUED",
+        "role_badge": f"{company.upper()} BUILDER",
+        "followup_exec": f"Hi {full_name.split()[0]} — thanks for exploring the Rocket × Google Cloud AI Portal! Would love to hear which use case you're building for the hackathon and share our matching GitHub starter kit.",
+        "followup_herbalife": f"Hey {full_name.split()[0]}! Building next-gen AI agents at {company} burns serious calories — let's pair your Vertex AI architecture review with Luis Lopez's Herbalife Energy Tea!",
+    }
+
+
+def _apply_initial_profile_fields(u_rec: Dict[str, Any]) -> bool:
+    """Ensures a user record has all LinkedIn, Google Search & Follow-Up fields populated. Returns True if background web enrichment is needed."""
+    email = (u_rec.get("email") or "").strip().lower()
+    known = _KNOWN_EXECUTIVE_PROFILES.get(email)
+    if known:
+        for k, v in known.items():
+            if not u_rec.get(k) or u_rec.get("enrichment_status") != "ENRICHED":
+                u_rec[k] = v
+        return False
+
+    inferred = _infer_name_and_company_from_email(email)
+    needs_web_enrich = u_rec.get("enrichment_status") not in ("ENRICHED", "ENRICHING")
+    for k, v in inferred.items():
+        if not u_rec.get(k):
+            u_rec[k] = v
+    return needs_web_enrich
+
+
+# ==============================================================================
 # LOCK-FREE IN-MEMORY QUEUE & STATE AGGREGATOR
 # ==============================================================================
 _EVENT_QUEUE: "queue.SimpleQueue[Dict[str, Any]]" = queue.SimpleQueue()
+_ENRICH_QUEUE: "queue.SimpleQueue[Dict[str, Any]]" = queue.SimpleQueue()
 _STATE_LOCK = threading.Lock()
 _WORKER_STARTED = False
+_ENRICH_WORKER_STARTED = False
 _BQ_CLIENT = None
 _BQ_TABLE_READY = False
 
@@ -388,7 +526,7 @@ def _seed_initial_executive_baseline() -> None:
         ("jesusarguelles@google.com", "Google Cloud CE / Specialist", 420, 25, 3, 2, "Tab 3 · Agent Platform Glossary & Mini-IDE", "Vertex AI Agent Engine + ADK Sandbox", 0.94),
     ]
     for u_email, dept, dwell, clicks, q_cnt, ide_cnt, fav_demo, fav_svc, u_sent in seed_users:
-        _MEMORY_STATE["users"][u_email] = {
+        u_rec = {
             "email": u_email,
             "department": dept,
             "first_seen": datetime.datetime.fromtimestamp(now - 7200, tz=datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
@@ -402,6 +540,8 @@ def _seed_initial_executive_baseline() -> None:
             "sentiment_score": u_sent,
             "last_action": f"Explored {fav_demo}",
         }
+        _apply_initial_profile_fields(u_rec)
+        _MEMORY_STATE["users"][u_email] = u_rec
 
     seed_questions = [
         (
@@ -527,6 +667,19 @@ def _seed_initial_executive_baseline() -> None:
     ]
 
 
+def _backfill_all_users_enrichment() -> List[str]:
+    """Ensures every user in _MEMORY_STATE['users'] has LinkedIn/Google Search fields and returns emails needing background web search."""
+    to_enrich: List[str] = []
+    users_dict = _MEMORY_STATE.get("users", {})
+    for u_email, u_rec in list(users_dict.items()):
+        if not isinstance(u_rec, dict):
+            continue
+        u_rec.setdefault("email", u_email)
+        if _apply_initial_profile_fields(u_rec):
+            to_enrich.append(u_email)
+    return to_enrich
+
+
 def _load_persisted_state() -> None:
     try:
         if os.path.exists(STATE_FILE):
@@ -537,11 +690,24 @@ def _load_persisted_state() -> None:
                         for k in _MEMORY_STATE:
                             if k in data:
                                 _MEMORY_STATE[k] = data[k]
+                        to_enrich = _backfill_all_users_enrichment()
+                    for em in to_enrich:
+                        try:
+                            _ENRICH_QUEUE.put_nowait({"email": em, "force": False})
+                        except Exception:
+                            pass
                     return
     except Exception:
         pass
     with _STATE_LOCK:
         _seed_initial_executive_baseline()
+        to_enrich = _backfill_all_users_enrichment()
+    for em in to_enrich:
+        try:
+            _ENRICH_QUEUE.put_nowait({"email": em, "force": False})
+        except Exception:
+            pass
+    _save_persisted_state()
 
 
 def _save_persisted_state() -> None:
@@ -554,6 +720,162 @@ def _save_persisted_state() -> None:
         os.replace(tmp_path, STATE_FILE)
     except Exception:
         pass
+
+
+def _enrich_single_user_via_vertex_search(user_email: str, force: bool = False) -> Dict[str, Any]:
+    """Runs in background daemon thread: uses Vertex AI gemini-3.8-flash + GoogleSearch() grounding to enrich user identity & draft follow-ups."""
+    import re
+    import urllib.parse
+
+    e = (user_email or "").strip().lower()
+    if not e or e == "anonymous@rocket.com":
+        return {"ok": False, "email": e, "reason": "anonymous"}
+
+    with _STATE_LOCK:
+        u_rec = _MEMORY_STATE["users"].get(e)
+        if not u_rec:
+            u_rec = {"email": e, "clicks": 1, "dwell_sec": 15, "top_demo": "Flagship 5-Pillar AI Studio", "top_service": "Vertex AI Gemini 3.8 Flash"}
+            _apply_initial_profile_fields(u_rec)
+            _MEMORY_STATE["users"][e] = u_rec
+        if u_rec.get("enrichment_status") == "ENRICHED" and not force:
+            return {"ok": True, "email": e, "status": "already_enriched", "profile": dict(u_rec)}
+        u_rec["enrichment_status"] = "ENRICHING"
+        snapshot = dict(u_rec)
+
+    known = _KNOWN_EXECUTIVE_PROFILES.get(e)
+    top_demo = snapshot.get("top_demo") or "Flagship 5-Pillar AI Studio"
+    top_svc = snapshot.get("top_service") or "Vertex AI Gemini 3.8 Flash"
+    last_act = snapshot.get("last_action") or f"Explored {top_demo}"
+    dwell_min = round(float(snapshot.get("dwell_sec", 60)) / 60.0, 1)
+    inferred = _infer_name_and_company_from_email(e)
+    full_name = known["full_name"] if known else snapshot.get("full_name") or inferred["full_name"]
+    company = "Rocket Companies" if "rocket" in e else ("Redfin" if "redfin" in e else ("Mr. Cooper" if "cooper" in e else "Google Cloud"))
+
+    # If user is in _KNOWN_EXECUTIVE_PROFILES and not force-refreshing custom dynamic activity, apply verified baseline + live activity context
+    if known and not force:
+        with _STATE_LOCK:
+            target = _MEMORY_STATE["users"].get(e, {})
+            target.update(known)
+            target["enrichment_status"] = "ENRICHED"
+        _save_persisted_state()
+        return {"ok": True, "email": e, "status": "verified_directory", "profile": dict(_MEMORY_STATE["users"].get(e, {}))}
+
+    # Otherwise, query Vertex AI gemini-3.8-flash with GoogleSearch() grounding on a background thread
+    try:
+        from google import genai
+        from google.genai import types
+
+        client = genai.Client(vertexai=True, project=BQ_PROJECT, location="global")
+        prompt = (
+            f"You are an Executive Sales & Customer Engineering Intelligence Researcher for Google Cloud.\n"
+            f"Look up the public professional identity (LinkedIn profile, job title, team/focus area) for:\n"
+            f"- Work Email: {e}\n"
+            f"- Inferred Name: {full_name}\n"
+            f"- Organization: {company}\n"
+            f"- Known Context (if any): {json.dumps(known) if known else 'None'}\n\n"
+            f"Their live activity on our Rocket × Google Cloud AI Portal:\n"
+            f"- Active Dwell Time: {dwell_min} minutes\n"
+            f"- Top Demo Explored: {top_demo}\n"
+            f"- Top Google Cloud Stack: {top_svc}\n"
+            f"- Latest Action / Prompt: {last_act}\n\n"
+            f"Return ONLY valid JSON with these exact keys:\n"
+            f"{{\n"
+            f'  "full_name": "Full Name",\n'
+            f'  "linkedin_title": "Job Title & Role @ Company",\n'
+            f'  "department": "Department or Team",\n'
+            f'  "role_badge": "SHORT 2-3 WORD BADGE",\n'
+            f'  "linkedin_url": "https://www.linkedin.com/in/... if found else LinkedIn people search URL",\n'
+            f'  "bio_summary": "1-sentence summary of their role and technical focus at {company}",\n'
+            f'  "followup_exec": "2-sentence personalized Google Cloud CE follow-up referencing their role and their {top_demo} / {top_svc} activity",\n'
+            f'  "followup_herbalife": "Playful, funny 2-sentence Luis Lopez Herbalife Pitch Mode follow-up that blends their {top_svc} engineering work with a VIP Herbalife shake/tea pitch"\n'
+            f"}}"
+        )
+        resp = client.models.generate_content(
+            model="gemini-3.8-flash",
+            contents=prompt,
+            config=types.GenerateContentConfig(
+                temperature=0.2,
+                tools=[types.Tool(google_search=types.GoogleSearch())],
+            ),
+        )
+        raw_txt = (resp.text or "").strip()
+        m = re.search(r"\{.*\}", raw_txt, flags=re.DOTALL)
+        parsed = json.loads(m.group(0)) if m else {}
+        if isinstance(parsed, dict) and parsed.get("linkedin_title"):
+            li_url = str(parsed.get("linkedin_url") or "").strip()
+            if not li_url.startswith("http"):
+                li_url = f"https://www.linkedin.com/search/results/people/?keywords={urllib.parse.quote(full_name + ' ' + company)}"
+            with _STATE_LOCK:
+                target = _MEMORY_STATE["users"].setdefault(e, snapshot)
+                target["full_name"] = str(parsed.get("full_name") or (known["full_name"] if known else full_name)).strip()
+                target["linkedin_title"] = str(parsed.get("linkedin_title") or (known["linkedin_title"] if known else inferred["linkedin_title"])).strip()
+                target["department"] = str(parsed.get("department") or target.get("department") or inferred["department"]).strip()
+                target["role_badge"] = str(parsed.get("role_badge") or (known["role_badge"] if known else inferred["role_badge"])).strip()[:28]
+                target["linkedin_url"] = known["linkedin_url"] if (known and "linkedin.com/in/" in known.get("linkedin_url", "")) else li_url
+                target["google_search_url"] = inferred["google_search_url"]
+                target["bio_summary"] = str(parsed.get("bio_summary") or (known["bio_summary"] if known else inferred["bio_summary"])).strip()
+                target["followup_exec"] = str(parsed.get("followup_exec") or (known["followup_exec"] if known else inferred["followup_exec"])).strip()
+                target["followup_herbalife"] = str(parsed.get("followup_herbalife") or (known["followup_herbalife"] if known else inferred["followup_herbalife"])).strip()
+                target["enrichment_source"] = "Gemini 3.8 Flash + Google Search & LinkedIn Grounded"
+                target["enrichment_status"] = "ENRICHED"
+                target["enriched_at"] = datetime.datetime.now(datetime.timezone.utc).strftime("%H:%M:%S UTC")
+            _save_persisted_state()
+            return {"ok": True, "email": e, "status": "live_vertex_search_enriched", "profile": dict(_MEMORY_STATE["users"][e])}
+    except Exception as exc:
+        with _STATE_LOCK:
+            target = _MEMORY_STATE["users"].setdefault(e, snapshot)
+            if known:
+                target.update(known)
+            else:
+                _apply_initial_profile_fields(target)
+            target["enrichment_status"] = "ENRICHED"
+            target["enrichment_source"] = known["enrichment_source"] if known else f"Heuristic + Directory Grounded ({str(exc)[:32]})"
+        _save_persisted_state()
+        return {"ok": True, "email": e, "status": "fallback_enriched", "profile": dict(_MEMORY_STATE["users"][e])}
+
+    return {"ok": True, "email": e, "status": "completed", "profile": dict(_MEMORY_STATE["users"].get(e, {}))}
+
+
+def _enrichment_worker_loop() -> None:
+    """Background daemon loop that processes LinkedIn + Google Search Grounding checks with 0ms user latency."""
+    while True:
+        try:
+            task = _ENRICH_QUEUE.get(timeout=3.0)
+            if not isinstance(task, dict):
+                continue
+            em = (task.get("email") or "").strip().lower()
+            force = bool(task.get("force", False))
+            if em:
+                _enrich_single_user_via_vertex_search(em, force=force)
+        except queue.Empty:
+            continue
+        except Exception:
+            time.sleep(0.5)
+
+
+def trigger_user_enrichment_async(email: Optional[str] = None, force: bool = True, synchronous: bool = False) -> Dict[str, Any]:
+    """Triggers LinkedIn + Google Search enrichment for a specific email or all active users."""
+    ensure_telemetry_worker_started()
+    if email:
+        em = email.strip().lower()
+        if synchronous:
+            return _enrich_single_user_via_vertex_search(em, force=force)
+        try:
+            _ENRICH_QUEUE.put_nowait({"email": em, "force": force})
+        except Exception:
+            pass
+        return {"ok": True, "queued": [em], "mode": "async_background"}
+
+    with _STATE_LOCK:
+        all_emails = list(_MEMORY_STATE.get("users", {}).keys())
+    queued = []
+    for em in all_emails:
+        try:
+            _ENRICH_QUEUE.put_nowait({"email": em, "force": force})
+            queued.append(em)
+        except Exception:
+            pass
+    return {"ok": True, "queued": queued, "count": len(queued), "mode": "async_background"}
 
 
 def _ensure_bq_table():
@@ -601,6 +923,7 @@ def _process_event_Batch_in_background(batch: List[Dict[str, Any]]) -> None:
     if not batch:
         return
     bq_rows = []
+    emails_to_enrich: List[str] = []
     with _STATE_LOCK:
         for ev in batch:
             event_id = ev.get("event_id") or str(uuid.uuid4())[:12]
@@ -620,7 +943,9 @@ def _process_event_Batch_in_background(batch: List[Dict[str, Any]]) -> None:
             _MEMORY_STATE["total_events"] += 1
 
             u_rec = _MEMORY_STATE["users"].get(user_email)
+            is_new_user = False
             if not u_rec:
+                is_new_user = True
                 u_rec = {
                     "email": user_email,
                     "department": _infer_department_from_email_or_activity(user_email, demo_name),
@@ -636,6 +961,10 @@ def _process_event_Batch_in_background(batch: List[Dict[str, Any]]) -> None:
                     "last_action": target_label,
                 }
                 _MEMORY_STATE["users"][user_email] = u_rec
+            needs_web = _apply_initial_profile_fields(u_rec)
+            if is_new_user or needs_web or event_type == "login":
+                if user_email not in emails_to_enrich and user_email != "anonymous@rocket.com":
+                    emails_to_enrich.append(user_email)
             u_rec["last_seen"] = ts_iso
             u_rec["last_action"] = question_text[:80] if question_text else target_label
             if demo_name and demo_name != "Page View: /":
@@ -689,7 +1018,7 @@ def _process_event_Batch_in_background(batch: List[Dict[str, Any]]) -> None:
                         "friction_type": category,
                         "demo_name": demo_name,
                         "detail": target_label,
-                        "status": "Logged for CE Review",
+                        "status": ev.get("status") or "Logged for CE Review",
                     },
                 )
                 del _MEMORY_STATE["friction_events"][50:]
@@ -792,6 +1121,12 @@ def _process_event_Batch_in_background(batch: List[Dict[str, Any]]) -> None:
 
     _save_persisted_state()
 
+    for em in emails_to_enrich:
+        try:
+            _ENRICH_QUEUE.put_nowait({"email": em, "force": False})
+        except Exception:
+            pass
+
     try:
         client = _ensure_bq_table()
         if client and _BQ_TABLE_READY and bq_rows:
@@ -802,7 +1137,6 @@ def _process_event_Batch_in_background(batch: List[Dict[str, Any]]) -> None:
 
 
 def _telemetry_worker_loop() -> None:
-    _load_persisted_state()
     while True:
         try:
             first_ev = _EVENT_QUEUE.get(timeout=2.0)
@@ -820,15 +1154,19 @@ def _telemetry_worker_loop() -> None:
 
 
 def ensure_telemetry_worker_started() -> None:
-    global _WORKER_STARTED
-    if _WORKER_STARTED:
+    global _WORKER_STARTED, _ENRICH_WORKER_STARTED
+    if _WORKER_STARTED and _ENRICH_WORKER_STARTED:
         return
+    _load_persisted_state()
     with _STATE_LOCK:
-        if _WORKER_STARTED:
-            return
-        t = threading.Thread(target=_telemetry_worker_loop, name="rocket-async-telemetry-worker", daemon=True)
-        t.start()
-        _WORKER_STARTED = True
+        if not _WORKER_STARTED:
+            t = threading.Thread(target=_telemetry_worker_loop, name="rocket-async-telemetry-worker", daemon=True)
+            t.start()
+            _WORKER_STARTED = True
+        if not _ENRICH_WORKER_STARTED:
+            t_enr = threading.Thread(target=_enrichment_worker_loop, name="rocket-async-linkedin-enricher", daemon=True)
+            t_enr.start()
+            _ENRICH_WORKER_STARTED = True
 
 
 def enqueue_telemetry_event(event: Dict[str, Any]) -> None:
@@ -925,8 +1263,8 @@ def get_telemetry_summary() -> Dict[str, Any]:
 
 
 def _svg_sparkline(vals: List[float], color: str = "#00C805", width: int = 86, height: int = 24) -> str:
-    if not vals:
-        vals = [10, 14, 13, 18, 22, 21, 28]
+    if not vals or all(v == 0 for v in vals) or len(vals) < 2:
+        return '<span class="mono" style="font-size:10.5px;color:#64748B;font-weight:700;">—</span>'
     mn = min(vals)
     mx = max(vals)
     span = max(1.0, mx - mn)
@@ -946,18 +1284,24 @@ def _svg_sparkline(vals: List[float], color: str = "#00C805", width: int = 86, h
 
 def _build_radar_svg(services: List[Dict[str, Any]]) -> str:
     """Builds a 6-axis Spider / Radar SVG comparing Active Dwell (#00C805) vs Prompts+Edits (#00E5FF)."""
-    top6 = (services + [
-        {"gcp_service": "BigQuery Vector", "dwell_sec": 600, "questions": 6, "ide_edits": 4},
-        {"gcp_service": "Vertex ADK", "dwell_sec": 500, "questions": 5, "ide_edits": 3},
-        {"gcp_service": "TimesFM 2.0", "dwell_sec": 450, "questions": 4, "ide_edits": 3},
-        {"gcp_service": "Gemini 3.8 Live", "dwell_sec": 400, "questions": 4, "ide_edits": 2},
-        {"gcp_service": "GECX Studio", "dwell_sec": 350, "questions": 3, "ide_edits": 2},
-        {"gcp_service": "Veo 3.1 Reels", "dwell_sec": 300, "questions": 3, "ide_edits": 2},
-    ])[:6]
+    canonical_services = [
+        "BigQuery Vector Search",
+        "Vertex AI ADK",
+        "BigQuery TimesFM 2.0",
+        "Gemini 3.8 Live API",
+        "GECX Studio",
+        "Veo 3.1 Video",
+    ]
+    if not services:
+        top6 = [{"gcp_service": name, "dwell_sec": 0, "questions": 0, "ide_edits": 0} for name in canonical_services]
+    else:
+        top6 = list(services[:6])
+        while len(top6) < 6:
+            top6.append({"gcp_service": canonical_services[len(top6)], "dwell_sec": 0, "questions": 0, "ide_edits": 0})
 
     short_labels = []
     for s in top6:
-        raw = s["gcp_service"]
+        raw = s.get("gcp_service", "")
         if "Vector" in raw:
             short_labels.append("BQ Vector RRF")
         elif "ADK" in raw or "Agent Engine" in raw:
@@ -973,10 +1317,11 @@ def _build_radar_svg(services: List[Dict[str, Any]]) -> str:
         elif "Maps" in raw:
             short_labels.append("Maps + YT Ground")
         else:
-            short_labels.append(raw[:16])
+            short_labels.append(raw[:16] or "GCP Service")
 
-    max_dwell = max([s.get("dwell_sec", 1) for s in top6] + [1])
-    max_act = max([s.get("questions", 1) + s.get("ide_edits", 1) for s in top6] + [1])
+    has_activity = any(s.get("dwell_sec", 0) > 0 or (s.get("questions", 0) + s.get("ide_edits", 0)) > 0 for s in top6)
+    max_dwell = max([s.get("dwell_sec", 0) for s in top6] + [1])
+    max_act = max([s.get("questions", 0) + s.get("ide_edits", 0) for s in top6] + [1])
 
     cx, cy, r_max = 175, 130, 86
     rings_svg = []
@@ -1014,24 +1359,31 @@ def _build_radar_svg(services: List[Dict[str, Any]]) -> str:
             f'<text x="{lx:.1f}" y="{ly:.1f}" fill="#CBD5E1" font-size="10" font-family="JetBrains Mono,monospace" font-weight="700" text-anchor="{anchor}">{_html.escape(short_labels[i])}</text>'
         )
 
-        d_norm = max(0.22, min(1.0, s.get("dwell_sec", 1) / max_dwell))
+        d_norm = min(1.0, s.get("dwell_sec", 0) / max_dwell) if (has_activity and max_dwell > 0) else 0.0
         dx = cx + (r_max * d_norm) * math.cos(ang)
         dy = cy + (r_max * d_norm) * math.sin(ang)
         dwell_pts.append(f"{dx:.1f},{dy:.1f}")
-        dots_svg.append(f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="3.8" fill="#00C805" stroke="#000" stroke-width="1.2" />')
+        if has_activity and d_norm > 0:
+            dots_svg.append(f'<circle cx="{dx:.1f}" cy="{dy:.1f}" r="3.8" fill="#00C805" stroke="#000" stroke-width="1.2" />')
 
-        a_norm = max(0.20, min(1.0, (s.get("questions", 1) + s.get("ide_edits", 1)) / max_act))
+        a_norm = min(1.0, (s.get("questions", 0) + s.get("ide_edits", 0)) / max_act) if (has_activity and max_act > 0) else 0.0
         ax = cx + (r_max * a_norm) * math.cos(ang)
         ay = cy + (r_max * a_norm) * math.sin(ang)
         act_pts.append(f"{ax:.1f},{ay:.1f}")
-        dots_svg.append(f'<circle cx="{ax:.1f}" cy="{ay:.1f}" r="3.2" fill="#00E5FF" stroke="#000" stroke-width="1.2" />')
+        if has_activity and a_norm > 0:
+            dots_svg.append(f'<circle cx="{ax:.1f}" cy="{ay:.1f}" r="3.2" fill="#00E5FF" stroke="#000" stroke-width="1.2" />')
+
+    dwell_poly = f'<polygon points="{" ".join(dwell_pts)}" fill="rgba(0, 200, 5, 0.22)" stroke="#00C805" stroke-width="2.4" />' if has_activity else ''
+    act_poly = f'<polygon points="{" ".join(act_pts)}" fill="rgba(0, 229, 255, 0.16)" stroke="#00E5FF" stroke-width="2" stroke-dasharray="4,2" />' if has_activity else ''
+    empty_label = f'<text x="{cx}" y="{cy + 4}" fill="#64748B" font-size="10.5" font-family="JetBrains Mono,monospace" text-anchor="middle">Awaiting Activity</text>' if not has_activity else ''
 
     return f"""
-    <svg viewBox="0 0 350 260" style="width:100%;height:245px;overflow:visible;">
+    <svg viewBox="0 0 380 260" style="width:100%;height:auto;max-height:245px;display:block;">
       {''.join(rings_svg)}
       {''.join(axes_svg)}
-      <polygon points="{' '.join(dwell_pts)}" fill="rgba(0, 200, 5, 0.22)" stroke="#00C805" stroke-width="2.4" />
-      <polygon points="{' '.join(act_pts)}" fill="rgba(0, 229, 255, 0.16)" stroke="#00E5FF" stroke-width="2" stroke-dasharray="4,2" />
+      {dwell_poly}
+      {act_poly}
+      {empty_label}
       {''.join(dots_svg)}
     </svg>
     """
@@ -1043,31 +1395,39 @@ def _build_scatter_quadrant_svg(demos: List[Dict[str, Any]]) -> str:
     pad_l, pad_r, pad_t, pad_b = 44, 24, 20, 34
     pw = w - pad_l - pad_r
     ph = h - pad_t - pad_b
-    max_m = max([d.get("dwell_min", 1.0) for d in demos] + [25.0])
+    max_m = max([d.get("dwell_min", 0.0) for d in demos] + [10.0])
 
     bubbles = []
     palette = ["#00C805", "#00E5FF", "#38BDF8", "#A855F7", "#F59E0B", "#10B981", "#FF5000", "#EC4899"]
-    for idx, d in enumerate(demos[:8]):
-        dm = float(d.get("dwell_min", 5.0))
-        st = float(d.get("avg_sentiment", 0.85))
-        runs = int(d.get("runs", 4))
-        x = pad_l + min(1.0, dm / max_m) * pw
-        y = pad_t + (1.0 - max(0.0, min(1.0, (st - 0.65) / 0.35))) * ph
-        r = max(7, min(18, 6 + int(math.sqrt(runs) * 2.4)))
-        col = palette[idx % len(palette)]
-        short = d["demo_name"].split("·")[-1].strip()[:16]
+    has_demos = any(d.get("dwell_sec", 0) > 0 or d.get("clicks", 0) > 0 for d in demos)
+    if not has_demos:
         bubbles.append(
-            f'<g class="scatter-node">'
-            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="{col}" fill-opacity="0.28" stroke="{col}" stroke-width="2">'
-            f'<title>{_html.escape(d["demo_name"])}: {dm}m dwell · +{st:.2f} sentiment · {runs} runs</title>'
-            f'</circle>'
-            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="#FFFFFF" />'
-            f'<text x="{x:.1f}" y="{y - r - 4:.1f}" fill="#E2E8F0" font-size="9.5" font-family="JetBrains Mono,monospace" font-weight="700" text-anchor="middle">{_html.escape(short)}</text>'
-            f"</g>"
+            f'<text x="{pad_l + pw/2:.1f}" y="{pad_t + ph/2 + 4:.1f}" fill="#64748B" font-size="11" font-family="JetBrains Mono,monospace" text-anchor="middle">Awaiting live participant activity to plot matrix</text>'
         )
+    else:
+        for idx, d in enumerate(demos[:8]):
+            dm = float(d.get("dwell_min", 0.0))
+            st = float(d.get("avg_sentiment", 0.85))
+            runs = int(d.get("runs", 0))
+            if dm <= 0 and runs <= 0 and d.get("clicks", 0) <= 0:
+                continue
+            x = pad_l + min(1.0, dm / max_m) * pw
+            y = pad_t + (1.0 - max(0.0, min(1.0, (st - 0.65) / 0.35))) * ph
+            r = max(7, min(18, 6 + int(math.sqrt(max(1, runs)) * 2.4)))
+            col = palette[idx % len(palette)]
+            short = d["demo_name"].split("·")[-1].strip()[:16]
+            bubbles.append(
+                f'<g class="scatter-node">'
+                f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="{col}" fill-opacity="0.28" stroke="{col}" stroke-width="2">'
+                f'<title>{_html.escape(d["demo_name"])}: {dm}m dwell · +{st:.2f} sentiment · {runs} runs</title>'
+                f'</circle>'
+                f'<circle cx="{x:.1f}" cy="{y:.1f}" r="2.5" fill="#FFFFFF" />'
+                f'<text x="{x:.1f}" y="{y - r - 4:.1f}" fill="#E2E8F0" font-size="9.5" font-family="JetBrains Mono,monospace" font-weight="700" text-anchor="middle">{_html.escape(short)}</text>'
+                f"</g>"
+            )
 
     return f"""
-    <svg viewBox="0 0 {w} {h}" style="width:100%;height:235px;overflow:visible;">
+    <svg viewBox="0 0 {w} {h}" style="width:100%;height:auto;max-height:235px;display:block;">
       <!-- High-Value Bull Quadrant Highlight -->
       <rect x="{pad_l + pw*0.45:.1f}" y="{pad_t}" width="{pw*0.55:.1f}" height="{ph*0.55:.1f}" rx="8"
             fill="rgba(0, 200, 5, 0.07)" stroke="rgba(0, 200, 5, 0.25)" stroke-dasharray="3,3" />
@@ -1107,54 +1467,89 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     cyan_cnt = sum(1 for q in q_list if 0.55 <= float(q.get("sentiment_score", 0.8)) < 0.82)
     gold_cnt = sum(1 for q in q_list if 0.0 <= float(q.get("sentiment_score", 0.8)) < 0.55)
     bear_cnt = sum(1 for q in q_list if float(q.get("sentiment_score", 0.8)) < 0.0)
-    tot_q = max(1, bull_cnt + cyan_cnt + gold_cnt + bear_cnt)
-    p_bull = max(52, int(round((bull_cnt / tot_q) * 100)))
-    p_cyan = max(24, int(round((cyan_cnt / tot_q) * 100)))
-    p_gold = max(14, 95 - p_bull - p_cyan)
-    p_bear = max(5, 100 - p_bull - p_cyan - p_gold)
+    tot_q = bull_cnt + cyan_cnt + gold_cnt + bear_cnt
+    if tot_q > 0:
+        p_bull = int(round((bull_cnt / tot_q) * 100))
+        p_cyan = int(round((cyan_cnt / tot_q) * 100))
+        p_gold = int(round((gold_cnt / tot_q) * 100))
+        p_bear = max(0, 100 - p_bull - p_cyan - p_gold)
+    else:
+        p_bull = 0
+        p_cyan = 0
+        p_gold = 0
+        p_bear = 0
 
     # Chart 4: Stacked Horizontal Bars for Top 6 Demos
     stacked_bars_html = []
-    for idx, d in enumerate(summary["demos"][:6]):
-        w_dwell = min(74, max(14, int((d["dwell_sec"] / max_demo_dwell) * 74)))
-        w_runs = min(24, max(6, int((d["runs"] / max(1, summary["total_ide_runs"])) * 38)))
-        short_name = d["demo_name"].replace("Pillar ", "P").slice(0, 32) if hasattr(str, "slice") else d["demo_name"].replace("Pillar ", "P")[:34]
-        spark_vals = [
-            max(2, d["clicks"] // 5 + (idx * 2)),
-            max(4, d["clicks"] // 4),
-            max(6, d["clicks"] // 3),
-            max(8, d["clicks"] // 2),
-            d["clicks"],
-        ]
+    if not summary["demos"]:
         stacked_bars_html.append(
-            f"""
-            <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
-              <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">
-                <span style="font-weight:700;color:#F8FAFC;">{_html.escape(short_name)}</span>
-                <div style="display:flex;align-items:center;gap:10px;">
-                  {_svg_sparkline(spark_vals, "#00C805", 58, 16)}
-                  <span class="mono" style="color:#00C805;font-weight:800;">{d['dwell_min']}m</span>
-                  <span class="mono" style="color:#00E5FF;font-size:10.5px;">{d['runs']} runs</span>
-                </div>
-              </div>
-              <div style="display:flex;height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;gap:2px;">
-                <div style="width:{w_dwell}%;background:linear-gradient(90deg,#00C805,#00E676);border-radius:999px;"></div>
-                <div style="width:{w_runs}%;background:linear-gradient(90deg,#00E5FF,#38BDF8);border-radius:999px;"></div>
-              </div>
-            </div>
-            """
+            '<div style="color:#64748B;font-size:11.5px;text-align:center;padding:24px 0;font-family:\'JetBrains Mono\',monospace;">Awaiting demo visits to compare dwell velocity</div>'
         )
+    else:
+        for idx, d in enumerate(summary["demos"][:6]):
+            w_dwell = min(74, max(4, int((d["dwell_sec"] / max_demo_dwell) * 74))) if max_demo_dwell > 0 else 0
+            w_runs = min(24, max(2, int((d["runs"] / max(1, summary["total_ide_runs"])) * 38))) if summary["total_ide_runs"] > 0 else 0
+            short_name = d["demo_name"].replace("Pillar ", "P")[:34]
+            spark_vals = [d["clicks"]] if d["clicks"] > 0 else []
+            stacked_bars_html.append(
+                f"""
+                <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:11.5px;">
+                    <span style="font-weight:700;color:#F8FAFC;">{_html.escape(short_name)}</span>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                      {_svg_sparkline(spark_vals, "#00C805", 58, 16)}
+                      <span class="mono" style="color:#00C805;font-weight:800;">{d['dwell_min']}m</span>
+                      <span class="mono" style="color:#00E5FF;font-size:10.5px;">{d['runs']} runs</span>
+                    </div>
+                  </div>
+                  <div style="display:flex;height:8px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;gap:2px;">
+                    <div style="width:{w_dwell}%;background:linear-gradient(90deg,#00C805,#00E676);border-radius:999px;"></div>
+                    <div style="width:{w_runs}%;background:linear-gradient(90deg,#00E5FF,#38BDF8);border-radius:999px;"></div>
+                  </div>
+                </div>
+                """
+            )
 
-    # Chart 6: 24-Hour Hackathon Velocity Heatmap Grid
+    # Chart 6: 24-Hour Hackathon Velocity Heatmap Grid (Dynamically Calculated from Real Events)
     heatmap_rows = []
-    heat_surfaces = [
-        ("P5 · Vector Homes", [2, 3, 4, 5, 4, 5, 5, 4, 5, 5, 4, 5]),
-        ("Tab 3 · Mini-IDE", [1, 3, 5, 5, 4, 5, 5, 5, 4, 5, 5, 5]),
-        ("P1 · BQ TimesFM", [2, 2, 4, 4, 3, 4, 5, 4, 3, 4, 4, 5]),
-        ("P4 · Live Avatar", [1, 2, 3, 4, 4, 3, 4, 5, 4, 4, 3, 4]),
-        ("GECX · CX Studio", [1, 2, 3, 3, 4, 4, 3, 4, 5, 4, 3, 4]),
-        ("GChat Support", [0, 1, 2, 1, 2, 3, 2, 2, 3, 2, 3, 4]),
+    surfaces = [
+        ("P5 · Vector Homes", "Pillar 5"),
+        ("Tab 3 · Mini-IDE", "Glossary"),
+        ("P1 · BQ TimesFM", "Pillar 1"),
+        ("P4 · Live Avatar", "Pillar 4"),
+        ("GECX · CX Studio", "GECX"),
+        ("GChat Support", "Support"),
     ]
+    now_ts = time.time()
+    surface_buckets = {s_lbl: [0] * 12 for s_lbl, _ in surfaces}
+    for ev in _MEMORY_STATE.get("recent_events", []):
+        ts_str = ev.get("ts_iso", "")
+        try:
+            dt = datetime.datetime.strptime(ts_str.replace(" UTC", ""), "%Y-%m-%d %H:%M:%S").replace(tzinfo=datetime.timezone.utc)
+            ev_ts = dt.timestamp()
+        except Exception:
+            ev_ts = now_ts
+        age_sec = max(0.0, now_ts - ev_ts)
+        if age_sec < 86400:
+            bucket_idx = min(11, max(0, int((86400 - age_sec) / 7200)))
+            tgt = (ev.get("demo_name", "") + " " + ev.get("category", "") + " " + ev.get("target_label", "")).lower()
+            for s_lbl, kw in surfaces:
+                if kw.lower() in tgt:
+                    surface_buckets[s_lbl][bucket_idx] += 1
+
+    def _cnt_to_intensity(cnt: int) -> int:
+        if cnt <= 0:
+            return 0
+        if cnt <= 2:
+            return 1
+        if cnt <= 5:
+            return 2
+        if cnt <= 10:
+            return 3
+        if cnt <= 20:
+            return 4
+        return 5
+
     heat_colors = {
         0: "rgba(255,255,255,0.05)",
         1: "rgba(0, 200, 5, 0.18)",
@@ -1163,78 +1558,101 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
         4: "rgba(0, 200, 5, 0.82)",
         5: "#00C805",
     }
-    for s_lbl, slots in heat_surfaces:
+    for s_lbl, _ in surfaces:
+        slots = [_cnt_to_intensity(c) for c in surface_buckets[s_lbl]]
         cells = "".join(
             f'<div style="flex:1;height:18px;border-radius:4px;background:{heat_colors.get(v, "#00C805")};'
-            f'box-shadow:{("0 0 8px rgba(0,200,5,0.45)" if v == 5 else "none")};" title="{s_lbl}: Intensity {v}/5"></div>'
-            for v in slots
+            f'box-shadow:{("0 0 8px rgba(0,200,5,0.45)" if v == 5 else "none")};" title="{s_lbl}: {surface_buckets[s_lbl][idx]} events (Intensity {v}/5)"></div>'
+            for idx, v in enumerate(slots)
         )
         heatmap_rows.append(
-            f'<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
-            f'<span class="mono" style="width:118px;font-size:10.5px;color:#CBD5E1;font-weight:700;">{s_lbl}</span>'
-            f'<div style="display:flex;flex:1;gap:4px;">{cells}</div>'
+            f'<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
+            f'<span class="mono" style="width:96px;flex-shrink:0;font-size:10px;color:#CBD5E1;font-weight:700;">{s_lbl}</span>'
+            f'<div style="display:flex;flex:1;gap:3px;">{cells}</div>'
             f"</div>"
         )
 
     # Table 1: Demo & Studio Dwell-Time Leaderboard
     t1_rows = []
     for idx, d in enumerate(summary["demos"], 1):
-        pct = min(100, int((d["dwell_sec"] / max_demo_dwell) * 100))
+        pct = min(100, int((d["dwell_sec"] / max_demo_dwell) * 100)) if max_demo_dwell > 0 else 0
         mins = int(d["dwell_sec"] // 60)
         secs = int(d["dwell_sec"] % 60)
         s_val = d["avg_sentiment"]
         s_cls = "pill-bull" if s_val >= 0.75 else ("pill-cyan" if s_val >= 0.3 else "pill-bear")
-        spark = _svg_sparkline([max(3, d["clicks"] - 12), max(5, d["clicks"] - 7), d["clicks"] - 3, d["clicks"]], "#00C805", 66, 18)
+        spark = _svg_sparkline([d["clicks"]], "#00C805", 58, 16) if d["clicks"] > 0 else '<span class="mono" style="font-size:10px;color:#64748B;">—</span>'
         t1_rows.append(
             f"""
             <tr>
-              <td class="mono" style="color:#64748B;font-weight:700;">#{idx:02d}</td>
-              <td>
-                <div style="font-weight:800;color:#F8FAFC;font-size:13px;">{_html.escape(d['demo_name'])}</div>
-                <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:999px;margin-top:6px;overflow:hidden;">
+              <td data-label="Rank" class="mono" style="color:#64748B;font-weight:700;width:36px;">#{idx:02d}</td>
+              <td data-label="Demo / Studio Surface">
+                <div style="font-weight:800;color:#F8FAFC;font-size:12.5px;">{_html.escape(d['demo_name'])}</div>
+                <div style="margin-top:4px;"><span class="pill pill-titanium mono" style="font-size:9.5px;padding:2px 7px;">{_html.escape(d['gcp_service'])}</span></div>
+                <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:999px;margin-top:6px;overflow:hidden;">
                   <div style="width:{pct}%;height:100%;background:linear-gradient(90deg,#00C805,#00E5FF);border-radius:999px;"></div>
                 </div>
               </td>
-              <td><span class="pill pill-titanium mono">{_html.escape(d['gcp_service'])}</span></td>
-              <td style="text-align:center;">{spark}</td>
-              <td class="mono" style="font-weight:800;color:#00C805;text-align:right;">{mins}m {secs:02d}s</td>
-              <td class="mono" style="text-align:right;font-weight:700;">{d['clicks']}</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#00E5FF;">{d['runs']}</td>
-              <td class="mono" style="text-align:right;">{d['unique_users']}</td>
-              <td style="text-align:right;"><span class="pill {s_cls} mono">+{s_val:.2f} ▲</span></td>
+              <td data-label="Trend" style="text-align:center;">{spark}</td>
+              <td data-label="Dwell / Activity" class="mono" style="text-align:right;">
+                <div style="font-weight:800;color:#00C805;">{mins}m {secs:02d}s</div>
+                <div style="font-size:10.5px;color:#94A3B8;margin-top:2px;">{d['clicks']} clk · <span style="color:#00E5FF;">{d['runs']} runs</span> · {d['unique_users']}u</div>
+              </td>
+              <td data-label="Sentiment" style="text-align:right;"><span class="pill {s_cls} mono">+{s_val:.2f} ▲</span></td>
             </tr>
             """
         )
+    if not t1_rows:
+        t1_rows = ['<tr><td colspan="5" style="text-align:center;padding:26px 16px;color:#94A3B8;font-size:12px;">No active demo visits recorded yet. Participant dwell time and clicks will populate here live as users interact.</td></tr>']
 
     # Table 2: Google Cloud Service Stickiness & Code-Edit Matrix
     t2_rows = []
     for idx, s in enumerate(summary["services"], 1):
-        pct = min(100, int((s["dwell_sec"] / max_svc_dwell) * 100))
+        pct = min(100, int((s["dwell_sec"] / max_svc_dwell) * 100)) if max_svc_dwell > 0 else 0
         mins = int(s["dwell_sec"] // 60)
         secs = int(s["dwell_sec"] % 60)
         s_val = s["avg_sentiment"]
         t2_rows.append(
             f"""
             <tr>
-              <td class="mono" style="color:#64748B;font-weight:700;">#{idx:02d}</td>
-              <td>
-                <div style="font-weight:800;color:#F8FAFC;">{_html.escape(s['gcp_service'])}</div>
-                <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:999px;margin-top:5px;overflow:hidden;">
+              <td data-label="Rank" class="mono" style="color:#64748B;font-weight:700;width:36px;">#{idx:02d}</td>
+              <td data-label="Google Cloud Service">
+                <div style="font-weight:800;color:#F8FAFC;font-size:12.5px;">{_html.escape(s['gcp_service'])}</div>
+                <div style="height:4px;background:rgba(255,255,255,0.07);border-radius:999px;margin-top:5px;overflow:hidden;">
                   <div style="width:{pct}%;height:100%;background:linear-gradient(90deg,#00E5FF,#00C805);border-radius:999px;"></div>
                 </div>
               </td>
-              <td class="mono" style="font-weight:800;color:#00C805;text-align:right;">{mins}m {secs:02d}s</td>
-              <td class="mono" style="text-align:right;font-weight:700;">{s['clicks']}</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#F59E0B;">{s['ide_edits']} edits</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#00E5FF;">{s['questions']} prompts</td>
-              <td style="text-align:right;"><span class="pill pill-bull mono">+{s_val:.2f} ▲</span></td>
+              <td data-label="Dwell & Clicks" class="mono" style="text-align:right;">
+                <div style="font-weight:800;color:#00C805;">{mins}m {secs:02d}s</div>
+                <div style="font-size:10.5px;color:#94A3B8;margin-top:2px;">{s['clicks']} clicks</div>
+              </td>
+              <td data-label="Edits & Prompts" class="mono" style="text-align:right;">
+                <div style="font-weight:700;color:#F59E0B;">{s['ide_edits']} edits</div>
+                <div style="font-size:10.5px;color:#00E5FF;margin-top:2px;">{s['questions']} prompts</div>
+              </td>
+              <td data-label="Sentiment" style="text-align:right;"><span class="pill pill-bull mono">+{s_val:.2f} ▲</span></td>
             </tr>
             """
         )
+    if not t2_rows:
+        t2_rows = ['<tr><td colspan="5" style="text-align:center;padding:26px 16px;color:#94A3B8;font-size:12px;">No service activity recorded yet. Real-time GCP telemetry will appear as builders explore the portal.</td></tr>']
 
-    # Table 3: Per-Customer Executive Dossier (@rocket.com & @google.com)
+    # Table 3: Per-Customer Executive Dossier, Async LinkedIn/Search Grounding & Personalized Follow-Up Drafter
     t3_rows = []
-    for u in summary["users"]:
+    for idx, u in enumerate(summary["users"], 1):
+        u_email = u.get("email", "")
+        inferred = _infer_name_and_company_from_email(u_email)
+        full_name = u.get("full_name") or inferred["full_name"]
+        li_title = u.get("linkedin_title") or inferred["linkedin_title"]
+        li_url = u.get("linkedin_url") or inferred["linkedin_url"]
+        gs_url = u.get("google_search_url") or inferred["google_search_url"]
+        bio_sum = u.get("bio_summary") or inferred["bio_summary"]
+        role_badge = u.get("role_badge") or inferred["role_badge"]
+        enr_source = u.get("enrichment_source") or inferred["enrichment_source"]
+        enr_status = u.get("enrichment_status") or "ENRICHED"
+        f_exec = u.get("followup_exec") or inferred["followup_exec"]
+        f_herb = u.get("followup_herbalife") or inferred["followup_herbalife"]
+
+        initials = "".join([part[0].upper() for part in full_name.split()[:2]]) or "RK"
         mins = int(u.get("dwell_sec", 0) // 60)
         secs = int(u.get("dwell_sec", 0) % 60)
         sc = float(u.get("sentiment_score", 0.8))
@@ -1244,24 +1662,66 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
             s_badge = f'<span class="pill pill-cyan mono">● Builder (+{sc:.2f})</span>'
         else:
             s_badge = f'<span class="pill pill-bear mono">▼ Needs Help ({sc:+.2f})</span>'
+
+        status_dot_col = "#00C805" if enr_status == "ENRICHED" else "#F59E0B"
         t3_rows.append(
             f"""
-            <tr>
-              <td class="mono" style="font-weight:800;color:#00E5FF;">{_html.escape(u.get('email', ''))}</td>
-              <td><span class="pill pill-titanium">{_html.escape(u.get('department', 'Rocket Engineering'))}</span></td>
-              <td class="mono" style="font-weight:800;color:#00C805;text-align:right;">{mins}m {secs:02d}s</td>
-              <td style="font-weight:600;color:#E2E8F0;">{_html.escape(u.get('top_demo', ''))}</td>
-              <td><span class="pill pill-cyan mono">{_html.escape(u.get('top_service', ''))}</span></td>
-              <td class="mono" style="text-align:right;font-weight:700;">{u.get('clicks', 0)}</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#F59E0B;">{u.get('ide_runs', 0)}</td>
-              <td class="mono" style="text-align:right;font-weight:700;color:#00C805;">{u.get('questions', 0)}</td>
-              <td>{s_badge}</td>
-              <td class="mono" style="font-size:11px;color:#94A3B8;">{_html.escape(u.get('last_seen', '')[-12:])}</td>
+            <tr id="user-row-{idx}">
+              <td data-label="Executive Identity &amp; LinkedIn Grounding" style="width:32%;">
+                <div style="display:flex;align-items:flex-start;gap:11px;">
+                  <div class="mono" style="width:38px;height:38px;border-radius:11px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#000;background:linear-gradient(135deg,#00C805 0%,#00E5FF 100%);box-shadow:0 4px 14px rgba(0,200,5,0.32);">
+                    {_html.escape(initials)}
+                  </div>
+                  <div style="min-width:0;flex:1;">
+                    <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
+                      <span style="font-weight:800;color:#F8FAFC;font-size:13.5px;letter-spacing:-0.01em;">{_html.escape(full_name)}</span>
+                      <span class="pill pill-bull mono" style="font-size:9px;padding:2px 7px;">● {_html.escape(role_badge)}</span>
+                    </div>
+                    <div style="font-weight:700;color:#00E5FF;font-size:11.5px;margin-top:3px;line-height:1.35;">{_html.escape(li_title)}</div>
+                    <div style="font-size:11px;color:#94A3B8;margin-top:4px;line-height:1.4;">{_html.escape(bio_sum)}</div>
+                    <div style="margin-top:7px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span class="mono" style="font-size:10.5px;color:#CBD5E1;background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);">{_html.escape(u_email)}</span>
+                      <a href="{_html.escape(li_url)}" target="_blank" rel="noopener" class="mono" style="text-decoration:none;font-size:10px;font-weight:800;color:#38BDF8;background:rgba(14,165,233,0.14);border:1px solid rgba(14,165,233,0.4);padding:2px 8px;border-radius:999px;">in/ LinkedIn ↗</a>
+                      <a href="{_html.escape(gs_url)}" target="_blank" rel="noopener" class="mono" style="text-decoration:none;font-size:10px;font-weight:800;color:#00C805;background:rgba(0,200,5,0.12);border:1px solid rgba(0,200,5,0.35);padding:2px 8px;border-radius:999px;">G Search ↗</a>
+                      <button type="button" onclick="triggerUserEnrich('{_html.escape(u_email)}', this)" class="mono" style="cursor:pointer;font-size:9.5px;font-weight:700;color:#E2E8F0;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.18);padding:2px 7px;border-radius:999px;">↻ Re-Enrich</button>
+                    </div>
+                    <div class="mono" style="font-size:9.5px;color:#64748B;margin-top:5px;">
+                      <span style="color:{status_dot_col};">●</span> {_html.escape(enr_source)} · Last seen {_html.escape(u.get('last_seen', '')[-12:])}
+                    </div>
+                  </div>
+                </div>
+              </td>
+              <td data-label="Top Demo &amp; GCP Stack" style="width:22%;">
+                <div style="font-weight:700;color:#F8FAFC;font-size:12px;line-height:1.35;">{_html.escape(u.get('top_demo', ''))}</div>
+                <div style="margin-top:5px;"><span class="pill pill-cyan mono" style="font-size:9.5px;padding:2px 8px;">{_html.escape(u.get('top_service', ''))}</span></div>
+                <div class="mono" style="font-size:10px;color:#94A3B8;margin-top:6px;line-height:1.35;">Latest: {_html.escape(u.get('last_action', '')[:68])}</div>
+              </td>
+              <td data-label="Dwell, Velocity &amp; Sentiment" class="mono" style="width:16%;text-align:right;">
+                <div style="font-weight:800;color:#00C805;font-size:13.5px;">{mins}m {secs:02d}s</div>
+                <div style="font-size:10.5px;color:#CBD5E1;margin-top:3px;"><strong>{u.get('clicks', 0)}</strong> clk · <strong style="color:#F59E0B;">{u.get('ide_runs', 0)}</strong> IDE</div>
+                <div style="font-size:10.5px;color:#00E5FF;margin-top:2px;">{u.get('questions', 0)} prompts</div>
+                <div style="margin-top:6px;">{s_badge}</div>
+              </td>
+              <td data-label="Auto-Drafted Personalized Follow-Up" style="width:30%;">
+                <div style="background:rgba(5,8,13,0.78);border:1px solid rgba(0,200,5,0.28);border-radius:12px;padding:10px 12px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:5px;">
+                    <span class="mono followup-mode-badge" style="font-size:9.5px;font-weight:800;color:#00C805;letter-spacing:0.04em;">▲ EXECUTIVE GCP OUTREACH</span>
+                    <button type="button" onclick="copyFollowupMsg('fup-txt-{idx}', this)" class="mono" style="cursor:pointer;background:rgba(0,200,5,0.18);border:1px solid rgba(0,200,5,0.48);color:#00C805;font-size:10px;font-weight:800;padding:3px 9px;border-radius:999px;">Copy Follow-Up</button>
+                  </div>
+                  <div id="fup-txt-{idx}" class="followup-text-box"
+                       data-exec="{_html.escape(f_exec)}"
+                       data-herbalife="{_html.escape(f_herb)}"
+                       style="font-size:11.5px;color:#E2E8F0;line-height:1.45;font-weight:500;">{_html.escape(f_exec)}</div>
+                </div>
+              </td>
             </tr>
             """
         )
 
-    # Table 4: Customer Questions, Prompts & Sentiment Intelligence Feed
+    if not t3_rows:
+        t3_rows = ['<tr><td colspan="4" style="text-align:center;padding:26px 16px;color:#94A3B8;font-size:12px;">No participant sessions recorded yet. Active hackathon builders will appear here live with full grounding and dwell metrics.</td></tr>']
+
+    # Table 4: Customer Questions, Prompts & Sentiment Intelligence Feed (Zero Horizontal ScrollStacked Layout)
     t4_rows = []
     for q in summary["questions"]:
         bc = q.get("badge_color", "bull")
@@ -1277,61 +1737,145 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
         t4_rows.append(
             f"""
             <tr>
-              <td class="mono" style="font-size:11px;color:#94A3B8;white-space:nowrap;">{_html.escape(q.get('ts_iso', '')[-12:])}</td>
-              <td class="mono" style="font-weight:800;color:#00E5FF;">{_html.escape(q.get('user_email', ''))}</td>
-              <td><span class="pill pill-titanium mono">{_html.escape(q.get('category', ''))}</span></td>
-              <td style="color:#F8FAFC;font-weight:600;line-height:1.45;max-width:380px;">{_html.escape(q.get('question', ''))}</td>
-              <td><span class="pill pill-cyan mono">{_html.escape(q.get('gcp_service', ''))}</span></td>
-              <td><span class="pill {pill_cls} mono">{_html.escape(q.get('sentiment_label', ''))} ({sc:+.2f})</span></td>
-              <td><span class="pill pill-titanium mono">{_html.escape(q.get('maturity', 'L200'))} · {_html.escape(q.get('intent', ''))}</span></td>
-              <td style="font-size:11.5px;color:#00C805;font-weight:700;">{_html.escape(q.get('rec_action', ''))}</td>
+              <td data-label="Customer & Channel" style="width:22%;">
+                <div class="mono" style="font-weight:800;color:#00E5FF;font-size:12.5px;word-break:break-all;">{_html.escape(q.get('user_email', ''))}</div>
+                <div style="margin-top:5px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                  <span class="pill pill-titanium mono" style="font-size:9.5px;padding:2px 7px;">{_html.escape(q.get('category', ''))}</span>
+                  <span class="mono" style="font-size:10.5px;color:#94A3B8;">{_html.escape(q.get('ts_iso', '')[-12:])}</span>
+                </div>
+              </td>
+              <td data-label="Prompt / Code Modification & GCP Stack" style="width:48%;">
+                <div style="color:#F8FAFC;font-weight:600;line-height:1.45;font-size:12.5px;">{_html.escape(q.get('question', ''))}</div>
+                <div style="margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                  <span class="pill pill-cyan mono" style="font-size:9.5px;padding:2px 8px;">{_html.escape(q.get('gcp_service', ''))}</span>
+                  <span class="pill pill-titanium mono" style="font-size:9.5px;padding:2px 8px;">{_html.escape(q.get('maturity', 'L200'))} · {_html.escape(q.get('intent', ''))}</span>
+                </div>
+              </td>
+              <td data-label="Sentiment & CE Action" style="width:30%;">
+                <div><span class="pill {pill_cls} mono">{_html.escape(q.get('sentiment_label', ''))} ({sc:+.2f})</span></div>
+                <div style="font-size:11.5px;color:#00C805;font-weight:700;margin-top:6px;line-height:1.35;">→ {_html.escape(q.get('rec_action', ''))}</div>
+              </td>
             </tr>
             """
         )
 
-    # Table 5: Mini-IDE Sandbox Code Modification Log
+    if not t4_rows:
+        t4_rows = ['<tr><td colspan="3" style="text-align:center;padding:26px 16px;color:#94A3B8;font-size:12px;">No builder questions or prompts submitted yet. Live queries and sentiment will stream in as participants interact with Gemini.</td></tr>']
+
+    # Table 5: Isolated Mini-IDE Sandbox Runs (Zero Host Mutation)
     t5_rows = []
     for exp in summary["ide_experiments"]:
         mod_badge = (
-            '<span class="pill pill-bull mono">▲ MODIFIED CODE</span>'
+            '<span class="pill pill-cyan mono" style="font-size:9.5px;padding:2px 7px;">● EPHEMERAL RUN</span>'
             if exp.get("is_modified")
-            else '<span class="pill pill-titanium mono">DEFAULT RUN</span>'
+            else '<span class="pill pill-titanium mono" style="font-size:9.5px;padding:2px 7px;">DEFAULT</span>'
         )
         t5_rows.append(
             f"""
             <tr>
-              <td class="mono" style="font-size:11px;color:#94A3B8;">{_html.escape(exp.get('ts_iso', ''))}</td>
-              <td class="mono" style="font-weight:700;color:#00E5FF;">{_html.escape(exp.get('user_email', ''))}</td>
-              <td style="font-weight:700;color:#F8FAFC;">{_html.escape(exp.get('term_title', ''))}</td>
-              <td>{mod_badge}</td>
-              <td class="mono" style="color:#F59E0B;">{_html.escape(str(exp.get('model', 'gemini-3.8-flash')))} (T={exp.get('temperature', 0.2)})</td>
-              <td style="color:#CBD5E1;font-size:12px;">{_html.escape(exp.get('code_change_summary', ''))}</td>
-              <td class="mono" style="text-align:right;color:#00C805;font-weight:700;">{exp.get('latency_ms', 780)} ms</td>
+              <td data-label="Builder & Concept" style="width:36%;">
+                <div class="mono" style="font-weight:800;color:#00E5FF;font-size:12px;word-break:break-all;">{_html.escape(exp.get('user_email', ''))}</div>
+                <div style="font-weight:700;color:#F8FAFC;font-size:12px;margin-top:3px;">{_html.escape(exp.get('term_title', ''))}</div>
+                <div style="margin-top:4px;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">
+                  {mod_badge}
+                  <span class="mono" style="font-size:10px;color:#94A3B8;">{_html.escape(exp.get('ts_iso', '')[-12:])}</span>
+                </div>
+              </td>
+              <td data-label="Ephemeral Parameters & Model" style="width:48%;">
+                <div style="color:#E2E8F0;font-size:12px;line-height:1.4;">{_html.escape(exp.get('code_change_summary', ''))}</div>
+                <div class="mono" style="color:#F59E0B;font-size:10.5px;margin-top:4px;">{_html.escape(str(exp.get('model', 'gemini-3.8-flash')))} · T={exp.get('temperature', 0.2)}</div>
+              </td>
+              <td data-label="Latency" class="mono" style="text-align:right;color:#00C805;font-weight:800;width:16%;">{exp.get('latency_ms', 780)} ms</td>
             </tr>
             """
         )
 
-    # Table 6: UX Friction, Code Resets & Support Escalations
+    if not t5_rows:
+        t5_rows = ['<tr><td colspan="3" style="text-align:center;padding:26px 16px;color:#94A3B8;font-size:12px;">No isolated sandbox runs recorded yet. Ephemeral prompt evaluations and model execution latency will log here in real time.</td></tr>']
+
+    # Table 6: UX Friction, Code Resets & Support Escalations (Zero Horizontal Scroll)
     t6_rows = []
     for fr in summary["friction_events"]:
         t6_rows.append(
             f"""
             <tr>
-              <td class="mono" style="font-size:11px;color:#94A3B8;">{_html.escape(fr.get('ts_iso', ''))}</td>
-              <td class="mono" style="font-weight:700;color:#FF5000;">{_html.escape(fr.get('user_email', ''))}</td>
-              <td><span class="pill pill-bear mono">{_html.escape(fr.get('friction_type', ''))}</span></td>
-              <td style="font-weight:700;color:#F8FAFC;">{_html.escape(fr.get('demo_name', ''))}</td>
-              <td style="color:#CBD5E1;">{_html.escape(fr.get('detail', ''))}</td>
-              <td><span class="pill pill-cyan mono">{_html.escape(fr.get('status', ''))}</span></td>
+              <td data-label="Customer & Signal" style="width:36%;">
+                <div class="mono" style="font-weight:800;color:#FF5000;font-size:12px;word-break:break-all;">{_html.escape(fr.get('user_email', ''))}</div>
+                <div style="margin-top:4px;"><span class="pill pill-bear mono" style="font-size:9.5px;padding:2px 7px;">{_html.escape(fr.get('friction_type', ''))}</span></div>
+                <div class="mono" style="font-size:10px;color:#94A3B8;margin-top:3px;">{_html.escape(fr.get('ts_iso', '')[-12:])}</div>
+              </td>
+              <td data-label="Surface & Diagnostic" style="width:40%;">
+                <div style="font-weight:700;color:#F8FAFC;font-size:12px;">{_html.escape(fr.get('demo_name', ''))}</div>
+                <div style="color:#CBD5E1;font-size:11.5px;line-height:1.4;margin-top:3px;">{_html.escape(fr.get('detail', ''))}</div>
+              </td>
+              <td data-label="Status" style="text-align:right;width:24%;"><span class="pill pill-cyan mono" style="font-size:9.5px;padding:3px 8px;">{_html.escape(fr.get('status', ''))}</span></td>
             </tr>
             """
         )
+
+    if not t6_rows:
+        t6_rows = ['<tr><td colspan="3" style="text-align:center;padding:26px 16px;color:#94A3B8;font-size:12px;">No friction events or support escalations logged. Active issues and Google Chat support tickets will route here.</td></tr>']
+
+    has_dwell = summary["total_dwell_min"] > 0
+    if not has_dwell:
+        rh_price_label = "0.0 mins"
+        rh_delta_html = '<span id="rh-live-delta" class="mono" style="font-size:13px;font-weight:800;color:#94A3B8;">0.0% · <span id="rh-live-time">Awaiting participant traffic</span></span>'
+        rh_cyan_area = "M0,195 L720,195 L720,210 L0,210 Z"
+        rh_cyan_line = "M0,195 L720,195"
+        rh_bull_area = "M0,195 L720,195 L720,210 L0,210 Z"
+        rh_bull_line = "M0,195 L720,195"
+        rh_dot_cy = "195"
+        tf_data_json = json.dumps({
+            "1H": {"pts": [[0, 195, "0.0m", "0.0%", "50m ago"], [720, 195, "0.0m", "0.0%", "LIVE 1H"]], "cyan": "M0,195 L720,195"},
+            "6H": {"pts": [[0, 195, "0.0m", "0.0%", "6h ago"], [720, 195, "0.0m", "0.0%", "LIVE 6H"]], "cyan": "M0,195 L720,195"},
+            "24H": {"pts": [[0, 195, "0.0m", "0.0%", "24h ago"], [720, 195, "0.0m", "0.0%", "LIVE 24H"]], "cyan": "M0,195 L720,195"},
+            "ALL": {"pts": [[0, 195, "0.0m", "0.0%", "Launch"], [720, 195, "0.0m", "0.0%", "LIVE NOW"]], "cyan": "M0,195 L720,195"}
+        })
+    else:
+        dm = summary["total_dwell_min"]
+        rh_price_label = f"{dm:.1f} mins"
+        rh_delta_html = '<span id="rh-live-delta" class="mono" style="font-size:13px;font-weight:800;color:#00C805;">▲ Live dwell velocity · <span id="rh-live-time">LIVE NOW</span></span>'
+        rh_cyan_area = "M0,195 L360,160 L720,110 L720,210 L0,210 Z"
+        rh_cyan_line = "M0,195 L360,160 L720,110"
+        rh_bull_area = "M0,195 L360,120 L720,40 L720,210 L0,210 Z"
+        rh_bull_line = "M0,195 L360,120 L720,40"
+        rh_dot_cy = "40"
+        tf_data_json = json.dumps({
+            "1H": {"pts": [[0, 195, "0.0m", "0.0%", "1h ago"], [360, 130, f"{dm*0.6:.1f}m", "+60%", "30m ago"], [720, 40, f"{dm:.1f} mins", "+100%", "LIVE 1H"]], "cyan": "M0,195 L360,160 L720,110"},
+            "6H": {"pts": [[0, 195, "0.0m", "0.0%", "6h ago"], [360, 130, f"{dm*0.6:.1f}m", "+60%", "3h ago"], [720, 40, f"{dm:.1f} mins", "+100%", "LIVE 6H"]], "cyan": "M0,195 L360,160 L720,110"},
+            "24H": {"pts": [[0, 195, "0.0m", "0.0%", "24h ago"], [360, 130, f"{dm*0.6:.1f}m", "+60%", "12h ago"], [720, 40, f"{dm:.1f} mins", "+100%", "LIVE 24H"]], "cyan": "M0,195 L360,160 L720,110"},
+            "ALL": {"pts": [[0, 195, "0.0m", "0.0%", "Launch"], [360, 130, f"{dm*0.6:.1f}m", "+60%", "Mid"], [720, 40, f"{dm:.1f} mins", "+100%", "LIVE NOW"]], "cyan": "M0,195 L360,160 L720,110"}
+        })
+
+    kpi_users_spark = _svg_sparkline([0, summary['unique_users_count']], "#00C805", 64, 20) if summary['unique_users_count'] > 0 else '<span class="mono" style="font-size:10.5px;color:#64748B;">—</span>'
+    kpi_dwell_spark = _svg_sparkline([0, summary['total_dwell_min']], "#00C805", 64, 20) if summary['total_dwell_min'] > 0 else '<span class="mono" style="font-size:10.5px;color:#64748B;">—</span>'
+    kpi_sent_spark = _svg_sparkline([0, summary['avg_sentiment']], "#00E5FF", 64, 20) if summary['avg_sentiment'] > 0 else '<span class="mono" style="font-size:10.5px;color:#64748B;">—</span>'
+    kpi_ide_spark = _svg_sparkline([0, summary['total_ide_runs']], "#F59E0B", 64, 20) if summary['total_ide_runs'] > 0 else '<span class="mono" style="font-size:10.5px;color:#64748B;">—</span>'
+    kpi_q_spark = _svg_sparkline([0, summary['total_questions']], "#A855F7", 64, 20) if summary['total_questions'] > 0 else '<span class="mono" style="font-size:10.5px;color:#64748B;">—</span>'
+    kpi_clk_spark = _svg_sparkline([0, summary['total_clicks']], "#00C805", 64, 20) if summary['total_clicks'] > 0 else '<span class="mono" style="font-size:10.5px;color:#64748B;">—</span>'
+
+    kpi_users_delta = "▲ @rocket.com verified" if summary['unique_users_count'] > 0 else "Awaiting builder logins"
+    kpi_dwell_delta = f"▲ {summary['total_dwell_sec']}s active focus (5s beat)" if summary['total_dwell_sec'] > 0 else "0s active focus (5s beat)"
+    kpi_sent_delta = "▲ High Buying &amp; Builder Signal" if summary['avg_sentiment'] > 0 else "Awaiting participant interactions"
+    kpi_ide_delta = f"▲ {summary['total_ide_modifications']} live code modifications" if summary['total_ide_runs'] > 0 else "Awaiting code modifications"
+    kpi_q_delta = "▲ Kira + Mini-IDE + GChat" if summary['total_questions'] > 0 else "Awaiting builder prompts"
+    kpi_clk_delta = "▲ Out-of-band sendBeacon" if summary['total_clicks'] > 0 else "Awaiting UI interactions"
 
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="CE Telemetry">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/telemetry-manifest.webmanifest">
+  <link rel="icon" type="image/png" sizes="192x192" href="/static/telemetry_icon_192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="/static/telemetry_icon_512.png">
+  <link rel="icon" type="image/svg+xml" href="/telemetry-icon.svg">
+  <link rel="apple-touch-icon" href="/static/telemetry_icon_192.png">
   <title>Google CE Telemetry &amp; Sentiment Hub | Titanium 3D × Robinhood OLED</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -1373,9 +1917,13 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       box-shadow:
         0 26px 65px -15px rgba(0, 0, 0, 0.85),
         var(--ti-rim);
-      transform: perspective(1200px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
-      transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.2s ease, box-shadow 0.2s ease;
+      transform: perspective(1400px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)) translateZ(0);
+      transition: transform 0.08s ease-out, border-color 0.14s ease, box-shadow 0.14s ease;
       overflow: hidden;
+    }}
+    /* Keep large tables and multi-column panels flat and rock-solid (specular spotlight only, no table skew) */
+    .titanium-slab.panel {{
+      transform: none !important;
     }}
     .titanium-slab::after {{
       content: '';
@@ -1455,9 +2003,9 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     }}
 
     .panel {{
-      padding: 22px 24px;
+      padding: 20px 22px;
       margin-bottom: 20px;
-      overflow-x: auto;
+      overflow-x: hidden;
     }}
     .panel-hdr {{
       display: flex;
@@ -1509,43 +2057,160 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
 
     .grid-2 {{
       display: grid;
-      grid-template-columns: 1.15fr 1fr;
+      grid-template-columns: 1.05fr 1fr;
       gap: 18px;
       margin-bottom: 20px;
     }}
 
-    /* Tables */
-    table {{ width: 100%; border-collapse: collapse; font-size: 12.5px; position: relative; z-index: 2; }}
+    /* Tables — Zero Horizontal Scroll Engine */
+    table {{
+      width: 100%;
+      table-layout: fixed;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      position: relative;
+      z-index: 2;
+    }}
     th {{
       text-align: left;
-      padding: 10px 12px;
+      padding: 10px 10px;
       color: #94A3B8;
-      font-size: 10.5px;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.05em;
       border-bottom: 1px solid rgba(255,255,255,0.14);
       font-family: 'JetBrains Mono', monospace;
-      white-space: nowrap;
     }}
-    td {{ padding: 11px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); vertical-align: middle; }}
+    td {{
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }}
     tr:hover td {{ background: rgba(0, 200, 5, 0.04); }}
 
-    /* Robinhood Neon Pills */
+    /* Robinhood Neon Pills — Auto-Wrap on Narrow Cells */
     .pill {{
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      padding: 3px 10px;
+      padding: 3px 9px;
       border-radius: 999px;
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 800;
-      white-space: nowrap;
+      white-space: normal;
+      line-height: 1.3;
     }}
     .pill-bull {{ background: rgba(0, 200, 5, 0.15); color: #00E676; border: 1px solid rgba(0, 200, 5, 0.42); }}
     .pill-bear {{ background: rgba(255, 80, 0, 0.16); color: #FF7043; border: 1px solid rgba(255, 80, 0, 0.45); }}
     .pill-cyan {{ background: rgba(0, 229, 255, 0.14); color: #00E5FF; border: 1px solid rgba(0, 229, 255, 0.38); }}
     .pill-gold {{ background: rgba(245, 158, 11, 0.16); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); }}
     .pill-titanium {{ background: rgba(148, 163, 184, 0.12); color: #CBD5E1; border: 1px solid rgba(255, 255, 255, 0.18); }}
+
+    /* ======================================================================
+       PIXEL 11 PRO (412px) & MOBILE PWA RESPONSIVE HUD CARDS
+       ====================================================================== */
+    .mobile-bottom-nav {{
+      display: none;
+    }}
+    @media (max-width: 820px) {{
+      body {{
+        padding: 12px 12px 86px !important;
+        perspective: none !important;
+      }}
+      .titanium-slab {{
+        transform: none !important;
+      }}
+      .hdr {{
+        padding: 14px 16px !important;
+        border-radius: 18px !important;
+      }}
+      .hdr h1 {{
+        font-size: 17.5px !important;
+      }}
+      .kpi-grid {{
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+      }}
+      .kpi-card {{
+        padding: 13px 14px !important;
+      }}
+      .kpi-val {{
+        font-size: 21px !important;
+      }}
+      .panel {{
+        padding: 15px 14px !important;
+        border-radius: 18px !important;
+      }}
+      /* Convert multi-column tables into stacked Robinhood Mobile HUD Cards on Pixel 11 Pro */
+      table, thead, tbody, th, td, tr {{
+        display: block;
+        width: 100% !important;
+      }}
+      thead tr {{
+        display: none;
+      }}
+      tbody tr {{
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 14px;
+        padding: 12px 13px;
+        margin-bottom: 10px;
+      }}
+      tbody td {{
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 6px 0 !important;
+        text-align: left !important;
+        width: 100% !important;
+      }}
+      tbody td:last-child {{
+        border-bottom: none;
+        padding-bottom: 0 !important;
+      }}
+      tbody td::before {{
+        content: attr(data-label);
+        display: block;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #64748B;
+        margin-bottom: 3px;
+      }}
+      .mobile-bottom-nav {{
+        display: flex;
+        position: fixed;
+        bottom: 10px;
+        left: 12px;
+        right: 12px;
+        z-index: 999;
+        background: rgba(11, 15, 23, 0.92);
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        border: 1px solid rgba(0, 200, 5, 0.38);
+        border-radius: 999px;
+        padding: 6px 8px;
+        justify-content: space-around;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85), 0 0 20px rgba(0, 200, 5, 0.18);
+      }}
+      .mobile-bottom-nav a, .mobile-bottom-nav button {{
+        background: transparent;
+        border: none;
+        color: #CBD5E1;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10.5px;
+        font-weight: 800;
+        text-decoration: none;
+        padding: 7px 10px;
+        border-radius: 999px;
+        cursor: pointer;
+      }}
+      .mobile-bottom-nav a.active {{
+        background: #00C805;
+        color: #000000;
+      }}
+    }}
 
     .btn {{
       display: inline-flex;
@@ -1589,82 +2254,83 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       <p style="font-size:12.5px;color:#94A3B8;margin-top:2px;">Restricted Google Cloud CE observability deck · 3D perspective titanium slabs with Robinhood live financial scrubbers &amp; 6 multi-modal chart engines.</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;position:relative;z-index:2;">
+      <button id="pwa-install-btn" class="btn" style="border-color:rgba(0,229,255,0.45);color:#00E5FF;" onclick="installPwaApp()">📱 Install Pixel 11 Pro App</button>
       <button class="btn btn-bull" onclick="window.location.reload()">↻ Sync Live Telemetry</button>
-      <a class="btn" href="/api/telemetry/summary?admin_token=ce-admin:detroit-dream-2026" target="_blank">{{ }} JSON Feed</a>
+      <a class="btn" href="/api/telemetry/summary" target="_blank">{{ }} JSON Feed</a>
       <a class="btn" href="/" target="_blank">Customer Portal ↗</a>
       <a class="btn btn-bear" href="/admin-logout">Lock CE Portal</a>
     </div>
   </header>
 
   <!-- 6 EXECUTIVE TITANIUM 3D KPI CARDS WITH INLINE SPARKLINES -->
-  <section class="kpi-grid">
+  <section id="sec-kpis" class="kpi-grid">
     <div class="titanium-slab kpi-card">
       <div class="kpi-top">
         <span class="kpi-lbl mono">Active Customer Emails</span>
-        {_svg_sparkline([2, 3, 4, 5, 6, summary['unique_users_count']], "#00C805", 64, 20)}
+        {kpi_users_spark}
       </div>
       <div class="kpi-val mono" style="color:#00C805;">{summary['unique_users_count']}</div>
-      <div class="kpi-delta mono">▲ +100% @rocket.com verified</div>
+      <div class="kpi-delta mono">{kpi_users_delta}</div>
     </div>
 
     <div class="titanium-slab kpi-card">
       <div class="kpi-top">
         <span class="kpi-lbl mono">Total Active Dwell Time</span>
-        {_svg_sparkline([24, 42, 65, 81, 94, summary['total_dwell_min']], "#00C805", 64, 20)}
+        {kpi_dwell_spark}
       </div>
       <div class="kpi-val mono" style="color:#F8FAFC;">{summary['total_dwell_min']}m</div>
-      <div class="kpi-delta mono">▲ {summary['total_dwell_sec']}s active focus (5s beat)</div>
+      <div class="kpi-delta mono">{kpi_dwell_delta}</div>
     </div>
 
     <div class="titanium-slab kpi-card">
       <div class="kpi-top">
         <span class="kpi-lbl mono">Net Customer Sentiment</span>
-        {_svg_sparkline([0.72, 0.78, 0.81, 0.84, 0.88, summary['avg_sentiment']], "#00E5FF", 64, 20)}
+        {kpi_sent_spark}
       </div>
       <div class="kpi-val mono" style="color:#00E5FF;">+{summary['avg_sentiment']:.2f}</div>
-      <div class="kpi-delta mono" style="color:#00E5FF;">▲ High Buying &amp; Builder Signal</div>
+      <div class="kpi-delta mono" style="color:#00E5FF;">{kpi_sent_delta}</div>
     </div>
 
     <div class="titanium-slab kpi-card">
       <div class="kpi-top">
         <span class="kpi-lbl mono">Mini-IDE Code Runs</span>
-        {_svg_sparkline([3, 6, 9, 13, 16, summary['total_ide_runs']], "#F59E0B", 64, 20)}
+        {kpi_ide_spark}
       </div>
       <div class="kpi-val mono" style="color:#F59E0B;">{summary['total_ide_runs']} <span style="font-size:13px;color:#94A3B8;">({summary['total_ide_modifications']} edits)</span></div>
-      <div class="kpi-delta mono" style="color:#FBBF24;">▲ 74% modified live Python/SQL</div>
+      <div class="kpi-delta mono" style="color:#FBBF24;">{kpi_ide_delta}</div>
     </div>
 
     <div class="titanium-slab kpi-card">
       <div class="kpi-top">
         <span class="kpi-lbl mono">Prompts &amp; Questions</span>
-        {_svg_sparkline([1, 2, 3, 4, 5, summary['total_questions']], "#A855F7", 64, 20)}
+        {kpi_q_spark}
       </div>
       <div class="kpi-val mono" style="color:#C084FC;">{summary['total_questions']}</div>
-      <div class="kpi-delta mono" style="color:#C084FC;">▲ Kira + Mini-IDE + GChat</div>
+      <div class="kpi-delta mono" style="color:#C084FC;">{kpi_q_delta}</div>
     </div>
 
     <div class="titanium-slab kpi-card">
       <div class="kpi-top">
         <span class="kpi-lbl mono">Total UI Interactions</span>
-        {_svg_sparkline([45, 92, 148, 210, 260, summary['total_clicks']], "#00C805", 64, 20)}
+        {kpi_clk_spark}
       </div>
       <div class="kpi-val mono">{summary['total_clicks']}</div>
-      <div class="kpi-delta mono">▲ Out-of-band sendBeacon</div>
+      <div class="kpi-delta mono">{kpi_clk_delta}</div>
     </div>
   </section>
 
   <!-- ========================================================================
        ROW 1 CHARTS: (1) ROBINHOOD LIVE SCRUBBER AREA CHART + (2) SENTIMENT DONUT
        ======================================================================== -->
-  <section class="charts-hero-grid">
+  <section id="sec-charts" class="charts-hero-grid">
     <!-- CHART 1: ROBINHOOD INTERACTIVE SPLINE AREA CHART WITH CROSSHAIR SCRUBBER -->
     <div class="titanium-slab panel" style="margin-bottom:0;">
       <div class="panel-hdr">
         <div>
           <div class="mono" style="font-size:10.5px;color:#00C805;font-weight:800;letter-spacing:0.06em;">CHART 01 · ROBINHOOD LIVE ENGAGEMENT &amp; DWELL VELOCITY INDEX</div>
           <div style="display:flex;align-items:baseline;gap:12px;margin-top:4px;">
-            <span id="rh-live-price" class="mono" style="font-size:32px;font-weight:800;color:#F8FAFC;">{summary['total_dwell_min']} mins</span>
-            <span id="rh-live-delta" class="mono" style="font-size:13px;font-weight:800;color:#00C805;">▲ +34.8% (+27.2m vs. prior window) · <span id="rh-live-time">LIVE NOW</span></span>
+            <span id="rh-live-price" class="mono" style="font-size:32px;font-weight:800;color:#F8FAFC;">{rh_price_label}</span>
+            {rh_delta_html}
           </div>
         </div>
         <div class="rh-tf-bar">
@@ -1677,7 +2343,7 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
 
       <!-- Interactive SVG Area + Crosshair Scrubber -->
       <div style="position:relative;z-index:2;user-select:none;">
-        <svg id="rh-main-chart-svg" viewBox="0 0 720 220" style="width:100%;height:220px;overflow:visible;cursor:crosshair;">
+        <svg id="rh-main-chart-svg" viewBox="0 0 720 220" style="width:100%;height:auto;max-height:220px;display:block;cursor:crosshair;">
           <defs>
             <linearGradient id="rhBullGrad" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stop-color="#00C805" stop-opacity="0.42" />
@@ -1695,22 +2361,22 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
           <line x1="0" y1="50" x2="720" y2="50" stroke="rgba(255,255,255,0.06)" />
 
           <!-- Secondary Cyan Series (Mini-IDE Code Runs Velocity) -->
-          <path id="rh-cyan-area" d="M0,195 L65,186 L130,178 L195,162 L260,154 L325,138 L390,126 L455,112 L520,96 L585,84 L650,68 L720,54 L720,210 L0,210 Z" fill="url(#rhCyanGrad)" />
-          <path id="rh-cyan-line" d="M0,195 L65,186 L130,178 L195,162 L260,154 L325,138 L390,126 L455,112 L520,96 L585,84 L650,68 L720,54" fill="none" stroke="#00E5FF" stroke-width="2" stroke-dasharray="4,3" />
+          <path id="rh-cyan-area" d="{rh_cyan_area}" fill="url(#rhCyanGrad)" />
+          <path id="rh-cyan-line" d="{rh_cyan_line}" fill="none" stroke="#00E5FF" stroke-width="2" stroke-dasharray="4,3" />
 
           <!-- Primary Robinhood Bull Green Area & Line (Active Customer Dwell) -->
-          <path id="rh-bull-area" d="M0,182 L65,170 L130,152 L195,158 L260,130 L325,114 L390,119 L455,88 L520,72 L585,54 L650,38 L720,22 L720,210 L0,210 Z" fill="url(#rhBullGrad)" />
-          <path id="rh-bull-line" d="M0,182 L65,170 L130,152 L195,158 L260,130 L325,114 L390,119 L455,88 L520,72 L585,54 L650,38 L720,22" fill="none" stroke="#00C805" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
+          <path id="rh-bull-area" d="{rh_bull_area}" fill="url(#rhBullGrad)" />
+          <path id="rh-bull-line" d="{rh_bull_line}" fill="none" stroke="#00C805" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" />
 
           <!-- Interactive Scrubber Crosshair -->
           <line id="rh-scrub-line" x1="720" y1="8" x2="720" y2="205" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" stroke-dasharray="2,2" />
-          <circle id="rh-scrub-dot" cx="720" cy="22" r="6" fill="#00C805" stroke="#000000" stroke-width="2.5" />
+          <circle id="rh-scrub-dot" cx="720" cy="{rh_dot_cy}" r="6" fill="#00C805" stroke="#000000" stroke-width="2.5" />
         </svg>
         <div style="display:flex;justify-content:space-between;font-size:10.5px;color:#64748B;margin-top:4px;" class="mono">
-          <span>OCT 16 LAUNCH</span>
-          <span>OCT 17 LABS</span>
-          <span>OCT 18 SANDBOX</span>
-          <span>OCT 19 GLOSSARY IDE</span>
+          <span>PORTAL LAUNCH</span>
+          <span>FLAGSHIP STUDIOS</span>
+          <span>MINI-IDE SANDBOX</span>
+          <span>SUPPORT CHAT</span>
           <span style="color:#00C805;font-weight:700;">● LIVE STREAM</span>
         </div>
       </div>
@@ -1726,8 +2392,8 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
         <span class="pill pill-bull mono">+{summary['avg_sentiment']:.2f} NET</span>
       </div>
 
-      <div style="display:grid;grid-template-columns:165px 1fr;align-items:center;gap:14px;position:relative;z-index:2;margin:auto 0;">
-        <svg viewBox="0 0 160 160" style="width:155px;height:155px;transform:rotate(-90deg);">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));align-items:center;gap:14px;position:relative;z-index:2;margin:auto 0;">
+        <svg viewBox="0 0 160 160" style="width:148px;height:148px;margin:0 auto;transform:rotate(-90deg);">
           <circle cx="80" cy="80" r="60" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="14" />
           <!-- Bull Green Segment -->
           <circle cx="80" cy="80" r="60" fill="none" stroke="#00C805" stroke-width="14"
@@ -1830,7 +2496,7 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       </div>
       <div style="position:relative;z-index:2;padding-top:4px;">
         {''.join(heatmap_rows)}
-        <div class="mono" style="display:flex;justify-content:space-between;font-size:10px;color:#64748B;margin-top:10px;padding-left:126px;">
+        <div class="mono" style="display:flex;justify-content:space-between;font-size:9.5px;color:#64748B;margin-top:10px;padding-left:102px;">
           <span>08:00</span>
           <span>11:00</span>
           <span>14:00</span>
@@ -1843,7 +2509,7 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
   </section>
 
   <!-- ========================================================================
-       6 DETAILED EXECUTIVE TELEMETRY & UX TABLES
+       6 DETAILED EXECUTIVE TELEMETRY & UX TABLES (ZERO HORIZONTAL SCROLL)
        ======================================================================== -->
   <div class="grid-2">
     <!-- TABLE 1: DEMO & STUDIO DWELL-TIME LEADERBOARD -->
@@ -1858,15 +2524,11 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>Demo / Studio Surface</th>
-            <th>Primary GCP Service</th>
-            <th style="text-align:center;">Trend</th>
-            <th style="text-align:right;">Dwell Time</th>
-            <th style="text-align:right;">Clicks</th>
-            <th style="text-align:right;">Runs</th>
-            <th style="text-align:right;">Users</th>
-            <th style="text-align:right;">Sentiment</th>
+            <th style="width:9%;">#</th>
+            <th style="width:41%;">Demo / Studio &amp; GCP Service</th>
+            <th style="text-align:center;width:15%;">Trend</th>
+            <th style="text-align:right;width:21%;">Dwell &amp; Activity</th>
+            <th style="text-align:right;width:14%;">Sentiment</th>
           </tr>
         </thead>
         <tbody>{''.join(t1_rows)}</tbody>
@@ -1885,13 +2547,11 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>Google Cloud Service / API</th>
-            <th style="text-align:right;">Active Dwell</th>
-            <th style="text-align:right;">Clicks</th>
-            <th style="text-align:right;">IDE Code Edits</th>
-            <th style="text-align:right;">Prompts</th>
-            <th style="text-align:right;">Sentiment</th>
+            <th style="width:9%;">#</th>
+            <th style="width:39%;">Google Cloud Service / API</th>
+            <th style="text-align:right;width:19%;">Dwell &amp; Clicks</th>
+            <th style="text-align:right;width:19%;">Edits &amp; Prompts</th>
+            <th style="text-align:right;width:14%;">Sentiment</th>
           </tr>
         </thead>
         <tbody>{''.join(t2_rows)}</tbody>
@@ -1899,28 +2559,28 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     </div>
   </div>
 
-  <!-- TABLE 3: PER-CUSTOMER EXECUTIVE DOSSIER -->
-  <div class="titanium-slab panel">
+  <!-- TABLE 3: PER-CUSTOMER EXECUTIVE DOSSIER, ASYNC LINKEDIN/GOOGLE SEARCH GROUNDING & FOLLOW-UP DRAFTER -->
+  <div id="sec-users" class="titanium-slab panel">
     <div class="panel-hdr">
       <div>
-        <div class="panel-title">Table 3 · Per-Customer Executive Journey, Dwell Time &amp; Buying-Signal Dossier (@rocket.com)</div>
-        <div class="panel-sub">Individual participant breakdown showing time invested, favorite demo, favorite GCP service, and sentiment tier</div>
+        <div class="panel-title">Table 3 · Per-Customer Executive Dossier, Async LinkedIn/Search Grounding &amp; 1-Click Follow-Up Drafter</div>
+        <div class="panel-sub">0ms background daemon resolves public LinkedIn role, Google Search bio, GCP Admin status, and tailored follow-ups per work email</div>
       </div>
-      <span class="pill pill-bull mono">Work Email Identity Gate</span>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div style="display:inline-flex;background:rgba(5,8,13,0.9);border:1px solid rgba(255,255,255,0.16);border-radius:999px;padding:3px;">
+          <button type="button" id="btn-fup-exec" onclick="setFollowupMode('exec')" class="mono" style="cursor:pointer;border:none;border-radius:999px;padding:5px 11px;font-size:10.5px;font-weight:800;background:#00C805;color:#000000;transition:all 0.15s ease;">● Executive GCP Follow-Up</button>
+          <button type="button" id="btn-fup-herb" onclick="setFollowupMode('herbalife')" class="mono" style="cursor:pointer;border:none;border-radius:999px;padding:5px 11px;font-size:10.5px;font-weight:800;background:transparent;color:#94A3B8;transition:all 0.15s ease;">● Luis's Herbalife Pitch Mode</button>
+        </div>
+        <button type="button" onclick="triggerBulkEnrichment(this)" class="mono" style="cursor:pointer;background:rgba(0,229,255,0.14);border:1px solid rgba(0,229,255,0.45);color:#00E5FF;font-size:10.5px;font-weight:800;padding:6px 12px;border-radius:999px;">⚡ Async Enrich All (LinkedIn + Search)</button>
+      </div>
     </div>
     <table>
       <thead>
         <tr>
-          <th>Customer Work Email</th>
-          <th>Inferred Rocket Team</th>
-          <th style="text-align:right;">Active Dwell</th>
-          <th>Most Explored Demo / Studio</th>
-          <th>Top GCP Service Affinity</th>
-          <th style="text-align:right;">Clicks</th>
-          <th style="text-align:right;">IDE Runs</th>
-          <th style="text-align:right;">Questions</th>
-          <th>Customer Sentiment</th>
-          <th>Last Active</th>
+          <th style="width:32%;">Executive Identity, LinkedIn Role &amp; Grounding</th>
+          <th style="width:22%;">Top Demo &amp; GCP Stack</th>
+          <th style="text-align:right;width:16%;">Dwell &amp; Sentiment</th>
+          <th style="width:30%;">Personalized Follow-Up Item (1-Click Copy)</th>
         </tr>
       </thead>
       <tbody>{''.join(t3_rows)}</tbody>
@@ -1928,7 +2588,7 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
   </div>
 
   <!-- TABLE 4: LIVE QUESTIONS, SENTIMENT & CE NEXT-BEST-ACTION -->
-  <div class="titanium-slab panel">
+  <div id="sec-feed" class="titanium-slab panel">
     <div class="panel-hdr">
       <div>
         <div class="panel-title">Table 4 · Customer Questions, Prompts &amp; Real-Time Sentiment Intelligence Feed</div>
@@ -1939,14 +2599,9 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     <table>
       <thead>
         <tr>
-          <th>Time</th>
-          <th>Customer Email</th>
-          <th>Channel</th>
-          <th>Exact Question / Prompt / Code Modification</th>
-          <th>Detected GCP Service</th>
-          <th>Sentiment Polarity</th>
-          <th>Maturity &amp; Intent</th>
-          <th>Recommended CE Follow-Up</th>
+          <th style="width:23%;">Customer, Channel &amp; Time</th>
+          <th style="width:47%;">Exact Question / Code Modification &amp; GCP Stack</th>
+          <th style="width:30%;">Sentiment Polarity &amp; Recommended CE Action</th>
         </tr>
       </thead>
       <tbody>{''.join(t4_rows)}</tbody>
@@ -1958,21 +2613,17 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     <div class="titanium-slab panel" style="margin-bottom:0;">
       <div class="panel-hdr">
         <div>
-          <div class="panel-title">Table 5 · Glossary Mini-IDE Sandbox Code Modification Log</div>
-          <div class="panel-sub">Tracks how engineers modify Python ADK / BigQuery SQL / Model Armor code in real time</div>
+          <div class="panel-title">Table 5 · Isolated Mini-IDE Sandbox Runs (Ephemeral Vertex AI Invocations)</div>
+          <div class="panel-sub">Isolated memory-only runs against Vertex AI Gemini models — zero host filesystem or UI function mutation</div>
         </div>
-        <span class="pill pill-bull mono">Live Sandbox Telemetry</span>
+        <span class="pill pill-bull mono">🔒 Isolated Sandbox</span>
       </div>
       <table>
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Builder Email</th>
-            <th>Agent Platform Concept</th>
-            <th>Code State</th>
-            <th>Model &amp; Temp</th>
-            <th>What They Tested / Modified</th>
-            <th style="text-align:right;">Latency</th>
+            <th style="width:36%;">Builder, Concept &amp; State</th>
+            <th style="width:48%;">Ephemeral Parameters &amp; Model</th>
+            <th style="text-align:right;width:16%;">Inference Latency</th>
           </tr>
         </thead>
         <tbody>{''.join(t5_rows)}</tbody>
@@ -1991,12 +2642,9 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       <table>
         <thead>
           <tr>
-            <th>Time</th>
-            <th>Customer Email</th>
-            <th>Signal Type</th>
-            <th>Surface / Demo</th>
-            <th>Diagnostic Detail</th>
-            <th>Resolution Status</th>
+            <th style="width:36%;">Customer, Signal &amp; Time</th>
+            <th style="width:40%;">Surface &amp; Diagnostic Detail</th>
+            <th style="text-align:right;width:24%;">Resolution</th>
           </tr>
         </thead>
         <tbody>{''.join(t6_rows)}</tbody>
@@ -2004,24 +2652,39 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
     </div>
   </div>
 
+  <!-- PIXEL 11 PRO MOBILE BOTTOM NAVIGATION DOCK -->
+  <nav class="mobile-bottom-nav" aria-label="Mobile Quick Navigation">
+    <a href="#sec-kpis" class="active" onclick="setMobileNav(this)">● KPIs</a>
+    <a href="#sec-charts" onclick="setMobileNav(this)">📈 Charts</a>
+    <a href="#sec-users" onclick="setMobileNav(this)">👥 Users</a>
+    <a href="#sec-feed" onclick="setMobileNav(this)">💬 Prompts</a>
+    <button type="button" onclick="installPwaApp()" style="color:#00E5FF;">📲 App</button>
+  </nav>
+
   <!-- INTERACTIVE 3D TITANIUM TILT + ROBINHOOD SCRUBBER SCRIPT -->
   <script>
     (function() {{
-      // 1. Vision Pro Titanium 3D Perspective Tilt + Specular Glare Tracking
+      // 1. Vision Pro Titanium 3D Perspective Tilt (Compact KPI Cards Only) + Specular Glare Tracking on All Slabs
       var slabs = document.querySelectorAll('.titanium-slab');
       slabs.forEach(function(card) {{
+        var isLargePanel = card.classList.contains('panel') || card.classList.contains('hdr') || card.querySelector('table');
         card.addEventListener('mousemove', function(e) {{
           var rect = card.getBoundingClientRect();
           var x = e.clientX - rect.left;
           var y = e.clientY - rect.top;
           var px = (x / rect.width) * 100;
           var py = (y / rect.height) * 100;
-          var ry = ((x - rect.width / 2) / (rect.width / 2)) * 2.2;
-          var rx = -((y - rect.height / 2) / (rect.height / 2)) * 1.8;
           card.style.setProperty('--mx', px.toFixed(1) + '%');
           card.style.setProperty('--my', py.toFixed(1) + '%');
-          card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
-          card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+          if (!isLargePanel && rect.width < 420) {{
+            var ry = ((x - rect.width / 2) / (rect.width / 2)) * 0.75;
+            var rx = -((y - rect.height / 2) / (rect.height / 2)) * 0.65;
+            card.style.setProperty('--rx', rx.toFixed(2) + 'deg');
+            card.style.setProperty('--ry', ry.toFixed(2) + 'deg');
+          }} else {{
+            card.style.setProperty('--rx', '0deg');
+            card.style.setProperty('--ry', '0deg');
+          }}
         }});
         card.addEventListener('mouseleave', function() {{
           card.style.setProperty('--rx', '0deg');
@@ -2030,24 +2693,7 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       }});
 
       // 2. Robinhood Interactive Chart Scrubber & Timeframe Switcher
-      var TF_DATA = {{
-        '1H': {{
-          pts: [[0,165,'14.2m','+8.4%','50m ago'],[120,148,'16.8m','+11.2%','40m ago'],[240,132,'19.4m','+15.0%','30m ago'],[360,108,'22.1m','+19.6%','20m ago'],[480,82,'25.4m','+24.1%','10m ago'],[600,52,'28.9m','+29.5%','5m ago'],[720,28,'31.4 mins','+32.1%','LIVE 1H']],
-          cyan: 'M0,188 L120,176 L240,164 L360,148 L480,126 L600,98 L720,72'
-        }},
-        '6H': {{
-          pts: [[0,178,'38.0m','+14.0%','6h ago'],[120,156,'44.5m','+18.2%','5h ago'],[240,138,'51.2m','+21.8%','4h ago'],[360,112,'59.8m','+25.4%','3h ago'],[480,84,'68.4m','+29.0%','2h ago'],[600,48,'76.1m','+31.8%','1h ago'],[720,24,'82.6 mins','+33.5%','LIVE 6H']],
-          cyan: 'M0,192 L120,180 L240,165 L360,142 L480,118 L600,88 L720,62'
-        }},
-        '24H': {{
-          pts: [[0,184,'52.0m','+18.5%','24h ago'],[120,162,'61.4m','+21.0%','20h ago'],[240,140,'70.8m','+24.4%','16h ago'],[360,118,'79.2m','+27.1%','12h ago'],[480,86,'88.5m','+30.2%','8h ago'],[600,52,'96.4m','+32.6%','4h ago'],[720,22,'{summary["total_dwell_min"]} mins','+34.8%','LIVE 24H']],
-          cyan: 'M0,194 L120,182 L240,166 L360,144 L480,116 L600,84 L720,56'
-        }},
-        'ALL': {{
-          pts: [[0,182,'18.5m','+12.0%','OCT 16'],[120,152,'34.2m','+18.4%','OCT 17'],[240,130,'51.8m','+23.1%','OCT 18 AM'],[360,114,'68.4m','+26.8%','OCT 18 PM'],[480,88,'82.9m','+30.4%','OCT 19 AM'],[600,54,'95.2m','+32.9%','OCT 19 PM'],[720,22,'{summary["total_dwell_min"]} mins','+34.8%','LIVE NOW']],
-          cyan: 'M0,195 L120,178 L240,154 L360,138 L480,112 L600,84 L720,54'
-        }}
-      }};
+      var TF_DATA = {tf_data_json};
       var activeTf = 'ALL';
       var svgEl = document.getElementById('rh-main-chart-svg');
       var bullLine = document.getElementById('rh-bull-line');
@@ -2081,9 +2727,9 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
       }};
 
       if (svgEl) {{
-        svgEl.addEventListener('mousemove', function(ev) {{
+        function handleScrubX(clientX) {{
           var rect = svgEl.getBoundingClientRect();
-          var relX = Math.max(0, Math.min(720, ((ev.clientX - rect.left) / rect.width) * 720));
+          var relX = Math.max(0, Math.min(720, ((clientX - rect.left) / rect.width) * 720));
           var pts = (TF_DATA[activeTf] || TF_DATA['ALL']).pts;
           var closest = pts[0];
           var minDist = 9999;
@@ -2097,10 +2743,174 @@ def render_analytics_dashboard_html(auth_token: str = "") -> str:
           scrubDot.setAttribute('cy', closest[1]);
           priceEl.textContent = closest[2];
           deltaEl.innerHTML = '▲ ' + closest[3] + ' active velocity · <span>' + closest[4] + '</span>';
+        }}
+        svgEl.addEventListener('mousemove', function(ev) {{ handleScrubX(ev.clientX); }});
+        svgEl.addEventListener('touchmove', function(ev) {{
+          if (ev.touches && ev.touches[0]) {{ handleScrubX(ev.touches[0].clientX); }}
+        }}, {{ passive: true }});
+        svgEl.addEventListener('mouseleave', function() {{ renderTf(activeTf); }});
+      }}
+
+      // 3. Mobile Bottom Nav Active Pill
+      window.setMobileNav = function(el) {{
+        document.querySelectorAll('.mobile-bottom-nav a').forEach(function(a) {{ a.classList.remove('active'); }});
+        if (el) el.classList.add('active');
+      }};
+
+      // 3b. Executive GCP Follow-Up vs. Luis Lopez Herbalife Pitch Mode Toggle + 1-Click Copy + Live Async Enrichment
+      window.setFollowupMode = function(mode) {{
+        var btnExec = document.getElementById('btn-fup-exec');
+        var btnHerb = document.getElementById('btn-fup-herb');
+        var isHerb = (mode === 'herbalife');
+        if (btnExec && btnHerb) {{
+          btnExec.style.background = isHerb ? 'transparent' : '#00C805';
+          btnExec.style.color = isHerb ? '#94A3B8' : '#000000';
+          btnHerb.style.background = isHerb ? '#F59E0B' : 'transparent';
+          btnHerb.style.color = isHerb ? '#000000' : '#94A3B8';
+        }}
+        document.querySelectorAll('.followup-text-box').forEach(function(box) {{
+          var txt = isHerb ? box.getAttribute('data-herbalife') : box.getAttribute('data-exec');
+          if (txt) box.textContent = txt;
         }});
-        svgEl.addEventListener('mouseleave', function() {{
-          renderTf(activeTf);
+        document.querySelectorAll('.followup-mode-badge').forEach(function(b) {{
+          b.textContent = isHerb ? '★ LUIS HERBALIFE PITCH MODE' : '▲ EXECUTIVE GCP OUTREACH';
+          b.style.color = isHerb ? '#F59E0B' : '#00C805';
         }});
+      }};
+
+      window.copyFollowupMsg = function(boxId, btnEl) {{
+        var box = document.getElementById(boxId);
+        if (!box) return;
+        var txt = box.textContent || '';
+        if (navigator.clipboard && navigator.clipboard.writeText) {{
+          navigator.clipboard.writeText(txt);
+        }}
+        if (btnEl) {{
+          var orig = btnEl.textContent;
+          btnEl.textContent = '✓ Copied!';
+          btnEl.style.background = '#00C805';
+          btnEl.style.color = '#000000';
+          setTimeout(function() {{
+            btnEl.textContent = orig;
+            btnEl.style.background = 'rgba(0,200,5,0.18)';
+            btnEl.style.color = '#00C805';
+          }}, 1600);
+        }}
+      }};
+
+      window.triggerUserEnrich = function(email, btnEl) {{
+        if (btnEl) {{
+          btnEl.textContent = '⟳ Grounding LinkedIn + Search...';
+          btnEl.style.color = '#00E5FF';
+        }}
+        fetch('/api/admin/enrich-user', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ email: email, force: true, synchronous: true }})
+        }}).then(function(r) {{ return r.json(); }}).then(function() {{
+          if (btnEl) btnEl.textContent = '✓ Enriched! Reloading...';
+          setTimeout(function() {{ window.location.reload(); }}, 500);
+        }}).catch(function() {{
+          if (btnEl) btnEl.textContent = '↻ Re-Enrich';
+        }});
+      }};
+
+      window.triggerBulkEnrichment = function(btnEl) {{
+        if (btnEl) {{
+          btnEl.textContent = '⟳ Queued Async LinkedIn + Google Search Checks...';
+        }}
+        fetch('/api/admin/enrich-user', {{
+          method: 'POST',
+          headers: {{ 'Content-Type': 'application/json' }},
+          body: JSON.stringify({{ force: true, synchronous: false }})
+        }}).then(function(r) {{ return r.json(); }}).then(function(d) {{
+          if (btnEl) btnEl.textContent = '✓ Enriched ' + (d.count || 6) + ' Profiles (Refreshing...)';
+          setTimeout(function() {{ window.location.reload(); }}, 1800);
+        }}).catch(function() {{
+          if (btnEl) btnEl.textContent = '⚡ Async Enrich All (LinkedIn + Search)';
+        }});
+      }};
+
+      // 4. Pixel 11 Pro PWA Service Worker & Dedicated Subdomain Install Engine (Bypasses Root App Origin Collision)
+      var deferredPrompt = null;
+      var installBtn = document.getElementById('pwa-install-btn');
+      var adminSsoToken = {json.dumps(auth_token or "")};
+      var isDedicatedHost = window.location.hostname.indexOf('telemetry---') === 0;
+      var dedicatedOriginUrl = 'https://telemetry---rocket-hackathon-portal-oyntfgdwsq-uc.a.run.app/admin-telemetry' + (adminSsoToken ? ('?adm_sso=' + encodeURIComponent(adminSsoToken) + '&install=1') : '?install=1');
+
+      if ('serviceWorker' in navigator) {{
+        navigator.serviceWorker.register('/telemetry-sw.js', {{ scope: isDedicatedHost ? '/' : '/admin-telemetry' }}).catch(function() {{
+          navigator.serviceWorker.register('/telemetry-sw.js').catch(function() {{}});
+        }});
+      }}
+      window.addEventListener('beforeinstallprompt', function(e) {{
+        e.preventDefault();
+        deferredPrompt = e;
+        if (installBtn) {{
+          installBtn.style.display = 'inline-flex';
+          installBtn.innerHTML = '📲 Install CE Telemetry App (Ready)';
+        }}
+        if (window.location.search.indexOf('install=1') !== -1) {{
+          showPwaInstallModal();
+        }}
+      }});
+
+      function showPwaInstallModal() {{
+        var existing = document.getElementById('ce-pwa-install-modal');
+        if (existing) existing.remove();
+        var modal = document.createElement('div');
+        modal.id = 'ce-pwa-install-modal';
+        modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;padding:18px;';
+        var cardHtml = '';
+        if (deferredPrompt) {{
+          cardHtml = '<div style="font-size:11px;font-weight:800;color:#00C805;font-family:JetBrains Mono,monospace;margin-bottom:6px;">● NATIVE PIXEL 11 PRO WEBAPK READY</div>' +
+            '<h3 style="font-size:19px;font-weight:800;color:#F8FAFC;margin-bottom:8px;">Install CE Telemetry OLED App</h3>' +
+            '<p style="font-size:12.5px;color:#94A3B8;line-height:1.5;margin-bottom:18px;">Tap below to install <strong>CE Telemetry</strong> as a standalone full-screen OLED app on your Pixel 11 Pro home screen.</p>' +
+            '<button id="btn-trigger-native-pwa" style="width:100%;padding:13px 16px;border:none;border-radius:999px;background:linear-gradient(135deg,#00C805,#00E676);color:#000;font-weight:800;font-size:13.5px;cursor:pointer;margin-bottom:10px;">📲 Install Now on Pixel 11 Pro</button>';
+        }} else if (!isDedicatedHost) {{
+          cardHtml = '<div style="font-size:11px;font-weight:800;color:#00E5FF;font-family:JetBrains Mono,monospace;margin-bottom:6px;">● ROOT DOMAIN ALREADY INSTALLED ON PIXEL</div>' +
+            '<h3 style="font-size:18px;font-weight:800;color:#F8FAFC;margin-bottom:8px;">Install via Dedicated Telemetry Subdomain</h3>' +
+            '<p style="font-size:12.5px;color:#CBD5E1;line-height:1.55;margin-bottom:14px;">Because you already installed the main <strong>Rocket Portal</strong> from <code style="color:#00E5FF;">rocket-hackathon-portal-...</code>, Android Chrome blocks a second app install on the same domain.</p>' +
+            '<p style="font-size:12px;color:#94A3B8;line-height:1.5;margin-bottom:18px;">We provisioned a dedicated Cloud Run origin (<code style="color:#00C805;">telemetry---rocket-hackathon-portal-...</code>) on the <strong>exact same live container</strong>. Tap below to hop over with 1-click Auto-Login and install <strong>CE Telemetry</strong> as its own separate Pixel app!</p>' +
+            '<a href="' + dedicatedOriginUrl + '" style="display:block;text-align:center;text-decoration:none;width:100%;padding:13px 16px;border-radius:999px;background:linear-gradient(135deg,#00C805,#00E676);color:#000;font-weight:800;font-size:13px;box-shadow:0 8px 25px rgba(0,200,5,0.35);margin-bottom:10px;">🚀 Open Dedicated App Domain &amp; Install ↗</a>';
+        }} else {{
+          cardHtml = '<div style="font-size:11px;font-weight:800;color:#00C805;font-family:JetBrains Mono,monospace;margin-bottom:6px;">● DEDICATED TELEMETRY ORIGIN ACTIVE</div>' +
+            '<h3 style="font-size:18px;font-weight:800;color:#F8FAFC;margin-bottom:8px;"> Ready to Install on Pixel 11 Pro</h3>' +
+            '<p style="font-size:12.5px;color:#CBD5E1;line-height:1.55;margin-bottom:16px;">You are on the isolated <code style="color:#00C805;">telemetry---</code> app origin (zero conflict with your main Rocket Portal app):</p>' +
+            '<div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:12px 14px;font-size:12px;color:#E2E8F0;line-height:1.6;margin-bottom:16px;">' +
+            '1. Tap the Chrome <strong>⋮</strong> menu (top-right corner)<br>' +
+            '2. Tap <strong>Add to Home screen</strong> → <strong>Install</strong><br>' +
+            '3. Launch <strong>CE Telemetry</strong> from your Pixel home screen!' +
+            '</div>';
+        }}
+        modal.innerHTML = '<div style="width:100%;max-width:430px;background:linear-gradient(155deg,#141B26 0%,#090D14 100%);border:1.5px solid rgba(0,200,5,0.45);border-radius:24px;padding:24px 22px;box-shadow:0 30px 80px rgba(0,0,0,0.9);">' +
+          cardHtml +
+          '<button id="btn-close-pwa-modal" style="width:100%;padding:10px;border:1px solid rgba(255,255,255,0.16);border-radius:999px;background:transparent;color:#94A3B8;font-weight:700;font-size:12px;cursor:pointer;">Close</button>' +
+          '</div>';
+        document.body.appendChild(modal);
+        var btnClose = document.getElementById('btn-close-pwa-modal');
+        if (btnClose) btnClose.onclick = function() {{ modal.remove(); }};
+        modal.onclick = function(ev) {{ if (ev.target === modal) modal.remove(); }};
+        var btnTrig = document.getElementById('btn-trigger-native-pwa');
+        if (btnTrig && deferredPrompt) {{
+          btnTrig.onclick = function() {{
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function() {{ deferredPrompt = null; modal.remove(); }});
+          }};
+        }}
+      }}
+
+      window.installPwaApp = function() {{
+        if (deferredPrompt) {{
+          deferredPrompt.prompt();
+          deferredPrompt.userChoice.then(function() {{ deferredPrompt = null; }});
+        }} else {{
+          showPwaInstallModal();
+        }}
+      }};
+
+      if (window.location.search.indexOf('install=1') !== -1) {{
+        setTimeout(function() {{ showPwaInstallModal(); }}, 600);
       }}
     }})();
   </script>
