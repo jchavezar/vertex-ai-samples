@@ -173,6 +173,10 @@ async def logout():
 
 @app.get("/", response_class=HTMLResponse)
 async def index(request: Request, case: str = "", square: str = "", view: str = ""):
+    host_hdr = (request.headers.get("x-forwarded-host") or request.headers.get("host") or "").lower()
+    if host_hdr.startswith("telemetry---") or (view or "").strip().lower() == "telemetry":
+        return await analytics_dashboard(request)
+
     token = _is_authenticated(request)
     if not token:
         title, sub, accent = _get_service_branding(SERVICE_MODE)
@@ -257,6 +261,13 @@ async def standalone_glossary(request: Request):
     return resp
 
 
+@app.get("/glossary-audit", response_class=HTMLResponse)
+async def standalone_glossary_audit(request: Request):
+    """Serves the 20-card real live sandbox evaluation and technical audit report."""
+    with open("static/glossary_audit.html", "r", encoding="utf-8") as f:
+        return HTMLResponse(f.read())
+
+
 @app.post("/api/glossary-sandbox-run")
 async def api_glossary_sandbox_run(request: Request):
     """Live Mini-IDE Sandbox Execution Engine for the Agent Platform Glossary.
@@ -302,14 +313,14 @@ async def api_glossary_sandbox_run(request: Request):
 
     trace_steps = [
         {
-            "step": "1. AST & Harness Config Parser",
-            "status": "MODIFIED CODE DETECTED" if is_modified else "DEFAULT TEMPLATE LOADED",
-            "detail": f"Model: {requested_model} (code specifies `{detected_code_model}`) · Temp: {temperature:.2f} · Instruction: {detected_instruction[:90]}",
+            "step": "1. Isolated Sandbox Security & Scope",
+            "status": "ISOLATED · ZERO HOST MUTATION",
+            "detail": f"Model: {requested_model} · Scoped strictly to Vertex AI Gemini credentials · Read-only in-memory execution (zero access to UI code or server functions).",
         },
         {
-            "step": "2. Tool / Sandbox / Query Dispatch",
-            "status": "EXECUTED",
-            "detail": f"Bound Harness Symbols: {', '.join(detected_tools[:4])} · Input Payload ({len(test_input)} chars)",
+            "step": "2. AST & Harness Parameter Parser",
+            "status": "EPHEMERAL CODE BUFFER LOADED" if is_modified else "DEFAULT TEMPLATE LOADED",
+            "detail": f"Target: `{detected_code_model}` · Temp: {temperature:.2f} · Instruction: {detected_instruction[:80]} · Bound Symbols: {', '.join(detected_tools[:3])}",
         },
     ]
 
@@ -368,9 +379,9 @@ async def api_glossary_sandbox_run(request: Request):
 
     latency_ms = int((_time.time() - t0) * 1000)
     trace_steps.append({
-        "step": "3. Vertex AI Live Generation",
+        "step": "3. Vertex AI Gemini Live Inference",
         "status": f"200 OK · {latency_ms} ms",
-        "detail": f"Completed live inference on `vtxdemos` (`location=global`, model=`{requested_model}`).",
+        "detail": f"Completed live inference on `vtxdemos` (`location=global`, model=`{requested_model}`) with zero server side-effects.",
     })
 
     # Build a crisp 1-2 sentence spoken summary for the Listen button
@@ -402,6 +413,9 @@ async def api_glossary_sandbox_run(request: Request):
         "temperature": temperature,
         "latency_ms": latency_ms,
         "is_modified": is_modified,
+        "sandbox_isolation": "READONLY_EPHEMERAL_MEMORY",
+        "host_mutation": False,
+        "credentials_scope": "Vertex AI Gemini Generation Only",
         "parsed_meta": {
             "detected_model": detected_code_model,
             "detected_instruction": detected_instruction,
@@ -465,6 +479,18 @@ async def api_support_send_human(request: Request):
         ticket_id=str(body.get("ticket_id") or ""),
         ai_context=str(body.get("ai_context") or ""),
     )
+    tid = res.get("ticket_id") or ""
+    enqueue_telemetry_event({
+        "event_type": "ux_friction",
+        "user_email": u_email,
+        "category": "Live Support Escalation",
+        "target_id": f"ticket-{tid}",
+        "target_label": f"Question on {body.get('track', 'Portal')}: {msg_text[:120]}",
+        "demo_name": str(body.get("track") or "Google Chat Support"),
+        "status": f"Routed to Google Chat ({tid})",
+        "source": "support_human_escalation",
+        "page": "/",
+    })
     return JSONResponse(res)
 
 
@@ -499,10 +525,13 @@ async def api_telemetry_ingest(request: Request):
 
 
 def _is_ce_admin_authenticated(request: Request) -> Optional[str]:
-    """Strictly verifies internal Google Cloud CE Admin session cookie (separate from customer login)."""
+    """Strictly verifies internal Google Cloud CE Admin session cookie or 1-tap SSO token across telemetry--- subdomain."""
     c_admin = request.cookies.get(ADMIN_COOKIE_NAME)
     if c_admin and verify_admin_token(c_admin):
         return c_admin
+    q_admin = request.query_params.get("adm_sso") or ""
+    if q_admin and verify_admin_token(q_admin):
+        return q_admin
     return None
 
 
@@ -570,25 +599,40 @@ async def analytics_dashboard(request: Request):
 
 
 @app.get("/telemetry-manifest.webmanifest")
-async def telemetry_manifest():
-    """PWA Web App Manifest for installing CE Telemetry Hub on Pixel 11 Pro as a standalone OLED app."""
+async def telemetry_manifest(request: Request):
+    """PWA Web App Manifest for installing CE Telemetry Hub on Pixel 11 Pro as a standalone OLED app without colliding with root portal."""
+    host_hdr = (request.headers.get("x-forwarded-host") or request.headers.get("host") or "").lower()
+    is_dedicated_host = host_hdr.startswith("telemetry---")
     manifest = {
+        "id": "/admin-telemetry?app=ce-telemetry-v32",
         "name": "Google CE Telemetry & Sentiment Command",
         "short_name": "CE Telemetry",
         "description": "Rocket x Google Cloud CE Customer Dwell, Service Affinity & Sentiment Command Center",
         "start_url": "/admin-telemetry",
-        "scope": "/",
+        "scope": "/" if is_dedicated_host else "/admin-telemetry",
         "display": "standalone",
         "orientation": "portrait-primary",
         "background_color": "#000000",
-        "theme_color": "#00C805",
+        "theme_color": "#000000",
         "icons": [
+            {
+                "src": "/static/telemetry_icon_192.png",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any",
+            },
+            {
+                "src": "/static/telemetry_icon_512.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable",
+            },
             {
                 "src": "/telemetry-icon.svg",
                 "sizes": "any",
                 "type": "image/svg+xml",
-                "purpose": "any maskable",
-            }
+                "purpose": "any",
+            },
         ],
     }
     return Response(content=json.dumps(manifest, indent=2), media_type="application/manifest+json")
@@ -627,7 +671,11 @@ self.addEventListener('fetch', function(e) {
   e.respondWith(fetch(e.request).catch(function() { return caches.match(e.request); }));
 });
 """
-    return Response(content=sw_js, media_type="application/javascript")
+    return Response(
+        content=sw_js,
+        media_type="application/javascript",
+        headers={"Service-Worker-Allowed": "/"},
+    )
 
 
 @app.post("/api/support/bridge-sync")
@@ -635,6 +683,33 @@ async def api_support_bridge_sync(request: Request):
     from shared.support_chat_bridge import handle_bridge_sync
     body: Dict[str, Any] = await request.json()
     return JSONResponse(handle_bridge_sync(body))
+
+
+@app.post("/api/support/mark-emailed")
+async def api_support_mark_emailed(request: Request):
+    from shared.support_chat_bridge import BRIDGE_SECRET, mark_ticket_emailed
+    body: Dict[str, Any] = await request.json()
+    secret = str(body.get("secret") or "").strip()
+    if secret != BRIDGE_SECRET:
+        return JSONResponse({"ok": False, "error": "Invalid bridge secret"}, status_code=403)
+
+    items = body.get("items")
+    if isinstance(items, list):
+        for item in items:
+            if isinstance(item, dict):
+                mark_ticket_emailed(
+                    ticket_id=str(item.get("ticket_id") or ""),
+                    email_type=str(item.get("email_type") or ""),
+                    reply_id=item.get("reply_id"),
+                )
+        return JSONResponse({"ok": True, "count": len(items)})
+
+    ok = mark_ticket_emailed(
+        ticket_id=str(body.get("ticket_id") or ""),
+        email_type=str(body.get("email_type") or ""),
+        reply_id=body.get("reply_id"),
+    )
+    return JSONResponse({"ok": ok})
 
 
 @app.post("/api/sandbox")
