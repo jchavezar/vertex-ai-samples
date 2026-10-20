@@ -367,6 +367,54 @@ async def api_glossary_sandbox_run(request: Request):
     })
 
 
+@app.post("/api/support/ask-ai")
+async def api_support_ask_ai(request: Request):
+    token = _is_authenticated(request)
+    if not token:
+        return JSONResponse({"ok": False, "error": "Unauthorized"}, status_code=401)
+    from shared.support_chat_bridge import answer_support_question_with_ai
+    body: Dict[str, Any] = await request.json()
+    res = answer_support_question_with_ai(
+        question=str(body.get("question") or ""),
+        history=body.get("history") if isinstance(body.get("history"), list) else None,
+    )
+    return JSONResponse(res)
+
+
+@app.post("/api/support/send-human")
+async def api_support_send_human(request: Request):
+    token = _is_authenticated(request)
+    if not token:
+        return JSONResponse({"ok": False, "error": "Unauthorized"}, status_code=401)
+    from shared.support_chat_bridge import create_or_append_human_ticket
+    body: Dict[str, Any] = await request.json()
+    res = create_or_append_human_ticket(
+        user_name=str(body.get("user_name") or "Rocket Participant"),
+        user_email=str(body.get("user_email") or "participant@rocket.com"),
+        track=str(body.get("track") or "Rocket Hackathon Portal"),
+        message_text=str(body.get("message") or ""),
+        ticket_id=str(body.get("ticket_id") or ""),
+        ai_context=str(body.get("ai_context") or ""),
+    )
+    return JSONResponse(res)
+
+
+@app.get("/api/support/ticket/{ticket_id}")
+async def api_support_ticket_status(request: Request, ticket_id: str):
+    token = _is_authenticated(request)
+    if not token:
+        return JSONResponse({"ok": False, "error": "Unauthorized"}, status_code=401)
+    from shared.support_chat_bridge import get_ticket_status
+    return JSONResponse(get_ticket_status(ticket_id))
+
+
+@app.post("/api/support/bridge-sync")
+async def api_support_bridge_sync(request: Request):
+    from shared.support_chat_bridge import handle_bridge_sync
+    body: Dict[str, Any] = await request.json()
+    return JSONResponse(handle_bridge_sync(body))
+
+
 @app.post("/api/sandbox")
 async def api_sandbox(request: Request):
     token = _is_authenticated(request)
