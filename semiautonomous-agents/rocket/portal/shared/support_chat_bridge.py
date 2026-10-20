@@ -240,7 +240,7 @@ def answer_support_question_with_ai(question: str, history: Optional[List[Dict[s
             config=types.GenerateContentConfig(
                 system_instruction=sys_instruction,
                 temperature=0.25,
-                max_output_tokens=420,
+                max_output_tokens=2048,
             ),
         )
         answer_text = (resp.text or "").strip()

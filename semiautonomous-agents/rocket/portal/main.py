@@ -46,6 +46,17 @@ from shared.portal_ui import render_docs_page_html, render_portal_html
 from shared.glossary_launchpad_ui import render_standalone_glossary_page_html
 from shared.am3_bento_ui import render_am3_bento_cockpit_html
 from shared.standalone_uis import render_standalone_square_ui
+from shared.async_telemetry import (
+    ADMIN_COOKIE_NAME,
+    check_admin_credentials,
+    enqueue_telemetry_batch,
+    enqueue_telemetry_event,
+    generate_admin_token,
+    get_telemetry_summary,
+    render_admin_login_html,
+    render_analytics_dashboard_html,
+    verify_admin_token,
+)
 from shared.astra_intelligence import (
     BUILTIN_AVATAR_NAMES,
     BUILTIN_LIVE_AVATARS,
@@ -116,17 +127,34 @@ async def healthz():
     return {"status": "ok", "service_mode": SERVICE_MODE, "models": ["gemini-4-argon", "gemini-3.8-flash", "gemini-live-2.5-flash-native-audio"]}
 
 
+def _get_request_email(request: Request, explicit_email: str = "") -> str:
+    e = (explicit_email or request.cookies.get("rocket_user_email") or "").strip().lower()
+    return e if e and "@" in e else "anonymous@rocket.com"
+
+
 @app.post("/login")
 async def login_submit(
     request: Request,
+    user_email: str = Form(""),
     username: str = Form(""),
     password: str = Form(""),
     next: str = Form("/"),
 ):
     if check_credentials(username, password):
         token = generate_auth_token("rocket")
+        clean_email = (user_email or "").strip().lower()
         resp = RedirectResponse(url=next or "/", status_code=303)
         resp.set_cookie(key=COOKIE_NAME, value=token, httponly=True, max_age=86400 * 7, samesite="lax")
+        if clean_email and "@" in clean_email:
+            resp.set_cookie(key="rocket_user_email", value=clean_email, httponly=False, max_age=86400 * 14, samesite="lax")
+            enqueue_telemetry_event({
+                "event_type": "login",
+                "user_email": clean_email,
+                "category": "Authentication",
+                "target_id": "login-form",
+                "target_label": f"Login: {clean_email}",
+                "page": next or "/",
+            })
         return resp
     title, sub, accent = _get_service_branding(SERVICE_MODE)
     return HTMLResponse(
@@ -316,7 +344,7 @@ async def api_glossary_sandbox_run(request: Request):
             config=types.GenerateContentConfig(
                 system_instruction=sys_prompt,
                 temperature=temperature,
-                max_output_tokens=700,
+                max_output_tokens=2048,
             ),
         )
         output_text = (resp.text or "").strip()
@@ -348,6 +376,23 @@ async def api_glossary_sandbox_run(request: Request):
     clean_lines = [ln.strip() for ln in output_text.splitlines() if ln.strip() and not ln.strip().startswith(("{", "}", "[", "```"))]
     spoken_summary = " ".join(clean_lines[-2:])[:280] if clean_lines else f"Sandbox execution for {term_title} completed in {latency_ms} milliseconds."
 
+    enqueue_telemetry_event({
+        "event_type": "question",
+        "user_email": _get_request_email(request, str(body.get("user_email") or "")),
+        "category": "Glossary Mini-IDE Sandbox",
+        "target_id": term_id,
+        "target_label": f"Mini-IDE Run: {term_title} ({'Modified' if is_modified else 'Default'})",
+        "demo_name": f"Glossary Mini-IDE ({term_title})",
+        "term_title": term_title,
+        "model": requested_model,
+        "temperature": temperature,
+        "is_modified": is_modified,
+        "latency_ms": latency_ms,
+        "question_text": f"[{term_title}] {test_input}",
+        "source": "sandbox_ide",
+        "page": "/glossary",
+    })
+
     return JSONResponse({
         "ok": True,
         "term_id": term_id,
@@ -374,8 +419,19 @@ async def api_support_ask_ai(request: Request):
         return JSONResponse({"ok": False, "error": "Unauthorized"}, status_code=401)
     from shared.support_chat_bridge import answer_support_question_with_ai
     body: Dict[str, Any] = await request.json()
+    q_text = str(body.get("question") or "").strip()
+    enqueue_telemetry_event({
+        "event_type": "question",
+        "user_email": _get_request_email(request, str(body.get("user_email") or "")),
+        "category": "Support AI Concierge",
+        "target_id": "support-ask-ai",
+        "target_label": "Support AI Question",
+        "question_text": q_text,
+        "source": "support_ai",
+        "page": "/",
+    })
     res = answer_support_question_with_ai(
-        question=str(body.get("question") or ""),
+        question=q_text,
         history=body.get("history") if isinstance(body.get("history"), list) else None,
     )
     return JSONResponse(res)
@@ -388,11 +444,23 @@ async def api_support_send_human(request: Request):
         return JSONResponse({"ok": False, "error": "Unauthorized"}, status_code=401)
     from shared.support_chat_bridge import create_or_append_human_ticket
     body: Dict[str, Any] = await request.json()
+    u_email = _get_request_email(request, str(body.get("user_email") or ""))
+    msg_text = str(body.get("message") or "").strip()
+    enqueue_telemetry_event({
+        "event_type": "question",
+        "user_email": u_email,
+        "category": "Live Google Chat Support",
+        "target_id": "support-send-human",
+        "target_label": f"Human Support Ticket ({u_email})",
+        "question_text": msg_text,
+        "source": "support_human_gchat",
+        "page": "/",
+    })
     res = create_or_append_human_ticket(
         user_name=str(body.get("user_name") or "Rocket Participant"),
-        user_email=str(body.get("user_email") or "participant@rocket.com"),
+        user_email=u_email,
         track=str(body.get("track") or "Rocket Hackathon Portal"),
-        message_text=str(body.get("message") or ""),
+        message_text=msg_text,
         ticket_id=str(body.get("ticket_id") or ""),
         ai_context=str(body.get("ai_context") or ""),
     )
@@ -406,6 +474,85 @@ async def api_support_ticket_status(request: Request, ticket_id: str):
         return JSONResponse({"ok": False, "error": "Unauthorized"}, status_code=401)
     from shared.support_chat_bridge import get_ticket_status
     return JSONResponse(get_ticket_status(ticket_id))
+
+
+@app.post("/api/telemetry/ingest")
+async def api_telemetry_ingest(request: Request):
+    """Non-blocking (< 0.05ms) telemetry ingestion endpoint for sendBeacon & client events."""
+    try:
+        raw_bytes = await request.body()
+        body = json.loads(raw_bytes.decode("utf-8")) if raw_bytes else {}
+    except Exception:
+        body = {}
+    fallback_email = _get_request_email(request, str(body.get("user_email") or ""))
+    events = body.get("events")
+    if isinstance(events, list):
+        count = enqueue_telemetry_batch(events, fallback_email=fallback_email)
+    elif isinstance(body, dict) and body.get("event_type"):
+        body.setdefault("user_email", fallback_email)
+        enqueue_telemetry_event(body)
+        count = 1
+    else:
+        count = 0
+    return JSONResponse({"ok": True, "queued": count})
+
+
+def _is_ce_admin_authenticated(request: Request) -> Optional[str]:
+    """Strictly verifies internal Google Cloud CE Admin credentials (separate from customer login)."""
+    q_admin = request.query_params.get("admin_token")
+    if q_admin and verify_admin_token(q_admin):
+        return q_admin
+    c_admin = request.cookies.get(ADMIN_COOKIE_NAME)
+    if c_admin and verify_admin_token(c_admin):
+        return c_admin
+    return None
+
+
+@app.post("/admin-login")
+async def admin_login_submit(
+    username: str = Form(""),
+    password: str = Form(""),
+    next: str = Form("/admin-telemetry"),
+):
+    if check_admin_credentials(username, password):
+        adm_token = generate_admin_token(username.strip().lower())
+        resp = RedirectResponse(url=next or "/admin-telemetry", status_code=303)
+        resp.set_cookie(key=ADMIN_COOKIE_NAME, value=adm_token, httponly=True, max_age=86400 * 14, samesite="lax")
+        return resp
+    return HTMLResponse(
+        render_admin_login_html(
+            error_msg="Restricted Access: Invalid Google CE Admin credentials.",
+            next_url=next or "/admin-telemetry",
+        ),
+        status_code=401,
+    )
+
+
+@app.get("/admin-logout")
+async def admin_logout():
+    resp = RedirectResponse(url="/admin-telemetry", status_code=303)
+    resp.delete_cookie(ADMIN_COOKIE_NAME)
+    return resp
+
+
+@app.get("/api/telemetry/summary")
+async def api_telemetry_summary(request: Request):
+    adm_token = _is_ce_admin_authenticated(request)
+    if not adm_token:
+        return JSONResponse({"ok": False, "error": "Restricted to Google Cloud CE Admin"}, status_code=401)
+    return JSONResponse(get_telemetry_summary())
+
+
+@app.get("/admin-telemetry", response_class=HTMLResponse)
+@app.get("/analytics", response_class=HTMLResponse)
+async def analytics_dashboard(request: Request):
+    adm_token = _is_ce_admin_authenticated(request)
+    if not adm_token:
+        return HTMLResponse(render_admin_login_html(next_url=str(request.url.path)), status_code=401)
+    resp = HTMLResponse(render_analytics_dashboard_html(adm_token))
+    if request.cookies.get(ADMIN_COOKIE_NAME) != adm_token:
+        resp.set_cookie(key=ADMIN_COOKIE_NAME, value=adm_token, httponly=True, max_age=86400 * 14, samesite="lax")
+    return resp
 
 
 @app.post("/api/support/bridge-sync")
@@ -1194,8 +1341,19 @@ async def api_portal_copilot(request: Request):
         body = await request.json()
     except Exception:
         body = {}
+    q_text = str(body.get("question") or "").strip()
+    enqueue_telemetry_event({
+        "event_type": "question",
+        "user_email": _get_request_email(request, str(body.get("user_email") or "")),
+        "category": "Kira Portal Co-Pilot",
+        "target_id": "portal-copilot",
+        "target_label": f"Kira Co-Pilot Question ({body.get('avatar') or 'Kira'})",
+        "question_text": q_text,
+        "source": "kira_copilot",
+        "page": "/",
+    })
     res = await run_portal_copilot_query(
-        question=str(body.get("question") or ""),
+        question=q_text,
         avatar_name=str(body.get("avatar") or "Kira"),
     )
     return JSONResponse(res)

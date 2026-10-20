@@ -2629,6 +2629,7 @@ uvicorn app:app --host 0.0.0.0 --port 8080</pre>
   <script src="/static/portal_liquid_glass.js"></script>
   <script src="/static/glossary_launchpad.js"></script>
   <script src="/static/support_overlay.js"></script>
+  <script src="/static/portal_telemetry.js"></script>
 </body>
 </html>"""
 

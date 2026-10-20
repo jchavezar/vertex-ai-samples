@@ -1089,6 +1089,7 @@ def render_standalone_glossary_page_html(auth_token: str) -> str:
   <link rel="stylesheet" href="/static/support_overlay.css">
   <script src="/static/glossary_launchpad.js"></script>
   <script src="/static/support_overlay.js"></script>
+  <script src="/static/portal_telemetry.js"></script>
 </body>
 </html>
 """
