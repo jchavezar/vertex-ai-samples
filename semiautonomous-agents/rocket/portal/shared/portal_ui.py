@@ -2624,9 +2624,11 @@ uvicorn app:app --host 0.0.0.0 --port 8080</pre>
     window.PORTAL_AUTH_TOKEN = {json.dumps(auth_token)};
     window.PORTAL_SVG = {json.dumps(SVG_ICONS)};
   </script>
+  <link rel="stylesheet" href="/static/support_overlay.css">
   <script src="/static/live_session.js"></script>
   <script src="/static/portal_liquid_glass.js"></script>
   <script src="/static/glossary_launchpad.js"></script>
+  <script src="/static/support_overlay.js"></script>
 </body>
 </html>"""
 

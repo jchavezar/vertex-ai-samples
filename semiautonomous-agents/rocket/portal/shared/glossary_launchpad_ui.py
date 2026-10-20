@@ -1086,7 +1086,9 @@ def render_standalone_glossary_page_html(auth_token: str) -> str:
   <script>
     window.PORTAL_AUTH_TOKEN = {json.dumps(auth_token or NEXTGEN_TOKEN)};
   </script>
+  <link rel="stylesheet" href="/static/support_overlay.css">
   <script src="/static/glossary_launchpad.js"></script>
+  <script src="/static/support_overlay.js"></script>
 </body>
 </html>
 """
